@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ListTabbedPane.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.util</a> &gt; <span class="el_source">ListTabbedPane.java</span></div><h1>ListTabbedPane.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.util;
+
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
+/**
+ * Alternate tabbed pane implementation that uses a list control to render tab
+ * headers.
+ * 
+ * @author olitank
+ *
+ */
+@SuppressWarnings({ &quot;unchecked&quot;, &quot;rawtypes&quot; })
+public class ListTabbedPane extends JPanel {
+
+	public static void main(String[] args) {
+<span class="nc" id="L48">		final ListTabbedPane tabbedPane = new ListTabbedPane(JTabbedPane.TOP);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		for (int i = 0; i &lt; 20; i++) {</span>
+<span class="nc" id="L50">			tabbedPane.addTab(&quot;tab&quot; + i, new JTextArea(&quot;tab&quot; + i + &quot; OK&quot;));</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">			tabbedPane.setEnabledAt(i, (i % 2) == 1);</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">			tabbedPane.setIconAt(i, ((i % 2) == 1) ? SwingRendererUtils.UP_ICON : SwingRendererUtils.DOWN_ICON);</span>
+		}
+<span class="nc" id="L54">		tabbedPane.setPreferredSize(new Dimension(800, 600));</span>
+<span class="nc" id="L55">		new Thread() {</span>
+			@Override
+			public void run() {
+				try {
+<span class="nc" id="L59">					sleep(5000);</span>
+<span class="nc" id="L60">				} catch (InterruptedException e) {</span>
+<span class="nc" id="L61">					throw new AssertionError(e);</span>
+				}
+<span class="nc" id="L63">				SwingUtilities.invokeLater(new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="nc" id="L66">						tabbedPane.setTabPlacement(JTabbedPane.LEFT);</span>
+<span class="nc" id="L67">					}</span>
+				});
+<span class="nc" id="L69">			}</span>
+<span class="nc" id="L70">		}.start();</span>
+<span class="nc" id="L71">		JOptionPane.showMessageDialog(null, tabbedPane);</span>
+
+<span class="nc" id="L73">	}</span>
+
+	private static final long serialVersionUID = 1L;
+
+	protected DefaultListModel titleListModel;
+	protected JList titleListControl;
+	protected JScrollPane titleListControlWrapper;
+<span class="fc" id="L80">	protected int lastTitleListSelectionIndex = -1;</span>
+<span class="fc" id="L81">	protected boolean titleListSelectionHandlingEnabled = true;</span>
+	protected JPanel currentComponentContainer;
+	protected CardLayout cardLayout;
+<span class="fc" id="L84">	protected List&lt;ChangeListener&gt; changeListeners = new ArrayList&lt;ChangeListener&gt;();</span>
+<span class="fc" id="L85">	protected List&lt;String&gt; disabledCardNames = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L86">	protected Map&lt;Integer, Component&gt; componentByIndex = new HashMap&lt;Integer, Component&gt;();</span>
+<span class="fc" id="L87">	protected Map&lt;Integer, Icon&gt; iconByIndex = new HashMap&lt;Integer, Icon&gt;();</span>
+	protected int placement;
+
+<span class="fc" id="L90">	public ListTabbedPane(int placement) {</span>
+<span class="fc" id="L91">		this.placement = placement;</span>
+
+<span class="fc" id="L93">		titleListControl = createListControl();</span>
+<span class="fc" id="L94">		titleListControl.setModel(titleListModel = createListModel());</span>
+
+<span class="fc" id="L96">		currentComponentContainer = createCurrentComponentContainer();</span>
+<span class="fc" id="L97">		currentComponentContainer.add(createNullTabComponent(), getCardName(-1));</span>
+
+<span class="fc" id="L99">		layoutComponents(currentComponentContainer);</span>
+
+<span class="fc" id="L101">		refresh();</span>
+<span class="fc" id="L102">	}</span>
+
+	public int getTabPlacement() {
+<span class="fc" id="L105">		return placement;</span>
+	}
+
+	public void setTabPlacement(int placement) {
+<span class="fc" id="L109">		this.placement = placement;</span>
+<span class="fc" id="L110">		remove(titleListControlWrapper);</span>
+<span class="fc" id="L111">		layoutListControl();</span>
+<span class="fc" id="L112">		titleListControl.setCellRenderer(createListCellRenderer());</span>
+<span class="fc" id="L113">		validate();</span>
+<span class="fc" id="L114">	}</span>
+
+	protected void layoutComponents(JPanel currentComponentContainer) {
+<span class="fc" id="L117">		setLayout(new BorderLayout());</span>
+<span class="fc" id="L118">		add(currentComponentContainer, BorderLayout.CENTER);</span>
+<span class="fc" id="L119">		titleListControlWrapper = wrapListControl(titleListControl);</span>
+<span class="fc" id="L120">		layoutListControl();</span>
+<span class="fc" id="L121">	}</span>
+
+	protected void layoutListControl() {
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">		if (placement == JTabbedPane.LEFT) {</span>
+<span class="nc" id="L125">			add(titleListControlWrapper, BorderLayout.WEST);</span>
+<span class="nc" id="L126">			titleListControl.setLayoutOrientation(JList.VERTICAL);</span>
+<span class="nc" id="L127">			titleListControl.setVisibleRowCount(-1);</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">		} else if (placement == JTabbedPane.TOP) {</span>
+<span class="fc" id="L129">			add(titleListControlWrapper, BorderLayout.NORTH);</span>
+<span class="fc" id="L130">			titleListControl.setLayoutOrientation(JList.HORIZONTAL_WRAP);</span>
+<span class="fc" id="L131">			titleListControl.setVisibleRowCount(1);</span>
+<span class="fc" id="L132">		} else {</span>
+<span class="nc" id="L133">			throw getInvalidPlacementError();</span>
+		}
+<span class="fc" id="L135">	}</span>
+
+	protected IllegalArgumentException getInvalidPlacementError() {
+<span class="nc" id="L138">		return new IllegalArgumentException(&quot;Invalid placement. Expected: JTabbedPane.LEFT or JTabbedPane.TOP&quot;);</span>
+	}
+
+	protected JList createListControl() {
+<span class="fc" id="L142">		JList result = new JList() {</span>
+			private static final long serialVersionUID = 1L;
+
+			{
+<span class="fc" id="L146">				setSelectionMode(ListSelectionModel.SINGLE_SELECTION);</span>
+			}
+
+			@Override
+			public void setSelectionInterval(int anchor, int lead) {
+<span class="nc bnc" id="L151" title="All 2 branches missed.">				for (int index = anchor; index &lt;= lead; index++) {</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">					if (disabledCardNames.contains(getCardName(index))) {</span>
+<span class="nc" id="L153">						return;</span>
+					}
+				}
+<span class="nc" id="L156">				super.setSelectionInterval(anchor, lead);</span>
+<span class="nc" id="L157">			}</span>
+
+			private boolean isNotOnEmptySpaceAfterItems(MouseEvent e) {
+<span class="nc" id="L160">				int index = locationToIndex(e.getPoint());</span>
+<span class="nc bnc" id="L161" title="All 4 branches missed.">				return index &gt; -1 &amp;&amp; getCellBounds(index, index).contains(e.getPoint());</span>
+			}
+
+			@Override
+			protected void processMouseEvent(MouseEvent e) {
+<span class="nc bnc" id="L166" title="All 2 branches missed.">				if (isNotOnEmptySpaceAfterItems(e)) {</span>
+<span class="nc" id="L167">					super.processMouseEvent(e);</span>
+				}
+<span class="nc" id="L169">			}</span>
+
+			@Override
+			protected void processMouseMotionEvent(MouseEvent e) {
+<span class="nc bnc" id="L173" title="All 2 branches missed.">				if (isNotOnEmptySpaceAfterItems(e)) {</span>
+<span class="nc" id="L174">					super.processMouseMotionEvent(e);</span>
+				}
+<span class="nc" id="L176">			}</span>
+
+		};
+<span class="fc" id="L179">		result.setCellRenderer(createListCellRenderer());</span>
+<span class="fc" id="L180">		result.addListSelectionListener(new ListSelectionListener() {</span>
+
+			public void valueChanged(ListSelectionEvent e) {
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">				if (e.getValueIsAdjusting()) {</span>
+<span class="nc" id="L184">					return;</span>
+				}
+<span class="fc" id="L186">				onSelectionChange();</span>
+<span class="fc" id="L187">			}</span>
+		});
+<span class="fc" id="L189">		return result;</span>
+	}
+
+	protected ListCellRenderer createListCellRenderer() {
+<span class="fc" id="L193">		return new ListCellRenderer() {</span>
+
+<span class="fc" id="L195">			JButton button = createNonSelectedTabHeaderCellRendererComponent();</span>
+			{
+<span class="fc" id="L197">				button.setHorizontalAlignment(</span>
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">						(placement == JTabbedPane.LEFT) ? SwingConstants.LEFT : SwingConstants.CENTER);</span>
+<span class="fc" id="L199">				button.setHorizontalTextPosition(SwingConstants.RIGHT);</span>
+<span class="fc" id="L200">				button.setVerticalTextPosition(SwingConstants.CENTER);</span>
+			}
+<span class="fc" id="L202">			JLabel label = createSelectedTabHeaderCellRendererComponent();</span>
+			{
+<span class="fc" id="L204">				label.setHorizontalAlignment(</span>
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">						(placement == JTabbedPane.LEFT) ? SwingConstants.LEFT : SwingConstants.CENTER);</span>
+<span class="fc" id="L206">				label.setHorizontalTextPosition(SwingConstants.RIGHT);</span>
+<span class="fc" id="L207">				label.setVerticalTextPosition(SwingConstants.CENTER);</span>
+			}
+
+			@Override
+			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+					boolean cellHasFocus) {
+<span class="fc" id="L213">				String text = (String) value;</span>
+<span class="fc" id="L214">				Icon icon = ListTabbedPane.this.getIconAt(index);</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">				if (isSelected) {</span>
+<span class="fc" id="L216">					label.setText(text);</span>
+<span class="fc" id="L217">					label.setIcon(icon);</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">					label.setEnabled(!disabledCardNames.contains(getCardName(index)));</span>
+<span class="fc" id="L219">					return label;</span>
+				} else {
+<span class="fc" id="L221">					button.setText(text);</span>
+<span class="fc" id="L222">					button.setIcon(icon);</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">					button.setEnabled(!disabledCardNames.contains(getCardName(index)));</span>
+<span class="fc" id="L224">					return button;</span>
+				}
+
+			}
+		};
+	}
+
+	protected JScrollPane wrapListControl(JList listControl) {
+<span class="nc" id="L232">		return new JScrollPane(listControl) {</span>
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Dimension getPreferredSize() {
+<span class="nc" id="L237">				Dimension result = super.getPreferredSize();</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">				if (result == null) {</span>
+<span class="nc" id="L239">					return null;</span>
+				}
+<span class="nc" id="L241">				result = preventScrollBarsFromHidingContent(result);</span>
+<span class="nc" id="L242">				return result;</span>
+			}
+
+			Dimension preventScrollBarsFromHidingContent(Dimension size) {
+<span class="nc" id="L246">				Dimension result = new Dimension(size);</span>
+<span class="nc" id="L247">				JScrollBar hSBar = getHorizontalScrollBar();</span>
+				{
+<span class="nc bnc" id="L249" title="All 2 branches missed.">					if (hSBar != null) {</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">						if (hSBar.isVisible()) {</span>
+<span class="nc" id="L251">							result.height += hSBar.getHeight();</span>
+						}
+					}
+				}
+<span class="nc" id="L255">				JScrollBar vSBar = getVerticalScrollBar();</span>
+				{
+<span class="nc bnc" id="L257" title="All 2 branches missed.">					if (vSBar != null) {</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">						if (vSBar.isVisible()) {</span>
+<span class="nc" id="L259">							result.width += vSBar.getWidth();</span>
+						}
+					}
+				}
+<span class="nc" id="L263">				return result;</span>
+			}
+		};
+	}
+
+	protected Component preventItemSelectionWhenClickingEmptySpace(Component listComponent, int placement) {
+<span class="nc" id="L269">		JPanel panel = new JPanel(new GridBagLayout());</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">		if (placement == JTabbedPane.LEFT) {</span>
+			{
+<span class="nc" id="L272">				GridBagConstraints c = new GridBagConstraints();</span>
+<span class="nc" id="L273">				c.gridy = 0;</span>
+<span class="nc" id="L274">				c.weighty = 1.0;</span>
+<span class="nc" id="L275">				c.fill = GridBagConstraints.VERTICAL;</span>
+<span class="nc" id="L276">				c.anchor = GridBagConstraints.NORTH;</span>
+<span class="nc" id="L277">				panel.add(listComponent, c);</span>
+			}
+			{
+<span class="nc" id="L280">				GridBagConstraints c = new GridBagConstraints();</span>
+<span class="nc" id="L281">				c.gridy = 1;</span>
+<span class="nc" id="L282">				c.weighty = 1.0;</span>
+<span class="nc" id="L283">				panel.add(new JTextArea(&quot;hello&quot;), c);</span>
+			}
+<span class="nc bnc" id="L285" title="All 2 branches missed.">		} else if (placement == JTabbedPane.TOP) {</span>
+			{
+<span class="nc" id="L287">				GridBagConstraints c = new GridBagConstraints();</span>
+<span class="nc" id="L288">				c.gridx = 0;</span>
+<span class="nc" id="L289">				c.weightx = 1.0;</span>
+<span class="nc" id="L290">				c.fill = GridBagConstraints.HORIZONTAL;</span>
+<span class="nc" id="L291">				c.anchor = GridBagConstraints.WEST;</span>
+<span class="nc" id="L292">				panel.add(listComponent, c);</span>
+			}
+			{
+<span class="nc" id="L295">				GridBagConstraints c = new GridBagConstraints();</span>
+<span class="nc" id="L296">				c.gridx = 1;</span>
+<span class="nc" id="L297">				c.weightx = 1.0;</span>
+<span class="nc" id="L298">				panel.add(new JTextArea(&quot;hello&quot;), c);</span>
+			}
+<span class="nc" id="L300">		} else {</span>
+<span class="nc" id="L301">			throw getInvalidPlacementError();</span>
+		}
+<span class="nc" id="L303">		return panel;</span>
+	}
+
+	protected JLabel createSelectedTabHeaderCellRendererComponent() {
+<span class="fc" id="L307">		JLabel result = new JLabel() {</span>
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Color getForeground() {
+<span class="pc bpc" id="L313" title="1 of 2 branches missed.">				if (!isEnabled()) {</span>
+<span class="nc" id="L314">					JButton colorSource = createNonSelectedTabHeaderCellRendererComponent();</span>
+<span class="nc" id="L315">					colorSource.setEnabled(false);</span>
+<span class="nc" id="L316">					return colorSource.getForeground();</span>
+				}
+<span class="fc" id="L318">				return super.getForeground();</span>
+			}
+
+		};
+<span class="fc" id="L322">		result.setOpaque(true);</span>
+<span class="fc" id="L323">		return result;</span>
+	}
+
+	protected JButton createNonSelectedTabHeaderCellRendererComponent() {
+<span class="fc" id="L327">		return new JButton();</span>
+	}
+
+	protected CardLayout createCardLayout() {
+<span class="fc" id="L331">		return new CardLayout();</span>
+	}
+
+	protected JPanel createCurrentComponentContainer() {
+<span class="fc" id="L335">		JPanel result = new JPanel();</span>
+<span class="fc" id="L336">		result.setLayout(cardLayout = createCardLayout());</span>
+<span class="fc" id="L337">		return result;</span>
+	}
+
+	protected DefaultListModel createListModel() {
+<span class="fc" id="L341">		return new DefaultListModel();</span>
+	}
+
+	protected Component createNullTabComponent() {
+<span class="fc" id="L345">		return new JPanel();</span>
+	}
+
+	public int getSelectedIndex() {
+<span class="fc" id="L349">		return titleListControl.getSelectedIndex();</span>
+	}
+
+	public void setSelectedIndex(int index) {
+<span class="fc bfc" id="L353" title="All 2 branches covered.">		if (index == -1) {</span>
+<span class="fc" id="L354">			titleListControl.clearSelection();</span>
+<span class="fc" id="L355">		} else {</span>
+<span class="fc" id="L356">			titleListControl.setSelectedIndex(index);</span>
+		}
+<span class="fc" id="L358">	}</span>
+
+	protected void onSelectionChange() {
+<span class="fc bfc" id="L361" title="All 2 branches covered.">		if (!titleListSelectionHandlingEnabled) {</span>
+<span class="fc" id="L362">			return;</span>
+		}
+<span class="pc bpc" id="L364" title="1 of 2 branches missed.">		if (titleListControl.getSelectedIndex() == lastTitleListSelectionIndex) {</span>
+<span class="nc" id="L365">			return;</span>
+		}
+<span class="fc" id="L367">		final int currentIndex = titleListControl.getSelectedIndex();</span>
+<span class="fc" id="L368">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L371">				preventMultipleVisibleCardsIssue();</span>
+<span class="fc" id="L372">				cardLayout.show(currentComponentContainer, getCardName(currentIndex));</span>
+<span class="fc" id="L373">				notifyChangeListeners();</span>
+<span class="fc" id="L374">			}</span>
+
+			void preventMultipleVisibleCardsIssue() {
+<span class="fc bfc" id="L377" title="All 2 branches covered.">				for (Component comp : currentComponentContainer.getComponents()) {</span>
+<span class="fc bfc" id="L378" title="All 2 branches covered.">					if (comp.isVisible()) {</span>
+<span class="fc" id="L379">						comp.setVisible(false);</span>
+					}
+				}
+<span class="fc" id="L382">			}</span>
+		});
+<span class="fc" id="L384">		lastTitleListSelectionIndex = currentIndex;</span>
+<span class="fc" id="L385">	}</span>
+
+	protected void notifyChangeListeners() {
+<span class="pc bpc" id="L388" title="1 of 2 branches missed.">		for (ChangeListener l : changeListeners) {</span>
+<span class="nc" id="L389">			l.stateChanged(new ChangeEvent(ListTabbedPane.this));</span>
+		}
+<span class="fc" id="L391">	}</span>
+
+	protected String getCardName(int index) {
+<span class="fc" id="L394">		return Integer.toString(index);</span>
+	}
+
+	public void addTab(String title, Component component) {
+<span class="nc" id="L398">		insertTab(title, null, component, getTabCount());</span>
+<span class="nc" id="L399">	}</span>
+
+	public void insertTab(String title, Icon icon, Component component, int index) {
+<span class="fc" id="L402">		String cardName = getCardName(index);</span>
+<span class="fc" id="L403">		currentComponentContainer.add(component, cardName);</span>
+<span class="fc" id="L404">		titleListModel.insertElementAt(title, index);</span>
+<span class="fc" id="L405">		componentByIndex.put(index, component);</span>
+<span class="fc" id="L406">		setIconAt(index, icon);</span>
+<span class="fc bfc" id="L407" title="All 2 branches covered.">		if (getSelectedIndex() == -1) {</span>
+<span class="fc" id="L408">			setSelectedIndex(0);</span>
+		}
+<span class="fc" id="L410">	}</span>
+
+	public void removeTabAt(int index) {
+<span class="nc" id="L413">		Component component = componentByIndex.remove(index);</span>
+<span class="nc" id="L414">		titleListModel.removeElementAt(index);</span>
+<span class="nc" id="L415">		currentComponentContainer.remove(component);</span>
+<span class="nc bnc" id="L416" title="All 2 branches missed.">		if (getSelectedIndex() == -1) {</span>
+<span class="nc" id="L417">			setSelectedIndex(0);</span>
+		}
+<span class="nc" id="L419">	}</span>
+
+	public void addChangeListener(ChangeListener changeListener) {
+<span class="nc" id="L422">		changeListeners.add(changeListener);</span>
+<span class="nc" id="L423">	}</span>
+
+	public void removeChangeListener(ChangeListener changeListener) {
+<span class="nc" id="L426">		changeListeners.remove(changeListener);</span>
+<span class="nc" id="L427">	}</span>
+
+	public String getTitleAt(int index) {
+<span class="nc" id="L430">		return (String) titleListModel.getElementAt(index);</span>
+	}
+
+	public Component getSelectedComponent() {
+<span class="nc" id="L434">		int currentIndex = titleListControl.getSelectedIndex();</span>
+<span class="nc bnc" id="L435" title="All 2 branches missed.">		if (currentIndex == -1) {</span>
+<span class="nc" id="L436">			return null;</span>
+		}
+<span class="nc" id="L438">		return getComponentAt(currentIndex);</span>
+	}
+
+	public int getTabCount() {
+<span class="nc" id="L442">		return titleListModel.size();</span>
+	}
+
+	public Component getComponentAt(int index) {
+<span class="nc" id="L446">		return componentByIndex.get(index);</span>
+	}
+
+	public void setEnabledAt(int tabIndex, boolean b) {
+<span class="nc bnc" id="L450" title="All 2 branches missed.">		if (b) {</span>
+<span class="nc" id="L451">			disabledCardNames.remove(getCardName(tabIndex));</span>
+<span class="nc" id="L452">		} else {</span>
+<span class="nc" id="L453">			disabledCardNames.add(getCardName(tabIndex));</span>
+		}
+<span class="nc" id="L455">		titleListControl.repaint();</span>
+<span class="nc" id="L456">	}</span>
+
+	public boolean isEnabledAt(int tabIndex) {
+<span class="nc bnc" id="L459" title="All 2 branches missed.">		return !disabledCardNames.contains(getCardName(tabIndex));</span>
+	}
+
+	public void refresh() {
+<span class="fc" id="L463">		titleListSelectionHandlingEnabled = false;</span>
+		try {
+<span class="fc" id="L465">			int initialSelectedIndex = getSelectedIndex();</span>
+<span class="fc" id="L466">			titleListControl.setModel(titleListModel);</span>
+<span class="fc" id="L467">			initialSelectedIndex = Math.min(initialSelectedIndex, titleListControl.getModel().getSize() - 1);</span>
+<span class="fc" id="L468">			setSelectedIndex(initialSelectedIndex);</span>
+<span class="fc" id="L469">		} finally {</span>
+<span class="fc" id="L470">			titleListSelectionHandlingEnabled = true;</span>
+		}
+<span class="fc" id="L472">	}</span>
+
+	public Icon getIconAt(int index) {
+<span class="fc" id="L475">		return iconByIndex.get(index);</span>
+	}
+
+	public void setIconAt(int tabIndex, Icon icon) {
+<span class="fc" id="L479">		iconByIndex.put(tabIndex, icon);</span>
+<span class="fc" id="L480">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

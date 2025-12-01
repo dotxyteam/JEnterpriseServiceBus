@@ -1,0 +1,1568 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CustomizationTools.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">custom-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.customizer</a> &gt; <span class="el_source">CustomizationTools.java</span></div><h1>CustomizationTools.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.customizer;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.DefaultFieldControlData;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration;
+import xy.reflect.ui.control.plugin.ICustomizableFieldControlPlugin;
+import xy.reflect.ui.control.plugin.IFieldControlPlugin;
+import xy.reflect.ui.control.swing.ListControl;
+import xy.reflect.ui.control.swing.builder.StandardEditorBuilder;
+import xy.reflect.ui.control.swing.plugin.ImageViewPlugin;
+import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.MethodControlPlaceHolder;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.IInfo;
+import xy.reflect.ui.info.custom.InfoCustomizations;
+import xy.reflect.ui.info.custom.InfoCustomizations.AbstractCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.AbstractVirtualFieldDeclaration;
+import xy.reflect.ui.info.custom.InfoCustomizations.ConversionMethodFinder;
+import xy.reflect.ui.info.custom.InfoCustomizations.CustomizationCategory;
+import xy.reflect.ui.info.custom.InfoCustomizations.EnumerationCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.FieldCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.FieldTypeSpecificities;
+import xy.reflect.ui.info.custom.InfoCustomizations.JavaClassBasedTypeInfoFinder;
+import xy.reflect.ui.info.custom.InfoCustomizations.ListCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.Mapping;
+import xy.reflect.ui.info.custom.InfoCustomizations.MethodCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.TextualStorage;
+import xy.reflect.ui.info.custom.InfoCustomizations.TypeCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.VirtualFieldDeclaration;
+import xy.reflect.ui.info.field.MembersCapsuleFieldInfo;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.method.DefaultConstructorInfo;
+import xy.reflect.ui.info.method.DefaultMethodInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.factory.InfoCustomizationsFactory;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.info.type.iterable.structure.CustomizedListStructuralInfo.SubListGroupField;
+import xy.reflect.ui.info.type.iterable.structure.IListStructuralInfo;
+import xy.reflect.ui.info.type.iterable.structure.column.IColumnInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.undo.UndoOrder;
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.IOUtils;
+import xy.reflect.ui.util.ImageIcon;
+import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.MoreSystemProperties;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * This class inserts controls (buttons, context menus, ...) in the generated
+ * UIs that allow to customize them in real-time.
+ * 
+ * @author olitank
+ *
+ */
+public class CustomizationTools {
+
+	protected final SwingCustomizer swingCustomizer;
+	protected CustomizationToolsRenderer toolsRenderer;
+	protected CustomizationToolsUI toolsUI;
+
+<span class="fc" id="L100">	public CustomizationTools(SwingCustomizer swingCustomizer) {</span>
+<span class="fc" id="L101">		this.swingCustomizer = swingCustomizer;</span>
+<span class="fc" id="L102">		toolsUI = createToolsUI();</span>
+<span class="fc" id="L103">		toolsRenderer = createToolsRenderer();</span>
+<span class="fc" id="L104">	}</span>
+
+	public CustomizationToolsRenderer getToolsRenderer() {
+<span class="fc" id="L107">		return toolsRenderer;</span>
+	}
+
+	public CustomizationToolsUI getToolsUI() {
+<span class="nc" id="L111">		return toolsUI;</span>
+	}
+
+	protected JButton makeButton() {
+<span class="nc" id="L115">		JButton result = new JButton(this.swingCustomizer.getCustomizationsIcon());</span>
+<span class="nc" id="L116">		result.setForeground(toolsRenderer.getToolsForegroundColor());</span>
+<span class="nc" id="L117">		result.setPreferredSize(new Dimension(result.getPreferredSize().height, result.getPreferredSize().height));</span>
+<span class="nc" id="L118">		result.setFocusable(false);</span>
+<span class="nc" id="L119">		return result;</span>
+	}
+
+	protected CustomizationToolsRenderer createToolsRenderer() {
+<span class="fc" id="L123">		return new CustomizationToolsRenderer(toolsUI);</span>
+	}
+
+	protected CustomizationToolsUI createToolsUI() {
+<span class="fc" id="L127">		InfoCustomizations infoCustomizations = new InfoCustomizations();</span>
+		try {
+<span class="fc" id="L129">			String customizationsFilePath = MoreSystemProperties.getInfoCustomizationToolsCustomizationsFilePath();</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">			if (customizationsFilePath != null) {</span>
+<span class="nc" id="L131">				infoCustomizations.loadFromFile(new File(customizationsFilePath),</span>
+<span class="nc" id="L132">						ReflectionUIUtils.getDebugLogListener(swingCustomizer.getReflectionUI()));</span>
+<span class="nc" id="L133">			} else {</span>
+<span class="fc" id="L134">				infoCustomizations.loadFromStream(</span>
+<span class="fc" id="L135">						ReflectionUI.class.getResourceAsStream(&quot;resource/customizations-tools.icu&quot;),</span>
+<span class="fc" id="L136">						ReflectionUIUtils.getDebugLogListener(swingCustomizer.getReflectionUI()));</span>
+			}
+
+<span class="pc" id="L139">		} catch (IOException e) {</span>
+<span class="nc" id="L140">			throw new ReflectionUIError(e);</span>
+		}
+<span class="fc" id="L142">		return new CustomizationToolsUI(infoCustomizations, swingCustomizer);</span>
+	}
+
+	public Component makeButtonForType(final Object object) {
+<span class="nc" id="L146">		final ITypeInfo customizedType = this.swingCustomizer.getReflectionUI()</span>
+<span class="nc" id="L147">				.getTypeInfo(this.swingCustomizer.getReflectionUI().getTypeInfoSource(object));</span>
+<span class="nc" id="L148">		final JButton result = makeButton();</span>
+<span class="nc" id="L149">		result.setToolTipText(toolsRenderer.prepareMessageToDisplay(getCustomizationTitle(customizedType.getName())));</span>
+<span class="nc" id="L150">		result.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L153">				final JPopupMenu popupMenu = new JPopupMenu();</span>
+<span class="nc" id="L154">				popupMenu.add(createMenuItem(new AbstractAction(</span>
+<span class="nc" id="L155">						CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Type Options (Shared)...&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L160">						openTypeCustomizationDialog(result, swingCustomizer.getInfoCustomizations(), customizedType);</span>
+<span class="nc" id="L161">					}</span>
+				}));
+<span class="nc" id="L163">				popupMenu.add(createMenuItem(new AbstractAction(</span>
+<span class="nc" id="L164">						CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Add Virtual Text Field...&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						try {
+<span class="nc" id="L170">							String title = &quot;New Virtual Text Field&quot;;</span>
+
+<span class="nc" id="L172">							String fieldName = toolsRenderer.openInputDialog(result, &quot;&quot;, &quot;Field Name&quot;, title);</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">							if (fieldName == null) {</span>
+<span class="nc" id="L174">								return;</span>
+							}
+<span class="nc" id="L176">							checkNewFieldNameAvailability(fieldName, customizedType);</span>
+<span class="nc" id="L177">							String text = toolsRenderer.openInputDialog(result, &quot;&quot;, &quot;Text&quot;, title);</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">							if (text == null) {</span>
+<span class="nc" id="L179">								return;</span>
+							}
+
+<span class="nc" id="L182">							VirtualFieldDeclaration fieldDeclaration = new VirtualFieldDeclaration();</span>
+<span class="nc" id="L183">							fieldDeclaration.setFieldName(fieldName);</span>
+<span class="nc" id="L184">							JavaClassBasedTypeInfoFinder typeFinder = new InfoCustomizations.JavaClassBasedTypeInfoFinder();</span>
+<span class="nc" id="L185">							typeFinder.setClassName(String.class.getName());</span>
+<span class="nc" id="L186">							fieldDeclaration.setFieldTypeFinder(typeFinder);</span>
+
+<span class="nc" id="L188">							final TypeCustomization tc = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L189">									swingCustomizer.getInfoCustomizations(), customizedType.getName(), true);</span>
+
+<span class="nc" id="L191">							final List&lt;AbstractVirtualFieldDeclaration&gt; fieldDeclarations = new ArrayList&lt;AbstractVirtualFieldDeclaration&gt;(</span>
+<span class="nc" id="L192">									tc.getVirtualFieldDeclarations());</span>
+<span class="nc" id="L193">							fieldDeclarations.add(fieldDeclaration);</span>
+
+<span class="nc" id="L195">							final FieldCustomization fc = InfoCustomizations.getFieldCustomization(tc, fieldName, true);</span>
+<span class="nc" id="L196">							final TextualStorage nullReplacement = new TextualStorage();</span>
+<span class="nc" id="L197">							nullReplacement.save(swingCustomizer.getReflectionUI(), text);</span>
+
+<span class="nc" id="L199">							ModificationStack modificationStack = swingCustomizer.getCustomizationController()</span>
+<span class="nc" id="L200">									.getModificationStack();</span>
+<span class="nc" id="L201">							modificationStack.insideComposite(title, UndoOrder.getNormal(), new Accessor&lt;Boolean&gt;() {</span>
+								@Override
+								public Boolean get() {
+<span class="nc" id="L204">									changeCustomizationFieldValue(tc, &quot;virtualFieldDeclarations&quot;, fieldDeclarations);</span>
+<span class="nc" id="L205">									changeCustomizationFieldValue(fc, &quot;nullReplacement&quot;, nullReplacement);</span>
+<span class="nc" id="L206">									changeCustomizationFieldValue(fc, &quot;getOnlyForced&quot;, true);</span>
+<span class="nc" id="L207">									return true;</span>
+								}
+<span class="nc" id="L209">							}, false);</span>
+<span class="nc" id="L210">						} catch (Throwable t) {</span>
+<span class="nc" id="L211">							toolsRenderer.handleException(result, t);</span>
+						}
+<span class="nc" id="L213">					}</span>
+				}));
+<span class="nc" id="L215">				popupMenu.add(createMenuItem(new AbstractAction(</span>
+<span class="nc" id="L216">						CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Add Virtual Image Field...&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						try {
+<span class="nc" id="L222">							String title = &quot;New Virtual Image Field&quot;;</span>
+
+<span class="nc" id="L224">							String fieldName = toolsRenderer.openInputDialog(result, &quot;&quot;, &quot;Field Name&quot;, title);</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">							if (fieldName == null) {</span>
+<span class="nc" id="L226">								return;</span>
+							}
+<span class="nc" id="L228">							checkNewFieldNameAvailability(fieldName, customizedType);</span>
+<span class="nc" id="L229">							File imageFile = toolsRenderer.openInputDialog(result, new File(&quot;&quot;), &quot;Image File&quot;, title);</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">							if (imageFile == null) {</span>
+<span class="nc" id="L231">								return;</span>
+							}
+<span class="nc" id="L233">							Image image = ImageIO.read(imageFile);</span>
+
+<span class="nc" id="L235">							VirtualFieldDeclaration fieldDeclaration = new VirtualFieldDeclaration();</span>
+<span class="nc" id="L236">							fieldDeclaration.setFieldName(fieldName);</span>
+<span class="nc" id="L237">							JavaClassBasedTypeInfoFinder typeFinder = new InfoCustomizations.JavaClassBasedTypeInfoFinder();</span>
+<span class="nc" id="L238">							typeFinder.setClassName(Image.class.getName());</span>
+<span class="nc" id="L239">							fieldDeclaration.setFieldTypeFinder(typeFinder);</span>
+
+<span class="nc" id="L241">							final TypeCustomization tc = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L242">									swingCustomizer.getInfoCustomizations(), customizedType.getName(), true);</span>
+
+<span class="nc" id="L244">							final List&lt;AbstractVirtualFieldDeclaration&gt; fieldDeclarations = new ArrayList&lt;AbstractVirtualFieldDeclaration&gt;(</span>
+<span class="nc" id="L245">									tc.getVirtualFieldDeclarations());</span>
+<span class="nc" id="L246">							fieldDeclarations.add(fieldDeclaration);</span>
+
+<span class="nc" id="L248">							final FieldCustomization fc = InfoCustomizations.getFieldCustomization(tc, fieldName, true);</span>
+<span class="nc" id="L249">							final TextualStorage nullReplacement = new TextualStorage();</span>
+<span class="nc" id="L250">							Mapping storageMapping = new Mapping();</span>
+							{
+<span class="nc" id="L252">								ConversionMethodFinder conversionMethodFinder = new ConversionMethodFinder();</span>
+								{
+<span class="nc" id="L254">									conversionMethodFinder.setConversionClassName(ImageIcon.class.getName());</span>
+<span class="nc" id="L255">									conversionMethodFinder.setConversionMethodSignature(ReflectionUIUtils</span>
+<span class="nc" id="L256">											.buildMethodSignature(new DefaultConstructorInfo(ReflectionUI.getDefault(),</span>
+<span class="nc" id="L257">													ImageIcon.class.getConstructor(Image.class), ImageIcon.class)));</span>
+<span class="nc" id="L258">									storageMapping.setConversionMethodFinder(conversionMethodFinder);</span>
+								}
+<span class="nc" id="L260">								ConversionMethodFinder reverseConversionMethodFinder = new ConversionMethodFinder();</span>
+								{
+<span class="nc" id="L262">									reverseConversionMethodFinder.setConversionClassName(ImageIcon.class.getName());</span>
+<span class="nc" id="L263">									reverseConversionMethodFinder.setConversionMethodSignature(ReflectionUIUtils</span>
+<span class="nc" id="L264">											.buildMethodSignature(new DefaultMethodInfo(ReflectionUI.getDefault(),</span>
+<span class="nc" id="L265">													ImageIcon.class.getMethod(&quot;getImage&quot;), ImageIcon.class)));</span>
+<span class="nc" id="L266">									storageMapping.setReverseConversionMethodFinder(reverseConversionMethodFinder);</span>
+								}
+<span class="nc" id="L268">								nullReplacement.setPreConversion(storageMapping);</span>
+							}
+<span class="nc" id="L270">							nullReplacement.save(swingCustomizer.getReflectionUI(), image);</span>
+
+<span class="nc" id="L272">							final TypeCustomization ftc = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L273">									fc.getSpecificTypeCustomizations(), typeFinder.getClassName(), true);</span>
+<span class="nc" id="L274">							final Map&lt;String, Object&gt; specificProperties = new HashMap&lt;String, Object&gt;(</span>
+<span class="nc" id="L275">									ftc.getSpecificProperties());</span>
+<span class="nc" id="L276">							IFieldControlPlugin imagePlugin = SwingRendererUtils.findFieldControlPlugin(swingCustomizer,</span>
+<span class="nc" id="L277">									new ImageViewPlugin().getIdentifier());</span>
+<span class="nc" id="L278">							ReflectionUIUtils.updateFieldControlPluginValues(specificProperties,</span>
+<span class="nc" id="L279">									imagePlugin.getIdentifier(),</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">									(imagePlugin instanceof ICustomizableFieldControlPlugin)</span>
+<span class="nc" id="L281">											? ((ICustomizableFieldControlPlugin) imagePlugin)</span>
+<span class="nc" id="L282">													.getDefaultControlCustomization()</span>
+<span class="nc" id="L283">											: null);</span>
+
+<span class="nc" id="L285">							ModificationStack modificationStack = swingCustomizer.getCustomizationController()</span>
+<span class="nc" id="L286">									.getModificationStack();</span>
+<span class="nc" id="L287">							modificationStack.insideComposite(title, UndoOrder.getNormal(), new Accessor&lt;Boolean&gt;() {</span>
+								@Override
+								public Boolean get() {
+<span class="nc" id="L290">									changeCustomizationFieldValue(tc, &quot;virtualFieldDeclarations&quot;, fieldDeclarations);</span>
+<span class="nc" id="L291">									changeCustomizationFieldValue(fc, &quot;nullReplacement&quot;, nullReplacement);</span>
+<span class="nc" id="L292">									changeCustomizationFieldValue(fc, &quot;getOnlyForced&quot;, true);</span>
+<span class="nc" id="L293">									changeCustomizationFieldValue(ftc, &quot;specificProperties&quot;, specificProperties);</span>
+<span class="nc" id="L294">									return true;</span>
+								}
+<span class="nc" id="L296">							}, false);</span>
+<span class="nc" id="L297">						} catch (Throwable t) {</span>
+<span class="nc" id="L298">							toolsRenderer.handleException(result, t);</span>
+						}
+<span class="nc" id="L300">					}</span>
+				}));
+<span class="nc" id="L302">				popupMenu.add(createMenuItem(</span>
+<span class="nc" id="L303">						new AbstractAction(CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Refresh&quot;)) {</span>
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L308">								swingCustomizer.getCustomizedUI().getCustomizedTypeInfoCache().clear();</span>
+<span class="nc" id="L309">								Form form = SwingRendererUtils.findParentForm(result, swingCustomizer);</span>
+								try {
+<span class="nc" id="L311">									form.refresh(true);</span>
+<span class="nc bnc" id="L312" title="All 2 branches missed.">									if (SwingRendererUtils.findAncestorForms(form, swingCustomizer).size() &gt; 0) {</span>
+<span class="nc" id="L313">										SwingRendererUtils.updateWindowMenu(form, swingCustomizer);</span>
+									}
+<span class="nc" id="L315">								} catch (Throwable t) {</span>
+<span class="nc" id="L316">									swingCustomizer.handleException(form, t);</span>
+								}
+<span class="nc" id="L318">							}</span>
+						}));
+
+<span class="nc" id="L321">				showMenu(popupMenu, result);</span>
+<span class="nc" id="L322">			}</span>
+		});
+<span class="nc" id="L324">		return result;</span>
+	}
+
+	protected void openTypeCustomizationDialog(JButton customizerButton, InfoCustomizations infoCustomizations,
+			ITypeInfo customizedType) {
+<span class="nc" id="L329">		TypeCustomization tc = InfoCustomizations.getTypeCustomization(infoCustomizations, customizedType.getName(),</span>
+<span class="nc" id="L330">				true);</span>
+<span class="nc" id="L331">		fillTypeCustomization(tc, customizedType);</span>
+<span class="nc" id="L332">		openCustomizationEditor(customizerButton, tc);</span>
+<span class="nc" id="L333">	}</span>
+
+	protected void openCustomizationEditor(final JButton customizerButton, final Object customization) {
+<span class="nc" id="L336">		StandardEditorBuilder dialogBuilder = new StandardEditorBuilder(toolsRenderer, customizerButton,</span>
+<span class="nc" id="L337">				customization) {</span>
+
+			@Override
+			protected boolean isDialogCancellable() {
+<span class="nc" id="L341">				return true;</span>
+			}
+
+			@Override
+			protected ModificationStack getParentModificationStack() {
+<span class="nc" id="L346">				return swingCustomizer.getCustomizationController().getModificationStack();</span>
+			}
+
+		};
+<span class="nc" id="L350">		dialogBuilder.createAndShowDialog();</span>
+<span class="nc" id="L351">	}</span>
+
+	public ITypeInfo getContainingObjectCustomizedType(FieldControlPlaceHolder fieldControlPlaceHolder) {
+<span class="nc" id="L354">		return CustomizationTools.this.swingCustomizer.getReflectionUI()</span>
+<span class="nc" id="L355">				.getTypeInfo(CustomizationTools.this.swingCustomizer.getReflectionUI()</span>
+<span class="nc" id="L356">						.getTypeInfoSource(fieldControlPlaceHolder.getObject()));</span>
+	}
+
+	public ITypeInfo getContainingObjectCustomizedType(MethodControlPlaceHolder methodControlPlaceHolder) {
+<span class="nc" id="L360">		return CustomizationTools.this.swingCustomizer.getReflectionUI()</span>
+<span class="nc" id="L361">				.getTypeInfo(CustomizationTools.this.swingCustomizer.getReflectionUI()</span>
+<span class="nc" id="L362">						.getTypeInfoSource(methodControlPlaceHolder.getObject()));</span>
+	}
+
+	public ITypeInfo getFieldControlDataCustomizedType(FieldControlPlaceHolder fieldControlPlaceHolder) {
+<span class="nc" id="L366">		IFieldControlData controlData = fieldControlPlaceHolder.getControlData();</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">		if (controlData == null) {</span>
+<span class="nc" id="L368">			return null;</span>
+		}
+<span class="nc" id="L370">		return controlData.getType();</span>
+	}
+
+	public FieldCustomization getFieldCustomization(String typeName, String fieldName,
+			InfoCustomizations infoCustomizations) {
+<span class="nc" id="L375">		FieldCustomization fc = InfoCustomizations</span>
+<span class="nc" id="L376">				.getFieldCustomization(getTypeCustomization(typeName, infoCustomizations), fieldName, true);</span>
+<span class="nc" id="L377">		return fc;</span>
+	}
+
+	public MethodCustomization getMethodCustomization(String typeName, String methodSignature,
+			InfoCustomizations infoCustomizations) {
+<span class="nc" id="L382">		MethodCustomization mc = InfoCustomizations</span>
+<span class="nc" id="L383">				.getMethodCustomization(getTypeCustomization(typeName, infoCustomizations), methodSignature, true);</span>
+<span class="nc" id="L384">		return mc;</span>
+	}
+
+	public FieldCustomization getFieldCustomization(FieldControlPlaceHolder fieldControlPlaceHolder,
+			InfoCustomizations infoCustomizations) {
+<span class="nc" id="L389">		FieldCustomization fc = InfoCustomizations.getFieldCustomization(</span>
+<span class="nc" id="L390">				getContaingTypeCustomization(fieldControlPlaceHolder, infoCustomizations),</span>
+<span class="nc" id="L391">				fieldControlPlaceHolder.getField().getName(), true);</span>
+<span class="nc" id="L392">		return fc;</span>
+	}
+
+	public MethodCustomization getMethodCustomization(MethodControlPlaceHolder methodControlPlaceHolder,
+			InfoCustomizations infoCustomizations) {
+<span class="nc" id="L397">		MethodCustomization mc = InfoCustomizations.getMethodCustomization(</span>
+<span class="nc" id="L398">				getContaingTypeCustomization(methodControlPlaceHolder, infoCustomizations),</span>
+<span class="nc" id="L399">				methodControlPlaceHolder.getMethod().getSignature(), true);</span>
+<span class="nc" id="L400">		return mc;</span>
+	}
+
+	public TypeCustomization getContaingTypeCustomization(FieldControlPlaceHolder fieldControlPlaceHolder,
+			InfoCustomizations infoCustomizations) {
+<span class="nc" id="L405">		String objectTypeName = getContainingObjectCustomizedType(fieldControlPlaceHolder).getName();</span>
+<span class="nc" id="L406">		return getTypeCustomization(objectTypeName, infoCustomizations);</span>
+	}
+
+	public TypeCustomization getContaingTypeCustomization(MethodControlPlaceHolder methodControlPlaceHolder,
+			InfoCustomizations infoCustomizations) {
+<span class="nc" id="L411">		String objectTypeName = getContainingObjectCustomizedType(methodControlPlaceHolder).getName();</span>
+<span class="nc" id="L412">		return getTypeCustomization(objectTypeName, infoCustomizations);</span>
+	}
+
+	public TypeCustomization getTypeCustomization(String objectTypeName, InfoCustomizations infoCustomizations) {
+<span class="nc" id="L416">		TypeCustomization t = InfoCustomizations.getTypeCustomization(infoCustomizations, objectTypeName, true);</span>
+<span class="nc" id="L417">		return t;</span>
+	}
+
+	public Component makeButtonForField(final FieldControlPlaceHolder fieldControlPlaceHolder) {
+<span class="nc" id="L421">		final JButton result = makeButton();</span>
+<span class="nc" id="L422">		result.setToolTipText(SwingRendererUtils.adaptToolTipTextToMultiline(toolsRenderer</span>
+<span class="nc" id="L423">				.prepareMessageToDisplay(getCustomizationTitle(fieldControlPlaceHolder.getField().getName()))));</span>
+<span class="nc" id="L424">		result.addActionListener(new ActionListener() {</span>
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L428">				final JPopupMenu popupMenu = new JPopupMenu();</span>
+<span class="nc" id="L429">				popupMenu.add(createMenuItem(</span>
+<span class="nc" id="L430">						new AbstractAction(CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Hide&quot;)) {</span>
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								try {
+<span class="nc" id="L436">									hideField(result, getContainingObjectCustomizedType(fieldControlPlaceHolder),</span>
+<span class="nc" id="L437">											fieldControlPlaceHolder.getField().getName());</span>
+<span class="nc" id="L438">								} catch (Throwable t) {</span>
+<span class="nc" id="L439">									toolsRenderer.handleException(result, t);</span>
+								}
+<span class="nc" id="L441">							}</span>
+						}));
+<span class="nc bnc" id="L443" title="All 2 branches missed.">				for (JMenuItem menuItem : makeMenuItemsForFieldPosition(result, fieldControlPlaceHolder)) {</span>
+<span class="nc" id="L444">					popupMenu.add(menuItem);</span>
+				}
+
+<span class="nc bnc" id="L447" title="All 2 branches missed.">				for (JMenuItem menuItem : makeMenuItemsForFieldEncapsulation(result, fieldControlPlaceHolder)) {</span>
+<span class="nc" id="L448">					popupMenu.add(menuItem);</span>
+				}
+
+<span class="nc bnc" id="L451" title="All 2 branches missed.">				for (JMenuItem menuItem : makeMenuItemsForFieldType(result, fieldControlPlaceHolder, false,</span>
+<span class="nc" id="L452">						getFieldControlDataCustomizedType(fieldControlPlaceHolder))) {</span>
+<span class="nc" id="L453">					popupMenu.add(menuItem);</span>
+				}
+
+<span class="nc" id="L456">				popupMenu.add(createMenuItem(new AbstractAction(</span>
+<span class="nc" id="L457">						CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;More Options...&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L462">						openFieldCutomizationDialog(result, swingCustomizer.getInfoCustomizations(),</span>
+<span class="nc" id="L463">								getContainingObjectCustomizedType(fieldControlPlaceHolder),</span>
+<span class="nc" id="L464">								fieldControlPlaceHolder.getField().getName());</span>
+<span class="nc" id="L465">					}</span>
+				}));
+<span class="nc" id="L467">				showMenu(popupMenu, result);</span>
+<span class="nc" id="L468">			}</span>
+
+		});
+<span class="nc" id="L471">		return result;</span>
+	}
+
+	public Component makeButtonForTextualStorageDataField(
+			final FieldControlPlaceHolder textualStorageDatafieldControlPlaceHolder) {
+<span class="nc" id="L476">		final JButton result = makeButton();</span>
+<span class="nc" id="L477">		result.setToolTipText(SwingRendererUtils</span>
+<span class="nc" id="L478">				.adaptToolTipTextToMultiline(toolsRenderer.prepareMessageToDisplay(&quot;Editing Options&quot;)));</span>
+<span class="nc" id="L479">		result.addActionListener(new ActionListener() {</span>
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L483">				final JPopupMenu popupMenu = new JPopupMenu();</span>
+
+<span class="nc" id="L485">				List&lt;Form&gt; descendantForms = SwingRendererUtils</span>
+<span class="nc" id="L486">						.findDescendantForms(textualStorageDatafieldControlPlaceHolder, swingCustomizer);</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">				if (descendantForms.size() &gt;= 2) {</span>
+<span class="nc" id="L488">					FieldControlPlaceHolder changeableFieldControlPlaceHolder = descendantForms.get(1)</span>
+<span class="nc" id="L489">							.getFieldControlPlaceHolder(&quot;&quot;);</span>
+
+<span class="nc" id="L491">					FieldCustomization fieldCustomization = getFieldCustomization(changeableFieldControlPlaceHolder,</span>
+<span class="nc" id="L492">							swingCustomizer.getInfoCustomizations());</span>
+<span class="nc" id="L493">					FieldTypeSpecificities infoCustomizations = fieldCustomization.getSpecificTypeCustomizations();</span>
+
+<span class="nc bnc" id="L495" title="All 2 branches missed.">					for (JMenuItem menuItem : makeMenuItemsForFieldControlPlugins(result,</span>
+<span class="nc" id="L496">							changeableFieldControlPlaceHolder, infoCustomizations)) {</span>
+<span class="nc" id="L497">						popupMenu.add(menuItem);</span>
+					}
+
+<span class="nc" id="L500">					showMenu(popupMenu, result);</span>
+				}
+
+<span class="nc" id="L503">			}</span>
+
+		});
+<span class="nc" id="L506">		return result;</span>
+	}
+
+	protected List&lt;JMenuItem&gt; makeMenuItemsForFieldPosition(final JButton customizerButton,
+			final FieldControlPlaceHolder fieldControlPlaceHolder) {
+<span class="nc" id="L511">		final JMenu positionSubMenu = createMenu(toolsRenderer.prepareMessageToDisplay(&quot;Position&quot;));</span>
+<span class="nc" id="L512">		positionSubMenu.add(createMenuItem(</span>
+<span class="nc" id="L513">				new AbstractAction(CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Preceding&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						try {
+<span class="nc" id="L519">							moveField(customizerButton, getContainingObjectCustomizedType(fieldControlPlaceHolder),</span>
+<span class="nc" id="L520">									fieldControlPlaceHolder.getField().getName(), -1);</span>
+<span class="nc" id="L521">						} catch (Throwable t) {</span>
+<span class="nc" id="L522">							toolsRenderer.handleException(customizerButton, t);</span>
+						}
+<span class="nc" id="L524">					}</span>
+				}));
+<span class="nc" id="L526">		positionSubMenu.add(createMenuItem(</span>
+<span class="nc" id="L527">				new AbstractAction(CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Following&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						try {
+<span class="nc" id="L533">							moveField(customizerButton, getContainingObjectCustomizedType(fieldControlPlaceHolder),</span>
+<span class="nc" id="L534">									fieldControlPlaceHolder.getField().getName(), 1);</span>
+<span class="nc" id="L535">						} catch (Throwable t) {</span>
+<span class="nc" id="L536">							toolsRenderer.handleException(customizerButton, t);</span>
+						}
+<span class="nc" id="L538">					}</span>
+				}));
+<span class="nc" id="L540">		positionSubMenu.add(createMenuItem(</span>
+<span class="nc" id="L541">				new AbstractAction(CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;First&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						try {
+<span class="nc" id="L547">							moveField(customizerButton, getContainingObjectCustomizedType(fieldControlPlaceHolder),</span>
+<span class="nc" id="L548">									fieldControlPlaceHolder.getField().getName(), Short.MIN_VALUE);</span>
+<span class="nc" id="L549">						} catch (Throwable t) {</span>
+<span class="nc" id="L550">							toolsRenderer.handleException(customizerButton, t);</span>
+						}
+<span class="nc" id="L552">					}</span>
+				}));
+<span class="nc" id="L554">		positionSubMenu.add(createMenuItem(</span>
+<span class="nc" id="L555">				new AbstractAction(CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Last&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						try {
+<span class="nc" id="L561">							moveField(customizerButton, getContainingObjectCustomizedType(fieldControlPlaceHolder),</span>
+<span class="nc" id="L562">									fieldControlPlaceHolder.getField().getName(), Short.MAX_VALUE);</span>
+<span class="nc" id="L563">						} catch (Throwable t) {</span>
+<span class="nc" id="L564">							toolsRenderer.handleException(customizerButton, t);</span>
+						}
+<span class="nc" id="L566">					}</span>
+				}));
+<span class="nc" id="L568">		return Collections.&lt;JMenuItem&gt;singletonList(positionSubMenu);</span>
+	}
+
+	protected List&lt;JMenuItem&gt; makeMenuItemsForMethodPosition(final JButton customizerButton,
+			final MethodControlPlaceHolder methodControlPlaceHolder) {
+<span class="nc" id="L573">		final JMenu positionSubMenu = createMenu(toolsRenderer.prepareMessageToDisplay(&quot;Position&quot;));</span>
+<span class="nc" id="L574">		positionSubMenu.add(createMenuItem(</span>
+<span class="nc" id="L575">				new AbstractAction(CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Preceding&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						try {
+<span class="nc" id="L581">							moveMethod(customizerButton, getContainingObjectCustomizedType(methodControlPlaceHolder),</span>
+<span class="nc" id="L582">									methodControlPlaceHolder.getMethod().getSignature(), -1);</span>
+<span class="nc" id="L583">						} catch (Throwable t) {</span>
+<span class="nc" id="L584">							toolsRenderer.handleException(customizerButton, t);</span>
+						}
+<span class="nc" id="L586">					}</span>
+				}));
+<span class="nc" id="L588">		positionSubMenu.add(createMenuItem(</span>
+<span class="nc" id="L589">				new AbstractAction(CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Following&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						try {
+<span class="nc" id="L595">							moveMethod(customizerButton, getContainingObjectCustomizedType(methodControlPlaceHolder),</span>
+<span class="nc" id="L596">									methodControlPlaceHolder.getMethod().getSignature(), 1);</span>
+<span class="nc" id="L597">						} catch (Throwable t) {</span>
+<span class="nc" id="L598">							toolsRenderer.handleException(customizerButton, t);</span>
+						}
+<span class="nc" id="L600">					}</span>
+				}));
+<span class="nc" id="L602">		return Collections.&lt;JMenuItem&gt;singletonList(positionSubMenu);</span>
+	}
+
+	protected List&lt;JMenuItem&gt; makeMenuItemsForFieldEncapsulation(final JButton customizerButton,
+			final FieldControlPlaceHolder fieldControlPlaceHolder) {
+<span class="nc" id="L607">		final ITypeInfo objectCustomizedType = getContainingObjectCustomizedType(fieldControlPlaceHolder);</span>
+<span class="nc" id="L608">		final IFieldInfo field = fieldControlPlaceHolder.getField();</span>
+<span class="nc" id="L609">		Listener&lt;String&gt; encapsulator = new Listener&lt;String&gt;() {</span>
+
+			@Override
+			public void handle(final String capsuleFieldName) {
+<span class="nc" id="L613">				String title = &quot;Move '&quot; + field.getCaption() + &quot;' Into '&quot; + capsuleFieldName + &quot;'&quot;;</span>
+<span class="nc" id="L614">				swingCustomizer.getCustomizationController().getModificationStack().insideComposite(title,</span>
+<span class="nc" id="L615">						UndoOrder.getNormal(), new Accessor&lt;Boolean&gt;() {</span>
+							@Override
+							public Boolean get() {
+<span class="nc" id="L618">								String capsuleTypeName = MembersCapsuleFieldInfo.buildTypeName(capsuleFieldName,</span>
+<span class="nc" id="L619">										objectCustomizedType.getName());</span>
+<span class="nc" id="L620">								TypeCustomization srcTc = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L621">										swingCustomizer.getInfoCustomizations(), objectCustomizedType.getName(), true);</span>
+<span class="nc" id="L622">								TypeCustomization dstTc = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L623">										swingCustomizer.getInfoCustomizations(), capsuleTypeName, true);</span>
+<span class="nc" id="L624">								transferFieldCustomizationSettings(srcTc, dstTc, field.getName());</span>
+<span class="nc" id="L625">								FieldCustomization srcFc = InfoCustomizations.getFieldCustomization(srcTc,</span>
+<span class="nc" id="L626">										field.getName());</span>
+<span class="nc bnc" id="L627" title="All 2 branches missed.">								if (ReflectionUIUtils.findInfoByName(objectCustomizedType.getFields(),</span>
+<span class="nc" id="L628">										capsuleFieldName) == null) {</span>
+<span class="nc bnc" id="L629" title="All 2 branches missed.">									if (field.getCategory() != null) {</span>
+<span class="nc" id="L630">										FieldCustomization capsuleFc = InfoCustomizations.getFieldCustomization(srcTc,</span>
+<span class="nc" id="L631">												capsuleFieldName, true);</span>
+<span class="nc bnc" id="L632" title="All 2 branches missed.">										for (int i = 0; i &lt; srcTc.getMemberCategories().size(); i++) {</span>
+<span class="nc" id="L633">											CustomizationCategory customizationCategory = srcTc.getMemberCategories()</span>
+<span class="nc" id="L634">													.get(i);</span>
+<span class="nc" id="L635">											if (customizationCategory.getCaption()</span>
+<span class="nc bnc" id="L636" title="All 2 branches missed.">													.equals(field.getCategory().getCaption())</span>
+<span class="nc bnc" id="L637" title="All 2 branches missed.">													&amp;&amp; (i == field.getCategory().getPosition())) {</span>
+<span class="nc" id="L638">												changeCustomizationFieldValue(capsuleFc, &quot;categoryName&quot;,</span>
+<span class="nc" id="L639">														customizationCategory.getName());</span>
+<span class="nc" id="L640">												break;</span>
+											}
+										}
+									}
+								}
+<span class="nc" id="L645">								changeCustomizationFieldValue(srcFc, &quot;encapsulationFieldName&quot;, capsuleFieldName);</span>
+<span class="nc" id="L646">								return true;</span>
+							}
+<span class="nc" id="L648">						}, false);</span>
+<span class="nc" id="L649">			}</span>
+		};
+<span class="nc" id="L651">		Runnable decapsulator = new Runnable() {</span>
+
+			@Override
+			public void run() {
+<span class="nc" id="L655">				String title = &quot;Move '&quot; + field.getCaption() + &quot;' Out&quot;;</span>
+<span class="nc" id="L656">				swingCustomizer.getCustomizationController().getModificationStack().insideComposite(title,</span>
+<span class="nc" id="L657">						UndoOrder.getNormal(), new Accessor&lt;Boolean&gt;() {</span>
+							@Override
+							public Boolean get() {
+<span class="nc" id="L660">								String capsuleContainerTypeName = MembersCapsuleFieldInfo</span>
+<span class="nc" id="L661">										.extractobjectTypeName(objectCustomizedType.getName());</span>
+<span class="nc" id="L662">								TypeCustomization srcTc = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L663">										swingCustomizer.getInfoCustomizations(), objectCustomizedType.getName(), true);</span>
+<span class="nc" id="L664">								TypeCustomization dstTc = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L665">										swingCustomizer.getInfoCustomizations(), capsuleContainerTypeName, true);</span>
+<span class="nc" id="L666">								FieldCustomization srcFc = InfoCustomizations.getFieldCustomization(srcTc,</span>
+<span class="nc" id="L667">										field.getName());</span>
+<span class="nc" id="L668">								removeCustomizationItem(srcTc, &quot;fieldsCustomizations&quot;, srcFc);</span>
+<span class="nc" id="L669">								FieldCustomization dstFc = InfoCustomizations.getFieldCustomization(dstTc,</span>
+<span class="nc" id="L670">										field.getName());</span>
+<span class="nc" id="L671">								changeCustomizationFieldValue(dstFc, &quot;encapsulationFieldName&quot;, null);</span>
+<span class="nc" id="L672">								return true;</span>
+							}
+<span class="nc" id="L674">						}, false);</span>
+<span class="nc" id="L675">			}</span>
+		};
+<span class="nc" id="L677">		return makeMenuItemsForMemberEncapsulation(customizerButton, field, objectCustomizedType, encapsulator,</span>
+<span class="nc" id="L678">				decapsulator);</span>
+
+	}
+
+	protected List&lt;JMenuItem&gt; makeMenuItemsForMethodEncapsulation(final JButton customizerButton,
+			final MethodControlPlaceHolder methodControlPlaceHolder) {
+<span class="nc" id="L684">		final ITypeInfo objectCustomizedType = getContainingObjectCustomizedType(methodControlPlaceHolder);</span>
+<span class="nc" id="L685">		final IMethodInfo method = methodControlPlaceHolder.getMethod();</span>
+<span class="nc" id="L686">		Listener&lt;String&gt; encapsulator = new Listener&lt;String&gt;() {</span>
+
+			@Override
+			public void handle(final String capsuleFieldName) {
+<span class="nc" id="L690">				String title = &quot;Move '&quot; + method.getSignature() + &quot;' Into '&quot; + capsuleFieldName + &quot;'&quot;;</span>
+<span class="nc" id="L691">				swingCustomizer.getCustomizationController().getModificationStack().insideComposite(title,</span>
+<span class="nc" id="L692">						UndoOrder.getNormal(), new Accessor&lt;Boolean&gt;() {</span>
+							@Override
+							public Boolean get() {
+<span class="nc" id="L695">								String capsuleTypeName = MembersCapsuleFieldInfo.buildTypeName(capsuleFieldName,</span>
+<span class="nc" id="L696">										objectCustomizedType.getName());</span>
+<span class="nc" id="L697">								TypeCustomization srcTc = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L698">										swingCustomizer.getInfoCustomizations(), objectCustomizedType.getName(), true);</span>
+<span class="nc" id="L699">								TypeCustomization dstTc = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L700">										swingCustomizer.getInfoCustomizations(), capsuleTypeName, true);</span>
+<span class="nc" id="L701">								transferMethodCustomizationSettings(srcTc, dstTc, method.getSignature());</span>
+<span class="nc" id="L702">								MethodCustomization srcMc = InfoCustomizations.getMethodCustomization(srcTc,</span>
+<span class="nc" id="L703">										method.getSignature());</span>
+<span class="nc bnc" id="L704" title="All 2 branches missed.">								if (ReflectionUIUtils.findInfoByName(objectCustomizedType.getFields(),</span>
+<span class="nc" id="L705">										capsuleFieldName) == null) {</span>
+<span class="nc bnc" id="L706" title="All 2 branches missed.">									if (method.getCategory() != null) {</span>
+<span class="nc" id="L707">										FieldCustomization capsuleFc = InfoCustomizations.getFieldCustomization(srcTc,</span>
+<span class="nc" id="L708">												capsuleFieldName, true);</span>
+<span class="nc bnc" id="L709" title="All 2 branches missed.">										for (int i = 0; i &lt; srcTc.getMemberCategories().size(); i++) {</span>
+<span class="nc" id="L710">											CustomizationCategory customizationCategory = srcTc.getMemberCategories()</span>
+<span class="nc" id="L711">													.get(i);</span>
+<span class="nc" id="L712">											if (customizationCategory.getCaption()</span>
+<span class="nc bnc" id="L713" title="All 2 branches missed.">													.equals(method.getCategory().getCaption())</span>
+<span class="nc bnc" id="L714" title="All 2 branches missed.">													&amp;&amp; (i == method.getCategory().getPosition())) {</span>
+<span class="nc" id="L715">												changeCustomizationFieldValue(capsuleFc, &quot;categoryName&quot;,</span>
+<span class="nc" id="L716">														customizationCategory.getName());</span>
+<span class="nc" id="L717">												break;</span>
+											}
+										}
+									}
+								}
+<span class="nc" id="L722">								changeCustomizationFieldValue(srcMc, &quot;encapsulationFieldName&quot;, capsuleFieldName);</span>
+<span class="nc" id="L723">								return true;</span>
+							}
+<span class="nc" id="L725">						}, false);</span>
+<span class="nc" id="L726">			}</span>
+		};
+<span class="nc" id="L728">		Runnable decapsulator = new Runnable() {</span>
+
+			@Override
+			public void run() {
+<span class="nc" id="L732">				String title = &quot;Move '&quot; + method.getSignature() + &quot;' Out&quot;;</span>
+<span class="nc" id="L733">				swingCustomizer.getCustomizationController().getModificationStack().insideComposite(title,</span>
+<span class="nc" id="L734">						UndoOrder.getNormal(), new Accessor&lt;Boolean&gt;() {</span>
+							@Override
+							public Boolean get() {
+<span class="nc" id="L737">								String capsuleContainerTypeName = MembersCapsuleFieldInfo</span>
+<span class="nc" id="L738">										.extractobjectTypeName(objectCustomizedType.getName());</span>
+<span class="nc" id="L739">								TypeCustomization srcTc = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L740">										swingCustomizer.getInfoCustomizations(), objectCustomizedType.getName(), true);</span>
+<span class="nc" id="L741">								TypeCustomization dstTc = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L742">										swingCustomizer.getInfoCustomizations(), capsuleContainerTypeName, true);</span>
+<span class="nc" id="L743">								MethodCustomization srcMc = InfoCustomizations.getMethodCustomization(srcTc,</span>
+<span class="nc" id="L744">										method.getSignature());</span>
+<span class="nc" id="L745">								removeCustomizationItem(srcTc, &quot;methodsCustomizations&quot;, srcMc);</span>
+<span class="nc" id="L746">								MethodCustomization dstMc = InfoCustomizations.getMethodCustomization(dstTc,</span>
+<span class="nc" id="L747">										method.getSignature());</span>
+<span class="nc" id="L748">								changeCustomizationFieldValue(dstMc, &quot;encapsulationFieldName&quot;, null);</span>
+<span class="nc" id="L749">								return true;</span>
+							}
+<span class="nc" id="L751">						}, false);</span>
+<span class="nc" id="L752">			}</span>
+		};
+<span class="nc" id="L754">		return makeMenuItemsForMemberEncapsulation(customizerButton, method, objectCustomizedType, encapsulator,</span>
+<span class="nc" id="L755">				decapsulator);</span>
+	}
+
+	protected List&lt;JMenuItem&gt; makeMenuItemsForMemberEncapsulation(final JButton customizerButton, final IInfo member,
+			final ITypeInfo objectCustomizedType, final Listener&lt;String&gt; encapsulator, final Runnable decapsulator) {
+<span class="nc" id="L760">		List&lt;JMenuItem&gt; result = new ArrayList&lt;JMenuItem&gt;();</span>
+<span class="nc" id="L761">		final JMenu encapsulateSubMenu = createMenu(toolsRenderer.prepareMessageToDisplay(&quot;Move Into&quot;));</span>
+		{
+<span class="nc" id="L763">			result.add(encapsulateSubMenu);</span>
+<span class="nc" id="L764">			Set&lt;String&gt; capsuleNames = new TreeSet&lt;String&gt;();</span>
+			{
+<span class="nc bnc" id="L766" title="All 2 branches missed.">				for (IFieldInfo customizedField : objectCustomizedType.getFields()) {</span>
+<span class="nc" id="L767">					FieldCustomization fieldCustomization = getFieldCustomization(objectCustomizedType.getName(),</span>
+<span class="nc" id="L768">							customizedField.getName(), swingCustomizer.getInfoCustomizations());</span>
+<span class="nc bnc" id="L769" title="All 2 branches missed.">					if (fieldCustomization == null) {</span>
+<span class="nc" id="L770">						continue;</span>
+					}
+<span class="nc bnc" id="L772" title="All 2 branches missed.">					if (fieldCustomization.getEncapsulationFieldName() == null) {</span>
+<span class="nc" id="L773">						continue;</span>
+					}
+<span class="nc bnc" id="L775" title="All 2 branches missed.">					if (member instanceof IFieldInfo) {</span>
+<span class="nc bnc" id="L776" title="All 2 branches missed.">						if (member.getName().equals(fieldCustomization.getEncapsulationFieldName())) {</span>
+<span class="nc" id="L777">							continue;</span>
+						}
+					}
+<span class="nc" id="L780">					capsuleNames.add(fieldCustomization.getEncapsulationFieldName());</span>
+				}
+<span class="nc bnc" id="L782" title="All 2 branches missed.">				for (IMethodInfo customizedMethod : objectCustomizedType.getMethods()) {</span>
+<span class="nc" id="L783">					MethodCustomization methodCustomization = getMethodCustomization(objectCustomizedType.getName(),</span>
+<span class="nc" id="L784">							customizedMethod.getSignature(), swingCustomizer.getInfoCustomizations());</span>
+<span class="nc bnc" id="L785" title="All 2 branches missed.">					if (methodCustomization == null) {</span>
+<span class="nc" id="L786">						continue;</span>
+					}
+<span class="nc bnc" id="L788" title="All 2 branches missed.">					if (methodCustomization.getEncapsulationFieldName() == null) {</span>
+<span class="nc" id="L789">						continue;</span>
+					}
+<span class="nc bnc" id="L791" title="All 2 branches missed.">					if (member instanceof IFieldInfo) {</span>
+<span class="nc bnc" id="L792" title="All 2 branches missed.">						if (member.getName().equals(methodCustomization.getEncapsulationFieldName())) {</span>
+<span class="nc" id="L793">							continue;</span>
+						}
+					}
+<span class="nc" id="L796">					capsuleNames.add(methodCustomization.getEncapsulationFieldName());</span>
+				}
+			}
+<span class="nc bnc" id="L799" title="All 2 branches missed.">			for (final String capsuleName : capsuleNames) {</span>
+<span class="nc" id="L800">				encapsulateSubMenu</span>
+<span class="nc" id="L801">						.add(createMenuItem(new AbstractAction(toolsRenderer.prepareMessageToDisplay(capsuleName)) {</span>
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L806">								encapsulator.handle(capsuleName);</span>
+<span class="nc" id="L807">							}</span>
+						}));
+			}
+<span class="nc" id="L810">			encapsulateSubMenu</span>
+<span class="nc" id="L811">					.add(createMenuItem(new AbstractAction(toolsRenderer.prepareMessageToDisplay(&quot;New Field...&quot;)) {</span>
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void actionPerformed(ActionEvent ev) {
+<span class="nc" id="L817">							final String newFieldName = toolsRenderer.openInputDialog(encapsulateSubMenu, &quot;&quot;,</span>
+<span class="nc" id="L818">									&quot;Field Name&quot;, &quot;Move Member Into&quot;);</span>
+<span class="nc bnc" id="L819" title="All 2 branches missed.">							if (newFieldName == null) {</span>
+<span class="nc" id="L820">								return;</span>
+							}
+							try {
+<span class="nc" id="L823">								checkNewFieldNameAvailability(newFieldName, objectCustomizedType);</span>
+<span class="nc" id="L824">							} catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L825">								toolsRenderer.handleException(customizerButton, e);</span>
+<span class="nc" id="L826">								return;</span>
+							}
+<span class="nc" id="L828">							final TypeCustomization typeCustomization = getTypeCustomization(</span>
+<span class="nc" id="L829">									objectCustomizedType.getName(), swingCustomizer.getInfoCustomizations());</span>
+<span class="nc" id="L830">							final FieldCustomization capsuleFieldCustomization = InfoCustomizations</span>
+<span class="nc" id="L831">									.getFieldCustomization(typeCustomization, newFieldName, true);</span>
+<span class="nc" id="L832">							swingCustomizer.getCustomizationController().getModificationStack().insideComposite(</span>
+<span class="nc" id="L833">									&quot;Move Member Into '&quot; + newFieldName + &quot;'&quot;, UndoOrder.getNormal(),</span>
+<span class="nc" id="L834">									new Accessor&lt;Boolean&gt;() {</span>
+										@Override
+										public Boolean get() {
+<span class="nc" id="L837">											changeCustomizationFieldValue(capsuleFieldCustomization,</span>
+<span class="nc" id="L838">													&quot;formControlEmbeddingForced&quot;, true);</span>
+<span class="nc" id="L839">											encapsulator.handle(newFieldName);</span>
+<span class="nc" id="L840">											return true;</span>
+										}
+<span class="nc" id="L842">									}, false);</span>
+<span class="nc" id="L843">						}</span>
+					}));
+		}
+
+<span class="nc" id="L847">		final IInfo encapsulatedMemberProxy = (IInfo) member.getSpecificProperties()</span>
+<span class="nc" id="L848">				.get(MembersCapsuleFieldInfo.AS_ENCAPSULATED_MEMBER_PROXY_PROPERTY_KEY);</span>
+<span class="nc bnc" id="L849" title="All 2 branches missed.">		if (encapsulatedMemberProxy != null) {</span>
+<span class="nc bnc" id="L850" title="All 2 branches missed.">			if (encapsulatedMemberProxy.getName().equals(member.getName())) {</span>
+				MembersCapsuleFieldInfo capsuleField;
+<span class="nc bnc" id="L852" title="All 2 branches missed.">				if (encapsulatedMemberProxy instanceof MembersCapsuleFieldInfo.EncapsulatedFieldInfoProxy) {</span>
+<span class="nc" id="L853">					capsuleField = ((MembersCapsuleFieldInfo.EncapsulatedFieldInfoProxy) encapsulatedMemberProxy)</span>
+<span class="nc" id="L854">							.getParent();</span>
+<span class="nc bnc" id="L855" title="All 2 branches missed.">				} else if (encapsulatedMemberProxy instanceof MembersCapsuleFieldInfo.EncapsulatedMethodInfoProxy) {</span>
+<span class="nc" id="L856">					capsuleField = ((MembersCapsuleFieldInfo.EncapsulatedMethodInfoProxy) encapsulatedMemberProxy)</span>
+<span class="nc" id="L857">							.getParent();</span>
+<span class="nc" id="L858">				} else {</span>
+<span class="nc" id="L859">					throw new ReflectionUIError();</span>
+				}
+<span class="nc bnc" id="L861" title="All 2 branches missed.">				if (capsuleField.getValueType().getName().equals(objectCustomizedType.getName())) {</span>
+<span class="nc" id="L862">					result.add(createMenuItem(new AbstractAction(toolsRenderer.prepareMessageToDisplay(&quot;Move Out&quot;)) {</span>
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L867">							decapsulator.run();</span>
+<span class="nc" id="L868">						}</span>
+					}));
+				}
+			}
+		}
+<span class="nc" id="L873">		return result;</span>
+	}
+
+	protected void transferFieldCustomizationSettings(TypeCustomization srcTc, TypeCustomization dstTc,
+			String fieldName) {
+<span class="nc" id="L878">		FieldCustomization srcFc = InfoCustomizations.getFieldCustomization(srcTc, fieldName, true);</span>
+<span class="nc" id="L879">		FieldCustomization dstFc = InfoCustomizations.getFieldCustomization(dstTc, fieldName, true);</span>
+<span class="nc bnc" id="L880" title="All 2 branches missed.">		if (srcFc.isInitial()) {</span>
+<span class="nc" id="L881">			removeCustomizationItem(dstTc, &quot;fieldsCustomizations&quot;, dstFc);</span>
+<span class="nc" id="L882">		} else {</span>
+<span class="nc bnc" id="L883" title="All 2 branches missed.">			for (IFieldInfo field : ReflectionUI.getDefault()</span>
+<span class="nc" id="L884">					.getTypeInfo(new JavaTypeInfoSource(FieldCustomization.class, null)).getFields()) {</span>
+<span class="nc bnc" id="L885" title="All 2 branches missed.">				if (field.isGetOnly()) {</span>
+<span class="nc" id="L886">					continue;</span>
+				}
+<span class="nc bnc" id="L888" title="All 2 branches missed.">				if (field.getName().equals(&quot;uniqueIdentifier&quot;)) {</span>
+<span class="nc" id="L889">					continue;</span>
+				}
+<span class="nc bnc" id="L891" title="All 2 branches missed.">				if (field.getName().startsWith(&quot;category&quot;)) {</span>
+<span class="nc" id="L892">					continue;</span>
+				}
+<span class="nc bnc" id="L894" title="All 2 branches missed.">				if (field.getName().equals(&quot;encapsulationFieldName&quot;)) {</span>
+<span class="nc" id="L895">					continue;</span>
+				}
+<span class="nc bnc" id="L897" title="All 2 branches missed.">				if (field.getName().equals(&quot;duplicateGenerated&quot;)) {</span>
+<span class="nc" id="L898">					continue;</span>
+				}
+<span class="nc bnc" id="L900" title="All 2 branches missed.">				if (field.getName().equals(&quot;customSetterSignature&quot;)) {</span>
+<span class="nc" id="L901">					continue;</span>
+				}
+<span class="nc bnc" id="L903" title="All 2 branches missed.">				if (field.getName().equals(&quot;valueOptionsFieldName&quot;)) {</span>
+<span class="nc" id="L904">					continue;</span>
+				}
+<span class="nc bnc" id="L906" title="All 2 branches missed.">				if (field.getName().equals(&quot;getterGenerated&quot;)) {</span>
+<span class="nc" id="L907">					continue;</span>
+				}
+<span class="nc bnc" id="L909" title="All 2 branches missed.">				if (field.getName().equals(&quot;setterGenerated&quot;)) {</span>
+<span class="nc" id="L910">					continue;</span>
+				}
+<span class="nc bnc" id="L912" title="All 2 branches missed.">				if (field.getName().equals(&quot;nullStatusFieldExported&quot;)) {</span>
+<span class="nc" id="L913">					continue;</span>
+				}
+<span class="nc bnc" id="L915" title="All 2 branches missed.">				if (field.getName().equals(&quot;importedNullStatusFieldName&quot;)) {</span>
+<span class="nc" id="L916">					continue;</span>
+				}
+<span class="nc bnc" id="L918" title="All 2 branches missed.">				if (field.getName().equals(&quot;importedNullStatusFieldName&quot;)) {</span>
+<span class="nc" id="L919">					continue;</span>
+				}
+<span class="nc" id="L921">				changeCustomizationFieldValue(dstFc, field.getName(),</span>
+<span class="nc" id="L922">						IOUtils.copyThroughSerialization((Serializable) field.getValue(srcFc)));</span>
+			}
+		}
+<span class="nc" id="L925">	}</span>
+
+	protected void transferMethodCustomizationSettings(TypeCustomization srcTc, TypeCustomization dstTc,
+			String methodSignature) {
+<span class="nc" id="L929">		MethodCustomization srcMc = InfoCustomizations.getMethodCustomization(srcTc, methodSignature, true);</span>
+<span class="nc" id="L930">		MethodCustomization dstMc = InfoCustomizations.getMethodCustomization(dstTc, methodSignature, true);</span>
+<span class="nc bnc" id="L931" title="All 2 branches missed.">		if (srcMc.isInitial()) {</span>
+<span class="nc" id="L932">			removeCustomizationItem(dstTc, &quot;methodsCustomizations&quot;, dstMc);</span>
+<span class="nc" id="L933">		} else {</span>
+<span class="nc bnc" id="L934" title="All 2 branches missed.">			for (IFieldInfo field : ReflectionUI.getDefault()</span>
+<span class="nc" id="L935">					.getTypeInfo(new JavaTypeInfoSource(MethodCustomization.class, null)).getFields()) {</span>
+<span class="nc bnc" id="L936" title="All 2 branches missed.">				if (field.isGetOnly()) {</span>
+<span class="nc" id="L937">					continue;</span>
+				}
+<span class="nc bnc" id="L939" title="All 2 branches missed.">				if (field.getName().equals(&quot;uniqueIdentifier&quot;)) {</span>
+<span class="nc" id="L940">					continue;</span>
+				}
+<span class="nc bnc" id="L942" title="All 2 branches missed.">				if (field.getName().startsWith(&quot;category&quot;)) {</span>
+<span class="nc" id="L943">					continue;</span>
+				}
+<span class="nc bnc" id="L945" title="All 2 branches missed.">				if (field.getName().equals(&quot;encapsulationFieldName&quot;)) {</span>
+<span class="nc" id="L946">					continue;</span>
+				}
+<span class="nc bnc" id="L948" title="All 2 branches missed.">				if (field.getName().equals(&quot;duplicateGenerated&quot;)) {</span>
+<span class="nc" id="L949">					continue;</span>
+				}
+<span class="nc bnc" id="L951" title="All 2 branches missed.">				if (field.getName().equals(&quot;returnValueFieldGenerated&quot;)) {</span>
+<span class="nc" id="L952">					continue;</span>
+				}
+<span class="nc bnc" id="L954" title="All 2 branches missed.">				if (field.getName().equals(&quot;parameterizedFieldNames&quot;)) {</span>
+<span class="nc" id="L955">					continue;</span>
+				}
+<span class="nc bnc" id="L957" title="All 2 branches missed.">				if (field.getName().equals(&quot;menuLocation&quot;)) {</span>
+<span class="nc" id="L958">					continue;</span>
+				}
+<span class="nc bnc" id="L960" title="All 2 branches missed.">				if (field.getName().equals(&quot;transactionalRole&quot;)) {</span>
+<span class="nc" id="L961">					continue;</span>
+				}
+<span class="nc bnc" id="L963" title="All 2 branches missed.">				if (field.getName().equals(&quot;enablementStatusFieldName&quot;)) {</span>
+<span class="nc" id="L964">					continue;</span>
+				}
+<span class="nc" id="L966">				changeCustomizationFieldValue(dstMc, field.getName(),</span>
+<span class="nc" id="L967">						IOUtils.copyThroughSerialization((Serializable) field.getValue(srcMc)));</span>
+			}
+		}
+<span class="nc" id="L970">	}</span>
+
+	protected void checkNewFieldNameAvailability(String newFieldName, ITypeInfo objectCustomizedType)
+			throws IllegalArgumentException {
+<span class="nc bnc" id="L974" title="All 2 branches missed.">		for (IFieldInfo field : objectCustomizedType.getFields()) {</span>
+<span class="nc bnc" id="L975" title="All 2 branches missed.">			if (newFieldName.equals(field.getName())) {</span>
+<span class="nc" id="L976">				throw new IllegalArgumentException(&quot;Field name already used: '&quot; + newFieldName + &quot;'&quot;);</span>
+			}
+		}
+<span class="nc" id="L979">	}</span>
+
+	protected JMenuItem makeCustomizableFieldControlPluginMenuItem(ICustomizableFieldControlPlugin plugin,
+			final JButton customizerButton, final FieldControlPlaceHolder fieldControlPlaceHolder,
+			final InfoCustomizations infoCustomizations) {
+<span class="nc" id="L984">		return createMenuItem(</span>
+<span class="nc" id="L985">				new AbstractAction(toolsRenderer.prepareMessageToDisplay(plugin.getControlTitle() + &quot; Options...&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L990">						TypeCustomization typeCustomization = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L991">								infoCustomizations, fieldControlPlaceHolder.getControlData().getType().getName(), true);</span>
+<span class="nc" id="L992">						AbstractConfiguration controlConfiguration = null;</span>
+						try {
+<span class="nc" id="L994">							controlConfiguration = plugin</span>
+<span class="nc" id="L995">									.getControlCustomization(typeCustomization.getSpecificProperties());</span>
+<span class="nc" id="L996">						} catch (Throwable t) {</span>
+<span class="nc" id="L997">							controlConfiguration = plugin.getDefaultControlCustomization();</span>
+						}
+<span class="nc" id="L999">						StandardEditorBuilder status = toolsRenderer.openObjectDialog(customizerButton,</span>
+<span class="nc" id="L1000">								controlConfiguration, null, null, true, true);</span>
+<span class="nc bnc" id="L1001" title="All 2 branches missed.">						if (status.isCancelled()) {</span>
+<span class="nc" id="L1002">							return;</span>
+						}
+<span class="nc" id="L1004">						Map&lt;String, Object&gt; newSpecificProperties = plugin.storeControlCustomization(</span>
+<span class="nc" id="L1005">								controlConfiguration, typeCustomization.getSpecificProperties());</span>
+<span class="nc" id="L1006">						CustomizationTools.this.changeCustomizationFieldValue(typeCustomization, &quot;specificProperties&quot;,</span>
+<span class="nc" id="L1007">								newSpecificProperties);</span>
+<span class="nc" id="L1008">					}</span>
+
+				});
+	}
+
+	protected List&lt;JMenuItem&gt; makeMenuItemsForFieldControlPlugins(final JButton customizerButton,
+			final FieldControlPlaceHolder fieldControlPlaceHolder, InfoCustomizations infoCustomizations) {
+<span class="nc bnc" id="L1015" title="All 2 branches missed.">		if (fieldControlPlaceHolder.getControlData().isFormControlMandatory()) {</span>
+<span class="nc" id="L1016">			return Collections.emptyList();</span>
+		}
+<span class="nc" id="L1018">		if (ReflectionUIUtils.isFieldControlPluginManagementDisabled(</span>
+<span class="nc bnc" id="L1019" title="All 2 branches missed.">				fieldControlPlaceHolder.getControlData().getType().getSpecificProperties())) {</span>
+<span class="nc" id="L1020">			return Collections.emptyList();</span>
+		}
+<span class="nc" id="L1022">		List&lt;JMenuItem&gt; result = new ArrayList&lt;JMenuItem&gt;();</span>
+<span class="nc" id="L1023">		final TypeCustomization typeCustomization = getTypeCustomization(</span>
+<span class="nc" id="L1024">				fieldControlPlaceHolder.getControlData().getType().getName(), infoCustomizations);</span>
+<span class="nc" id="L1025">		final IFieldControlPlugin currentPlugin = SwingRendererUtils.getCurrentFieldControlPlugin(swingCustomizer,</span>
+<span class="nc" id="L1026">				typeCustomization.getSpecificProperties(), fieldControlPlaceHolder);</span>
+<span class="nc bnc" id="L1027" title="All 2 branches missed.">		if (currentPlugin != null) {</span>
+<span class="nc bnc" id="L1028" title="All 2 branches missed.">			if (currentPlugin instanceof ICustomizableFieldControlPlugin) {</span>
+<span class="nc" id="L1029">				result.add(makeCustomizableFieldControlPluginMenuItem((ICustomizableFieldControlPlugin) currentPlugin,</span>
+<span class="nc" id="L1030">						customizerButton, fieldControlPlaceHolder, infoCustomizations));</span>
+			}
+		}
+
+<span class="nc" id="L1034">		List&lt;IFieldControlPlugin&gt; potentialFieldControlPlugins = new ArrayList&lt;IFieldControlPlugin&gt;();</span>
+		{
+<span class="nc bnc" id="L1036" title="All 2 branches missed.">			for (IFieldControlPlugin plugin : swingCustomizer.getFieldControlPlugins()) {</span>
+<span class="nc bnc" id="L1037" title="All 2 branches missed.">				if (plugin.handles(swingCustomizer.getReflectionUI(), fieldControlPlaceHolder)) {</span>
+<span class="nc" id="L1038">					potentialFieldControlPlugins.add(plugin);</span>
+				}
+			}
+		}
+<span class="nc bnc" id="L1042" title="All 2 branches missed.">		if (potentialFieldControlPlugins.size() &gt; 0) {</span>
+<span class="nc" id="L1043">			JMenu changeFieldControlPluginMenu = createMenu(toolsRenderer.prepareMessageToDisplay(&quot;Change Control&quot;));</span>
+<span class="nc" id="L1044">			result.add(changeFieldControlPluginMenu);</span>
+<span class="nc" id="L1045">			changeFieldControlPluginMenu.add(createCheckBoxMenuItem(</span>
+<span class="nc" id="L1046">					new AbstractAction(toolsRenderer.prepareMessageToDisplay(&quot;Default Control&quot;)) {</span>
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1052">							Map&lt;String, Object&gt; specificProperties = typeCustomization.getSpecificProperties();</span>
+<span class="nc" id="L1053">							specificProperties = new HashMap&lt;String, Object&gt;(specificProperties);</span>
+<span class="nc" id="L1054">							ReflectionUIUtils.updateFieldControlPluginValues(specificProperties, null, null);</span>
+<span class="nc" id="L1055">							changeCustomizationFieldValue(typeCustomization, &quot;specificProperties&quot;, specificProperties);</span>
+<span class="nc" id="L1056">						}</span>
+<span class="nc bnc" id="L1057" title="All 2 branches missed.">					}, currentPlugin == null));</span>
+<span class="nc bnc" id="L1058" title="All 2 branches missed.">			for (final IFieldControlPlugin plugin : potentialFieldControlPlugins) {</span>
+<span class="nc" id="L1059">				changeFieldControlPluginMenu.add(createCheckBoxMenuItem(</span>
+<span class="nc" id="L1060">						new AbstractAction(toolsRenderer.prepareMessageToDisplay(plugin.getControlTitle())) {</span>
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1065">								Map&lt;String, Object&gt; specificProperties = typeCustomization.getSpecificProperties();</span>
+<span class="nc" id="L1066">								specificProperties = new HashMap&lt;String, Object&gt;(specificProperties);</span>
+<span class="nc" id="L1067">								ReflectionUIUtils.updateFieldControlPluginValues(specificProperties,</span>
+<span class="nc" id="L1068">										plugin.getIdentifier(),</span>
+<span class="nc bnc" id="L1069" title="All 2 branches missed.">										(plugin instanceof ICustomizableFieldControlPlugin)</span>
+<span class="nc" id="L1070">												? ((ICustomizableFieldControlPlugin) plugin)</span>
+<span class="nc" id="L1071">														.getDefaultControlCustomization()</span>
+<span class="nc" id="L1072">												: null);</span>
+<span class="nc" id="L1073">								changeCustomizationFieldValue(typeCustomization, &quot;specificProperties&quot;,</span>
+<span class="nc" id="L1074">										specificProperties);</span>
+<span class="nc" id="L1075">							}</span>
+<span class="nc bnc" id="L1076" title="All 4 branches missed.">						}, (currentPlugin != null) &amp;&amp; currentPlugin.getIdentifier().equals(plugin.getIdentifier())));</span>
+			}
+		}
+<span class="nc" id="L1079">		return result;</span>
+
+	}
+
+	protected List&lt;JMenuItem&gt; makeMenuItemsForFieldType(final JButton customizerButton,
+			final FieldControlPlaceHolder fieldControlPlaceHolder, final boolean infoCustomizationsShared,
+			final ITypeInfo fieldType) {
+		final InfoCustomizations infoCustomizations;
+<span class="nc bnc" id="L1087" title="All 2 branches missed.">		if (infoCustomizationsShared) {</span>
+<span class="nc" id="L1088">			infoCustomizations = swingCustomizer.getInfoCustomizations();</span>
+<span class="nc" id="L1089">		} else {</span>
+<span class="nc" id="L1090">			FieldCustomization fieldCustomization = getFieldCustomization(fieldControlPlaceHolder,</span>
+<span class="nc" id="L1091">					swingCustomizer.getInfoCustomizations());</span>
+<span class="nc" id="L1092">			infoCustomizations = fieldCustomization.getSpecificTypeCustomizations();</span>
+		}
+
+<span class="nc" id="L1095">		List&lt;JMenuItem&gt; result = new ArrayList&lt;JMenuItem&gt;();</span>
+
+<span class="nc bnc" id="L1097" title="All 2 branches missed.">		for (JMenuItem menuItem : makeMenuItemsForFieldControlPlugins(customizerButton, fieldControlPlaceHolder,</span>
+<span class="nc" id="L1098">				infoCustomizations)) {</span>
+<span class="nc" id="L1099">			result.add(menuItem);</span>
+		}
+
+<span class="nc" id="L1102">		result.add(createMenuItem(</span>
+<span class="nc" id="L1103">				new AbstractAction(CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Type Options...&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1108">						openTypeCustomizationDialog(customizerButton, infoCustomizations, fieldType);</span>
+<span class="nc" id="L1109">					}</span>
+				}));
+<span class="nc bnc" id="L1111" title="All 2 branches missed.">		if (fieldType instanceof IListTypeInfo) {</span>
+<span class="nc" id="L1112">			result.add(makeMenuItemForList(customizerButton, fieldControlPlaceHolder, infoCustomizationsShared,</span>
+<span class="nc" id="L1113">					(IListTypeInfo) fieldType));</span>
+		}
+<span class="nc bnc" id="L1115" title="All 2 branches missed.">		if (fieldType instanceof IEnumerationTypeInfo) {</span>
+<span class="nc" id="L1116">			result.add(</span>
+<span class="nc" id="L1117">					makeMenuItemForEnumeration(customizerButton, infoCustomizations, (IEnumerationTypeInfo) fieldType));</span>
+		}
+
+<span class="nc bnc" id="L1120" title="All 2 branches missed.">		if (!infoCustomizationsShared) {</span>
+<span class="nc bnc" id="L1121" title="All 2 branches missed.">			if (swingCustomizer.getCustomizationOptions().areFieldSharedTypeOptionsDisplayed()) {</span>
+<span class="nc" id="L1122">				final JMenu sharedTypeInfoSubMenu = createMenu(</span>
+<span class="nc" id="L1123">						CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Shared&quot;));</span>
+<span class="nc" id="L1124">				result.add(sharedTypeInfoSubMenu);</span>
+<span class="nc bnc" id="L1125" title="All 2 branches missed.">				for (JMenuItem menuItem : makeMenuItemsForFieldType(customizerButton, fieldControlPlaceHolder, true,</span>
+<span class="nc" id="L1126">						fieldType)) {</span>
+<span class="nc" id="L1127">					sharedTypeInfoSubMenu.add(menuItem);</span>
+				}
+			}
+		}
+<span class="nc" id="L1131">		return result;</span>
+
+	}
+
+	protected JMenuItem makeMenuItemForList(final JButton customizerButton,
+			FieldControlPlaceHolder fieldControlPlaceHolder, final boolean infoCustomizationsShared,
+			final IListTypeInfo customizedListType) {
+		final InfoCustomizations infoCustomizations;
+<span class="nc bnc" id="L1139" title="All 2 branches missed.">		if (infoCustomizationsShared) {</span>
+<span class="nc" id="L1140">			infoCustomizations = swingCustomizer.getInfoCustomizations();</span>
+<span class="nc" id="L1141">		} else {</span>
+<span class="nc" id="L1142">			FieldCustomization fieldCustomization = getFieldCustomization(fieldControlPlaceHolder,</span>
+<span class="nc" id="L1143">					swingCustomizer.getInfoCustomizations());</span>
+<span class="nc" id="L1144">			infoCustomizations = fieldCustomization.getSpecificTypeCustomizations();</span>
+		}
+<span class="nc" id="L1146">		JMenu result = createMenu(this.toolsRenderer.prepareMessageToDisplay(&quot;List&quot;));</span>
+		{
+<span class="nc" id="L1148">			result.add(</span>
+<span class="nc" id="L1149">					createMenuItem(new AbstractAction(this.toolsRenderer.prepareMessageToDisplay(&quot;Move Columns...&quot;)) {</span>
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1154">							ITypeInfo customizedItemType = customizedListType.getItemType();</span>
+<span class="nc" id="L1155">							if (InfoCustomizationsFactory.isItemTypeChanged(infoCustomizations,</span>
+<span class="nc bnc" id="L1156" title="All 2 branches missed.">									customizedListType.getSpecificProperties())) {</span>
+<span class="nc" id="L1157">								customizedItemType = InfoCustomizationsFactory.getOriginalItemType(infoCustomizations,</span>
+<span class="nc" id="L1158">										customizedListType.getSpecificProperties());</span>
+							}
+<span class="nc bnc" id="L1160" title="All 2 branches missed.">							String itemTypeName = (customizedItemType == null) ? null : customizedItemType.getName();</span>
+<span class="nc" id="L1161">							ListCustomization lc = InfoCustomizations.getListCustomization(infoCustomizations,</span>
+<span class="nc" id="L1162">									customizedListType.getName(), itemTypeName, true);</span>
+<span class="nc" id="L1163">							IListStructuralInfo customizedListStructure = customizedListType.getStructuralInfo();</span>
+<span class="nc" id="L1164">							List&lt;IInfo&gt; columns = MiscUtils.convertCollection(customizedListStructure.getColumns());</span>
+<span class="nc" id="L1165">							openInfosOrderDialog(customizerButton, lc, &quot;columnsCustomOrder&quot;, columns, &quot;Columns Order&quot;);</span>
+<span class="nc" id="L1166">						}</span>
+					}));
+<span class="nc" id="L1168">			result.add(</span>
+<span class="nc" id="L1169">					createMenuItem(new AbstractAction(this.toolsRenderer.prepareMessageToDisplay(&quot;More Options...&quot;)) {</span>
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1174">							openListCutomizationDialog(customizerButton, infoCustomizations, customizedListType);</span>
+<span class="nc" id="L1175">						}</span>
+					}));
+<span class="nc" id="L1177">			Component fieldControl = fieldControlPlaceHolder.getFieldControl();</span>
+<span class="nc bnc" id="L1178" title="All 2 branches missed.">			if (fieldControl instanceof ListControl) {</span>
+<span class="nc" id="L1179">				ItemPosition selected = ((ListControl) fieldControl).getSingleSelection();</span>
+<span class="nc bnc" id="L1180" title="All 2 branches missed.">				if (selected != null) {</span>
+<span class="nc bnc" id="L1181" title="All 2 branches missed.">					if (selected.getParentItemPosition() != null) {</span>
+<span class="nc bnc" id="L1182" title="All 2 branches missed.">						if (!(selected.getContainingListFieldIfNotRoot() instanceof SubListGroupField)) {</span>
+<span class="nc" id="L1183">							JMenu listSelectionMenu = createMenu(</span>
+<span class="nc" id="L1184">									this.toolsRenderer.prepareMessageToDisplay(&quot;Selected Sub-list&quot;));</span>
+<span class="nc" id="L1185">							listSelectionMenu.add(createMenuItem(</span>
+<span class="nc" id="L1186">									new AbstractAction(this.toolsRenderer.prepareMessageToDisplay(&quot;More Options...&quot;)) {</span>
+										private static final long serialVersionUID = 1L;
+
+										@Override
+										public void actionPerformed(ActionEvent e) {
+											final InfoCustomizations infoCustomizations;
+<span class="nc bnc" id="L1192" title="All 2 branches missed.">											if (infoCustomizationsShared) {</span>
+<span class="nc" id="L1193">												infoCustomizations = swingCustomizer.getInfoCustomizations();</span>
+<span class="nc" id="L1194">											} else {</span>
+<span class="nc" id="L1195">												Object parentItem = selected.getParentItemPosition().getItem();</span>
+<span class="nc" id="L1196">												ITypeInfo parentItemType = swingCustomizer.getCustomizedUI()</span>
+<span class="nc" id="L1197">														.getTypeInfo(swingCustomizer.getCustomizedUI()</span>
+<span class="nc" id="L1198">																.getTypeInfoSource(parentItem));</span>
+<span class="nc" id="L1199">												FieldCustomization fieldCustomization = InfoCustomizations</span>
+<span class="nc" id="L1200">														.getFieldCustomization(</span>
+<span class="nc" id="L1201">																InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L1202">																		swingCustomizer.getInfoCustomizations(),</span>
+<span class="nc" id="L1203">																		parentItemType.getName()),</span>
+<span class="nc" id="L1204">																selected.getContainingListFieldIfNotRoot().getName(),</span>
+<span class="nc" id="L1205">																true);</span>
+<span class="nc" id="L1206">												infoCustomizations = fieldCustomization.getSpecificTypeCustomizations();</span>
+											}
+<span class="nc" id="L1208">											openListCutomizationDialog(customizerButton, infoCustomizations,</span>
+<span class="nc" id="L1209">													(IListTypeInfo) selected.getContainingListFieldIfNotRoot()</span>
+<span class="nc" id="L1210">															.getType());</span>
+<span class="nc" id="L1211">										}</span>
+									}));
+<span class="nc" id="L1213">							result.add(listSelectionMenu);</span>
+						}
+					}
+				}
+			}
+		}
+<span class="nc" id="L1219">		return result;</span>
+	}
+
+	protected JMenuItem makeMenuItemForEnumeration(final JButton customizerButton,
+			final InfoCustomizations infoCustomizations, final IEnumerationTypeInfo customizedEnumType) {
+<span class="nc" id="L1224">		JMenu result = createMenu(this.toolsRenderer.prepareMessageToDisplay(&quot;Enumeration&quot;));</span>
+		{
+<span class="nc" id="L1226">			result.add(createMenuItem(new AbstractAction(this.toolsRenderer.prepareMessageToDisplay(&quot;Move Items...&quot;)) {</span>
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1231">					EnumerationCustomization ec = InfoCustomizations.getEnumerationCustomization(infoCustomizations,</span>
+<span class="nc" id="L1232">							customizedEnumType.getName(), true);</span>
+<span class="nc" id="L1233">					List&lt;IInfo&gt; valueInfos = new ArrayList&lt;IInfo&gt;();</span>
+<span class="nc bnc" id="L1234" title="All 2 branches missed.">					for (Object value : customizedEnumType.getValues()) {</span>
+<span class="nc" id="L1235">						valueInfos.add(customizedEnumType.getValueInfo(value));</span>
+					}
+<span class="nc" id="L1237">					openInfosOrderDialog(customizerButton, ec, &quot;itemsCustomOrder&quot;, valueInfos,</span>
+<span class="nc" id="L1238">							&quot;Enumeration Items Order&quot;);</span>
+<span class="nc" id="L1239">				}</span>
+			}));
+<span class="nc" id="L1241">			result.add(</span>
+<span class="nc" id="L1242">					createMenuItem(new AbstractAction(this.toolsRenderer.prepareMessageToDisplay(&quot;More Options...&quot;)) {</span>
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1247">							openEnumerationCutomizationDialog(customizerButton, infoCustomizations, customizedEnumType);</span>
+<span class="nc" id="L1248">						}</span>
+					}));
+		}
+<span class="nc" id="L1251">		return result;</span>
+	}
+
+	protected JMenu createMenu(String text) {
+<span class="nc" id="L1255">		JMenu result = new JMenu(text);</span>
+<span class="nc" id="L1256">		Color backgroundColor = toolsRenderer.getMainBackgroundColor();</span>
+<span class="nc" id="L1257">		Color foregroundColor = toolsRenderer.getMainForegroundColor();</span>
+<span class="nc" id="L1258">		Font labelCustomFont = toolsRenderer.getMainLabelCustomFont(result);</span>
+<span class="nc bnc" id="L1259" title="All 2 branches missed.">		if (backgroundColor != null) {</span>
+<span class="nc" id="L1260">			result.setBackground(backgroundColor);</span>
+		}
+<span class="nc" id="L1262">		result.setOpaque(true);</span>
+<span class="nc bnc" id="L1263" title="All 2 branches missed.">		if (foregroundColor != null) {</span>
+<span class="nc" id="L1264">			result.setForeground(foregroundColor);</span>
+		}
+<span class="nc bnc" id="L1266" title="All 2 branches missed.">		if (labelCustomFont != null) {</span>
+<span class="nc" id="L1267">			result.setFont(labelCustomFont);</span>
+		}
+<span class="nc" id="L1269">		return result;</span>
+	}
+
+	protected JMenuItem createMenuItem(Action action) {
+<span class="nc" id="L1273">		JMenuItem result = new JMenuItem(action);</span>
+<span class="nc" id="L1274">		Color backgroundColor = toolsRenderer.getMainBackgroundColor();</span>
+<span class="nc" id="L1275">		Color foregroundColor = toolsRenderer.getMainForegroundColor();</span>
+<span class="nc" id="L1276">		Font labelCustomFont = toolsRenderer.getMainLabelCustomFont(result);</span>
+<span class="nc bnc" id="L1277" title="All 2 branches missed.">		if (backgroundColor != null) {</span>
+<span class="nc" id="L1278">			result.setBackground(backgroundColor);</span>
+		}
+<span class="nc" id="L1280">		result.setOpaque(true);</span>
+<span class="nc bnc" id="L1281" title="All 2 branches missed.">		if (foregroundColor != null) {</span>
+<span class="nc" id="L1282">			result.setForeground(foregroundColor);</span>
+		}
+<span class="nc bnc" id="L1284" title="All 2 branches missed.">		if (labelCustomFont != null) {</span>
+<span class="nc" id="L1285">			result.setFont(labelCustomFont);</span>
+		}
+<span class="nc" id="L1287">		return result;</span>
+	}
+
+	protected JCheckBoxMenuItem createCheckBoxMenuItem(Action action, boolean selected) {
+<span class="nc" id="L1291">		JCheckBoxMenuItem result = new JCheckBoxMenuItem(action);</span>
+<span class="nc" id="L1292">		result.setSelected(selected);</span>
+<span class="nc" id="L1293">		Color backgroundColor = toolsRenderer.getMainBackgroundColor();</span>
+<span class="nc" id="L1294">		Color foregroundColor = toolsRenderer.getMainForegroundColor();</span>
+<span class="nc" id="L1295">		Font labelCustomFont = toolsRenderer.getMainLabelCustomFont(result);</span>
+<span class="nc bnc" id="L1296" title="All 2 branches missed.">		if (backgroundColor != null) {</span>
+<span class="nc" id="L1297">			result.setBackground(backgroundColor);</span>
+		}
+<span class="nc" id="L1299">		result.setOpaque(true);</span>
+<span class="nc bnc" id="L1300" title="All 2 branches missed.">		if (foregroundColor != null) {</span>
+<span class="nc" id="L1301">			result.setForeground(foregroundColor);</span>
+		}
+<span class="nc bnc" id="L1303" title="All 2 branches missed.">		if (labelCustomFont != null) {</span>
+<span class="nc" id="L1304">			result.setFont(labelCustomFont);</span>
+		}
+<span class="nc" id="L1306">		return result;</span>
+	}
+
+	protected void showMenu(JPopupMenu popupMenu, JButton source) {
+<span class="nc" id="L1310">		popupMenu.show(source, source.getWidth(), source.getHeight() / 2);</span>
+<span class="nc" id="L1311">	}</span>
+
+	protected void hideMethod(JButton customizerButton, ITypeInfo customizedType, String methodSignature) {
+<span class="nc" id="L1314">		TypeCustomization t = InfoCustomizations.getTypeCustomization(this.swingCustomizer.getInfoCustomizations(),</span>
+<span class="nc" id="L1315">				customizedType.getName(), true);</span>
+<span class="nc" id="L1316">		MethodCustomization mc = InfoCustomizations.getMethodCustomization(t, methodSignature, true);</span>
+<span class="nc" id="L1317">		changeCustomizationFieldValue(mc, &quot;hidden&quot;, true);</span>
+<span class="nc" id="L1318">	}</span>
+
+	protected void hideField(JButton customizerButton, ITypeInfo customizedType, String fieldName) {
+<span class="nc" id="L1321">		TypeCustomization t = InfoCustomizations.getTypeCustomization(this.swingCustomizer.getInfoCustomizations(),</span>
+<span class="nc" id="L1322">				customizedType.getName(), true);</span>
+<span class="nc" id="L1323">		FieldCustomization fc = InfoCustomizations.getFieldCustomization(t, fieldName, true);</span>
+<span class="nc" id="L1324">		changeCustomizationFieldValue(fc, &quot;hidden&quot;, true);</span>
+<span class="nc" id="L1325">	}</span>
+
+	public void changeCustomizationFieldValue(AbstractCustomization customization, String fieldName,
+			Object fieldValue) {
+<span class="nc" id="L1329">		ITypeInfo customizationType = toolsUI.getTypeInfo(toolsUI.getTypeInfoSource(customization));</span>
+<span class="nc" id="L1330">		IFieldInfo field = ReflectionUIUtils.findInfoByName(customizationType.getFields(), fieldName);</span>
+<span class="nc" id="L1331">		DefaultFieldControlData controlData = new DefaultFieldControlData(toolsUI, customization, field);</span>
+<span class="nc" id="L1332">		ModificationStack modificationStack = swingCustomizer.getCustomizationController().getModificationStack();</span>
+<span class="nc" id="L1333">		ReflectionUIUtils.setFieldValueThroughModificationStack(controlData, fieldValue, modificationStack,</span>
+<span class="nc" id="L1334">				ReflectionUIUtils.getDebugLogListener(swingCustomizer.getReflectionUI()));</span>
+<span class="nc" id="L1335">	}</span>
+
+	protected void removeCustomizationItem(AbstractCustomization container, String listFieldName,
+			AbstractCustomization item) {
+<span class="nc" id="L1339">		ITypeInfo customizationType = toolsUI.getTypeInfo(toolsUI.getTypeInfoSource(container));</span>
+<span class="nc" id="L1340">		IFieldInfo listField = ReflectionUIUtils.findInfoByName(customizationType.getFields(), listFieldName);</span>
+		@SuppressWarnings({ &quot;rawtypes&quot;, &quot;unchecked&quot; })
+<span class="nc" id="L1342">		List tmpList = new ArrayList((List) listField.getValue(container));</span>
+<span class="nc" id="L1343">		tmpList.remove(item);</span>
+<span class="nc" id="L1344">		changeCustomizationFieldValue(container, listFieldName, tmpList);</span>
+<span class="nc" id="L1345">	}</span>
+
+	protected void moveField(JButton customizerButton, ITypeInfo customizedType, String fieldName, int offset) {
+<span class="nc" id="L1348">		TypeCustomization tc = InfoCustomizations.getTypeCustomization(this.swingCustomizer.getInfoCustomizations(),</span>
+<span class="nc" id="L1349">				customizedType.getName(), true);</span>
+<span class="nc" id="L1350">		List&lt;IFieldInfo&gt; customizedFields = customizedType.getFields();</span>
+<span class="nc" id="L1351">		IFieldInfo customizedField = ReflectionUIUtils.findInfoByName(customizedFields, fieldName);</span>
+<span class="nc bnc" id="L1352" title="All 2 branches missed.">		if (customizedField == null) {</span>
+<span class="nc" id="L1353">			return;</span>
+		}
+<span class="nc" id="L1355">		List&lt;String&gt; newOrder = InfoCustomizations.getInfosOrderAfterMove(customizedFields, customizedField, offset);</span>
+<span class="nc" id="L1356">		changeCustomizationFieldValue(tc, &quot;customFieldsOrder&quot;, newOrder);</span>
+<span class="nc" id="L1357">	}</span>
+
+	protected void moveMethod(JButton customizerButton, ITypeInfo customizedType, String methodSignature, int offset) {
+<span class="nc" id="L1360">		TypeCustomization tc = InfoCustomizations.getTypeCustomization(this.swingCustomizer.getInfoCustomizations(),</span>
+<span class="nc" id="L1361">				customizedType.getName(), true);</span>
+<span class="nc" id="L1362">		List&lt;IMethodInfo&gt; customizedMethods = customizedType.getMethods();</span>
+<span class="nc" id="L1363">		IMethodInfo customizedMethod = ReflectionUIUtils.findMethodBySignature(customizedMethods, methodSignature);</span>
+<span class="nc bnc" id="L1364" title="All 2 branches missed.">		if (customizedMethod == null) {</span>
+<span class="nc" id="L1365">			return;</span>
+		}
+<span class="nc" id="L1367">		List&lt;String&gt; newOrder = InfoCustomizations.getInfosOrderAfterMove(customizedMethods, customizedMethod, offset);</span>
+<span class="nc" id="L1368">		changeCustomizationFieldValue(tc, &quot;customMethodsOrder&quot;, newOrder);</span>
+<span class="nc" id="L1369">	}</span>
+
+	protected void openInfosOrderDialog(final JButton customizerButton, AbstractCustomization customization,
+			String customizationOrderFieldName, List&lt;IInfo&gt; currentInfoList, String title) {
+<span class="nc" id="L1373">		InfoOrderItem[] orderItems = new InfoOrderItem[currentInfoList.size()];</span>
+<span class="nc bnc" id="L1374" title="All 2 branches missed.">		for (int i = 0; i &lt; currentInfoList.size(); i++) {</span>
+<span class="nc" id="L1375">			orderItems[i] = new InfoOrderItem(currentInfoList.get(i));</span>
+		}
+<span class="nc" id="L1377">		StandardEditorBuilder dialogStatus = toolsRenderer.openObjectDialog(customizerButton, orderItems, title,</span>
+<span class="nc" id="L1378">				this.swingCustomizer.getCustomizationsIcon().getImage(), true, true);</span>
+<span class="nc bnc" id="L1379" title="All 2 branches missed.">		if (!dialogStatus.isCancelled()) {</span>
+<span class="nc" id="L1380">			orderItems = (InfoOrderItem[]) dialogStatus.getCurrentValue();</span>
+<span class="nc" id="L1381">			List&lt;String&gt; newOrder = new ArrayList&lt;String&gt;();</span>
+<span class="nc bnc" id="L1382" title="All 2 branches missed.">			for (InfoOrderItem item : orderItems) {</span>
+<span class="nc" id="L1383">				newOrder.add(item.getInfo().getName());</span>
+			}
+<span class="nc" id="L1385">			changeCustomizationFieldValue(customization, customizationOrderFieldName, newOrder);</span>
+		}
+<span class="nc" id="L1387">	}</span>
+
+	protected void openEnumerationCutomizationDialog(JButton customizerButton, InfoCustomizations infoCustomizations,
+			final IEnumerationTypeInfo customizedEnumType) {
+<span class="nc" id="L1391">		EnumerationCustomization ec = InfoCustomizations.getEnumerationCustomization(infoCustomizations,</span>
+<span class="nc" id="L1392">				customizedEnumType.getName(), true);</span>
+<span class="nc" id="L1393">		fillEnumerationCustomization(ec, customizedEnumType);</span>
+<span class="nc" id="L1394">		openCustomizationEditor(customizerButton, ec);</span>
+<span class="nc" id="L1395">	}</span>
+
+	protected void openListCutomizationDialog(JButton customizerButton, InfoCustomizations infoCustomizations,
+			final IListTypeInfo customizedListType) {
+<span class="nc" id="L1399">		ITypeInfo customizedItemType = customizedListType.getItemType();</span>
+<span class="nc" id="L1400">		if (InfoCustomizationsFactory.isItemTypeChanged(infoCustomizations,</span>
+<span class="nc bnc" id="L1401" title="All 2 branches missed.">				customizedListType.getSpecificProperties())) {</span>
+<span class="nc" id="L1402">			customizedItemType = InfoCustomizationsFactory.getOriginalItemType(infoCustomizations,</span>
+<span class="nc" id="L1403">					customizedListType.getSpecificProperties());</span>
+		}
+<span class="nc bnc" id="L1405" title="All 2 branches missed.">		String itemTypeName = (customizedItemType == null) ? null : customizedItemType.getName();</span>
+<span class="nc" id="L1406">		ListCustomization lc = InfoCustomizations.getListCustomization(infoCustomizations, customizedListType.getName(),</span>
+<span class="nc" id="L1407">				itemTypeName, true);</span>
+<span class="nc" id="L1408">		fillListCustomization(lc, customizedListType);</span>
+<span class="nc" id="L1409">		openCustomizationEditor(customizerButton, lc);</span>
+<span class="nc" id="L1410">	}</span>
+
+	protected void fillEnumerationCustomization(EnumerationCustomization ec, IEnumerationTypeInfo customizedEnumType) {
+		try {
+<span class="nc bnc" id="L1414" title="All 2 branches missed.">			for (Object item : customizedEnumType.getValues()) {</span>
+<span class="nc" id="L1415">				IEnumerationItemInfo itemInfo = customizedEnumType.getValueInfo(item);</span>
+<span class="nc" id="L1416">				InfoCustomizations.getEnumerationItemCustomization(ec, itemInfo.getName(), true);</span>
+			}
+<span class="nc" id="L1418">		} catch (Throwable t) {</span>
+<span class="nc" id="L1419">			toolsUI.logDebug(t);</span>
+		}
+<span class="nc" id="L1421">	}</span>
+
+	protected void fillListCustomization(ListCustomization lc, IListTypeInfo customizedListType) {
+		try {
+<span class="nc bnc" id="L1425" title="All 2 branches missed.">			for (IColumnInfo column : customizedListType.getStructuralInfo().getColumns()) {</span>
+<span class="nc" id="L1426">				InfoCustomizations.getColumnCustomization(lc, column.getName(), true);</span>
+			}
+<span class="nc" id="L1428">		} catch (Throwable t) {</span>
+<span class="nc" id="L1429">			toolsUI.logDebug(t);</span>
+		}
+<span class="nc" id="L1431">	}</span>
+
+	protected void fillMethodCustomization(MethodCustomization mc, IMethodInfo customizedMethod) {
+		try {
+<span class="nc bnc" id="L1435" title="All 2 branches missed.">			for (IParameterInfo param : customizedMethod.getParameters()) {</span>
+<span class="nc" id="L1436">				InfoCustomizations.getParameterCustomization(mc, param.getName(), true);</span>
+			}
+<span class="nc" id="L1438">		} catch (Throwable t) {</span>
+<span class="nc" id="L1439">			toolsUI.logDebug(t);</span>
+		}
+<span class="nc" id="L1441">	}</span>
+
+	protected void fillTypeCustomization(TypeCustomization tc, ITypeInfo customizedType) {
+		try {
+<span class="nc bnc" id="L1445" title="All 2 branches missed.">			for (IFieldInfo field : customizedType.getFields()) {</span>
+<span class="nc" id="L1446">				InfoCustomizations.getFieldCustomization(tc, field.getName(), true);</span>
+			}
+<span class="nc bnc" id="L1448" title="All 2 branches missed.">			for (IMethodInfo method : customizedType.getMethods()) {</span>
+<span class="nc" id="L1449">				InfoCustomizations.getMethodCustomization(tc, method.getSignature(), true);</span>
+<span class="nc" id="L1450">				MethodCustomization mc = InfoCustomizations.getMethodCustomization(tc, method.getSignature(), true);</span>
+<span class="nc" id="L1451">				fillMethodCustomization(mc, method);</span>
+			}
+<span class="nc bnc" id="L1453" title="All 2 branches missed.">			for (IMethodInfo ctor : customizedType.getConstructors()) {</span>
+<span class="nc" id="L1454">				InfoCustomizations.getMethodCustomization(tc, ctor.getSignature(), true);</span>
+<span class="nc" id="L1455">				MethodCustomization mc = InfoCustomizations.getMethodCustomization(tc, ctor.getSignature(), true);</span>
+<span class="nc" id="L1456">				fillMethodCustomization(mc, ctor);</span>
+			}
+<span class="nc" id="L1458">		} catch (Throwable t) {</span>
+<span class="nc" id="L1459">			toolsUI.logDebug(t);</span>
+		}
+<span class="nc" id="L1461">	}</span>
+
+	protected void openFieldCutomizationDialog(JButton customizerButton, InfoCustomizations infoCustomizations,
+			final ITypeInfo customizedType, String fieldName) {
+<span class="nc" id="L1465">		TypeCustomization t = InfoCustomizations.getTypeCustomization(infoCustomizations, customizedType.getName(),</span>
+<span class="nc" id="L1466">				true);</span>
+<span class="nc" id="L1467">		FieldCustomization fc = InfoCustomizations.getFieldCustomization(t, fieldName, true);</span>
+<span class="nc" id="L1468">		openCustomizationEditor(customizerButton, fc);</span>
+<span class="nc" id="L1469">	}</span>
+
+	protected void openMethodCutomizationDialog(JButton customizerButton, InfoCustomizations infoCustomizations,
+			final ITypeInfo customizedType, String methodSignature) {
+<span class="nc" id="L1473">		TypeCustomization tc = InfoCustomizations.getTypeCustomization(infoCustomizations, customizedType.getName(),</span>
+<span class="nc" id="L1474">				true);</span>
+<span class="nc" id="L1475">		MethodCustomization mc = InfoCustomizations.getMethodCustomization(tc, methodSignature, true);</span>
+<span class="nc" id="L1476">		IMethodInfo customizedMethod = ReflectionUIUtils.findMethodBySignature(customizedType.getMethods(),</span>
+<span class="nc" id="L1477">				methodSignature);</span>
+<span class="nc" id="L1478">		fillMethodCustomization(mc, customizedMethod);</span>
+<span class="nc" id="L1479">		openCustomizationEditor(customizerButton, mc);</span>
+<span class="nc" id="L1480">	}</span>
+
+	public Component makeButtonForMethod(final MethodControlPlaceHolder methodControlPlaceHolder) {
+<span class="nc" id="L1483">		final JButton result = makeButton();</span>
+<span class="nc" id="L1484">		result.setToolTipText(SwingRendererUtils.adaptToolTipTextToMultiline(toolsRenderer</span>
+<span class="nc" id="L1485">				.prepareMessageToDisplay(getCustomizationTitle(methodControlPlaceHolder.getMethod().getSignature()))));</span>
+<span class="nc" id="L1486">		result.addActionListener(new ActionListener() {</span>
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1490">				final JPopupMenu popupMenu = new JPopupMenu();</span>
+
+<span class="nc" id="L1492">				popupMenu.add(createMenuItem(</span>
+<span class="nc" id="L1493">						new AbstractAction(CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;Hide&quot;)) {</span>
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void actionPerformed(ActionEvent e) {
+								try {
+<span class="nc" id="L1499">									hideMethod(result, getContainingObjectCustomizedType(methodControlPlaceHolder),</span>
+<span class="nc" id="L1500">											methodControlPlaceHolder.getMethod().getSignature());</span>
+<span class="nc" id="L1501">								} catch (Throwable t) {</span>
+<span class="nc" id="L1502">									toolsRenderer.handleException(result, t);</span>
+								}
+<span class="nc" id="L1504">							}</span>
+						}));
+
+<span class="nc bnc" id="L1507" title="All 2 branches missed.">				for (JMenuItem menuItem : makeMenuItemsForMethodPosition(result, methodControlPlaceHolder)) {</span>
+<span class="nc" id="L1508">					popupMenu.add(menuItem);</span>
+				}
+
+<span class="nc bnc" id="L1511" title="All 2 branches missed.">				for (JMenuItem menuItem : makeMenuItemsForMethodEncapsulation(result, methodControlPlaceHolder)) {</span>
+<span class="nc" id="L1512">					popupMenu.add(menuItem);</span>
+				}
+
+<span class="nc" id="L1515">				popupMenu.add(createMenuItem(new AbstractAction(</span>
+<span class="nc" id="L1516">						CustomizationTools.this.toolsRenderer.prepareMessageToDisplay(&quot;More Options...&quot;)) {</span>
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L1521">						openMethodCutomizationDialog(result, swingCustomizer.getInfoCustomizations(),</span>
+<span class="nc" id="L1522">								getContainingObjectCustomizedType(methodControlPlaceHolder),</span>
+<span class="nc" id="L1523">								methodControlPlaceHolder.getMethod().getSignature());</span>
+<span class="nc" id="L1524">					}</span>
+				}));
+<span class="nc" id="L1526">				showMenu(popupMenu, result);</span>
+<span class="nc" id="L1527">			}</span>
+		});
+<span class="nc" id="L1529">		return result;</span>
+	}
+
+	protected String getCustomizationTitle(String targetName) {
+<span class="nc" id="L1533">		String result = &quot;Customize&quot;;</span>
+<span class="nc bnc" id="L1534" title="All 2 branches missed.">		if (targetName.length() &gt; 0) {</span>
+<span class="nc" id="L1535">			result += &quot; (&quot; + targetName + &quot;)&quot;;</span>
+		}
+<span class="nc" id="L1537">		return result;</span>
+	}
+
+	public static class InfoOrderItem {
+		protected IInfo info;
+
+		public InfoOrderItem(IInfo info) {
+<span class="nc" id="L1544">			super();</span>
+<span class="nc" id="L1545">			this.info = info;</span>
+<span class="nc" id="L1546">		}</span>
+
+		public IInfo getInfo() {
+<span class="nc" id="L1549">			return info;</span>
+		}
+
+		public String getName() {
+<span class="nc" id="L1553">			return info.getName();</span>
+		}
+
+		public String getCaption() {
+<span class="nc" id="L1557">			return info.getCaption();</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L1562">			return info.getCaption();</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

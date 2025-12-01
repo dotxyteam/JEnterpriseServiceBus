@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>IModification.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.undo</a> &gt; <span class="el_source">IModification.java</span></div><h1>IModification.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.undo;
+
+/**
+ * This is the base interface of every reversible object state modification made
+ * through an abstract UI model element. Note that it simulates a control action
+ * and then should operate at the same level as UI controls (eventually manage
+ * busy indication, ...).
+ * 
+ * @author olitank
+ *
+ */
+public interface IModification {
+
+	/**
+	 * Dummy instance of this class made for utilitarian purposes. It just returns
+	 * true when {@link #isNull()} is called.
+	 */
+<span class="fc" id="L19">	IModification NULL_MODIFICATION = new IModification() {</span>
+		@Override
+		public IModification applyAndGetOpposite(ModificationStack modificationStack) {
+<span class="fc" id="L22">			return NULL_MODIFICATION;</span>
+		}
+
+		@Override
+		public boolean isNull() {
+<span class="fc" id="L27">			return true;</span>
+		}
+
+		@Override
+		public boolean isVolatile() {
+<span class="nc" id="L32">			return false;</span>
+		}
+
+		@Override
+		public boolean isComposite() {
+<span class="nc" id="L37">			return false;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L42">			return getTitle();</span>
+		}
+
+		@Override
+		public String getTitle() {
+<span class="fc" id="L47">			return &quot;NULL_MODIFICATION&quot;;</span>
+		}
+
+	};
+
+	/**
+	 * Dummy instance of this class made for utilitarian purposes. It just returns
+	 * true when {@link #isVolatile()} is called.
+	 */
+<span class="fc" id="L56">	IModification VOLATILE_MODIFICATION = new IModification() {</span>
+		@Override
+		public IModification applyAndGetOpposite(ModificationStack modificationStack) {
+<span class="fc" id="L59">			return VOLATILE_MODIFICATION;</span>
+		}
+
+		@Override
+		public boolean isNull() {
+<span class="fc" id="L64">			return false;</span>
+		}
+
+		@Override
+		public boolean isVolatile() {
+<span class="fc" id="L69">			return true;</span>
+		}
+
+		@Override
+		public boolean isComposite() {
+<span class="nc" id="L74">			return false;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L79">			return getTitle();</span>
+		}
+
+		@Override
+		public String getTitle() {
+<span class="fc" id="L84">			return &quot;VOLATILE_MODIFICATION&quot;;</span>
+		}
+
+<span class="fc" id="L87">	};;</span>
+
+	/**
+	 * Applies the current modification.
+	 * 
+	 * @param modificationStack The contextual modification stack.
+	 * @return the opposite modification.
+	 * @throws IrreversibleModificationException When it appears that the
+	 *                                           modification cannot be reverted.
+	 * @throws CancelledModificationException    When it appears that the
+	 *                                           modification has been aborted.
+	 */
+	IModification applyAndGetOpposite(ModificationStack modificationStack)
+			throws IrreversibleModificationException, CancelledModificationException;
+
+	/**
+	 * @return true if and only if this modification should be considered as empty,
+	 *         with no impact on the target object state or its associated
+	 *         {@link ModificationStack} and listeners.
+	 */
+	boolean isNull();
+
+	/**
+	 * @return true if and only if this modification is not intended to be reverted
+	 *         or replayed (its undo modification should not be pushed on a
+	 *         {@link ModificationStack}) but have impact on
+	 *         {@link IModificationListener}s that should receive notifications and
+	 *         typically refresh themselves.
+	 */
+	boolean isVolatile();
+
+	/**
+	 * @return true if and only if this modification does not perform any tangible
+	 *         action by itself but is rather used to orchestrate other
+	 *         modifications.
+	 */
+	boolean isComposite();
+
+	/**
+	 * @return the title of this modification.
+	 */
+	String getTitle();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

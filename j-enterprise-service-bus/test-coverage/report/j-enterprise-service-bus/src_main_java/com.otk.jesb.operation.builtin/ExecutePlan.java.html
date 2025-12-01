@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ExecutePlan.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">ExecutePlan.java</span></div><h1>ExecutePlan.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.Reference;
+import com.otk.jesb.Session;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionError;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+
+import xy.reflect.ui.info.ResourcePath;
+import com.otk.jesb.util.Accessor;
+
+public class ExecutePlan implements Operation {
+
+	private Session session;
+	private Plan plan;
+	private Object planInput;
+	private ExecutionInspector executionInspector;
+
+<span class="fc" id="L27">	public ExecutePlan(Session session, Plan plan, Object planInput, ExecutionInspector executionInspector) {</span>
+<span class="fc" id="L28">		this.session = session;</span>
+<span class="fc" id="L29">		this.plan = plan;</span>
+<span class="fc" id="L30">		this.planInput = planInput;</span>
+<span class="fc" id="L31">		this.executionInspector = executionInspector;</span>
+<span class="fc" id="L32">	}</span>
+
+	public Plan getPlan() {
+<span class="nc" id="L35">		return plan;</span>
+	}
+
+	public Object getPlanInput() {
+<span class="nc" id="L39">		return planInput;</span>
+	}
+
+	@Override
+	public Object execute() throws ExecutionError {
+<span class="fc" id="L44">		return plan.execute(planInput, executionInspector, new ExecutionContext(session, plan));</span>
+	}
+
+<span class="fc" id="L47">	public static class Metadata implements OperationMetadata&lt;ExecutePlan&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L51">			return &quot;Execute Plan&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L56">			return &quot;General&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;ExecutePlan&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L61">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L66">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L67">					.specifyClassPathResourceLocation(ExecutePlan.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+<span class="fc" id="L71">	public static class Builder implements OperationBuilder&lt;ExecutePlan&gt; {</span>
+
+<span class="fc" id="L73">		private Reference&lt;Plan&gt; planReference = new Reference&lt;Plan&gt;(Plan.class);</span>
+
+<span class="fc" id="L75">		private RootInstanceBuilder planInputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + &quot;Input&quot;,</span>
+<span class="fc" id="L76">				new PlanInputClassNameAccessor());</span>
+
+		private Plan getTargetPlan() {
+<span class="fc" id="L79">			return planReference.resolve();</span>
+		}
+
+		public Reference&lt;Plan&gt; getPlanReference() {
+<span class="fc" id="L83">			return planReference;</span>
+		}
+
+		public void setPlanReference(Reference&lt;Plan&gt; planReference) {
+<span class="fc" id="L87">			this.planReference = planReference;</span>
+<span class="fc" id="L88">		}</span>
+
+		public RootInstanceBuilder getPlanInputBuilder() {
+<span class="nc" id="L91">			return planInputBuilder;</span>
+		}
+
+		public void setPlanInputBuilder(RootInstanceBuilder planInputBuilder) {
+<span class="fc" id="L95">			this.planInputBuilder = planInputBuilder;</span>
+<span class="fc" id="L96">		}</span>
+
+		@Override
+		public ExecutePlan build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+<span class="fc" id="L100">			Object planInput = planInputBuilder.build(new InstantiationContext(context.getVariables(),</span>
+<span class="fc" id="L101">					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));</span>
+<span class="fc" id="L102">			return new ExecutePlan(context.getSession(), getTargetPlan(), planInput, executionInspector);</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">			if (getTargetPlan() == null) {</span>
+<span class="nc" id="L108">				return null;</span>
+			}
+<span class="fc" id="L110">			return getTargetPlan().getActivator().getOutputClass();</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">			if (getTargetPlan() == null) {</span>
+<span class="nc" id="L116">				throw new ValidationError(&quot;Failed to resolve the target plan reference&quot;);</span>
+			}
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">			if (!getTargetPlan().getActivator().getEnabledVariant().getValue()) {</span>
+<span class="nc" id="L119">				throw new ValidationError(&quot;The target plan activation is disabled&quot;);</span>
+			}
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">				if (planInputBuilder != null) {</span>
+					try {
+<span class="fc" id="L124">						planInputBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L125">								plan.getValidationContext(step).getVariableDeclarations());</span>
+<span class="pc" id="L126">					} catch (ValidationError e) {</span>
+<span class="nc" id="L127">						throw new ValidationError(&quot;Failed to validate the target plan input builder&quot;, e);</span>
+					}
+				}
+			}
+<span class="fc" id="L131">		}</span>
+
+<span class="fc" id="L133">		private class PlanInputClassNameAccessor extends Accessor&lt;String&gt; {</span>
+			@Override
+			public String get() {
+<span class="fc" id="L136">				Plan plan = getTargetPlan();</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">				if (plan == null) {</span>
+<span class="nc" id="L138">					return null;</span>
+				}
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">				if (plan.getActivator().getInputClass() == null) {</span>
+<span class="fc" id="L141">					return null;</span>
+				}
+<span class="nc" id="L143">				return plan.getActivator().getInputClass().getName();</span>
+			}
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

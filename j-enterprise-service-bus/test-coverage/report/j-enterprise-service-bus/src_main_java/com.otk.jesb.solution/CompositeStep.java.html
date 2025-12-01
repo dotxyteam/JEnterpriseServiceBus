@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CompositeStep.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.solution</a> &gt; <span class="el_source">CompositeStep.java</span></div><h1>CompositeStep.java</h1><pre class="source lang-java linenums">package com.otk.jesb.solution;
+
+import java.awt.Rectangle;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public abstract class CompositeStep&lt;T extends Operation&gt; extends Step {
+
+	public abstract List&lt;VariableDeclaration&gt; getContextualVariableDeclarations();
+
+	public CompositeStep(OperationBuilder&lt;T&gt; operationBuilder) {
+<span class="fc" id="L18">		super(operationBuilder);</span>
+<span class="fc" id="L19">	}</span>
+
+	public List&lt;Step&gt; getChildren(Plan plan) {
+<span class="fc" id="L22">		return plan.getSteps().stream().filter(step -&gt; this.equals(step.getParent())).collect(Collectors.toList());</span>
+	}
+
+	public Rectangle getChildrenBounds(Plan plan, int stepIconWidth, int stepIconHeight, int horizontalPadding,
+			int verticalPadding) {
+<span class="nc" id="L27">		Rectangle result = null;</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">		for (Step child : getChildren(plan)) {</span>
+			Rectangle childBounds;
+<span class="nc bnc" id="L30" title="All 2 branches missed.">			if (child instanceof CompositeStep) {</span>
+<span class="nc" id="L31">				childBounds = ((CompositeStep&lt;?&gt;) child).getChildrenBounds(plan, stepIconWidth, stepIconHeight,</span>
+<span class="nc" id="L32">						horizontalPadding, verticalPadding);</span>
+<span class="nc" id="L33">			} else {</span>
+<span class="nc" id="L34">				childBounds = new Rectangle(child.getDiagramX() - (stepIconWidth / 2),</span>
+<span class="nc" id="L35">						child.getDiagramY() - (stepIconHeight / 2), stepIconWidth, stepIconHeight);</span>
+			}
+<span class="nc" id="L37">			childBounds.grow(horizontalPadding, verticalPadding);</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L39">				result = childBounds;</span>
+<span class="nc" id="L40">			} else {</span>
+<span class="nc" id="L41">				result.add(childBounds);</span>
+			}
+		}
+<span class="nc bnc" id="L44" title="All 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L45">			result = new Rectangle(getDiagramX() - (stepIconWidth / 2), getDiagramY() - (stepIconHeight / 2),</span>
+<span class="nc" id="L46">					stepIconWidth, stepIconHeight);</span>
+		}
+<span class="nc" id="L48">		return result;</span>
+	}
+	
+	
+	public interface CompositeStepMetadata {
+		
+		ResourcePath getCompositeStepIconImagePath();
+		Class&lt;? extends CompositeStep&lt;?&gt;&gt; getCompositeStepClass();
+		String getCompositeStepTypeName();
+		
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

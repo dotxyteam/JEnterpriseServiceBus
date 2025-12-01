@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractPersistenceMethod.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.method</a> &gt; <span class="el_source">AbstractPersistenceMethod.java</span></div><h1>AbstractPersistenceMethod.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.method;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Base class of virtual persistence method specifications.
+ * 
+ * @author olitank
+ *
+ */
+public abstract class AbstractPersistenceMethod implements IMethodInfo {
+
+	protected ReflectionUI reflectionUI;
+	protected ITypeInfo objectType;
+
+<span class="nc" id="L30">	public AbstractPersistenceMethod(ReflectionUI reflectionUI, ITypeInfo objectType) {</span>
+<span class="nc" id="L31">		this.reflectionUI = reflectionUI;</span>
+<span class="nc" id="L32">		this.objectType = objectType;</span>
+<span class="nc" id="L33">	}</span>
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L37">		return Collections.emptyMap();</span>
+	}
+
+	@Override
+	public String getSignature() {
+<span class="nc" id="L42">		return ReflectionUIUtils.buildMethodSignature(this);</span>
+	}
+
+	@Override
+	public ITypeInfo getReturnValueType() {
+<span class="nc" id="L47">		return null;</span>
+	}
+
+	@Override
+	public List&lt;IParameterInfo&gt; getParameters() {
+<span class="nc" id="L52">		return Collections.&lt;IParameterInfo&gt;singletonList(new FileParameter());</span>
+	}
+
+	@Override
+	public String getNullReturnValueLabel() {
+<span class="nc" id="L57">		return null;</span>
+	}
+
+	@Override
+	public boolean isEnabled(Object object) {
+<span class="nc" id="L62">		return true;</span>
+	}
+
+	@Override
+	public boolean isControlReturnValueValiditionEnabled() {
+<span class="nc" id="L67">		return false;</span>
+	}
+
+	@Override
+	public boolean isLastInvocationDataUsedByDefault() {
+<span class="nc" id="L72">		return true;</span>
+	}
+
+	@Override
+	public IValidationJob getReturnValueAbstractFormValidationJob(Object object, Object returnValue) {
+<span class="nc" id="L77">		return null;</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="nc" id="L82">		return null;</span>
+	}
+
+	@Override
+	public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L87">		return null;</span>
+	}
+
+	@Override
+	public Runnable getPreviousInvocationCustomRedoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L92">		return null;</span>
+	}
+
+	@Override
+	public void validateParameters(Object object, InvocationData invocationData) throws Exception {
+<span class="nc" id="L97">	}</span>
+
+	@Override
+	public ValueReturnMode getValueReturnMode() {
+<span class="nc" id="L101">		return null;</span>
+	}
+
+	@Override
+	public ResourcePath getIconImagePath() {
+<span class="nc" id="L106">		return null;</span>
+	}
+
+	@Override
+	public boolean isReturnValueDetached() {
+<span class="nc" id="L111">		return false;</span>
+	}
+
+	@Override
+	public boolean isNullReturnValueDistinct() {
+<span class="nc" id="L116">		return false;</span>
+	}
+
+	@Override
+	public boolean isReturnValueIgnored() {
+<span class="nc" id="L121">		return false;</span>
+	}
+
+	@Override
+	public String getConfirmationMessage(Object object, InvocationData invocationData) {
+<span class="nc" id="L126">		return null;</span>
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="nc" id="L131">		return false;</span>
+	}
+
+	@Override
+	public boolean isRelevant(Object object) {
+<span class="nc" id="L136">		return true;</span>
+	}
+
+	@Override
+	public String getParametersValidationCustomCaption() {
+<span class="nc" id="L141">		return null;</span>
+	}
+
+	@Override
+	public String getExecutionSuccessMessage() {
+<span class="nc" id="L146">		return null;</span>
+	}
+
+	@Override
+	public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="nc" id="L151">	}</span>
+
+<span class="nc" id="L153">	protected class FileParameter implements IParameterInfo {</span>
+
+		@Override
+		public String getName() {
+<span class="nc" id="L157">			return &quot;file&quot;;</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="nc" id="L162">			return &quot;File&quot;;</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="nc" id="L167">			return &quot;The file.&quot;;</span>
+		}
+
+		@Override
+		public boolean isHidden() {
+<span class="nc" id="L172">			return false;</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L177">			return Collections.emptyMap();</span>
+		}
+
+		@Override
+		public ITypeInfo getType() {
+<span class="nc" id="L182">			return reflectionUI.getTypeInfo(new JavaTypeInfoSource(File.class, null));</span>
+		}
+
+		@Override
+		public boolean isNullValueDistinct() {
+<span class="nc" id="L187">			return false;</span>
+		}
+
+		@Override
+		public Object getDefaultValue(Object object) {
+<span class="nc" id="L192">			return null;</span>
+		}
+
+		@Override
+		public int getPosition() {
+<span class="nc" id="L197">			return 0;</span>
+		}
+
+		@Override
+		public boolean hasValueOptions(Object object) {
+<span class="nc" id="L202">			return false;</span>
+		}
+
+		@Override
+		public Object[] getValueOptions(Object object) {
+<span class="nc" id="L207">			return null;</span>
+		}
+
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L214">		final int prime = 31;</span>
+<span class="nc" id="L215">		int result = 1;</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">		result = prime * result + ((objectType == null) ? 0 : objectType.hashCode());</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">		result = prime * result + ((reflectionUI == null) ? 0 : reflectionUI.hashCode());</span>
+<span class="nc" id="L218">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L223" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L224">			return true;</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L226">			return false;</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L228">			return false;</span>
+<span class="nc" id="L229">		AbstractPersistenceMethod other = (AbstractPersistenceMethod) obj;</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">		if (objectType == null) {</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">			if (other.objectType != null)</span>
+<span class="nc" id="L232">				return false;</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">		} else if (!objectType.equals(other.objectType))</span>
+<span class="nc" id="L234">			return false;</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">		if (reflectionUI == null) {</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">			if (other.reflectionUI != null)</span>
+<span class="nc" id="L237">				return false;</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">		} else if (!reflectionUI.equals(other.reflectionUI))</span>
+<span class="nc" id="L239">			return false;</span>
+<span class="nc" id="L240">		return true;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

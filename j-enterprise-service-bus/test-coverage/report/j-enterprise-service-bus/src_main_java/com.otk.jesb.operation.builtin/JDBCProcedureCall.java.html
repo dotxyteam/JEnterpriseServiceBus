@@ -1,0 +1,695 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>JDBCProcedureCall.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">JDBCProcedureCall.java</span></div><h1>JDBCProcedureCall.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.beans.Transient;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ParameterMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.google.common.base.Objects;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.Reference;
+import com.otk.jesb.Session;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variant;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.solution.Step;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public class JDBCProcedureCall extends JDBCQuery {
+
+	private ProcedureDescriptor procedure;
+
+	public JDBCProcedureCall(Session session, JDBCConnection connection, ProcedureDescriptor procedure,
+			Class&lt;?&gt; customResultClass) {
+<span class="fc" id="L41">		super(session, connection, customResultClass);</span>
+<span class="fc" id="L42">		this.procedure = procedure;</span>
+<span class="fc" id="L43">	}</span>
+
+	public ProcedureDescriptor getProcedure() {
+<span class="nc" id="L46">		return procedure;</span>
+	}
+
+	@Override
+	public Object execute() throws Exception {
+<span class="fc" id="L51">		JDBCConnection connection = getConnection();</span>
+<span class="fc" id="L52">		Connection connectionInstance = connection.during(getSession());</span>
+<span class="fc" id="L53">		try (CallableStatement preparedStatement = connectionInstance</span>
+<span class="fc" id="L54">				.prepareCall(procedure.getCallQueryStringVariant().getValue())) {</span>
+<span class="fc" id="L55">			ParameterValues parametervalues = getParameterValues();</span>
+<span class="fc" id="L56">			int parameterIndex = 1;</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">			if (procedure.getReturnParameter() != null) {</span>
+<span class="nc" id="L58">				preparedStatement.registerOutParameter(parameterIndex++, procedure.getReturnParameter().getSqlType());</span>
+			}
+<span class="fc" id="L60">			int valueIndex = 0;</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">			for (ProcedureParameterDescriptor parameter : procedure.getParameters()) {</span>
+<span class="pc bpc" id="L62" title="3 of 4 branches missed.">				switch (parameter.getColumnKind()) {</span>
+				case DatabaseMetaData.procedureColumnIn: {
+<span class="fc" id="L64">					preparedStatement.setObject(parameterIndex++,</span>
+<span class="fc" id="L65">							parametervalues.getParameterValueByIndex(valueIndex++));</span>
+<span class="fc" id="L66">					break;</span>
+				}
+				case DatabaseMetaData.procedureColumnOut: {
+<span class="nc" id="L69">					preparedStatement.registerOutParameter(parameterIndex++, parameter.getSqlType());</span>
+<span class="nc" id="L70">					break;</span>
+				}
+				case DatabaseMetaData.procedureColumnInOut: {
+<span class="nc" id="L73">					preparedStatement.setObject(parameterIndex, parametervalues.getParameterValueByIndex(valueIndex++));</span>
+<span class="nc" id="L74">					preparedStatement.registerOutParameter(parameterIndex++, parameter.getSqlType());</span>
+<span class="nc" id="L75">					break;</span>
+				}
+				default: {
+<span class="nc" id="L78">					preparedStatement.setObject(parameterIndex++, null);</span>
+					break;
+				}
+				}
+			}
+<span class="fc" id="L83">			preparedStatement.execute();</span>
+<span class="fc" id="L84">			List&lt;Object&gt; resultArguments = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L85">			parameterIndex = 1;</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">			if (procedure.getReturnParameter() != null) {</span>
+<span class="nc" id="L87">				resultArguments.add(preparedStatement.getObject(parameterIndex++));</span>
+			}
+<span class="fc bfc" id="L89" title="All 2 branches covered.">			for (ProcedureParameterDescriptor parameter : procedure.getParameters()) {</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">				switch (parameter.getColumnKind()) {</span>
+				case DatabaseMetaData.procedureColumnOut:
+				case DatabaseMetaData.procedureColumnInOut: {
+<span class="nc" id="L93">					resultArguments.add(preparedStatement.getObject(parameterIndex));</span>
+					break;
+				}
+				}
+<span class="fc" id="L97">				parameterIndex++;</span>
+			}
+<span class="fc" id="L99">			return resultClass.getConstructors()[0].newInstance(resultArguments.toArray());</span>
+<span class="nc" id="L100">		} catch (Exception e) {</span>
+<span class="nc" id="L101">			throw new PotentialError(e);</span>
+		}
+	}
+
+<span class="fc" id="L105">	public static class Builder implements OperationBuilder&lt;JDBCProcedureCall&gt; {</span>
+
+		private String searchCatalogName;
+		private String searchSchemaName;
+		private ProcedureDescriptor procedure;
+
+<span class="fc" id="L111">		private JDBCQuery.Builder util = new Util();</span>
+
+		public Reference&lt;JDBCConnection&gt; getConnectionReference() {
+<span class="nc" id="L114">			return util.getConnectionReference();</span>
+		}
+
+		public void setConnectionReference(Reference&lt;JDBCConnection&gt; connectionReference) {
+<span class="fc" id="L118">			util.setConnectionReference(connectionReference);</span>
+<span class="fc" id="L119">			JDBCConnection connection = util.getConnection();</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">			if (connection != null) {</span>
+				try {
+<span class="fc" id="L122">					connection.during(connectionInstance -&gt; {</span>
+						try {
+<span class="fc" id="L124">							searchCatalogName = connectionInstance.getCatalog();</span>
+<span class="fc" id="L125">							searchSchemaName = connectionInstance.getSchema();</span>
+<span class="pc" id="L126">						} catch (Exception ignore) {</span>
+						}
+<span class="fc" id="L128">						return null;</span>
+					});
+<span class="pc" id="L130">				} catch (Exception ignore) {</span>
+				}
+			}
+<span class="fc" id="L133">		}</span>
+
+		public RootInstanceBuilder getParameterValuesBuilder() {
+<span class="nc" id="L136">			return util.getParameterValuesBuilder();</span>
+		}
+
+		public void setParameterValuesBuilder(RootInstanceBuilder parameterValuesBuilder) {
+<span class="fc" id="L140">			util.setParameterValuesBuilder(parameterValuesBuilder);</span>
+<span class="fc" id="L141">		}</span>
+
+		@Transient
+		public String getSearchCatalogName() {
+<span class="nc" id="L145">			return searchCatalogName;</span>
+		}
+
+		public void setSearchCatalogName(String searchCatalogName) {
+<span class="nc" id="L149">			this.searchCatalogName = searchCatalogName;</span>
+<span class="nc" id="L150">		}</span>
+
+		@Transient
+		public String getSearchSchemaName() {
+<span class="nc" id="L154">			return searchSchemaName;</span>
+		}
+
+		public void setSearchSchemaName(String searchSchemaName) {
+<span class="nc" id="L158">			this.searchSchemaName = searchSchemaName;</span>
+<span class="nc" id="L159">		}</span>
+
+		public ProcedureDescriptor getProcedure() {
+<span class="nc" id="L162">			return procedure;</span>
+		}
+
+		public void setProcedure(ProcedureDescriptor procedure) {
+<span class="fc" id="L166">			this.procedure = procedure;</span>
+<span class="fc" id="L167">		}</span>
+
+		public List&lt;ProcedureDescriptor&gt; getProcedureOptions() {
+<span class="nc" id="L170">			List&lt;ProcedureDescriptor&gt; result = new ArrayList&lt;JDBCProcedureCall.ProcedureDescriptor&gt;();</span>
+<span class="nc" id="L171">			JDBCConnection connection = util.getConnection();</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">			if (connection != null) {</span>
+				try {
+<span class="nc" id="L174">					connection.during(connectionInstance -&gt; {</span>
+						try {
+<span class="nc" id="L176">							result.addAll(ProcedureDescriptor</span>
+<span class="nc" id="L177">									.list(connectionInstance, searchCatalogName, searchSchemaName, null).stream()</span>
+<span class="nc" id="L178">									.filter(procedure -&gt; {</span>
+<span class="nc" id="L179">										procedure.fix(connection);</span>
+<span class="nc" id="L180">										return true;</span>
+<span class="nc" id="L181">									}).collect(Collectors.toList()));</span>
+<span class="nc" id="L182">							return null;</span>
+<span class="nc" id="L183">						} catch (Exception e) {</span>
+<span class="nc" id="L184">							throw new PotentialError(e);</span>
+						}
+					});
+<span class="nc" id="L187">				} catch (Exception ignore) {</span>
+				}
+			}
+<span class="nc" id="L190">			return result;</span>
+		}
+
+		@Override
+		public JDBCProcedureCall build(ExecutionContext context, ExecutionInspector executionInspector)
+				throws Exception {
+<span class="fc" id="L196">			JDBCProcedureCall result = new JDBCProcedureCall(context.getSession(), util.getConnection(), procedure,</span>
+<span class="fc" id="L197">					util.upToDateResultClass.get());</span>
+<span class="fc" id="L198">			result.setParameterValues(util.buildParameterValues(context));</span>
+<span class="fc" id="L199">			return result;</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="fc" id="L204">			return util.getOperationResultClass(currentPlan, currentStep);</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">			if (util.getConnection() == null) {</span>
+<span class="nc" id="L210">				throw new ValidationError(&quot;Failed to resolve the connection reference&quot;);</span>
+			}
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">			if (procedure == null) {</span>
+<span class="nc" id="L213">				throw new ValidationError(&quot;Procedure not selected&quot;);</span>
+			}
+			try {
+<span class="fc" id="L216">				util.upToDateParameterValuesClass.get();</span>
+<span class="pc" id="L217">			} catch (Throwable t) {</span>
+<span class="nc" id="L218">				throw new ValidationError(&quot;Failed to get compiled parameter definitions&quot;, t);</span>
+			}
+
+			try {
+<span class="fc" id="L222">				util.upToDateResultClass.get();</span>
+<span class="pc" id="L223">			} catch (Throwable t) {</span>
+<span class="nc" id="L224">				throw new ValidationError(&quot;Failed to get compiled result column definitions&quot;, t);</span>
+			}
+			try {
+<span class="fc" id="L227">				util.getConnection().during(connectionInstance -&gt; {</span>
+					try {
+<span class="fc" id="L229">						procedure.validate(connectionInstance);</span>
+<span class="pc" id="L230">					} catch (ValidationError e) {</span>
+<span class="nc" id="L231">						throw new PotentialError(e);</span>
+					}
+<span class="fc" id="L233">					return null;</span>
+				});
+<span class="pc" id="L235">			} catch (Exception e) {</span>
+<span class="nc" id="L236">				throw new ValidationError(&quot;Failed to validate the procedure descriptor&quot;, e);</span>
+			}
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="fc" id="L239">				RootInstanceBuilder parameterValuesBuilder = util.getParameterValuesBuilder();</span>
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">				if (parameterValuesBuilder != null) {</span>
+					try {
+<span class="fc" id="L242">						parameterValuesBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L243">								plan.getValidationContext(step).getVariableDeclarations());</span>
+<span class="pc" id="L244">					} catch (ValidationError e) {</span>
+<span class="nc" id="L245">						throw new ValidationError(&quot;Failed to validate the parameter values builder&quot;, e);</span>
+					}
+				}
+			}
+<span class="fc" id="L249">		}</span>
+
+<span class="fc" id="L251">		private class Util extends JDBCQuery.Builder {</span>
+
+			@Override
+			protected Class&lt;?&gt; createResultClass() {
+<span class="fc" id="L255">				Class&lt;?&gt; superResult = super.createResultClass();</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">				if (superResult == null) {</span>
+<span class="nc" id="L257">					return null;</span>
+				}
+<span class="fc" id="L259">				return superResult.getComponentType();</span>
+			}
+
+			@Override
+			protected List&lt;ColumnDefinition&gt; computeResultColumnDefinitions() {
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">				if (procedure == null) {</span>
+<span class="nc" id="L265">					return null;</span>
+				}
+<span class="fc" id="L267">				List&lt;ColumnDefinition&gt; result = new ArrayList&lt;ColumnDefinition&gt;();</span>
+<span class="fc bfc" id="L268" title="All 2 branches covered.">				for (ProcedureParameterDescriptor parameter : procedure.getParameters()) {</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">					if ((parameter.getColumnKind() != DatabaseMetaData.procedureColumnOut)</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">							&amp;&amp; (parameter.getColumnKind() != DatabaseMetaData.procedureColumnInOut)) {</span>
+<span class="fc" id="L271">						continue;</span>
+					}
+<span class="nc" id="L273">					ColumnDefinition columnDefinition = new ColumnDefinition(parameter.getName(),</span>
+<span class="nc" id="L274">							parameter.getTypeName());</span>
+<span class="nc" id="L275">					result.add(columnDefinition);</span>
+				}
+<span class="fc" id="L277">				ProcedureParameterDescriptor returnParameter = procedure.getReturnParameter();</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">				if (returnParameter != null) {</span>
+<span class="nc" id="L279">					ColumnDefinition resultColumnDefinition = new ColumnDefinition(returnParameter.getName(),</span>
+<span class="nc" id="L280">							returnParameter.getTypeName());</span>
+<span class="nc" id="L281">					result.add(resultColumnDefinition);</span>
+				}
+<span class="fc" id="L283">				MiscUtils.makeNumberedNamesUnique(result, ColumnDefinition::getColumnName,</span>
+<span class="fc" id="L284">						ColumnDefinition::setColumnName);</span>
+<span class="fc" id="L285">				return result;</span>
+			}
+
+			@Override
+			public List&lt;ColumnDefinition&gt; getResultColumnDefinitions() {
+<span class="nc" id="L290">				throw new UnsupportedOperationException();</span>
+			}
+
+			@Override
+			protected List&lt;ParameterDefinition&gt; computeParameterDefinitions() {
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">				if (procedure == null) {</span>
+<span class="nc" id="L296">					return null;</span>
+				}
+<span class="fc" id="L298">				List&lt;ParameterDefinition&gt; result = new ArrayList&lt;ParameterDefinition&gt;();</span>
+<span class="fc bfc" id="L299" title="All 2 branches covered.">				for (ProcedureParameterDescriptor parameter : procedure.getParameters()) {</span>
+<span class="pc bpc" id="L300" title="1 of 2 branches missed.">					if ((parameter.getColumnKind() != DatabaseMetaData.procedureColumnIn)</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">							&amp;&amp; (parameter.getColumnKind() != DatabaseMetaData.procedureColumnInOut)) {</span>
+<span class="nc" id="L302">						continue;</span>
+					}
+<span class="fc" id="L304">					ParameterDefinition parameterDefinition = new ParameterDefinition();</span>
+<span class="fc" id="L305">					parameterDefinition.setParameterName(parameter.getName());</span>
+<span class="fc" id="L306">					parameterDefinition.setParameterTypeName(parameter.getTypeName());</span>
+<span class="fc" id="L307">					result.add(parameterDefinition);</span>
+				}
+<span class="fc" id="L309">				MiscUtils.makeNumberedNamesUnique(result, ParameterDefinition::getParameterName,</span>
+<span class="fc" id="L310">						ParameterDefinition::setParameterName);</span>
+<span class="fc" id="L311">				return result;</span>
+			}
+
+			@Override
+			public List&lt;ParameterDefinition&gt; getParameterDefinitions() {
+<span class="nc" id="L316">				throw new UnsupportedOperationException();</span>
+			}
+
+		};
+	}
+
+<span class="fc" id="L322">	public static class ProcedureDescriptor {</span>
+		private static final String RETURN_VALUE_NAME = &quot;&lt;RETURN_VALUE&gt;&quot;;
+
+		private String procedureName;
+		private ProcedureParameterDescriptor returnParameter;
+<span class="fc" id="L327">		private List&lt;ProcedureParameterDescriptor&gt; parameters = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L328">		private Variant&lt;String&gt; callQueryStringVariant = new Variant&lt;String&gt;(String.class);</span>
+
+		public static List&lt;ProcedureDescriptor&gt; list(Connection connectionInstance, String catalogName,
+				String schemaPattern, String procedureNamePattern) throws Exception {
+<span class="nc" id="L332">			List&lt;ProcedureDescriptor&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L333">			DatabaseMetaData meta = connectionInstance.getMetaData();</span>
+<span class="nc" id="L334">			try (ResultSet procedureResultSet = meta.getProcedures(catalogName, schemaPattern, procedureNamePattern)) {</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">				while (procedureResultSet.next()) {</span>
+<span class="nc" id="L336">					ProcedureDescriptor procedure = new ProcedureDescriptor();</span>
+<span class="nc" id="L337">					String foundCatalogName = procedureResultSet.getString(&quot;PROCEDURE_CAT&quot;);</span>
+<span class="nc" id="L338">					String foundSchemaName = procedureResultSet.getString(&quot;PROCEDURE_SCHEM&quot;);</span>
+<span class="nc" id="L339">					String foundProcedureName = procedureResultSet.getString(&quot;PROCEDURE_NAME&quot;);</span>
+<span class="nc" id="L340">					List&lt;ProcedureParameterDescriptor&gt; parameters = new ArrayList&lt;ProcedureParameterDescriptor&gt;();</span>
+<span class="nc" id="L341">					try (ResultSet columnResultSet = meta.getProcedureColumns(foundCatalogName, foundSchemaName,</span>
+<span class="nc" id="L342">							foundProcedureName, &quot;%&quot;)) {</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">						while (columnResultSet.next()) {</span>
+<span class="nc" id="L344">							ProcedureParameterDescriptor parameter = new ProcedureParameterDescriptor();</span>
+<span class="nc" id="L345">							parameter.setColumnKind(columnResultSet.getInt(&quot;COLUMN_TYPE&quot;));</span>
+<span class="nc" id="L346">							parameter.setSqlType(columnResultSet.getInt(&quot;DATA_TYPE&quot;));</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">							if (parameter.getColumnKind() == DatabaseMetaData.procedureColumnReturn) {</span>
+<span class="nc" id="L348">								parameter.setName(RETURN_VALUE_NAME);</span>
+<span class="nc" id="L349">								procedure.setReturnParameter(parameter);</span>
+<span class="nc" id="L350">							} else {</span>
+<span class="nc" id="L351">								parameter.setName(columnResultSet.getString(&quot;COLUMN_NAME&quot;));</span>
+<span class="nc" id="L352">								parameters.add(parameter);</span>
+							}
+						}
+					}
+<span class="nc" id="L356">					procedure.setProcedureName(foundProcedureName);</span>
+<span class="nc" id="L357">					procedure.setParameters(parameters);</span>
+<span class="nc" id="L358">					procedure.getCallQueryStringVariant().setConstantValue(buildCallQueryString(</span>
+<span class="nc bnc" id="L359" title="All 2 branches missed.">							Objects.equal(foundCatalogName, connectionInstance.getCatalog()) ? null : foundCatalogName,</span>
+<span class="nc bnc" id="L360" title="All 2 branches missed.">							Objects.equal(foundSchemaName, connectionInstance.getSchema()) ? null : foundSchemaName,</span>
+<span class="nc" id="L361">							foundProcedureName, parameters, procedure.isOfFunctionKind(), connectionInstance));</span>
+					try {
+<span class="nc" id="L363">						procedure.updateParameterTypeNames(connectionInstance);</span>
+<span class="nc" id="L364">					} catch (SQLException ignore) {</span>
+					}
+<span class="nc" id="L366">					result.add(procedure);</span>
+				}
+			}
+<span class="nc" id="L369">			return result;</span>
+		}
+
+		public void fix(JDBCConnection connection) {
+<span class="nc bnc" id="L373" title="All 2 branches missed.">			if (connection != null) {</span>
+<span class="nc" id="L374">				String driverClassName = connection.getDriverClassNameVariant().getValue();</span>
+<span class="nc bnc" id="L375" title="All 2 branches missed.">				if (driverClassName != null) {</span>
+<span class="nc bnc" id="L376" title="All 2 branches missed.">					if (driverClassName.contains(&quot;microsoft.sqlserver&quot;)) {</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">						if (!callQueryStringVariant.isVariable()) {</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">							if (callQueryStringVariant.getValue() != null) {</span>
+<span class="nc" id="L379">								String newProcedureName = procedureName.replaceAll(&quot;;\\d+$&quot;, &quot;&quot;);</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">								if (!newProcedureName.equals(procedureName)) {</span>
+<span class="nc" id="L381">									callQueryStringVariant.setConstantValue(</span>
+<span class="nc" id="L382">											callQueryStringVariant.getValue().replace(procedureName, newProcedureName));</span>
+								}
+							}
+						}
+					}
+				}
+			}
+<span class="nc" id="L389">		}</span>
+
+		public String getProcedureName() {
+<span class="nc" id="L392">			return procedureName;</span>
+		}
+
+		public void setProcedureName(String procedureName) {
+<span class="fc" id="L396">			this.procedureName = procedureName;</span>
+<span class="fc" id="L397">		}</span>
+
+		public ProcedureParameterDescriptor getReturnParameter() {
+<span class="fc" id="L400">			return returnParameter;</span>
+		}
+
+		public void setReturnParameter(ProcedureParameterDescriptor returnParameter) {
+<span class="fc" id="L404">			this.returnParameter = returnParameter;</span>
+<span class="fc" id="L405">		}</span>
+
+		public boolean isOfFunctionKind() {
+<span class="nc bnc" id="L408" title="All 2 branches missed.">			return returnParameter != null;</span>
+		}
+
+		public List&lt;ProcedureParameterDescriptor&gt; getParameters() {
+<span class="fc" id="L412">			return parameters;</span>
+		}
+
+		public void setParameters(List&lt;ProcedureParameterDescriptor&gt; parameters) {
+<span class="fc" id="L416">			this.parameters = parameters;</span>
+<span class="fc" id="L417">		}</span>
+
+		public Variant&lt;String&gt; getCallQueryStringVariant() {
+<span class="fc" id="L420">			return callQueryStringVariant;</span>
+		}
+
+		public void setCallQueryStringVariant(Variant&lt;String&gt; callQueryStringVariant) {
+<span class="fc" id="L424">			this.callQueryStringVariant = callQueryStringVariant;</span>
+<span class="fc" id="L425">		}</span>
+
+		private static String buildCallQueryString(String catalogName, String schemaName, String procedureName,
+				List&lt;ProcedureParameterDescriptor&gt; parameters, boolean ofFunctionKind, Connection connectionInstance) {
+<span class="nc" id="L429">			String placeHolders = String.join(&quot;,&quot;, Collections.nCopies(parameters.size(), &quot;?&quot;));</span>
+			String procedureQualifiedName;
+			try {
+<span class="nc" id="L432">				procedureQualifiedName = getProcedureQualifiedName(catalogName, schemaName, procedureName,</span>
+<span class="nc" id="L433">						connectionInstance.getMetaData().getIdentifierQuoteString());</span>
+<span class="nc" id="L434">			} catch (SQLException e) {</span>
+<span class="nc" id="L435">				throw new UnexpectedError(e);</span>
+			}
+<span class="nc bnc" id="L437" title="All 2 branches missed.">			if (ofFunctionKind) {</span>
+<span class="nc" id="L438">				return &quot;{?= call &quot; + procedureQualifiedName + &quot;(&quot; + placeHolders + &quot;)}&quot;;</span>
+			} else {
+<span class="nc" id="L440">				return &quot;{call &quot; + procedureQualifiedName + &quot;(&quot; + placeHolders + &quot;)}&quot;;</span>
+			}
+		}
+
+		private static String getProcedureQualifiedName(String catalogName, String schemaName, String procedureName,
+				String quote) {
+<span class="nc bnc" id="L446" title="All 2 branches missed.">			if (quote == null) {</span>
+<span class="nc" id="L447">				quote = &quot;&quot;;</span>
+			}
+<span class="nc" id="L449">			quote = quote.trim();</span>
+<span class="nc" id="L450">			String result = quote + procedureName + quote;</span>
+<span class="nc bnc" id="L451" title="All 2 branches missed.">			if (catalogName != null) {</span>
+<span class="nc" id="L452">				result = quote + catalogName + quote + &quot;.&quot; + result;</span>
+			}
+<span class="nc bnc" id="L454" title="All 2 branches missed.">			if (schemaName != null) {</span>
+<span class="nc" id="L455">				result = quote + schemaName + quote + &quot;.&quot; + result;</span>
+			}
+<span class="nc" id="L457">			return result;</span>
+		}
+
+		public void updateParameterTypeNames(Connection connectionInstance) throws SQLException {
+<span class="nc" id="L461">			ParameterMetaData parameterMetaData = null;</span>
+			try {
+<span class="nc" id="L463">				CallableStatement preparedStatement = connectionInstance</span>
+<span class="nc" id="L464">						.prepareCall(getCallQueryStringVariant().getValue());</span>
+<span class="nc" id="L465">				parameterMetaData = preparedStatement.getParameterMetaData();</span>
+<span class="nc" id="L466">			} finally {</span>
+<span class="nc bnc" id="L467" title="All 2 branches missed.">				if (isOfFunctionKind()) {</span>
+<span class="nc" id="L468">					getReturnParameter()</span>
+<span class="nc bnc" id="L469" title="All 2 branches missed.">							.setTypeName((parameterMetaData != null) ? parameterMetaData.getParameterClassName(1)</span>
+<span class="nc" id="L470">									: Object.class.getName());</span>
+				}
+<span class="nc bnc" id="L472" title="All 2 branches missed.">				for (int i = 0; i &lt; parameters.size(); i++) {</span>
+<span class="nc" id="L473">					parameters.get(i)</span>
+<span class="nc bnc" id="L474" title="All 2 branches missed.">							.setTypeName((parameterMetaData != null)</span>
+<span class="nc bnc" id="L475" title="All 2 branches missed.">									? parameterMetaData.getParameterClassName((isOfFunctionKind() ? +1 : 0) + i + 1)</span>
+<span class="nc" id="L476">									: Object.class.getName());</span>
+				}
+			}
+<span class="nc" id="L479">		}</span>
+
+		public void validate(Connection connectionInstance) throws ValidationError {
+			try {
+<span class="fc" id="L483">				connectionInstance.prepareCall(getCallQueryStringVariant().getValue());</span>
+<span class="pc" id="L484">			} catch (SQLException e) {</span>
+<span class="nc" id="L485">				throw new ValidationError(&quot;Failed to validate the procedure call query string&quot;, e);</span>
+			}
+<span class="fc" id="L487">		}</span>
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L491">			final int prime = 31;</span>
+<span class="nc" id="L492">			int result = 1;</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">			result = prime * result + ((callQueryStringVariant == null) ? 0 : callQueryStringVariant.hashCode());</span>
+<span class="nc bnc" id="L494" title="All 2 branches missed.">			result = prime * result + ((parameters == null) ? 0 : parameters.hashCode());</span>
+<span class="nc bnc" id="L495" title="All 2 branches missed.">			result = prime * result + ((procedureName == null) ? 0 : procedureName.hashCode());</span>
+<span class="nc bnc" id="L496" title="All 2 branches missed.">			result = prime * result + ((returnParameter == null) ? 0 : returnParameter.hashCode());</span>
+<span class="nc" id="L497">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L502" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L503">				return true;</span>
+<span class="nc bnc" id="L504" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L505">				return false;</span>
+<span class="nc bnc" id="L506" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L507">				return false;</span>
+<span class="nc" id="L508">			ProcedureDescriptor other = (ProcedureDescriptor) obj;</span>
+<span class="nc bnc" id="L509" title="All 2 branches missed.">			if (callQueryStringVariant == null) {</span>
+<span class="nc bnc" id="L510" title="All 2 branches missed.">				if (other.callQueryStringVariant != null)</span>
+<span class="nc" id="L511">					return false;</span>
+<span class="nc bnc" id="L512" title="All 2 branches missed.">			} else if (!callQueryStringVariant.equals(other.callQueryStringVariant))</span>
+<span class="nc" id="L513">				return false;</span>
+<span class="nc bnc" id="L514" title="All 2 branches missed.">			if (parameters == null) {</span>
+<span class="nc bnc" id="L515" title="All 2 branches missed.">				if (other.parameters != null)</span>
+<span class="nc" id="L516">					return false;</span>
+<span class="nc bnc" id="L517" title="All 2 branches missed.">			} else if (!parameters.equals(other.parameters))</span>
+<span class="nc" id="L518">				return false;</span>
+<span class="nc bnc" id="L519" title="All 2 branches missed.">			if (procedureName == null) {</span>
+<span class="nc bnc" id="L520" title="All 2 branches missed.">				if (other.procedureName != null)</span>
+<span class="nc" id="L521">					return false;</span>
+<span class="nc bnc" id="L522" title="All 2 branches missed.">			} else if (!procedureName.equals(other.procedureName))</span>
+<span class="nc" id="L523">				return false;</span>
+<span class="nc bnc" id="L524" title="All 2 branches missed.">			if (returnParameter == null) {</span>
+<span class="nc bnc" id="L525" title="All 2 branches missed.">				if (other.returnParameter != null)</span>
+<span class="nc" id="L526">					return false;</span>
+<span class="nc bnc" id="L527" title="All 2 branches missed.">			} else if (!returnParameter.equals(other.returnParameter))</span>
+<span class="nc" id="L528">				return false;</span>
+<span class="nc" id="L529">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc bnc" id="L534" title="All 2 branches missed.">			String result = isOfFunctionKind() ? &quot;Function&quot; : &quot;Procedure&quot;;</span>
+<span class="nc" id="L535">			result += &quot; &quot; + procedureName;</span>
+<span class="nc" id="L536">			result += &quot;(&quot;</span>
+<span class="nc" id="L537">					+ parameters.stream().map(ProcedureParameterDescriptor::toString).collect(Collectors.joining(&quot;, &quot;))</span>
+<span class="nc" id="L538">					+ &quot;)&quot;;</span>
+<span class="nc bnc" id="L539" title="All 2 branches missed.">			if (returnParameter != null) {</span>
+<span class="nc" id="L540">				result += &quot;: &quot; + returnParameter.getTypeName();</span>
+			}
+<span class="nc" id="L542">			return result;</span>
+		}
+
+	}
+
+<span class="fc" id="L547">	public static class ProcedureParameterDescriptor {</span>
+		private String name;
+		private int columnKind;
+		private int sqlType;
+		private String typeName;
+
+		public String getName() {
+<span class="fc" id="L554">			return name;</span>
+		}
+
+		public void setName(String name) {
+<span class="fc" id="L558">			this.name = name;</span>
+<span class="fc" id="L559">		}</span>
+
+		public int getColumnKind() {
+<span class="fc" id="L562">			return columnKind;</span>
+		}
+
+		public void setColumnKind(int columnKind) {
+<span class="fc" id="L566">			this.columnKind = columnKind;</span>
+<span class="fc" id="L567">		}</span>
+
+		public int getSqlType() {
+<span class="nc" id="L570">			return sqlType;</span>
+		}
+
+		public void setSqlType(int sqlType) {
+<span class="fc" id="L574">			this.sqlType = sqlType;</span>
+<span class="fc" id="L575">		}</span>
+
+		public String getTypeName() {
+<span class="fc" id="L578">			return typeName;</span>
+		}
+
+		public void setTypeName(String typeName) {
+<span class="fc" id="L582">			this.typeName = typeName;</span>
+<span class="fc" id="L583">		}</span>
+
+		public String getMode() {
+<span class="nc bnc" id="L586" title="All 5 branches missed.">			switch (columnKind) {</span>
+			case DatabaseMetaData.procedureColumnIn:
+<span class="nc" id="L588">				return &quot;IN&quot;;</span>
+			case DatabaseMetaData.procedureColumnOut:
+<span class="nc" id="L590">				return &quot;OUT&quot;;</span>
+			case DatabaseMetaData.procedureColumnInOut:
+<span class="nc" id="L592">				return &quot;INOUT&quot;;</span>
+			case DatabaseMetaData.procedureColumnReturn:
+<span class="nc" id="L594">				return &quot;RETURN&quot;;</span>
+			default:
+<span class="nc" id="L596">				return &quot;OTHER&quot;;</span>
+			}
+		}
+
+		public void setMode(String mode) {
+<span class="pc bpc" id="L601" title="1 of 2 branches missed.">			if (&quot;IN&quot;.equals(mode)) {</span>
+<span class="fc" id="L602">				columnKind = DatabaseMetaData.procedureColumnIn;</span>
+<span class="pc bnc" id="L603" title="All 2 branches missed.">			} else if (&quot;OUT&quot;.equals(mode)) {</span>
+<span class="nc" id="L604">				columnKind = DatabaseMetaData.procedureColumnOut;</span>
+<span class="nc bnc" id="L605" title="All 2 branches missed.">			} else if (&quot;INOUT&quot;.equals(mode)) {</span>
+<span class="nc" id="L606">				columnKind = DatabaseMetaData.procedureColumnInOut;</span>
+<span class="nc bnc" id="L607" title="All 2 branches missed.">			} else if (&quot;RETURN&quot;.equals(mode)) {</span>
+<span class="nc" id="L608">				columnKind = DatabaseMetaData.procedureColumnReturn;</span>
+<span class="nc" id="L609">			} else {</span>
+<span class="nc" id="L610">				columnKind = DatabaseMetaData.procedureColumnUnknown;</span>
+			}
+<span class="fc" id="L612">		}</span>
+
+		public List&lt;String&gt; getModeOptions() {
+<span class="nc" id="L615">			return Arrays.asList(&quot;IN&quot;, &quot;OUT&quot;, &quot;INOUT&quot;, &quot;RETURN&quot;, &quot;OTHER&quot;);</span>
+		}
+
+		public void validate() throws ValidationError {
+			try {
+<span class="nc" id="L620">				MiscUtils.getJESBClass(typeName);</span>
+<span class="nc" id="L621">			} catch (PotentialError e) {</span>
+<span class="nc" id="L622">				throw new ValidationError(&quot;Failed to validate the parameter type name&quot;, e);</span>
+			}
+<span class="nc" id="L624">		}</span>
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L628">			final int prime = 31;</span>
+<span class="nc" id="L629">			int result = 1;</span>
+<span class="nc" id="L630">			result = prime * result + columnKind;</span>
+<span class="nc bnc" id="L631" title="All 2 branches missed.">			result = prime * result + ((name == null) ? 0 : name.hashCode());</span>
+<span class="nc" id="L632">			result = prime * result + sqlType;</span>
+<span class="nc bnc" id="L633" title="All 2 branches missed.">			result = prime * result + ((typeName == null) ? 0 : typeName.hashCode());</span>
+<span class="nc" id="L634">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L639" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L640">				return true;</span>
+<span class="nc bnc" id="L641" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L642">				return false;</span>
+<span class="nc bnc" id="L643" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L644">				return false;</span>
+<span class="nc" id="L645">			ProcedureParameterDescriptor other = (ProcedureParameterDescriptor) obj;</span>
+<span class="nc bnc" id="L646" title="All 2 branches missed.">			if (columnKind != other.columnKind)</span>
+<span class="nc" id="L647">				return false;</span>
+<span class="nc bnc" id="L648" title="All 2 branches missed.">			if (name == null) {</span>
+<span class="nc bnc" id="L649" title="All 2 branches missed.">				if (other.name != null)</span>
+<span class="nc" id="L650">					return false;</span>
+<span class="nc bnc" id="L651" title="All 2 branches missed.">			} else if (!name.equals(other.name))</span>
+<span class="nc" id="L652">				return false;</span>
+<span class="nc bnc" id="L653" title="All 2 branches missed.">			if (sqlType != other.sqlType)</span>
+<span class="nc" id="L654">				return false;</span>
+<span class="nc bnc" id="L655" title="All 2 branches missed.">			if (typeName == null) {</span>
+<span class="nc bnc" id="L656" title="All 2 branches missed.">				if (other.typeName != null)</span>
+<span class="nc" id="L657">					return false;</span>
+<span class="nc bnc" id="L658" title="All 2 branches missed.">			} else if (!typeName.equals(other.typeName))</span>
+<span class="nc" id="L659">				return false;</span>
+<span class="nc" id="L660">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L665">			return String.format(&quot;%s %s %s&quot;, getMode(), typeName, name);</span>
+		}
+	}
+
+<span class="fc" id="L669">	public static class Metadata implements OperationMetadata&lt;JDBCProcedureCall&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L673">			return &quot;JDBC Procedure Call&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L678">			return &quot;JDBC&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;JDBCProcedureCall&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L683">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L688">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L689">					.specifyClassPathResourceLocation(JDBCProcedureCall.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

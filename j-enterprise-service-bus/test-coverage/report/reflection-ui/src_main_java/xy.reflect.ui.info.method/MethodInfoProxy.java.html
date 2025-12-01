@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MethodInfoProxy.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.method</a> &gt; <span class="el_source">MethodInfoProxy.java</span></div><h1>MethodInfoProxy.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.method;
+
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.info.AbstractInfoProxy;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+
+/**
+ * Method information proxy class. The methods in this class should be
+ * overridden to provide custom information.
+ * 
+ * Note that if the name, the return type or the parameters are modified then
+ * the method signature should be adjusted to remain consistent.
+ * 
+ * @author olitank
+ *
+ */
+public class MethodInfoProxy extends AbstractInfoProxy implements IMethodInfo {
+
+	protected IMethodInfo base;
+
+<span class="fc" id="L29">	public MethodInfoProxy(IMethodInfo base) {</span>
+<span class="fc" id="L30">		this.base = base;</span>
+<span class="fc" id="L31">	}</span>
+
+	public IMethodInfo getBase() {
+<span class="nc" id="L34">		return base;</span>
+	}
+
+	@Override
+	public String getSignature() {
+<span class="fc" id="L39">		return base.getSignature();</span>
+	}
+
+	public boolean isHidden() {
+<span class="fc" id="L43">		return base.isHidden();</span>
+	}
+
+	public boolean isRelevant(Object object) {
+<span class="fc" id="L47">		return base.isRelevant(object);</span>
+	}
+
+	public boolean isEnabled(Object object) {
+<span class="fc" id="L51">		return base.isEnabled(object);</span>
+	}
+
+	public IValidationJob getReturnValueAbstractFormValidationJob(Object object, Object returnValue) {
+<span class="fc" id="L55">		return base.getReturnValueAbstractFormValidationJob(object, returnValue);</span>
+	}
+
+	public boolean isControlReturnValueValiditionEnabled() {
+<span class="fc" id="L59">		return base.isControlReturnValueValiditionEnabled();</span>
+	}
+
+	@Override
+	public boolean isLastInvocationDataUsedByDefault() {
+<span class="fc" id="L64">		return base.isLastInvocationDataUsedByDefault();</span>
+	}
+
+	public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L68">		base.onControlVisibilityChange(object, visible);</span>
+<span class="fc" id="L69">	}</span>
+
+	public boolean isNullReturnValueDistinct() {
+<span class="fc" id="L72">		return base.isNullReturnValueDistinct();</span>
+	}
+
+	public boolean isReturnValueDetached() {
+<span class="fc" id="L76">		return base.isReturnValueDetached();</span>
+	}
+
+	public boolean isReturnValueIgnored() {
+<span class="fc" id="L80">		return base.isReturnValueIgnored();</span>
+	}
+
+	public String getName() {
+<span class="fc" id="L84">		return base.getName();</span>
+	}
+
+	public String getCaption() {
+<span class="fc" id="L88">		return base.getCaption();</span>
+	}
+
+	public ITypeInfo getReturnValueType() {
+<span class="fc" id="L92">		return base.getReturnValueType();</span>
+	}
+
+	public List&lt;IParameterInfo&gt; getParameters() {
+<span class="fc" id="L96">		return base.getParameters();</span>
+	}
+
+	public Object invoke(Object object, InvocationData invocationData) {
+<span class="fc" id="L100">		return base.invoke(object, invocationData);</span>
+	}
+
+	public String getNullReturnValueLabel() {
+<span class="nc" id="L104">		return base.getNullReturnValueLabel();</span>
+	}
+
+	@Override
+	public boolean isReadOnly() {
+<span class="fc" id="L109">		return base.isReadOnly();</span>
+	}
+
+	public ValueReturnMode getValueReturnMode() {
+<span class="fc" id="L113">		return base.getValueReturnMode();</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="fc" id="L118">		return base.getCategory();</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="fc" id="L123">		return base.getOnlineHelp();</span>
+	}
+
+	@Override
+	public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
+<span class="fc" id="L128">		return base.getNextInvocationUndoJob(object, invocationData);</span>
+	}
+
+	public Runnable getPreviousInvocationCustomRedoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L132">		return base.getPreviousInvocationCustomRedoJob(object, invocationData);</span>
+	}
+
+	@Override
+	public void validateParameters(Object object, InvocationData invocationData) throws Exception {
+<span class="fc" id="L137">		base.validateParameters(object, invocationData);</span>
+<span class="fc" id="L138">	}</span>
+
+	public ResourcePath getIconImagePath() {
+<span class="fc" id="L141">		return base.getIconImagePath();</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L146">		return base.getSpecificProperties();</span>
+	}
+
+	public String getConfirmationMessage(Object object, InvocationData invocationData) {
+<span class="fc" id="L150">		return base.getConfirmationMessage(object, invocationData);</span>
+	}
+
+	public String getParametersValidationCustomCaption() {
+<span class="fc" id="L154">		return base.getParametersValidationCustomCaption();</span>
+	}
+
+	public String getExecutionSuccessMessage() {
+<span class="fc" id="L158">		return base.getExecutionSuccessMessage();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L163">		final int prime = 31;</span>
+<span class="fc" id="L164">		int result = super.hashCode();</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">		result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="fc" id="L166">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L171" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L172">			return true;</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">		if (!super.equals(obj))</span>
+<span class="fc" id="L174">			return false;</span>
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L176">			return false;</span>
+<span class="fc" id="L177">		MethodInfoProxy other = (MethodInfoProxy) obj;</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">		if (base == null) {</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">			if (other.base != null)</span>
+<span class="nc" id="L180">				return false;</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">		} else if (!base.equals(other.base))</span>
+<span class="fc" id="L182">			return false;</span>
+<span class="fc" id="L183">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L188">		return &quot;MethodInfoProxy [signature=&quot; + getSignature() + &quot;, base=&quot; + base + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

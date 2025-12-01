@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>StrictDateFormat.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">StrictDateFormat.java</span></div><h1>StrictDateFormat.java</h1><pre class="source lang-java linenums">/*
+ * 
+ */
+package xy.reflect.ui.util;
+
+import java.text.AttributedCharacterIterator;
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+/**
+ * &lt;p&gt;
+ * Decorator for a {@link DateFormat} which only accepts values which can be
+ * completely parsed by the delegate format. If the value can only be partially
+ * parsed, the decorator will refuse to parse the value.
+ * &lt;/p&gt;
+ */
+public class StrictDateFormat extends DateFormat {
+
+	private static final long serialVersionUID = 1L;
+
+	private final DateFormat delegate;
+
+	/**
+	 * Decorate &lt;code&gt;delegate&lt;/code&gt; to make sure if parser everything or nothing
+	 *
+	 * @param delegate The delegate format
+	 */
+<span class="nc" id="L33">	public StrictDateFormat(DateFormat delegate) {</span>
+<span class="nc" id="L34">		this.delegate = delegate;</span>
+<span class="nc" id="L35">	}</span>
+
+	@Override
+	public Date parse(String source, ParsePosition pos) {
+<span class="nc" id="L39">		int initialIndex = pos.getIndex();</span>
+<span class="nc" id="L40">		Date result = delegate.parse(source, pos);</span>
+<span class="nc bnc" id="L41" title="All 4 branches missed.">		if (result != null &amp;&amp; pos.getIndex() &lt; source.length()) {</span>
+<span class="nc" id="L42">			int errorIndex = pos.getIndex();</span>
+<span class="nc" id="L43">			pos.setIndex(initialIndex);</span>
+<span class="nc" id="L44">			pos.setErrorIndex(errorIndex);</span>
+<span class="nc" id="L45">			return null;</span>
+		}
+<span class="nc" id="L47">		return result;</span>
+	}
+
+	@Override
+	public AttributedCharacterIterator formatToCharacterIterator(Object obj) {
+<span class="nc" id="L52">		return delegate.formatToCharacterIterator(obj);</span>
+	}
+
+	public StringBuffer format(double number, StringBuffer toAppendTo, FieldPosition pos) {
+<span class="nc" id="L56">		return delegate.format(number, toAppendTo, pos);</span>
+	}
+
+	public StringBuffer format(long number, StringBuffer toAppendTo, FieldPosition pos) {
+<span class="nc" id="L60">		return delegate.format(number, toAppendTo, pos);</span>
+	}
+
+	public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
+<span class="nc" id="L64">		return delegate.format(date, toAppendTo, fieldPosition);</span>
+	}
+
+	public void setCalendar(Calendar newCalendar) {
+<span class="nc" id="L68">		delegate.setCalendar(newCalendar);</span>
+<span class="nc" id="L69">	}</span>
+
+	public Calendar getCalendar() {
+<span class="nc" id="L72">		return delegate.getCalendar();</span>
+	}
+
+	public void setNumberFormat(NumberFormat newNumberFormat) {
+<span class="nc" id="L76">		delegate.setNumberFormat(newNumberFormat);</span>
+<span class="nc" id="L77">	}</span>
+
+	public NumberFormat getNumberFormat() {
+<span class="nc" id="L80">		return delegate.getNumberFormat();</span>
+	}
+
+	public void setTimeZone(TimeZone zone) {
+<span class="nc" id="L84">		delegate.setTimeZone(zone);</span>
+<span class="nc" id="L85">	}</span>
+
+	public TimeZone getTimeZone() {
+<span class="nc" id="L88">		return delegate.getTimeZone();</span>
+	}
+
+	public void setLenient(boolean lenient) {
+<span class="nc" id="L92">		delegate.setLenient(lenient);</span>
+<span class="nc" id="L93">	}</span>
+
+	public boolean isLenient() {
+<span class="nc" id="L96">		return delegate.isLenient();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L101">		final int prime = 31;</span>
+<span class="nc" id="L102">		int result = super.hashCode();</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		result = prime * result + ((delegate == null) ? 0 : delegate.hashCode());</span>
+<span class="nc" id="L104">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L110">			return true;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="nc" id="L112">			return false;</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L114">			return false;</span>
+<span class="nc" id="L115">		StrictDateFormat other = (StrictDateFormat) obj;</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">		if (delegate == null) {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">			if (other.delegate != null)</span>
+<span class="nc" id="L118">				return false;</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">		} else if (!delegate.equals(other.delegate))</span>
+<span class="nc" id="L120">			return false;</span>
+<span class="nc" id="L121">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L126">		return &quot;StrictDateFormat [delegate=&quot; + delegate + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

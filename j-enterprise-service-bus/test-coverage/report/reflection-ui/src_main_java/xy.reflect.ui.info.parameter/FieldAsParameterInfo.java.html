@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FieldAsParameterInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.parameter</a> &gt; <span class="el_source">FieldAsParameterInfo.java</span></div><h1>FieldAsParameterInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.parameter;
+
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.info.type.source.TypeInfoSourceProxy;
+
+/**
+ * Virtual parameter allowing to view the underlying field value.
+ * 
+ * @author olitank
+ *
+ */
+public class FieldAsParameterInfo implements IParameterInfo {
+
+	protected ReflectionUI reflectionUI;
+	protected IFieldInfo field;
+	protected int position;
+
+<span class="nc" id="L24">	public FieldAsParameterInfo(ReflectionUI reflectionUI, IFieldInfo field, int position) {</span>
+<span class="nc" id="L25">		this.reflectionUI = reflectionUI;</span>
+<span class="nc" id="L26">		this.field = field;</span>
+<span class="nc" id="L27">		this.position = position;</span>
+<span class="nc" id="L28">	}</span>
+
+	public IFieldInfo getSourceField() {
+<span class="nc" id="L31">		return field;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L36">		return field.getSpecificProperties();</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="nc" id="L41">		return field.getOnlineHelp();</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="nc" id="L46">		return field.getName();</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="nc" id="L51">		return field.getCaption();</span>
+	}
+
+	@Override
+	public boolean isNullValueDistinct() {
+<span class="nc" id="L56">		return field.isNullValueDistinct();</span>
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="nc" id="L61">		return false;</span>
+	}
+
+	@Override
+	public ITypeInfo getType() {
+<span class="nc" id="L66">		return reflectionUI.getTypeInfo(new TypeInfoSourceProxy(field.getType().getSource()) {</span>
+			@Override
+			public SpecificitiesIdentifier getSpecificitiesIdentifier() {
+<span class="nc" id="L69">				return null;</span>
+			}
+
+			@Override
+			protected String getTypeInfoProxyFactoryIdentifier() {
+<span class="nc" id="L74">				return &quot;ParameterTypeInfoProxyFactory [of=&quot; + getClass().getName() + &quot;, baseField=&quot; + field.getName()</span>
+<span class="nc" id="L75">						+ &quot;, position=&quot; + position + &quot;]&quot;;</span>
+			}
+		});
+	}
+
+	@Override
+	public int getPosition() {
+<span class="nc" id="L82">		return position;</span>
+	}
+
+	@Override
+	public Object getDefaultValue(Object object) {
+<span class="nc" id="L87">		return field.getValue(object);</span>
+	}
+
+	@Override
+	public boolean hasValueOptions(Object object) {
+<span class="nc" id="L92">		return field.hasValueOptions(object);</span>
+	}
+
+	@Override
+	public Object[] getValueOptions(Object object) {
+<span class="nc" id="L97">		return field.getValueOptions(object);</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L102">		final int prime = 31;</span>
+<span class="nc" id="L103">		int result = 1;</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		result = prime * result + ((field == null) ? 0 : field.hashCode());</span>
+<span class="nc" id="L105">		result = prime * result + position;</span>
+<span class="nc" id="L106">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L112">			return true;</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L114">			return false;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L116">			return false;</span>
+<span class="nc" id="L117">		FieldAsParameterInfo other = (FieldAsParameterInfo) obj;</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">		if (field == null) {</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">			if (other.field != null)</span>
+<span class="nc" id="L120">				return false;</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">		} else if (!field.equals(other.field))</span>
+<span class="nc" id="L122">			return false;</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">		if (position != other.position)</span>
+<span class="nc" id="L124">			return false;</span>
+<span class="nc" id="L125">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L130">		return &quot;FieldAsParameterInfo [field=&quot; + field + &quot;, position=&quot; + position + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

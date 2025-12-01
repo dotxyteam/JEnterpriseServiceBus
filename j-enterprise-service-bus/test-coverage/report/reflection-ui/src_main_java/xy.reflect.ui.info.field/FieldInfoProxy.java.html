@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FieldInfoProxy.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.field</a> &gt; <span class="el_source">FieldInfoProxy.java</span></div><h1>FieldInfoProxy.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.field;
+
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.info.AbstractInfoProxy;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+
+/**
+ * Field information proxy class. The methods in this class should be overridden
+ * to provide custom information.
+ * 
+ * @author olitank
+ *
+ */
+public class FieldInfoProxy extends AbstractInfoProxy implements IFieldInfo {
+
+	protected IFieldInfo base;
+
+<span class="fc" id="L26">	public FieldInfoProxy(IFieldInfo base) {</span>
+<span class="fc" id="L27">		this.base = base;</span>
+<span class="fc" id="L28">	}</span>
+
+	public IFieldInfo getBase() {
+<span class="nc" id="L31">		return base;</span>
+	}
+
+	public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L35">		return base.getValueAbstractFormValidationJob(object);</span>
+	}
+
+	public boolean isControlValueValiditionEnabled() {
+<span class="fc" id="L39">		return base.isControlValueValiditionEnabled();</span>
+	}
+
+	public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L43">		return base.getAlternativeConstructors(object);</span>
+	}
+
+	public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="fc" id="L47">		return base.getAlternativeListItemConstructors(object);</span>
+	}
+
+	public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L51">		base.onControlVisibilityChange(object, visible);</span>
+<span class="fc" id="L52">	}</span>
+
+	public double getDisplayAreaHorizontalWeight() {
+<span class="fc" id="L55">		return base.getDisplayAreaHorizontalWeight();</span>
+	}
+
+	public double getDisplayAreaVerticalWeight() {
+<span class="fc" id="L59">		return base.getDisplayAreaVerticalWeight();</span>
+	}
+
+	public boolean isDisplayAreaHorizontallyFilled() {
+<span class="fc" id="L63">		return base.isDisplayAreaHorizontallyFilled();</span>
+	}
+
+	public boolean isDisplayAreaVerticallyFilled() {
+<span class="fc" id="L67">		return base.isDisplayAreaVerticallyFilled();</span>
+	}
+
+	@Override
+	public Object getValue(Object object) {
+<span class="fc" id="L72">		return base.getValue(object);</span>
+	}
+
+	public Runnable getNextUpdateCustomUndoJob(Object object, Object value) {
+<span class="fc" id="L76">		return base.getNextUpdateCustomUndoJob(object, value);</span>
+	}
+
+	public Runnable getPreviousUpdateCustomRedoJob(Object object, Object newValue) {
+<span class="nc" id="L80">		return base.getPreviousUpdateCustomRedoJob(object, newValue);</span>
+	}
+
+	@Override
+	public boolean hasValueOptions(Object object) {
+<span class="fc" id="L85">		return base.hasValueOptions(object);</span>
+	}
+
+	@Override
+	public Object[] getValueOptions(Object object) {
+<span class="fc" id="L90">		return base.getValueOptions(object);</span>
+	}
+
+	@Override
+	public ITypeInfo getType() {
+<span class="fc" id="L95">		return base.getType();</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc" id="L100">		return base.getCaption();</span>
+	}
+
+	@Override
+	public void setValue(Object object, Object value) {
+<span class="fc" id="L105">		base.setValue(object, value);</span>
+<span class="fc" id="L106">	}</span>
+
+	@Override
+	public boolean isNullValueDistinct() {
+<span class="fc" id="L110">		return base.isNullValueDistinct();</span>
+	}
+
+	public String getNullValueLabel() {
+<span class="fc" id="L114">		return base.getNullValueLabel();</span>
+	}
+
+	@Override
+	public boolean isGetOnly() {
+<span class="fc" id="L119">		return base.isGetOnly();</span>
+	}
+
+	public boolean isTransient() {
+<span class="fc" id="L123">		return base.isTransient();</span>
+	}
+
+	@Override
+	public ValueReturnMode getValueReturnMode() {
+<span class="fc" id="L128">		return base.getValueReturnMode();</span>
+	}
+
+	public boolean isFormControlMandatory() {
+<span class="fc" id="L132">		return base.isFormControlMandatory();</span>
+	}
+
+	public boolean isFormControlEmbedded() {
+<span class="fc" id="L136">		return base.isFormControlEmbedded();</span>
+	}
+
+	public IInfoFilter getFormControlFilter() {
+<span class="fc" id="L140">		return base.getFormControlFilter();</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc" id="L145">		return base.getName();</span>
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="fc" id="L150">		return base.isHidden();</span>
+	}
+
+	public boolean isRelevant(Object object) {
+<span class="fc" id="L154">		return base.isRelevant(object);</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="fc" id="L159">		return base.getCategory();</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="fc" id="L164">		return base.getOnlineHelp();</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L169">		return base.getSpecificProperties();</span>
+	}
+
+	public long getAutoUpdatePeriodMilliseconds() {
+<span class="fc" id="L173">		return base.getAutoUpdatePeriodMilliseconds();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L178">		final int prime = 31;</span>
+<span class="fc" id="L179">		int result = super.hashCode();</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">		result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="fc" id="L181">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L186" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L187">			return true;</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">		if (!super.equals(obj))</span>
+<span class="fc" id="L189">			return false;</span>
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L191">			return false;</span>
+<span class="fc" id="L192">		FieldInfoProxy other = (FieldInfoProxy) obj;</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">		if (base == null) {</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">			if (other.base != null)</span>
+<span class="nc" id="L195">				return false;</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">		} else if (!base.equals(other.base))</span>
+<span class="nc" id="L197">			return false;</span>
+<span class="fc" id="L198">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L203">		return &quot;FieldInfoProxy [name=&quot; + getName() + &quot;, base=&quot; + base + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

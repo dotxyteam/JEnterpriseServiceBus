@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Variant.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">Variant.java</span></div><h1>Variant.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.meta.Date;
+import com.otk.jesb.meta.DateTime;
+
+import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * This class represents typed data that potentially varies from one environment
+ * to another. Variations are managed by the {@link EnvironmentSettings} class.
+ * 
+ * @author olitank
+ *
+ * @param &lt;T&gt; Data type.
+ */
+public class Variant&lt;T&gt; {
+
+	private Class&lt;T&gt; valueClass;
+	private Object constantValue;
+	private Expression&lt;String&gt; expression;
+<span class="fc" id="L31">	private boolean variable = false;</span>
+
+<span class="fc" id="L33">	public Variant(Class&lt;T&gt; valueClass, T value) {</span>
+<span class="fc" id="L34">		this.valueClass = valueClass;</span>
+<span class="fc" id="L35">		this.constantValue = value;</span>
+<span class="fc" id="L36">	}</span>
+
+	public Variant(Class&lt;T&gt; valueClass) {
+<span class="fc" id="L39">		this(valueClass, null);</span>
+<span class="fc" id="L40">	}</span>
+
+	public Variant() {
+<span class="fc" id="L43">		this(null);</span>
+<span class="fc" id="L44">	}</span>
+
+	public Class&lt;T&gt; getValueClass() {
+<span class="fc" id="L47">		return valueClass;</span>
+	}
+
+	public void setValueClass(Class&lt;T&gt; valueClass) {
+<span class="fc" id="L51">		this.valueClass = valueClass;</span>
+<span class="fc" id="L52">	}</span>
+
+	public Object getConstantValue() {
+<span class="fc" id="L55">		return constantValue;</span>
+	}
+
+	public void setConstantValue(Object constantValue) {
+<span class="fc" id="L59">		this.constantValue = constantValue;</span>
+<span class="fc" id="L60">	}</span>
+
+	public Expression&lt;String&gt; getVariableReferenceExpression() {
+<span class="fc" id="L63">		return expression;</span>
+	}
+
+	public void setVariableReferenceExpression(Expression&lt;String&gt; expression) {
+<span class="fc" id="L67">		this.expression = expression;</span>
+<span class="fc" id="L68">	}</span>
+
+	public boolean isVariable() {
+<span class="fc" id="L71">		return variable;</span>
+	}
+
+	public void setVariable(boolean variable) {
+<span class="fc" id="L75">		this.variable = variable;</span>
+<span class="fc" id="L76">	}</span>
+
+	public T getValue() {
+<span class="fc bfc" id="L79" title="All 2 branches covered.">		if (variable) {</span>
+<span class="fc" id="L80">			requireExpression();</span>
+<span class="fc" id="L81">			String valueString = expression.evaluate(</span>
+<span class="fc" id="L82">					Collections.singletonList(EnvironmentSettings.ROOT_VALUE_DECLARATION),</span>
+<span class="fc" id="L83">					Collections.singletonList(EnvironmentSettings.ROOT_VARIABLE_ROOT));</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">			if (valueString == null) {</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">				if (valueClass.isPrimitive()) {</span>
+<span class="nc" id="L86">					throw new PotentialError(&quot;Unexpected &lt;null&gt; environment variable value. &lt;&quot; + valueClass.getName()</span>
+<span class="nc" id="L87">							+ &quot;&gt; value expected from: &quot; + expression.get());</span>
+				}
+<span class="nc" id="L89">				return null;</span>
+			}
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">			if (ClassUtils.isPrimitiveClassOrWrapper(valueClass)) {</span>
+<span class="nc" id="L92">				return valueClass.cast(ReflectionUIUtils.primitiveFromString(valueString, valueClass));</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">			} else if (valueClass == Date.class) {</span>
+<span class="nc" id="L94">				return valueClass.cast(new Date(valueString));</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">			} else if (valueClass == DateTime.class) {</span>
+<span class="nc" id="L96">				return valueClass.cast(new DateTime(valueString));</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">			} else if (valueClass == String.class) {</span>
+<span class="nc" id="L98">				return valueClass.cast(valueString);</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">			} else if (valueClass.isEnum()) {</span>
+<span class="fc" id="L100">				T result = Arrays.stream(valueClass.getEnumConstants())</span>
+<span class="fc" id="L101">						.filter(constant -&gt; constant.toString().equals(valueString)).findFirst().orElse(null);</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">				if (result == null) {</span>
+<span class="nc" id="L103">					throw new IllegalStateException(</span>
+<span class="nc" id="L104">							&quot;Invalid enumeration (&quot; + valueClass.getName() + &quot;) item name: '&quot; + valueString</span>
+<span class="nc" id="L105">									+ &quot;' (expected [&quot; + Arrays.stream(valueClass.getEnumConstants())</span>
+<span class="nc" id="L106">											.map(constant -&gt; constant.toString()).collect(Collectors.joining(&quot;, &quot;))</span>
+<span class="nc" id="L107">									+ &quot;])&quot;);</span>
+				}
+<span class="fc" id="L109">				return result;</span>
+			} else {
+<span class="nc" id="L111">				throw new UnexpectedError();</span>
+			}
+		} else {
+<span class="fc" id="L114">			return valueClass.cast(constantValue);</span>
+		}
+	}
+
+	public List&lt;Expression&lt;String&gt;&gt; getVariableReferenceExpressionOptions() {
+<span class="fc" id="L119">		List&lt;Expression&lt;String&gt;&gt; result = new ArrayList&lt;Expression&lt;String&gt;&gt;();</span>
+<span class="fc" id="L120">		PathOptionsProvider pathOptionsProvider = new PathOptionsProvider(</span>
+<span class="fc" id="L121">				Collections.singletonList(EnvironmentSettings.ROOT_VALUE_DECLARATION));</span>
+<span class="fc" id="L122">		result.addAll(getVariableReferenceExpressionOptions(pathOptionsProvider.getRootPathNodes()));</span>
+<span class="fc" id="L123">		return result;</span>
+	}
+
+	private Collection&lt;? extends Expression&lt;String&gt;&gt; getVariableReferenceExpressionOptions(List&lt;PathNode&gt; pathNodes) {
+<span class="fc" id="L127">		List&lt;Expression&lt;String&gt;&gt; result = new ArrayList&lt;Expression&lt;String&gt;&gt;();</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">		for (PathNode pathNode : pathNodes) {</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">			if (pathNode.getExpressionType().getName().equals(String.class.getName())) {</span>
+<span class="fc" id="L130">				Expression&lt;String&gt; expression = new Expression&lt;String&gt;(String.class);</span>
+<span class="fc" id="L131">				expression.set(pathNode.getTypicalExpression());</span>
+<span class="fc" id="L132">				result.add(expression);</span>
+			}
+<span class="fc" id="L134">			result.addAll(getVariableReferenceExpressionOptions(pathNode.getChildren()));</span>
+		}
+<span class="fc" id="L136">		return result;</span>
+	}
+
+	private void requireExpression() {
+<span class="fc bfc" id="L140" title="All 2 branches covered.">		if (expression == null) {</span>
+<span class="fc" id="L141">			throw new PotentialError(&quot;Environment variable reference not provided&quot;);</span>
+		}
+<span class="fc" id="L143">	}</span>
+
+	public void validate() throws ValidationError {
+<span class="fc bfc" id="L146" title="All 2 branches covered.">		if (variable) {</span>
+			try {
+<span class="fc" id="L148">				getValue();</span>
+<span class="fc" id="L149">			} catch (Exception e) {</span>
+<span class="fc" id="L150">				throw new ValidationError(e.toString());</span>
+			}
+		}
+<span class="fc" id="L153">	}</span>
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L157">		final int prime = 31;</span>
+<span class="fc" id="L158">		int result = 1;</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">		result = prime * result + ((constantValue == null) ? 0 : constantValue.hashCode());</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">		result = prime * result + ((expression == null) ? 0 : expression.hashCode());</span>
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">		result = prime * result + ((valueClass == null) ? 0 : valueClass.hashCode());</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">		result = prime * result + (variable ? 1231 : 1237);</span>
+<span class="fc" id="L163">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L168" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L169">			return true;</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L171">			return false;</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L173">			return false;</span>
+		@SuppressWarnings(&quot;rawtypes&quot;)
+<span class="nc" id="L175">		Variant other = (Variant) obj;</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">		if (constantValue == null) {</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">			if (other.constantValue != null)</span>
+<span class="nc" id="L178">				return false;</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">		} else if (!constantValue.equals(other.constantValue))</span>
+<span class="nc" id="L180">			return false;</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">		if (expression == null) {</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">			if (other.expression != null)</span>
+<span class="nc" id="L183">				return false;</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">		} else if (!expression.equals(other.expression))</span>
+<span class="nc" id="L185">			return false;</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">		if (valueClass == null) {</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">			if (other.valueClass != null)</span>
+<span class="nc" id="L188">				return false;</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">		} else if (!valueClass.equals(other.valueClass))</span>
+<span class="nc" id="L190">			return false;</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		if (variable != other.variable)</span>
+<span class="nc" id="L192">			return false;</span>
+<span class="nc" id="L193">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc bfc" id="L198" title="All 2 branches covered.">		if (variable) {</span>
+<span class="fc" id="L199">			return &quot;(&quot; + expression + &quot;)&quot;;</span>
+		} else {
+<span class="fc" id="L201">			return Objects.toString(constantValue);</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,1376 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SwingRenderer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.renderer</a> &gt; <span class="el_source">SwingRenderer.java</span></div><h1>SwingRenderer.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.renderer;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Dialog.ModalityType;
+import java.awt.Image;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+
+import org.jdesktop.swingx.JXBusyLabel;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.DefaultMethodControlData;
+import xy.reflect.ui.control.IMethodControlData;
+import xy.reflect.ui.control.IMethodControlInput;
+import xy.reflect.ui.control.MethodContext;
+import xy.reflect.ui.control.plugin.IFieldControlPlugin;
+import xy.reflect.ui.control.swing.MethodAction;
+import xy.reflect.ui.control.swing.builder.DialogBuilder;
+import xy.reflect.ui.control.swing.builder.StandardEditorBuilder;
+import xy.reflect.ui.control.swing.plugin.ColorPickerPlugin;
+import xy.reflect.ui.control.swing.plugin.CustomCheckBoxPlugin;
+import xy.reflect.ui.control.swing.plugin.DatePickerPlugin;
+import xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin;
+import xy.reflect.ui.control.swing.plugin.DetailedListControlPlugin;
+import xy.reflect.ui.control.swing.plugin.EditorPlugin;
+import xy.reflect.ui.control.swing.plugin.FileBrowserPlugin;
+import xy.reflect.ui.control.swing.plugin.FormattedNumberPlugin;
+import xy.reflect.ui.control.swing.plugin.HtmlPlugin;
+import xy.reflect.ui.control.swing.plugin.ImageViewPlugin;
+import xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin;
+import xy.reflect.ui.control.swing.plugin.OptionButtonsPlugin;
+import xy.reflect.ui.control.swing.plugin.PasswordFieldPlugin;
+import xy.reflect.ui.control.swing.plugin.SingleLineTextPlugin;
+import xy.reflect.ui.control.swing.plugin.SliderPlugin;
+import xy.reflect.ui.control.swing.plugin.SpinnerPlugin;
+import xy.reflect.ui.control.swing.plugin.SplitFormPlugin;
+import xy.reflect.ui.control.swing.plugin.StyledTextPlugin;
+import xy.reflect.ui.control.swing.plugin.ToggleButtonPlugin;
+import xy.reflect.ui.control.swing.util.AbstractControlButton;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.control.swing.util.WindowManager;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.app.IApplicationInfo;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.menu.AbstractActionMenuItemInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.method.ProvidedParameterValueMethodInfoProxy;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
+import xy.reflect.ui.info.type.factory.GenericEnumerationFactory;
+import xy.reflect.ui.info.type.factory.PolymorphicTypeOptionsFactory;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.util.BetterFutureTask;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.ReschedulableTask;
+import xy.reflect.ui.util.SystemProperties;
+
+/**
+ * This is the {@link ReflectionUI} renderer class for Swing-based UIs.
+ * 
+ * @author olitank
+ *
+ */
+public class SwingRenderer {
+
+	public static void main(String[] args) throws Exception {
+<span class="nc" id="L99">		String usageText = &quot;Expected arguments: [ &lt;className&gt; | --help ]&quot;</span>
+				+ &quot;\n  =&gt; &lt;className&gt;: Fully qualified name of a class to instantiate and display in a window&quot;
+				+ &quot;\n  =&gt; --help: Displays this help message&quot; + &quot;\n&quot;
+<span class="nc" id="L102">				+ &quot;\nAdditionally, the following JVM properties can be set:&quot; + &quot;\n&quot; + SystemProperties.describe();</span>
+		final Class&lt;?&gt; clazz;
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		if (args.length == 0) {</span>
+<span class="nc" id="L105">			clazz = Object.class;</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">		} else if (args.length == 1) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">			if (args[0].equals(&quot;--help&quot;)) {</span>
+<span class="nc" id="L108">				System.out.println(usageText);</span>
+<span class="nc" id="L109">				return;</span>
+			} else {
+<span class="nc" id="L111">				clazz = Class.forName(args[0]);</span>
+			}
+<span class="nc" id="L113">		} else {</span>
+<span class="nc" id="L114">			throw new IllegalArgumentException(usageText);</span>
+		}
+<span class="nc" id="L116">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L119">				ReflectionUI reflectionUI = SwingRenderer.getDefault().getReflectionUI();</span>
+<span class="nc" id="L120">				Object object = SwingRenderer.getDefault().onTypeInstantiationRequest(null,</span>
+<span class="nc" id="L121">						reflectionUI.getTypeInfo(new JavaTypeInfoSource(clazz, null)));</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">				if (object == null) {</span>
+<span class="nc" id="L123">					return;</span>
+				}
+<span class="nc" id="L125">				SwingRenderer.getDefault().openObjectFrame(object);</span>
+<span class="nc" id="L126">			}</span>
+		});
+<span class="nc" id="L128">	}</span>
+
+	protected static SwingRenderer defaultInstance;
+
+	/**
+	 * @return the default instance of this class.
+	 */
+	public static SwingRenderer getDefault() {
+<span class="nc bnc" id="L136" title="All 2 branches missed.">		if (defaultInstance == null) {</span>
+<span class="nc" id="L137">			Class&lt;?&gt; customClass = SystemProperties.getAlternateDefaultSwingRendererClass();</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">			if (customClass != null) {</span>
+				try {
+<span class="nc" id="L140">					defaultInstance = (SwingRenderer) customClass.getMethod(&quot;getDefault&quot;).invoke(null);</span>
+<span class="nc" id="L141">				} catch (InvocationTargetException e) {</span>
+<span class="nc" id="L142">					throw new ReflectionUIError(e.getTargetException());</span>
+<span class="nc" id="L143">				} catch (Exception e) {</span>
+<span class="nc" id="L144">					throw new ReflectionUIError(e);</span>
+				}
+			} else {
+<span class="nc" id="L147">				defaultInstance = new SwingRenderer(ReflectionUI.getDefault());</span>
+			}
+		}
+<span class="nc" id="L150">		return defaultInstance;</span>
+	}
+
+	protected ReflectionUI reflectionUI;
+<span class="fc" id="L154">	protected Map&lt;MethodContext, InvocationData&gt; lastInvocationDataByMethodContext = new HashMap&lt;MethodContext, InvocationData&gt;();</span>
+
+<span class="fc" id="L156">	protected List&lt;Form&gt; allDisplayedForms = new ArrayList&lt;Form&gt;();</span>
+
+	protected static final String BUSY_DIALOG_JOB_EXECUTOR_NAME = &quot;BusyDialogJobExecutor&quot;;
+<span class="fc" id="L159">	protected ExecutorService busyDialogWorkerService = MiscUtils.newExecutor(BUSY_DIALOG_JOB_EXECUTOR_NAME, 1);</span>
+
+	protected static final String BUSY_DIALOG_CLOSER_NAME = &quot;BusyDialogCloser&quot;;
+<span class="fc" id="L162">	protected ExecutorService busyDialogCloserService = MiscUtils.newExecutor(BUSY_DIALOG_CLOSER_NAME, 1);</span>
+
+	protected static final String FORM_VALIDATOR_NAME = &quot;FormValidator&quot;;
+<span class="fc" id="L165">	protected ExecutorService formValidatorService = MiscUtils.newExecutor(FORM_VALIDATOR_NAME, 1);</span>
+
+	protected static final String DELAYED_UPDATE_EXECUTOR_NAME = &quot;DelayedUpdateExecutor&quot;;
+<span class="fc" id="L168">	protected ExecutorService delayedUpdateExecutorService = MiscUtils.newExecutor(DELAYED_UPDATE_EXECUTOR_NAME, 1);</span>
+	protected Border errorBorder;
+
+	/**
+	 * Constructs an instance that will render abstract UI models generated by the
+	 * given {@link ReflectionUI} object.
+	 * 
+	 * @param reflectionUI The abstract UI model generator.
+	 */
+<span class="fc" id="L177">	public SwingRenderer(ReflectionUI reflectionUI) {</span>
+<span class="fc" id="L178">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L179">	}</span>
+
+	/**
+	 * @return the class loader used to retrieve class-path based resources (icons,
+	 *         fonts, ...).
+	 */
+	public ClassLoader getClassPathResourceLoader() {
+<span class="fc" id="L186">		return getClass().getClassLoader();</span>
+	}
+
+	/**
+	 * @return the abstract UI model generator use by this renderer.
+	 */
+	public ReflectionUI getReflectionUI() {
+<span class="fc" id="L193">		return reflectionUI;</span>
+	}
+
+	/**
+	 * @return an executor service intended to execute form validation jobs.
+	 */
+	public ExecutorService getFormValidatorService() {
+<span class="fc" id="L200">		return formValidatorService;</span>
+	}
+
+	/**
+	 * @return an executor service intended to execute delayed UI update jobs.
+	 */
+	public ExecutorService getDelayedUpdateExecutorService() {
+<span class="fc" id="L207">		return delayedUpdateExecutorService;</span>
+	}
+
+	/**
+	 * @return all displayed forms that were generated using this renderer.
+	 */
+	public List&lt;Form&gt; getAllDisplayedForms() {
+<span class="fc" id="L214">		return allDisplayedForms;</span>
+	}
+
+	/**
+	 * @return a map containing the last parameters that were used to invoke each
+	 *         method represented by a method context identifier.
+	 */
+	public Map&lt;MethodContext, InvocationData&gt; getLastInvocationDataByMethodContext() {
+<span class="fc" id="L222">		return lastInvocationDataByMethodContext;</span>
+	}
+
+	/**
+	 * @param activatorComponent The owner component of the exception update process
+	 *                           or null.
+	 * @param updateJob          The specific update action.
+	 * @param delayMilliseconds  The number of milliseconds to wait before executing
+	 *                           the update.
+	 * @return a re-schedulable delayed update task.
+	 */
+	public ReschedulableTask createDelayedUpdateProcess(Component activatorComponent, Runnable updateJob,
+			int delayMilliseconds) {
+<span class="fc" id="L235">		return new ReschedulableTask() {</span>
+			@Override
+			protected void execute() {
+<span class="fc" id="L238">				SwingUtilities.invokeLater(() -&gt; {</span>
+					try {
+<span class="fc" id="L240">						updateJob.run();</span>
+<span class="pc" id="L241">					} catch (Throwable t) {</span>
+<span class="nc" id="L242">						handleException(activatorComponent, t);</span>
+					}
+<span class="fc" id="L244">				});</span>
+<span class="fc" id="L245">			}</span>
+
+			@Override
+			protected ExecutorService getTaskExecutor() {
+<span class="fc" id="L249">				return delayedUpdateExecutorService;</span>
+			}
+
+			@Override
+			protected long getExecutionDelayMilliseconds() {
+<span class="fc" id="L254">				return delayMilliseconds;</span>
+			}
+		};
+	}
+
+	/**
+	 * @param string The string to display. Note that only label and messages are
+	 *               processed by this method. Field/parameter values and method
+	 *               return values of type 'String' are not processed.
+	 * @return an eventual adjustment/translation of the provided string before it
+	 *         gets displayed on the UI.
+	 */
+	public String prepareMessageToDisplay(String string) {
+<span class="fc" id="L267">		return string;</span>
+	}
+
+	/**
+	 * @param input An object providing what is needed to manage the method call
+	 *              from the UI.
+	 * @return an action that can collect parameters, invoke the given method and
+	 *         eventually display the result.
+	 */
+	public MethodAction createMethodAction(IMethodControlInput input) {
+<span class="nc" id="L277">		return new MethodAction(this, input);</span>
+	}
+
+	/**
+	 * @param object Any object.
+	 * @return a form allowing to view and edit the given object.
+	 */
+	public final Form createForm(Object object) {
+<span class="fc" id="L285">		return createForm(object, IInfoFilter.DEFAULT);</span>
+	}
+
+	/**
+	 * @param object     Any object.
+	 * @param infoFilter An object allowing to filter out some fields or methods.
+	 * @return a form allowing to view and edit the given object.
+	 */
+	public Form createForm(final Object object, IInfoFilter infoFilter) {
+<span class="nc" id="L294">		return new Form(this, object, infoFilter);</span>
+	}
+
+	/**
+	 * @return the plugins providing additional field controls.
+	 */
+	public List&lt;IFieldControlPlugin&gt; getFieldControlPlugins() {
+<span class="fc" id="L301">		List&lt;IFieldControlPlugin&gt; result = new ArrayList&lt;IFieldControlPlugin&gt;();</span>
+<span class="fc" id="L302">		result.add(new SplitFormPlugin());</span>
+<span class="fc" id="L303">		result.add(new FormattedNumberPlugin());</span>
+<span class="fc" id="L304">		result.add(new OptionButtonsPlugin());</span>
+<span class="fc" id="L305">		result.add(new SliderPlugin());</span>
+<span class="fc" id="L306">		result.add(new SpinnerPlugin());</span>
+<span class="fc" id="L307">		result.add(new FileBrowserPlugin());</span>
+<span class="fc" id="L308">		result.add(new ColorPickerPlugin());</span>
+<span class="fc" id="L309">		result.add(new ImageViewPlugin());</span>
+<span class="fc" id="L310">		result.add(new ToggleButtonPlugin());</span>
+<span class="fc" id="L311">		result.add(new CustomCheckBoxPlugin());</span>
+<span class="fc" id="L312">		result.add(new DetailedListControlPlugin());</span>
+<span class="fc" id="L313">		result.add(new StyledTextPlugin());</span>
+<span class="fc" id="L314">		result.add(new PasswordFieldPlugin());</span>
+<span class="fc" id="L315">		result.add(new HtmlPlugin());</span>
+<span class="fc" id="L316">		result.add(new EditorPlugin());</span>
+<span class="fc" id="L317">		result.add(new DatePickerPlugin());</span>
+<span class="fc" id="L318">		result.add(new DateTimePickerPlugin());</span>
+<span class="fc" id="L319">		result.add(new SingleLineTextPlugin());</span>
+<span class="fc" id="L320">		result.add(new MultipleLinesTextPlugin());</span>
+<span class="fc" id="L321">		return result;</span>
+	}
+
+	/**
+	 * @return the virtual category in which non-categorized members will be put
+	 *         when there are at least 1 defined category.
+	 */
+	public InfoCategory getNullInfoCategory() {
+<span class="fc" id="L329">		return new InfoCategory(&quot;General&quot;, -1, null);</span>
+	}
+
+	/**
+	 * @param object The object to describe.
+	 * @return words describing the given object type in an elegant way.
+	 */
+	public String getObjectTitle(Object object) {
+<span class="pc bpc" id="L337" title="1 of 2 branches missed.">		if (object == null) {</span>
+<span class="nc" id="L338">			return &quot;&lt;Missing Value&gt;&quot;;</span>
+		}
+<span class="fc" id="L340">		return reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object)).getCaption();</span>
+	}
+
+	/**
+	 * @param object The object to describe.
+	 * @return an icon image describing the given object type.
+	 */
+	public Image getObjectIconImage(Object object) {
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">		if (object == null) {</span>
+<span class="nc" id="L349">			return null;</span>
+		}
+<span class="fc" id="L351">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc" id="L352">		ResourcePath imagePath = type.getIconImagePath(object);</span>
+<span class="fc bfc" id="L353" title="All 2 branches covered.">		if (imagePath == null) {</span>
+<span class="fc" id="L354">			return null;</span>
+		}
+<span class="fc" id="L356">		return getIconImage(imagePath);</span>
+	}
+
+	/**
+	 * @param appInfo The application to describe.
+	 * @return an icon image describing the given application.
+	 */
+	public Image getApplicationIconImage(IApplicationInfo appInfo) {
+<span class="pc bpc" id="L364" title="1 of 2 branches missed.">		if (appInfo.getIconImagePath() == null) {</span>
+<span class="nc" id="L365">			return null;</span>
+		}
+<span class="fc" id="L367">		return getIconImage(appInfo.getIconImagePath());</span>
+	}
+
+	/**
+	 * @param iconImagePath The path indicating the icon image location.
+	 * @return an icon image loaded from the resource indicated by given path.
+	 */
+	public Image getIconImage(ResourcePath iconImagePath) {
+<span class="fc" id="L375">		return SwingRendererUtils.loadImageThroughCache(iconImagePath,</span>
+<span class="fc" id="L376">				ReflectionUIUtils.getErrorLogListener(reflectionUI), this);</span>
+	}
+
+	/**
+	 * @param category The category to describe.
+	 * @return an icon image describing the given category.
+	 */
+	public Image getCategoryIconImage(InfoCategory category) {
+<span class="pc bpc" id="L384" title="1 of 2 branches missed.">		if (category.getIconImagePath() == null) {</span>
+<span class="fc" id="L385">			return null;</span>
+		}
+<span class="nc" id="L387">		return getIconImage(category.getIconImagePath());</span>
+	}
+
+	/**
+	 * @param data The object describing the method.
+	 * @return an icon image representing the method described by the given object.
+	 */
+	public Image getMethodIconImage(IMethodControlData data) {
+<span class="fc" id="L395">		ResourcePath imagePath = data.getIconImagePath();</span>
+<span class="fc bfc" id="L396" title="All 2 branches covered.">		if (imagePath == null) {</span>
+<span class="fc" id="L397">			return null;</span>
+		}
+<span class="fc" id="L399">		return getIconImage(imagePath);</span>
+	}
+
+	/**
+	 * @param itemInfo The enumeration item to describe.
+	 * @return an icon image describing the given enumeration item.
+	 */
+	public Image getEnumerationItemIconImage(IEnumerationItemInfo itemInfo) {
+<span class="fc" id="L407">		ResourcePath imagePath = itemInfo.getIconImagePath();</span>
+<span class="fc bfc" id="L408" title="All 2 branches covered.">		if (imagePath == null) {</span>
+<span class="fc" id="L409">			return null;</span>
+		}
+<span class="fc" id="L411">		return getIconImage(imagePath);</span>
+	}
+
+	/**
+	 * @param menuItem The menu item to be described.
+	 * @return an icon image that must be associated with the given menu item.
+	 */
+	public Image getMenuItemIconImage(AbstractActionMenuItemInfo menuItem) {
+<span class="fc" id="L419">		ResourcePath imagePath = menuItem.getIconImagePath();</span>
+<span class="fc bfc" id="L420" title="All 2 branches covered.">		if (imagePath == null) {</span>
+<span class="fc" id="L421">			return null;</span>
+		}
+<span class="fc" id="L423">		return getIconImage(imagePath);</span>
+	}
+
+	/**
+	 * This method manages the display of exceptions typically thrown by underlying
+	 * objects when interacting with their generated UIs.
+	 * 
+	 * @param activatorComponent The owner component of the exception dialog or
+	 *                           null.
+	 * @param t                  The exception to be displayed.
+	 */
+	public void handleException(Component activatorComponent, final Throwable t) {
+<span class="fc" id="L435">		reflectionUI.logDebug(t);</span>
+<span class="fc" id="L436">		openErrorDialog(activatorComponent, &quot;An Error Occurred&quot;, t);</span>
+<span class="fc" id="L437">	}</span>
+
+	/**
+	 * Allows to retrieve the parameter values and execute the specified method.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window of the
+	 *                           eventual dialogs or null.
+	 * @param objectType         The method owner type.
+	 * @param object             The method owner or null for static methods or
+	 *                           constructors.
+	 * @param method             The method to be executed.
+	 * @return the method call return value or null if the method class was
+	 *         cancelled or the return type is &quot;void&quot;.
+	 */
+	public Object onMethodInvocationRequest(final Component activatorComponent, final ITypeInfo objectType,
+			final IMethodInfo method, final Object object) {
+<span class="fc" id="L453">		MethodAction methodAction = createMethodAction(new IMethodControlInput() {</span>
+
+<span class="fc" id="L455">			ModificationStack dummyModificationStack = new ModificationStack(null);</span>
+
+			@Override
+			public ModificationStack getModificationStack() {
+<span class="fc" id="L459">				return dummyModificationStack;</span>
+			}
+
+			@Override
+			public MethodContext getContext() {
+<span class="fc" id="L464">				return new MethodContext(objectType.getName(), method.getSignature());</span>
+			}
+
+			@Override
+			public IMethodControlData getControlData() {
+<span class="fc" id="L469">				return new DefaultMethodControlData(reflectionUI, object, method);</span>
+			}
+		});
+<span class="fc" id="L472">		methodAction.setShouldDisplayReturnValueIfAny(false);</span>
+<span class="fc" id="L473">		methodAction.onInvocationRequest(activatorComponent);</span>
+<span class="fc" id="L474">		return methodAction.getReturnValue();</span>
+	}
+
+	/**
+	 * Allows to create an instance of the specified type. Dialogs may be displayed
+	 * to allow to select the constructor or provide parameter values. If sub-types
+	 * of the given type are know, then a type selection dialog will be displayed.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window of the
+	 *                           eventual dialogs or null.
+	 * @param type               An abstract UI type information object.
+	 * @return an object created using the given type information.
+	 */
+	public Object onTypeInstantiationRequest(final Component activatorComponent, ITypeInfo type) {
+		try {
+<span class="fc bfc" id="L489" title="All 2 branches covered.">			if (ReflectionUIUtils.hasPolymorphicInstanceSubTypes(type)) {</span>
+
+<span class="fc" id="L491">				PolymorphicTypeOptionsFactory enumFactory = new PolymorphicTypeOptionsFactory(reflectionUI, type);</span>
+<span class="fc" id="L492">				List&lt;ITypeInfo&gt; polyTypes = enumFactory.getTypeOptions();</span>
+
+<span class="pc bpc" id="L494" title="1 of 2 branches missed.">				if (polyTypes.size() == 1) {</span>
+<span class="nc" id="L495">					return onTypeInstantiationRequest(activatorComponent, polyTypes.get(0));</span>
+				} else {
+<span class="fc" id="L497">					IEnumerationTypeInfo enumType = (IEnumerationTypeInfo) reflectionUI</span>
+<span class="fc" id="L498">							.getTypeInfo(enumFactory.getInstanceTypeInfoSource(null));</span>
+<span class="fc" id="L499">					Object resultEnumItem = openSelectionDialog(activatorComponent, enumType, null, &quot;Choose a type&quot;,</span>
+<span class="fc" id="L500">							&quot;New '&quot; + type.getCaption() + &quot;'&quot;);</span>
+<span class="pc bpc" id="L501" title="1 of 2 branches missed.">					if (resultEnumItem == null) {</span>
+<span class="nc" id="L502">						return null;</span>
+					}
+<span class="fc" id="L504">					return onTypeInstantiationRequest(activatorComponent,</span>
+<span class="fc" id="L505">							(ITypeInfo) enumFactory.getInstanceItem(resultEnumItem));</span>
+				}
+			} else {
+<span class="fc" id="L508">				List&lt;IMethodInfo&gt; constructors = new ArrayList&lt;IMethodInfo&gt;();</span>
+				{
+<span class="fc bfc" id="L510" title="All 2 branches covered.">					for (IMethodInfo ctor : type.getConstructors()) {</span>
+<span class="fc bfc" id="L511" title="All 2 branches covered.">						if (ctor.isHidden()) {</span>
+<span class="fc" id="L512">							continue;</span>
+						}
+
+<span class="fc" id="L515">						ITypeInfo parentType = type.getParent();</span>
+<span class="pc bpc" id="L516" title="1 of 2 branches missed.">						if (parentType != null) {</span>
+<span class="nc bnc" id="L517" title="All 2 branches missed.">							if (ctor.getParameters().size() &gt; 0) {</span>
+<span class="nc bnc" id="L518" title="All 2 branches missed.">								if (ctor.getParameters().get(0).getType().getName().equals(parentType.getName())) {</span>
+<span class="nc" id="L519">									Object parent = SwingRendererUtils.findCurrentObject(parentType, activatorComponent,</span>
+<span class="nc" id="L520">											this);</span>
+<span class="nc bnc" id="L521" title="All 2 branches missed.">									if (parent != null) {</span>
+<span class="nc" id="L522">										ctor = new ProvidedParameterValueMethodInfoProxy(ctor, &quot;fromParent&quot;, 0, parent);</span>
+									}
+								}
+							}
+						}
+
+<span class="fc" id="L528">						constructors.add(ctor);</span>
+					}
+				}
+<span class="pc bpc" id="L531" title="2 of 4 branches missed.">				if (type.isConcrete() &amp;&amp; (constructors.size() &gt; 0)) {</span>
+					final IMethodInfo chosenConstructor;
+<span class="pc bpc" id="L533" title="1 of 2 branches missed.">					if (constructors.size() == 1) {</span>
+<span class="fc" id="L534">						chosenConstructor = constructors.get(0);</span>
+<span class="fc" id="L535">					} else {</span>
+<span class="nc" id="L536">						constructors = new ArrayList&lt;IMethodInfo&gt;(constructors);</span>
+<span class="nc" id="L537">						Collections.sort(constructors, new Comparator&lt;IMethodInfo&gt;() {</span>
+
+							@Override
+							public int compare(IMethodInfo o1, IMethodInfo o2) {
+<span class="nc" id="L541">								return new Integer(o1.getParameters().size())</span>
+<span class="nc" id="L542">										.compareTo(new Integer(o2.getParameters().size()));</span>
+							}
+						});
+<span class="nc" id="L545">						final GenericEnumerationFactory enumFactory = new GenericEnumerationFactory(reflectionUI,</span>
+<span class="nc" id="L546">								constructors.toArray(), &quot;ConstructorSelection [type=&quot; + type.getName() + &quot;]&quot;, &quot;&quot;) {</span>
+							protected String getItemCaption(Object choice) {
+<span class="nc" id="L548">								return ReflectionUIUtils.getContructorDescription((IMethodInfo) choice);</span>
+							}
+						};
+<span class="nc" id="L551">						IEnumerationTypeInfo enumType = (IEnumerationTypeInfo) reflectionUI</span>
+<span class="nc" id="L552">								.getTypeInfo(enumFactory.getInstanceTypeInfoSource(null));</span>
+<span class="nc" id="L553">						Object resultEnumItem = openSelectionDialog(activatorComponent, enumType, null,</span>
+<span class="nc" id="L554">								&quot;Choose an option&quot;, &quot;Create &quot; + type.getCaption());</span>
+<span class="nc bnc" id="L555" title="All 2 branches missed.">						if (resultEnumItem == null) {</span>
+<span class="nc" id="L556">							return null;</span>
+						}
+<span class="nc" id="L558">						chosenConstructor = (IMethodInfo) enumFactory.getInstanceItem(resultEnumItem);</span>
+<span class="nc bnc" id="L559" title="All 2 branches missed.">						if (chosenConstructor == null) {</span>
+<span class="nc" id="L560">							return null;</span>
+						}
+					}
+<span class="fc" id="L563">					return onMethodInvocationRequest(activatorComponent, type, chosenConstructor, null);</span>
+				} else {
+<span class="nc" id="L565">					String typeCaption = type.getCaption();</span>
+					String msg;
+<span class="nc bnc" id="L567" title="All 2 branches missed.">					if (typeCaption.length() == 0) {</span>
+<span class="nc" id="L568">						msg = &quot;Create&quot;;</span>
+<span class="nc" id="L569">					} else {</span>
+<span class="nc" id="L570">						msg = &quot;Create &quot; + type.getCaption() + &quot; of type&quot;;</span>
+					}
+<span class="nc" id="L572">					String className = openInputDialog(activatorComponent, &quot;&quot;, msg, null);</span>
+<span class="nc bnc" id="L573" title="All 2 branches missed.">					if (className == null) {</span>
+<span class="nc" id="L574">						return null;</span>
+					}
+					try {
+<span class="nc" id="L577">						type = reflectionUI</span>
+<span class="nc" id="L578">								.getTypeInfo(new JavaTypeInfoSource(reflectionUI.getReflectedClass(className), null));</span>
+<span class="nc" id="L579">					} catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L580">						throw new ReflectionUIError(e);</span>
+					}
+<span class="nc bnc" id="L582" title="All 2 branches missed.">					if (type == null) {</span>
+<span class="nc" id="L583">						return null;</span>
+					} else {
+<span class="nc" id="L585">						return onTypeInstantiationRequest(activatorComponent, type);</span>
+					}
+				}
+			}
+<span class="nc" id="L589">		} catch (Throwable t) {</span>
+<span class="nc" id="L590">			throw new ReflectionUIError(&quot;Could not create '&quot; + type.getCaption() + &quot;': &quot; + t.toString(), t);</span>
+		}
+	}
+
+	/**
+	 * @param type The type to instantiate.
+	 * @return whether dialogs would be displayed when calling
+	 *         {@link #onTypeInstantiationRequest(Component, ITypeInfo)} with the
+	 *         given type.
+	 */
+	public boolean isDecisionRequiredOnTypeInstantiationRequest(ITypeInfo type) {
+<span class="fc bfc" id="L601" title="All 2 branches covered.">		if (ReflectionUIUtils.hasPolymorphicInstanceSubTypes(type)) {</span>
+<span class="fc" id="L602">			final PolymorphicTypeOptionsFactory enumFactory = new PolymorphicTypeOptionsFactory(reflectionUI, type);</span>
+<span class="fc" id="L603">			List&lt;ITypeInfo&gt; polyTypes = enumFactory.getTypeOptions();</span>
+<span class="pc bpc" id="L604" title="1 of 2 branches missed.">			if (polyTypes.size() == 1) {</span>
+<span class="nc" id="L605">				return isDecisionRequiredOnTypeInstantiationRequest(polyTypes.get(0));</span>
+			} else {
+<span class="fc" id="L607">				return true;</span>
+			}
+		} else {
+<span class="fc" id="L610">			List&lt;IMethodInfo&gt; constructors = new ArrayList&lt;IMethodInfo&gt;();</span>
+			{
+<span class="fc bfc" id="L612" title="All 2 branches covered.">				for (IMethodInfo ctor : type.getConstructors()) {</span>
+<span class="fc bfc" id="L613" title="All 2 branches covered.">					if (ctor.isHidden()) {</span>
+<span class="fc" id="L614">						continue;</span>
+					}
+<span class="fc" id="L616">					constructors.add(ctor);</span>
+				}
+			}
+<span class="pc bpc" id="L619" title="2 of 4 branches missed.">			if (type.isConcrete() &amp;&amp; (constructors.size() &gt; 0)) {</span>
+				final IMethodInfo chosenConstructor;
+<span class="pc bpc" id="L621" title="1 of 2 branches missed.">				if (constructors.size() == 1) {</span>
+<span class="fc" id="L622">					chosenConstructor = constructors.get(0);</span>
+<span class="fc" id="L623">				} else {</span>
+<span class="nc" id="L624">					return true;</span>
+				}
+<span class="fc" id="L626">				return ReflectionUIUtils.requiresParameterValue(chosenConstructor);</span>
+			} else {
+<span class="nc" id="L628">				return true;</span>
+			}
+		}
+	}
+
+	/**
+	 * Displays a dialog allowing to select a value from a list of enumeration
+	 * items.
+	 * 
+	 * @param parentComponent A component belonging to the parent window or null.
+	 * @param enumType        The enumeration type holding the list of displayed
+	 *                        items.
+	 * @param initialEnumItem The initially selected item.
+	 * @param message         A displayed description.
+	 * @param title           The title of the displayed window or null to have the
+	 *                        default title.
+	 * @return the selected item or null if the selection was cancelled.
+	 */
+	public Object openSelectionDialog(Component parentComponent, IEnumerationTypeInfo enumType, Object initialEnumItem,
+			String message, String title) {
+<span class="pc bpc" id="L648" title="1 of 2 branches missed.">		if (initialEnumItem == null) {</span>
+<span class="fc" id="L649">			initialEnumItem = enumType.getValues()[0];</span>
+		}
+<span class="fc" id="L651">		final Object[] chosenItemHolder = new Object[] { initialEnumItem };</span>
+
+<span class="fc" id="L653">		EncapsulatedObjectFactory encapsulation = new EncapsulatedObjectFactory(</span>
+<span class="fc" id="L654">				reflectionUI, enumType, &quot;StandardSelection [title=&quot;</span>
+<span class="pc bpc" id="L655" title="1 of 2 branches missed.">						+ ((title == null) ? null : ReflectionUIUtils.secureNameContent(title)) + &quot;]&quot;,</span>
+<span class="fc" id="L656">				&quot;Selection&quot;, message);</span>
+<span class="fc" id="L657">		encapsulation.setFieldGetOnly(false);</span>
+<span class="fc" id="L658">		encapsulation.setFieldNullValueDistinct(false);</span>
+<span class="fc" id="L659">		Object encapsulatedChosenItem = encapsulation.getInstance(chosenItemHolder);</span>
+
+<span class="fc" id="L661">		if (!openObjectDialog(parentComponent, encapsulatedChosenItem, title,</span>
+<span class="pc bpc" id="L662" title="1 of 2 branches missed.">				getObjectIconImage(encapsulatedChosenItem), true, true).isCancelled()) {</span>
+<span class="fc" id="L663">			return chosenItemHolder[0];</span>
+		} else {
+<span class="nc" id="L665">			return null;</span>
+		}
+	}
+
+	/**
+	 * Displays a dialog allowing to select a value from a list of items.
+	 * 
+	 * @param parentComponent  A component belonging to the parent window or null.
+	 * @param options          The array holding the list of selectable items.
+	 * @param initialSelection The initially selected item.
+	 * @param message          A displayed description.
+	 * @param title            The title of the displayed window or null to have the
+	 *                         default title.
+	 * @return the selected item or null if the selection was cancelled.
+	 */
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public &lt;T&gt; T openSelectionDialog(Component parentComponent, final List&lt;T&gt; options, T initialSelection,
+			String message, String title) {
+<span class="nc bnc" id="L683" title="All 2 branches missed.">		if (options.size() == 0) {</span>
+<span class="nc" id="L684">			throw new ReflectionUIError();</span>
+		}
+<span class="nc" id="L686">		final GenericEnumerationFactory enumFactory = new GenericEnumerationFactory(reflectionUI, options.toArray(),</span>
+<span class="nc" id="L687">				&quot;SelectionDialogArrayAsEnumeration [title=&quot;</span>
+<span class="nc bnc" id="L688" title="All 2 branches missed.">						+ ((title == null) ? null : ReflectionUIUtils.secureNameContent(title)) + &quot;]&quot;,</span>
+<span class="nc" id="L689">				&quot;&quot;) {</span>
+
+<span class="nc" id="L691">			Map&lt;Object, String&gt; captions = new HashMap&lt;Object, String&gt;();</span>
+<span class="nc" id="L692">			Map&lt;Object, Image&gt; iconImages = new HashMap&lt;Object, Image&gt;();</span>
+
+			{
+<span class="nc bnc" id="L695" title="All 2 branches missed.">				for (Object choice : options) {</span>
+<span class="nc" id="L696">					captions.put(choice, ReflectionUIUtils.toString(SwingRenderer.this.reflectionUI, choice));</span>
+<span class="nc" id="L697">					iconImages.put(choice, getObjectIconImage(choice));</span>
+				}
+			}
+
+			@Override
+			protected ResourcePath getItemIconImagePath(Object choice) {
+<span class="nc" id="L703">				Image image = iconImages.get(choice);</span>
+<span class="nc bnc" id="L704" title="All 2 branches missed.">				if (image == null) {</span>
+<span class="nc" id="L705">					return null;</span>
+				}
+<span class="nc" id="L707">				return SwingRendererUtils.putImageInCache(image);</span>
+			}
+
+			@Override
+			protected String getItemName(Object choice) {
+<span class="nc" id="L712">				return &quot;Option [caption=&quot; + captions.get(choice) + &quot;]&quot;;</span>
+			}
+
+			@Override
+			protected String getItemCaption(Object choice) {
+<span class="nc" id="L717">				return captions.get(choice);</span>
+			}
+
+		};
+<span class="nc" id="L721">		IEnumerationTypeInfo enumType = (IEnumerationTypeInfo) reflectionUI</span>
+<span class="nc" id="L722">				.getTypeInfo(enumFactory.getInstanceTypeInfoSource(null));</span>
+<span class="nc" id="L723">		Object resultEnumItem = openSelectionDialog(parentComponent, enumType,</span>
+<span class="nc" id="L724">				enumFactory.getItemInstance(initialSelection), message, title);</span>
+<span class="nc bnc" id="L725" title="All 2 branches missed.">		if (resultEnumItem == null) {</span>
+<span class="nc" id="L726">			return null;</span>
+		}
+<span class="nc" id="L728">		T result = (T) enumFactory.getInstanceItem(resultEnumItem);</span>
+<span class="nc" id="L729">		return result;</span>
+
+	}
+
+	/**
+	 * Displays a dialog allowing to view, edit and then provide a value of any
+	 * type. Note that the dialog is modal.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window or null.
+	 * @param initialValue       The initially selected value.
+	 * @param valueCaption       A displayed description.
+	 * @param title              The title of the displayed window or null to have
+	 *                           the default title.
+	 * @return the input value or null if the dialog was cancelled.
+	 */
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public &lt;T&gt; T openInputDialog(Component activatorComponent, T initialValue, String valueCaption, String title) {
+<span class="nc bnc" id="L746" title="All 2 branches missed.">		if (initialValue == null) {</span>
+<span class="nc" id="L747">			throw new ReflectionUIError();</span>
+		}
+<span class="nc" id="L749">		final Object[] valueHolder = new Object[] { initialValue };</span>
+<span class="nc" id="L750">		ITypeInfo initialValueType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(initialValue));</span>
+
+<span class="nc" id="L752">		EncapsulatedObjectFactory encapsulation = new EncapsulatedObjectFactory(reflectionUI, initialValueType,</span>
+<span class="nc bnc" id="L753" title="All 2 branches missed.">				&quot;StandardInput [title=&quot; + ((title == null) ? null : ReflectionUIUtils.secureNameContent(title)) + &quot;]&quot;,</span>
+<span class="nc" id="L754">				&quot;Input&quot;, valueCaption);</span>
+<span class="nc" id="L755">		encapsulation.setFieldGetOnly(false);</span>
+<span class="nc" id="L756">		encapsulation.setFieldNullValueDistinct(false);</span>
+<span class="nc" id="L757">		Object encapsulatedValue = encapsulation.getInstance(valueHolder);</span>
+
+<span class="nc" id="L759">		StandardEditorBuilder editorBuilder = createEditorBuilder(activatorComponent, encapsulatedValue, title,</span>
+<span class="nc" id="L760">				getObjectIconImage(encapsulatedValue), true);</span>
+<span class="nc" id="L761">		editorBuilder.createAndShowDialog();</span>
+<span class="nc bnc" id="L762" title="All 2 branches missed.">		if (!editorBuilder.isCancelled()) {</span>
+<span class="nc" id="L763">			return (T) valueHolder[0];</span>
+		} else {
+<span class="nc" id="L765">			return null;</span>
+		}
+	}
+
+	/**
+	 * Displays a dialog allowing to answer a question by &quot;Yes&quot; or &quot;No&quot;.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window or null.
+	 * @param question           The question to be displayed.
+	 * @param title              The title of the displayed window or null to have
+	 *                           the default title.
+	 * @return whether &quot;yes&quot; was chosen or not.
+	 */
+	public boolean openQuestionDialog(Component activatorComponent, String question, String title) {
+<span class="nc" id="L779">		return openQuestionDialog(activatorComponent, question, title, &quot;Yes&quot;, &quot;No&quot;);</span>
+	}
+
+	/**
+	 * Displays a dialog allowing to answer a question by &quot;Yes&quot; or &quot;No&quot;.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window or null.
+	 * @param question           The question to be displayed.
+	 * @param title              The title of the displayed window or null to have
+	 *                           the default title.
+	 * @param yesCaption         The actual text displayed on the 'yes' button.
+	 * @param noCaption          The actual text displayed on the 'no' button.
+	 * @return whether 'yes' was chosen or not.
+	 */
+	public boolean openQuestionDialog(Component activatorComponent, String question, String title,
+			final String yesCaption, final String noCaption) {
+<span class="fc" id="L795">		final DialogBuilder dialogBuilder = createDialogBuilder(activatorComponent);</span>
+<span class="fc" id="L796">		dialogBuilder.setButtonBarControls(</span>
+<span class="fc" id="L797">				new ArrayList&lt;Component&gt;(dialogBuilder.createStandardOKCancelDialogButtons(yesCaption, noCaption)));</span>
+<span class="fc" id="L798">		dialogBuilder.setContentComponent(SwingRendererUtils.getMessagePane(prepareMessageToDisplay(question),</span>
+<span class="fc" id="L799">				JOptionPane.QUESTION_MESSAGE, this));</span>
+<span class="fc" id="L800">		dialogBuilder.setTitle(title);</span>
+<span class="fc" id="L801">		showDialog(dialogBuilder.createDialog(), true);</span>
+<span class="fc" id="L802">		return dialogBuilder.getCreatedDialog().wasOkPressed();</span>
+	}
+
+	/**
+	 * Displays a simple text information dialog. Note that the dialog is modal.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window or null.
+	 * @param msg                The message to be displayed.
+	 * @param title              The title of the displayed window or null to have
+	 *                           the default title.
+	 * @param iconImage          The icon image of the displayed window.
+	 */
+	public void openInformationDialog(Component activatorComponent, String msg, String title) {
+<span class="nc" id="L815">		DialogBuilder dialogBuilder = createDialogBuilder(activatorComponent);</span>
+
+<span class="nc" id="L817">		List&lt;Component&gt; buttons = new ArrayList&lt;Component&gt;();</span>
+<span class="nc" id="L818">		buttons.add(dialogBuilder.createDialogClosingButton(&quot;Close&quot;, null));</span>
+
+<span class="nc" id="L820">		dialogBuilder.setTitle(title);</span>
+<span class="nc" id="L821">		dialogBuilder.setContentComponent(</span>
+<span class="nc" id="L822">				SwingRendererUtils.getMessagePane(prepareMessageToDisplay(msg), JOptionPane.INFORMATION_MESSAGE, this));</span>
+<span class="nc" id="L823">		dialogBuilder.setButtonBarControls(buttons);</span>
+
+<span class="nc" id="L825">		showDialog(dialogBuilder.createDialog(), true);</span>
+<span class="nc" id="L826">	}</span>
+
+	/**
+	 * Displays an error dialog. Note that the dialog is modal.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window or null.
+	 * @param title              The title of the displayed window or null to have
+	 *                           the default title.
+	 * @param iconImage          The icon image of the displayed window.
+	 * @param error              The exception corresponding to the error to
+	 *                           display.
+	 */
+	public void openErrorDialog(Component activatorComponent, String title, final Throwable error) {
+<span class="fc" id="L839">		DialogBuilder dialogBuilder = createDialogBuilder(activatorComponent);</span>
+
+<span class="fc" id="L841">		List&lt;Component&gt; buttons = new ArrayList&lt;Component&gt;();</span>
+<span class="fc" id="L842">		final JButton deatilsButton = new AbstractControlButton() {</span>
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String retrieveText() {
+<span class="fc" id="L848">				return SwingRenderer.this.prepareMessageToDisplay(&quot;Details&quot;);</span>
+			}
+
+			@Override
+			public Image retrieveBackgroundImage() {
+<span class="pc bpc" id="L853" title="1 of 2 branches missed.">				if (reflectionUI.getApplicationInfo().getMainButtonBackgroundImagePath() != null) {</span>
+<span class="nc" id="L854">					return SwingRendererUtils.loadImageThroughCache(</span>
+<span class="nc" id="L855">							reflectionUI.getApplicationInfo().getMainButtonBackgroundImagePath(),</span>
+<span class="nc" id="L856">							ReflectionUIUtils.getErrorLogListener(reflectionUI), SwingRenderer.this);</span>
+				}
+<span class="fc" id="L858">				return null;</span>
+			}
+
+			@Override
+			public Font retrieveCustomFont() {
+<span class="pc bpc" id="L863" title="1 of 2 branches missed.">				if (reflectionUI.getApplicationInfo().getButtonCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L864">					return SwingRendererUtils.loadFontThroughCache(</span>
+<span class="nc" id="L865">							reflectionUI.getApplicationInfo().getButtonCustomFontResourcePath(),</span>
+<span class="nc" id="L866">							ReflectionUIUtils.getErrorLogListener(reflectionUI), SwingRenderer.this);</span>
+				}
+<span class="fc" id="L868">				return null;</span>
+			}
+
+			@Override
+			public Color retrieveBackgroundColor() {
+<span class="pc bpc" id="L873" title="1 of 2 branches missed.">				if (reflectionUI.getApplicationInfo().getMainButtonBackgroundColor() != null) {</span>
+<span class="nc" id="L874">					return SwingRendererUtils</span>
+<span class="nc" id="L875">							.getColor(reflectionUI.getApplicationInfo().getMainButtonBackgroundColor());</span>
+				}
+<span class="fc" id="L877">				return null;</span>
+			}
+
+			@Override
+			public Color retrieveForegroundColor() {
+<span class="pc bpc" id="L882" title="1 of 2 branches missed.">				if (reflectionUI.getApplicationInfo().getMainButtonForegroundColor() != null) {</span>
+<span class="nc" id="L883">					return SwingRendererUtils</span>
+<span class="nc" id="L884">							.getColor(reflectionUI.getApplicationInfo().getMainButtonForegroundColor());</span>
+				}
+<span class="fc" id="L886">				return null;</span>
+			}
+
+			@Override
+			public Color retrieveBorderColor() {
+<span class="pc bpc" id="L891" title="1 of 2 branches missed.">				if (reflectionUI.getApplicationInfo().getMainButtonBorderColor() != null) {</span>
+<span class="nc" id="L892">					return SwingRendererUtils.getColor(reflectionUI.getApplicationInfo().getMainButtonBorderColor());</span>
+				}
+<span class="fc" id="L894">				return null;</span>
+			}
+		};
+<span class="fc" id="L897">		deatilsButton.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L900">				openErrorDetailsDialog(deatilsButton, error);</span>
+<span class="nc" id="L901">			}</span>
+		});
+<span class="fc" id="L903">		buttons.add(deatilsButton);</span>
+<span class="fc" id="L904">		buttons.add(dialogBuilder.createDialogClosingButton(&quot;Close&quot;, null));</span>
+
+<span class="fc" id="L906">		dialogBuilder.setTitle(title);</span>
+<span class="fc" id="L907">		dialogBuilder.setContentComponent(SwingRendererUtils</span>
+<span class="fc" id="L908">				.getMessagePane(prepareMessageToDisplay(formatErrorMessage(error)), JOptionPane.ERROR_MESSAGE, this));</span>
+<span class="fc" id="L909">		dialogBuilder.setButtonBarControls(buttons);</span>
+
+<span class="fc" id="L911">		showDialog(dialogBuilder.createDialog(), true);</span>
+<span class="fc" id="L912">	}</span>
+
+	/**
+	 * @param error The exception resulting from the error to display.
+	 * @return An elegant error message from the given exception.
+	 */
+	public String formatErrorMessage(Throwable error) {
+<span class="fc" id="L919">		return MiscUtils.getPrettyErrorMessage(error);</span>
+	}
+
+	/**
+	 * @return A border that allows to highlight errors on components.
+	 */
+	public Border getErrorBorder() {
+<span class="fc bfc" id="L926" title="All 2 branches covered.">		if (errorBorder == null) {</span>
+<span class="fc" id="L927">			errorBorder = createErrorBorder();</span>
+		}
+<span class="fc" id="L929">		return errorBorder;</span>
+
+	}
+
+	/**
+	 * @return whether the given border was returned by {@link #getErrorBorder()}.
+	 */
+	public boolean isErrorBorder(Border border) {
+<span class="fc bfc" id="L937" title="All 2 branches covered.">		return border == getErrorBorder();</span>
+
+	}
+
+	protected Border createErrorBorder() {
+<span class="fc" id="L942">		return BorderFactory.createCompoundBorder(</span>
+<span class="fc" id="L943">				BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(0, 2, 0, 0),</span>
+<span class="fc" id="L944">						BorderFactory.createMatteBorder(0, 10, 0, 0, new Color(255, 0, 0))),</span>
+<span class="fc" id="L945">				BorderFactory.createEmptyBorder(0, 2, 0, 0));</span>
+	}
+
+	/**
+	 * Displays a detailed error dialog (with stack trace, ...). Note that the
+	 * dialog is modal.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window or null.
+	 * @param error              The exception resulting from the error to display.
+	 */
+	public void openErrorDetailsDialog(Component activatorComponent, Throwable error) {
+<span class="nc" id="L956">		String stackTraceString = MiscUtils.getPrintedStackTrace(error);</span>
+<span class="nc" id="L957">		final DialogBuilder dialogBuilder = createDialogBuilder(activatorComponent);</span>
+<span class="nc" id="L958">		dialogBuilder.setButtonBarControls(</span>
+<span class="nc" id="L959">				Collections.&lt;Component&gt;singletonList(dialogBuilder.createDialogClosingButton(&quot;Close&quot;, null)));</span>
+<span class="nc" id="L960">		dialogBuilder.setContentComponent(</span>
+<span class="nc" id="L961">				SwingRendererUtils.getMessagePane(stackTraceString, JOptionPane.INFORMATION_MESSAGE, this));</span>
+<span class="nc" id="L962">		dialogBuilder.setTitle(&quot;Error Details&quot;);</span>
+<span class="nc" id="L963">		showDialog(dialogBuilder.createDialog(), true);</span>
+<span class="nc" id="L964">	}</span>
+
+	/**
+	 * Opens a dialog allowing to edit the given object. Note that the dialog is
+	 * modal.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window of the
+	 *                           dialog or null.
+	 * @param object             Any object.
+	 * @return the editor builder allowing to check the status of the dialog.
+	 */
+	public StandardEditorBuilder openObjectDialog(Component activatorComponent, Object object) {
+<span class="nc" id="L976">		return openObjectDialog(activatorComponent, object, null);</span>
+	}
+
+	/**
+	 * Opens a dialog allowing to edit the given object. Note that the dialog is
+	 * modal.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window of the
+	 *                           dialog or null.
+	 * @param object             Any object.
+	 * @param title              The title of the dialog or null to have the default
+	 *                           title.
+	 * @return the editor builder allowing to check the status of the dialog.
+	 */
+	public StandardEditorBuilder openObjectDialog(Component activatorComponent, Object object, final String title) {
+<span class="nc" id="L991">		return openObjectDialog(activatorComponent, object, title, null);</span>
+	}
+
+	/**
+	 * Opens a dialog allowing to edit the given object. Note that the dialog is
+	 * modal.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window of the
+	 *                           dialog or null.
+	 * @param object             Any object.
+	 * @param title              The title of the dialog or null to have the default
+	 *                           title.
+	 * @param iconImage          The dialog icon image or null to have the default
+	 *                           icon.
+	 * @return the editor builder allowing to check the status of the dialog.
+	 */
+	public StandardEditorBuilder openObjectDialog(Component activatorComponent, Object object, final String title,
+			Image iconImage) {
+<span class="nc" id="L1009">		return openObjectDialog(activatorComponent, object, title, iconImage, true);</span>
+	}
+
+	/**
+	 * Opens a dialog allowing to edit the given object.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window of the
+	 *                           dialog or null.
+	 * @param object             Any object.
+	 * @param title              The title of the dialog or null to have the default
+	 *                           title.
+	 * @param iconImage          The dialog icon image or null to have the default
+	 *                           icon.
+	 * @param cancellable        Whether the object state changes may be cancelled
+	 *                           or not.
+	 * @return the editor builder allowing to check the status of the dialog.
+	 */
+	public StandardEditorBuilder openObjectDialog(Component activatorComponent, Object object, final String title,
+			Image iconImage, boolean cancellable) {
+<span class="fc" id="L1028">		return openObjectDialog(activatorComponent, object, title, iconImage, cancellable, true);</span>
+	}
+
+	/**
+	 * Opens a dialog allowing to edit the given object.
+	 * 
+	 * @param activatorComponent A component belonging to the parent window of the
+	 *                           dialog or null.
+	 * @param object             Any object.
+	 * @param title              The title of the dialog or null to have the default
+	 *                           title.
+	 * @param iconImage          The dialog icon image or null to have the default
+	 *                           icon.
+	 * @param cancellable        Whether the object state changes may be cancelled
+	 *                           or not.
+	 * @param modal              Whether the dialog is modal or not.
+	 * @return the editor builder allowing to check the status of the dialog.
+	 */
+	public StandardEditorBuilder openObjectDialog(Component activatorComponent, Object object, final String title,
+			final Image iconImage, final boolean cancellable, boolean modal) {
+<span class="fc" id="L1048">		StandardEditorBuilder editorBuilder = createEditorBuilder(activatorComponent, object, title, iconImage,</span>
+<span class="fc" id="L1049">				cancellable);</span>
+<span class="fc" id="L1050">		showDialog(editorBuilder.createDialog(), modal);</span>
+<span class="fc" id="L1051">		return editorBuilder;</span>
+	}
+
+	/**
+	 * @param activatorComponent A component belonging to the parent window of the
+	 *                           dialog or null.
+	 * @param object             Any object.
+	 * @param title              The title of the dialog or null to have the default
+	 *                           title.
+	 * @param iconImage          The dialog icon image or null to have the default
+	 *                           icon.
+	 * @param dialogCancellable  Whether the object state changes may be cancelled
+	 *                           or not.
+	 * @return an object allowing build a complete editor for the given object.
+	 */
+	public StandardEditorBuilder createEditorBuilder(Component activatorComponent, final Object object,
+			final String title, final Image iconImage, final boolean dialogCancellable) {
+<span class="fc" id="L1068">		return new StandardEditorBuilder(this, activatorComponent, object) {</span>
+
+			@Override
+			protected boolean isDialogCancellable() {
+<span class="fc" id="L1072">				return dialogCancellable;</span>
+			}
+
+			@Override
+			protected String getEditorWindowTitle() {
+<span class="fc bfc" id="L1077" title="All 2 branches covered.">				if (title == null) {</span>
+<span class="fc" id="L1078">					return super.getEditorWindowTitle();</span>
+				}
+<span class="fc" id="L1080">				return title;</span>
+			}
+
+			@Override
+			protected Image getCustomEditorWindowIconImage() {
+<span class="pc bpc" id="L1085" title="1 of 2 branches missed.">				if (iconImage != null) {</span>
+<span class="nc" id="L1086">					return iconImage;</span>
+				} else {
+<span class="fc" id="L1088">					return super.getCustomEditorWindowIconImage();</span>
+				}
+			}
+
+		};
+	}
+
+	/**
+	 * Opens a frame allowing to edit the given object.
+	 * 
+	 * @param object    Any object.
+	 * @param title     The title of the frame or null to have the default title.
+	 * @param iconImage The frame icon image or null to have the default icon.
+	 * @return the editor builder allowing to check the status of the frame.
+	 */
+	public StandardEditorBuilder openObjectFrame(Object object, String title, Image iconImage) {
+<span class="fc" id="L1104">		StandardEditorBuilder editorBuilder = createEditorBuilder(null, object, title, iconImage, false);</span>
+<span class="fc" id="L1105">		showFrame(editorBuilder.createFrame());</span>
+<span class="fc" id="L1106">		return editorBuilder;</span>
+	}
+
+	/**
+	 * Opens a frame allowing to edit the given object.
+	 * 
+	 * @param object Any object.
+	 * @return the editor builder allowing to check the status of the frame.
+	 */
+	public StandardEditorBuilder openObjectFrame(Object object) {
+<span class="fc" id="L1116">		return openObjectFrame(object, null, null);</span>
+	}
+
+	/**
+	 * Displays a frame.
+	 * 
+	 * @param frame The frame to display.
+	 */
+	public void showFrame(JFrame frame) {
+<span class="fc" id="L1125">		frame.setVisible(true);</span>
+<span class="fc" id="L1126">	}</span>
+
+	/**
+	 * @param activatorComponent A component belonging to the parent window of the
+	 *                           dialog or null.
+	 * @return an object allowing build a dialog.
+	 */
+	public DialogBuilder createDialogBuilder(Component activatorComponent) {
+<span class="fc" id="L1134">		return new ApplicationDialogBuilder(activatorComponent);</span>
+	}
+
+	/**
+	 * Runs a task while displaying a busy indicator in a modal dialog. Note that
+	 * the busy indicator is shown only if the task lasts long enough. &lt;br&gt;
+	 * The following rules should be considered before using this method:
+	 * &lt;ul&gt;
+	 * &lt;li&gt;Invoke busy indication: we are in the UI thread and we are not updating
+	 * the UI (not mandatory if the task duration is known and short).&lt;/li&gt;
+	 * &lt;li&gt;Invoke the UI thread: when we are not in the UI thread and we are
+	 * updating the UI (maybe to allow user input).&lt;/li&gt;
+	 * &lt;li&gt;Run the task directly: otherwise.&lt;/li&gt;
+	 * &lt;ul&gt;
+	 * 
+	 * @param activatorComponent A component belonging to the parent window of the
+	 *                           dialog or null.
+	 * @param bakgroundTask      The task to execute.
+	 * @param title              The title of the dialog or null to have the default
+	 *                           title.
+	 */
+	public void showBusyDialogWhile(final Component activatorComponent, final Runnable bakgroundTask,
+			final String title) {
+<span class="pc bpc" id="L1157" title="1 of 2 branches missed.">		if (SystemProperties.isDebugModeActive()) {</span>
+<span class="nc" id="L1158">			SwingRendererUtils.expectInUIThread();</span>
+		}
+<span class="pc bpc" id="L1160" title="1 of 2 branches missed.">		if (Thread.currentThread().getName().equals(BUSY_DIALOG_CLOSER_NAME)) {</span>
+<span class="nc" id="L1161">			throw new ReflectionUIError(</span>
+<span class="nc" id="L1162">					&quot;Illegal: must not call showBusyDialogWhile() from the busyDialogJobExecutorThread&quot;);</span>
+		}
+<span class="fc" id="L1164">		final Throwable[] exceptionThrown = new Throwable[1];</span>
+<span class="fc" id="L1165">		final boolean[] reallyDone = new boolean[] { false };</span>
+<span class="fc" id="L1166">		final BetterFutureTask&lt;?&gt; busyDialogJob = new BetterFutureTask&lt;Boolean&gt;(new Runnable() {</span>
+			@Override
+			public void run() {
+				try {
+<span class="fc" id="L1170">					bakgroundTask.run();</span>
+<span class="fc" id="L1171">				} catch (Throwable t) {</span>
+<span class="fc" id="L1172">					exceptionThrown[0] = t;</span>
+				} finally {
+<span class="fc" id="L1174">					reallyDone[0] = true;</span>
+				}
+<span class="fc" id="L1176">			}</span>
+<span class="fc" id="L1177">		}, true);</span>
+<span class="fc" id="L1178">		busyDialogWorkerService.submit(busyDialogJob);</span>
+		try {
+<span class="fc" id="L1180">			busyDialogJob.get(getBusyDialogDisplayDelayMilliseconds(), TimeUnit.MILLISECONDS);</span>
+<span class="pc" id="L1181">		} catch (TimeoutException e1) {</span>
+<span class="nc" id="L1182">		} catch (Exception e) {</span>
+<span class="nc" id="L1183">			throw new ReflectionUIError(e);</span>
+		}
+<span class="pc bpc" id="L1185" title="1 of 2 branches missed.">		if (!busyDialogJob.isDone()) {</span>
+<span class="nc" id="L1186">			final DialogBuilder dialogBuilder = createDialogBuilder(activatorComponent);</span>
+<span class="nc" id="L1187">			busyDialogCloserService.submit(new Runnable() {</span>
+				@Override
+				public void run() {
+					while (true) {
+<span class="nc bnc" id="L1191" title="All 2 branches missed.">						if (dialogBuilder.getCreatedDialog() != null) {</span>
+<span class="nc bnc" id="L1192" title="All 2 branches missed.">							if (dialogBuilder.getCreatedDialog().isVisible()) {</span>
+<span class="nc bnc" id="L1193" title="All 2 branches missed.">								if (reallyDone[0]) {</span>
+<span class="nc" id="L1194">									break;</span>
+								}
+							}
+						}
+						try {
+<span class="nc" id="L1199">							Thread.sleep(1000);</span>
+<span class="nc" id="L1200">						} catch (InterruptedException e) {</span>
+<span class="nc" id="L1201">							throw new ReflectionUIError(e);</span>
+						}
+					}
+<span class="nc" id="L1204">					SwingUtilities.invokeLater(new Runnable() {</span>
+						@Override
+						public void run() {
+<span class="nc" id="L1207">							dialogBuilder.getCreatedDialog().dispose();</span>
+<span class="nc" id="L1208">						}</span>
+					});
+<span class="nc" id="L1210">				}</span>
+			});
+<span class="nc" id="L1212">			final JXBusyLabel busyLabel = new JXBusyLabel();</span>
+			{
+<span class="nc" id="L1214">				IApplicationInfo appInfo = reflectionUI.getApplicationInfo();</span>
+<span class="nc bnc" id="L1215" title="All 2 branches missed.">				if (appInfo.getMainForegroundColor() != null) {</span>
+<span class="nc" id="L1216">					busyLabel.setForeground(SwingRendererUtils.getColor(appInfo.getMainForegroundColor()));</span>
+				}
+<span class="nc bnc" id="L1218" title="All 2 branches missed.">				if (appInfo.getLabelCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L1219">					busyLabel.setFont(SwingRendererUtils</span>
+<span class="nc" id="L1220">							.loadFontThroughCache(appInfo.getLabelCustomFontResourcePath(),</span>
+<span class="nc" id="L1221">									ReflectionUIUtils.getErrorLogListener(reflectionUI), this)</span>
+<span class="nc" id="L1222">							.deriveFont(busyLabel.getFont().getStyle(), busyLabel.getFont().getSize()));</span>
+				}
+<span class="nc" id="L1224">				busyLabel.setHorizontalAlignment(SwingConstants.CENTER);</span>
+<span class="nc" id="L1225">				busyLabel.setText(prepareMessageToDisplay(&quot;Please wait...&quot;));</span>
+<span class="nc" id="L1226">				busyLabel.setVerticalTextPosition(SwingConstants.TOP);</span>
+<span class="nc" id="L1227">				busyLabel.setHorizontalTextPosition(SwingConstants.CENTER);</span>
+<span class="nc" id="L1228">				busyLabel.setBusy(true);</span>
+<span class="nc" id="L1229">				dialogBuilder.setContentComponent(busyLabel);</span>
+			}
+<span class="nc" id="L1231">			dialogBuilder.setTitle(title);</span>
+<span class="nc" id="L1232">			final JDialog dialog = dialogBuilder.createDialog();</span>
+<span class="nc" id="L1233">			dialog.addWindowListener(new WindowAdapter() {</span>
+				@Override
+				public void windowClosing(WindowEvent event) {
+					try {
+<span class="nc" id="L1237">						busyDialogJob.cancelRepeatedlyAndWait(100);</span>
+<span class="nc" id="L1238">					} catch (InterruptedException e) {</span>
+<span class="nc" id="L1239">						throw new ReflectionUIError(e);</span>
+					}
+<span class="nc" id="L1241">					dialog.removeWindowListener(this);</span>
+<span class="nc" id="L1242">				}</span>
+			});
+<span class="nc" id="L1244">			dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);</span>
+<span class="nc" id="L1245">			showDialog(dialog, true);</span>
+		}
+<span class="fc bfc" id="L1247" title="All 2 branches covered.">		if (exceptionThrown[0] != null) {</span>
+<span class="fc" id="L1248">			throw new ReflectionUIError(exceptionThrown[0]);</span>
+		}
+<span class="fc" id="L1250">	}</span>
+
+	protected long getBusyDialogDisplayDelayMilliseconds() {
+<span class="fc" id="L1253">		return 1000;</span>
+	}
+
+	/**
+	 * Displays a dialog.
+	 * 
+	 * @param dialog The dialog to display.
+	 * @param modal  Whether the dialog should be modal or not.
+	 */
+	public void showDialog(JDialog dialog, boolean modal) {
+<span class="pc bpc" id="L1263" title="1 of 2 branches missed.">		if (modal) {</span>
+<span class="fc" id="L1264">			dialog.setModalityType(ModalityType.DOCUMENT_MODAL);</span>
+<span class="fc" id="L1265">		} else {</span>
+<span class="nc" id="L1266">			dialog.setModalityType(ModalityType.MODELESS);</span>
+		}
+<span class="fc" id="L1268">		dialog.setVisible(true);</span>
+<span class="fc" id="L1269">	}</span>
+
+	/**
+	 * @param window
+	 * @return an object that manages the appearance and behavior of a window
+	 *         (dialog or frame).
+	 */
+	public WindowManager createWindowManager(Window window) {
+<span class="fc" id="L1277">		return new WindowManager(this, window);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="pc bpc" id="L1282" title="1 of 2 branches missed.">		if (this == defaultInstance) {</span>
+<span class="nc" id="L1283">			return &quot;SwingRenderer.DEFAULT&quot;;</span>
+		} else {
+<span class="fc" id="L1285">			return super.toString();</span>
+		}
+	}
+
+	protected class ApplicationDialogBuilder extends DialogBuilder {
+
+<span class="fc" id="L1291">		public ApplicationDialogBuilder(Component ownerComponent) {</span>
+<span class="fc" id="L1292">			super(SwingRenderer.this, ownerComponent);</span>
+<span class="fc" id="L1293">			this.iconImage = swingRenderer.getApplicationIconImage(reflectionUI.getApplicationInfo());</span>
+<span class="pc bpc" id="L1294" title="1 of 2 branches missed.">			if (reflectionUI.getApplicationInfo().getMainButtonBackgroundColor() != null) {</span>
+<span class="nc" id="L1295">				setClosingButtonBackgroundColor(</span>
+<span class="nc" id="L1296">						SwingRendererUtils.getColor(reflectionUI.getApplicationInfo().getMainButtonBackgroundColor()));</span>
+			}
+
+<span class="pc bpc" id="L1299" title="1 of 2 branches missed.">			if (reflectionUI.getApplicationInfo().getMainButtonForegroundColor() != null) {</span>
+<span class="nc" id="L1300">				setClosingButtonForegroundColor(</span>
+<span class="nc" id="L1301">						SwingRendererUtils.getColor(reflectionUI.getApplicationInfo().getMainButtonForegroundColor()));</span>
+			}
+
+<span class="pc bpc" id="L1304" title="1 of 2 branches missed.">			if (reflectionUI.getApplicationInfo().getMainButtonBorderColor() != null) {</span>
+<span class="nc" id="L1305">				setClosingButtonBorderColor(</span>
+<span class="nc" id="L1306">						SwingRendererUtils.getColor(reflectionUI.getApplicationInfo().getMainButtonBorderColor()));</span>
+			}
+
+<span class="pc bpc" id="L1309" title="1 of 2 branches missed.">			if (reflectionUI.getApplicationInfo().getMainButtonBackgroundImagePath() != null) {</span>
+<span class="nc" id="L1310">				setClosingButtonBackgroundImage(SwingRendererUtils.loadImageThroughCache(</span>
+<span class="nc" id="L1311">						reflectionUI.getApplicationInfo().getMainButtonBackgroundImagePath(),</span>
+<span class="nc" id="L1312">						ReflectionUIUtils.getErrorLogListener(reflectionUI), getSwingRenderer()));</span>
+			}
+
+<span class="pc bpc" id="L1315" title="1 of 2 branches missed.">			if (reflectionUI.getApplicationInfo().getButtonCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L1316">				setClosingButtonCustomFont(SwingRendererUtils.loadFontThroughCache(</span>
+<span class="nc" id="L1317">						reflectionUI.getApplicationInfo().getButtonCustomFontResourcePath(),</span>
+<span class="nc" id="L1318">						ReflectionUIUtils.getErrorLogListener(reflectionUI), getSwingRenderer()));</span>
+			}
+<span class="fc" id="L1320">		}</span>
+
+	}
+
+	/**
+	 * @param c Any component.
+	 * @return whether the given component is a {@link Form} that was generated by
+	 *         this renderer.
+	 */
+	public boolean isRenderedForm(Component c) {
+<span class="fc bfc" id="L1330" title="All 2 branches covered.">		if (!(c instanceof Form)) {</span>
+<span class="fc" id="L1331">			return false;</span>
+		}
+<span class="fc" id="L1333">		Form form = (Form) c;</span>
+<span class="fc bfc" id="L1334" title="All 2 branches covered.">		if (form.getSwingRenderer() != this) {</span>
+<span class="fc" id="L1335">			return false;</span>
+		}
+<span class="fc" id="L1337">		return true;</span>
+	}
+
+	/**
+	 * @return the global background color (related to {@link #getReflectionUI()}
+	 *         and {@link IApplicationInfo#getMainBackgroundColor()}) or null.
+	 */
+	public Color getMainBackgroundColor() {
+<span class="pc bpc" id="L1345" title="1 of 2 branches missed.">		return (reflectionUI.getApplicationInfo().getMainBackgroundColor() != null)</span>
+<span class="fc" id="L1346">				? SwingRendererUtils.getColor(reflectionUI.getApplicationInfo().getMainBackgroundColor())</span>
+<span class="nc" id="L1347">				: null;</span>
+	}
+
+	/**
+	 * @return the global foreground color (related to {@link #getReflectionUI()}
+	 *         and {@link IApplicationInfo#getMainForegroundColor()}) or null.
+	 */
+	public Color getMainForegroundColor() {
+<span class="fc bfc" id="L1355" title="All 2 branches covered.">		return (reflectionUI.getApplicationInfo().getMainForegroundColor() != null)</span>
+<span class="fc" id="L1356">				? SwingRendererUtils.getColor(reflectionUI.getApplicationInfo().getMainForegroundColor())</span>
+<span class="fc" id="L1357">				: null;</span>
+	}
+
+	/**
+	 * @param c Any component.
+	 * @return the global label custom font (related to {@link #getReflectionUI()}
+	 *         and {@link IApplicationInfo#getLabelCustomFontResourcePath()})
+	 *         derived according the font attributes of the provided component or
+	 *         null.
+	 */
+	public Font getMainLabelCustomFont(Component c) {
+<span class="pc bpc" id="L1368" title="1 of 2 branches missed.">		return (reflectionUI.getApplicationInfo().getLabelCustomFontResourcePath() != null) ? SwingRendererUtils</span>
+<span class="nc" id="L1369">				.loadFontThroughCache(reflectionUI.getApplicationInfo().getLabelCustomFontResourcePath(),</span>
+<span class="nc" id="L1370">						ReflectionUIUtils.getErrorLogListener(reflectionUI), this)</span>
+<span class="pc" id="L1371">				.deriveFont(c.getFont().getStyle(), c.getFont().getSize()) : null;</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

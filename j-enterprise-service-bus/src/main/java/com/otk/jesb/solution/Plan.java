@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.EnvironmentSettings;
@@ -26,7 +27,6 @@ import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.util.Accessor;
-import com.otk.jesb.util.MiscUtils;
 
 /**
  * This class allows to model a set of successive actions (instances of
@@ -208,9 +208,7 @@ public class Plan extends Asset {
 			throws ExecutionError {
 		try {
 			if (!Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {
-				synchronized (context) {
-					context.getVariables().add(EnvironmentSettings.ROOT_VARIABLE_ROOT);
-				}
+				context.getVariables().add(EnvironmentSettings.ROOT_VARIABLE_ROOT);
 			}
 			Class<?> inputClass = activator.getInputClass();
 			if (inputClass != null) {
@@ -234,6 +232,9 @@ public class Plan extends Asset {
 			}
 			execute(steps.stream().filter(step -> (step.getParent() == null)).collect(Collectors.toList()), context,
 					executionInspector);
+			if (executionInspector.isExecutionInterrupted()) {
+				return null;
+			}
 			return outputBuilder.build(new InstantiationContext(context.getVariables(),
 					getValidationContext(null).getVariableDeclarations()));
 		} catch (Throwable t) {
@@ -256,6 +257,9 @@ public class Plan extends Asset {
 			context.getVariables().clear();
 			context.getVariables().addAll(initialVariables);
 			continueExecution(firstStep, true, context, allVariables, executionInspector);
+		}
+		if (executionInspector.isExecutionInterrupted()) {
+			return;
 		}
 		List<Step> lastSteps = findLastSteps(steps);
 		List<StepOccurrence> lastStepOccurrences = lastSteps.stream()
@@ -400,9 +404,10 @@ public class Plan extends Asset {
 				} catch (ExecutionError e) {
 					executionError = e;
 				} finally {
-					synchronized (context) {
-						context.getVariables().add(stepCrossing);
-					}
+					context.getVariables().add(stepCrossing);
+				}
+				if (executionInspector.isExecutionInterrupted()) {
+					return stepCrossing;
 				}
 				if (outgoingTransitions.size() == 0) {
 					if (executionError != null) {
@@ -506,13 +511,6 @@ public class Plan extends Asset {
 			if (stepVariableDeclaration != null) {
 				result.getVariableDeclarations().add(stepVariableDeclaration);
 			}
-			if (step instanceof CompositeStep) {
-				for (Step descendantStep : MiscUtils.getDescendants((CompositeStep<?>) step, this)) {
-					if (descendantStep.getOperationBuilder().getOperationResultClass(this, descendantStep) != null) {
-						result.getVariableDeclarations().add(new StepEventuality(descendantStep, this));
-					}
-				}
-			}
 		}
 		result.getVariableDeclarations().addAll(getIncomingTransitionVariableDeclarations(currentStep));
 		return result;
@@ -606,7 +604,7 @@ public class Plan extends Asset {
 		private Session session;
 		private Plan plan;
 		private Step currentStep;
-		private List<Variable> variables = new ArrayList<Variable>();
+		private List<Variable> variables = new CopyOnWriteArrayList<Variable>();
 
 		public ExecutionContext(Session session, Plan plan) {
 			this.session = session;

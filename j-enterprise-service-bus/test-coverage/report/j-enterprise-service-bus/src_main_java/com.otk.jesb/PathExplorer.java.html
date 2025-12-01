@@ -1,0 +1,942 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>PathExplorer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">PathExplorer.java</span></div><h1>PathExplorer.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.ArrayStream;
+import com.otk.jesb.util.InstantiationUtils;
+import xy.reflect.ui.info.field.GetterFieldInfo;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.field.PublicFieldInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.ArrayTypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.StandardCollectionTypeInfo;
+import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+public class PathExplorer {
+
+	private String typeName;
+	private String rootVariableName;
+
+<span class="fc" id="L32">	public PathExplorer(String typeName, String rootVariableName) {</span>
+<span class="fc" id="L33">		this.typeName = typeName;</span>
+<span class="fc" id="L34">		this.rootVariableName = rootVariableName;</span>
+<span class="fc" id="L35">	}</span>
+
+	public String getRootVariableName() {
+<span class="nc" id="L38">		return rootVariableName;</span>
+	}
+
+	public List&lt;PathNode&gt; explore() {
+<span class="fc" id="L42">		return new TypedNodeUtility(null, typeName).getChildren();</span>
+	}
+
+	public String getTypicalRootExpression() {
+<span class="fc" id="L46">		return rootVariableName;</span>
+	}
+
+	public String getRootExpressionPattern() {
+<span class="fc" id="L50">		return &quot;\\s*\\b&quot; + rootVariableName + &quot;\\b\\s*&quot;;</span>
+	}
+
+	public ITypeInfo getRootExpressionType() {
+<span class="fc" id="L54">		return TypeInfoProvider.getTypeInfo(typeName);</span>
+	}
+
+	public static interface PathNode {
+
+		PathNode getParent();
+
+		List&lt;PathNode&gt; getChildren();
+
+		String getTypicalExpression();
+
+		String getExpressionPattern();
+
+		ITypeInfo getExpressionType();
+
+		PathExplorer getExplorer();
+
+	}
+
+	public static class PathNodeProxy implements PathNode {
+		private PathNode base;
+
+<span class="nc" id="L76">		public PathNodeProxy(PathNode base) {</span>
+<span class="nc" id="L77">			this.base = base;</span>
+<span class="nc" id="L78">		}</span>
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L82">			return base.getExplorer();</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L87">			return base.getParent();</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="nc" id="L92">			return base.getChildren();</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="nc" id="L97">			return base.getTypicalExpression();</span>
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="nc" id="L102">			return base.getExpressionPattern();</span>
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="nc" id="L107">			return base.getExpressionType();</span>
+		}
+
+	}
+
+	private class TypedNodeUtility {
+
+		protected PathNode node;
+		protected String typeName;
+
+<span class="fc" id="L117">		public TypedNodeUtility(PathNode node, String typeName) {</span>
+<span class="fc" id="L118">			this.node = node;</span>
+<span class="fc" id="L119">			this.typeName = typeName;</span>
+<span class="fc" id="L120">		}</span>
+
+		public PathNode getNode() {
+<span class="nc" id="L123">			return node;</span>
+		}
+
+		public ITypeInfo getTypeInfo() {
+<span class="fc bfc" id="L127" title="All 2 branches covered.">			return (node != null) ? node.getExpressionType() : PathExplorer.this.getRootExpressionType();</span>
+		}
+
+		public List&lt;PathNode&gt; getChildren() {
+<span class="fc" id="L131">			List&lt;PathNode&gt; result = new ArrayList&lt;PathNode&gt;();</span>
+<span class="fc" id="L132">			ITypeInfo typeInfo = getTypeInfo();</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">			if (typeInfo instanceof IListTypeInfo) {</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">				if (((IListTypeInfo) typeInfo).getItemType() instanceof IMapEntryTypeInfo) {</span>
+<span class="nc" id="L135">					result.add(new MapValueNode(this));</span>
+<span class="nc" id="L136">				} else {</span>
+<span class="nc" id="L137">					result.add(new ListItemNode(this));</span>
+<span class="nc" id="L138">					result.add(new ListSizeNode(this));</span>
+<span class="nc" id="L139">					result.add(new ListFilteringNode(this));</span>
+<span class="nc" id="L140">					result.add(new ListMappingNode(this));</span>
+<span class="nc" id="L141">					result.add(new ListReducingNode(this));</span>
+				}
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">			} else if (Stream.class.isAssignableFrom(((DefaultTypeInfo) typeInfo).getJavaType())) {</span>
+<span class="nc" id="L144">				result.add(new StreamFilteringNode(this));</span>
+<span class="nc" id="L145">				result.add(new StreamMappingNode(this));</span>
+<span class="nc" id="L146">				result.add(new StreamReducingNode(this));</span>
+<span class="nc" id="L147">				result.add(new StreamListCollectorNode(this));</span>
+<span class="nc" id="L148">			} else {</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">				if (InstantiationUtils.isComplexType(typeInfo)) {</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">					if (!typeInfo.getName().equals(Object.class.getName())) {</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">						for (IFieldInfo field : typeInfo.getFields()) {</span>
+<span class="fc" id="L152">							result.add(new FieldNode(this, field.getName()));</span>
+						}
+					}
+				}
+			}
+<span class="fc" id="L157">			Collections.sort(result, new Comparator&lt;PathNode&gt;() {</span>
+<span class="fc" id="L158">				List&lt;Class&lt;?&gt;&gt; CLASSES_ORDER = Arrays.asList(FieldNode.class, ListItemNode.class, MapValueNode.class,</span>
+<span class="fc" id="L159">						ListSizeNode.class, StreamNode.class, StreamFilteringNode.class, StreamMappingNode.class,</span>
+<span class="fc" id="L160">						StreamListCollectorNode.class);</span>
+
+				@Override
+				public int compare(PathNode o1, PathNode o2) {
+<span class="nc bnc" id="L164" title="All 2 branches missed.">					if (!o1.getClass().equals(o2.getClass())) {</span>
+<span class="nc" id="L165">						Class&lt;?&gt; class1 = o1.getClass();</span>
+						{
+<span class="nc bnc" id="L167" title="All 2 branches missed.">							while (class1.isAnonymousClass()) {</span>
+<span class="nc" id="L168">								class1 = class1.getSuperclass();</span>
+							}
+						}
+<span class="nc" id="L171">						Class&lt;?&gt; class2 = o1.getClass();</span>
+						{
+<span class="nc bnc" id="L173" title="All 2 branches missed.">							while (class2.isAnonymousClass()) {</span>
+<span class="nc" id="L174">								class2 = class2.getSuperclass();</span>
+							}
+						}
+<span class="nc" id="L177">						return Integer.valueOf(CLASSES_ORDER.indexOf(class1))</span>
+<span class="nc" id="L178">								.compareTo(Integer.valueOf(CLASSES_ORDER.indexOf(class2)));</span>
+					}
+<span class="nc bnc" id="L180" title="All 4 branches missed.">					if ((o1 instanceof FieldNode) &amp;&amp; (o2 instanceof FieldNode)) {</span>
+<span class="nc" id="L181">						FieldNode fn1 = (FieldNode) o1;</span>
+<span class="nc" id="L182">						FieldNode fn2 = (FieldNode) o2;</span>
+<span class="nc" id="L183">						return fn1.getFieldName().compareTo(fn2.getFieldName());</span>
+					}
+<span class="nc" id="L185">					return o1.toString().compareTo(o2.toString());</span>
+				}
+			});
+<span class="fc" id="L188">			return result;</span>
+		}
+
+		public String getTypicalExpression() {
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">			String parentExpression = (node != null) ? node.getTypicalExpression()</span>
+<span class="fc" id="L193">					: PathExplorer.this.getTypicalRootExpression();</span>
+<span class="fc" id="L194">			return parentExpression;</span>
+		}
+
+		public String getExpressionPattern() {
+<span class="nc bnc" id="L198" title="All 2 branches missed.">			String parentPattern = (node != null) ? node.getExpressionPattern()</span>
+<span class="nc" id="L199">					: PathExplorer.this.getRootExpressionPattern();</span>
+<span class="nc" id="L200">			return parentPattern;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L205">			return &quot;&lt;&quot; + typeName + &quot;&gt;&quot;;</span>
+		}
+
+	}
+
+	public class FieldNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+		protected String fieldName;
+
+<span class="fc" id="L215">		public FieldNode(TypedNodeUtility parentTypedNodeUtility, String fieldName) {</span>
+<span class="fc" id="L216">			this.parentTypedNodeUtility = parentTypedNodeUtility;</span>
+<span class="fc" id="L217">			this.fieldName = fieldName;</span>
+<span class="fc" id="L218">		}</span>
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L222">			return PathExplorer.this;</span>
+		}
+
+		public String getFieldName() {
+<span class="nc" id="L226">			return fieldName;</span>
+		}
+
+		public IFieldInfo getFieldInfo() {
+<span class="fc" id="L230">			return ReflectionUIUtils.findInfoByName(parentTypedNodeUtility.getTypeInfo().getFields(), fieldName);</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L235">			return parentTypedNodeUtility.getNode();</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="fc" id="L240">			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()</span>
+<span class="nc" id="L246">					: PathExplorer.this.getTypicalRootExpression();</span>
+<span class="fc" id="L247">			IFieldInfo fieldInfo = getFieldInfo();</span>
+<span class="pc bpc" id="L248" title="1 of 2 branches missed.">			if (fieldInfo instanceof GetterFieldInfo) {</span>
+<span class="nc" id="L249">				return parentExpression + &quot;.&quot; + ((GetterFieldInfo) fieldInfo).getJavaGetterMethod().getName() + &quot;()&quot;;</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">			} else if (fieldInfo instanceof PublicFieldInfo) {</span>
+<span class="fc" id="L251">				return parentExpression + &quot;.&quot; + ((PublicFieldInfo) fieldInfo).getJavaField().getName();</span>
+			} else {
+<span class="nc" id="L253">				throw new UnexpectedError();</span>
+			}
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="nc bnc" id="L259" title="All 2 branches missed.">			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()</span>
+<span class="nc" id="L260">					: PathExplorer.this.getRootExpressionPattern();</span>
+<span class="nc" id="L261">			IFieldInfo fieldInfo = getFieldInfo();</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">			if (fieldInfo instanceof GetterFieldInfo) {</span>
+<span class="nc" id="L263">				return parentPattern + &quot;\\s*\\.\\s*&quot; + ((GetterFieldInfo) fieldInfo).getJavaGetterMethod().getName()</span>
+<span class="nc" id="L264">						+ &quot;\\s*\\(\\s*\\)\\s*&quot;;</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">			} else if (fieldInfo instanceof PublicFieldInfo) {</span>
+<span class="nc" id="L266">				return parentPattern + &quot;\\s*\\.\\s*\\b&quot; + ((PublicFieldInfo) fieldInfo).getJavaField().getName()</span>
+<span class="nc" id="L267">						+ &quot;\\b\\s*&quot;;</span>
+			} else {
+<span class="nc" id="L269">				throw new UnexpectedError();</span>
+			}
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="fc" id="L275">			IFieldInfo fieldInfo = getFieldInfo();</span>
+<span class="fc" id="L276">			ITypeInfo result = fieldInfo.getType();</span>
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">			if (result instanceof IListTypeInfo) {</span>
+<span class="nc" id="L278">				result = TypeInfoProvider.getTypeInfo(result.getName(), fieldInfo);</span>
+			}
+<span class="fc" id="L280">			return result;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L285">			return fieldName;</span>
+		}
+	}
+
+	public class ListItemNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+<span class="nc" id="L293">		public ListItemNode(TypedNodeUtility parent) {</span>
+<span class="nc" id="L294">			this.parentTypedNodeUtility = parent;</span>
+<span class="nc" id="L295">		}</span>
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L299">			return PathExplorer.this;</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L304">			return parentTypedNodeUtility.getNode();</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="nc" id="L309">			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="nc bnc" id="L314" title="All 2 branches missed.">			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()</span>
+<span class="nc" id="L315">					: PathExplorer.this.getTypicalRootExpression();</span>
+<span class="nc" id="L316">			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc bnc" id="L317" title="All 2 branches missed.">			if (parentTypeInfo instanceof ArrayTypeInfo) {</span>
+<span class="nc" id="L318">				return parentExpression + &quot;[?]&quot;;</span>
+<span class="nc bnc" id="L319" title="All 2 branches missed.">			} else if (List.class.isAssignableFrom(((DefaultTypeInfo) parentTypeInfo).getJavaType())) {</span>
+<span class="nc" id="L320">				return parentExpression + &quot;.get(?)&quot;;</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {</span>
+<span class="nc" id="L322">				return parentExpression + &quot;.iterator().next()&quot;;</span>
+			} else {
+<span class="nc" id="L324">				throw new UnexpectedError();</span>
+			}
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="nc bnc" id="L330" title="All 2 branches missed.">			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()</span>
+<span class="nc" id="L331">					: PathExplorer.this.getRootExpressionPattern();</span>
+<span class="nc" id="L332">			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">			if (parentTypeInfo instanceof ArrayTypeInfo) {</span>
+<span class="nc" id="L334">				return parentPattern + &quot;\\s*\\[\\s*[^\\[\\]]+\\s*\\]\\s*&quot;;</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">			} else if (List.class.isAssignableFrom(((DefaultTypeInfo) parentTypeInfo).getJavaType())) {</span>
+<span class="nc" id="L336">				return parentPattern + &quot;\\s*\\.\\s*get\\s*\\(\\s*[^\\(\\)]+\\s*\\)\\s*&quot;;</span>
+<span class="nc bnc" id="L337" title="All 2 branches missed.">			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {</span>
+<span class="nc" id="L338">				return parentPattern + &quot;\\s*\\.\\s*iterator\\s*\\(\\s*\\)\\s*\\.\\s*next\\s*\\(\\s*\\)\\s*&quot;;</span>
+			} else {
+<span class="nc" id="L340">				throw new UnexpectedError();</span>
+			}
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="nc" id="L346">			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc" id="L347">			ITypeInfo result = parentTypeInfo.getItemType();</span>
+<span class="nc bnc" id="L348" title="All 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L349">				result = TypeInfoProvider.getTypeInfo(Object.class);</span>
+			}
+<span class="nc" id="L351">			return result;</span>
+
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L357">			return &quot;[i]&quot;;</span>
+		}
+	}
+
+	public class ListSizeNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+<span class="nc" id="L365">		public ListSizeNode(TypedNodeUtility parent) {</span>
+<span class="nc" id="L366">			this.parentTypedNodeUtility = parent;</span>
+<span class="nc" id="L367">		}</span>
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L371">			return PathExplorer.this;</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L376">			return parentTypedNodeUtility.getNode();</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="nc" id="L381">			return new TypedNodeUtility(this, int.class.getName()).getChildren();</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="nc bnc" id="L386" title="All 2 branches missed.">			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()</span>
+<span class="nc" id="L387">					: PathExplorer.this.getTypicalRootExpression();</span>
+<span class="nc" id="L388">			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">			if (parentTypeInfo instanceof ArrayTypeInfo) {</span>
+<span class="nc" id="L390">				return parentExpression + &quot;.length&quot;;</span>
+<span class="nc bnc" id="L391" title="All 2 branches missed.">			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {</span>
+<span class="nc" id="L392">				return parentExpression + &quot;.size()&quot;;</span>
+			} else {
+<span class="nc" id="L394">				throw new UnexpectedError();</span>
+			}
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="nc bnc" id="L400" title="All 2 branches missed.">			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()</span>
+<span class="nc" id="L401">					: PathExplorer.this.getRootExpressionPattern();</span>
+<span class="nc" id="L402">			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc bnc" id="L403" title="All 2 branches missed.">			if (parentTypeInfo instanceof ArrayTypeInfo) {</span>
+<span class="nc" id="L404">				return &quot;\\s*&quot; + parentPattern + &quot;\\s*\\.\\s*length\\s*&quot;;</span>
+<span class="nc bnc" id="L405" title="All 2 branches missed.">			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {</span>
+<span class="nc" id="L406">				return &quot;\\s*&quot; + parentPattern + &quot;\\s*\\.\\s*size\\s*\\(\\s*\\)\\s*&quot;;</span>
+			} else {
+<span class="nc" id="L408">				throw new UnexpectedError();</span>
+			}
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="nc" id="L414">			return TypeInfoProvider.getTypeInfo(int.class);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L419">			return &quot;&lt;count&gt;&quot;;</span>
+		}
+	}
+
+	public class StreamNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+<span class="nc" id="L427">		public StreamNode(TypedNodeUtility parent) {</span>
+<span class="nc" id="L428">			this.parentTypedNodeUtility = parent;</span>
+<span class="nc" id="L429">		}</span>
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L433">			return PathExplorer.this;</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L438">			return parentTypedNodeUtility.getNode();</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="nc" id="L443">			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="nc bnc" id="L448" title="All 2 branches missed.">			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()</span>
+<span class="nc" id="L449">					: PathExplorer.this.getTypicalRootExpression();</span>
+<span class="nc" id="L450">			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc bnc" id="L451" title="All 2 branches missed.">			if (parentTypeInfo instanceof ArrayTypeInfo) {</span>
+<span class="nc" id="L452">				return ArrayStream.class.getName() + &quot;.get(&quot; + parentExpression + &quot;)&quot;;</span>
+<span class="nc bnc" id="L453" title="All 2 branches missed.">			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {</span>
+<span class="nc" id="L454">				return parentExpression + &quot;.stream()&quot;;</span>
+			} else {
+<span class="nc" id="L456">				throw new UnexpectedError();</span>
+			}
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="nc bnc" id="L462" title="All 2 branches missed.">			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()</span>
+<span class="nc" id="L463">					: PathExplorer.this.getRootExpressionPattern();</span>
+<span class="nc" id="L464">			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc bnc" id="L465" title="All 2 branches missed.">			if (parentTypeInfo instanceof ArrayTypeInfo) {</span>
+<span class="nc" id="L466">				return &quot;\\s*&quot; + ArrayStream.class.getName().replace(&quot;.&quot;, &quot;\\.&quot;) + &quot;\\s*\\.get\\s*\\(\\s*&quot;</span>
+<span class="nc" id="L467">						+ parentPattern + &quot;\\s*\\)\\s*\\.\\s*&quot;;</span>
+<span class="nc bnc" id="L468" title="All 2 branches missed.">			} else if (parentTypeInfo instanceof StandardCollectionTypeInfo) {</span>
+<span class="nc" id="L469">				return &quot;\\s*&quot; + parentPattern + &quot;\\s*\\.\\s*stream\\s*\\(\\s*\\)\\s*&quot;;</span>
+			} else {
+<span class="nc" id="L471">				throw new UnexpectedError();</span>
+			}
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="nc" id="L477">			IListTypeInfo parentTypeInfo = (IListTypeInfo) parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc" id="L478">			ITypeInfo itemType = parentTypeInfo.getItemType();</span>
+			Class&lt;?&gt; itemClass;
+<span class="nc bnc" id="L480" title="All 2 branches missed.">			if (itemType != null) {</span>
+<span class="nc" id="L481">				itemClass = ((DefaultTypeInfo) itemType).getJavaType();</span>
+<span class="nc bnc" id="L482" title="All 2 branches missed.">				if (itemType.isPrimitive()) {</span>
+<span class="nc" id="L483">					itemClass = ClassUtils.primitiveToWrapperClass(itemClass);</span>
+				}
+<span class="nc" id="L485">			} else {</span>
+<span class="nc" id="L486">				itemClass = null;</span>
+			}
+<span class="nc" id="L488">			return TypeInfoProvider.getTypeInfo(Stream.class,</span>
+<span class="nc bnc" id="L489" title="All 2 branches missed.">					(itemClass != null) ? new Class&lt;?&gt;[] { itemClass } : null);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L494">			return &quot;&lt;stream&gt;&quot;;</span>
+		}
+	}
+
+	public class StreamFilteringNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+<span class="nc" id="L502">		public StreamFilteringNode(TypedNodeUtility parent) {</span>
+<span class="nc" id="L503">			this.parentTypedNodeUtility = parent;</span>
+<span class="nc" id="L504">		}</span>
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L508">			return PathExplorer.this;</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L513">			return parentTypedNodeUtility.getNode();</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="nc" id="L518">			return new TypedNodeUtility(this, Stream.class.getName()).getChildren();</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="nc bnc" id="L523" title="All 2 branches missed.">			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()</span>
+<span class="nc" id="L524">					: PathExplorer.this.getTypicalRootExpression();</span>
+<span class="nc" id="L525">			if (!Stream.class</span>
+<span class="nc bnc" id="L526" title="All 2 branches missed.">					.isAssignableFrom(((DefaultTypeInfo) parentTypedNodeUtility.getTypeInfo()).getJavaType())) {</span>
+<span class="nc" id="L527">				throw new UnexpectedError();</span>
+			}
+<span class="nc" id="L529">			return parentExpression + &quot;.filter(element -&gt; ?)&quot;;</span>
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="nc bnc" id="L534" title="All 2 branches missed.">			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()</span>
+<span class="nc" id="L535">					: PathExplorer.this.getRootExpressionPattern();</span>
+<span class="nc" id="L536">			return &quot;\\s*&quot; + parentPattern + &quot;\\s*\\.\\s*filter\\s*\\([^\\(\\)]+\\)\\s*&quot;;</span>
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="nc" id="L541">			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc" id="L542">			List&lt;Class&lt;?&gt;&gt; parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())</span>
+<span class="nc" id="L543">					.guessGenericTypeParameters(Stream.class);</span>
+<span class="nc" id="L544">			return TypeInfoProvider.getTypeInfo(Stream.class,</span>
+<span class="nc bnc" id="L545" title="All 2 branches missed.">					(parentStreamTypeParameters != null) ? new Class&lt;?&gt;[] { parentStreamTypeParameters.get(0) } : null);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L550">			return &quot;&lt;filter&gt;&quot;;</span>
+		}
+	}
+
+	public class StreamMappingNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+<span class="nc" id="L558">		public StreamMappingNode(TypedNodeUtility parent) {</span>
+<span class="nc" id="L559">			this.parentTypedNodeUtility = parent;</span>
+<span class="nc" id="L560">		}</span>
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L564">			return PathExplorer.this;</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L569">			return parentTypedNodeUtility.getNode();</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="nc" id="L574">			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="nc bnc" id="L579" title="All 2 branches missed.">			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()</span>
+<span class="nc" id="L580">					: PathExplorer.this.getTypicalRootExpression();</span>
+<span class="nc" id="L581">			if (!Stream.class</span>
+<span class="nc bnc" id="L582" title="All 2 branches missed.">					.isAssignableFrom(((DefaultTypeInfo) parentTypedNodeUtility.getTypeInfo()).getJavaType())) {</span>
+<span class="nc" id="L583">				throw new UnexpectedError();</span>
+			}
+<span class="nc" id="L585">			return parentExpression + &quot;.map(element -&gt; ?)&quot;;</span>
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="nc bnc" id="L590" title="All 2 branches missed.">			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()</span>
+<span class="nc" id="L591">					: PathExplorer.this.getRootExpressionPattern();</span>
+<span class="nc" id="L592">			return &quot;\\s*&quot; + parentPattern + &quot;\\s*\\.\\s*map\\s*\\([^\\(\\)]+\\)\\s*&quot;;</span>
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="nc" id="L597">			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc" id="L598">			List&lt;Class&lt;?&gt;&gt; parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())</span>
+<span class="nc" id="L599">					.guessGenericTypeParameters(Stream.class);</span>
+<span class="nc" id="L600">			return TypeInfoProvider.getTypeInfo(Stream.class,</span>
+<span class="nc bnc" id="L601" title="All 2 branches missed.">					(parentStreamTypeParameters != null) ? new Class&lt;?&gt;[] { parentStreamTypeParameters.get(0) } : null);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L606">			return &quot;&lt;map&gt;&quot;;</span>
+		}
+	}
+
+	public class StreamReducingNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+<span class="nc" id="L614">		public StreamReducingNode(TypedNodeUtility parent) {</span>
+<span class="nc" id="L615">			this.parentTypedNodeUtility = parent;</span>
+<span class="nc" id="L616">		}</span>
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L620">			return PathExplorer.this;</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L625">			return parentTypedNodeUtility.getNode();</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="nc" id="L630">			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="nc bnc" id="L635" title="All 2 branches missed.">			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()</span>
+<span class="nc" id="L636">					: PathExplorer.this.getTypicalRootExpression();</span>
+<span class="nc" id="L637">			if (!Stream.class</span>
+<span class="nc bnc" id="L638" title="All 2 branches missed.">					.isAssignableFrom(((DefaultTypeInfo) parentTypedNodeUtility.getTypeInfo()).getJavaType())) {</span>
+<span class="nc" id="L639">				throw new UnexpectedError();</span>
+			}
+<span class="nc" id="L641">			return parentExpression + &quot;.reduce((element1, element2) -&gt; ?).orElse(?)&quot;;</span>
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="nc bnc" id="L646" title="All 2 branches missed.">			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()</span>
+<span class="nc" id="L647">					: PathExplorer.this.getRootExpressionPattern();</span>
+<span class="nc" id="L648">			return &quot;\\s*&quot; + parentPattern</span>
+<span class="nc" id="L649">					+ &quot;\\s*\\.\\s*reduce\\s*\\([^\\(\\)]+\\)\\s*\\.\\s*orElse\\s*\\([^\\(\\)]+\\)\\s*&quot;;</span>
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="nc" id="L654">			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc" id="L655">			List&lt;Class&lt;?&gt;&gt; parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())</span>
+<span class="nc" id="L656">					.guessGenericTypeParameters(Stream.class);</span>
+<span class="nc" id="L657">			return TypeInfoProvider.getTypeInfo(</span>
+<span class="nc bnc" id="L658" title="All 2 branches missed.">					(parentStreamTypeParameters != null) ? parentStreamTypeParameters.get(0) : Object.class);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L663">			return &quot;&lt;reduce&gt;&quot;;</span>
+		}
+	}
+
+	public class StreamListCollectorNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+<span class="nc" id="L671">		public StreamListCollectorNode(TypedNodeUtility parent) {</span>
+<span class="nc" id="L672">			this.parentTypedNodeUtility = parent;</span>
+<span class="nc" id="L673">		}</span>
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L677">			return PathExplorer.this;</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L682">			return parentTypedNodeUtility.getNode();</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="nc" id="L687">			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="nc bnc" id="L692" title="All 2 branches missed.">			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()</span>
+<span class="nc" id="L693">					: PathExplorer.this.getTypicalRootExpression();</span>
+<span class="nc" id="L694">			if (!Stream.class</span>
+<span class="nc bnc" id="L695" title="All 2 branches missed.">					.isAssignableFrom(((DefaultTypeInfo) parentTypedNodeUtility.getTypeInfo()).getJavaType())) {</span>
+<span class="nc" id="L696">				throw new UnexpectedError();</span>
+			}
+<span class="nc" id="L698">			return parentExpression + &quot;.collect(&quot; + Collectors.class.getName() + &quot;.toList())&quot;;</span>
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="nc bnc" id="L703" title="All 2 branches missed.">			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()</span>
+<span class="nc" id="L704">					: PathExplorer.this.getRootExpressionPattern();</span>
+<span class="nc" id="L705">			return &quot;\\s*&quot; + parentPattern + &quot;\\s*\\.\\s*collect\\s*\\(\\s*&quot;</span>
+<span class="nc" id="L706">					+ Collectors.class.getName().replace(&quot;.&quot;, &quot;\\.&quot;) + &quot;\\s*toList\\s*\\(\\s*\\)\\s*\\)\\s*&quot;;</span>
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="nc" id="L711">			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc" id="L712">			List&lt;Class&lt;?&gt;&gt; parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())</span>
+<span class="nc" id="L713">					.guessGenericTypeParameters(Stream.class);</span>
+<span class="nc" id="L714">			return TypeInfoProvider.getTypeInfo(List.class,</span>
+<span class="nc bnc" id="L715" title="All 2 branches missed.">					(parentStreamTypeParameters != null) ? new Class&lt;?&gt;[] { parentStreamTypeParameters.get(0) } : null);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L720">			return &quot;&lt;collect&gt;&quot;;</span>
+		}
+	}
+
+	public class ListFilteringNode extends PathNodeProxy {
+
+<span class="nc" id="L726">		public ListFilteringNode(TypedNodeUtility parentTypedNodeUtility) {</span>
+<span class="nc bnc" id="L727" title="All 2 branches missed.">			super(((parentTypedNodeUtility.getNode() instanceof StreamListCollectorNode)</span>
+<span class="nc" id="L728">					? parentTypedNodeUtility.getNode().getParent()</span>
+<span class="nc" id="L729">					: new StreamNode(parentTypedNodeUtility)).getChildren().stream()</span>
+<span class="nc" id="L730">							.filter(StreamFilteringNode.class::isInstance).findFirst().get().getChildren().stream()</span>
+<span class="nc" id="L731">							.filter(StreamListCollectorNode.class::isInstance).findFirst().get());</span>
+<span class="nc" id="L732">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L736">			return &quot;&lt;filtered&gt;&quot;;</span>
+		}
+	}
+
+	public class ListMappingNode extends PathNodeProxy {
+
+<span class="nc" id="L742">		public ListMappingNode(TypedNodeUtility parentTypedNodeUtility) {</span>
+<span class="nc bnc" id="L743" title="All 2 branches missed.">			super(((parentTypedNodeUtility.getNode() instanceof StreamListCollectorNode)</span>
+<span class="nc" id="L744">					? parentTypedNodeUtility.getNode().getParent()</span>
+<span class="nc" id="L745">					: new StreamNode(parentTypedNodeUtility)).getChildren().stream()</span>
+<span class="nc" id="L746">							.filter(StreamMappingNode.class::isInstance).findFirst().get().getChildren().stream()</span>
+<span class="nc" id="L747">							.filter(StreamListCollectorNode.class::isInstance).findFirst().get());</span>
+<span class="nc" id="L748">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L752">			return &quot;&lt;mapped&gt;&quot;;</span>
+		}
+	}
+
+	public class ListReducingNode extends PathNodeProxy {
+
+<span class="nc" id="L758">		public ListReducingNode(TypedNodeUtility parentTypedNodeUtility) {</span>
+<span class="nc bnc" id="L759" title="All 2 branches missed.">			super(((parentTypedNodeUtility.getNode() instanceof StreamListCollectorNode)</span>
+<span class="nc" id="L760">					? parentTypedNodeUtility.getNode().getParent()</span>
+<span class="nc" id="L761">					: new StreamNode(parentTypedNodeUtility)).getChildren().stream()</span>
+<span class="nc" id="L762">							.filter(StreamReducingNode.class::isInstance).findFirst().get());</span>
+<span class="nc" id="L763">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L767">			return &quot;&lt;reduced&gt;&quot;;</span>
+		}
+	}
+
+	public class MapValueNode implements PathNode {
+
+		protected TypedNodeUtility parentTypedNodeUtility;
+
+<span class="nc" id="L775">		public MapValueNode(TypedNodeUtility parent) {</span>
+<span class="nc" id="L776">			this.parentTypedNodeUtility = parent;</span>
+<span class="nc" id="L777">		}</span>
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L781">			return PathExplorer.this;</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L786">			return parentTypedNodeUtility.getNode();</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="nc" id="L791">			return new TypedNodeUtility(this, getExpressionType().getName()).getChildren();</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="nc bnc" id="L796" title="All 2 branches missed.">			String parentExpression = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getTypicalExpression()</span>
+<span class="nc" id="L797">					: PathExplorer.this.getTypicalRootExpression();</span>
+<span class="nc" id="L798">			return parentExpression + &quot;.get(*)&quot;;</span>
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="nc bnc" id="L803" title="All 2 branches missed.">			String parentPattern = (parentTypedNodeUtility != null) ? parentTypedNodeUtility.getExpressionPattern()</span>
+<span class="nc" id="L804">					: PathExplorer.this.getRootExpressionPattern();</span>
+<span class="nc" id="L805">			return parentPattern + &quot;\\s*\\.\\s*get\\s*\\(\\s*[^\\(\\)]+\\s*\\)\\s*&quot;;</span>
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="nc" id="L810">			ITypeInfo parentTypeInfo = parentTypedNodeUtility.getTypeInfo();</span>
+<span class="nc" id="L811">			IMapEntryTypeInfo mapTypeInfo = (IMapEntryTypeInfo) ((IListTypeInfo) parentTypeInfo).getItemType();</span>
+<span class="nc" id="L812">			return mapTypeInfo.getValueField().getType();</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L817">			return &quot;{*}&quot;;</span>
+		}
+	}
+
+	public static class RelativePathNode implements PathNode {
+
+		private PathNode underlying;
+		private String typicalReferenceExpression;
+		private String referenceExpressionPattern;
+		private String referenceVariableName;
+
+<span class="nc" id="L828">		public RelativePathNode(PathNode underlying, String typicalReferenceExpression,</span>
+				String referenceExpressionPattern, String referenceVariableName) {
+<span class="nc" id="L830">			this.underlying = underlying;</span>
+<span class="nc" id="L831">			this.typicalReferenceExpression = typicalReferenceExpression;</span>
+<span class="nc" id="L832">			this.referenceExpressionPattern = referenceExpressionPattern;</span>
+<span class="nc" id="L833">			this.referenceVariableName = referenceVariableName;</span>
+<span class="nc" id="L834">		}</span>
+
+		public PathNode getUnderlying() {
+<span class="nc" id="L837">			return underlying;</span>
+		}
+
+		public String getTypicalReferenceExpression() {
+<span class="nc" id="L841">			return typicalReferenceExpression;</span>
+		}
+
+		public String getReferenceExpressionPattern() {
+<span class="nc" id="L845">			return referenceExpressionPattern;</span>
+		}
+
+		public String getReferenceVariableName() {
+<span class="nc" id="L849">			return referenceVariableName;</span>
+		}
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L854">			return underlying.getExplorer();</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L859">			PathNode result = underlying.getParent();</span>
+<span class="nc bnc" id="L860" title="All 2 branches missed.">			if (result != null) {</span>
+<span class="nc" id="L861">				result = new RelativePathNode(result, typicalReferenceExpression, referenceExpressionPattern,</span>
+<span class="nc" id="L862">						referenceVariableName);</span>
+			}
+<span class="nc" id="L864">			return result;</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="nc" id="L869">			return underlying.getChildren().stream().map(child -&gt; new RelativePathNode(child,</span>
+<span class="nc" id="L870">					typicalReferenceExpression, referenceExpressionPattern, referenceVariableName))</span>
+<span class="nc" id="L871">					.collect(Collectors.toList());</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="nc" id="L876">			return underlying.getTypicalExpression().replace(typicalReferenceExpression, referenceVariableName);</span>
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="nc" id="L881">			return underlying.getExpressionPattern().replace(referenceExpressionPattern,</span>
+<span class="nc" id="L882">					&quot;\\s*\\b&quot; + referenceVariableName + &quot;\\b\\s*&quot;);</span>
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="nc" id="L887">			return underlying.getExpressionType();</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L892">			final int prime = 31;</span>
+<span class="nc" id="L893">			int result = 1;</span>
+<span class="nc" id="L894">			result = prime * result</span>
+<span class="nc bnc" id="L895" title="All 2 branches missed.">					+ ((referenceExpressionPattern == null) ? 0 : referenceExpressionPattern.hashCode());</span>
+<span class="nc bnc" id="L896" title="All 2 branches missed.">			result = prime * result + ((referenceVariableName == null) ? 0 : referenceVariableName.hashCode());</span>
+<span class="nc" id="L897">			result = prime * result</span>
+<span class="nc bnc" id="L898" title="All 2 branches missed.">					+ ((typicalReferenceExpression == null) ? 0 : typicalReferenceExpression.hashCode());</span>
+<span class="nc bnc" id="L899" title="All 2 branches missed.">			result = prime * result + ((underlying == null) ? 0 : underlying.hashCode());</span>
+<span class="nc" id="L900">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L905" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L906">				return true;</span>
+<span class="nc bnc" id="L907" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L908">				return false;</span>
+<span class="nc bnc" id="L909" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L910">				return false;</span>
+<span class="nc" id="L911">			RelativePathNode other = (RelativePathNode) obj;</span>
+<span class="nc bnc" id="L912" title="All 2 branches missed.">			if (referenceExpressionPattern == null) {</span>
+<span class="nc bnc" id="L913" title="All 2 branches missed.">				if (other.referenceExpressionPattern != null)</span>
+<span class="nc" id="L914">					return false;</span>
+<span class="nc bnc" id="L915" title="All 2 branches missed.">			} else if (!referenceExpressionPattern.equals(other.referenceExpressionPattern))</span>
+<span class="nc" id="L916">				return false;</span>
+<span class="nc bnc" id="L917" title="All 2 branches missed.">			if (referenceVariableName == null) {</span>
+<span class="nc bnc" id="L918" title="All 2 branches missed.">				if (other.referenceVariableName != null)</span>
+<span class="nc" id="L919">					return false;</span>
+<span class="nc bnc" id="L920" title="All 2 branches missed.">			} else if (!referenceVariableName.equals(other.referenceVariableName))</span>
+<span class="nc" id="L921">				return false;</span>
+<span class="nc bnc" id="L922" title="All 2 branches missed.">			if (typicalReferenceExpression == null) {</span>
+<span class="nc bnc" id="L923" title="All 2 branches missed.">				if (other.typicalReferenceExpression != null)</span>
+<span class="nc" id="L924">					return false;</span>
+<span class="nc bnc" id="L925" title="All 2 branches missed.">			} else if (!typicalReferenceExpression.equals(other.typicalReferenceExpression))</span>
+<span class="nc" id="L926">				return false;</span>
+<span class="nc bnc" id="L927" title="All 2 branches missed.">			if (underlying == null) {</span>
+<span class="nc bnc" id="L928" title="All 2 branches missed.">				if (other.underlying != null)</span>
+<span class="nc" id="L929">					return false;</span>
+<span class="nc bnc" id="L930" title="All 2 branches missed.">			} else if (!underlying.equals(other.underlying))</span>
+<span class="nc" id="L931">				return false;</span>
+<span class="nc" id="L932">			return true;</span>
+		}
+
+		public String toString() {
+<span class="nc" id="L936">			return underlying.toString();</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

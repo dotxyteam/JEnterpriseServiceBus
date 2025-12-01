@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ReschedulableTask.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">ReschedulableTask.java</span></div><h1>ReschedulableTask.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.util;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
+
+/**
+ * Base class for delayed tasks that will be executed 1 time (not more, not
+ * less) after {@link #schedule()} is called. If the action is already scheduled
+ * calling {@link #reschedule()} will cancel the current schedule (can be done
+ * with {@link #cancelSchedule()}) and setup another one.
+ * 
+ * Note that scheduling attempts are synchronized and may be blocking if the
+ * provided task execution service ({@link #getTaskExecutor()}) is not able to
+ * process them in parallel.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L21">public abstract class ReschedulableTask {</span>
+
+	protected abstract void execute();
+
+	protected abstract long getExecutionDelayMilliseconds();
+
+	protected abstract ExecutorService getTaskExecutor();
+
+<span class="fc" id="L29">	protected final Object scheduleMutex = new Object();</span>
+	protected BetterFutureTask&lt;Boolean&gt; launchTask;
+<span class="fc" id="L31">	protected long executionScheduledSince = -1;</span>
+<span class="fc" id="L32">	protected AtomicInteger activeWorkerCount = new AtomicInteger(0);</span>
+
+	public Object getExecutionMutex() {
+<span class="nc" id="L35">		return scheduleMutex;</span>
+	}
+
+	/**
+	 * Schedules an execution if there isn't already a scheduled execution.
+	 * 
+	 * @return true if the execution was scheduled, or false if there is already a
+	 *         scheduled execution.
+	 */
+	public boolean schedule() {
+<span class="fc" id="L45">		synchronized (scheduleMutex) {</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">			if (launchTask == null) {</span>
+<span class="fc" id="L47">				final Semaphore launchTaskStartupNotification = new Semaphore(0);</span>
+<span class="fc" id="L48">				getTaskExecutor().submit(launchTask = new BetterFutureTask&lt;Boolean&gt;(new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="fc" id="L51">						activeWorkerCount.incrementAndGet();</span>
+						try {
+							try {
+<span class="fc" id="L54">								launchTaskStartupNotification.release();</span>
+<span class="fc" id="L55">								executionScheduledSince = System.currentTimeMillis();</span>
+								try {
+									try {
+<span class="fc" id="L58">										Thread.sleep(getExecutionDelayMilliseconds());</span>
+<span class="fc" id="L59">									} catch (InterruptedException e) {</span>
+<span class="fc" id="L60">										return;</span>
+									}
+								} finally {
+<span class="fc" id="L63">									executionScheduledSince = -1;</span>
+								}
+							} finally {
+<span class="fc" id="L66">								launchTask = null;</span>
+							}
+<span class="fc" id="L68">							execute();</span>
+<span class="fc" id="L69">						} finally {</span>
+<span class="fc" id="L70">							activeWorkerCount.decrementAndGet();</span>
+						}
+<span class="fc" id="L72">					}</span>
+<span class="fc" id="L73">				}, true));</span>
+				try {
+<span class="fc" id="L75">					launchTaskStartupNotification.acquire();</span>
+<span class="pc" id="L76">				} catch (InterruptedException e) {</span>
+<span class="nc" id="L77">					throw new ReflectionUIError(e);</span>
+				}
+<span class="fc" id="L79">				return true;</span>
+			} else {
+<span class="nc" id="L81">				return false;</span>
+			}
+		}
+	}
+
+	/**
+	 * Cancels the current execution schedule if there is one.
+	 * 
+	 * @return whether there was a scheduled execution.
+	 */
+	public boolean cancelSchedule() {
+<span class="fc" id="L92">		synchronized (scheduleMutex) {</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">			if (launchTask != null) {</span>
+				try {
+<span class="fc" id="L95">					launchTask.cancelAndWait(true);</span>
+<span class="pc" id="L96">				} catch (InterruptedException e) {</span>
+<span class="nc" id="L97">					throw new ReflectionUIError(e);</span>
+				}
+<span class="fc" id="L99">				return true;</span>
+			} else {
+<span class="fc" id="L101">				return false;</span>
+			}
+		}
+	}
+
+	/**
+	 * Cancels the current execution schedule if there is one, and creates a new
+	 * one.
+	 * 
+	 * @return whether there was a scheduled execution.
+	 */
+	public boolean reschedule() {
+<span class="fc" id="L113">		synchronized (scheduleMutex) {</span>
+<span class="fc" id="L114">			boolean wasScheduled = cancelSchedule();</span>
+<span class="fc" id="L115">			schedule();</span>
+<span class="fc" id="L116">			return wasScheduled;</span>
+		}
+	}
+
+	/**
+	 * @return the remaining number of milliseconds before the execution or -1 if
+	 *         there is no scheduled execution.
+	 */
+	public long getMillisecondsToExecution() {
+<span class="nc" id="L125">		long startTime = executionScheduledSince;</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		if (startTime == -1) {</span>
+<span class="nc" id="L127">			return -1;</span>
+		}
+<span class="nc" id="L129">		long elapsedTime = System.currentTimeMillis() - startTime;</span>
+<span class="nc" id="L130">		return getExecutionDelayMilliseconds() - elapsedTime;</span>
+	}
+
+	/**
+	 * @return whether there are any ongoing or scheduled execution.
+	 */
+	public boolean isActive() {
+<span class="fc bfc" id="L137" title="All 2 branches covered.">		return activeWorkerCount.get() &gt; 0;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

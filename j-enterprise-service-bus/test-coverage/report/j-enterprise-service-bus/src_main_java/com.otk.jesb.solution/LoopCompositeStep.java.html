@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>LoopCompositeStep.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.solution</a> &gt; <span class="el_source">LoopCompositeStep.java</span></div><h1>LoopCompositeStep.java</h1><pre class="source lang-java linenums"><span class="fc" id="L1">package com.otk.jesb.solution;</span>
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import com.otk.jesb.Function;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public class LoopCompositeStep extends CompositeStep&lt;LoopCompositeStep.LoopOperation&gt; {
+
+	public LoopCompositeStep() {
+<span class="fc" id="L34">		super(new LoopOperation.Builder());</span>
+<span class="fc" id="L35">	}</span>
+
+	@Override
+	public LoopOperation.Builder getOperationBuilder() {
+<span class="fc" id="L39">		return (LoopOperation.Builder) super.getOperationBuilder();</span>
+	}
+
+	@Override
+	public void setOperationBuilder(OperationBuilder&lt;?&gt; operationBuilder) {
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">		if (!(operationBuilder instanceof LoopOperation.Builder)) {</span>
+<span class="nc" id="L45">			throw new UnexpectedError();</span>
+		}
+<span class="fc" id="L47">		super.setOperationBuilder(operationBuilder);</span>
+<span class="fc" id="L48">	}</span>
+
+	@Override
+	public List&lt;VariableDeclaration&gt; getContextualVariableDeclarations() {
+<span class="fc" id="L52">		List&lt;VariableDeclaration&gt; result = new ArrayList&lt;VariableDeclaration&gt;();</span>
+<span class="fc" id="L53">		result.add(new VariableDeclaration() {</span>
+
+			@Override
+			public String getVariableName() {
+<span class="fc" id="L57">				return getOperationBuilder().getIterationIndexVariableName();</span>
+			}
+
+			@Override
+			public Class&lt;?&gt; getVariableType() {
+<span class="fc" id="L62">				return int.class;</span>
+			}
+
+		});
+<span class="fc" id="L66">		return result;</span>
+	}
+
+	public List&lt;VariableDeclaration&gt; getLoopEndConditionVariableDeclarations(Plan plan) {
+<span class="fc" id="L70">		List&lt;VariableDeclaration&gt; loopEndConditionVariableDeclarations = new ArrayList&lt;VariableDeclaration&gt;(</span>
+<span class="fc" id="L71">				plan.getValidationContext(this).getVariableDeclarations());</span>
+<span class="fc" id="L72">		loopEndConditionVariableDeclarations.addAll(((LoopCompositeStep) this).getContextualVariableDeclarations());</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">		for (Step descendantStep : ((LoopCompositeStep) this).getDescendantResultProducingSteps(plan)) {</span>
+<span class="fc" id="L74">			loopEndConditionVariableDeclarations.add(new StepEventuality(descendantStep, plan));</span>
+		}
+<span class="fc" id="L76">		return loopEndConditionVariableDeclarations;</span>
+	}
+
+	private List&lt;Step&gt; getDescendantResultProducingSteps(Plan currentPlan) {
+<span class="fc" id="L80">		List&lt;Step&gt; result = new ArrayList&lt;Step&gt;();</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">		for (Step descendantStep : MiscUtils.getDescendants(this, currentPlan)) {</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">			if (descendantStep.getOperationBuilder().getOperationResultClass(currentPlan, descendantStep) != null) {</span>
+<span class="fc" id="L83">				result.add(descendantStep);</span>
+			}
+		}
+<span class="fc" id="L86">		return result;</span>
+	}
+
+	public static class LoopOperation implements Operation {
+
+		private ExecutionContext context;
+		private ExecutionInspector executionInspector;
+		private Function loopEndCondition;
+		private String iterationIndexVariableName;
+<span class="fc" id="L95">		private int currentIndex = -1;</span>
+
+<span class="fc" id="L97">		public LoopOperation(ExecutionContext context, ExecutionInspector executionInspector, Function loopEndCondition,</span>
+				String iterationIndexVariableName) {
+<span class="fc" id="L99">			this.context = context;</span>
+<span class="fc" id="L100">			this.executionInspector = executionInspector;</span>
+<span class="fc" id="L101">			this.loopEndCondition = loopEndCondition;</span>
+<span class="fc" id="L102">			this.iterationIndexVariableName = iterationIndexVariableName;</span>
+<span class="fc" id="L103">		}</span>
+
+		public int getCurrentIndex() {
+<span class="nc" id="L106">			return currentIndex;</span>
+		}
+
+		@SuppressWarnings(&quot;unchecked&quot;)
+		@Override
+		public Object execute() throws Exception {
+<span class="fc" id="L112">			LoopCompositeStep loopCompositeStep = (LoopCompositeStep) context.getCurrentStep();</span>
+<span class="fc" id="L113">			List&lt;Step&gt; insideLoopSteps = loopCompositeStep.getChildren(context.getPlan());</span>
+<span class="fc" id="L114">			currentIndex = 0;</span>
+<span class="fc" id="L115">			Class&lt;?&gt; resultClass = loopCompositeStep.getOperationBuilder().getOperationResultClass(context.getPlan(),</span>
+<span class="fc" id="L116">					loopCompositeStep);</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">			List&lt;Object&gt;[] resultLists = (resultClass != null) ? IntStream</span>
+<span class="fc" id="L118">					.range(0, resultClass.getDeclaredFields().length).mapToObj(ArrayList::new).toArray(List[]::new)</span>
+<span class="nc" id="L119">					: null;</span>
+<span class="fc" id="L120">			Variable iterationIndexVariable = new Variable() {</span>
+
+				@Override
+				public String getName() {
+<span class="fc" id="L124">					return iterationIndexVariableName;</span>
+				}
+
+				@Override
+				public Object getValue() {
+<span class="fc" id="L129">					return currentIndex;</span>
+				}
+			};
+<span class="fc" id="L132">			List&lt;Variable&gt; initialVariables = new ArrayList&lt;Variable&gt;(context.getVariables());</span>
+			try {
+<span class="fc" id="L134">				context.getVariables().add(iterationIndexVariable);</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">				for (Step descendantStep : ((LoopCompositeStep) context.getCurrentStep())</span>
+<span class="fc" id="L136">						.getDescendantResultProducingSteps(context.getPlan())) {</span>
+<span class="fc" id="L137">					context.getVariables().add(new StepSkipping(descendantStep, context.getPlan()));</span>
+				}
+<span class="fc" id="L139">				List&lt;VariableDeclaration&gt; loopEndConditionVariableDeclarations = ((LoopCompositeStep) context</span>
+<span class="fc" id="L140">						.getCurrentStep()).getLoopEndConditionVariableDeclarations(context.getPlan());</span>
+<span class="fc" id="L141">				while (true) {</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">					if (executionInspector.isExecutionInterrupted()) {</span>
+<span class="nc" id="L143">						break;</span>
+					}
+<span class="fc" id="L145">					MiscUtils.checkVariables(loopEndConditionVariableDeclarations, context.getVariables());</span>
+<span class="fc" id="L146">					if ((Boolean) loopEndCondition</span>
+<span class="fc" id="L147">							.getCompiledVersion(null, loopEndConditionVariableDeclarations, boolean.class)</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">							.call(context.getVariables())) {</span>
+<span class="fc" id="L149">						break;</span>
+					}
+<span class="fc" id="L151">					context.getVariables().clear();</span>
+<span class="fc" id="L152">					context.getVariables().addAll(initialVariables);</span>
+<span class="fc" id="L153">					context.getVariables().add(iterationIndexVariable);</span>
+					try {
+<span class="fc" id="L155">						context.getPlan().execute(insideLoopSteps, context, executionInspector);</span>
+<span class="pc" id="L156">					} catch (Exception e) {</span>
+<span class="nc" id="L157">						throw e;</span>
+<span class="nc" id="L158">					} catch (Throwable t) {</span>
+<span class="nc" id="L159">						throw new PotentialError(t);</span>
+					}
+<span class="fc" id="L161">					context.setCutrrentStep(loopCompositeStep);</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">					if (resultLists != null) {</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">						for (Variable variable : context.getVariables()) {</span>
+<span class="fc" id="L164">							int resultFieldIndex = IntStream.range(0, resultClass.getDeclaredFields().length).filter(</span>
+<span class="fc" id="L165">									i -&gt; variable.getName().equals(resultClass.getDeclaredFields()[i].getName()))</span>
+<span class="fc" id="L166">									.findFirst().orElse(-1);</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">							if (resultFieldIndex != -1) {</span>
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">								if (variable.getValue() != null) {</span>
+<span class="fc" id="L169">									List&lt;Object&gt; resultList = resultLists[resultFieldIndex];</span>
+<span class="fc" id="L170">									resultList.add(variable.getValue());</span>
+								}
+							}
+						}
+					}
+<span class="fc" id="L175">					currentIndex++;</span>
+				}
+			} finally {
+<span class="fc" id="L178">				context.getVariables().clear();</span>
+<span class="fc" id="L179">				context.getVariables().addAll(initialVariables);</span>
+			}
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">			if (resultLists != null) {</span>
+<span class="fc" id="L182">				Object[] resultConstructorArguments = IntStream.range(0, resultLists.length).mapToObj(i -&gt; {</span>
+<span class="fc" id="L183">					List&lt;Object&gt; resultList = resultLists[i];</span>
+<span class="fc" id="L184">					Object resultArray = Array.newInstance(</span>
+<span class="fc" id="L185">							resultClass.getDeclaredFields()[i].getType().getComponentType(), resultList.size());</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">					for (int resultArrayIndex = 0; resultArrayIndex &lt; resultList.size(); resultArrayIndex++) {</span>
+<span class="fc" id="L187">						Object object = resultList.get(resultArrayIndex);</span>
+<span class="fc" id="L188">						Array.set(resultArray, resultArrayIndex, object);</span>
+					}
+<span class="fc" id="L190">					return resultArray;</span>
+<span class="fc" id="L191">				}).toArray();</span>
+<span class="fc" id="L192">				return resultClass.getConstructors()[0].newInstance(resultConstructorArguments);</span>
+			} else {
+<span class="nc" id="L194">				return null;</span>
+			}
+		}
+
+<span class="fc" id="L198">		public static class Builder implements OperationBuilder&lt;LoopOperation&gt; {</span>
+
+<span class="fc" id="L200">			private String iterationIndexVariableName = &quot;iterationIndex&quot;;</span>
+<span class="fc" id="L201">			private Function loopEndCondition = new Function(&quot;return &quot; + iterationIndexVariableName + &quot;==3;&quot;);</span>
+<span class="fc" id="L202">			private Set&lt;String&gt; resultsCollectionTargetedStepNames = new HashSet&lt;String&gt;();</span>
+<span class="fc" id="L203">			private UpToDate&lt;Class&lt;?&gt;&gt; upToDateResultClass = new UpToDateResultClass();</span>
+
+			public String getIterationIndexVariableName() {
+<span class="fc" id="L206">				return iterationIndexVariableName;</span>
+			}
+
+			public void setIterationIndexVariableName(String iterationIndexVariableName) {
+<span class="fc" id="L210">				this.iterationIndexVariableName = iterationIndexVariableName;</span>
+<span class="fc" id="L211">			}</span>
+
+			public Function getLoopEndCondition() {
+<span class="nc" id="L214">				return loopEndCondition;</span>
+			}
+
+			public void setLoopEndCondition(Function loopEndCondition) {
+<span class="fc" id="L218">				this.loopEndCondition = loopEndCondition;</span>
+<span class="fc" id="L219">			}</span>
+
+			public Set&lt;String&gt; getResultsCollectionTargetedStepNames() {
+<span class="nc" id="L222">				return resultsCollectionTargetedStepNames;</span>
+			}
+
+			public void setResultsCollectionTargetedStepNames(Set&lt;String&gt; resultsCollectionTargetedStepNames) {
+<span class="fc" id="L226">				this.resultsCollectionTargetedStepNames = resultsCollectionTargetedStepNames;</span>
+<span class="fc" id="L227">			}</span>
+
+			public List&lt;ResultsCollectionConfigurationEntry&gt; retrieveResultsCollectionConfigurationEntries(
+					Plan currentPlan, Step currentStep) {
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">				if (resultsCollectionTargetedStepNames == null) {</span>
+<span class="nc" id="L232">					return null;</span>
+				} else {
+<span class="fc" id="L234">					List&lt;ResultsCollectionConfigurationEntry&gt; result = new ArrayList&lt;LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry&gt;();</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">					for (Step descendantStep : ((LoopCompositeStep) currentStep)</span>
+<span class="fc" id="L236">							.getDescendantResultProducingSteps(currentPlan)) {</span>
+<span class="fc" id="L237">						result.add(new ResultsCollectionConfigurationEntry(descendantStep, true));</span>
+					}
+<span class="fc" id="L239">					resultsCollectionTargetedStepNames.stream()</span>
+<span class="fc" id="L240">							.filter(targetedStepName -&gt; result.stream()</span>
+<span class="fc" id="L241">									.noneMatch(entry -&gt; entry.getStepName().equals(targetedStepName)))</span>
+<span class="pc" id="L242">							.forEach(notFoundStepName -&gt; result</span>
+<span class="nc" id="L243">									.add(new InvalidResultsCollectionConfigurationEntry(notFoundStepName)));</span>
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">					if (result.size() == 0) {</span>
+<span class="nc" id="L245">						result.add(new InformativeResultsCollectionConfigurationEntry(&quot;No compatible steps found!&quot;));</span>
+					}
+<span class="fc" id="L247">					return result;</span>
+				}
+			}
+
+			public void updateResultsCollectionConfigurationEntries(List&lt;ResultsCollectionConfigurationEntry&gt; entries,
+					Plan currentPlan, Step currentStep) {
+<span class="nc bnc" id="L253" title="All 2 branches missed.">				if (entries == null) {</span>
+<span class="nc" id="L254">					resultsCollectionTargetedStepNames = null;</span>
+<span class="nc" id="L255">				} else {</span>
+<span class="nc" id="L256">					Set&lt;String&gt; tmp = new HashSet&lt;String&gt;();</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">					for (ResultsCollectionConfigurationEntry entry : entries) {</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">						if (entry.isResultsCollectionEnabled()) {</span>
+<span class="nc" id="L259">							tmp.add(entry.getStepName());</span>
+						}
+					}
+<span class="nc" id="L262">					resultsCollectionTargetedStepNames = tmp;</span>
+				}
+<span class="nc" id="L264">			}</span>
+
+			private Class&lt;?&gt; obtainResultClass(Plan currentPlan, Step currentStep) {
+<span class="fc" id="L267">				List&lt;ResultsCollectionConfigurationEntry&gt; resultsCollectionEntries = retrieveResultsCollectionConfigurationEntries(</span>
+<span class="fc" id="L268">						currentPlan, currentStep);</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">				if (resultsCollectionEntries == null) {</span>
+<span class="nc" id="L270">					return null;</span>
+				}
+<span class="fc" id="L272">				String resultClassName = LoopCompositeStep.class.getName() + &quot;Result&quot;</span>
+<span class="fc" id="L273">						+ MiscUtils.toDigitalUniqueIdentifier(LoopOperation.Builder.this);</span>
+<span class="fc" id="L274">				ClassicStructure structure = new ClassicStructure();</span>
+				{
+<span class="fc bfc" id="L276" title="All 2 branches covered.">					for (int i = 0; i &lt; resultsCollectionEntries.size(); i++) {</span>
+<span class="fc" id="L277">						ResultsCollectionConfigurationEntry resultsCollectionEntry = resultsCollectionEntries.get(i);</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">						if (!resultsCollectionEntry.isValid()) {</span>
+<span class="nc" id="L279">							continue;</span>
+						}
+<span class="fc bfc" id="L281" title="All 2 branches covered.">						if (!resultsCollectionEntry.isResultsCollectionEnabled()) {</span>
+<span class="fc" id="L282">							continue;</span>
+						}
+<span class="fc" id="L284">						SimpleElement element = new SimpleElement();</span>
+<span class="fc" id="L285">						structure.getElements().add(element);</span>
+<span class="fc" id="L286">						element.setName(resultsCollectionEntry.getStepName());</span>
+<span class="fc" id="L287">						element.setTypeNameOrAlias(</span>
+<span class="fc" id="L288">								resultsCollectionEntry.getOperationResultClass(currentPlan).getName());</span>
+<span class="fc" id="L289">						element.setMultiple(true);</span>
+					}
+				}
+				try {
+<span class="fc" id="L293">					return MiscUtils.IN_MEMORY_COMPILER.compile(resultClassName,</span>
+<span class="fc" id="L294">							structure.generateJavaTypeSourceCode(resultClassName));</span>
+<span class="nc" id="L295">				} catch (CompilationError e) {</span>
+<span class="nc" id="L296">					throw new PotentialError(e);</span>
+				}
+			}
+
+			@Override
+			public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">				if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(iterationIndexVariableName).matches()) {</span>
+<span class="nc" id="L303">					throw new ValidationError(&quot;Invalid iteration index variable name: '&quot; + iterationIndexVariableName</span>
+<span class="nc" id="L304">							+ &quot;' (should match the following regular expression: &quot;</span>
+<span class="nc" id="L305">							+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + &quot;)&quot;);</span>
+				}
+<span class="fc bfc" id="L307" title="All 2 branches covered.">				for (VariableDeclaration variableDeclaration : plan.getValidationContext(step)</span>
+<span class="fc" id="L308">						.getVariableDeclarations()) {</span>
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">					if (variableDeclaration.getVariableName().equals(iterationIndexVariableName)) {</span>
+<span class="nc" id="L310">						throw new ValidationError(</span>
+<span class="nc" id="L311">								&quot;Iteration index variable name already used: &quot; + iterationIndexVariableName + &quot;'&quot;);</span>
+					}
+				}
+<span class="fc" id="L314">				List&lt;ResultsCollectionConfigurationEntry&gt; resultsCollectionEntries = retrieveResultsCollectionConfigurationEntries(</span>
+<span class="fc" id="L315">						plan, step);</span>
+<span class="pc bpc" id="L316" title="1 of 2 branches missed.">				if (resultsCollectionEntries != null) {</span>
+<span class="fc" id="L317">					List&lt;ResultsCollectionConfigurationEntry&gt; invalidEntries = resultsCollectionEntries.stream()</span>
+<span class="pc bpc" id="L318" title="1 of 2 branches missed.">							.filter(entry -&gt; !entry.isValid()).collect(Collectors.toList());</span>
+<span class="pc bpc" id="L319" title="1 of 2 branches missed.">					if (invalidEntries.size() &gt; 0) {</span>
+<span class="nc" id="L320">						throw new ValidationError(&quot;Invalid results collection step names: &quot; + MiscUtils.stringJoin(</span>
+<span class="nc" id="L321">								invalidEntries.stream().map(entry -&gt; entry.getStepName()).collect(Collectors.toList()),</span>
+<span class="nc" id="L322">								&quot;, &quot;));</span>
+					}
+				}
+				try {
+<span class="fc" id="L326">					loopEndCondition.getCompiledVersion(null,</span>
+<span class="fc" id="L327">							((LoopCompositeStep) step).getLoopEndConditionVariableDeclarations(plan), boolean.class);</span>
+<span class="pc" id="L328">				} catch (CompilationError e) {</span>
+<span class="nc" id="L329">					throw new ValidationError(&quot;Failed to validate the loop end condition&quot;, e);</span>
+				}
+
+<span class="fc" id="L332">			}</span>
+
+			@Override
+			public LoopOperation build(ExecutionContext context, ExecutionInspector executionInspector)
+					throws Exception {
+<span class="fc" id="L337">				return new LoopOperation(context, executionInspector, loopEndCondition, iterationIndexVariableName);</span>
+			}
+
+			@Override
+			public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="fc" id="L342">				upToDateResultClass.setCustomValue(new Pair&lt;Plan, Step&gt;(currentPlan, currentStep));</span>
+				try {
+<span class="fc" id="L344">					return upToDateResultClass.get();</span>
+<span class="nc" id="L345">				} catch (VersionAccessException e) {</span>
+<span class="nc" id="L346">					throw new PotentialError(e);</span>
+				}
+			}
+
+			public class ResultsCollectionConfigurationEntry {
+				private Step targetedStep;
+				private boolean valid;
+
+<span class="fc" id="L354">				public ResultsCollectionConfigurationEntry(Step targetedStep, boolean valid) {</span>
+<span class="fc" id="L355">					this.targetedStep = targetedStep;</span>
+<span class="fc" id="L356">					this.valid = valid;</span>
+<span class="fc" id="L357">				}</span>
+
+				public Step getTargetedStep() {
+<span class="nc" id="L360">					return targetedStep;</span>
+				}
+
+				public String getStepName() {
+<span class="pc bpc" id="L364" title="1 of 2 branches missed.">					if (targetedStep == null) {</span>
+<span class="nc" id="L365">						return null;</span>
+					}
+<span class="fc" id="L367">					return targetedStep.getName();</span>
+				}
+
+				public Class&lt;?&gt; getOperationResultClass(Plan currentPlan) {
+<span class="pc bpc" id="L371" title="1 of 2 branches missed.">					if (targetedStep == null) {</span>
+<span class="nc" id="L372">						return null;</span>
+					}
+<span class="fc" id="L374">					return targetedStep.getOperationBuilder().getOperationResultClass(currentPlan, targetedStep);</span>
+				}
+
+				public boolean isValid() {
+<span class="fc" id="L378">					return valid;</span>
+				}
+
+				public boolean isResultsCollectionEnabled() {
+<span class="fc" id="L382">					return resultsCollectionTargetedStepNames.contains(getStepName());</span>
+				}
+
+				public void setResultsCollectionEnabled(boolean resultsCollectionEnabled) {
+<span class="nc bnc" id="L386" title="All 2 branches missed.">					if (resultsCollectionEnabled) {</span>
+<span class="nc" id="L387">						resultsCollectionTargetedStepNames.add(getStepName());</span>
+<span class="nc" id="L388">					} else {</span>
+<span class="nc" id="L389">						resultsCollectionTargetedStepNames.remove(getStepName());</span>
+					}
+<span class="nc" id="L391">				}</span>
+
+				@Override
+				public int hashCode() {
+<span class="nc" id="L395">					final int prime = 31;</span>
+<span class="nc" id="L396">					int result = 1;</span>
+<span class="nc" id="L397">					result = prime * result + getEnclosingInstance().hashCode();</span>
+<span class="nc bnc" id="L398" title="All 2 branches missed.">					result = prime * result + ((targetedStep == null) ? 0 : targetedStep.hashCode());</span>
+<span class="nc bnc" id="L399" title="All 2 branches missed.">					result = prime * result + (valid ? 1231 : 1237);</span>
+<span class="nc" id="L400">					return result;</span>
+				}
+
+				@Override
+				public boolean equals(Object obj) {
+<span class="nc bnc" id="L405" title="All 2 branches missed.">					if (this == obj)</span>
+<span class="nc" id="L406">						return true;</span>
+<span class="nc bnc" id="L407" title="All 2 branches missed.">					if (obj == null)</span>
+<span class="nc" id="L408">						return false;</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">					if (getClass() != obj.getClass())</span>
+<span class="nc" id="L410">						return false;</span>
+<span class="nc" id="L411">					ResultsCollectionConfigurationEntry other = (ResultsCollectionConfigurationEntry) obj;</span>
+<span class="nc bnc" id="L412" title="All 2 branches missed.">					if (!getEnclosingInstance().equals(other.getEnclosingInstance()))</span>
+<span class="nc" id="L413">						return false;</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">					if (targetedStep == null) {</span>
+<span class="nc bnc" id="L415" title="All 2 branches missed.">						if (other.targetedStep != null)</span>
+<span class="nc" id="L416">							return false;</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">					} else if (!targetedStep.equals(other.targetedStep))</span>
+<span class="nc" id="L418">						return false;</span>
+<span class="nc bnc" id="L419" title="All 2 branches missed.">					if (valid != other.valid)</span>
+<span class="nc" id="L420">						return false;</span>
+<span class="nc" id="L421">					return true;</span>
+				}
+
+				private Builder getEnclosingInstance() {
+<span class="nc" id="L425">					return Builder.this;</span>
+				}
+
+				@Override
+				public String toString() {
+<span class="nc" id="L430">					return &quot;ResultsCollectionConfigurationEntry [targetedStep=&quot; + targetedStep + &quot;, valid=&quot; + valid</span>
+<span class="nc" id="L431">							+ &quot;]&quot;;</span>
+				}
+
+			}
+
+			public class InvalidResultsCollectionConfigurationEntry extends ResultsCollectionConfigurationEntry {
+
+				private String stepName;
+
+<span class="nc" id="L440">				public InvalidResultsCollectionConfigurationEntry(String stepName) {</span>
+<span class="nc" id="L441">					super(null, false);</span>
+<span class="nc" id="L442">					this.stepName = stepName;</span>
+<span class="nc" id="L443">				}</span>
+
+				@Override
+				public String getStepName() {
+<span class="nc" id="L447">					return stepName;</span>
+				}
+
+				@Override
+				public int hashCode() {
+<span class="nc" id="L452">					final int prime = 31;</span>
+<span class="nc" id="L453">					int result = super.hashCode();</span>
+<span class="nc" id="L454">					result = prime * result + getEnclosingInstance().hashCode();</span>
+<span class="nc bnc" id="L455" title="All 2 branches missed.">					result = prime * result + ((stepName == null) ? 0 : stepName.hashCode());</span>
+<span class="nc" id="L456">					return result;</span>
+				}
+
+				@Override
+				public boolean equals(Object obj) {
+<span class="nc bnc" id="L461" title="All 2 branches missed.">					if (this == obj)</span>
+<span class="nc" id="L462">						return true;</span>
+<span class="nc bnc" id="L463" title="All 2 branches missed.">					if (!super.equals(obj))</span>
+<span class="nc" id="L464">						return false;</span>
+<span class="nc bnc" id="L465" title="All 2 branches missed.">					if (getClass() != obj.getClass())</span>
+<span class="nc" id="L466">						return false;</span>
+<span class="nc" id="L467">					InvalidResultsCollectionConfigurationEntry other = (InvalidResultsCollectionConfigurationEntry) obj;</span>
+<span class="nc bnc" id="L468" title="All 2 branches missed.">					if (!getEnclosingInstance().equals(other.getEnclosingInstance()))</span>
+<span class="nc" id="L469">						return false;</span>
+<span class="nc bnc" id="L470" title="All 2 branches missed.">					if (stepName == null) {</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">						if (other.stepName != null)</span>
+<span class="nc" id="L472">							return false;</span>
+<span class="nc bnc" id="L473" title="All 2 branches missed.">					} else if (!stepName.equals(other.stepName))</span>
+<span class="nc" id="L474">						return false;</span>
+<span class="nc" id="L475">					return true;</span>
+				}
+
+				private Builder getEnclosingInstance() {
+<span class="nc" id="L479">					return Builder.this;</span>
+				}
+
+				@Override
+				public String toString() {
+<span class="nc" id="L484">					return &quot;InvalidResultsCollectionConfigurationEntry [stepName=&quot; + stepName + &quot;]&quot;;</span>
+				}
+
+			}
+
+			public class InformativeResultsCollectionConfigurationEntry extends ResultsCollectionConfigurationEntry {
+
+				private String message;
+
+<span class="nc" id="L493">				public InformativeResultsCollectionConfigurationEntry(String message) {</span>
+<span class="nc" id="L494">					super(null, true);</span>
+<span class="nc" id="L495">					this.message = message;</span>
+<span class="nc" id="L496">				}</span>
+
+				@Override
+				public boolean isResultsCollectionEnabled() {
+<span class="nc" id="L500">					return false;</span>
+				}
+
+				@Override
+				public String getStepName() {
+<span class="nc" id="L505">					return message;</span>
+				}
+
+				@Override
+				public int hashCode() {
+<span class="nc" id="L510">					final int prime = 31;</span>
+<span class="nc" id="L511">					int result = super.hashCode();</span>
+<span class="nc" id="L512">					result = prime * result + getEnclosingInstance().hashCode();</span>
+<span class="nc bnc" id="L513" title="All 2 branches missed.">					result = prime * result + ((message == null) ? 0 : message.hashCode());</span>
+<span class="nc" id="L514">					return result;</span>
+				}
+
+				@Override
+				public boolean equals(Object obj) {
+<span class="nc bnc" id="L519" title="All 2 branches missed.">					if (this == obj)</span>
+<span class="nc" id="L520">						return true;</span>
+<span class="nc bnc" id="L521" title="All 2 branches missed.">					if (!super.equals(obj))</span>
+<span class="nc" id="L522">						return false;</span>
+<span class="nc bnc" id="L523" title="All 2 branches missed.">					if (getClass() != obj.getClass())</span>
+<span class="nc" id="L524">						return false;</span>
+<span class="nc" id="L525">					InformativeResultsCollectionConfigurationEntry other = (InformativeResultsCollectionConfigurationEntry) obj;</span>
+<span class="nc bnc" id="L526" title="All 2 branches missed.">					if (!getEnclosingInstance().equals(other.getEnclosingInstance()))</span>
+<span class="nc" id="L527">						return false;</span>
+<span class="nc bnc" id="L528" title="All 2 branches missed.">					if (message == null) {</span>
+<span class="nc bnc" id="L529" title="All 2 branches missed.">						if (other.message != null)</span>
+<span class="nc" id="L530">							return false;</span>
+<span class="nc bnc" id="L531" title="All 2 branches missed.">					} else if (!message.equals(other.message))</span>
+<span class="nc" id="L532">						return false;</span>
+<span class="nc" id="L533">					return true;</span>
+				}
+
+				private Builder getEnclosingInstance() {
+<span class="nc" id="L537">					return Builder.this;</span>
+				}
+
+				@Override
+				public String toString() {
+<span class="nc" id="L542">					return &quot;InformativeResultsCollectionConfigurationEntry [message=&quot; + message + &quot;]&quot;;</span>
+				}
+
+			}
+
+<span class="fc" id="L547">			private class UpToDateResultClass extends UpToDate&lt;Class&lt;?&gt;&gt; {</span>
+
+				@Override
+				protected Object retrieveLastVersionIdentifier() {
+					@SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L552">					Pair&lt;Plan, Step&gt; pair = (Pair&lt;Plan, Step&gt;) getCustomValue();</span>
+<span class="fc" id="L553">					Plan currentPlan = pair.getFirst();</span>
+<span class="fc" id="L554">					Step currentStep = pair.getSecond();</span>
+<span class="fc" id="L555">					List&lt;ResultsCollectionConfigurationEntry&gt; resultsCollectionConfigurationEntries = retrieveResultsCollectionConfigurationEntries(</span>
+<span class="fc" id="L556">							currentPlan, currentStep);</span>
+<span class="fc" id="L557">					return resultsCollectionConfigurationEntries.stream()</span>
+<span class="pc bpc" id="L558" title="1 of 4 branches missed.">							.filter(entry -&gt; entry.isValid() &amp;&amp; entry.isResultsCollectionEnabled())</span>
+<span class="fc" id="L559">							.map(targetedStep -&gt; targetedStep.getOperationResultClass(currentPlan))</span>
+<span class="fc" id="L560">							.collect(Collectors.toList());</span>
+				}
+
+				@Override
+				protected Class&lt;?&gt; obtainLatest(Object versionIdentifier) {
+					@SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L566">					Pair&lt;Plan, Step&gt; pair = (Pair&lt;Plan, Step&gt;) getCustomValue();</span>
+<span class="fc" id="L567">					Plan currentPlan = pair.getFirst();</span>
+<span class="fc" id="L568">					Step currentStep = pair.getSecond();</span>
+<span class="fc" id="L569">					return obtainResultClass(currentPlan, currentStep);</span>
+				}
+
+			}
+
+		}
+
+	}
+
+<span class="fc" id="L578">	public static class Metadata implements CompositeStepMetadata {</span>
+
+		@Override
+		public String getCompositeStepTypeName() {
+<span class="fc" id="L582">			return &quot;Loop&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends CompositeStep&lt;?&gt;&gt; getCompositeStepClass() {
+<span class="fc" id="L587">			return LoopCompositeStep.class;</span>
+		}
+
+		@Override
+		public ResourcePath getCompositeStepIconImagePath() {
+<span class="fc" id="L592">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L593">					.specifyClassPathResourceLocation(LoopCompositeStep.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

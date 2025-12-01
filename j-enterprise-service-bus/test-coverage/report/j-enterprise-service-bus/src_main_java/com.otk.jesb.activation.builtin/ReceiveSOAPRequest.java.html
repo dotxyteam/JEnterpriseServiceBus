@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ReceiveSOAPRequest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.activation.builtin</a> &gt; <span class="el_source">ReceiveSOAPRequest.java</span></div><h1>ReceiveSOAPRequest.java</h1><pre class="source lang-java linenums">package com.otk.jesb.activation.builtin;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import org.apache.cxf.jaxws.EndpointImpl;
+
+import com.otk.jesb.Log;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.Reference;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.activation.ActivationHandler;
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.activation.ActivatorMetadata;
+import com.otk.jesb.resource.builtin.HTTPServer;
+import com.otk.jesb.resource.builtin.HTTPServer.RequestHandler;
+import com.otk.jesb.resource.builtin.WSDL;
+import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor;
+import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor.OperationInput;
+import com.otk.jesb.resource.builtin.WSDL.ServiceSpecificationDescriptor;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionError;
+import com.otk.jesb.util.MiscUtils;
+
+import xy.reflect.ui.info.ResourcePath;
+
+<span class="fc" id="L33">public class ReceiveSOAPRequest extends HTTPRequestReceiver {</span>
+
+<span class="fc" id="L35">	private Reference&lt;WSDL&gt; wsdlReference = new Reference&lt;WSDL&gt;(WSDL.class);</span>
+	private String serviceName;
+	private String operationSignature;
+
+	private ActivationHandler activationHandler;
+
+	@Override
+	protected SOAPRequestHandler createRequestHandler(String servicePath) {
+<span class="nc" id="L43">		return new SOAPRequestHandler(servicePath, wsdlReference);</span>
+	}
+
+	@Override
+	protected boolean isCompatibleWith(RequestHandler requestHandler) {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">		if (!(requestHandler instanceof SOAPRequestHandler)) {</span>
+<span class="fc" id="L49">			return false;</span>
+		}
+<span class="fc" id="L51">		WSDL wsdl = wsdlReference.resolve();</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">		if (wsdl == null) {</span>
+<span class="nc" id="L53">			return false;</span>
+		}
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">		if (((SOAPRequestHandler) requestHandler).getWsdlReference().resolve() != wsdl) {</span>
+<span class="nc" id="L56">			return false;</span>
+		}
+<span class="fc" id="L58">		return true;</span>
+	}
+
+	public Reference&lt;WSDL&gt; getWsdlReference() {
+<span class="nc" id="L62">		return wsdlReference;</span>
+	}
+
+	public void setWsdlReference(Reference&lt;WSDL&gt; wsdlReference) {
+<span class="fc" id="L66">		this.wsdlReference = wsdlReference;</span>
+<span class="fc" id="L67">		tryToSelectValuesAutomatically();</span>
+<span class="fc" id="L68">	}</span>
+
+	public String getServiceName() {
+<span class="nc" id="L71">		return serviceName;</span>
+	}
+
+	public void setServiceName(String serviceName) {
+<span class="fc" id="L75">		this.serviceName = serviceName;</span>
+<span class="fc" id="L76">		tryToSelectValuesAutomatically();</span>
+<span class="fc" id="L77">	}</span>
+
+	public String getOperationSignature() {
+<span class="nc" id="L80">		return operationSignature;</span>
+	}
+
+	public void setOperationSignature(String operationSignature) {
+<span class="fc" id="L84">		this.operationSignature = operationSignature;</span>
+<span class="fc" id="L85">		tryToSelectValuesAutomatically();</span>
+<span class="fc" id="L86">	}</span>
+
+	private void tryToSelectValuesAutomatically() {
+		try {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">			if (serviceName == null) {</span>
+<span class="fc" id="L91">				List&lt;String&gt; options = getServiceNameOptions();</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">				if (options.size() &gt; 0) {</span>
+<span class="nc" id="L93">					serviceName = options.get(0);</span>
+				}
+			}
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">			if (operationSignature == null) {</span>
+<span class="nc" id="L97">				List&lt;String&gt; options = getOperationSignatureOptions();</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">				if (options.size() &gt; 0) {</span>
+<span class="nc" id="L99">					operationSignature = options.get(0);</span>
+				}
+			}
+<span class="nc" id="L102">		} catch (Throwable t) {</span>
+		}
+<span class="fc" id="L104">	}</span>
+
+	public List&lt;String&gt; getServiceNameOptions() {
+		try {
+<span class="nc" id="L108">			WSDL wsdl = expectWSDL();</span>
+<span class="nc" id="L109">			return wsdl.getServiceSpecificationDescriptors().stream().map(s -&gt; s.getServiceName())</span>
+<span class="nc" id="L110">					.collect(Collectors.toList());</span>
+<span class="fc" id="L111">		} catch (IllegalStateException e) {</span>
+<span class="fc" id="L112">			return Collections.emptyList();</span>
+		}
+	}
+
+	public List&lt;String&gt; getOperationSignatureOptions() {
+		try {
+<span class="nc" id="L118">			WSDL.ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor();</span>
+<span class="nc" id="L119">			return service.getOperationDescriptors().stream().map(o -&gt; o.getOperationSignature())</span>
+<span class="nc" id="L120">					.collect(Collectors.toList());</span>
+<span class="nc" id="L121">		} catch (IllegalStateException e) {</span>
+<span class="nc" id="L122">			return Collections.emptyList();</span>
+		}
+	}
+
+	private WSDL expectWSDL() {
+<span class="fc" id="L127">		WSDL result = wsdlReference.resolve();</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L129">			throw new IllegalStateException(&quot;Failed to resolve the WSDL reference&quot;);</span>
+		}
+<span class="fc" id="L131">		return result;</span>
+	}
+
+	private WSDL.ServiceSpecificationDescriptor expectServiceSpecificationDescriptor() {
+<span class="fc" id="L135">		WSDL wsdl = expectWSDL();</span>
+<span class="fc" id="L136">		ServiceSpecificationDescriptor result = wsdl.getServiceSpecificationDescriptor(serviceName);</span>
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L138">			throw new IllegalStateException(&quot;Invalid service name '&quot; + serviceName + &quot;'&quot;);</span>
+		}
+<span class="fc" id="L140">		return result;</span>
+	}
+
+	private WSDL.OperationDescriptor expectOperationDescriptor() {
+<span class="fc" id="L144">		WSDL.ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor();</span>
+<span class="fc" id="L145">		OperationDescriptor result = service.getOperationDescriptor(operationSignature);</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L147">			throw new IllegalStateException(&quot;Invalid operation signature '&quot; + operationSignature + &quot;'&quot;);</span>
+		}
+<span class="fc" id="L149">		return result;</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getInputClass() {
+		WSDL.OperationDescriptor operation;
+		try {
+<span class="fc" id="L156">			operation = expectOperationDescriptor();</span>
+<span class="pc" id="L157">		} catch (IllegalStateException e) {</span>
+<span class="nc" id="L158">			return null;</span>
+		}
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">		if (operation == null) {</span>
+<span class="nc" id="L161">			return null;</span>
+		}
+<span class="fc" id="L163">		return operation.getOperationInputClass();</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getOutputClass() {
+		WSDL.OperationDescriptor operation;
+		try {
+<span class="fc" id="L170">			operation = expectOperationDescriptor();</span>
+<span class="pc" id="L171">		} catch (IllegalStateException e) {</span>
+<span class="nc" id="L172">			return null;</span>
+		}
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">		if (operation == null) {</span>
+<span class="nc" id="L175">			return null;</span>
+		}
+<span class="fc" id="L177">		return operation.getOperationOutputClass();</span>
+	}
+
+	@Override
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+<span class="fc" id="L182">		this.activationHandler = activationHandler;</span>
+<span class="fc" id="L183">		WSDL wsdl = expectWSDL();</span>
+<span class="fc" id="L184">		WSDL.OperationDescriptor operation = expectOperationDescriptor();</span>
+<span class="fc" id="L185">		HTTPServer server = expectServer();</span>
+<span class="fc" id="L186">		RequestHandler requestHandler = server.expectRequestHandler(getServicePath());</span>
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">		if (!(requestHandler instanceof SOAPRequestHandler)) {</span>
+<span class="nc" id="L188">			throw new IllegalStateException(</span>
+<span class="nc" id="L189">					&quot;Cannot register &quot; + operation + &quot; on &quot; + requestHandler + &quot;: SOAP request handler required&quot;);</span>
+		}
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">		if (((SOAPRequestHandler) requestHandler).getWsdlReference().resolve() != wsdl) {</span>
+<span class="nc" id="L192">			throw new IllegalStateException(&quot;Cannot register &quot; + operation + &quot; on &quot; + requestHandler</span>
+<span class="nc" id="L193">					+ &quot;: SOAP request handler based on WSDL '&quot; + wsdlReference.getPath() + &quot;' required&quot;);</span>
+		}
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">		if ((((SOAPRequestHandler) requestHandler).getWsdlReference().resolve() != wsdl)</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">				|| !serviceName.equals(((SOAPRequestHandler) requestHandler).getServiceName())) {</span>
+<span class="nc" id="L197">			throw new IllegalStateException(&quot;Cannot register &quot; + operation + &quot; on &quot; + requestHandler</span>
+<span class="nc" id="L198">					+ &quot;: SOAP request handler based on service '&quot; + serviceName + &quot;' of WSDL '&quot;</span>
+<span class="nc" id="L199">					+ wsdlReference.getPath() + &quot;' required&quot;);</span>
+		}
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">		if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().get(operation) != null) {</span>
+<span class="nc" id="L202">			throw new PotentialError(</span>
+<span class="nc" id="L203">					&quot;Cannot configure &quot; + operation + &quot; of &quot; + requestHandler + &quot;: Operation already configured&quot;);</span>
+		}
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">		if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {</span>
+<span class="fc" id="L206">			requestHandler.activate(server);</span>
+		}
+<span class="fc" id="L208">		((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);</span>
+<span class="fc" id="L209">	}</span>
+
+	@Override
+	public void finalizeAutomaticTrigger() throws Exception {
+<span class="fc" id="L213">		MiscUtils.willRethrowCommonly((compositeException) -&gt; {</span>
+<span class="fc" id="L214">			HTTPServer server = compositeException.tryReturnCactch(() -&gt; expectServer());</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">			RequestHandler requestHandler = (server == null) ? null</span>
+<span class="fc" id="L216">					: compositeException.tryReturnCactch(() -&gt; server.expectRequestHandler(getServicePath()));</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">			if (requestHandler != null) {</span>
+<span class="fc" id="L218">				WSDL.OperationDescriptor operation = compositeException</span>
+<span class="fc" id="L219">						.tryReturnCactch(() -&gt; expectOperationDescriptor());</span>
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">				if (operation != null) {</span>
+<span class="fc" id="L221">					((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);</span>
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">					if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {</span>
+<span class="fc" id="L223">						compositeException.tryCactch(() -&gt; {</span>
+<span class="fc" id="L224">							requestHandler.deactivate(server);</span>
+<span class="fc" id="L225">						});</span>
+					}
+				}
+			}
+<span class="fc" id="L229">			this.activationHandler = null;</span>
+<span class="fc" id="L230">		});</span>
+<span class="fc" id="L231">	}</span>
+
+	@Override
+	public boolean isAutomaticTriggerReady() {
+<span class="fc bfc" id="L235" title="All 2 branches covered.">		return activationHandler != null;</span>
+	}
+
+	@Override
+	public void validate(boolean recursively, Plan plan) throws ValidationError {
+<span class="fc" id="L240">		super.validate(recursively, plan);</span>
+		try {
+<span class="fc" id="L242">			expectOperationDescriptor();</span>
+<span class="pc" id="L243">		} catch (IllegalStateException e) {</span>
+<span class="nc" id="L244">			throw new ValidationError(e.getMessage(), e);</span>
+		}
+<span class="fc" id="L246">	}</span>
+
+	public static class SOAPRequestHandler extends RequestHandler {
+
+<span class="pc" id="L250">		private Reference&lt;WSDL&gt; wsdlReference = new Reference&lt;WSDL&gt;(WSDL.class);</span>
+		private String serviceName;
+
+<span class="pc" id="L253">		private Map&lt;WSDL.OperationDescriptor, ActivationHandler&gt; activationHandlerByOperation = new ConcurrentHashMap&lt;WSDL.OperationDescriptor, ActivationHandler&gt;();</span>
+		private EndpointImpl endpoint;
+
+		public SOAPRequestHandler() {
+<span class="fc" id="L257">			super(null);</span>
+<span class="fc" id="L258">		}</span>
+
+		public SOAPRequestHandler(String servicePath, Reference&lt;WSDL&gt; wsdlReference) {
+<span class="nc" id="L261">			super(servicePath);</span>
+<span class="nc" id="L262">			this.wsdlReference = wsdlReference;</span>
+<span class="nc" id="L263">			List&lt;String&gt; serviceNameOptions = getServiceNameOptions();</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">			if (serviceNameOptions.size() &gt; 0) {</span>
+<span class="nc" id="L265">				serviceName = serviceNameOptions.get(0);</span>
+			}
+<span class="nc" id="L267">		}</span>
+
+		public String getServiceName() {
+<span class="fc" id="L270">			return serviceName;</span>
+		}
+
+		public void setServiceName(String serviceName) {
+<span class="fc" id="L274">			this.serviceName = serviceName;</span>
+<span class="fc" id="L275">		}</span>
+
+		public List&lt;String&gt; getServiceNameOptions() {
+<span class="nc" id="L278">			WSDL wsdl = wsdlReference.resolve();</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">			if (wsdl == null) {</span>
+<span class="nc" id="L280">				return Collections.emptyList();</span>
+			}
+<span class="nc" id="L282">			return wsdl.getServiceSpecificationDescriptors().stream().map(s -&gt; s.getServiceName())</span>
+<span class="nc" id="L283">					.collect(Collectors.toList());</span>
+		}
+
+		public Reference&lt;WSDL&gt; getWsdlReference() {
+<span class="fc" id="L287">			return wsdlReference;</span>
+		}
+
+		public void setWsdlReference(Reference&lt;WSDL&gt; wsdlReference) {
+<span class="fc" id="L291">			this.wsdlReference = wsdlReference;</span>
+<span class="fc" id="L292">		}</span>
+
+		protected Map&lt;WSDL.OperationDescriptor, ActivationHandler&gt; getActivationHandlerByOperation() {
+<span class="fc" id="L295">			return activationHandlerByOperation;</span>
+		}
+
+		private WSDL expectWSDL() {
+<span class="fc" id="L299">			WSDL result = wsdlReference.resolve();</span>
+<span class="pc bpc" id="L300" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L301">				throw new IllegalStateException(&quot;Failed to resolve the WSDL reference&quot;);</span>
+			}
+<span class="fc" id="L303">			return result;</span>
+		}
+
+		private WSDL.ServiceSpecificationDescriptor expectServiceSpecificationDescriptor() {
+<span class="fc" id="L307">			WSDL wsdl = expectWSDL();</span>
+<span class="fc" id="L308">			ServiceSpecificationDescriptor result = wsdl.getServiceSpecificationDescriptor(serviceName);</span>
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L310">				throw new IllegalStateException(&quot;Invalid service name '&quot; + serviceName + &quot;'&quot;);</span>
+			}
+<span class="fc" id="L312">			return result;</span>
+		}
+
+		@Override
+		protected void install(HTTPServer server) throws Exception {
+<span class="pc bpc" id="L317" title="1 of 2 branches missed.">			if (endpoint != null) {</span>
+<span class="nc" id="L318">				throw new UnexpectedError();</span>
+			}
+<span class="fc" id="L320">			WSDL wsdl = expectWSDL();</span>
+<span class="fc" id="L321">			ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor();</span>
+<span class="fc" id="L322">			endpoint = new EndpointImpl(service.getImplementationClass().getConstructor(InvocationHandler.class)</span>
+<span class="fc" id="L323">					.newInstance(new InvocationHandler() {</span>
+						@Override
+						public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+<span class="fc" id="L326">							OperationDescriptor operation = new WSDL.OperationDescriptor(method, wsdl);</span>
+<span class="fc" id="L327">							ActivationHandler registeredActivationHandler = getActivationHandlerByOperation()</span>
+<span class="fc" id="L328">									.get(operation);</span>
+<span class="pc bpc" id="L329" title="1 of 2 branches missed.">							if (registeredActivationHandler == null) {</span>
+<span class="nc" id="L330">								throw new UnsupportedOperationException();</span>
+							}
+<span class="fc" id="L332">							OperationInput operationInput = (OperationInput) operation.getOperationInputClass()</span>
+<span class="fc" id="L333">									.getConstructor(method.getParameterTypes()).newInstance(args);</span>
+							Object operationOutput;
+							try {
+<span class="fc" id="L336">								operationOutput = registeredActivationHandler.trigger(operationInput);</span>
+<span class="fc" id="L337">							} catch (ExecutionError e) {</span>
+<span class="pc bpc" id="L338" title="1 of 2 branches missed.">								if (e.getCause() instanceof WSDL.ResponseException) {</span>
+<span class="fc" id="L339">									throw ((WSDL.ResponseException) e.getCause()).toFaultException(operation, wsdl);</span>
+								} else {
+<span class="nc" id="L341">									throw e;</span>
+								}
+							}
+<span class="fc" id="L344">							Class&lt;?&gt; operationOutputClass = operation.getOperationOutputClass();</span>
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">							if (operationOutputClass == null) {</span>
+<span class="nc" id="L346">								return null;</span>
+							}
+<span class="fc" id="L348">							return operationOutputClass.getFields()[0].get(operationOutput);</span>
+						}
+					}));
+<span class="fc" id="L351">			String servicePath = getServicePathVariant().getValue();</span>
+<span class="fc" id="L352">			endpoint.publish(servicePath);</span>
+<span class="fc" id="L353">			Log.get().information(&quot;Published SOAP service at: &quot; + server.getLocaBaseURL() + servicePath);</span>
+<span class="fc" id="L354">			Log.get().information(&quot;WSDL: &quot; + server.getLocaBaseURL() + servicePath + &quot;?wsdl&quot;);</span>
+<span class="fc" id="L355">		}</span>
+
+		@Override
+		public void uninstall(HTTPServer server) throws Exception {
+<span class="pc bpc" id="L359" title="1 of 2 branches missed.">			if (endpoint == null) {</span>
+<span class="nc" id="L360">				throw new UnexpectedError();</span>
+			}
+<span class="fc" id="L362">			MiscUtils.willRethrowCommonly((compositeException) -&gt; {</span>
+<span class="fc" id="L363">				compositeException.tryCactch(() -&gt; {</span>
+<span class="fc" id="L364">					endpoint.stop();</span>
+<span class="fc" id="L365">				});</span>
+<span class="fc" id="L366">				endpoint = null;</span>
+<span class="fc" id="L367">			});</span>
+<span class="fc" id="L368">			String servicePath = getServicePathVariant().getValue();</span>
+<span class="fc" id="L369">			Log.get().information(&quot;Unublished SOAP service: &quot; + server.getLocaBaseURL() + servicePath);</span>
+<span class="fc" id="L370">		}</span>
+
+		@Override
+		public void validate(HTTPServer server) throws ValidationError {
+<span class="fc" id="L374">			super.validate(server);</span>
+			try {
+<span class="fc" id="L376">				expectServiceSpecificationDescriptor();</span>
+<span class="pc" id="L377">			} catch (IllegalStateException e) {</span>
+<span class="nc" id="L378">				throw new ValidationError(e.getMessage(), e);</span>
+			}
+<span class="fc" id="L380">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L384">			return &quot;SOAPRequestHandler [wsdl=&quot; + wsdlReference.getPath() + &quot;, servicePath=&quot;</span>
+<span class="nc" id="L385">					+ getServicePathVariant().getValue() + &quot;]&quot;;</span>
+		}
+
+	}
+
+<span class="fc" id="L390">	public static class Metadata implements ActivatorMetadata {</span>
+
+		@Override
+		public ResourcePath getActivatorIconImagePath() {
+<span class="fc" id="L394">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L395">					.specifyClassPathResourceLocation(ReceiveSOAPRequest.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+		@Override
+		public Class&lt;? extends Activator&gt; getActivatorClass() {
+<span class="fc" id="L400">			return ReceiveSOAPRequest.class;</span>
+		}
+
+		@Override
+		public String getActivatorName() {
+<span class="fc" id="L405">			return &quot;Receive SOAP Request&quot;;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

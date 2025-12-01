@@ -61,7 +61,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 		if (result) {
 			if (isShowing()) {
 				PlanExecutor planExecutor = getPlanExecutor();
-				if (!planExecutor.isScrollLocked()) {
+				if (!GUI.isPlanExecutorScrollLocked()) {
 					StepCrossing currentStepCrossing = planExecutor.getCurrentStepCrossing();
 					if (currentStepCrossing != null) {
 						SwingUtilities.invokeLater(new Runnable() {

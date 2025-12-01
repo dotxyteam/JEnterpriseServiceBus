@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MutableTypeControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing</a> &gt; <span class="el_source">MutableTypeControl.java</span></div><h1>MutableTypeControl.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.JComponent;
+
+import xy.reflect.ui.control.CustomContext;
+import xy.reflect.ui.control.ErrorOccurrence;
+import xy.reflect.ui.control.IContext;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.builder.AbstractEditorFormBuilder;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.Listener;
+
+/**
+ * Field control that detects and rejects ({@link #refreshUI(boolean)} will
+ * return false) null and other type (different from the input data type)
+ * values. A sub-form is used to display the non-null supported value.
+ * 
+ * Note that this control is used when
+ * {@link IFieldControlData#isNullValueDistinct()} returns false. It prevents
+ * its sub-control from encountering a null value. Such a null value would cause
+ * the current control to be destroyed and replaced by a more suitable one.
+ * 
+ * The {@link #MUTABLE_TYPE_CONTROL_INFO_PROPERTY_KEY} specific property key is
+ * used to prevent the creation of multiple nested mutable controls for the same
+ * control input.
+ * 
+ * @author olitank
+ *
+ */
+public class MutableTypeControl extends NullableControl {
+
+	private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L45">	protected static final String MUTABLE_TYPE_CONTROL_INFO_PROPERTY_KEY = MutableTypeControl.class.getName()</span>
+<span class="fc" id="L46">			+ &quot;.MUTABLE_TYPE_CONTROL_INFO_PROPERTY_KEY&quot;;</span>
+
+	protected Info info;
+
+	public MutableTypeControl(final SwingRenderer swingRenderer, IFieldControlInput input) {
+<span class="fc" id="L51">		super(swingRenderer, input);</span>
+<span class="fc" id="L52">	}</span>
+
+	@Override
+	protected void initialize() {
+<span class="fc" id="L56">		info = new Info();</span>
+<span class="fc" id="L57">		super.initialize();</span>
+<span class="fc" id="L58">	}</span>
+
+	@Override
+	protected AbstractEditorFormBuilder createSubFormBuilder(SwingRenderer swingRenderer, IFieldControlInput input,
+			IContext subContext, Listener&lt;Throwable&gt; commitExceptionHandler) {
+<span class="fc" id="L63">		Info alreadyCreatedMutableTypeControlInfo = (Info) input.getControlData().getSpecificProperties()</span>
+<span class="fc" id="L64">				.get(MUTABLE_TYPE_CONTROL_INFO_PROPERTY_KEY);</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">		if (alreadyCreatedMutableTypeControlInfo != null) {</span>
+<span class="nc" id="L66">			alreadyCreatedMutableTypeControlInfo.setRecreationNeeded(true);</span>
+		}
+<span class="fc" id="L68">		return new SubFormBuilder(swingRenderer, this, input, subContext, commitExceptionHandler) {</span>
+
+			@Override
+			protected Map&lt;String, Object&gt; getEncapsulatedFieldSpecificProperties() {
+<span class="fc" id="L72">				Map&lt;String, Object&gt; result = new HashMap&lt;String, Object&gt;(</span>
+<span class="fc" id="L73">						super.getEncapsulatedFieldSpecificProperties());</span>
+<span class="fc" id="L74">				result.put(MUTABLE_TYPE_CONTROL_INFO_PROPERTY_KEY, info);</span>
+<span class="fc" id="L75">				return result;</span>
+			}
+
+			@Override
+			public Form createEditorForm(boolean realTimeLinkWithParent, boolean exclusiveLinkWithParent) {
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">				if (alreadyCreatedMutableTypeControlInfo != null) {</span>
+<span class="nc" id="L81">					return swingRenderer.createForm(new Object(), IInfoFilter.DEFAULT);</span>
+				} else {
+<span class="fc" id="L83">					return super.createEditorForm(realTimeLinkWithParent, exclusiveLinkWithParent);</span>
+				}
+			}
+
+			@Override
+			protected String getCapsuleTypeName() {
+				/*
+				 * Rename several types for backward compatibility.
+				 */
+<span class="fc" id="L92">				Pattern pattern = Pattern.compile(&quot;FieldContext \\[fieldName=, objectType=&quot;</span>
+						+ &quot;Encapsulation \\[context=FieldContext (.+), subContext=PolymorphicInstance, encapsulatedObjectType=([a-zA-Z0-9_\\.]+)\\]&quot;
+						+ &quot;\\]&quot;);
+<span class="fc" id="L95">				Matcher matcher = pattern.matcher(getContext().getIdentifier());</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">				if (matcher.matches()) {</span>
+<span class="nc" id="L97">					String result = &quot;Encapsulation [context=FieldContext &quot; + matcher.group(1)</span>
+<span class="nc" id="L98">							+ &quot;, subContext=PolymorphicInstance, encapsulatedObjectType=&quot; + data.getType().getName()</span>
+<span class="nc" id="L99">							+ &quot;]&quot;;</span>
+<span class="nc" id="L100">					return result;</span>
+				}
+<span class="fc" id="L102">				return super.getCapsuleTypeName();</span>
+			}
+
+		};
+	}
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+<span class="fc" id="L110">		Object value = ErrorOccurrence.tryCatch(new Accessor&lt;Object&gt;() {</span>
+			@Override
+			public Object get() {
+<span class="fc" id="L113">				return data.getValue();</span>
+			}
+		});
+<span class="fc bfc" id="L116" title="All 2 branches covered.">		if (value == null) {</span>
+<span class="fc" id="L117">			return false;</span>
+		}
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">		if (!(value instanceof ErrorOccurrence)) {</span>
+<span class="fc" id="L120">			ITypeInfo actualValueType = swingRenderer.getReflectionUI()</span>
+<span class="fc" id="L121">					.getTypeInfo(swingRenderer.getReflectionUI().getTypeInfoSource(value));</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">			if (!data.getType().getName().equals(actualValueType.getName())) {</span>
+<span class="fc" id="L123">				return false;</span>
+			}
+		}
+<span class="fc" id="L126">		final boolean[] result = new boolean[1];</span>
+<span class="fc" id="L127">		data.returningValue(value, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L130">				result[0] = MutableTypeControl.super.refreshUI(refreshStructure);</span>
+<span class="fc" id="L131">			}</span>
+		});
+<span class="fc bfc" id="L133" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">			if (data.getCaption().length() == 0) {</span>
+<span class="fc" id="L135">				((JComponent) currentSubControl).setBorder(null);</span>
+			}
+		}
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">		if (info.isRecreationNeeded()) {</span>
+<span class="nc" id="L139">			result[0] = false;</span>
+		}
+<span class="fc" id="L141">		nullStatusControl.setVisible(false);</span>
+<span class="fc" id="L142">		return result[0];</span>
+	}
+
+	@Override
+	protected boolean shouldCaptionBeDisplayedOnNullStatusControl() {
+<span class="fc" id="L147">		return false;</span>
+	}
+
+	@Override
+	protected IContext getSubContext() {
+<span class="fc" id="L152">		return new CustomContext(&quot;MutableInstance&quot;);</span>
+	}
+
+<span class="fc" id="L155">	protected static class Info {</span>
+<span class="fc" id="L156">		protected boolean recreationNeeded = false;</span>
+
+		public boolean isRecreationNeeded() {
+<span class="fc" id="L159">			return recreationNeeded;</span>
+		}
+
+		public void setRecreationNeeded(boolean recreationNeeded) {
+<span class="nc" id="L163">			this.recreationNeeded = recreationNeeded;</span>
+<span class="nc" id="L164">		}</span>
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L168">			final int prime = 31;</span>
+<span class="fc" id="L169">			int result = 1;</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">			result = prime * result + (recreationNeeded ? 1231 : 1237);</span>
+<span class="fc" id="L171">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="fc bfc" id="L176" title="All 2 branches covered.">			if (this == obj)</span>
+<span class="fc" id="L177">				return true;</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L179">				return false;</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L181">				return false;</span>
+<span class="fc" id="L182">			Info other = (Info) obj;</span>
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">			if (recreationNeeded != other.recreationNeeded)</span>
+<span class="nc" id="L184">				return false;</span>
+<span class="fc" id="L185">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L190">			return &quot;MutableTypeControl.Info [recreationNeeded=&quot; + recreationNeeded + &quot;]&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

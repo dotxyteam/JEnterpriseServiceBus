@@ -1,0 +1,657 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ITypeInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type</a> &gt; <span class="el_source">ITypeInfo.java</span></div><h1>ITypeInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.IInfo;
+import xy.reflect.ui.info.ITransaction;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * This interface allows to specify UI-oriented type information of objects.
+ * This information is typically inferred from object classes.
+ * 
+ * @author olitank
+ *
+ */
+public interface ITypeInfo extends IInfo {
+
+	/**
+	 * Dummy instance of this class made for utilitarian purposes.
+	 */
+<span class="fc" id="L35">	public static ITypeInfo NULL_BASIC_TYPE_INFO = new ITypeInfo() {</span>
+
+		@Override
+		public String toString() {
+<span class="fc" id="L39">			return &quot;NULL_BASIC_TYPE_INFO&quot;;</span>
+		}
+
+		@Override
+		public ITypeInfo getParent() {
+<span class="nc" id="L44">			return null;</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L49">			return Collections.emptyMap();</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="nc" id="L54">			return null;</span>
+		}
+
+		@Override
+		public String getName() {
+<span class="nc" id="L59">			return &quot;NULL_BASIC_TYPE_INFO&quot;;</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="nc" id="L64">			return ReflectionUIUtils.identifierToCaption(getName());</span>
+		}
+
+		@Override
+		public void validate(Object object, ValidationSession session) throws Exception {
+<span class="nc" id="L69">		}</span>
+
+		@Override
+		public String toString(Object object) {
+<span class="nc" id="L73">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public boolean supports(Object object) {
+<span class="nc" id="L78">			return true;</span>
+		}
+
+		@Override
+		public void onFormVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L83">		}</span>
+
+		@Override
+		public void onFormCreation(Object object, boolean beforeOrAFter) {
+<span class="fc" id="L87">		}</span>
+
+		@Override
+		public void save(Object object, File outputFile) {
+<span class="nc" id="L91">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public void load(Object object, File inputFile) {
+<span class="nc" id="L96">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public boolean isPrimitive() {
+<span class="fc" id="L101">			return false;</span>
+		}
+
+		@Override
+		public boolean isModificationStackAccessible() {
+<span class="nc" id="L106">			return true;</span>
+		}
+
+		@Override
+		public boolean isImmutable() {
+<span class="nc" id="L111">			return false;</span>
+		}
+
+		@Override
+		public boolean isConcrete() {
+<span class="fc" id="L116">			return false;</span>
+		}
+
+		@Override
+		public ITransaction createTransaction(Object object) {
+<span class="nc" id="L121">			return null;</span>
+		}
+
+		@Override
+		public void onFormRefresh(Object object) {
+<span class="fc" id="L126">		}</span>
+
+		@Override
+		public Runnable getLastFormRefreshStateRestorationJob(Object object) {
+<span class="fc" id="L130">			return null;</span>
+		}
+
+		@Override
+		public ITypeInfoSource getSource() {
+<span class="nc" id="L135">			return ITypeInfoSource.NULL_TYPE_INFO_SOURCE;</span>
+		}
+
+		@Override
+		public List&lt;ITypeInfo&gt; getPolymorphicInstanceSubTypes() {
+<span class="fc" id="L140">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public boolean isPolymorphicInstanceAbstractTypeOptionAllowed() {
+<span class="fc" id="L145">			return false;</span>
+		}
+
+		@Override
+		public MethodsLayout getMethodsLayout() {
+<span class="nc" id="L150">			return MethodsLayout.HORIZONTAL_FLOW;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getMethods() {
+<span class="fc" id="L155">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public MenuModel getMenuModel() {
+<span class="fc" id="L160">			return new MenuModel();</span>
+		}
+
+		@Override
+		public ResourcePath getIconImagePath(Object object) {
+<span class="nc" id="L165">			return null;</span>
+		}
+
+		@Override
+		public int getFormSpacing() {
+<span class="nc" id="L170">			return ITypeInfo.DEFAULT_FORM_SPACING;</span>
+		}
+
+		@Override
+		public int getFormPreferredWidth() {
+<span class="fc" id="L175">			return -1;</span>
+		}
+
+		@Override
+		public int getFormPreferredHeight() {
+<span class="fc" id="L180">			return -1;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormForegroundColor() {
+<span class="fc" id="L185">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorForegroundColor() {
+<span class="fc" id="L190">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorBackgroundColor() {
+<span class="fc" id="L195">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonForegroundColor() {
+<span class="fc" id="L200">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBorderColor() {
+<span class="fc" id="L205">			return null;</span>
+		}
+
+		@Override
+		public ResourcePath getFormButtonBackgroundImagePath() {
+<span class="fc" id="L210">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBackgroundColor() {
+<span class="fc" id="L215">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBorderColor() {
+<span class="fc" id="L220">			return null;</span>
+		}
+
+		@Override
+		public ResourcePath getFormBackgroundImagePath() {
+<span class="fc" id="L225">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBackgroundColor() {
+<span class="fc" id="L230">			return null;</span>
+		}
+
+		@Override
+		public FieldsLayout getFieldsLayout() {
+<span class="fc" id="L235">			return FieldsLayout.VERTICAL_FLOW;</span>
+		}
+
+		@Override
+		public List&lt;IFieldInfo&gt; getFields() {
+<span class="nc" id="L240">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getConstructors() {
+<span class="fc" id="L245">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public CategoriesStyle getCategoriesStyle() {
+<span class="nc" id="L250">			return CategoriesStyle.getDefault(ReflectionUI.getDefault(), this);</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesForegroundColor() {
+<span class="nc" id="L255">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesBackgroundColor() {
+<span class="nc" id="L260">			return null;</span>
+		}
+
+		@Override
+		public Object copy(Object object) {
+<span class="nc" id="L265">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public boolean canPersist() {
+<span class="nc" id="L270">			return false;</span>
+		}
+
+		@Override
+		public boolean canCopy(Object object) {
+<span class="nc" id="L275">			return false;</span>
+		}
+
+		@Override
+		public boolean isValidationRequired() {
+<span class="nc" id="L280">			return false;</span>
+		}
+
+	};
+
+	/**
+	 * Default value returned by {@link #getFormSpacing()}.
+	 */
+<span class="fc" id="L288">	public int DEFAULT_FORM_SPACING = 10;</span>
+
+	/**
+	 * @return the current type parent (enclosing type to which the current type
+	 *         holds implicitly a reference).
+	 */
+	public ITypeInfo getParent();
+
+	/**
+	 * @return true if and only if successful validation is required to authorize
+	 *         the agreement of modifications for objects of this type.
+	 */
+	boolean isValidationRequired();
+
+	/**
+	 * @param object Any object of the current type.
+	 * @return a transaction manager for the given instance.
+	 */
+	ITransaction createTransaction(Object object);
+
+	/**
+	 * @param object Any object of the current type.
+	 * @return a job (may be null) that restores the state of the given object when
+	 *         its form was last refreshed.
+	 */
+	Runnable getLastFormRefreshStateRestorationJob(Object object);
+
+	/**
+	 * @return the source object from which this type information was created.
+	 */
+	ITypeInfoSource getSource();
+
+	/**
+	 * @return true if and only if objects of this type can be persisted via
+	 *         {@link #save(Object, OutputStream)} and
+	 *         {@link #load(Object, InputStream)} methods.
+	 */
+	boolean canPersist();
+
+	/**
+	 * Saves the given object state to the output stream.
+	 * 
+	 * @param object     An object of the current type.
+	 * @param outputFile The output file.
+	 */
+	void save(Object object, File outputFile);
+
+	/**
+	 * Loads the given object state from the input stream.
+	 * 
+	 * @param object    An object of the current type.
+	 * @param inputFile The input file.
+	 */
+	void load(Object object, File inputFile);
+
+	/**
+	 * @return true if and only if objects of the current type should be considered
+	 *         as immutable.
+	 */
+	boolean isImmutable();
+
+	/**
+	 * @return true if and only if objects of the current type are primitive.
+	 */
+	boolean isPrimitive();
+
+	/**
+	 * @return true if and only if the current type is concrete. Otherwise the type
+	 *         is considered as abstract and thus instances cannot be created from
+	 *         it.
+	 */
+	boolean isConcrete();
+
+	/**
+	 * @return the list of constructors of this type.
+	 */
+	List&lt;IMethodInfo&gt; getConstructors();
+
+	/**
+	 * @return the list of fields of this type.
+	 */
+	List&lt;IFieldInfo&gt; getFields();
+
+	/**
+	 * @return the list of methods of this type.
+	 */
+	List&lt;IMethodInfo&gt; getMethods();
+
+	/**
+	 * @param object Any object or null.
+	 * @return whether the current type is compatible with the given object. If null
+	 *         is passed it returns whether fields/parameters/... of the current
+	 *         type support null.
+	 */
+	boolean supports(Object object);
+
+	/**
+	 * @return the list of known types derived from the current one.
+	 */
+	List&lt;ITypeInfo&gt; getPolymorphicInstanceSubTypes();
+
+	/**
+	 * @return in the case where this type is polymorphic, whether abstract types
+	 *         could be used to characterize its instances.
+	 */
+	public boolean isPolymorphicInstanceAbstractTypeOptionAllowed();
+
+	/**
+	 * @param object Any object of the current type (not null).
+	 * @return the textual representation of the given object. This method allows to
+	 *         provide an alternative to the {@link Object#toString()} method of the
+	 *         given object for generated UIs.
+	 */
+	String toString(Object object);
+
+	/**
+	 * Validates the state of the object passed as a parameter. The validation
+	 * should not affect any sub-objects if they have their own validation logic
+	 * implemented in their {@link ITypeInfo#validate(Object, ValidationSession)}
+	 * methods. An exception is thrown if the state of the object is invalid.
+	 * Otherwise, the object is considered valid. Note that this method is executed
+	 * by a specific validation thread, possibly at the same time as the UI thread
+	 * accesses/modifies the object.
+	 * 
+	 * @param object  Any object of the current type.
+	 * @param session The current validation session object.
+	 * @throws Exception If the state of the given object is not valid.
+	 */
+	void validate(Object object, ValidationSession session) throws Exception;
+
+	/**
+	 * @param object Any object of the current type.
+	 * @return true if and only if the given object can be duplicated. Otherwise the
+	 *         {@link #copy(Object)} method should not be called.
+	 */
+	boolean canCopy(Object object);
+
+	/**
+	 * @param object Any object of the current type.
+	 * @return a copy of the given object.
+	 */
+	Object copy(Object object);
+
+	/**
+	 * @return true if and only if the undo/redo/etc features should be made
+	 *         available typically when an object of the current type is the root
+	 *         one displayed in a window.
+	 */
+	boolean isModificationStackAccessible();
+
+	/**
+	 * @param object Any object of the current type or null.
+	 * @return null or the location of an icon image resource that represents
+	 *         specifically the object passed as parameter, or all objects of the
+	 *         current type when null is passed as parameter.
+	 */
+	ResourcePath getIconImagePath(Object object);
+
+	/**
+	 * @return the layout strategy to be used when displaying the fields of objects
+	 *         of the current type (or null if the default layout strategy should be
+	 *         used).
+	 */
+	ITypeInfo.FieldsLayout getFieldsLayout();
+
+	/**
+	 * @return the layout strategy to be used when displaying the methods of objects
+	 *         of the current type (or null if the default layout strategy should be
+	 *         used).
+	 */
+	ITypeInfo.MethodsLayout getMethodsLayout();
+
+	/**
+	 * @return the descriptor of menu bar elements provided for objects of the
+	 *         current type.
+	 */
+	MenuModel getMenuModel();
+
+	/**
+	 * This method is called when a form displaying the given object gets refreshed.
+	 * 
+	 * @param object Any object of the current type.
+	 */
+	void onFormRefresh(Object object);
+
+	/**
+	 * This method is called by the renderer when the visibility of the form
+	 * generated for the given object changes.
+	 * 
+	 * @param object  Any object of the current type.
+	 * @param visible Is true when the form becomes visible, false when it becomes
+	 *                invisible.
+	 */
+	void onFormVisibilityChange(Object object, boolean visible);
+
+	/**
+	 * This method is called twice (before and after) by the renderer when a form
+	 * gets generated for the given object.
+	 * 
+	 * @param object        Any object of the current type.
+	 * @param beforeOrAfter Is true when the form is about to be generated, false
+	 *                      when it has just been generated.
+	 */
+	void onFormCreation(Object object, boolean beforeOrAFter);
+
+	/**
+	 * @return the preferred width (in pixels) of forms generated from this type or
+	 *         -1 if a default width should be used.
+	 */
+	int getFormPreferredWidth();
+
+	/**
+	 * @return the preferred height (in pixels) of forms generated from this type or
+	 *         -1 if a default height should be used.
+	 */
+	int getFormPreferredHeight();
+
+	/**
+	 * @return the space (in pixels) between elements in forms generated from this
+	 *         type.
+	 */
+	int getFormSpacing();
+
+	/**
+	 * @return background color of forms generated from this type or null if the
+	 *         default background color should be used.
+	 */
+	ColorSpecification getFormBackgroundColor();
+
+	/**
+	 * @return text color of forms generated from this type or null if the default
+	 *         text color should be used.
+	 */
+	ColorSpecification getFormForegroundColor();
+
+	/**
+	 * @return border color used by forms generated from this type or null if the
+	 *         default borders should be used.
+	 */
+	ColorSpecification getFormBorderColor();
+
+	/**
+	 * @return the resource location of a background image displayed on forms
+	 *         generated from this type or null if no background image should be
+	 *         used.
+	 */
+	ResourcePath getFormBackgroundImagePath();
+
+	/**
+	 * @return the display style of the member categories control.
+	 */
+	CategoriesStyle getCategoriesStyle();
+
+	/**
+	 * @return the background color of the categories control generated from this
+	 *         type or null if the default background color should be used.
+	 */
+	ColorSpecification getCategoriesBackgroundColor();
+
+	/**
+	 * @return the text color of the categories control generated from this type or
+	 *         null if the default text color should be used.
+	 */
+	ColorSpecification getCategoriesForegroundColor();
+
+	/**
+	 * @return the editable text color of controls generated from this type or null
+	 *         if the default text color should be used.
+	 */
+	ColorSpecification getFormEditorForegroundColor();
+
+	/**
+	 * @return the editable background color of controls generated from this type or
+	 *         null if the default background color should be used.
+	 */
+	ColorSpecification getFormEditorBackgroundColor();
+
+	/**
+	 * @return the background color of the buttons generated from this type or null
+	 *         if the default background color should be used.
+	 */
+	ColorSpecification getFormButtonBackgroundColor();
+
+	/**
+	 * @return the text color of the buttons generated from this type or null if the
+	 *         default text color should be used.
+	 */
+	ColorSpecification getFormButtonForegroundColor();
+
+	/**
+	 * @return the resource path to a background image for the buttons generated
+	 *         from this type or null if no background image should be used.
+	 */
+	ResourcePath getFormButtonBackgroundImagePath();
+
+	/**
+	 * @return the border color of the buttons generated from this type or null if
+	 *         the default border should be used.
+	 */
+	ColorSpecification getFormButtonBorderColor();
+
+	/**
+	 * Fields layout strategy class.
+	 * 
+	 * @author olitank
+	 *
+	 */
+<span class="fc" id="L595">	public enum FieldsLayout {</span>
+<span class="fc" id="L596">		HORIZONTAL_FLOW, VERTICAL_FLOW</span>
+	}
+
+	/**
+	 * Methods layout strategy class.
+	 * 
+	 * @author olitank
+	 *
+	 */
+<span class="fc" id="L605">	public enum MethodsLayout {</span>
+<span class="fc" id="L606">		HORIZONTAL_FLOW, VERTICAL_FLOW</span>
+	}
+
+	/**
+	 * Display style of member categories control, subject to interpretation
+	 * according to the renderer.
+	 * 
+	 * @author olitank
+	 *
+	 */
+<span class="fc" id="L616">	public enum CategoriesStyle {</span>
+<span class="fc" id="L617">		STANDARD, STANDARD_VERTICAL, CLASSIC, CLASSIC_VERTICAL, MODERN, MODERN_VERTICAL;</span>
+
+		public static CategoriesStyle getDefault(ReflectionUI reflectionUI, ITypeInfo type) {
+<span class="nc bnc" id="L620" title="All 2 branches missed.">			if (type.getCategoriesBackgroundColor() != null) {</span>
+<span class="nc" id="L621">				return MODERN;</span>
+			}
+<span class="nc bnc" id="L623" title="All 2 branches missed.">			if (type.getFormBackgroundColor() != null) {</span>
+<span class="nc" id="L624">				return MODERN;</span>
+			}
+<span class="nc bnc" id="L626" title="All 2 branches missed.">			if (type.getFormBackgroundImagePath() != null) {</span>
+<span class="nc" id="L627">				return MODERN;</span>
+			}
+<span class="nc bnc" id="L629" title="All 2 branches missed.">			if (reflectionUI.getApplicationInfo().getMainBackgroundColor() != null) {</span>
+<span class="nc" id="L630">				return MODERN;</span>
+			}
+<span class="nc bnc" id="L632" title="All 2 branches missed.">			if (reflectionUI.getApplicationInfo().getMainBackgroundImagePath() != null) {</span>
+<span class="nc" id="L633">				return MODERN;</span>
+			}
+<span class="nc" id="L635">			return STANDARD;</span>
+		}
+	}
+
+	/**
+	 * Custom object validation routines interface.
+	 * 
+	 * @author olitank
+	 *
+	 */
+	@FunctionalInterface
+	public interface IValidationJob {
+		/**
+		 * Validates the state of the underlying object.
+		 * 
+		 * @param session The current validation session object.
+		 * @throws Exception If the state of the underlying object is not valid.
+		 */
+		void validate(ValidationSession session) throws Exception;
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

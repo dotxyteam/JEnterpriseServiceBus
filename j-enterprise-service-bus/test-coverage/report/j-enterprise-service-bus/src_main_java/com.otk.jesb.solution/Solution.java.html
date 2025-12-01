@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Solution.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.solution</a> &gt; <span class="el_source">Solution.java</span></div><h1>Solution.java</h1><pre class="source lang-java linenums">package com.otk.jesb.solution;
+
+import java.beans.Transient;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.otk.jesb.solution.AssetVisitor;
+import com.otk.jesb.Debugger;
+import com.otk.jesb.EnvironmentSettings;
+import com.otk.jesb.PluginBuilder;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.activation.builtin.WatchFileSystem;
+import com.otk.jesb.operation.builtin.Evaluate;
+import com.otk.jesb.resource.Resource;
+import com.otk.jesb.util.MiscUtils;
+
+/**
+ * This class allows to represent a coherent set of more or less interdependent
+ * processing assets (instances of {@link Plan}, {@link Resource}, ...).
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L39">public class Solution {</span>
+
+<span class="fc" id="L41">	public static Solution INSTANCE = new Singleton();</span>
+
+	private static final String SORTED_NAMES_FILE_NAME = &quot;.sortedNames&quot; + MiscUtils.SERIALIZED_FILE_NAME_SUFFIX;
+<span class="fc" id="L44">	private static final String REQUIRED_JARS_DIRECTORY_NAME = &quot;lib&quot;;</span>
+
+<span class="fc" id="L46">	private Folder rootFolder = new Folder(&quot;rootFolder&quot;);</span>
+<span class="fc" id="L47">	private EnvironmentSettings environmentSettings = new EnvironmentSettings();</span>
+<span class="fc" id="L48">	private com.otk.jesb.operation.Experiment defualtOperationExperiment = new com.otk.jesb.operation.Experiment(</span>
+<span class="fc" id="L49">			new Evaluate.Builder());</span>
+<span class="fc" id="L50">	private com.otk.jesb.activation.Experiment defualtActivationExperiment = new com.otk.jesb.activation.Experiment(</span>
+<span class="fc" id="L51">			new WatchFileSystem());</span>
+<span class="fc" id="L52">	private List&lt;JAR&gt; requiredJARs = new ArrayList&lt;JAR&gt;();</span>
+
+	public List&lt;JAR&gt; getRequiredJARs() {
+<span class="fc" id="L55">		return requiredJARs;</span>
+	}
+
+	public void setRequiredJARs(List&lt;JAR&gt; requiredJARs) {
+<span class="fc" id="L59">		this.requiredJARs = requiredJARs;</span>
+<span class="fc" id="L60">	}</span>
+
+	public EnvironmentSettings getEnvironmentSettings() {
+<span class="fc" id="L63">		return environmentSettings;</span>
+	}
+
+	public void setEnvironmentSettings(EnvironmentSettings environmentSettings) {
+<span class="fc" id="L67">		this.environmentSettings = environmentSettings;</span>
+<span class="fc" id="L68">	}</span>
+
+	public List&lt;Asset&gt; getContents() {
+<span class="fc" id="L71">		return rootFolder.getContents();</span>
+	}
+
+	public void setContents(List&lt;Asset&gt; contents) {
+<span class="fc" id="L75">		rootFolder.setContents(contents);</span>
+<span class="fc" id="L76">	}</span>
+
+	@Transient
+	public com.otk.jesb.operation.Experiment getDefualtOperationExperiment() {
+<span class="nc" id="L80">		return defualtOperationExperiment;</span>
+	}
+
+	public void setDefualtOperationExperiment(com.otk.jesb.operation.Experiment defualtOperationExperiment) {
+<span class="nc" id="L84">		this.defualtOperationExperiment = defualtOperationExperiment;</span>
+<span class="nc" id="L85">	}</span>
+
+	@Transient
+	public com.otk.jesb.activation.Experiment getDefualtActivationExperiment() {
+<span class="nc" id="L89">		return defualtActivationExperiment;</span>
+	}
+
+	public void setDefualtActivationExperiment(com.otk.jesb.activation.Experiment defualtActivationExperiment) {
+<span class="nc" id="L93">		this.defualtActivationExperiment = defualtActivationExperiment;</span>
+<span class="nc" id="L94">	}</span>
+
+	public void visitContents(AssetVisitor assetVisitor) {
+<span class="fc" id="L97">		rootFolder.visitContents(assetVisitor);</span>
+<span class="fc" id="L98">	}</span>
+
+	public void validate() throws ValidationError {
+<span class="fc" id="L101">		environmentSettings.validate();</span>
+<span class="fc" id="L102">		rootFolder.validate(true);</span>
+<span class="fc" id="L103">	}</span>
+
+	public Debugger createDebugger() {
+<span class="fc" id="L106">		return new Debugger(this, false);</span>
+	}
+
+	public void loadFromArchiveFile(File archiveFile) throws IOException {
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">		if (!archiveFile.isFile()) {</span>
+<span class="nc" id="L111">			throw new IllegalArgumentException(&quot;'&quot; + archiveFile + &quot;' is not a valid file&quot;);</span>
+		}
+<span class="fc" id="L113">		URI uri = URI.create(&quot;jar:&quot; + archiveFile.toURI());</span>
+<span class="fc" id="L114">		try (FileSystem zipFs = FileSystems.newFileSystem(uri, Collections.singletonMap(&quot;create&quot;, &quot;false&quot;))) {</span>
+<span class="fc" id="L115">			load(zipFs.getPath(&quot;/&quot;));</span>
+		}
+<span class="fc" id="L117">	}</span>
+
+	public void loadFromDirectory(File directory) throws IOException {
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">		if (!directory.isDirectory()) {</span>
+<span class="nc" id="L121">			throw new IllegalArgumentException(&quot;'&quot; + directory + &quot;' is not a valid directory&quot;);</span>
+		}
+<span class="fc" id="L123">		load(directory.toPath());</span>
+<span class="fc" id="L124">	}</span>
+
+	private void load(Path rootPath) throws IOException {
+<span class="fc" id="L127">		loadRequiredJARs(rootPath);</span>
+<span class="fc" id="L128">		try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(</span>
+<span class="fc" id="L129">				Files.readAllBytes(rootPath.resolve(&quot;.&quot; + environmentSettings.getClass().getSimpleName().toLowerCase()</span>
+<span class="fc" id="L130">						+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX)))) {</span>
+<span class="fc" id="L131">			environmentSettings = (EnvironmentSettings) MiscUtils.deserialize(fileInputStream);</span>
+		}
+<span class="fc" id="L133">		rootFolder = loadFolder(rootPath, rootFolder.getName());</span>
+<span class="fc" id="L134">	}</span>
+
+	private void loadRequiredJARs(Path parentPath) throws IOException {
+<span class="fc" id="L137">		Folder jarFolder = loadFolder(parentPath, REQUIRED_JARS_DIRECTORY_NAME);</span>
+<span class="fc" id="L138">		setRequiredJARs(jarFolder.getContents().stream().map(JAR.class::cast).collect(Collectors.toList()));</span>
+<span class="fc" id="L139">	}</span>
+
+	private Folder loadFolder(Path parentPath, String folderName) throws IOException {
+<span class="fc" id="L142">		Path folderPath = parentPath.resolve(folderName);</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">		if (!Files.isDirectory(folderPath)) {</span>
+<span class="nc" id="L144">			throw new IllegalArgumentException(&quot;'&quot; + folderPath + &quot;' is not a valid directory&quot;);</span>
+		}
+<span class="fc" id="L146">		Folder folder = new Folder(folderName);</span>
+<span class="fc" id="L147">		try (Stream&lt;Path&gt; pathStream = Files.walk(folderPath, 1).skip(1)) {</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">			for (Path path : pathStream.collect(Collectors.toList())) {</span>
+<span class="fc" id="L149">				String name = path.getFileName().toString();</span>
+				{
+<span class="fc bfc" id="L151" title="All 2 branches covered.">					if (name.endsWith(&quot;/&quot;)) {</span>
+<span class="fc" id="L152">						name = name.substring(0, name.length() - 1);</span>
+					}
+				}
+<span class="fc bfc" id="L155" title="All 2 branches covered.">				if (name.equals(SORTED_NAMES_FILE_NAME)) {</span>
+<span class="fc" id="L156">					continue;</span>
+				}
+<span class="fc" id="L158">				folder.getContents().add(loadAsset(folderPath, name));</span>
+			}
+		}
+<span class="fc" id="L161">		try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(</span>
+<span class="fc" id="L162">				Files.readAllBytes(folderPath.resolve(SORTED_NAMES_FILE_NAME)))) {</span>
+			@SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L164">			final List&lt;String&gt; sortedNames = (List&lt;String&gt;) MiscUtils.deserialize(fileInputStream);</span>
+<span class="fc" id="L165">			Collections.sort(folder.getContents(), new Comparator&lt;Asset&gt;() {</span>
+				@Override
+				public int compare(Asset asset1, Asset asset2) {
+<span class="fc" id="L168">					return new Integer(sortedNames.indexOf(asset1.getName()))</span>
+<span class="fc" id="L169">							.compareTo(new Integer(sortedNames.indexOf(asset2.getName())));</span>
+				}
+			});
+		}
+<span class="fc" id="L173">		return folder;</span>
+	}
+
+	private Asset loadAsset(Path parentPath, String name) throws IOException {
+<span class="fc" id="L177">		Path fileOrDirectoryPath = parentPath.resolve(name);</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">		if (Files.isDirectory(fileOrDirectoryPath)) {</span>
+<span class="fc" id="L179">			return loadFolder(parentPath, name);</span>
+		} else {
+<span class="fc" id="L181">			try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(</span>
+<span class="fc" id="L182">					Files.readAllBytes(fileOrDirectoryPath))) {</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">				if (name.endsWith(&quot;.jar&quot;)) {</span>
+<span class="fc" id="L184">					return new JAR(name, MiscUtils.readBinary(fileInputStream));</span>
+				} else {
+<span class="fc" id="L186">					return (Asset) MiscUtils.deserialize(fileInputStream);</span>
+				}
+			}
+		}
+	}
+
+	public void saveToArchiveFile(File archiveFile) throws IOException {
+<span class="nc bnc" id="L193" title="All 2 branches missed.">		if (archiveFile.exists()) {</span>
+<span class="nc" id="L194">			MiscUtils.delete(archiveFile);</span>
+		}
+<span class="nc" id="L196">		URI uri = URI.create(&quot;jar:&quot; + archiveFile.toURI());</span>
+<span class="nc" id="L197">		try (FileSystem zipFs = FileSystems.newFileSystem(uri, Collections.singletonMap(&quot;create&quot;, &quot;true&quot;))) {</span>
+<span class="nc" id="L198">			save(zipFs.getPath(&quot;/&quot;));</span>
+		}
+<span class="nc" id="L200">	}</span>
+
+	public void saveToDirectory(File directory) throws IOException {
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">		if (directory.exists()) {</span>
+<span class="nc" id="L204">			MiscUtils.delete(directory);</span>
+		}
+<span class="fc" id="L206">		MiscUtils.createDirectory(directory);</span>
+<span class="fc" id="L207">		save(directory.toPath());</span>
+<span class="fc" id="L208">	}</span>
+
+	private void save(Path rootPath) throws IOException {
+<span class="fc" id="L211">		saveRequiredJARs(rootPath);</span>
+<span class="fc" id="L212">		try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {</span>
+<span class="fc" id="L213">			MiscUtils.serialize(environmentSettings, fileOutputStream);</span>
+<span class="fc" id="L214">			Files.write(rootPath.resolve(&quot;.&quot; + environmentSettings.getClass().getSimpleName().toLowerCase()</span>
+<span class="fc" id="L215">					+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX), fileOutputStream.toByteArray());</span>
+		}
+<span class="fc" id="L217">		saveFolder(rootPath, rootFolder);</span>
+<span class="fc" id="L218">	}</span>
+
+	private void saveRequiredJARs(Path parentPath) throws IOException {
+<span class="fc" id="L221">		Folder jarFolder = new Folder(REQUIRED_JARS_DIRECTORY_NAME);</span>
+<span class="fc" id="L222">		jarFolder.getContents().addAll(requiredJARs);</span>
+<span class="fc" id="L223">		saveFolder(parentPath, jarFolder);</span>
+<span class="fc" id="L224">	}</span>
+
+	private void saveFolder(Path parentPath, Folder folder) throws IOException {
+<span class="fc" id="L227">		Path folderPath = parentPath.resolve(folder.getName());</span>
+<span class="fc" id="L228">		Files.createDirectories(folderPath);</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">		for (Asset asset : folder.getContents()) {</span>
+<span class="fc" id="L230">			saveAsset(folderPath, asset);</span>
+		}
+<span class="fc" id="L232">		try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {</span>
+<span class="fc" id="L233">			List&lt;String&gt; sortedNames = folder.getContents().stream().map(asset -&gt; asset.getName())</span>
+<span class="fc" id="L234">					.collect(Collectors.toList());</span>
+<span class="fc" id="L235">			MiscUtils.serialize(sortedNames, fileOutputStream);</span>
+<span class="fc" id="L236">			Files.write(folderPath.resolve(SORTED_NAMES_FILE_NAME), fileOutputStream.toByteArray());</span>
+		}
+<span class="fc" id="L238">	}</span>
+
+	private void saveAsset(Path parentPath, Asset asset) throws IOException {
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">		if (asset instanceof Folder) {</span>
+<span class="nc" id="L242">			saveFolder(parentPath, (Folder) asset);</span>
+<span class="nc" id="L243">		} else {</span>
+<span class="fc" id="L244">			Path assetPath = parentPath.resolve(asset.getFileSystemResourceName());</span>
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">			if (Files.exists(assetPath)) {</span>
+<span class="nc" id="L246">				throw new PotentialError(&quot;Duplicate file detected while saving: &quot; + assetPath);</span>
+			}
+<span class="fc" id="L248">			try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">				if (asset.getName().endsWith(&quot;.jar&quot;)) {</span>
+<span class="nc" id="L250">					try (InputStream inputStream = ((JAR) asset).getURL().openStream()) {</span>
+<span class="nc" id="L251">						fileOutputStream.write(MiscUtils.readBinary(inputStream));</span>
+					}
+				} else {
+<span class="fc" id="L254">					MiscUtils.serialize(asset, fileOutputStream);</span>
+				}
+<span class="fc" id="L256">				Files.write(assetPath, fileOutputStream.toByteArray());</span>
+			}
+		}
+<span class="fc" id="L259">	}</span>
+
+	public static class Singleton extends Solution {
+
+<span class="fc" id="L263">		private Singleton() {</span>
+<span class="fc" id="L264">			MiscUtils.configureSolutionDependencies(getRequiredJARs());</span>
+<span class="fc" id="L265">		}</span>
+
+		@Override
+		public void setRequiredJARs(List&lt;JAR&gt; jars) {
+<span class="fc" id="L269">			super.setRequiredJARs(jars);</span>
+<span class="fc" id="L270">			MiscUtils.configureSolutionDependencies(jars);</span>
+<span class="fc" id="L271">		}</span>
+
+		public PluginBuilder accessPluginBuilder() {
+<span class="fc" id="L274">			return PluginBuilder.INSTANCE;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

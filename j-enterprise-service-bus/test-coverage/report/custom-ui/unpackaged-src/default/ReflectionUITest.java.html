@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ReflectionUITest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">custom-ui</a> &gt; <a href="../index.html" class="el_bundle">unpackaged-src</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">ReflectionUITest.java</span></div><h1>ReflectionUITest.java</h1><pre class="source lang-java linenums">
+import java.awt.Color;
+import java.awt.Image;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.Vector;
+
+import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
+
+import xy.reflect.ui.CustomizedUI;
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.custom.InfoCustomizations;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.factory.IInfoProxyFactory;
+import xy.reflect.ui.info.type.factory.InfoCustomizationsFactory;
+import xy.reflect.ui.info.type.factory.InfoProxyFactory;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.SystemProperties;
+
+@SuppressWarnings(&quot;unused&quot;)
+<span class="nc" id="L40">public class ReflectionUITest {</span>
+
+<span class="nc" id="L42">	public static class Test implements Serializable {</span>
+
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L46">		public Color thecolor = Color.BLUE;</span>
+		public Object anyObject;
+		public Object anyObject2;
+		public Object anyObject3;
+<span class="nc" id="L50">		public Exception theException = new Exception();</span>
+<span class="nc" id="L51">		public Exception theException2 = new ClassCastException();</span>
+
+		public String theChoice;
+<span class="nc" id="L54">		public String[] theChoiceOptions = new String[] { &quot;a&quot;, &quot;z&quot;, &quot;e&quot;, &quot;r&quot;, &quot;t&quot;, &quot;y&quot; };</span>
+
+<span class="nc" id="L56">		public enum TheEnum {</span>
+<span class="nc" id="L57">			VALUE1, VALUE2, VALUE3</span>
+		};
+
+<span class="nc" id="L60">		public TheEnum theEnum = TheEnum.VALUE1;</span>
+
+<span class="nc" id="L62">		private String theString = &quot;&lt;b&gt;&lt;u&gt; azerty &lt;/u&gt;&lt;/b&gt;&quot;;</span>
+
+<span class="nc" id="L64">		private int theBoundedInt = 0;</span>
+
+		public Test3 getAThrownError() {
+<span class="nc" id="L67">			throw new RuntimeException();</span>
+		}
+
+		public int getTheBoundedInt() {
+<span class="nc" id="L71">			return theBoundedInt;</span>
+		}
+
+		public void setTheBoundedInt(int theBoundedInt) throws Exception {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">			if (theBoundedInt &gt; 10) {</span>
+<span class="nc" id="L76">				throw new Exception(&quot;Must be &lt; 10&quot;);</span>
+			}
+<span class="nc" id="L78">			this.theBoundedInt = theBoundedInt;</span>
+<span class="nc" id="L79">		}</span>
+
+		public String getTheString() {
+<span class="nc" id="L82">			return theString;</span>
+		}
+
+		public void setTheString(String theString) {
+<span class="nc" id="L86">			this.theString = theString;</span>
+<span class="nc" id="L87">		}</span>
+
+		public double getPI() {
+<span class="nc" id="L90">			return Math.PI;</span>
+		}
+
+		public Image getBannerImage() throws IOException {
+<span class="nc" id="L94">			return ImageIO.read(new File(&quot;website/Business_zonne_b.jpg&quot;));</span>
+		}
+
+		public String getExceptionneableInfo() throws Exception {
+<span class="nc" id="L98">			return &quot;ExceptionneableInfo&quot;;</span>
+		}
+
+<span class="nc" id="L101">		private int theInt = 50;</span>
+
+		public int getTheInt() {
+<span class="nc" id="L104">			return theInt;</span>
+		}
+
+		public void setTheInt(int theInt) {
+			// throw new RuntimeException();
+<span class="nc" id="L109">			this.theInt = theInt;</span>
+<span class="nc" id="L110">		}</span>
+
+<span class="nc" id="L112">		public Image theImage = null;</span>
+<span class="nc" id="L113">		public byte theByte = 1;</span>
+<span class="nc" id="L114">		public Short theShort = 2;</span>
+<span class="nc" id="L115">		public Long theLong = 3l;</span>
+<span class="nc" id="L116">		public float theFloat = 0.5f;</span>
+<span class="nc" id="L117">		public Double theDouble = 0.05;</span>
+		public boolean theBooleanPrimitive;
+		public Boolean theBooleanObject;
+<span class="nc" id="L120">		public File theFile = new File(&quot;tmp&quot;);</span>
+		@SuppressWarnings(&quot;deprecation&quot;)
+<span class="nc" id="L122">		private Date theDate = new Date(2000 - 1900, 01, 01);</span>
+		@SuppressWarnings(&quot;deprecation&quot;)
+<span class="nc" id="L124">		public Date theModifiableDate = new Date(2000 - 1900, 01, 01);</span>
+<span class="nc" id="L125">		char c = 'a';</span>
+<span class="nc" id="L126">		public List&lt;Exception&gt; theExceptionList = new ArrayList&lt;Exception&gt;();</span>
+<span class="nc" id="L127">		public List&lt;String&gt; theStringList = new ArrayList&lt;String&gt;(Arrays.asList(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;));</span>
+<span class="nc" id="L128">		public List&lt;Boolean&gt; theBooleanList = new ArrayList&lt;Boolean&gt;(Arrays.asList(true, false, true, false));</span>
+<span class="nc" id="L129">		public float[] theFloatArray = new float[] { 1.1f, 2.2f, 3.3f, 4.4f, 5.5f };</span>
+<span class="nc" id="L130">		public AbstrcatTestDescendant[] theArrayTreeTable = new AbstrcatTestDescendant[] {</span>
+<span class="nc" id="L131">				new Test2(new ArrayList&lt;ReflectionUITest.AbstrcatTestDescendant&gt;(</span>
+<span class="nc" id="L132">						Arrays.&lt;AbstrcatTestDescendant&gt;asList(new Test3(), new Test4()))),</span>
+<span class="nc" id="L133">				new Test3() };</span>
+		@SuppressWarnings({ &quot;unchecked&quot;, &quot;rawtypes&quot; })
+<span class="nc" id="L135">		public Collection theGenericVector = new Vector(Arrays.asList(new Test2(), new Test2(), new Test3()));</span>
+<span class="nc" id="L136">		public Map&lt;Integer, String&gt; theMap = new HashMap&lt;Integer, String&gt;(new HashMap&lt;Integer, String&gt;() {</span>
+			private static final long serialVersionUID = 1L;
+
+			{
+<span class="nc" id="L140">				put(0, &quot;zero&quot;);</span>
+<span class="nc" id="L141">				put(1, &quot;one&quot;);</span>
+<span class="nc" id="L142">				put(2, &quot;two&quot;);</span>
+
+			}
+		});
+<span class="nc" id="L146">		public Map&lt;FileNotFoundException, ArrayIndexOutOfBoundsException&gt; theExceptionMap = new HashMap&lt;FileNotFoundException, ArrayIndexOutOfBoundsException&gt;();</span>
+<span class="nc" id="L147">		public Map&lt;Integer, Test2&gt; theTest2Map = new HashMap&lt;Integer, Test2&gt;();</span>
+<span class="nc" id="L148">		public List&lt;File&gt; theFileList = Arrays.asList(new File(&quot;tmp&quot;));</span>
+<span class="nc" id="L149">		public Set&lt;Integer&gt; theSet = new HashSet&lt;Integer&gt;(Arrays.asList(1, 2, 3));</span>
+<span class="nc" id="L150">		public Stack&lt;Integer&gt; theStack = new Stack&lt;Integer&gt;();</span>
+<span class="nc" id="L151">		public List&lt;File&gt; theNullList = null;</span>
+<span class="nc" id="L152">		private List&lt;String&gt; implicitListSource = new ArrayList&lt;String&gt;(Arrays.asList(&quot;aze&quot;, &quot;qsd&quot;, &quot;wxc&quot;));</span>
+
+<span class="nc" id="L154">		public Test2 test2 = new Test2();</span>
+<span class="nc" id="L155">		public Test3 test3 = null;</span>
+<span class="nc" id="L156">		public Test4 test4 = new Test4();</span>
+
+<span class="nc" id="L158">		public List&lt;AbstrcatTestDescendant&gt; theTestDescendantList = new ArrayList&lt;AbstrcatTestDescendant&gt;(</span>
+<span class="nc" id="L159">				Arrays.asList(new Test2(), new Test2(), new Test3()));</span>
+		public AbstrcatTestDescendant selectedItemInTestDescendantList;
+
+		public Date getTheDate() {
+<span class="nc" id="L163">			return theDate;</span>
+		}
+
+		public Date getTheDatePlus1Day() {
+<span class="nc" id="L167">			return new Date(theDate.getTime() + 24 * 60 * 60 * 1000);</span>
+		}
+
+		public void resettheStringList() {
+<span class="nc" id="L171">			theStringList.clear();</span>
+<span class="nc" id="L172">		}</span>
+
+		public void incrementTheInt() {
+<span class="nc" id="L175">			theInt++;</span>
+<span class="nc" id="L176">		}</span>
+
+		public void multiplyTheFloat(int factor) {
+<span class="nc" id="L179">			theFloat *= factor;</span>
+<span class="nc" id="L180">		}</span>
+
+		public void multiplyTheInt(int factor) {
+<span class="nc" id="L183">			theInt *= factor;</span>
+<span class="nc" id="L184">		}</span>
+
+		public void doInterruptibleLongTask() {
+			try {
+<span class="nc" id="L188">				Thread.sleep(10000);</span>
+<span class="nc" id="L189">			} catch (InterruptedException e) {</span>
+<span class="nc" id="L190">				e.printStackTrace();</span>
+			}
+<span class="nc" id="L192">		}</span>
+
+		public void doUninterruptibleLongTask() {
+<span class="nc" id="L195">			long startTime = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">			while (((System.currentTimeMillis() - startTime) &lt; 10000)) {</span>
+				try {
+<span class="nc" id="L198">					Thread.sleep(1000);</span>
+<span class="nc" id="L199">				} catch (InterruptedException e) {</span>
+<span class="nc" id="L200">					e.printStackTrace();</span>
+				}
+			}
+<span class="nc" id="L203">		}</span>
+
+		public void verify() throws Exception {
+<span class="nc bnc" id="L206" title="All 2 branches missed.">			if (theChoice == null) {</span>
+<span class="nc" id="L207">				throw new Exception(&quot;The Choice is not made&quot;);</span>
+			}
+<span class="nc" id="L209">		}</span>
+
+		public Object returnNothing() {
+<span class="nc" id="L212">			return null;</span>
+		}
+
+		public Object returnAnyObject() {
+<span class="nc" id="L216">			return anyObject;</span>
+		}
+
+		public void throwException() throws Exception {
+<span class="nc" id="L220">			throw new Exception(MiscUtils.getPrintedStackTrace(new AssertionError()));</span>
+		}
+
+		public void callWithManyParams(int i, String s, Date d, Color c) throws Exception {
+<span class="nc" id="L224">		}</span>
+
+		public Object echo(Object object) {
+<span class="nc" id="L227">			return object;</span>
+		}
+
+<span class="nc" id="L230">		public String fieldToImportAsParameter = &quot;fieldToImportAsParameter value&quot;;</span>
+
+		public String echoFieldImportedAsParameter() {
+<span class="nc" id="L233">			return fieldToImportAsParameter;</span>
+		}
+
+		public String echoParameterExportedAsField(String parameterToExportAsField) {
+<span class="nc" id="L237">			return parameterToExportAsField;</span>
+		}
+
+		public String echoHiddenParameterDefaultValue(String parameterWithDefaultValue) {
+<span class="nc" id="L241">			return parameterWithDefaultValue;</span>
+		}
+
+		public String getImplicitListItem(int i) {
+<span class="nc" id="L245">			return implicitListSource.get(i);</span>
+		}
+
+		public String setImplicitListItem(int i, String item) {
+<span class="nc" id="L249">			return implicitListSource.set(i, item);</span>
+		}
+
+		public String createImplicitListItem() {
+<span class="nc" id="L253">			return new String();</span>
+		}
+
+		public void addImplicitListItem(int i, String item) {
+<span class="nc" id="L257">			implicitListSource.add(i, item);</span>
+<span class="nc" id="L258">		}</span>
+
+		public void removeImplicitListItem(int i) {
+<span class="nc" id="L261">			implicitListSource.remove(i);</span>
+<span class="nc" id="L262">		}</span>
+
+		public int getImplicitListSize() {
+<span class="nc" id="L265">			return implicitListSource.size();</span>
+		}
+	}
+
+<span class="nc" id="L269">	public static abstract class AbstrcatTestDescendant implements Serializable {</span>
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L272">		public enum Day {</span>
+<span class="nc" id="L273">			MONDAY, TUESDAY, WEDNESDAY</span>
+		};
+
+		public Day theDay;
+<span class="nc" id="L277">		public short theShort = 0;</span>
+<span class="nc" id="L278">		public short the2ndShort = 1;</span>
+
+		public void verify() throws Exception {
+<span class="nc bnc" id="L281" title="All 2 branches missed.">			if (theDay == null) {</span>
+<span class="nc" id="L282">				throw new Exception(&quot;The Day is not set&quot;);</span>
+			}
+<span class="nc" id="L284">		}</span>
+	}
+
+	public static class Test2 extends AbstrcatTestDescendant {
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L290">		public List&lt;AbstrcatTestDescendant&gt; theChildrenList = new ArrayList&lt;ReflectionUITest.AbstrcatTestDescendant&gt;();</span>
+
+<span class="nc" id="L292">		public Test2() {</span>
+<span class="nc" id="L293">		}</span>
+
+<span class="nc" id="L295">		public Test2(List&lt;AbstrcatTestDescendant&gt; theChildrenList) {</span>
+<span class="nc" id="L296">			this.theChildrenList = theChildrenList;</span>
+<span class="nc" id="L297">		}</span>
+
+		public void incrementTheShortSlowly() {
+			try {
+<span class="nc" id="L301">				Thread.sleep(5000);</span>
+<span class="nc" id="L302">			} catch (InterruptedException e) {</span>
+<span class="nc" id="L303">				e.printStackTrace();</span>
+			}
+<span class="nc" id="L305">			theShort++;</span>
+<span class="nc" id="L306">		}</span>
+	}
+
+<span class="nc" id="L309">	public static class Test3 extends AbstrcatTestDescendant {</span>
+		private static final long serialVersionUID = 1L;
+
+		public String reference;
+		public String transactionState;
+
+		public List&lt;String&gt; getValidReferences() {
+<span class="nc" id="L316">			return Arrays.asList(&quot;ref1&quot;, &quot;ref2&quot;, &quot;ref3&quot;);</span>
+		}
+
+		public void beginTransaction() {
+<span class="nc" id="L320">			transactionState = &quot;started&quot;;</span>
+<span class="nc" id="L321">		}</span>
+
+		public void commitTransaction() {
+<span class="nc" id="L324">			transactionState = &quot;committed&quot;;</span>
+<span class="nc" id="L325">		}</span>
+
+		public void rollbackTransaction() {
+<span class="nc" id="L328">			transactionState = &quot;rolled back&quot;;</span>
+<span class="nc" id="L329">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L333">			return &quot;Test3 [reference=&quot; + reference + &quot;, transactionState=&quot; + transactionState + &quot;]&quot;;</span>
+		}
+
+	}
+
+<span class="nc" id="L338">	public static class Test4 extends AbstrcatTestDescendant {</span>
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L341">		private int i = 0;</span>
+
+		public void modify1() {
+<span class="nc" id="L344">			i++;</span>
+<span class="nc" id="L345">		}</span>
+
+		public void modify2() {
+<span class="nc" id="L348">			i++;</span>
+<span class="nc" id="L349">		}</span>
+
+		public void modify3() {
+<span class="nc" id="L352">			i++;</span>
+<span class="nc" id="L353">		}</span>
+
+		public void modify4() {
+<span class="nc" id="L356">			i++;</span>
+<span class="nc" id="L357">		}</span>
+
+		public void modify5() {
+<span class="nc" id="L360">			i++;</span>
+<span class="nc" id="L361">		}</span>
+
+		public void modify6() {
+<span class="nc" id="L364">			i++;</span>
+<span class="nc" id="L365">		}</span>
+
+		public void modify7() {
+<span class="nc" id="L368">			i++;</span>
+<span class="nc" id="L369">		}</span>
+
+		public void modify8() {
+<span class="nc" id="L372">			i++;</span>
+<span class="nc" id="L373">		}</span>
+
+		public void modify9() {
+<span class="nc" id="L376">			i++;</span>
+<span class="nc" id="L377">		}</span>
+
+		public void modify10() {
+<span class="nc" id="L380">			i++;</span>
+<span class="nc" id="L381">		}</span>
+
+		public void modify11() {
+<span class="nc" id="L384">			i++;</span>
+<span class="nc" id="L385">		}</span>
+
+		public void modify12() {
+<span class="nc" id="L388">			i++;</span>
+<span class="nc" id="L389">		}</span>
+
+		public void modify13() {
+<span class="nc" id="L392">			i++;</span>
+<span class="nc" id="L393">		}</span>
+
+		public void modify14() {
+<span class="nc" id="L396">			i++;</span>
+<span class="nc" id="L397">		}</span>
+
+		public void modify15() {
+<span class="nc" id="L400">			i++;</span>
+<span class="nc" id="L401">		}</span>
+
+		public void modify16() {
+<span class="nc" id="L404">			i++;</span>
+<span class="nc" id="L405">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L409">			return &quot;value&quot; + Integer.toString(i);</span>
+		}
+
+	}
+
+	public static void main(String[] args) {
+<span class="nc" id="L415">		InfoCustomizations infoCustomizations = new InfoCustomizations();</span>
+<span class="nc" id="L416">		CustomizedUI reflectionUI = new CustomizedUI(infoCustomizations) {</span>
+
+			@Override
+			protected IInfoProxyFactory createBeforeInfoCustomizationsFactory() {
+<span class="nc" id="L420">				return new InfoProxyFactory() {</span>
+
+					@Override
+					protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType,
+							final Object object, InvocationData invocationData) {
+<span class="nc bnc" id="L425" title="All 2 branches missed.">						if (objectType.getName().equals(Test2.class.getName())</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">								&amp;&amp; method.getName().equals(&quot;incrementTheShortSlowly&quot;)) {</span>
+<span class="nc" id="L427">							return new Runnable() {</span>
+								@Override
+								public void run() {
+<span class="nc" id="L430">									((Test2) object).theShort--;</span>
+<span class="nc" id="L431">								}</span>
+							};
+						}
+<span class="nc" id="L434">						return super.getNextInvocationUndoJob(method, objectType, object, invocationData);</span>
+					}
+
+					@Override
+					protected boolean isReadOnly(IMethodInfo method, ITypeInfo objectType) {
+<span class="nc bnc" id="L439" title="All 2 branches missed.">						if (objectType.getName().equals(ReflectionUITest.Test.class.getName())) {</span>
+<span class="nc bnc" id="L440" title="All 2 branches missed.">							if (method.getName().startsWith(&quot;echo&quot;)) {</span>
+<span class="nc" id="L441">								return true;</span>
+							}
+						}
+<span class="nc" id="L444">						return super.isReadOnly(method, objectType);</span>
+					}
+
+				};
+			}
+
+		};
+<span class="nc" id="L451">		SwingCustomizer renderer = new SwingCustomizer(reflectionUI,</span>
+<span class="nc" id="L452">				System.getProperty(&quot;custom-ui.project.directory&quot;, &quot;./&quot;) + &quot;unpackaged-src/default.icu&quot;);</span>
+<span class="nc" id="L453">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L456">				renderer.openObjectFrame(new Test(), null, null);</span>
+<span class="nc" id="L457">			}</span>
+		});
+<span class="nc" id="L459">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

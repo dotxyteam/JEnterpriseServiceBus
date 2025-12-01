@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>StandardMapEntryTypeInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.map</a> &gt; <span class="el_source">StandardMapEntryTypeInfo.java</span></div><h1>StandardMapEntryTypeInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.iterable.map;
+
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.field.GetterFieldInfo;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.method.DefaultConstructorInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.parameter.ParameterInfoProxy;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Type information that should be associated with {@link StandardMapEntry}
+ * instances.
+ * 
+ * @author olitank
+ *
+ */
+public class StandardMapEntryTypeInfo extends DefaultTypeInfo implements IMapEntryTypeInfo {
+
+	protected Class&lt;?&gt; keyJavaType;
+	protected Class&lt;?&gt; valueJavaType;
+
+	protected GetterFieldInfo keyField;
+	protected GetterFieldInfo valueField;
+
+	public StandardMapEntryTypeInfo(ReflectionUI reflectionUI, JavaTypeInfoSource source, Class&lt;?&gt; keyJavaType,
+			Class&lt;?&gt; valueJavaType) {
+<span class="fc" id="L42">		super(reflectionUI, source);</span>
+<span class="fc" id="L43">		this.keyJavaType = keyJavaType;</span>
+<span class="fc" id="L44">		this.valueJavaType = valueJavaType;</span>
+<span class="fc" id="L45">	}</span>
+
+	public Class&lt;?&gt; getKeyJavaType() {
+<span class="nc" id="L48">		return keyJavaType;</span>
+	}
+
+	public Class&lt;?&gt; getValueJavaType() {
+<span class="nc" id="L52">		return valueJavaType;</span>
+	}
+
+	public static boolean isCompatibleWith(Class&lt;?&gt; javaType) {
+<span class="fc" id="L56">		return javaType.equals(StandardMapEntry.class);</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc" id="L61">		return &quot;Entry&quot;;</span>
+	}
+
+	@Override
+	public boolean supports(Object object) {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		if (object == null) {</span>
+<span class="nc" id="L67">			return false;</span>
+		}
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		if (!(object instanceof StandardMapEntry)) {</span>
+<span class="nc" id="L70">			return false;</span>
+		}
+<span class="nc" id="L72">		StandardMapEntry entry = (StandardMapEntry) object;</span>
+<span class="nc" id="L73">		Object key = entry.getKey();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		if (key != null) {</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">			if (keyJavaType != null) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">				if (!keyJavaType.isInstance(key)) {</span>
+<span class="nc" id="L77">					return false;</span>
+				}
+			}
+		}
+<span class="nc" id="L81">		Object value = entry.getValue();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">		if (value != null) {</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">			if (valueJavaType != null) {</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">				if (!valueJavaType.isInstance(value)) {</span>
+<span class="nc" id="L85">					return false;</span>
+				}
+			}
+		}
+<span class="nc" id="L89">		return true;</span>
+	}
+
+	@Override
+	public boolean canCopy(Object object) {
+<span class="nc bnc" id="L94" title="All 2 branches missed.">		return getKeyField().getType().canCopy(getKeyField().getValue(object))</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">				&amp;&amp; getValueField().getType().canCopy(getValueField().getValue(object));</span>
+	}
+
+	@Override
+	public Object copy(Object object) {
+<span class="nc" id="L100">		Object keyCopy = getKeyField().getType().copy(getKeyField().getValue(object));</span>
+<span class="nc" id="L101">		Object valueCopy = getValueField().getType().copy(getValueField().getValue(object));</span>
+<span class="nc" id="L102">		return new StandardMapEntry(keyCopy, valueCopy, new Class[] { keyJavaType, valueJavaType });</span>
+	}
+
+	@Override
+	public GetterFieldInfo getKeyField() {
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		if (keyField == null) {</span>
+			try {
+<span class="nc" id="L109">				keyField = new GetterFieldInfo(reflectionUI,</span>
+<span class="nc" id="L110">						StandardMapEntry.class.getMethod(&quot;getKey&quot;, new Class&lt;?&gt;[0]), StandardMapEntry.class) {</span>
+					@Override
+					public ITypeInfo getType() {
+<span class="nc" id="L113">						SpecificitiesIdentifier specificitiesIdentifier = new SpecificitiesIdentifier(</span>
+<span class="nc" id="L114">								StandardMapEntryTypeInfo.this.getName(), ((IFieldInfo) this).getName());</span>
+<span class="nc" id="L115">						return reflectionUI.getTypeInfo(new JavaTypeInfoSource(</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">								(keyJavaType == null) ? Object.class : keyJavaType, specificitiesIdentifier));</span>
+					}
+
+					@Override
+					public String getName() {
+<span class="nc bnc" id="L121" title="All 2 branches missed.">						return ((keyJavaType == null) ? Object.class : keyJavaType).getName() + &quot;Key&quot;;</span>
+					}
+
+					@Override
+					public String getCaption() {
+<span class="nc" id="L126">						return &quot;Key&quot;;</span>
+					}
+
+				};
+<span class="nc" id="L130">			} catch (SecurityException e) {</span>
+<span class="nc" id="L131">				throw new ReflectionUIError(e);</span>
+<span class="nc" id="L132">			} catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L133">				throw new ReflectionUIError(e);</span>
+			}
+		}
+<span class="nc" id="L136">		return keyField;</span>
+	}
+
+	@Override
+	public GetterFieldInfo getValueField() {
+<span class="nc bnc" id="L141" title="All 2 branches missed.">		if (valueField == null) {</span>
+			try {
+<span class="nc" id="L143">				valueField = new GetterFieldInfo(reflectionUI,</span>
+<span class="nc" id="L144">						StandardMapEntry.class.getMethod(&quot;getValue&quot;, new Class&lt;?&gt;[0]), StandardMapEntry.class) {</span>
+
+					@Override
+					public ITypeInfo getType() {
+<span class="nc" id="L148">						SpecificitiesIdentifier specificitiesIdentifier = new SpecificitiesIdentifier(</span>
+<span class="nc" id="L149">								StandardMapEntryTypeInfo.this.getName(), ((IFieldInfo) this).getName());</span>
+<span class="nc" id="L150">						return reflectionUI.getTypeInfo(new JavaTypeInfoSource(</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">								(valueJavaType == null) ? Object.class : valueJavaType, specificitiesIdentifier));</span>
+					}
+
+					@Override
+					public String getName() {
+<span class="nc bnc" id="L156" title="All 2 branches missed.">						return ((valueJavaType == null) ? Object.class : valueJavaType).getName() + &quot;Value&quot;;</span>
+					}
+
+					@Override
+					public String getCaption() {
+<span class="nc" id="L161">						return &quot;Value&quot;;</span>
+					}
+				};
+<span class="nc" id="L164">			} catch (SecurityException e) {</span>
+<span class="nc" id="L165">				throw new ReflectionUIError(e);</span>
+<span class="nc" id="L166">			} catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L167">				throw new ReflectionUIError(e);</span>
+			}
+		}
+<span class="nc" id="L170">		return valueField;</span>
+	}
+
+	@Override
+	public List&lt;IFieldInfo&gt; getFields() {
+<span class="nc" id="L175">		List&lt;IFieldInfo&gt; result = new ArrayList&lt;IFieldInfo&gt;();</span>
+<span class="nc" id="L176">		result.add(getKeyField());</span>
+<span class="nc" id="L177">		result.add(getValueField());</span>
+<span class="nc" id="L178">		return result;</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getMethods() {
+<span class="nc" id="L183">		return Collections.emptyList();</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getConstructors() {
+<span class="nc" id="L188">		return Arrays.asList(new StandardMapEntryZeroParameterConstructorInfo(), new StandardMapEntryConstructorInfo());</span>
+	}
+
+	protected Constructor&lt;?&gt; getStandardMapEntryJavaFullConstructor() {
+		try {
+<span class="nc" id="L193">			return StandardMapEntry.class.getConstructor(Object.class, Object.class, Class[].class);</span>
+<span class="nc" id="L194">		} catch (Exception e) {</span>
+<span class="nc" id="L195">			throw new ReflectionUIError(e);</span>
+		}
+	}
+
+	protected Constructor&lt;?&gt; getStandardMapEntryJavaMinimalConstructor() {
+		try {
+<span class="nc" id="L201">			return StandardMapEntry.class.getConstructor(Class[].class);</span>
+<span class="nc" id="L202">		} catch (Exception e) {</span>
+<span class="nc" id="L203">			throw new ReflectionUIError(e);</span>
+		}
+	}
+
+	@Override
+	public String toString(Object object) {
+<span class="nc" id="L209">		Object key = getKeyField().getValue(object);</span>
+<span class="nc" id="L210">		Object value = getValueField().getValue(object);</span>
+<span class="nc" id="L211">		return ReflectionUIUtils.toString(reflectionUI, key) + &quot;: &quot; + ReflectionUIUtils.toString(reflectionUI, value);</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L216">		final int prime = 31;</span>
+<span class="fc" id="L217">		int result = super.hashCode();</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">		result = prime * result + ((keyJavaType == null) ? 0 : keyJavaType.hashCode());</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">		result = prime * result + ((valueJavaType == null) ? 0 : valueJavaType.hashCode());</span>
+<span class="fc" id="L220">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L225" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L226">			return true;</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="nc" id="L228">			return false;</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L230">			return false;</span>
+<span class="nc" id="L231">		StandardMapEntryTypeInfo other = (StandardMapEntryTypeInfo) obj;</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">		if (keyJavaType == null) {</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">			if (other.keyJavaType != null)</span>
+<span class="nc" id="L234">				return false;</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">		} else if (!keyJavaType.equals(other.keyJavaType))</span>
+<span class="nc" id="L236">			return false;</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">		if (valueJavaType == null) {</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">			if (other.valueJavaType != null)</span>
+<span class="nc" id="L239">				return false;</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">		} else if (!valueJavaType.equals(other.valueJavaType))</span>
+<span class="nc" id="L241">			return false;</span>
+<span class="nc" id="L242">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L247">		return &quot;StandardMapEntryTypeInfo [keyJavaType=&quot; + keyJavaType + &quot;, valueJavaType=&quot; + valueJavaType + &quot;]&quot;;</span>
+	}
+
+	protected class StandardMapEntryConstructorInfo extends DefaultConstructorInfo {
+
+<span class="nc" id="L252">		public StandardMapEntryConstructorInfo() {</span>
+<span class="nc" id="L253">			super(StandardMapEntryTypeInfo.this.reflectionUI, getStandardMapEntryJavaFullConstructor(),</span>
+<span class="nc" id="L254">					StandardMapEntry.class);</span>
+<span class="nc" id="L255">		}</span>
+
+		@Override
+		public String getSignature() {
+<span class="nc" id="L259">			return ReflectionUIUtils.buildMethodSignature(this);</span>
+		}
+
+		@Override
+		public ITypeInfo getReturnValueType() {
+<span class="nc" id="L264">			return StandardMapEntryTypeInfo.this;</span>
+		}
+
+		@Override
+		public List&lt;IParameterInfo&gt; getParameters() {
+<span class="nc" id="L269">			List&lt;IParameterInfo&gt; result = new ArrayList&lt;IParameterInfo&gt;();</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">			for (IParameterInfo param : super.getParameters()) {</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">				if (param.getPosition() == 2) {</span>
+<span class="nc" id="L272">					continue;</span>
+				}
+<span class="nc" id="L274">				result.add(new ParameterInfoProxy(param) {</span>
+
+					GetterFieldInfo relatedField;
+					{
+<span class="nc bnc" id="L278" title="All 2 branches missed.">						if (getPosition() == 0) {</span>
+<span class="nc" id="L279">							relatedField = getKeyField();</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">						} else if (getPosition() == 1) {</span>
+<span class="nc" id="L281">							relatedField = getValueField();</span>
+<span class="nc" id="L282">						} else {</span>
+<span class="nc" id="L283">							throw new ReflectionUIError();</span>
+						}
+					}
+
+					@Override
+					public String getName() {
+<span class="nc bnc" id="L289" title="All 2 branches missed.">						if (getPosition() == 0) {</span>
+<span class="nc" id="L290">							return &quot;key&quot;;</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">						} else if (getPosition() == 1) {</span>
+<span class="nc" id="L292">							return &quot;value&quot;;</span>
+						} else {
+<span class="nc" id="L294">							throw new ReflectionUIError();</span>
+						}
+					}
+
+					@Override
+					public String getCaption() {
+<span class="nc" id="L300">						return relatedField.getCaption();</span>
+					}
+
+					@Override
+					public ITypeInfo getType() {
+<span class="nc bnc" id="L305" title="All 2 branches missed.">						if (getPosition() == 0) {</span>
+<span class="nc" id="L306">							return reflectionUI.getTypeInfo(</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">									new JavaTypeInfoSource((keyJavaType != null) ? keyJavaType : Object.class, null));</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">						} else if (getPosition() == 1) {</span>
+<span class="nc" id="L309">							return reflectionUI.getTypeInfo(new JavaTypeInfoSource(</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">									(valueJavaType != null) ? valueJavaType : Object.class, null));</span>
+						} else {
+<span class="nc" id="L312">							throw new ReflectionUIError();</span>
+						}
+					}
+
+					@Override
+					public boolean isNullValueDistinct() {
+<span class="nc" id="L318">						return relatedField.isNullValueDistinct();</span>
+					}
+
+					@Override
+					public Object getDefaultValue(Object object) {
+<span class="nc bnc" id="L323" title="All 2 branches missed.">						if (ReflectionUIUtils.canCreateDefaultInstance(getType(), true)) {</span>
+<span class="nc" id="L324">							return ReflectionUIUtils.createDefaultInstance(getType(), true);</span>
+						}
+<span class="nc" id="L326">						return super.getDefaultValue(object);</span>
+					}
+
+				});
+			}
+<span class="nc" id="L331">			return result;</span>
+		}
+
+		@Override
+		public Object invoke(Object ignore, InvocationData invocationData) {
+<span class="nc" id="L336">			invocationData.getProvidedParameterValues().put(2, new Class[] { keyJavaType, valueJavaType });</span>
+<span class="nc" id="L337">			return super.invoke(ignore, invocationData);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L342">			return &quot;StandardMapEntryConstructorInfo [keyJavaType=&quot; + keyJavaType + &quot;, valueJavaType=&quot; + valueJavaType</span>
+<span class="nc" id="L343">					+ &quot;]&quot;;</span>
+		}
+
+	}
+
+	protected class StandardMapEntryZeroParameterConstructorInfo extends DefaultConstructorInfo {
+
+<span class="nc" id="L350">		public StandardMapEntryZeroParameterConstructorInfo() {</span>
+<span class="nc" id="L351">			super(StandardMapEntryTypeInfo.this.reflectionUI, getStandardMapEntryJavaMinimalConstructor(),</span>
+<span class="nc" id="L352">					StandardMapEntry.class);</span>
+<span class="nc" id="L353">		}</span>
+
+		@Override
+		public String getSignature() {
+<span class="nc" id="L357">			return ReflectionUIUtils.buildMethodSignature(this);</span>
+		}
+
+		@Override
+		public ITypeInfo getReturnValueType() {
+<span class="nc" id="L362">			return StandardMapEntryTypeInfo.this;</span>
+		}
+
+		@Override
+		public List&lt;IParameterInfo&gt; getParameters() {
+<span class="nc" id="L367">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public Object invoke(Object ignore, InvocationData invocationData) {
+<span class="nc" id="L372">			invocationData.getProvidedParameterValues().put(0, new Class[] { keyJavaType, valueJavaType });</span>
+<span class="nc" id="L373">			return super.invoke(ignore, invocationData);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L378">			return &quot;StandardMapEntryZeroParameterConstructorInfo [keyJavaType=&quot; + keyJavaType + &quot;, valueJavaType=&quot;</span>
+<span class="nc" id="L379">					+ valueJavaType + &quot;]&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

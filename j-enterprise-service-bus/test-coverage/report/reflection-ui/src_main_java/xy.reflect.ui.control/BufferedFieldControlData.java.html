@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BufferedFieldControlData.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control</a> &gt; <span class="el_source">BufferedFieldControlData.java</span></div><h1>BufferedFieldControlData.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Control data proxy that provides the specified value during the execution of
+ * {@link #returningValue(Object, Runnable)}. When the buffer is empty, the
+ * underlying control data values are returned. Note that
+ * {@link ErrorOccurrence} instances can be put in the buffer so that their
+ * underlying exceptions will be thrown when accessing the data value.
+ * 
+ * @author olitank
+ *
+ */
+public class BufferedFieldControlData extends FieldControlDataProxy {
+
+<span class="fc" id="L21">	protected List&lt;Object&gt; buffer = new ArrayList&lt;Object&gt;();</span>
+
+	public BufferedFieldControlData(IFieldControlData base) {
+<span class="fc" id="L24">		super(base);</span>
+<span class="fc" id="L25">	}</span>
+
+	@Override
+	public Object getValue() {
+<span class="fc bfc" id="L29" title="All 2 branches covered.">		if (buffer.size() &gt; 0) {</span>
+<span class="fc" id="L30">			Object value = buffer.get(buffer.size() - 1);</span>
+<span class="fc" id="L31">			return ErrorOccurrence.rethrow(value);</span>
+		}
+<span class="fc" id="L33">		return super.getValue();</span>
+	}
+
+	@Override
+	public void setValue(Object value) {
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">		if (buffer.size() &gt; 0) {</span>
+<span class="nc" id="L39">			throw new ReflectionUIError(&quot;Cannot update buffered field control data value while the buffer is not empty.&quot;</span>
+<span class="nc" id="L40">					+ &quot;\n&quot; + &quot;Buffered values: &quot; + buffer + &quot;\n&quot; + &quot;Control data: &quot; + this);</span>
+		}
+<span class="fc" id="L42">		super.setValue(value);</span>
+<span class="fc" id="L43">	}</span>
+
+	public void returningValue(Object value, Runnable runnable) {
+<span class="fc" id="L46">		buffer.add(value);</span>
+		try {
+<span class="fc" id="L48">			runnable.run();</span>
+<span class="fc" id="L49">		} finally {</span>
+<span class="fc" id="L50">			buffer.remove(buffer.size() - 1);</span>
+		}
+<span class="fc" id="L52">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

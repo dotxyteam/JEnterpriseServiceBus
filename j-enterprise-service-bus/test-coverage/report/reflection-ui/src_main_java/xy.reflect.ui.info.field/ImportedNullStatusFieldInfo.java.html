@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ImportedNullStatusFieldInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.field</a> &gt; <span class="el_source">ImportedNullStatusFieldInfo.java</span></div><h1>ImportedNullStatusFieldInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.field;
+
+import java.util.Collections;
+import java.util.List;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.method.AbstractConstructorInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.factory.InfoProxyFactory;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Field proxy allowing to make the base field seem nullable. The null status of
+ * the field is actually given by another boolean field.
+ * 
+ * @author olitank
+ *
+ */
+public class ImportedNullStatusFieldInfo extends FieldInfoProxy {
+
+	protected ReflectionUI reflectionUI;
+	protected IFieldInfo nullStatusField;
+	protected ITypeInfo objectType;
+
+	public ImportedNullStatusFieldInfo(ReflectionUI reflectionUI, IFieldInfo base, IFieldInfo nullStatusField,
+			ITypeInfo objectType) {
+<span class="fc" id="L32">		super(base);</span>
+<span class="fc" id="L33">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L34">		this.nullStatusField = nullStatusField;</span>
+<span class="fc" id="L35">		this.objectType = objectType;</span>
+<span class="fc" id="L36">	}</span>
+
+	protected boolean getNullStatus(Object object) {
+<span class="fc" id="L39">		Object nullStatus = nullStatusField.getValue(object);</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">		if (!(nullStatus instanceof Boolean)) {</span>
+<span class="nc" id="L41">			throw new ReflectionUIError(&quot;Invalid null status field value (boolean expected): '&quot; + nullStatus + &quot;'&quot;);</span>
+		}
+<span class="fc" id="L43">		return (Boolean) nullStatus;</span>
+	}
+
+	@Override
+	public boolean isGetOnly() {
+<span class="pc bpc" id="L48" title="2 of 4 branches missed.">		return super.isGetOnly() &amp;&amp; nullStatusField.isGetOnly();</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L53">		return Collections.&lt;IMethodInfo&gt;singletonList(new AbstractConstructorInfo() {</span>
+
+			@Override
+			public Object invoke(Object ignore, InvocationData invocationData) {
+<span class="nc" id="L57">				return ImportedNullStatusFieldInfo.super.getValue(object);</span>
+			}
+
+			@Override
+			public ITypeInfo getReturnValueType() {
+<span class="nc" id="L62">				return ImportedNullStatusFieldInfo.this.getType();</span>
+			}
+
+			@Override
+			public List&lt;IParameterInfo&gt; getParameters() {
+<span class="nc" id="L67">				return Collections.emptyList();</span>
+			}
+		});
+	}
+
+	@Override
+	public ITypeInfo getType() {
+<span class="fc" id="L74">		return new InfoProxyFactory() {</span>
+
+			@Override
+			protected boolean isConcrete(ITypeInfo type) {
+<span class="fc" id="L78">				return true;</span>
+			}
+
+			@Override
+			public String toString() {
+<span class="nc" id="L83">				return &quot;ConcreteTypeMaker [field=&quot; + ImportedNullStatusFieldInfo.this + &quot;]&quot;;</span>
+			}
+
+<span class="fc" id="L86">		}.wrapTypeInfo(super.getType());</span>
+	}
+
+	@Override
+	public Object getValue(Object object) {
+<span class="fc bfc" id="L91" title="All 2 branches covered.">		if (getNullStatus(object)) {</span>
+<span class="fc" id="L92">			return super.getValue(object);</span>
+		} else {
+<span class="fc" id="L94">			return null;</span>
+		}
+	}
+
+	@Override
+	public void setValue(Object object, Object value) {
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">		if (value == null) {</span>
+<span class="nc" id="L101">			nullStatusField.setValue(object, Boolean.FALSE);</span>
+<span class="nc" id="L102">		} else {</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">			if (!getNullStatus(object)) {</span>
+<span class="nc" id="L104">				nullStatusField.setValue(object, Boolean.TRUE);</span>
+<span class="nc" id="L105">			} else {</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">				if (!super.isGetOnly()) {</span>
+<span class="nc" id="L107">					super.setValue(object, value);</span>
+				}
+			}
+		}
+<span class="fc" id="L111">	}</span>
+
+	@Override
+	public Runnable getNextUpdateCustomUndoJob(final Object object, final Object newValue) {
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">		if (newValue == null) {</span>
+<span class="nc" id="L116">			return nullStatusField.getNextUpdateCustomUndoJob(object, Boolean.FALSE);</span>
+		} else {
+<span class="fc" id="L118">			final Runnable nullStatusFieldUndoJob = ReflectionUIUtils.getNextUpdateCustomOrDefaultUndoJob(object,</span>
+<span class="fc" id="L119">					nullStatusField, Boolean.TRUE);</span>
+<span class="fc" id="L120">			final Runnable baseUndoJob = ReflectionUIUtils.getNextUpdateCustomOrDefaultUndoJob(object, base, newValue);</span>
+<span class="fc" id="L121">			return new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="nc bnc" id="L124" title="All 2 branches missed.">					if (!ImportedNullStatusFieldInfo.super.isGetOnly()) {</span>
+<span class="nc" id="L125">						baseUndoJob.run();</span>
+					}
+<span class="nc" id="L127">					nullStatusFieldUndoJob.run();</span>
+<span class="nc" id="L128">				}</span>
+			};
+		}
+	}
+
+	@Override
+	public Runnable getPreviousUpdateCustomRedoJob(final Object object, final Object newValue) {
+<span class="nc bnc" id="L135" title="All 2 branches missed.">		if (newValue == null) {</span>
+<span class="nc" id="L136">			return nullStatusField.getPreviousUpdateCustomRedoJob(object, Boolean.FALSE);</span>
+		} else {
+<span class="nc" id="L138">			final Runnable nullStatusFieldUndoJob = ReflectionUIUtils.getPreviousUpdateCustomOrDefaultRedoJob(object,</span>
+<span class="nc" id="L139">					nullStatusField, Boolean.TRUE);</span>
+<span class="nc" id="L140">			final Runnable baseUndoJob = ReflectionUIUtils.getPreviousUpdateCustomOrDefaultRedoJob(object, base,</span>
+<span class="nc" id="L141">					newValue);</span>
+<span class="nc" id="L142">			return new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="nc bnc" id="L145" title="All 2 branches missed.">					if (!ImportedNullStatusFieldInfo.super.isGetOnly()) {</span>
+<span class="nc" id="L146">						baseUndoJob.run();</span>
+					}
+<span class="nc" id="L148">					nullStatusFieldUndoJob.run();</span>
+<span class="nc" id="L149">				}</span>
+			};
+		}
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L156">		final int prime = 31;</span>
+<span class="nc" id="L157">		int result = super.hashCode();</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		result = prime * result + ((objectType == null) ? 0 : objectType.hashCode());</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">		result = prime * result + ((nullStatusField == null) ? 0 : nullStatusField.hashCode());</span>
+<span class="nc" id="L160">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L165" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L166">			return true;</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="nc" id="L168">			return false;</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L170">			return false;</span>
+<span class="nc" id="L171">		ImportedNullStatusFieldInfo other = (ImportedNullStatusFieldInfo) obj;</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">		if (objectType == null) {</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">			if (other.objectType != null)</span>
+<span class="nc" id="L174">				return false;</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">		} else if (!objectType.equals(other.objectType))</span>
+<span class="nc" id="L176">			return false;</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">		if (nullStatusField == null) {</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">			if (other.nullStatusField != null)</span>
+<span class="nc" id="L179">				return false;</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		} else if (!nullStatusField.equals(other.nullStatusField))</span>
+<span class="nc" id="L181">			return false;</span>
+<span class="nc" id="L182">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L187">		return &quot;ImportedNullStatusFieldInfo [base=&quot; + base + &quot;, nullStatusField=&quot; + nullStatusField + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

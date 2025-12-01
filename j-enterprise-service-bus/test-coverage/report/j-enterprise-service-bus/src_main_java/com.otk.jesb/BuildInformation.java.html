@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BuildInformation.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">BuildInformation.java</span></div><h1>BuildInformation.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+public final class BuildInformation {
+
+<span class="fc" id="L9">	private static final Properties PROPERTIES = new Properties();</span>
+	static {
+<span class="fc" id="L11">		try (InputStream in = BuildInformation.class.getClassLoader().getResourceAsStream(&quot;build.properties&quot;)) {</span>
+<span class="pc bpc" id="L12" title="1 of 2 branches missed.">			if (in != null) {</span>
+<span class="fc" id="L13">				PROPERTIES.load(in);</span>
+<span class="fc" id="L14">			} else {</span>
+<span class="nc" id="L15">				throw new UnexpectedError();</span>
+			}
+<span class="nc" id="L17">		} catch (IOException e) {</span>
+<span class="nc" id="L18">			throw new UnexpectedError();</span>
+		}
+<span class="fc" id="L20">	}</span>
+
+	private BuildInformation() {
+	}
+
+	public static String getArtifactId() {
+<span class="fc" id="L26">		return PROPERTIES.getProperty(&quot;artifactId&quot;);</span>
+	}
+
+	public static String getGroupId() {
+<span class="fc" id="L30">		return PROPERTIES.getProperty(&quot;groupId&quot;);</span>
+	}
+
+	public static String getVersion() {
+<span class="fc" id="L34">		return PROPERTIES.getProperty(&quot;version&quot;);</span>
+	}
+
+	public static String getCompilerSourceVersion() {
+<span class="fc" id="L38">		return PROPERTIES.getProperty(&quot;compiler.sourceVersion&quot;);</span>
+	}
+
+	public static String getCompilerTargetVersion() {
+<span class="fc" id="L42">		return PROPERTIES.getProperty(&quot;compiler.targetVersion&quot;);</span>
+	}
+
+	public static String asString() {
+<span class="nc" id="L46">		return getGroupId() + &quot;:&quot; + getArtifactId() + &quot;:&quot; + getVersion();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

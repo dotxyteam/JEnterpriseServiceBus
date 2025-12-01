@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CompositeClassLoader.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.meta</a> &gt; <span class="el_source">CompositeClassLoader.java</span></div><h1>CompositeClassLoader.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2004, 2005 Joe Walnes.
+ * Copyright (C) 2006, 2007, 2011, 2013, 2018 XStream Committers.
+ * All rights reserved.
+ *
+ * The software in this package is published under the terms of the BSD
+ * style license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ * 
+ * Created on 16. November 2004 by Joe Walnes
+ */
+package com.otk.jesb.meta;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+/**
+ * ClassLoader composed of other classloaders. Each loader will be used to load
+ * the required class or resource until one of them succeeds. The
+ * {@link #firstClassLoader} and the {@link #firstClassLoader} will be used
+ * first and last respectively if provided. &lt;b&gt;Note:&lt;/b&gt; The loaders will always
+ * be called in the REVERSE order in which they were added.
+ *
+ * &lt;p&gt;
+ * The added classloaders are kept with weak references to allow an application
+ * container to reload classes.
+ * &lt;/p&gt;
+ */
+@SuppressWarnings(&quot;all&quot;)
+<span class="fc" id="L43">public class CompositeClassLoader extends ClassLoader {</span>
+
+	private ClassLoader firstClassLoader;
+	private ClassLoader lastClassLoader;
+<span class="fc" id="L47">	private final List&lt;WeakReference&gt; classLoaders = new CopyOnWriteArrayList&lt;WeakReference&gt;();</span>
+<span class="fc" id="L48">	private final ReferenceQueue queue = new ReferenceQueue();</span>
+
+	public ClassLoader getFirstClassLoader() {
+<span class="nc" id="L51">		return firstClassLoader;</span>
+	}
+
+	public void setFirstClassLoader(ClassLoader firstClassLoader) {
+<span class="fc" id="L55">		this.firstClassLoader = firstClassLoader;</span>
+<span class="fc" id="L56">	}</span>
+
+	public ClassLoader getLastClassLoader() {
+<span class="nc" id="L59">		return lastClassLoader;</span>
+	}
+
+	public void setLastClassLoader(ClassLoader lastClassLoader) {
+<span class="nc" id="L63">		this.lastClassLoader = lastClassLoader;</span>
+<span class="nc" id="L64">	}</span>
+
+	public List&lt;ClassLoader&gt; getClassLoaders() {
+<span class="fc" id="L67">		return classLoaders.stream().map(ref -&gt; (ClassLoader) ((WeakReference) ref).get()).collect(Collectors.toList());</span>
+	}
+
+	/**
+	 * Add a loader to this
+	 * 
+	 * @param classLoader A loader
+	 */
+	public synchronized void add(ClassLoader classLoader) {
+<span class="fc" id="L76">		cleanup();</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">		if (classLoader != null) {</span>
+<span class="fc" id="L78">			addInternal(classLoader);</span>
+		}
+<span class="fc" id="L80">	}</span>
+
+	private void addInternal(ClassLoader classLoader) {
+<span class="fc" id="L83">		WeakReference refClassLoader = null;</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">		for (Iterator iterator = classLoaders.iterator(); iterator.hasNext();) {</span>
+<span class="fc" id="L85">			WeakReference ref = (WeakReference) iterator.next();</span>
+<span class="fc" id="L86">			ClassLoader cl = (ClassLoader) ref.get();</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">			if (cl == null) {</span>
+<span class="nc" id="L88">				classLoaders.remove(ref);</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">			} else if (cl == classLoader) {</span>
+<span class="nc" id="L90">				classLoaders.remove(ref);</span>
+<span class="nc" id="L91">				refClassLoader = ref;</span>
+			}
+		}
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">		classLoaders.add(0, refClassLoader != null ? refClassLoader : new WeakReference(classLoader, queue));</span>
+<span class="fc" id="L95">	}</span>
+
+	@Override
+	public URL getResource(String name) {
+<span class="fc" id="L99">		return applyCompositively(getResourceLoadingFunction(name));</span>
+	}
+
+	@Override
+	public Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
+<span class="fc" id="L104">		Class result = applyCompositively(getClassLoadingFunction(name, resolve));</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L106">			throw new ClassNotFoundException(name);</span>
+		}
+<span class="fc" id="L108">		return result;</span>
+	}
+
+	protected Function&lt;ClassLoader, URL&gt; getResourceLoadingFunction(String resourceName) {
+<span class="fc" id="L112">		return classLoader -&gt; classLoader.getResource(resourceName);</span>
+	}
+
+	protected Function&lt;ClassLoader, Class&gt; getClassLoadingFunction(String className, boolean resolve) {
+<span class="fc" id="L116">		return classLoader -&gt; {</span>
+			try {
+<span class="fc" id="L118">				Class&lt;?&gt; clazz = classLoader.loadClass(className);</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">				if (resolve) {</span>
+<span class="nc" id="L120">					resolveClass(clazz);</span>
+				}
+<span class="fc" id="L122">				return clazz;</span>
+<span class="fc" id="L123">			} catch (ClassNotFoundException notFound) {</span>
+<span class="fc" id="L124">				return null;</span>
+			}
+		};
+	}
+
+	private &lt;T&gt; T applyCompositively(Function&lt;ClassLoader, T&gt; accessor) {
+<span class="fc" id="L130">		List copy = new ArrayList(classLoaders.size()) {</span>
+
+			public boolean addAll(Collection c) {
+<span class="fc" id="L133">				boolean result = false;</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">				for (Iterator iter = c.iterator(); iter.hasNext();) {</span>
+<span class="fc" id="L135">					result |= add(iter.next());</span>
+				}
+<span class="fc" id="L137">				return result;</span>
+			}
+
+			public boolean add(Object ref) {
+<span class="fc" id="L141">				Object classLoader = ((WeakReference) ref).get();</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">				if (classLoader != null) {</span>
+<span class="fc" id="L143">					return super.add(classLoader);</span>
+				}
+<span class="nc" id="L145">				return false;</span>
+			}
+
+		};
+<span class="fc" id="L149">		synchronized (this) {</span>
+<span class="fc" id="L150">			cleanup();</span>
+<span class="fc" id="L151">			copy.addAll(classLoaders);</span>
+		}
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">		if (firstClassLoader != null) {</span>
+<span class="fc" id="L154">			T result = accessor.apply(firstClassLoader);</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">			if (result != null) {</span>
+<span class="fc" id="L156">				return result;</span>
+			}
+		}
+<span class="fc bfc" id="L159" title="All 2 branches covered.">		for (Iterator iterator = copy.iterator(); iterator.hasNext();) {</span>
+<span class="fc" id="L160">			ClassLoader classLoader = (ClassLoader) iterator.next();</span>
+<span class="fc" id="L161">			T result = accessor.apply(classLoader);</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">			if (result != null) {</span>
+<span class="fc" id="L163">				return result;</span>
+			}
+		}
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">		if (lastClassLoader != null) {</span>
+<span class="nc" id="L167">			T result = accessor.apply(lastClassLoader);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">			if (result != null) {</span>
+<span class="nc" id="L169">				return result;</span>
+			}
+		}
+<span class="fc" id="L172">		return null;</span>
+	}
+
+	private void cleanup() {
+		WeakReference ref;
+<span class="fc bfc" id="L177" title="All 2 branches covered.">		while ((ref = (WeakReference) queue.poll()) != null) {</span>
+<span class="fc" id="L178">			classLoaders.remove(ref);</span>
+		}
+<span class="fc" id="L180">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

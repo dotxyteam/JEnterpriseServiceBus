@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DateTime.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.meta</a> &gt; <span class="el_source">DateTime.java</span></div><h1>DateTime.java</h1><pre class="source lang-java linenums">package com.otk.jesb.meta;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.util.MiscUtils;
+
+public class DateTime {
+
+<span class="nc" id="L11">	private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss.SSSZ&quot;);</span>
+
+	public static final DateTime now() {
+<span class="nc" id="L14">		return fromJavaUtilDate(MiscUtils.now());</span>
+	}
+
+	private final String stringRepresentation;
+
+<span class="nc" id="L19">	public DateTime() {</span>
+<span class="nc" id="L20">		this.stringRepresentation = now().getStringRepresentation();</span>
+<span class="nc" id="L21">	}</span>
+
+<span class="nc" id="L23">	public DateTime(String stringRepresentation) {</span>
+<span class="nc" id="L24">		this.stringRepresentation = stringRepresentation;</span>
+		// validate format
+<span class="nc" id="L26">		toJavaUtilDate();</span>
+<span class="nc" id="L27">	}</span>
+
+	public String getStringRepresentation() {
+<span class="nc" id="L30">		return stringRepresentation;</span>
+	}
+
+	public java.util.Date toJavaUtilDate() {
+		try {
+<span class="nc" id="L35">			return DATE_FORMAT.parse(stringRepresentation);</span>
+<span class="nc" id="L36">		} catch (ParseException e) {</span>
+<span class="nc" id="L37">			throw new PotentialError(&quot;'&quot; + stringRepresentation + &quot;' format is invalid: Expected date/time format: &quot;</span>
+<span class="nc" id="L38">					+ DATE_FORMAT.toPattern() + &quot; (example: &quot; + now().getStringRepresentation() + &quot;)&quot;, e);</span>
+		}
+	}
+
+	public static DateTime fromJavaUtilDate(java.util.Date date) {
+<span class="nc" id="L43">		return new DateTime(DATE_FORMAT.format(date));</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L48">		return stringRepresentation;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

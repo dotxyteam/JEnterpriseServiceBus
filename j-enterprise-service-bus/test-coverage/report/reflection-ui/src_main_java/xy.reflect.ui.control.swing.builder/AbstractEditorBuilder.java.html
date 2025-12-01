@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractEditorBuilder.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.builder</a> &gt; <span class="el_source">AbstractEditorBuilder.java</span></div><h1>AbstractEditorBuilder.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.builder;
+
+import java.awt.Component;
+import java.awt.Image;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.swing.builder.DialogBuilder.RenderedDialog;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.control.swing.util.WindowManager;
+import xy.reflect.ui.info.ITransaction;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
+import xy.reflect.ui.undo.IModification;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * This is a base class for editor window factories.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L36">public abstract class AbstractEditorBuilder extends AbstractEditorFormBuilder {</span>
+
+	protected ModificationStack createdFormModificationStack;
+	protected EditorFrame createdFrame;
+	protected RenderedDialog createdDialog;
+	protected ITransaction currentValueTransaction;
+
+	/**
+	 * @return the owner component of the editor window or null.
+	 */
+	protected abstract Component getOwnerComponent();
+
+	@Override
+	public EncapsulatedObjectFactory createEncapsulation() {
+<span class="fc" id="L50">		EncapsulatedObjectFactory result = super.createEncapsulation();</span>
+<span class="fc" id="L51">		result.setTypeCaption(getCapsuleTypeCaption());</span>
+<span class="fc" id="L52">		result.setTypeIconImagePath(getCapsuleTypeIconImagePath());</span>
+<span class="fc" id="L53">		result.setTypeOnlineHelp(getCapsuleTypeOnlineHelp());</span>
+<span class="fc" id="L54">		result.setTypeModificationStackAccessible(isCapsuleTypeModificationStackAccessible());</span>
+<span class="fc" id="L55">		return result;</span>
+	}
+
+	/**
+	 * @return the path to the icon image of the capsule type.
+	 */
+	protected ResourcePath getCapsuleTypeIconImagePath() {
+<span class="fc" id="L62">		return getSwingRenderer().getReflectionUI().getTypeInfo(getEncapsulatedFieldTypeSource())</span>
+<span class="fc" id="L63">				.getIconImagePath(null);</span>
+	}
+
+	/**
+	 * @return the online help of the capsule type.
+	 */
+	protected String getCapsuleTypeOnlineHelp() {
+<span class="fc" id="L70">		return getSwingRenderer().getReflectionUI().getTypeInfo(getEncapsulatedFieldTypeSource()).getOnlineHelp();</span>
+	}
+
+	/**
+	 * @return true if and only if the undo/redo/etc features should be made
+	 *         available.
+	 */
+	protected boolean isCapsuleTypeModificationStackAccessible() {
+<span class="fc bfc" id="L78" title="All 2 branches covered.">		if (isInReadOnlyMode()) {</span>
+<span class="fc" id="L79">			return false;</span>
+		}
+<span class="fc" id="L81">		return getSwingRenderer().getReflectionUI().getTypeInfo(getEncapsulatedFieldTypeSource())</span>
+<span class="fc" id="L82">				.isModificationStackAccessible();</span>
+	}
+
+	/**
+	 * @return the caption of the capsule type.
+	 */
+	protected String getCapsuleTypeCaption() {
+<span class="fc" id="L89">		return getSwingRenderer().getReflectionUI().getTypeInfo(getEncapsulatedFieldTypeSource()).getCaption();</span>
+	}
+
+	/**
+	 * @return whether the editing session should be cancellable (a cancel button
+	 *         will be displayed) or not. Note that it only makes sense if an editor
+	 *         dialog (not a frame) is created.
+	 */
+	protected boolean isDialogCancellable() {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">		if (isInReadOnlyMode()) {</span>
+<span class="fc" id="L99">			return false;</span>
+		}
+<span class="fc" id="L101">		Object capsule = getNewCapsule();</span>
+<span class="fc" id="L102">		ITypeInfo encapsulatedObjectType = getSwingRenderer().getReflectionUI()</span>
+<span class="fc" id="L103">				.getTypeInfo(getSwingRenderer().getReflectionUI().getTypeInfoSource(capsule));</span>
+<span class="fc" id="L104">		return encapsulatedObjectType.isModificationStackAccessible();</span>
+	}
+
+	/**
+	 * @return the title of the editor window.
+	 */
+	protected String getEditorWindowTitle() {
+<span class="fc" id="L111">		Object capsule = getNewCapsule();</span>
+<span class="fc" id="L112">		ITypeInfo encapsulatedObjectType = getSwingRenderer().getReflectionUI()</span>
+<span class="fc" id="L113">				.getTypeInfo(getSwingRenderer().getReflectionUI().getTypeInfoSource(capsule));</span>
+<span class="fc" id="L114">		return encapsulatedObjectType.getCaption();</span>
+	}
+
+	/**
+	 * @return an icon image for the editor window that will replace the application
+	 *         icon image.
+	 */
+	protected Image getCustomEditorWindowIconImage() {
+<span class="fc" id="L122">		return null;</span>
+	}
+
+	/**
+	 * @return the text of the 'Cancel' button.
+	 */
+	protected String getCancelCaption() {
+<span class="fc" id="L129">		return &quot;Cancel&quot;;</span>
+	}
+
+	/**
+	 * @return the text of the 'OK' button.
+	 */
+	protected String getOKCaption() {
+<span class="fc" id="L136">		return &quot;OK&quot;;</span>
+	}
+
+	/**
+	 * @return the text of the 'Close' button.
+	 */
+	protected String getCloseCaption() {
+<span class="fc" id="L143">		return &quot;Close&quot;;</span>
+	}
+
+	/**
+	 * @return additional button bar controls that will be laid on the button bar.
+	 */
+	protected List&lt;Component&gt; getAdditionalButtonBarControls() {
+<span class="fc" id="L150">		return Collections.emptyList();</span>
+	}
+
+	/**
+	 * @param editorForm The generated editor form.
+	 * @return most button bar controls (the result includes
+	 *         {@link #getAdditionalButtonBarControls()}, but not ok/cancel/close
+	 *         buttons) that will be displayed on the button bar.
+	 */
+	protected List&lt;Component&gt; createMostButtonBarControls(Form editorForm) {
+<span class="fc" id="L160">		List&lt;Component&gt; result = new ArrayList&lt;Component&gt;();</span>
+<span class="fc" id="L161">		List&lt;Component&gt; commonButtonBarControls = editorForm.createButtonBarControls();</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">		if (commonButtonBarControls != null) {</span>
+<span class="fc" id="L163">			result.addAll(commonButtonBarControls);</span>
+		}
+<span class="fc" id="L165">		List&lt;Component&gt; additionalButtonBarComponents = getAdditionalButtonBarControls();</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">		if (additionalButtonBarComponents != null) {</span>
+<span class="fc" id="L167">			result.addAll(additionalButtonBarComponents);</span>
+		}
+<span class="fc" id="L169">		return result;</span>
+	}
+
+	/**
+	 * @return the modification stack of the local value/object.
+	 */
+	public ModificationStack getModificationStack() {
+<span class="fc" id="L176">		return createdFormModificationStack;</span>
+	}
+
+	@Override
+	public Form createEditorForm(boolean realTimeLinkWithParent, boolean exclusiveLinkWithParent) {
+<span class="fc" id="L181">		Form result = super.createEditorForm(realTimeLinkWithParent, exclusiveLinkWithParent);</span>
+<span class="fc" id="L182">		createdFormModificationStack = result.getModificationStack();</span>
+<span class="fc" id="L183">		return result;</span>
+	}
+
+	/**
+	 * Creates and returns the editor frame.
+	 * 
+	 * @return the created editor frame.
+	 */
+	public JFrame createFrame() {
+<span class="fc" id="L192">		createdFrame = new EditorFrame(this);</span>
+<span class="fc" id="L193">		return createdFrame;</span>
+	}
+
+	/**
+	 * @return the created editor frame.
+	 */
+	public EditorFrame getCreatedFrame() {
+<span class="nc" id="L200">		return createdFrame;</span>
+	}
+
+	/**
+	 * Creates and shows the editor frame.
+	 */
+	public void createAndShowFrame() {
+<span class="nc" id="L207">		getSwingRenderer().showFrame(createFrame());</span>
+<span class="nc" id="L208">	}</span>
+
+	/**
+	 * @return the dialog builder used to build the editor dialog.
+	 */
+	protected DialogBuilder createDelegateDialogBuilder() {
+<span class="fc" id="L214">		DialogBuilder dialogBuilder = getSwingRenderer().createDialogBuilder(getOwnerComponent());</span>
+<span class="fc" id="L215">		ReflectionUI reflectionUI = getSwingRenderer().getReflectionUI();</span>
+<span class="fc" id="L216">		Object capsule = getNewCapsule();</span>
+<span class="fc" id="L217">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(capsule));</span>
+
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">		if (type.getFormButtonBackgroundColor() != null) {</span>
+<span class="nc" id="L220">			dialogBuilder</span>
+<span class="nc" id="L221">					.setClosingButtonBackgroundColor(SwingRendererUtils.getColor(type.getFormButtonBackgroundColor()));</span>
+		}
+
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">		if (type.getFormButtonForegroundColor() != null) {</span>
+<span class="nc" id="L225">			dialogBuilder</span>
+<span class="nc" id="L226">					.setClosingButtonForegroundColor(SwingRendererUtils.getColor(type.getFormButtonForegroundColor()));</span>
+		}
+
+<span class="pc bpc" id="L229" title="1 of 2 branches missed.">		if (type.getFormButtonBorderColor() != null) {</span>
+<span class="nc" id="L230">			dialogBuilder.setClosingButtonBorderColor(SwingRendererUtils.getColor(type.getFormButtonBorderColor()));</span>
+		}
+
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">		if (type.getFormButtonBackgroundImagePath() != null) {</span>
+<span class="nc" id="L234">			dialogBuilder.setClosingButtonBackgroundImage(</span>
+<span class="nc" id="L235">					SwingRendererUtils.loadImageThroughCache(type.getFormButtonBackgroundImagePath(),</span>
+<span class="nc" id="L236">							ReflectionUIUtils.getErrorLogListener(reflectionUI), getSwingRenderer()));</span>
+		}
+
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">		if (type.getFormButtonBackgroundImagePath() != null) {</span>
+<span class="nc" id="L240">			dialogBuilder.setClosingButtonBackgroundImage(</span>
+<span class="nc" id="L241">					SwingRendererUtils.loadImageThroughCache(type.getFormButtonBackgroundImagePath(),</span>
+<span class="nc" id="L242">							ReflectionUIUtils.getErrorLogListener(reflectionUI), getSwingRenderer()));</span>
+		}
+
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">		if (reflectionUI.getApplicationInfo().getButtonCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L246">			dialogBuilder.setClosingButtonCustomFont(SwingRendererUtils.loadFontThroughCache(</span>
+<span class="nc" id="L247">					reflectionUI.getApplicationInfo().getButtonCustomFontResourcePath(),</span>
+<span class="nc" id="L248">					ReflectionUIUtils.getErrorLogListener(reflectionUI), getSwingRenderer()));</span>
+		}
+<span class="fc" id="L250">		return dialogBuilder;</span>
+	}
+
+	/**
+	 * Creates and returns the editor dialog.
+	 * 
+	 * @return the created editor dialog.
+	 */
+	public JDialog createDialog() {
+<span class="fc" id="L259">		Form editorForm = createEditorForm(false, false);</span>
+<span class="fc" id="L260">		DialogBuilder dialogBuilder = createDelegateDialogBuilder();</span>
+<span class="fc" id="L261">		dialogBuilder.setContentComponent(editorForm);</span>
+<span class="fc" id="L262">		dialogBuilder.setTitle(getEditorWindowTitle());</span>
+<span class="fc" id="L263">		Image customEditorWindowIconImage = getCustomEditorWindowIconImage();</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">		if (customEditorWindowIconImage != null) {</span>
+<span class="nc" id="L265">			dialogBuilder.setIconImage(customEditorWindowIconImage);</span>
+		}
+
+<span class="fc" id="L268">		List&lt;Component&gt; buttonBarControls = new ArrayList&lt;Component&gt;(createMostButtonBarControls(editorForm));</span>
+		{
+<span class="fc bfc" id="L270" title="All 2 branches covered.">			if (isDialogCancellable()) {</span>
+<span class="fc" id="L271">				List&lt;JButton&gt; okCancelButtons = dialogBuilder.createStandardOKCancelDialogButtons(getOKCaption(),</span>
+<span class="fc" id="L272">						getCancelCaption());</span>
+<span class="fc" id="L273">				buttonBarControls.addAll(okCancelButtons);</span>
+<span class="fc" id="L274">			} else {</span>
+<span class="fc" id="L275">				buttonBarControls.add(dialogBuilder.createDialogClosingButton(getCloseCaption(), null));</span>
+			}
+<span class="fc" id="L277">			dialogBuilder.setButtonBarControls(buttonBarControls);</span>
+		}
+<span class="fc" id="L279">		final RenderedDialog dialog = dialogBuilder.createDialog();</span>
+<span class="fc" id="L280">		dialog.addWindowListener(new WindowAdapter() {</span>
+
+			@Override
+			public void windowOpened(WindowEvent e) {
+<span class="fc" id="L284">				initializeDialogModifications();</span>
+<span class="fc" id="L285">			}</span>
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+<span class="fc" id="L289">				finalizeDialogModifications();</span>
+<span class="fc" id="L290">				dialog.removeWindowListener(this);</span>
+<span class="fc" id="L291">			}</span>
+
+		});
+<span class="fc" id="L294">		createdDialog = dialog;</span>
+<span class="fc" id="L295">		return dialog;</span>
+	}
+
+	/**
+	 * @return the created editor dialog.
+	 */
+	public JDialog getCreatedDialog() {
+<span class="nc" id="L302">		return createdDialog;</span>
+	}
+
+	/**
+	 * Creates and shows the editor dialog. Note that the dialog is modal.
+	 */
+	public void createAndShowDialog() {
+<span class="fc" id="L309">		createDialog();</span>
+<span class="fc" id="L310">		getSwingRenderer().showDialog(createdDialog, true);</span>
+<span class="fc" id="L311">	}</span>
+
+	/**
+	 * Prepares a dialog edit session. Must be called before
+	 * {@link #finalizeDialogModifications()}.
+	 */
+	public void initializeDialogModifications() {
+<span class="pc bpc" id="L318" title="1 of 2 branches missed.">		if (createdDialog == null) {</span>
+<span class="nc" id="L319">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L321">		currentValueTransaction = null;</span>
+		{
+<span class="fc" id="L323">			Object value = getCurrentValue();</span>
+<span class="pc bpc" id="L324" title="1 of 2 branches missed.">			if (value != null) {</span>
+<span class="fc" id="L325">				ReflectionUI reflectionUI = getSwingRenderer().getReflectionUI();</span>
+<span class="fc" id="L326">				ITypeInfo valueType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(value));</span>
+<span class="fc" id="L327">				currentValueTransaction = valueType.createTransaction(value);</span>
+			}
+		}
+<span class="pc bpc" id="L330" title="1 of 2 branches missed.">		if (currentValueTransaction != null) {</span>
+<span class="nc" id="L331">			currentValueTransaction.begin();</span>
+<span class="nc" id="L332">		} else {</span>
+<span class="fc" id="L333">			createdFormModificationStack.setMaximumSize(Integer.MAX_VALUE);</span>
+		}
+<span class="fc" id="L335">	}</span>
+
+	/**
+	 * Terminates a dialog edit session by eventually updating the local
+	 * value/object, its parent and their modification stacks according to the
+	 * performed modifications and the current editor builder state and
+	 * specifications. Must be preceded by a call to
+	 * {@link #initializeDialogModifications()}.
+	 */
+	public void finalizeDialogModifications() {
+<span class="fc" id="L345">		ModificationStack parentObjectModifStack = getParentModificationStack();</span>
+<span class="fc" id="L346">		ModificationStack valueModifStack = getModificationStack();</span>
+<span class="fc" id="L347">		ValueReturnMode valueReturnMode = getReturnModeFromParent();</span>
+<span class="fc" id="L348">		Object currentValue = getCurrentValue();</span>
+<span class="fc" id="L349">		boolean valueReplaced = isValueReplaced();</span>
+<span class="pc bpc" id="L350" title="1 of 2 branches missed.">		boolean valueModifAccepted = shouldIntegrateNewObjectValue(currentValue)</span>
+<span class="pc bpc" id="L351" title="1 of 4 branches missed.">				&amp;&amp; ((!isDialogCancellable()) || !isCancelled());</span>
+		boolean valueTransactionExecuted;
+<span class="pc bpc" id="L353" title="1 of 2 branches missed.">		if (currentValueTransaction != null) {</span>
+<span class="nc bnc" id="L354" title="All 2 branches missed.">			if (valueModifAccepted) {</span>
+<span class="nc" id="L355">				currentValueTransaction.commit();</span>
+<span class="nc" id="L356">			} else {</span>
+<span class="nc" id="L357">				currentValueTransaction.rollback();</span>
+			}
+<span class="nc" id="L359">			valueTransactionExecuted = true;</span>
+<span class="nc" id="L360">		} else {</span>
+<span class="fc" id="L361">			valueTransactionExecuted = false;</span>
+		}
+		IModification committingModif;
+<span class="fc bfc" id="L364" title="All 2 branches covered.">		if (!canCommitToParent()) {</span>
+<span class="fc" id="L365">			committingModif = null;</span>
+<span class="fc" id="L366">		} else {</span>
+<span class="fc" id="L367">			committingModif = createCommittingModification(currentValue);</span>
+		}
+<span class="fc" id="L369">		IModification undoModificationsReplacement = createUndoModificationsReplacement();</span>
+<span class="fc" id="L370">		String parentObjectModifTitle = getParentModificationTitle();</span>
+<span class="fc" id="L371">		boolean parentObjectModifVolatile = isParentModificationVolatile();</span>
+<span class="fc" id="L372">		ReflectionUIUtils.finalizeModifications(parentObjectModifStack, valueModifStack, valueModifAccepted,</span>
+<span class="fc" id="L373">				valueReturnMode, valueReplaced, valueTransactionExecuted, committingModif, undoModificationsReplacement,</span>
+<span class="fc" id="L374">				parentObjectModifTitle, parentObjectModifVolatile,</span>
+<span class="fc" id="L375">				ReflectionUIUtils.getDebugLogListener(getSwingRenderer().getReflectionUI()),</span>
+<span class="fc" id="L376">				ReflectionUIUtils.getErrorLogListener(getSwingRenderer().getReflectionUI()));</span>
+<span class="pc bpc" id="L377" title="1 of 2 branches missed.">		if (currentValueTransaction != null) {</span>
+<span class="nc" id="L378">			currentValueTransaction = null;</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">			if (parentObjectModifStack != null) {</span>
+<span class="nc" id="L380">				parentObjectModifStack.push(IModification.VOLATILE_MODIFICATION);</span>
+			}
+		}
+<span class="fc" id="L383">	}</span>
+
+	/**
+	 * @return whether the user cancelled the editor dialog.
+	 */
+	public boolean isCancelled() {
+<span class="pc bpc" id="L389" title="1 of 2 branches missed.">		if (createdDialog == null) {</span>
+<span class="nc" id="L390">			return false;</span>
+		}
+<span class="pc bpc" id="L392" title="1 of 2 branches missed.">		if (!createdDialog.isDisposed()) {</span>
+<span class="nc" id="L393">			return false;</span>
+		}
+<span class="pc bpc" id="L395" title="1 of 2 branches missed.">		return !createdDialog.wasOkPressed();</span>
+	}
+
+	/**
+	 * Frame created using an implementation of {@link AbstractEditorBuilder}.
+	 * 
+	 * @author olitank
+	 *
+	 */
+	public static class EditorFrame extends JFrame {
+
+		private static final long serialVersionUID = 1L;
+
+		protected WindowManager windowManager;
+		protected AbstractEditorBuilder editorBuilder;
+<span class="fc" id="L410">		protected boolean disposed = false;</span>
+
+<span class="fc" id="L412">		public EditorFrame(AbstractEditorBuilder editorBuilder) {</span>
+<span class="fc" id="L413">			this.editorBuilder = editorBuilder;</span>
+<span class="fc" id="L414">			this.windowManager = editorBuilder.getSwingRenderer().createWindowManager(this);</span>
+<span class="fc" id="L415">			installComponents();</span>
+<span class="fc" id="L416">		}</span>
+
+		@Override
+		public void dispose() {
+<span class="pc bpc" id="L420" title="1 of 2 branches missed.">			if (disposed) {</span>
+<span class="nc" id="L421">				return;</span>
+			}
+<span class="fc" id="L423">			disposed = true;</span>
+<span class="fc" id="L424">			uninstallComponents();</span>
+<span class="fc" id="L425">			this.windowManager = null;</span>
+<span class="fc" id="L426">			this.editorBuilder = null;</span>
+<span class="fc" id="L427">			super.dispose();</span>
+<span class="fc" id="L428">		}</span>
+
+		public boolean isDisposed() {
+<span class="nc" id="L431">			return disposed;</span>
+		}
+
+		protected void installComponents() {
+<span class="fc" id="L435">			Form editorForm = editorBuilder.createEditorForm(false, false);</span>
+<span class="fc" id="L436">			Image iconImage = editorBuilder.getSwingRenderer()</span>
+<span class="fc" id="L437">					.getApplicationIconImage(editorBuilder.getSwingRenderer().getReflectionUI().getApplicationInfo());</span>
+<span class="fc" id="L438">			Image customEditorWindowIconImage = editorBuilder.getCustomEditorWindowIconImage();</span>
+<span class="pc bpc" id="L439" title="1 of 2 branches missed.">			if (customEditorWindowIconImage != null) {</span>
+<span class="nc" id="L440">				iconImage = customEditorWindowIconImage;</span>
+			}
+<span class="fc" id="L442">			windowManager.install(editorForm,</span>
+<span class="fc" id="L443">					new ArrayList&lt;Component&gt;(editorBuilder.createMostButtonBarControls(editorForm)),</span>
+<span class="fc" id="L444">					editorBuilder.getEditorWindowTitle(), iconImage);</span>
+<span class="fc" id="L445">		}</span>
+
+		protected void uninstallComponents() {
+<span class="fc" id="L448">			windowManager.uninstall();</span>
+<span class="fc" id="L449">		}</span>
+
+		public AbstractEditorBuilder getEditorBuilder() {
+<span class="nc" id="L452">			return editorBuilder;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

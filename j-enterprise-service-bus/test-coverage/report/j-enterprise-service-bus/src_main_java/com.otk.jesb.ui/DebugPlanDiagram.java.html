@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DebugPlanDiagram.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.ui</a> &gt; <span class="el_source">DebugPlanDiagram.java</span></div><h1>DebugPlanDiagram.java</h1><pre class="source lang-java linenums">package com.otk.jesb.ui;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+
+import com.otk.jesb.Debugger.PlanExecutor;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.StepCrossing;
+import com.otk.jesb.solution.Transition;
+import com.otk.jesb.ui.diagram.JConnection;
+import com.otk.jesb.ui.diagram.JDiagramListener;
+import com.otk.jesb.ui.diagram.JDiagramObject;
+import com.otk.jesb.ui.diagram.JNode;
+import com.otk.jesb.util.MiscUtils;
+
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.ListControl;
+import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
+import xy.reflect.ui.util.Listener;
+
+public class DebugPlanDiagram extends PlanDiagram {
+
+	private static final long serialVersionUID = 1L;
+
+	public DebugPlanDiagram(SwingRenderer swingRenderer, IFieldControlInput input) {
+<span class="fc" id="L47">		super(swingRenderer, input);</span>
+<span class="fc" id="L48">	}</span>
+
+	@Override
+	protected void paintErrorMarker(Graphics g, JDiagramObject diagramObject) {
+<span class="fc" id="L52">	}</span>
+
+	@Override
+	protected void manageErrorTooltipOnMouseMove(MouseEvent mouseEvent) {
+<span class="nc" id="L56">	}</span>
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+<span class="fc" id="L60">		boolean result = super.refreshUI(refreshStructure);</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">		if (result) {</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">			if (isShowing()) {</span>
+<span class="fc" id="L63">				PlanExecutor planExecutor = getPlanExecutor();</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">				if (!planExecutor.isScrollLocked()) {</span>
+<span class="fc" id="L65">					StepCrossing currentStepCrossing = planExecutor.getCurrentStepCrossing();</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">					if (currentStepCrossing != null) {</span>
+<span class="fc" id="L67">						SwingUtilities.invokeLater(new Runnable() {</span>
+							@Override
+							public void run() {
+<span class="fc" id="L70">								JNode node = findNode(currentStepCrossing.getStep());</span>
+<span class="fc" id="L71">								setSelection(Collections.singleton(node), false);</span>
+<span class="fc" id="L72">								scrollTo(node);</span>
+<span class="fc" id="L73">							}</span>
+						});
+					}
+				}
+			}
+		}
+<span class="fc" id="L79">		return result;</span>
+	}
+
+	protected ListControl getStepCrossingsControl() {
+<span class="fc" id="L83">		List&lt;Form&gt; forms = new ArrayList&lt;Form&gt;();</span>
+<span class="fc" id="L84">		forms.add(getPlanExecutorView());</span>
+<span class="fc" id="L85">		forms.addAll(SwingRendererUtils.findDescendantForms(getPlanExecutorView(), swingRenderer));</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">		for (Form form : forms) {</span>
+<span class="fc" id="L87">			FieldControlPlaceHolder stepCrossingsFieldControlPlaceHolder = form</span>
+<span class="fc" id="L88">					.getFieldControlPlaceHolder(&quot;stepCrossings&quot;);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">			if (stepCrossingsFieldControlPlaceHolder != null) {</span>
+<span class="fc" id="L90">				return (ListControl) stepCrossingsFieldControlPlaceHolder.getFieldControl();</span>
+			}
+		}
+<span class="nc" id="L93">		throw new UnexpectedError();</span>
+	}
+
+	protected Form getPlanExecutorView() {
+		Form result;
+<span class="fc" id="L98">		result = SwingRendererUtils.findAncestorFormOfType(this, PlanExecutor.class.getName(), swingRenderer);</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">		if (result != null) {</span>
+<span class="fc" id="L100">			return result;</span>
+		}
+<span class="nc" id="L102">		result = SwingRendererUtils.findAncestorFormOfType(this, PlanExecutor.SubPlanExecutor.class.getName(),</span>
+<span class="nc" id="L103">				swingRenderer);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		if (result != null) {</span>
+<span class="nc" id="L105">			return result;</span>
+		}
+<span class="nc" id="L107">		throw new UnexpectedError();</span>
+	}
+
+	@Override
+	protected void updateExternalComponentsOnInternalEvents() {
+<span class="fc" id="L112">		addListener(new JDiagramListener() {</span>
+
+			@Override
+			public void nodesMoved(Set&lt;JNode&gt; nodes) {
+<span class="nc" id="L116">				refreshUI(false);</span>
+<span class="nc" id="L117">			}</span>
+
+			@Override
+			public void selectionChanged() {
+<span class="fc bfc" id="L121" title="All 2 branches covered.">				if (selectionListeningEnabled) {</span>
+<span class="fc" id="L122">					selectionListeningEnabled = false;</span>
+					try {
+<span class="fc" id="L124">						ListControl stepCrossingsControl = getStepCrossingsControl();</span>
+<span class="fc" id="L125">						stepCrossingsControl.setSelection(DebugPlanDiagram.this.getSelection().stream()</span>
+<span class="fc" id="L126">								.filter(diagramObject -&gt; diagramObject instanceof JNode).map(diagramObject -&gt; {</span>
+<span class="fc" id="L127">									Step step = (Step) diagramObject.getValue();</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">									for (StepCrossing stepCrossing : MiscUtils</span>
+<span class="fc" id="L129">											.getReverse(stepCrossingsControl.getRootListItemPositions().stream()</span>
+<span class="fc" id="L130">													.map(itemPosition -&gt; (StepCrossing) itemPosition.getItem())</span>
+<span class="fc" id="L131">													.collect(Collectors.toList()))) {</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">										if (stepCrossing.getStep() == step) {</span>
+<span class="fc" id="L133">											return stepCrossing;</span>
+										}
+									}
+<span class="nc" id="L136">									return null;</span>
+<span class="fc" id="L137">								}).filter(Objects::nonNull)</span>
+<span class="fc" id="L138">								.map(stepCrossing -&gt; stepCrossingsControl.findItemPositionByReference(stepCrossing))</span>
+<span class="fc" id="L139">								.collect(Collectors.toList()));</span>
+<span class="fc" id="L140">					} finally {</span>
+<span class="fc" id="L141">						selectionListeningEnabled = true;</span>
+					}
+				}
+<span class="fc" id="L144">			}</span>
+
+			@Override
+			public void connectionAdded(JConnection conn) {
+<span class="nc" id="L148">				refreshUI(false);</span>
+<span class="nc" id="L149">			}</span>
+		});
+<span class="fc" id="L151">	}</span>
+
+	@Override
+	protected void updateInternalComponentsOnExternalEvents() {
+<span class="fc" id="L155">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L158">				getStepCrossingsControl().addListControlSelectionListener(new Listener&lt;List&lt;BufferedItemPosition&gt;&gt;() {</span>
+					@Override
+					public void handle(List&lt;BufferedItemPosition&gt; event) {
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">						if (selectionListeningEnabled) {</span>
+<span class="nc" id="L162">							selectionListeningEnabled = false;</span>
+							try {
+<span class="nc" id="L164">								updateSelection();</span>
+<span class="nc" id="L165">							} finally {</span>
+<span class="nc" id="L166">								selectionListeningEnabled = true;</span>
+							}
+						}
+<span class="fc" id="L169">					}</span>
+				});
+<span class="fc" id="L171">			}</span>
+		});
+<span class="fc" id="L173">	}</span>
+
+	@Override
+	protected void updateSelection() {
+<span class="fc" id="L177">		setSelection(getStepCrossingsControl().getSelection().stream()</span>
+<span class="fc" id="L178">				.map(itemPosition -&gt; (JDiagramObject) findNode(((StepCrossing) itemPosition.getItem()).getStep()))</span>
+<span class="fc" id="L179">				.collect(Collectors.toSet()), false);</span>
+<span class="fc" id="L180">	}</span>
+
+	@Override
+	protected void updateFocusedPlanElementsControl() {
+<span class="fc" id="L184">	}</span>
+
+	@Override
+	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
+<span class="nc" id="L188">		JPopupMenu result = super.createContextMenu(mouseEvent);</span>
+<span class="nc" id="L189">		result.removeAll();</span>
+<span class="nc" id="L190">		return result;</span>
+	}
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
+<span class="fc" id="L195">	}</span>
+
+	public PlanExecutor getPlanExecutor() {
+<span class="fc" id="L198">		return (PlanExecutor) getPlanExecutorView().getObject();</span>
+	}
+
+	public Plan getPlan() {
+<span class="fc" id="L202">		return (Plan) ((Source) input.getControlData().getValue()).getPlan();</span>
+	}
+
+	@Override
+	protected void paintNode(Graphics g, JNode node) {
+<span class="fc" id="L207">		StepCrossing lastStepCrossing = MiscUtils.getReverse(getPlanExecutor().getStepCrossings()).stream()</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">				.filter(candidateStepCrossing -&gt; (candidateStepCrossing.getStep() == node.getValue())).findFirst()</span>
+<span class="fc" id="L209">				.orElse(null);</span>
+<span class="pc bpc" id="L210" title="1 of 4 branches missed.">		if ((lastStepCrossing != null) &amp;&amp; (lastStepCrossing.getOperationError() != null)) {</span>
+<span class="nc" id="L211">			highlightNode(g, node, new Color(255, 173, 173));</span>
+<span class="nc" id="L212">		} else {</span>
+<span class="fc" id="L213">			StepCrossing currentStepCrossing = getPlanExecutor().getCurrentStepCrossing();</span>
+<span class="fc bfc" id="L214" title="All 4 branches covered.">			if ((currentStepCrossing != null) &amp;&amp; (currentStepCrossing.getStep() == node.getValue())) {</span>
+<span class="fc" id="L215">				highlightNode(g, node, new Color(175, 255, 200));</span>
+			}
+		}
+<span class="fc" id="L218">		super.paintNode(g, node);</span>
+<span class="fc" id="L219">	}</span>
+
+	@Override
+	protected void paintConnection(Graphics g, JConnection connection) {
+<span class="fc" id="L223">		int transitionOccurrenceCount = getPlanExecutor()</span>
+<span class="fc" id="L224">				.getTransitionOccurrenceCount((Transition) connection.getValue());</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">		if (transitionOccurrenceCount &gt; 0) {</span>
+<span class="fc" id="L226">			Color connectionColorToRestore = getConnectionColor();</span>
+			try {
+<span class="fc" id="L228">				setConnectionColor(new Color(165, 245, 190));</span>
+<span class="fc" id="L229">				super.paintConnection(g, connection);</span>
+<span class="fc" id="L230">			} finally {</span>
+<span class="fc" id="L231">				setConnectionColor(connectionColorToRestore);</span>
+			}
+<span class="fc" id="L233">			annotateConnection(g, connection, &quot;(&quot; + transitionOccurrenceCount + &quot;)&quot;);</span>
+<span class="fc" id="L234">		} else {</span>
+<span class="fc" id="L235">			super.paintConnection(g, connection);</span>
+		}
+<span class="fc" id="L237">	}</span>
+
+	private void annotateConnection(Graphics g, JConnection connection, String annotation) {
+<span class="fc" id="L240">		g.setColor(new Color(135, 215, 160));</span>
+<span class="fc" id="L241">		Rectangle2D stringBounds = g.getFontMetrics().getStringBounds(annotation, g);</span>
+<span class="fc" id="L242">		Point2D center = connection.getCenter();</span>
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">		if (center == null) {</span>
+<span class="nc" id="L244">			return;</span>
+		}
+<span class="fc" id="L246">		Rectangle annotationBounds = new Rectangle((int) Math.round(center.getX() - (stringBounds.getWidth() / 2)),</span>
+<span class="fc" id="L247">				(int) Math.round(center.getY() - stringBounds.getHeight() * 2.3),</span>
+<span class="fc" id="L248">				(int) Math.round(stringBounds.getWidth()), (int) Math.round(stringBounds.getHeight()));</span>
+<span class="fc" id="L249">		double rotationAngle = connection.getLabelRotationAngleRadians();</span>
+<span class="fc" id="L250">		Point2D rotationCenter = connection.getLabelRotationCenter();</span>
+<span class="fc" id="L251">		Graphics2D g2D = (Graphics2D) g.create();</span>
+<span class="fc" id="L252">		g2D.rotate(rotationAngle, rotationCenter.getX(), rotationCenter.getY());</span>
+<span class="fc" id="L253">		g2D.drawString(annotation, annotationBounds.x, annotationBounds.y + annotationBounds.height);</span>
+<span class="fc" id="L254">		g2D.dispose();</span>
+<span class="fc" id="L255">	}</span>
+
+	private void highlightNode(Graphics g, JNode node, Color color) {
+<span class="fc" id="L258">		g.setColor(color);</span>
+<span class="fc" id="L259">		int width = (node.getImage().getWidth(null) * 3) / 2;</span>
+<span class="fc" id="L260">		int height = (node.getImage().getHeight(null) * 3) / 2;</span>
+<span class="fc" id="L261">		g.fillRoundRect(node.getCenterX() - (width / 2), node.getCenterY() - (height / 2), width, height, width / 10,</span>
+<span class="fc" id="L262">				height / 10);</span>
+<span class="fc" id="L263">	}</span>
+
+	public static class Source {
+		private Plan plan;
+
+<span class="fc" id="L268">		public Source(Plan plan) {</span>
+<span class="fc" id="L269">			this.plan = plan;</span>
+<span class="fc" id="L270">		}</span>
+
+		public Plan getPlan() {
+<span class="fc" id="L273">			return plan;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

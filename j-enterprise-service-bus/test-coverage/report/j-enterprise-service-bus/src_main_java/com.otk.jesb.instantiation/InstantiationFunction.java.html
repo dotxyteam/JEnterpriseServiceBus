@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InstantiationFunction.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">InstantiationFunction.java</span></div><h1>InstantiationFunction.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import static com.github.javaparser.Providers.provider;
+
+import java.util.List;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseResult;
+import com.github.javaparser.ParseStart;
+import com.github.javaparser.ParserConfiguration;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.resolution.TypeSolver;
+import com.github.javaparser.resolution.types.ResolvedType;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ClassLoaderTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.otk.jesb.Function;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.compiler.CompiledFunction;
+import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+
+import xy.reflect.ui.info.type.ITypeInfo;
+
+/**
+ * Allows to specify a value by using a code snippet.
+ * 
+ * @author olitank
+ *
+ */
+public class InstantiationFunction extends Function {
+
+<span class="fc" id="L37">	private Function returnTypeUtil = new Function();</span>
+<span class="fc" id="L38">	private UpToDate&lt;ITypeInfo&gt; upToDateGuessedReturnTypeInfo = new UpToDate&lt;ITypeInfo&gt;() {</span>
+
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+<span class="fc" id="L42">			CompiledFunction&lt;?&gt; compiledFunction = (CompiledFunction&lt;?&gt;) getCustomValue();</span>
+<span class="fc" id="L43">			return compiledFunction.getFunctionClass();</span>
+		}
+
+		@Override
+		protected ITypeInfo obtainLatest(Object versionIdentifier) throws VersionAccessException {
+<span class="fc" id="L48">			CompiledFunction&lt;?&gt; compiledFunction = (CompiledFunction&lt;?&gt;) getCustomValue();</span>
+<span class="fc" id="L49">			TypeSolver typeSolver = new CombinedTypeSolver(</span>
+<span class="fc" id="L50">					new ClassLoaderTypeSolver(MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader()));</span>
+<span class="fc" id="L51">			ParserConfiguration configuration = new ParserConfiguration()</span>
+<span class="fc" id="L52">					.setSymbolResolver(new JavaSymbolSolver(typeSolver));</span>
+<span class="fc" id="L53">			JavaParser javaParser = new JavaParser(configuration);</span>
+<span class="fc" id="L54">			ParseResult&lt;CompilationUnit&gt; result = javaParser.parse(ParseStart.COMPILATION_UNIT,</span>
+<span class="fc" id="L55">					provider(compiledFunction.getFunctionClassSource()));</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">			if (!result.isSuccessful()) {</span>
+<span class="nc" id="L57">				throw new UnexpectedError();</span>
+			}
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">			if (!result.getResult().isPresent()) {</span>
+<span class="nc" id="L60">				throw new UnexpectedError();</span>
+			}
+<span class="fc" id="L62">			CompilationUnit compilationUnit = result.getResult().get();</span>
+<span class="fc" id="L63">			List&lt;ReturnStmt&gt; returnStatements = compilationUnit.findAll(ReturnStmt.class);</span>
+<span class="fc" id="L64">			ResolvedType resolvedType = returnStatements.get(returnStatements.size() - 1).getExpression().get()</span>
+<span class="fc" id="L65">					.calculateResolvedType();</span>
+<span class="fc" id="L66">			return TypeInfoProvider.getInfoFromResolvedType(resolvedType);</span>
+		}
+
+	};
+
+<span class="fc" id="L71">	public InstantiationFunction() {</span>
+<span class="fc" id="L72">	}</span>
+
+	public InstantiationFunction(String functionBody) {
+<span class="fc" id="L75">		super(functionBody);</span>
+<span class="fc" id="L76">		returnTypeUtil.setFunctionBody(functionBody);</span>
+<span class="fc" id="L77">	}</span>
+
+	@Override
+	public void setFunctionBody(String functionBody) {
+<span class="fc" id="L81">		super.setFunctionBody(functionBody);</span>
+<span class="fc" id="L82">		returnTypeUtil.setFunctionBody(functionBody);</span>
+<span class="fc" id="L83">	}</span>
+
+	public ITypeInfo guessReturnTypeInfo(Precompiler precompiler, List&lt;VariableDeclaration&gt; variableDeclarations)
+			throws CompilationError {
+<span class="fc" id="L87">		CompiledFunction&lt;?&gt; compiledFunction = returnTypeUtil.getCompiledVersion(precompiler, variableDeclarations,</span>
+<span class="fc" id="L88">				Object.class);</span>
+<span class="fc" id="L89">		upToDateGuessedReturnTypeInfo.setCustomValue(compiledFunction);</span>
+		try {
+<span class="fc" id="L91">			return upToDateGuessedReturnTypeInfo.get();</span>
+<span class="nc" id="L92">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L93">			return null;</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

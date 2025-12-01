@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>WatchFileSystem.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.activation.builtin</a> &gt; <span class="el_source">WatchFileSystem.java</span></div><h1>WatchFileSystem.java</h1><pre class="source lang-java linenums">package com.otk.jesb.activation.builtin;
+
+import java.io.IOException;
+import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
+import com.otk.jesb.Log;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variant;
+import com.otk.jesb.activation.ActivationHandler;
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.activation.ActivatorMetadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionError;
+import com.otk.jesb.util.MiscUtils;
+
+import xy.reflect.ui.info.ResourcePath;
+
+<span class="fc" id="L37">public class WatchFileSystem extends Activator {</span>
+
+<span class="fc" id="L39">	private Variant&lt;String&gt; baseDircetoryPathVariant = new Variant&lt;String&gt;(String.class, &quot;.&quot;);</span>
+<span class="fc" id="L40">	private Variant&lt;String&gt; patternVariant = new Variant&lt;String&gt;(String.class, &quot;*&quot;);</span>
+<span class="fc" id="L41">	private Variant&lt;Boolean&gt; subDirectoriesWatchedRecursivelyVariant = new Variant&lt;Boolean&gt;(Boolean.class, false);</span>
+<span class="fc" id="L42">	private Variant&lt;ResourceKind&gt; watchedResourceKindVariant = new Variant&lt;ResourceKind&gt;(ResourceKind.class,</span>
+<span class="fc" id="L43">			ResourceKind.ANY);</span>
+<span class="fc" id="L44">	private Variant&lt;Boolean&gt; creationWatchedVariant = new Variant&lt;Boolean&gt;(Boolean.class, true);</span>
+<span class="fc" id="L45">	private Variant&lt;Boolean&gt; modificationWatchedVariant = new Variant&lt;Boolean&gt;(Boolean.class, true);</span>
+<span class="fc" id="L46">	private Variant&lt;Boolean&gt; deletionWatchedVariant = new Variant&lt;Boolean&gt;(Boolean.class, false);</span>
+<span class="fc" id="L47">	private Variant&lt;Boolean&gt; preExistingResourcesConsideredVariant = new Variant&lt;Boolean&gt;(Boolean.class, false);</span>
+
+	private ActivationHandler activationHandler;
+	private WatchService watchService;
+	private Thread thread;
+
+	public Variant&lt;String&gt; getBaseDircetoryPathVariant() {
+<span class="nc" id="L54">		return baseDircetoryPathVariant;</span>
+	}
+
+	public void setBaseDircetoryPathVariant(Variant&lt;String&gt; baseDircetoryPathVariant) {
+<span class="fc" id="L58">		this.baseDircetoryPathVariant = baseDircetoryPathVariant;</span>
+<span class="fc" id="L59">	}</span>
+
+	public Variant&lt;String&gt; getPatternVariant() {
+<span class="nc" id="L62">		return patternVariant;</span>
+	}
+
+	public void setPatternVariant(Variant&lt;String&gt; patternVariant) {
+<span class="fc" id="L66">		this.patternVariant = patternVariant;</span>
+<span class="fc" id="L67">	}</span>
+
+	public Variant&lt;Boolean&gt; getSubDirectoriesWatchedRecursivelyVariant() {
+<span class="nc" id="L70">		return subDirectoriesWatchedRecursivelyVariant;</span>
+	}
+
+	public void setSubDirectoriesWatchedRecursivelyVariant(Variant&lt;Boolean&gt; subDirectoriesWatchedRecursivelyVariant) {
+<span class="fc" id="L74">		this.subDirectoriesWatchedRecursivelyVariant = subDirectoriesWatchedRecursivelyVariant;</span>
+<span class="fc" id="L75">	}</span>
+
+	public Variant&lt;ResourceKind&gt; getWatchedResourceKindVariant() {
+<span class="nc" id="L78">		return watchedResourceKindVariant;</span>
+	}
+
+	public void setWatchedResourceKindVariant(Variant&lt;ResourceKind&gt; watchedResourceKindVariant) {
+<span class="fc" id="L82">		this.watchedResourceKindVariant = watchedResourceKindVariant;</span>
+<span class="fc" id="L83">	}</span>
+
+	public Variant&lt;Boolean&gt; getCreationWatchedVariant() {
+<span class="nc" id="L86">		return creationWatchedVariant;</span>
+	}
+
+	public void setCreationWatchedVariant(Variant&lt;Boolean&gt; creationWatchedVariant) {
+<span class="fc" id="L90">		this.creationWatchedVariant = creationWatchedVariant;</span>
+<span class="fc" id="L91">	}</span>
+
+	public Variant&lt;Boolean&gt; getDeletionWatchedVariant() {
+<span class="nc" id="L94">		return deletionWatchedVariant;</span>
+	}
+
+	public void setDeletionWatchedVariant(Variant&lt;Boolean&gt; deletionWatchedVariant) {
+<span class="fc" id="L98">		this.deletionWatchedVariant = deletionWatchedVariant;</span>
+<span class="fc" id="L99">	}</span>
+
+	public Variant&lt;Boolean&gt; getModificationWatchedVariant() {
+<span class="nc" id="L102">		return modificationWatchedVariant;</span>
+	}
+
+	public void setModificationWatchedVariant(Variant&lt;Boolean&gt; modificationWatchedVariant) {
+<span class="fc" id="L106">		this.modificationWatchedVariant = modificationWatchedVariant;</span>
+<span class="fc" id="L107">	}</span>
+
+	public Variant&lt;Boolean&gt; getPreExistingResourcesConsideredVariant() {
+<span class="nc" id="L110">		return preExistingResourcesConsideredVariant;</span>
+	}
+
+	public void setPreExistingResourcesConsideredVariant(Variant&lt;Boolean&gt; preExistingResourcesConsideredVariant) {
+<span class="fc" id="L114">		this.preExistingResourcesConsideredVariant = preExistingResourcesConsideredVariant;</span>
+<span class="fc" id="L115">	}</span>
+
+	@Override
+	public Class&lt;?&gt; getInputClass() {
+<span class="fc" id="L119">		return FileSystemEvent.class;</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getOutputClass() {
+<span class="fc" id="L124">		return null;</span>
+	}
+
+	@Override
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+<span class="fc" id="L129">		this.activationHandler = activationHandler;</span>
+<span class="fc" id="L130">		Path nioBaseDircetoryPath = Paths.get(baseDircetoryPathVariant.getValue());</span>
+<span class="fc" id="L131">		watchService = FileSystems.getDefault().newWatchService();</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">		if (preExistingResourcesConsideredVariant.getValue()) {</span>
+<span class="nc" id="L133">			try (Stream&lt;Path&gt; stream = Files.walk(nioBaseDircetoryPath)) {</span>
+<span class="nc" id="L134">				stream.skip(1).forEach(nioPath -&gt; {</span>
+					try {
+<span class="nc" id="L136">						eventOccured(StandardWatchEventKinds.ENTRY_CREATE, nioBaseDircetoryPath.relativize(nioPath),</span>
+<span class="nc" id="L137">								false);</span>
+<span class="nc" id="L138">					} catch (IOException e) {</span>
+<span class="nc" id="L139">						throw new PotentialError(e);</span>
+					}
+<span class="nc" id="L141">				});</span>
+			}
+		}
+<span class="fc" id="L144">		boolean subDirectoriesWatchedRecursively = subDirectoriesWatchedRecursivelyVariant.getValue();</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">		if (subDirectoriesWatchedRecursively) {</span>
+<span class="nc" id="L146">			registerDirectoriesRecursively(nioBaseDircetoryPath, watchService, creationWatchedVariant.getValue(),</span>
+<span class="nc" id="L147">					deletionWatchedVariant.getValue(), modificationWatchedVariant.getValue());</span>
+<span class="nc" id="L148">		} else {</span>
+<span class="fc" id="L149">			registerDirectory(watchService, nioBaseDircetoryPath, creationWatchedVariant.getValue(),</span>
+<span class="fc" id="L150">					deletionWatchedVariant.getValue(), modificationWatchedVariant.getValue());</span>
+		}
+<span class="fc" id="L152">		thread = new Thread(&quot;Worker[of=&quot; + WatchFileSystem.this + &quot;]&quot;) {</span>
+
+			@Override
+			public void run() {
+				while (true) {
+					try {
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">						if (isInterrupted()) {</span>
+<span class="nc" id="L159">							break;</span>
+						}
+						WatchKey key;
+						try {
+<span class="fc" id="L163">							key = watchService.take();</span>
+<span class="fc" id="L164">						} catch (ClosedWatchServiceException e) {</span>
+<span class="fc" id="L165">							break;</span>
+						}
+<span class="fc bfc" id="L167" title="All 2 branches covered.">						for (WatchEvent&lt;?&gt; event : key.pollEvents()) {</span>
+<span class="fc" id="L168">							WatchEvent.Kind&lt;?&gt; eventKind = event.kind();</span>
+<span class="fc" id="L169">							Path nioPath = (Path) event.context();</span>
+<span class="fc" id="L170">							eventOccured(eventKind, nioPath, subDirectoriesWatchedRecursively);</span>
+						}
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">						if (!key.reset()) {</span>
+<span class="nc" id="L173">							break;</span>
+						}
+<span class="nc" id="L175">					} catch (Throwable t) {</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">						if (MiscUtils.isInterruptionException(t)) {</span>
+<span class="nc" id="L177">							break;</span>
+						} else {
+<span class="nc" id="L179">							Log.get().error(t);</span>
+<span class="nc" id="L180">							throw new UnexpectedError(t);</span>
+						}
+					}
+				}
+<span class="fc" id="L184">			}</span>
+
+		};
+<span class="fc" id="L187">		thread.start();</span>
+<span class="fc" id="L188">	}</span>
+
+	@Override
+	public void finalizeAutomaticTrigger() throws Exception {
+<span class="fc" id="L192">		MiscUtils.willRethrowCommonly((compositeException) -&gt; {</span>
+<span class="fc" id="L193">			compositeException.tryCactch(() -&gt; {</span>
+<span class="fc" id="L194">				watchService.close();</span>
+<span class="fc" id="L195">			});</span>
+<span class="fc" id="L196">			compositeException.tryCactch(() -&gt; {</span>
+<span class="pc bpc" id="L197" title="1 of 2 branches missed.">				while (thread.isAlive()) {</span>
+<span class="nc" id="L198">					thread.interrupt();</span>
+<span class="nc" id="L199">					MiscUtils.relieveCPU();</span>
+				}
+<span class="fc" id="L201">			});</span>
+<span class="fc" id="L202">			this.activationHandler = null;</span>
+<span class="fc" id="L203">		});</span>
+<span class="fc" id="L204">	}</span>
+
+	@Override
+	public boolean isAutomaticTriggerReady() {
+<span class="fc bfc" id="L208" title="All 2 branches covered.">		return activationHandler != null;</span>
+	}
+
+	@Override
+	public boolean isAutomaticallyTriggerable() {
+<span class="fc" id="L213">		return true;</span>
+	}
+
+	private void registerDirectory(WatchService watchService, Path nioDircetoryPath, boolean creationWatched,
+			boolean deletionWatched, boolean modificationWatched) throws IOException {
+<span class="fc" id="L218">		List&lt;WatchEvent.Kind&lt;?&gt;&gt; eventKinds = new ArrayList&lt;WatchEvent.Kind&lt;?&gt;&gt;();</span>
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">		if (creationWatched) {</span>
+<span class="fc" id="L220">			eventKinds.add(StandardWatchEventKinds.ENTRY_CREATE);</span>
+		}
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">		if (deletionWatched) {</span>
+<span class="nc" id="L223">			eventKinds.add(StandardWatchEventKinds.ENTRY_DELETE);</span>
+		}
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">		if (modificationWatched) {</span>
+<span class="fc" id="L226">			eventKinds.add(StandardWatchEventKinds.ENTRY_MODIFY);</span>
+		}
+<span class="fc" id="L228">		eventKinds.add(StandardWatchEventKinds.OVERFLOW);</span>
+<span class="fc" id="L229">		nioDircetoryPath.register(watchService, eventKinds.toArray(new WatchEvent.Kind[eventKinds.size()]));</span>
+<span class="fc" id="L230">	}</span>
+
+	private void registerDirectoriesRecursively(final Path root, WatchService watchService, boolean creationWatched,
+			boolean deletionWatched, boolean modificationWatched) throws IOException {
+<span class="nc" id="L234">		Files.walkFileTree(root, new SimpleFileVisitor&lt;Path&gt;() {</span>
+			@Override
+			public FileVisitResult preVisitDirectory(Path nioDirectory, BasicFileAttributes attrs) throws IOException {
+<span class="nc" id="L237">				registerDirectory(watchService, nioDirectory, creationWatched, deletionWatched, modificationWatched);</span>
+<span class="nc" id="L238">				return FileVisitResult.CONTINUE;</span>
+			}
+		});
+<span class="nc" id="L241">	}</span>
+
+	private void eventOccured(Kind&lt;?&gt; eventKind, Path nioPath, boolean registerNewDirectory) throws IOException {
+<span class="fc" id="L244">		Path nioBaseDircetoryPath = Paths.get(baseDircetoryPathVariant.getValue());</span>
+<span class="fc" id="L245">		Path resolvedNioPath = nioBaseDircetoryPath.resolve(nioPath);</span>
+<span class="pc bpc" id="L246" title="1 of 2 branches missed.">		if (Log.isVerbose()) {</span>
+<span class="nc" id="L247">			Log.get().information(eventKind + &quot;: &quot; + resolvedNioPath);</span>
+		}
+<span class="fc" id="L249">		PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(&quot;glob:&quot; + patternVariant.getValue());</span>
+<span class="fc" id="L250">		ResourceKind watchedResourceKind = watchedResourceKindVariant.getValue();</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">		if (pathMatcher.matches(nioPath)) {</span>
+<span class="fc" id="L252">			ResourceKind eventResourceKind = ResourceKind.get(resolvedNioPath);</span>
+<span class="pc bpc" id="L253" title="2 of 4 branches missed.">			if ((eventResourceKind == watchedResourceKind) || (watchedResourceKind == ResourceKind.ANY)) {</span>
+<span class="fc" id="L254">				String path = resolvedNioPath.toString();</span>
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">				boolean creationEvent = eventKind == StandardWatchEventKinds.ENTRY_CREATE;</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">				boolean deletionEvent = eventKind == StandardWatchEventKinds.ENTRY_DELETE;</span>
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">				boolean modificationEvent = eventKind == StandardWatchEventKinds.ENTRY_MODIFY;</span>
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">				boolean overflowEvent = eventKind == StandardWatchEventKinds.OVERFLOW;</span>
+				try {
+<span class="fc" id="L260">					activationHandler.trigger(new FileSystemEvent(path, eventResourceKind, creationEvent, deletionEvent,</span>
+<span class="fc" id="L261">							modificationEvent, overflowEvent));</span>
+<span class="pc" id="L262">				} catch (ExecutionError e) {</span>
+<span class="nc" id="L263">					Log.get().error(e);</span>
+				}
+			}
+		}
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">		if (registerNewDirectory) {</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">			if (eventKind == StandardWatchEventKinds.ENTRY_CREATE) {</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">				if (Files.isDirectory(resolvedNioPath, LinkOption.NOFOLLOW_LINKS)) {</span>
+<span class="nc" id="L270">					registerDirectoriesRecursively(resolvedNioPath, watchService, creationWatchedVariant.getValue(),</span>
+<span class="nc" id="L271">							deletionWatchedVariant.getValue(), modificationWatchedVariant.getValue());</span>
+				}
+			}
+		}
+<span class="fc" id="L275">	}</span>
+
+	@Override
+	public void validate(boolean recursively, Plan plan) throws ValidationError {
+<span class="fc" id="L279">		super.validate(recursively, plan);</span>
+<span class="fc" id="L280">		String baseDircetoryPath = baseDircetoryPathVariant.getValue();</span>
+<span class="pc bpc" id="L281" title="2 of 4 branches missed.">		if ((baseDircetoryPath == null) || baseDircetoryPath.isEmpty()) {</span>
+<span class="nc" id="L282">			throw new ValidationError(&quot;Base directory path not provided&quot;);</span>
+		}
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">		if (!Files.isDirectory(Paths.get(baseDircetoryPath))) {</span>
+<span class="nc" id="L285">			throw new ValidationError(</span>
+<span class="nc" id="L286">					&quot;Base directory path does not point to a valid directory: '&quot; + baseDircetoryPath + &quot;'&quot;);</span>
+		}
+<span class="fc" id="L288">		subDirectoriesWatchedRecursivelyVariant.validate();</span>
+<span class="fc" id="L289">		watchedResourceKindVariant.validate();</span>
+<span class="fc" id="L290">		patternVariant.validate();</span>
+<span class="pc bpc" id="L291" title="3 of 4 branches missed.">		if (!creationWatchedVariant.getValue() &amp;&amp; !deletionWatchedVariant.getValue()</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">				&amp;&amp; !modificationWatchedVariant.getValue()) {</span>
+<span class="nc" id="L293">			throw new ValidationError(&quot;No enabled event (creation, deletion, modification)&quot;);</span>
+		}
+<span class="fc" id="L295">		preExistingResourcesConsideredVariant.validate();</span>
+<span class="fc" id="L296">	}</span>
+
+<span class="fc" id="L298">	public static enum ResourceKind {</span>
+<span class="fc" id="L299">		FILE, DIRECTORY, ANY;</span>
+
+		public static ResourceKind get(Path nioPath) {
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">			if (Files.isDirectory(nioPath)) {</span>
+<span class="nc" id="L303">				return ResourceKind.DIRECTORY;</span>
+<span class="pc bpc" id="L304" title="1 of 2 branches missed.">			} else if (Files.isRegularFile(nioPath, LinkOption.NOFOLLOW_LINKS)) {</span>
+<span class="fc" id="L305">				return ResourceKind.FILE;</span>
+			} else {
+<span class="nc" id="L307">				return null;</span>
+			}
+		}
+	}
+
+	public static class FileSystemEvent {
+
+		private String path;
+		private ResourceKind resourceKind;
+		private boolean creationEvent;
+		private boolean deletionEvent;
+		private boolean modificationEvent;
+		private boolean overflowEvent;
+
+<span class="fc" id="L321">		public FileSystemEvent(String path, ResourceKind resourceKind, boolean creationEvent, boolean deletionEvent,</span>
+				boolean modificationEvent, boolean overflowEvent) {
+<span class="fc" id="L323">			this.path = path;</span>
+<span class="fc" id="L324">			this.resourceKind = resourceKind;</span>
+<span class="fc" id="L325">			this.creationEvent = creationEvent;</span>
+<span class="fc" id="L326">			this.deletionEvent = deletionEvent;</span>
+<span class="fc" id="L327">			this.modificationEvent = modificationEvent;</span>
+<span class="fc" id="L328">			this.overflowEvent = overflowEvent;</span>
+<span class="fc" id="L329">		}</span>
+
+		public String getPath() {
+<span class="fc" id="L332">			return path;</span>
+		}
+
+		public ResourceKind getResourceKind() {
+<span class="fc" id="L336">			return resourceKind;</span>
+		}
+
+		public boolean isCreationEvent() {
+<span class="fc" id="L340">			return creationEvent;</span>
+		}
+
+		public boolean isDeletionEvent() {
+<span class="fc" id="L344">			return deletionEvent;</span>
+		}
+
+		public boolean isModificationEvent() {
+<span class="fc" id="L348">			return modificationEvent;</span>
+		}
+
+		public boolean isOverflowEvent() {
+<span class="nc" id="L352">			return overflowEvent;</span>
+		}
+
+	}
+
+<span class="fc" id="L357">	public static class Metadata implements ActivatorMetadata {</span>
+
+		@Override
+		public ResourcePath getActivatorIconImagePath() {
+<span class="fc" id="L361">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L362">					.specifyClassPathResourceLocation(WatchFileSystem.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+		@Override
+		public Class&lt;? extends Activator&gt; getActivatorClass() {
+<span class="fc" id="L367">			return WatchFileSystem.class;</span>
+		}
+
+		@Override
+		public String getActivatorName() {
+<span class="fc" id="L372">			return &quot;Watch File System&quot;;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

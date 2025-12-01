@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Console.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">Console.java</span></div><h1>Console.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+import java.io.PrintStream;
+import java.text.DateFormat;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import com.otk.jesb.util.MiscUtils;
+
+<span class="fc" id="L9">public class Console extends Log {</span>
+
+<span class="fc" id="L11">	public static final Console DEFAULT = new Console();</span>
+
+<span class="fc" id="L13">	private StringBuilder buffer = new StringBuilder();</span>
+<span class="fc" id="L14">	private int size = 100000;</span>
+<span class="fc" id="L15">	private final Object bufferMutex = new Object();</span>
+	private String pendingInputLine;
+<span class="pc" id="L17">	private Consumer&lt;String&gt; pendingInputLineConsumer = line -&gt; log(line, true, null, null, null);</span>
+
+	public int getSize() {
+<span class="nc" id="L20">		return size;</span>
+	}
+
+	public void setSize(int size) {
+<span class="nc bnc" id="L24" title="All 4 branches missed.">		if ((size &lt; 1000) || (size &gt; 1000000)) {</span>
+<span class="nc" id="L25">			throw new IllegalArgumentException(&quot;Invalid console size: &quot; + size);</span>
+		}
+<span class="nc" id="L27">		this.size = size;</span>
+<span class="nc" id="L28">	}</span>
+
+	public String getPendingInputLine() {
+<span class="fc" id="L31">		return pendingInputLine;</span>
+	}
+
+	public void setPendingInputLine(String pendingInputLine) {
+<span class="fc" id="L35">		this.pendingInputLine = pendingInputLine;</span>
+<span class="fc" id="L36">	}</span>
+
+	public Consumer&lt;String&gt; getPendingInputLineConsumer() {
+<span class="fc" id="L39">		return pendingInputLineConsumer;</span>
+	}
+
+	public void setPendingInputLineConsumer(Consumer&lt;String&gt; pendingInputLineConsumer) {
+<span class="fc" id="L43">		this.pendingInputLineConsumer = pendingInputLineConsumer;</span>
+<span class="fc" id="L44">	}</span>
+
+	@Override
+	public PrintStream createErrorStream() {
+<span class="pc" id="L48">		return getPrintStream(System.err, LogFile.ERROR_LEVEL_NAME, &quot;#FFFFFF&quot;, &quot;#FF6E40&quot;, () -&gt; true);</span>
+	}
+
+	@Override
+	public PrintStream createWarningStream() {
+<span class="pc" id="L53">		return getPrintStream(System.err, LogFile.WARNING_LEVEL_NAME, &quot;#FFFFFF&quot;, &quot;#FFC13B&quot;, () -&gt; true);</span>
+	}
+
+	@Override
+	public PrintStream createInformationStream() {
+<span class="fc" id="L58">		return getPrintStream(System.out, LogFile.INFORMATION_LEVEL_NAME, &quot;#FFFFFF&quot;, &quot;#AAAAAA&quot;, () -&gt; true);</span>
+	}
+
+	public void log(String message, Boolean lineTerminated, String levelName, String prefixColor, String messageColor) {
+<span class="fc" id="L62">		synchronized (bufferMutex) {</span>
+<span class="fc" id="L63">			String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(MiscUtils.now());</span>
+<span class="fc" id="L64">			int MAX_MESSAGE_LENGTH = 5000;</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">			if (message.length() &gt; MAX_MESSAGE_LENGTH) {</span>
+<span class="nc" id="L66">				message = message.substring(0, MAX_MESSAGE_LENGTH) + &quot;...&quot;;</span>
+			}
+<span class="fc" id="L68">			String formattedMessage = message;</span>
+<span class="fc" id="L69">			formattedMessage = &quot;&lt;b&gt;&quot; + MiscUtils.escapeHTML(formattedMessage, false) + &quot;&lt;/b&gt;&quot;;</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">			if (messageColor != null) {</span>
+<span class="fc" id="L71">				formattedMessage = &quot;&lt;font color=\&quot;&quot; + messageColor + &quot;\&quot;&gt;&quot; + formattedMessage + &quot;&lt;/font&gt;&quot;;</span>
+			}
+<span class="pc bpc" id="L73" title="1 of 4 branches missed.">			if ((levelName != null) &amp;&amp; (prefixColor != null)) {</span>
+<span class="fc" id="L74">				formattedMessage = &quot;&lt;font color=\&quot;&quot; + prefixColor + &quot;\&quot;&gt;&quot; + &quot;- &quot; + date + &quot; - &quot; + levelName + &quot; [&quot;</span>
+<span class="fc" id="L75">						+ Thread.currentThread().getName() + &quot;] &quot; + &quot;&lt;/font&gt;&quot; + formattedMessage;</span>
+			}
+<span class="fc bfc" id="L77" title="All 2 branches covered.">			if (buffer.length() == 0) {</span>
+<span class="fc" id="L78">				buffer.append(&quot;&lt;pre&gt;&quot;);</span>
+			}
+<span class="fc" id="L80">			buffer.append(formattedMessage);</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">			if (lineTerminated) {</span>
+<span class="fc" id="L82">				buffer.append(&quot;&lt;/pre&gt;\n&lt;pre&gt;&quot;);</span>
+			}
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">			if ((buffer.length() - size) &gt; 0) {</span>
+<span class="nc" id="L85">				int endOfFirstLine = buffer.indexOf(&quot;\n&quot;);</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">				if (endOfFirstLine == -1) {</span>
+<span class="nc" id="L87">					endOfFirstLine = buffer.length();</span>
+				}
+<span class="nc" id="L89">				buffer.delete(0, endOfFirstLine + &quot;\n&quot;.length());</span>
+			}
+		}
+<span class="fc" id="L92">	}</span>
+
+	public void log(String message) {
+<span class="fc" id="L95">		log(message, true, null, null, null);</span>
+<span class="fc" id="L96">	}</span>
+
+	public String read() {
+<span class="fc" id="L99">		return buffer.toString() + &quot;&lt;font color=\&quot;blue\&quot;&gt;_&lt;/font&gt;&quot;;</span>
+	}
+
+	public void submitPendingInputLine() {
+<span class="fc" id="L103">		String s = pendingInputLine;</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">		if (s == null) {</span>
+<span class="nc" id="L105">			s = &quot;&quot;;</span>
+		}
+<span class="fc" id="L107">		pendingInputLineConsumer.accept(s);</span>
+<span class="fc" id="L108">		pendingInputLine = null;</span>
+<span class="fc" id="L109">	}</span>
+
+	public void clear() {
+<span class="fc" id="L112">		buffer.delete(0, buffer.length());</span>
+<span class="fc" id="L113">	}</span>
+
+	public PrintStream getPrintStream(PrintStream parallelPrintStream, String levelName, final String prefixColor,
+			final String messageColor, final Supplier&lt;Boolean&gt; enablementStatusSupplier) {
+<span class="fc" id="L117">		return MiscUtils.createBufferedPrintStream((line, lineTerminated) -&gt; {</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">			if (lineTerminated) {</span>
+<span class="fc" id="L119">				parallelPrintStream.println(line);</span>
+<span class="fc" id="L120">			} else {</span>
+<span class="fc" id="L121">				parallelPrintStream.print(line);</span>
+			}
+<span class="fc" id="L123">			log(line, lineTerminated, levelName, prefixColor, messageColor);</span>
+<span class="fc" id="L124">		}, enablementStatusSupplier);</span>
+	}
+
+	public PrintStream getPrintStream(PrintStream parallelPrintStream,
+			final Supplier&lt;Boolean&gt; enablementStatusSupplier) {
+<span class="fc" id="L129">		return getPrintStream(parallelPrintStream, null, null, null, enablementStatusSupplier);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

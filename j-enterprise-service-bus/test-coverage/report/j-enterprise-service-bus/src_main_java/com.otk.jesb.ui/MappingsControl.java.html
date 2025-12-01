@@ -1,0 +1,1068 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MappingsControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.ui</a> &gt; <span class="el_source">MappingsControl.java</span></div><h1>MappingsControl.java</h1><pre class="source lang-java linenums">package com.otk.jesb.ui;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.event.ActionEvent;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+
+import org.jdesktop.swingx.JXTreeTable;
+
+import com.otk.jesb.PathExplorer;
+import com.otk.jesb.PathExplorer.FieldNode;
+import com.otk.jesb.PathExplorer.ListItemNode;
+import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.PathExplorer.RelativePathNode;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.FacadeOutline;
+import com.otk.jesb.instantiation.FieldInitializerFacade;
+import com.otk.jesb.instantiation.InstantiationFunction;
+import com.otk.jesb.instantiation.ListItemInitializerFacade;
+import com.otk.jesb.instantiation.ListItemReplication;
+import com.otk.jesb.instantiation.ListItemReplicationFacade;
+import com.otk.jesb.instantiation.ParameterInitializerFacade;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.Listener;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
+
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.ListControl;
+import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
+import xy.reflect.ui.undo.ListModificationFactory;
+import xy.reflect.ui.undo.ModificationStack;
+
+public class MappingsControl extends JPanel implements IAdvancedFieldControl {
+
+	private static final long serialVersionUID = 1L;
+
+	private SwingRenderer swingRenderer;
+	private IFieldControlInput input;
+
+	private InstanceBuilderVariableTreeControl foundSourceControl;
+	private InstanceBuilderInitializerTreeControl foundTargetControl;
+
+	private Set&lt;Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;&gt; mappingsCache;
+
+<span class="fc" id="L100">	public MappingsControl(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L101">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L102">		this.input = input;</span>
+<span class="fc" id="L103">	}</span>
+
+	private Source getSource() {
+<span class="nc" id="L106">		return (Source) input.getControlData().getValue();</span>
+	}
+
+	@Override
+	public boolean showsCaption() {
+<span class="fc" id="L111">		return false;</span>
+	}
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+<span class="fc" id="L116">		resetMappingsCache();</span>
+<span class="fc" id="L117">		return true;</span>
+	}
+
+	@Override
+	public void validateControlData(ValidationSession session) throws Exception {
+<span class="nc" id="L122">	}</span>
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
+<span class="nc" id="L126">	}</span>
+
+	@Override
+	public boolean requestCustomFocus() {
+<span class="fc" id="L130">		return false;</span>
+	}
+
+	@Override
+	public boolean isModificationStackManaged() {
+<span class="nc" id="L135">		return false;</span>
+	}
+
+	@Override
+	public boolean areValueAccessErrorsManaged() {
+<span class="nc" id="L140">		return false;</span>
+	}
+
+	@Override
+	public boolean displayError(Throwable error) {
+<span class="nc" id="L145">		return false;</span>
+	}
+
+	@Override
+	protected void paintComponent(Graphics g) {
+<span class="fc" id="L150">		super.paintComponent(g);</span>
+<span class="fc" id="L151">		List&lt;Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;&gt; allMappings = new ArrayList&lt;Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;&gt;(</span>
+<span class="fc" id="L152">				estimateVisibleMappings());</span>
+<span class="fc" id="L153">		final Set&lt;Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;&gt; highlightedMappings = estimateHighlightedVisibleMappings();</span>
+<span class="fc" id="L154">		Collections.sort(allMappings, new Comparator&lt;Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;&gt;() {</span>
+			@Override
+			public int compare(Pair&lt;BufferedItemPosition, BufferedItemPosition&gt; o1,
+					Pair&lt;BufferedItemPosition, BufferedItemPosition&gt; o2) {
+<span class="nc" id="L158">				return ((Boolean) highlightedMappings.contains(o1))</span>
+<span class="nc" id="L159">						.compareTo(((Boolean) highlightedMappings.contains(o2)));</span>
+			}
+		});
+<span class="fc bfc" id="L162" title="All 2 branches covered.">		for (Pair&lt;BufferedItemPosition, BufferedItemPosition&gt; mapping : allMappings) {</span>
+<span class="fc" id="L163">			BufferedItemPosition sourceItemPosition = mapping.getFirst();</span>
+<span class="fc" id="L164">			BufferedItemPosition targetItemPosition = mapping.getSecond();</span>
+			int sourceY;
+			{
+<span class="fc" id="L167">				TreePath treePath = foundSourceControl.getTreePath(sourceItemPosition);</span>
+<span class="fc" id="L168">				int row = foundSourceControl.getTreeTableComponent().getRowForPath(treePath);</span>
+<span class="fc" id="L169">				Rectangle cellRect = foundSourceControl.getTreeTableComponent().getCellRect(row, 0, false);</span>
+<span class="fc" id="L170">				sourceY = cellRect.y + Math.round(cellRect.height / 2f);</span>
+<span class="fc" id="L171">				sourceY = SwingUtilities.convertPoint(foundSourceControl.getTreeTableComponent(), 0, sourceY,</span>
+<span class="fc" id="L172">						MappingsControl.this).y;</span>
+			}
+			int targetY;
+			{
+<span class="fc" id="L176">				TreePath treePath = foundTargetControl.getTreePath(targetItemPosition);</span>
+<span class="fc" id="L177">				int row = foundTargetControl.getTreeTableComponent().getRowForPath(treePath);</span>
+<span class="fc" id="L178">				Rectangle cellRect = foundTargetControl.getTreeTableComponent().getCellRect(row, 0, false);</span>
+<span class="fc" id="L179">				targetY = cellRect.y + Math.round(cellRect.height / 2f);</span>
+<span class="fc" id="L180">				targetY = SwingUtilities.convertPoint(foundTargetControl.getTreeTableComponent(), 0, targetY,</span>
+<span class="fc" id="L181">						MappingsControl.this).y;</span>
+			}
+<span class="fc" id="L183">			g.setColor(</span>
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">					highlightedMappings.contains(mapping) ? getHighlightedMappingLinesColor() : getMappingLinesColor());</span>
+<span class="fc" id="L185">			((Graphics2D) g).setStroke(new BasicStroke(getMappingLinesThickness()));</span>
+<span class="fc" id="L186">			g.drawLine(0, sourceY, MappingsControl.this.getWidth(), targetY);</span>
+		}
+
+<span class="fc" id="L189">	}</span>
+
+	public static int getMappingLinesThickness() {
+<span class="fc" id="L192">		return 2;</span>
+	}
+
+	public static Color getMappingLinesColor() {
+<span class="nc" id="L196">		return new Color(190, 190, 255);</span>
+	}
+
+	public static Color getHighlightedMappingLinesColor() {
+<span class="fc" id="L200">		return new Color(0, 0, 230);</span>
+	}
+
+	public static Color getConcreteElementTextColor() {
+<span class="fc" id="L204">		return Color.BLACK;</span>
+	}
+
+	public static Color getAbstractElementTextColor() {
+<span class="fc" id="L208">		return Color.LIGHT_GRAY;</span>
+	}
+
+	private static PathNode relativizePathNode(PathNode pathNode, Facade initializerFacade) {
+<span class="fc bfc" id="L212" title="All 2 branches covered.">		if (initializerFacade.getParent() != null) {</span>
+<span class="fc" id="L213">			pathNode = relativizePathNode(pathNode, initializerFacade.getParent());</span>
+		}
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">		if (initializerFacade instanceof ListItemInitializerFacade) {</span>
+<span class="nc" id="L216">			ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) initializerFacade;</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">			if (listItemInitializerFacade.getItemReplicationFacade() != null) {</span>
+<span class="nc" id="L218">				ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade.getItemReplicationFacade();</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">				if (itemReplicationFacade.getIterationListValue() instanceof InstantiationFunction) {</span>
+<span class="nc" id="L220">					InstantiationFunction replicationFunction = (InstantiationFunction) itemReplicationFacade</span>
+<span class="nc" id="L221">							.getIterationListValue();</span>
+<span class="nc" id="L222">					PathNode pathNodeOrAncestor = pathNode;</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">					while (pathNodeOrAncestor != null) {</span>
+<span class="nc bnc" id="L224" title="All 2 branches missed.">						if (unrelativizePathNode(pathNodeOrAncestor) instanceof ListItemNode) {</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">							String parentExpressionPattern = (pathNodeOrAncestor.getParent() != null)</span>
+<span class="nc" id="L226">									? pathNodeOrAncestor.getParent().getExpressionPattern()</span>
+<span class="nc" id="L227">									: pathNodeOrAncestor.getExplorer().getRootExpressionPattern();</span>
+<span class="nc" id="L228">							String functionBodyPattern = &quot;^\\s*return\\s+&quot; + parentExpressionPattern + &quot;\\s*;\\s*$&quot;;</span>
+<span class="nc" id="L229">							if (Pattern.compile(functionBodyPattern, Pattern.DOTALL)</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">									.matcher(replicationFunction.getFunctionBody()).matches()) {</span>
+<span class="nc" id="L231">								return new RelativePathNode(pathNode, pathNodeOrAncestor.getTypicalExpression(),</span>
+<span class="nc" id="L232">										pathNodeOrAncestor.getExpressionPattern(),</span>
+<span class="nc" id="L233">										itemReplicationFacade.getIterationVariableName());</span>
+							}
+						}
+<span class="nc" id="L236">						pathNodeOrAncestor = pathNodeOrAncestor.getParent();</span>
+					}
+				}
+			}
+		}
+<span class="fc" id="L241">		return pathNode;</span>
+	}
+
+	private static PathNode unrelativizePathNode(PathNode pathNode) {
+<span class="nc bnc" id="L245" title="All 2 branches missed.">		if (pathNode instanceof RelativePathNode) {</span>
+<span class="nc" id="L246">			return unrelativizePathNode(((RelativePathNode) pathNode).getUnderlying());</span>
+		}
+<span class="nc" id="L248">		return pathNode;</span>
+	}
+
+	private static BufferedItemPosition getMappingItemPosition(Pair&lt;BufferedItemPosition, BufferedItemPosition&gt; pair,
+			Side side) {
+<span class="fc bfc" id="L253" title="All 2 branches covered.">		if (side == Side.SOURCE) {</span>
+<span class="fc" id="L254">			return pair.getFirst();</span>
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">		} else if (side == Side.TARGET) {</span>
+<span class="fc" id="L256">			return pair.getSecond();</span>
+		} else {
+<span class="nc" id="L258">			throw new UnexpectedError();</span>
+		}
+	}
+
+	public Set&lt;Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;&gt; estimateHighlightedVisibleMappings() {
+<span class="fc" id="L263">		InstanceBuilderVariableTreeControl sourceControl = findSourceControl();</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">		if (sourceControl == null) {</span>
+<span class="nc" id="L265">			return Collections.emptySet();</span>
+		}
+<span class="fc" id="L267">		InstanceBuilderInitializerTreeControl targetControl = findTargetControl();</span>
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">		if (targetControl == null) {</span>
+<span class="nc" id="L269">			return Collections.emptySet();</span>
+		}
+<span class="fc" id="L271">		List&lt;BufferedItemPosition&gt; sourceSelection = sourceControl.getSelection();</span>
+<span class="fc" id="L272">		List&lt;BufferedItemPosition&gt; targetSelection = targetControl.getSelection();</span>
+<span class="fc" id="L273">		return estimateVisibleMappings().stream()</span>
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">				.filter(pair -&gt; sourceSelection.contains(getMappingItemPosition(pair, Side.SOURCE))</span>
+<span class="pc bpc" id="L275" title="1 of 2 branches missed.">						|| targetSelection.contains(getMappingItemPosition(pair, Side.TARGET)))</span>
+<span class="fc" id="L276">				.collect(Collectors.toSet());</span>
+	}
+
+	public Set&lt;Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;&gt; estimateVisibleMappings() {
+<span class="fc" id="L280">		InstanceBuilderVariableTreeControl sourceControl = findSourceControl();</span>
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">		if (sourceControl == null) {</span>
+<span class="nc" id="L282">			return Collections.emptySet();</span>
+		}
+<span class="fc" id="L284">		InstanceBuilderInitializerTreeControl targetControl = findTargetControl();</span>
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">		if (targetControl == null) {</span>
+<span class="nc" id="L286">			return Collections.emptySet();</span>
+		}
+<span class="fc" id="L288">		Set&lt;Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;&gt; result = estimateMappings();</span>
+<span class="fc" id="L289">		return result.stream().map(pair -&gt; {</span>
+<span class="fc" id="L290">			BufferedItemPosition sourceItemPosition = pair.getFirst();</span>
+<span class="fc" id="L291">			BufferedItemPosition targetItemPosition = pair.getSecond();</span>
+<span class="pc bpc" id="L292" title="1 of 2 branches missed.">			while ((sourceItemPosition.getParentItemPosition() != null)</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">					&amp;&amp; !sourceControl.isItemPositionExpanded(sourceItemPosition.getParentItemPosition())) {</span>
+<span class="nc" id="L294">				sourceItemPosition = sourceItemPosition.getParentItemPosition();</span>
+			}
+<span class="pc bfc" id="L296" title="All 2 branches covered.">			while ((targetItemPosition.getParentItemPosition() != null)</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">					&amp;&amp; !targetControl.isItemPositionExpanded(targetItemPosition.getParentItemPosition())) {</span>
+<span class="fc" id="L298">				targetItemPosition = targetItemPosition.getParentItemPosition();</span>
+			}
+<span class="fc" id="L300">			return new Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;(sourceItemPosition, targetItemPosition);</span>
+<span class="fc" id="L301">		}).collect(Collectors.toSet());</span>
+	}
+
+	public Set&lt;Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;&gt; estimateMappings() {
+<span class="fc bfc" id="L305" title="All 2 branches covered.">		if (mappingsCache == null) {</span>
+<span class="fc" id="L306">			Set&lt;Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;&gt; result = new HashSet&lt;Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;&gt;();</span>
+<span class="fc" id="L307">			InstanceBuilderVariableTreeControl sourceControl = findSourceControl();</span>
+<span class="pc bpc" id="L308" title="1 of 2 branches missed.">			if (sourceControl == null) {</span>
+<span class="nc" id="L309">				return Collections.emptySet();</span>
+			}
+<span class="fc" id="L311">			InstanceBuilderInitializerTreeControl targetControl = findTargetControl();</span>
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">			if (targetControl == null) {</span>
+<span class="nc" id="L313">				return Collections.emptySet();</span>
+			}
+<span class="fc" id="L315">			sourceControl.visitItems(new ListControl.IItemsVisitor() {</span>
+				boolean mappingFound;
+
+				@Override
+				public VisitStatus visitItem(BufferedItemPosition sourceItemPosition) {
+<span class="fc" id="L320">					mappingFound = false;</span>
+<span class="pc bpc" id="L321" title="1 of 2 branches missed.">					if (sourceItemPosition.getItem() instanceof PathNode) {</span>
+<span class="fc" id="L322">						PathNode pathNode = (PathNode) sourceItemPosition.getItem();</span>
+<span class="fc" id="L323">						targetControl.visitItems(new ListControl.IItemsVisitor() {</span>
+							@Override
+							public VisitStatus visitItem(BufferedItemPosition targetItemPosition) {
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">								if (!(targetItemPosition.getItem() instanceof Facade)) {</span>
+<span class="nc" id="L327">									return VisitStatus.SUBTREE_VISIT_INTERRUPTED;</span>
+								}
+<span class="fc" id="L329">								final Facade initializerFacade = (Facade) targetItemPosition.getItem();</span>
+<span class="fc bfc" id="L330" title="All 2 branches covered.">								if (!initializerFacade.isConcrete()) {</span>
+<span class="fc" id="L331">									return VisitStatus.SUBTREE_VISIT_INTERRUPTED;</span>
+								}
+<span class="fc" id="L333">								List&lt;InstantiationFunction&gt; functions = new ArrayList&lt;InstantiationFunction&gt;();</span>
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">								if (initializerFacade instanceof ParameterInitializerFacade) {</span>
+<span class="fc" id="L335">									if (((ParameterInitializerFacade) initializerFacade)</span>
+<span class="fc bfc" id="L336" title="All 2 branches covered.">											.getParameterValue() instanceof InstantiationFunction) {</span>
+<span class="fc" id="L337">										functions.add(</span>
+<span class="fc" id="L338">												(InstantiationFunction) ((ParameterInitializerFacade) initializerFacade)</span>
+<span class="fc" id="L339">														.getParameterValue());</span>
+									}
+<span class="pc bnc" id="L341" title="All 2 branches missed.">								} else if (initializerFacade instanceof FieldInitializerFacade) {</span>
+<span class="nc" id="L342">									if (((FieldInitializerFacade) initializerFacade)</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">											.getFieldValue() instanceof InstantiationFunction) {</span>
+<span class="nc" id="L344">										functions.add(</span>
+<span class="nc" id="L345">												(InstantiationFunction) ((FieldInitializerFacade) initializerFacade)</span>
+<span class="nc" id="L346">														.getFieldValue());</span>
+									}
+<span class="nc bnc" id="L348" title="All 2 branches missed.">									if (((FieldInitializerFacade) initializerFacade).getCondition() != null) {</span>
+<span class="nc" id="L349">										functions.add(((FieldInitializerFacade) initializerFacade).getCondition());</span>
+									}
+<span class="nc bnc" id="L351" title="All 2 branches missed.">								} else if (initializerFacade instanceof ListItemInitializerFacade) {</span>
+<span class="nc" id="L352">									if (((ListItemInitializerFacade) initializerFacade)</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">											.getItemValue() instanceof InstantiationFunction) {</span>
+<span class="nc" id="L354">										functions.add(</span>
+<span class="nc" id="L355">												(InstantiationFunction) ((ListItemInitializerFacade) initializerFacade)</span>
+<span class="nc" id="L356">														.getItemValue());</span>
+									}
+<span class="nc bnc" id="L358" title="All 2 branches missed.">									if (((ListItemInitializerFacade) initializerFacade)</span>
+<span class="nc" id="L359">											.getItemReplicationFacade() != null) {</span>
+<span class="nc" id="L360">										ListItemReplicationFacade replication = ((ListItemInitializerFacade) initializerFacade)</span>
+<span class="nc" id="L361">												.getItemReplicationFacade();</span>
+<span class="nc bnc" id="L362" title="All 2 branches missed.">										if (replication.getIterationListValue() instanceof InstantiationFunction) {</span>
+<span class="nc" id="L363">											functions.add((InstantiationFunction) replication.getIterationListValue());</span>
+										}
+									}
+								}
+<span class="fc bfc" id="L367" title="All 2 branches covered.">								for (InstantiationFunction function : functions) {</span>
+									if (Pattern
+<span class="fc" id="L369">											.compile(&quot;.*&quot; + relativizePathNode(pathNode, initializerFacade)</span>
+<span class="fc" id="L370">													.getExpressionPattern() + &quot;.*&quot;, Pattern.DOTALL)</span>
+<span class="fc bfc" id="L371" title="All 2 branches covered.">											.matcher(function.getFunctionBody()).matches()) {</span>
+<span class="fc" id="L372">										result.add(new Pair&lt;BufferedItemPosition, BufferedItemPosition&gt;(</span>
+<span class="fc" id="L373">												sourceItemPosition, targetItemPosition));</span>
+<span class="fc" id="L374">										mappingFound = true;</span>
+									}
+
+								}
+<span class="fc" id="L378">								return VisitStatus.VISIT_NOT_INTERRUPTED;</span>
+							}
+						});
+					}
+<span class="fc bfc" id="L382" title="All 2 branches covered.">					return mappingFound ? VisitStatus.VISIT_NOT_INTERRUPTED : VisitStatus.SUBTREE_VISIT_INTERRUPTED;</span>
+				}
+			});
+<span class="fc" id="L385">			mappingsCache = result.stream()</span>
+<span class="fc" id="L386">					.filter(pair -&gt; result.stream()</span>
+<span class="pc bpc" id="L387" title="1 of 2 branches missed.">							.noneMatch(otherPair -&gt; pair.getSecond().equals(otherPair.getSecond())</span>
+<span class="pc bpc" id="L388" title="1 of 2 branches missed.">									&amp;&amp; pair.getFirst().equals(otherPair.getFirst().getParentItemPosition())))</span>
+<span class="fc" id="L389">					.collect(Collectors.toSet());</span>
+		}
+<span class="fc" id="L391">		return mappingsCache;</span>
+	}
+
+	public void resetMappingsCache() {
+<span class="fc" id="L395">		mappingsCache = null;</span>
+<span class="fc" id="L396">	}</span>
+
+	public InstanceBuilderInitializerTreeControl findTargetControl() {
+<span class="fc" id="L399">		return findControl(swingRenderer, this, InstanceBuilderInitializerTreeControl.class,</span>
+<span class="fc" id="L400">				new Accessor&lt;InstanceBuilderInitializerTreeControl&gt;() {</span>
+
+					@Override
+					public InstanceBuilderInitializerTreeControl get() {
+<span class="fc" id="L404">						return foundTargetControl;</span>
+					}
+
+					@Override
+					public void set(InstanceBuilderInitializerTreeControl t) {
+<span class="fc" id="L409">						foundTargetControl = t;</span>
+<span class="fc" id="L410">					}</span>
+
+<span class="fc" id="L412">				}, null);</span>
+	}
+
+	public InstanceBuilderVariableTreeControl findSourceControl() {
+<span class="fc" id="L416">		return findControl(swingRenderer, this, InstanceBuilderVariableTreeControl.class,</span>
+<span class="fc" id="L417">				new Accessor&lt;InstanceBuilderVariableTreeControl&gt;() {</span>
+
+					@Override
+					public InstanceBuilderVariableTreeControl get() {
+<span class="fc" id="L421">						return foundSourceControl;</span>
+					}
+
+					@Override
+					public void set(InstanceBuilderVariableTreeControl t) {
+<span class="fc" id="L426">						foundSourceControl = t;</span>
+<span class="fc" id="L427">					}</span>
+
+<span class="fc" id="L429">				}, null);</span>
+	}
+
+	public SideControl findSideControl(Side side) {
+<span class="pc bpc" id="L433" title="1 of 2 branches missed.">		if (side == Side.SOURCE) {</span>
+<span class="fc" id="L434">			return findSourceControl();</span>
+<span class="nc bnc" id="L435" title="All 2 branches missed.">		} else if (side == Side.TARGET) {</span>
+<span class="nc" id="L436">			return findTargetControl();</span>
+		} else {
+<span class="nc" id="L438">			throw new UnexpectedError();</span>
+		}
+	}
+
+	@SuppressWarnings(&quot;unchecked&quot;)
+	private static &lt;T extends Component&gt; T findControl(SwingRenderer swingRenderer, Component fromComponent,
+			Class&lt;T&gt; controlClass, Accessor&lt;T&gt; alreadyFoundControlAccessor, Listener&lt;T&gt; controlConfigurator) {
+<span class="fc bfc" id="L445" title="All 2 branches covered.">		if (alreadyFoundControlAccessor.get() != null) {</span>
+<span class="fc" id="L446">			return alreadyFoundControlAccessor.get();</span>
+		}
+<span class="fc" id="L448">		Form facadeOutlineForm = SwingRendererUtils.findAncestorFormOfType(fromComponent, FacadeOutline.class.getName(),</span>
+<span class="fc" id="L449">				swingRenderer);</span>
+<span class="fc bfc" id="L450" title="All 2 branches covered.">		if (facadeOutlineForm == null) {</span>
+<span class="fc" id="L451">			return null;</span>
+		}
+<span class="fc" id="L453">		List&lt;Form&gt; forms = new ArrayList&lt;Form&gt;();</span>
+<span class="fc" id="L454">		forms.add(facadeOutlineForm);</span>
+<span class="fc" id="L455">		forms.addAll(SwingRendererUtils.findDescendantForms(facadeOutlineForm, GUI.INSTANCE));</span>
+<span class="pc bpc" id="L456" title="1 of 2 branches missed.">		for (Form form : forms) {</span>
+<span class="fc bfc" id="L457" title="All 2 branches covered.">			for (List&lt;FieldControlPlaceHolder&gt; fieldControlPlaceHolders : form.getFieldControlPlaceHoldersByCategory()</span>
+<span class="fc" id="L458">					.values()) {</span>
+<span class="fc bfc" id="L459" title="All 2 branches covered.">				for (FieldControlPlaceHolder fieldControlPlaceHolder : fieldControlPlaceHolders) {</span>
+<span class="fc bfc" id="L460" title="All 2 branches covered.">					if (controlClass.isInstance(fieldControlPlaceHolder.getFieldControl())) {</span>
+<span class="fc" id="L461">						alreadyFoundControlAccessor.set((T) fieldControlPlaceHolder.getFieldControl());</span>
+<span class="pc bpc" id="L462" title="1 of 2 branches missed.">						if (controlConfigurator != null) {</span>
+<span class="nc" id="L463">							controlConfigurator.handle((T) fieldControlPlaceHolder.getFieldControl());</span>
+						}
+<span class="fc" id="L465">						return (T) fieldControlPlaceHolder.getFieldControl();</span>
+					}
+				}
+			}
+		}
+<span class="nc" id="L470">		return null;</span>
+	}
+
+	public static class Source {
+
+		private RootInstanceBuilderFacade rootInstanceBuilderFacade;
+		private Plan currentPlan;
+		private Step currentStep;
+
+<span class="nc" id="L479">		public Source(RootInstanceBuilderFacade rootInstanceBuilderFacade, Plan currentPlan, Step currentStep) {</span>
+<span class="nc" id="L480">			this.rootInstanceBuilderFacade = rootInstanceBuilderFacade;</span>
+<span class="nc" id="L481">			this.currentPlan = currentPlan;</span>
+<span class="nc" id="L482">			this.currentStep = currentStep;</span>
+<span class="nc" id="L483">		}</span>
+
+		public RootInstanceBuilderFacade getRootInstanceBuilderFacade() {
+<span class="nc" id="L486">			return rootInstanceBuilderFacade;</span>
+		}
+
+		public Plan getCurrentPlan() {
+<span class="nc" id="L490">			return currentPlan;</span>
+		}
+
+		public Step getCurrentStep() {
+<span class="nc" id="L494">			return currentStep;</span>
+		}
+
+	}
+
+<span class="fc" id="L499">	public enum Side {</span>
+<span class="fc" id="L500">		SOURCE, TARGET;</span>
+
+		public static Side getOther(Side side) {
+<span class="pc bpc" id="L503" title="1 of 2 branches missed.">			if (side == SOURCE) {</span>
+<span class="nc" id="L504">				return TARGET;</span>
+<span class="pc bpc" id="L505" title="1 of 2 branches missed.">			} else if (side == TARGET) {</span>
+<span class="fc" id="L506">				return SOURCE;</span>
+			} else {
+<span class="nc" id="L508">				throw new UnexpectedError();</span>
+			}
+		}
+	}
+
+	public static abstract class SideControl extends ListControl {
+
+		private static final long serialVersionUID = 1L;
+
+		private MappingsControl foundMappingsControl;
+
+		protected abstract Side getSide();
+
+		public SideControl(SwingRenderer swingRenderer, IFieldControlInput input) {
+<span class="fc" id="L522">			super(swingRenderer, input);</span>
+<span class="fc" id="L523">		}</span>
+
+		public JXTreeTable getTreeTableComponent() {
+<span class="fc" id="L526">			return treeTableComponent;</span>
+		}
+
+		protected void reestimateAndRepaintMappings() {
+<span class="fc" id="L530">			MappingsControl mappingsControl = findMappingsControl();</span>
+<span class="fc bfc" id="L531" title="All 2 branches covered.">			if (mappingsControl != null) {</span>
+<span class="fc" id="L532">				mappingsControl.repaint();</span>
+<span class="fc" id="L533">			} else {</span>
+<span class="fc" id="L534">				return;</span>
+			}
+<span class="fc" id="L536">			mappingsControl.resetMappingsCache();</span>
+<span class="fc" id="L537">			InstanceBuilderVariableTreeControl sourceControl = mappingsControl.findSourceControl();</span>
+<span class="pc bpc" id="L538" title="1 of 2 branches missed.">			if (sourceControl != null) {</span>
+<span class="fc" id="L539">				sourceControl.repaint();</span>
+			}
+<span class="fc" id="L541">			InstanceBuilderInitializerTreeControl targetControl = mappingsControl.findTargetControl();</span>
+<span class="pc bpc" id="L542" title="1 of 2 branches missed.">			if (targetControl != null) {</span>
+<span class="fc" id="L543">				targetControl.repaint();</span>
+			}
+<span class="fc" id="L545">		}</span>
+
+		@Override
+		protected void initializeTreeTableModelAndControl() {
+<span class="fc" id="L549">			super.initializeTreeTableModelAndControl();</span>
+<span class="fc" id="L550">			treeTableComponent.addTreeExpansionListener(new TreeExpansionListener() {</span>
+
+				@Override
+				public void treeExpanded(TreeExpansionEvent event) {
+<span class="fc" id="L554">					reestimateAndRepaintMappings();</span>
+<span class="fc" id="L555">				}</span>
+
+				@Override
+				public void treeCollapsed(TreeExpansionEvent event) {
+<span class="nc" id="L559">					reestimateAndRepaintMappings();</span>
+<span class="nc" id="L560">				}</span>
+			});
+<span class="fc" id="L562">			((JScrollPane) treeTableComponent.getParent().getParent()).getVerticalScrollBar()</span>
+<span class="fc" id="L563">					.addAdjustmentListener(new AdjustmentListener() {</span>
+						@Override
+						public void adjustmentValueChanged(AdjustmentEvent e) {
+<span class="fc" id="L566">							reestimateAndRepaintMappings();</span>
+<span class="fc" id="L567">						}</span>
+					});
+<span class="fc" id="L569">			treeTableComponent.addTreeSelectionListener(new TreeSelectionListener() {</span>
+				@Override
+				public void valueChanged(TreeSelectionEvent e) {
+<span class="fc" id="L572">					preventSelectionOnBothSides();</span>
+<span class="fc" id="L573">					reestimateAndRepaintMappings();</span>
+<span class="fc" id="L574">				}</span>
+
+				private void preventSelectionOnBothSides() {
+<span class="fc bfc" id="L577" title="All 2 branches covered.">					if (getSelection().size() == 0) {</span>
+<span class="fc" id="L578">						return;</span>
+					}
+<span class="fc" id="L580">					MappingsControl mappingsControl = findMappingsControl();</span>
+<span class="fc bfc" id="L581" title="All 2 branches covered.">					if (mappingsControl == null) {</span>
+<span class="fc" id="L582">						return;</span>
+					}
+<span class="fc" id="L584">					SideControl otherSideControl = mappingsControl.findSideControl(Side.getOther(getSide()));</span>
+<span class="pc bpc" id="L585" title="1 of 2 branches missed.">					if (otherSideControl == null) {</span>
+<span class="nc" id="L586">						return;</span>
+					}
+<span class="fc" id="L588">					otherSideControl.setSelection(Collections.emptyList());</span>
+<span class="fc" id="L589">				}</span>
+			});
+<span class="fc" id="L591">		}</span>
+
+		@Override
+		protected JPopupMenu createPopupMenu() {
+<span class="nc" id="L595">			JPopupMenu result = super.createPopupMenu();</span>
+<span class="nc" id="L596">			result.add(new AbstractAction() {</span>
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Object getValue(String key) {
+<span class="nc bnc" id="L602" title="All 2 branches missed.">					if (Action.NAME.equals(key)) {</span>
+<span class="nc" id="L603">						return &quot;Reveal Mappings&quot;;</span>
+					} else {
+<span class="nc" id="L605">						return super.getValue(key);</span>
+					}
+				}
+
+				@Override
+				public boolean isEnabled() {
+<span class="nc" id="L611">					BufferedItemPosition selectedItemPosition = getSingleSelection();</span>
+<span class="nc bnc" id="L612" title="All 2 branches missed.">					if (selectedItemPosition == null) {</span>
+<span class="nc" id="L613">						return false;</span>
+					}
+<span class="nc" id="L615">					TreePath treePath = getTreePath(selectedItemPosition);</span>
+<span class="nc" id="L616">					int rowIndex = treeTableComponent.getRowForPath(treePath);</span>
+<span class="nc" id="L617">					return isVisiblyMapped(rowIndex);</span>
+				}
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L622">					BufferedItemPosition selectedItemPosition = getSingleSelection();</span>
+<span class="nc" id="L623">					MappingsControl mappingsControl = findMappingsControl();</span>
+<span class="nc" id="L624">					SideControl otherSideControl = mappingsControl.findSideControl(Side.getOther(getSide()));</span>
+<span class="nc bnc" id="L625" title="All 2 branches missed.">					if (mappingsControl != null) {</span>
+<span class="nc bnc" id="L626" title="All 2 branches missed.">						for (Pair&lt;BufferedItemPosition, BufferedItemPosition&gt; pair : mappingsControl</span>
+<span class="nc" id="L627">								.estimateMappings()) {</span>
+<span class="nc" id="L628">							BufferedItemPosition thisSideMappedItemPosition = getMappingItemPosition(pair, getSide());</span>
+							final boolean mappingSelected;
+<span class="nc bnc" id="L630" title="All 2 branches missed.">							if (isItemPositionExpanded(selectedItemPosition)) {</span>
+<span class="nc" id="L631">								mappingSelected = thisSideMappedItemPosition.equals(selectedItemPosition);</span>
+<span class="nc" id="L632">							} else {</span>
+<span class="nc bnc" id="L633" title="All 2 branches missed.">								mappingSelected = thisSideMappedItemPosition.equals(selectedItemPosition)</span>
+<span class="nc bnc" id="L634" title="All 2 branches missed.">										|| thisSideMappedItemPosition.getAncestors().contains(selectedItemPosition);</span>
+							}
+<span class="nc bnc" id="L636" title="All 2 branches missed.">							if (mappingSelected) {</span>
+<span class="nc" id="L637">								BufferedItemPosition otherSideItemPosition = getMappingItemPosition(pair,</span>
+<span class="nc" id="L638">										Side.getOther(getSide()));</span>
+<span class="nc bnc" id="L639" title="All 2 branches missed.">								if (otherSideItemPosition.getParentItemPosition() != null) {</span>
+<span class="nc" id="L640">									otherSideControl.expandItemPosition(otherSideItemPosition.getParentItemPosition());</span>
+<span class="nc" id="L641">									otherSideControl.scrollTo(otherSideItemPosition);</span>
+								}
+							}
+						}
+					}
+<span class="nc" id="L646">				}</span>
+
+			});
+<span class="nc" id="L649">			return result;</span>
+		}
+
+		public TreePath getTreePath(BufferedItemPosition itemPosition) {
+<span class="fc" id="L653">			ItemNode node = findNode(itemPosition);</span>
+<span class="pc bpc" id="L654" title="1 of 2 branches missed.">			if (node == null) {</span>
+<span class="nc" id="L655">				return null;</span>
+			}
+<span class="fc" id="L657">			return new TreePath(node.getPath());</span>
+		}
+
+		public MappingsControl findMappingsControl() {
+<span class="fc" id="L661">			return findControl(swingRenderer, this, MappingsControl.class, new Accessor&lt;MappingsControl&gt;() {</span>
+
+				@Override
+				public MappingsControl get() {
+<span class="fc" id="L665">					return foundMappingsControl;</span>
+				}
+
+				@Override
+				public void set(MappingsControl t) {
+<span class="fc" id="L670">					foundMappingsControl = t;</span>
+<span class="fc" id="L671">				}</span>
+<span class="fc" id="L672">			}, null);</span>
+		}
+
+		@Override
+		protected void customizeCellRendererComponent(JLabel label, ItemNode node, int rowIndex, int columnIndex,
+				boolean isSelected, boolean hasFocus) {
+<span class="fc" id="L678">			super.customizeCellRendererComponent(label, node, rowIndex, columnIndex, isSelected, hasFocus);</span>
+<span class="fc" id="L679">			label.setBorder(</span>
+<span class="fc bfc" id="L680" title="All 2 branches covered.">					isVisiblyMapped(rowIndex)</span>
+<span class="fc" id="L681">							? BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1),</span>
+									BorderFactory
+<span class="pc bpc" id="L683" title="1 of 2 branches missed.">											.createLineBorder(isHighlighted(node) ? getHighlightedMappingLinesColor()</span>
+<span class="pc" id="L684">													: getMappingLinesColor(), getMappingLinesThickness()))</span>
+<span class="fc" id="L685">							: BorderFactory.createEmptyBorder());</span>
+
+<span class="fc" id="L687">			String text = getCellValue(node, columnIndex);</span>
+<span class="pc bpc" id="L688" title="1 of 2 branches missed.">			if (text != null) {</span>
+<span class="fc" id="L689">				text += &quot;   &quot;;</span>
+<span class="fc bfc" id="L690" title="All 2 branches covered.">				for (int i = 0; i &lt; getMappingLinesThickness(); i++) {</span>
+<span class="fc" id="L691">					text += &quot;  &quot;;</span>
+				}
+			}
+<span class="fc" id="L694">			label.setText(text);</span>
+<span class="fc" id="L695">		}</span>
+
+		protected boolean isVisiblyMapped(int rowIndex) {
+<span class="fc bfc" id="L698" title="All 2 branches covered.">			if (rowIndex == -1) {</span>
+<span class="fc" id="L699">				return false;</span>
+			}
+<span class="fc" id="L701">			MappingsControl mappingsControl = findMappingsControl();</span>
+<span class="fc bfc" id="L702" title="All 2 branches covered.">			if (mappingsControl != null) {</span>
+<span class="fc bfc" id="L703" title="All 2 branches covered.">				for (Pair&lt;BufferedItemPosition, BufferedItemPosition&gt; pair : mappingsControl</span>
+<span class="fc" id="L704">						.estimateVisibleMappings()) {</span>
+<span class="fc" id="L705">					BufferedItemPosition itemPosition = getMappingItemPosition(pair, getSide());</span>
+<span class="fc" id="L706">					TreePath treePath = getTreePath(itemPosition);</span>
+<span class="fc" id="L707">					int row = treeTableComponent.getRowForPath(treePath);</span>
+<span class="fc bfc" id="L708" title="All 2 branches covered.">					if (rowIndex == row) {</span>
+<span class="fc" id="L709">						return true;</span>
+					}
+				}
+			}
+<span class="fc" id="L713">			return false;</span>
+		}
+
+		protected boolean isHighlighted(ItemNode node) {
+<span class="fc" id="L717">			BufferedItemPosition itemPosition = getItemPositionByNode(node);</span>
+<span class="pc bpc" id="L718" title="1 of 2 branches missed.">			if (itemPosition == null) {</span>
+<span class="nc" id="L719">				return false;</span>
+			}
+<span class="fc" id="L721">			MappingsControl mappingsControl = findMappingsControl();</span>
+<span class="pc bpc" id="L722" title="1 of 2 branches missed.">			if (mappingsControl != null) {</span>
+<span class="pc bpc" id="L723" title="1 of 2 branches missed.">				for (Pair&lt;BufferedItemPosition, BufferedItemPosition&gt; pair : mappingsControl</span>
+<span class="fc" id="L724">						.estimateHighlightedVisibleMappings()) {</span>
+<span class="fc" id="L725">					BufferedItemPosition highlightedMappingItemPosition = getMappingItemPosition(pair, getSide());</span>
+<span class="pc bpc" id="L726" title="1 of 2 branches missed.">					if (highlightedMappingItemPosition.equals(itemPosition)) {</span>
+<span class="fc" id="L727">						return true;</span>
+					}
+				}
+			}
+<span class="nc" id="L731">			return false;</span>
+		}
+	}
+
+<span class="fc" id="L735">	public static class PathExportTransferHandler extends TransferHandler {</span>
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public int getSourceActions(JComponent c) {
+<span class="nc" id="L741">			return DnDConstants.ACTION_COPY_OR_MOVE;</span>
+		}
+
+		@Override
+		protected Transferable createTransferable(JComponent c) {
+<span class="nc" id="L746">			InstanceBuilderVariableTreeControl listControl = (InstanceBuilderVariableTreeControl) ((JXTreeTable) c)</span>
+<span class="nc" id="L747">					.getClientProperty(InstanceBuilderVariableTreeControl.class);</span>
+<span class="nc" id="L748">			BufferedItemPosition selectedItemPosition = listControl.getSingleSelection();</span>
+<span class="nc bnc" id="L749" title="All 2 branches missed.">			if (selectedItemPosition == null) {</span>
+<span class="nc" id="L750">				return null;</span>
+			}
+<span class="nc bnc" id="L752" title="All 2 branches missed.">			if (!(selectedItemPosition.getItem() instanceof PathExplorer.PathNode)) {</span>
+<span class="nc" id="L753">				return null;</span>
+			}
+<span class="nc" id="L755">			return new TransferablePath((PathExplorer.PathNode) selectedItemPosition.getItem());</span>
+		}
+
+	}
+
+	public static class PathImportTransferHandler extends TransferHandler {
+
+		private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L764">		public PathImportTransferHandler() {</span>
+<span class="fc" id="L765">		}</span>
+
+		@Override
+		public boolean canImport(TransferHandler.TransferSupport support) {
+<span class="nc" id="L769">			return support.isDataFlavorSupported(TransferablePath.DATA_FLAVOR);</span>
+		}
+
+		@Override
+		public boolean importData(TransferHandler.TransferSupport support) {
+<span class="nc" id="L774">			boolean accept = false;</span>
+<span class="nc bnc" id="L775" title="All 2 branches missed.">			if (canImport(support)) {</span>
+				try {
+<span class="nc" id="L777">					Transferable t = support.getTransferable();</span>
+<span class="nc" id="L778">					Object data = t.getTransferData(TransferablePath.DATA_FLAVOR);</span>
+<span class="nc bnc" id="L779" title="All 2 branches missed.">					if (data instanceof PathNode) {</span>
+<span class="nc" id="L780">						Component component = support.getComponent();</span>
+<span class="nc bnc" id="L781" title="All 2 branches missed.">						if (component instanceof JXTreeTable) {</span>
+<span class="nc" id="L782">							InstanceBuilderInitializerTreeControl initializerTreeControl = (InstanceBuilderInitializerTreeControl) ((JXTreeTable) component)</span>
+<span class="nc" id="L783">									.getClientProperty(InstanceBuilderInitializerTreeControl.class);</span>
+<span class="nc bnc" id="L784" title="All 2 branches missed.">							if (initializerTreeControl != null) {</span>
+<span class="nc" id="L785">								Point dropPoint = support.getDropLocation().getDropPoint();</span>
+<span class="nc" id="L786">								TreePath treePath = ((JXTreeTable) component).getPathForLocation(dropPoint.x,</span>
+<span class="nc" id="L787">										dropPoint.y);</span>
+<span class="nc bnc" id="L788" title="All 2 branches missed.">								if (treePath != null) {</span>
+<span class="nc" id="L789">									BufferedItemPosition initializerPosition = (BufferedItemPosition) ((DefaultMutableTreeNode) treePath</span>
+<span class="nc" id="L790">											.getLastPathComponent()).getUserObject();</span>
+<span class="nc bnc" id="L791" title="All 2 branches missed.">									if (initializerPosition.getItem() instanceof Facade) {</span>
+<span class="nc" id="L792">										Facade initializerFacade = (Facade) initializerPosition.getItem();</span>
+<span class="nc" id="L793">										RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) Facade</span>
+<span class="nc" id="L794">												.getRoot(initializerFacade)).getUnderlying();</span>
+<span class="nc" id="L795">										GUI.backupRootInstanceBuilderState(rootInstanceBuilder);</span>
+<span class="nc" id="L796">										PathNode pathNode = (PathNode) data;</span>
+<span class="nc" id="L797">										pathNode = relativizePathNode(pathNode, initializerFacade);</span>
+										try {
+<span class="nc" id="L799">											accept = map(pathNode, initializerPosition, initializerTreeControl);</span>
+<span class="nc" id="L800">										} catch (CancellationException e) {</span>
+<span class="nc" id="L801">											GUI.getRootInstanceBuilderStateRestorationJob(rootInstanceBuilder).run();</span>
+<span class="nc" id="L802">											initializerTreeControl.refreshUI(false);</span>
+										}
+<span class="nc bnc" id="L804" title="All 2 branches missed.">										if (accept) {</span>
+<span class="nc" id="L805">											ModificationStack modifStack = SwingRendererUtils</span>
+<span class="nc" id="L806">													.findParentFormModificationStack(initializerTreeControl,</span>
+<span class="nc" id="L807">															GUI.INSTANCE);</span>
+<span class="nc" id="L808">											modifStack.apply(new ListModificationFactory(initializerPosition)</span>
+<span class="nc" id="L809">													.set(initializerPosition.getIndex(), initializerFacade));</span>
+										}
+									}
+								}
+							}
+						}
+					}
+<span class="nc" id="L816">				} catch (Exception e) {</span>
+<span class="nc" id="L817">					throw new UnexpectedError(e);</span>
+				}
+			}
+<span class="nc" id="L820">			return accept;</span>
+		}
+
+		private void beforeMapping(BufferedItemPosition initializerPosition,
+				InstanceBuilderInitializerTreeControl initializerTreeControl) {
+<span class="nc" id="L825">			initializerTreeControl.setSingleSelection(initializerPosition);</span>
+<span class="nc" id="L826">		}</span>
+
+		private boolean map(PathNode pathNode, BufferedItemPosition initializerPosition,
+				InstanceBuilderInitializerTreeControl initializerTreeControl) throws CancellationException {
+<span class="nc" id="L830">			boolean accept = false;</span>
+<span class="nc" id="L831">			Facade initializerFacade = (Facade) initializerPosition.getItem();</span>
+<span class="nc bnc" id="L832" title="All 2 branches missed.">			if (initializerFacade instanceof ParameterInitializerFacade) {</span>
+<span class="nc" id="L833">				beforeMapping(initializerPosition, initializerTreeControl);</span>
+<span class="nc" id="L834">				accept = map(pathNode, initializerPosition, new Supplier&lt;ITypeInfo&gt;() {</span>
+					@Override
+					public ITypeInfo get() {
+<span class="nc" id="L837">						return ((ParameterInitializerFacade) initializerFacade).getParameterInfo().getType();</span>
+					}
+<span class="nc" id="L839">				}, new Accessor&lt;Object&gt;() {</span>
+					@Override
+					public Object get() {
+<span class="nc" id="L842">						return ((ParameterInitializerFacade) initializerFacade).getParameterValue();</span>
+					}
+
+					@Override
+					public void set(Object value) {
+<span class="nc" id="L847">						((ParameterInitializerFacade) initializerFacade).setParameterValue(value);</span>
+<span class="nc" id="L848">					}</span>
+<span class="nc" id="L849">				}, initializerTreeControl);</span>
+<span class="nc bnc" id="L850" title="All 2 branches missed.">			} else if (initializerFacade instanceof FieldInitializerFacade) {</span>
+<span class="nc" id="L851">				beforeMapping(initializerPosition, initializerTreeControl);</span>
+<span class="nc" id="L852">				accept = map(pathNode, initializerPosition, new Supplier&lt;ITypeInfo&gt;() {</span>
+					@Override
+					public ITypeInfo get() {
+<span class="nc" id="L855">						return ((FieldInitializerFacade) initializerFacade).getFieldInfo().getType();</span>
+					}
+<span class="nc" id="L857">				}, new Accessor&lt;Object&gt;() {</span>
+					@Override
+					public Object get() {
+<span class="nc" id="L860">						return ((FieldInitializerFacade) initializerFacade).getFieldValue();</span>
+					}
+
+					@Override
+					public void set(Object value) {
+<span class="nc" id="L865">						((FieldInitializerFacade) initializerFacade).setFieldValue(value);</span>
+<span class="nc" id="L866">					}</span>
+<span class="nc" id="L867">				}, initializerTreeControl);</span>
+<span class="nc bnc" id="L868" title="All 2 branches missed.">			} else if (initializerFacade instanceof ListItemInitializerFacade) {</span>
+<span class="nc" id="L869">				beforeMapping(initializerPosition, initializerTreeControl);</span>
+<span class="nc" id="L870">				accept = mapListItemReplication(pathNode, (ListItemInitializerFacade) initializerFacade,</span>
+<span class="nc" id="L871">						initializerTreeControl);</span>
+<span class="nc" id="L872">				ListItemReplicationFacade replicationFacade = ((ListItemInitializerFacade) initializerFacade)</span>
+<span class="nc" id="L873">						.getItemReplicationFacade();</span>
+<span class="nc bnc" id="L874" title="All 2 branches missed.">				accept = map((replicationFacade != null)</span>
+<span class="nc" id="L875">						? new PathExplorer.RelativePathNode(pathNode, pathNode.getTypicalExpression(),</span>
+<span class="nc" id="L876">								pathNode.getExpressionPattern(), replicationFacade.getIterationVariableName())</span>
+<span class="nc" id="L877">						: pathNode, initializerPosition, new Supplier&lt;ITypeInfo&gt;() {</span>
+							@Override
+							public ITypeInfo get() {
+<span class="nc" id="L880">								return ((ListItemInitializerFacade) initializerFacade).getItemTypeInfo();</span>
+							}
+<span class="nc" id="L882">						}, new Accessor&lt;Object&gt;() {</span>
+							@Override
+							public Object get() {
+<span class="nc" id="L885">								return ((ListItemInitializerFacade) initializerFacade).getItemValue();</span>
+							}
+
+							@Override
+							public void set(Object value) {
+<span class="nc" id="L890">								((ListItemInitializerFacade) initializerFacade).setItemValue(value);</span>
+<span class="nc" id="L891">							}</span>
+<span class="nc bnc" id="L892" title="All 4 branches missed.">						}, initializerTreeControl) || accept;</span>
+			}
+<span class="nc" id="L894">			return accept;</span>
+		}
+
+		private boolean map(PathNode pathNode, BufferedItemPosition initializerPosition,
+				Supplier&lt;ITypeInfo&gt; targetTypeSupplier, Accessor&lt;Object&gt; targetValueAccessor,
+				InstanceBuilderInitializerTreeControl initializerTreeControl) throws CancellationException {
+<span class="nc" id="L900">			boolean accept = false;</span>
+<span class="nc" id="L901">			Facade initializerFacade = (Facade) initializerPosition.getItem();</span>
+<span class="nc bnc" id="L902" title="All 2 branches missed.">			if (targetValueAccessor.get() instanceof InstantiationFunction) {</span>
+<span class="nc" id="L903">				int choice = openMappingOptionSelectionDialog(</span>
+<span class="nc" id="L904">						Arrays.asList(&quot;Rewrite the existing function&quot;, &quot;Do not rewrite the existing function&quot;),</span>
+<span class="nc" id="L905">						pathNode, initializerFacade, initializerTreeControl);</span>
+<span class="nc bnc" id="L906" title="All 2 branches missed.">				if (choice == 0) {</span>
+<span class="nc" id="L907">					targetValueAccessor</span>
+<span class="nc" id="L908">							.set(new InstantiationFunction(&quot;return &quot; + pathNode.getTypicalExpression() + &quot;;&quot;));</span>
+<span class="nc" id="L909">					accept = true;</span>
+<span class="nc bnc" id="L910" title="All 2 branches missed.">				} else if (choice == 1) {</span>
+					// do nothing
+				} else {
+<span class="nc" id="L913">					throw new CancellationException();</span>
+				}
+			} else {
+<span class="nc bnc" id="L916" title="All 4 branches missed.">				if (isLeafType(pathNode.getExpressionType()) || isLeafType(targetTypeSupplier.get())) {</span>
+<span class="nc" id="L917">					targetValueAccessor</span>
+<span class="nc" id="L918">							.set(new InstantiationFunction(&quot;return &quot; + pathNode.getTypicalExpression() + &quot;;&quot;));</span>
+<span class="nc" id="L919">					accept = true;</span>
+<span class="nc" id="L920">				} else {</span>
+<span class="nc" id="L921">					int choice = openMappingOptionSelectionDialog(</span>
+<span class="nc" id="L922">							Arrays.asList(&quot;Map corresponding children (same name) of source and target values&quot;,</span>
+<span class="nc" id="L923">									&quot;Assign source value to target&quot;, &quot;Do not map&quot;),</span>
+<span class="nc" id="L924">							pathNode, initializerFacade, initializerTreeControl);</span>
+<span class="nc bnc" id="L925" title="All 2 branches missed.">					if (choice == 0) {</span>
+<span class="nc" id="L926">						initializerFacade.setConcrete(true);</span>
+<span class="nc bnc" id="L927" title="All 2 branches missed.">						for (BufferedItemPosition subInitializerPosition : initializerPosition.getSubItemPositions()) {</span>
+<span class="nc" id="L928">							Facade initializerFacadeChild = (Facade) subInitializerPosition.getItem();</span>
+<span class="nc bnc" id="L929" title="All 2 branches missed.">							for (PathNode pathNodeChild : pathNode.getChildren()) {</span>
+<span class="nc" id="L930">								if (initializerFacadeChild.toString().replaceAll(&quot;^\\[([0-9]+)\\]$&quot;, &quot;[i]&quot;)</span>
+<span class="nc" id="L931">										.replaceAll(&quot;[^0-9a-zA-Z]&quot;, &quot;&quot;).toLowerCase().equals(pathNodeChild.toString()</span>
+<span class="nc bnc" id="L932" title="All 2 branches missed.">												.replaceAll(&quot;[^0-9a-zA-Z]&quot;, &quot;&quot;).toLowerCase())) {</span>
+<span class="nc bnc" id="L933" title="All 2 branches missed.">									accept = map(pathNodeChild, subInitializerPosition, initializerTreeControl)</span>
+<span class="nc bnc" id="L934" title="All 2 branches missed.">											|| accept;</span>
+<span class="nc" id="L935">									break;</span>
+								}
+							}
+						}
+<span class="nc" id="L939">						accept = true;</span>
+<span class="nc bnc" id="L940" title="All 2 branches missed.">					} else if (choice == 1) {</span>
+<span class="nc" id="L941">						targetValueAccessor</span>
+<span class="nc" id="L942">								.set(new InstantiationFunction(&quot;return &quot; + pathNode.getTypicalExpression() + &quot;;&quot;));</span>
+<span class="nc" id="L943">						accept = true;</span>
+<span class="nc bnc" id="L944" title="All 2 branches missed.">					} else if (choice == 2) {</span>
+						// do nothing
+					} else {
+<span class="nc" id="L947">						throw new CancellationException();</span>
+					}
+				}
+			}
+<span class="nc" id="L951">			return accept;</span>
+		}
+
+		private boolean mapListItemReplication(PathNode pathNode, ListItemInitializerFacade listItemInitializerFacade,
+				InstanceBuilderInitializerTreeControl initializerTreeControl) {
+<span class="nc" id="L956">			boolean accept = false;</span>
+<span class="nc bnc" id="L957" title="All 2 branches missed.">			if (unrelativizePathNode(pathNode) instanceof ListItemNode) {</span>
+<span class="nc" id="L958">				int choice = openMappingOptionSelectionDialog(</span>
+<span class="nc" id="L959">						Arrays.asList(&quot;Replicate the target value for each source value&quot;,</span>
+<span class="nc" id="L960">								&quot;Do not replicate the target value&quot;),</span>
+<span class="nc" id="L961">						pathNode, listItemInitializerFacade, initializerTreeControl);</span>
+<span class="nc bnc" id="L962" title="All 2 branches missed.">				if (choice == 0) {</span>
+<span class="nc" id="L963">					ListItemReplication itemReplication = new ListItemReplication();</span>
+<span class="nc" id="L964">					InstantiationFunction function = new InstantiationFunction(</span>
+<span class="nc bnc" id="L965" title="All 2 branches missed.">							&quot;return &quot; + ((pathNode.getParent() != null) ? pathNode.getParent().getTypicalExpression()</span>
+<span class="nc" id="L966">									: pathNode.getExplorer().getTypicalRootExpression()) + &quot;;&quot;);</span>
+<span class="nc" id="L967">					itemReplication.setIterationListValue(function);</span>
+<span class="nc" id="L968">					listItemInitializerFacade.setConcrete(true);</span>
+<span class="nc" id="L969">					listItemInitializerFacade.getUnderlying().setItemReplication(itemReplication);</span>
+
+					String parentName;
+<span class="nc bnc" id="L972" title="All 2 branches missed.">					if (pathNode.getParent() == null) {</span>
+<span class="nc" id="L973">						parentName = pathNode.getExplorer().getRootVariableName();</span>
+<span class="nc bnc" id="L974" title="All 2 branches missed.">					} else if (unrelativizePathNode(pathNode.getParent()) instanceof FieldNode) {</span>
+<span class="nc" id="L975">						parentName = ((FieldNode) unrelativizePathNode(pathNode.getParent())).getFieldName();</span>
+<span class="nc" id="L976">					} else {</span>
+<span class="nc" id="L977">						parentName = null;</span>
+					}
+<span class="nc bnc" id="L979" title="All 2 branches missed.">					if (parentName != null) {</span>
+<span class="nc" id="L980">						itemReplication.setIterationVariableName(&quot;current&quot; + parentName.substring(0, 1).toUpperCase()</span>
+<span class="nc" id="L981">								+ parentName.substring(1) + &quot;Item&quot;);</span>
+					}
+<span class="nc" id="L983">					Source mappingsSource = initializerTreeControl.findMappingsControl().getSource();</span>
+<span class="nc" id="L984">					List&lt;VariableDeclaration&gt; variableDeclarations = new ArrayList&lt;VariableDeclaration&gt;(</span>
+<span class="nc" id="L985">							mappingsSource.getCurrentPlan().getValidationContext(mappingsSource.getCurrentStep())</span>
+<span class="nc" id="L986">									.getVariableDeclarations());</span>
+<span class="nc" id="L987">					variableDeclarations.addAll(listItemInitializerFacade.getAdditionalVariableDeclarations(function,</span>
+<span class="nc" id="L988">							variableDeclarations));</span>
+<span class="nc" id="L989">					while (true) {</span>
+<span class="nc" id="L990">						boolean nameConflictDetected = variableDeclarations.stream()</span>
+<span class="nc" id="L991">								.anyMatch(variableDeclaration -&gt; variableDeclaration.getVariableName()</span>
+<span class="nc" id="L992">										.equals(itemReplication.getIterationVariableName()));</span>
+<span class="nc bnc" id="L993" title="All 2 branches missed.">						if (!nameConflictDetected) {</span>
+<span class="nc" id="L994">							break;</span>
+						}
+<span class="nc" id="L996">						itemReplication.setIterationVariableName(</span>
+<span class="nc" id="L997">								MiscUtils.nextNumbreredName(itemReplication.getIterationVariableName()));</span>
+					}
+<span class="nc" id="L999">					accept = true;</span>
+<span class="nc bnc" id="L1000" title="All 2 branches missed.">				} else if (choice == 1) {</span>
+					// do nothing
+				} else {
+<span class="nc" id="L1003">					throw new CancellationException();</span>
+				}
+			}
+<span class="nc" id="L1006">			return accept;</span>
+		}
+
+		private int openMappingOptionSelectionDialog(List&lt;String&gt; options, PathNode pathNode, Facade initializerFacade,
+				InstanceBuilderInitializerTreeControl initializerTreeControl) {
+<span class="nc" id="L1011">			initializerTreeControl.findMappingsControl().resetMappingsCache();</span>
+<span class="nc bnc" id="L1012" title="All 2 branches missed.">			for (JComponent component : new JComponent[] { initializerTreeControl,</span>
+<span class="nc" id="L1013">					initializerTreeControl.findMappingsControl(),</span>
+<span class="nc" id="L1014">					initializerTreeControl.findMappingsControl().findSourceControl() })</span>
+<span class="nc" id="L1015">				component.paintImmediately(0, 0, component.getWidth(), component.getHeight());</span>
+			try {
+<span class="nc" id="L1017">				Thread.sleep(500);</span>
+<span class="nc" id="L1018">			} catch (InterruptedException e) {</span>
+<span class="nc" id="L1019">				throw new UnexpectedError(e);</span>
+			}
+<span class="nc" id="L1021">			String choice = GUI.INSTANCE.openSelectionDialog(initializerTreeControl, options, null,</span>
+<span class="nc" id="L1022">					&quot;Choose a mapping option for: &quot; + pathNode.toString() + &quot; =&gt; &quot; + initializerFacade.toString(),</span>
+<span class="nc" id="L1023">					&quot;Mapping&quot;);</span>
+<span class="nc" id="L1024">			return options.indexOf(choice);</span>
+		}
+
+		private boolean isLeafType(ITypeInfo type) {
+<span class="nc bnc" id="L1028" title="All 2 branches missed.">			if (!InstantiationUtils.isComplexType(type)) {</span>
+<span class="nc" id="L1029">				return true;</span>
+			}
+<span class="nc bnc" id="L1031" title="All 2 branches missed.">			if (type.getName().equals(Object.class.getName())) {</span>
+<span class="nc" id="L1032">				return true;</span>
+			}
+<span class="nc" id="L1034">			return false;</span>
+		}
+	}
+
+	public static class TransferablePath implements Transferable {
+
+<span class="nc" id="L1040">		public static DataFlavor DATA_FLAVOR = new DataFlavor(PathNode.class, PathNode.class.getSimpleName());</span>
+
+		private PathNode pathNode;
+
+<span class="nc" id="L1044">		public TransferablePath(PathNode pathNode) {</span>
+<span class="nc" id="L1045">			this.pathNode = pathNode;</span>
+<span class="nc" id="L1046">		}</span>
+
+		@Override
+		public DataFlavor[] getTransferDataFlavors() {
+<span class="nc" id="L1050">			return new DataFlavor[] { DATA_FLAVOR };</span>
+		}
+
+		@Override
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
+<span class="nc" id="L1055">			return flavor.equals(DATA_FLAVOR);</span>
+		}
+
+		@Override
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+<span class="nc bnc" id="L1060" title="All 2 branches missed.">			if (flavor.equals(DATA_FLAVOR))</span>
+<span class="nc" id="L1061">				return pathNode;</span>
+			else
+<span class="nc" id="L1063">				throw new UnsupportedFlavorException(flavor);</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

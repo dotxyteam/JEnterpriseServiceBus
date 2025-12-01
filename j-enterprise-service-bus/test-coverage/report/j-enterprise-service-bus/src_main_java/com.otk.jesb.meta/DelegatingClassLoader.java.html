@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DelegatingClassLoader.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.meta</a> &gt; <span class="el_source">DelegatingClassLoader.java</span></div><h1>DelegatingClassLoader.java</h1><pre class="source lang-java linenums">package com.otk.jesb.meta;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
+
+public class DelegatingClassLoader extends ClassLoader {
+
+	private volatile ClassLoader delegate;
+
+	public DelegatingClassLoader(ClassLoader initial) {
+<span class="fc" id="L12">		super(null);</span>
+<span class="fc" id="L13">		this.delegate = initial;</span>
+<span class="fc" id="L14">	}</span>
+
+	public ClassLoader getDelegate() {
+<span class="fc" id="L17">		return delegate;</span>
+	}
+
+	public void setDelegate(ClassLoader newDelegate) {
+<span class="fc" id="L21">		this.delegate = newDelegate;</span>
+<span class="fc" id="L22">	}</span>
+
+	@Override
+	protected Class&lt;?&gt; findClass(String name) throws ClassNotFoundException {
+<span class="fc" id="L26">		return delegate.loadClass(name);</span>
+	}
+
+	@Override
+	public URL getResource(String name) {
+<span class="fc" id="L31">		return delegate.getResource(name);</span>
+	}
+
+	@Override
+	public Enumeration&lt;URL&gt; getResources(String name) throws IOException {
+<span class="nc" id="L36">		return delegate.getResources(name);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

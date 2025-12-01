@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DynamicListPropertyProxy.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.util</a> &gt; <span class="el_source">DynamicListPropertyProxy.java</span></div><h1>DynamicListPropertyProxy.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.iterable.util;
+
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+
+/**
+ * Dynamic list property proxy class. The methods in this class should be
+ * overridden to provide custom information.
+ * 
+ * @author olitank
+ *
+ */
+public class DynamicListPropertyProxy implements IDynamicListProperty {
+
+	protected IDynamicListProperty base;
+
+	public DynamicListPropertyProxy(IDynamicListProperty base) {
+<span class="nc" id="L27">		super();</span>
+<span class="nc" id="L28">		this.base = base;</span>
+<span class="nc" id="L29">	}</span>
+
+	public String getName() {
+<span class="nc" id="L32">		return base.getName();</span>
+	}
+
+	public String getCaption() {
+<span class="nc" id="L36">		return base.getCaption();</span>
+	}
+
+	public String getOnlineHelp() {
+<span class="nc" id="L40">		return base.getOnlineHelp();</span>
+	}
+
+	public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L44">		return base.getValueAbstractFormValidationJob(object);</span>
+	}
+
+	public boolean isControlValueValiditionEnabled() {
+<span class="nc" id="L48">		return base.isControlValueValiditionEnabled();</span>
+	}
+
+	public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="nc" id="L52">		base.onControlVisibilityChange(object, visible);</span>
+<span class="nc" id="L53">	}</span>
+
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L56">		return base.getSpecificProperties();</span>
+	}
+
+	public List&lt;ItemPosition&gt; getPostSelection() {
+<span class="nc" id="L60">		return base.getPostSelection();</span>
+	}
+
+	public boolean isEnabled() {
+<span class="nc" id="L64">		return base.isEnabled();</span>
+	}
+
+	public ITypeInfo getType() {
+<span class="nc" id="L68">		return base.getType();</span>
+	}
+
+	public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="nc" id="L72">		return base.getAlternativeConstructors(object);</span>
+	}
+
+	public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="nc" id="L76">		return base.getAlternativeListItemConstructors(object);</span>
+	}
+
+	public Object getValue(Object object) {
+<span class="nc" id="L80">		return base.getValue(object);</span>
+	}
+
+	@Override
+	public boolean hasValueOptions(Object object) {
+<span class="nc" id="L85">		return base.hasValueOptions(object);</span>
+	}
+
+	public Object[] getValueOptions(Object object) {
+<span class="nc" id="L89">		return base.getValueOptions(object);</span>
+	}
+
+	public void setValue(Object object, Object value) {
+<span class="nc" id="L93">		base.setValue(object, value);</span>
+<span class="nc" id="L94">	}</span>
+
+	public Runnable getNextUpdateCustomUndoJob(Object object, Object newValue) {
+<span class="nc" id="L97">		return base.getNextUpdateCustomUndoJob(object, newValue);</span>
+	}
+
+	public Runnable getPreviousUpdateCustomRedoJob(Object object, Object newValue) {
+<span class="nc" id="L101">		return base.getPreviousUpdateCustomRedoJob(object, newValue);</span>
+	}
+
+	public boolean isNullValueDistinct() {
+<span class="nc" id="L105">		return base.isNullValueDistinct();</span>
+	}
+
+	public boolean isGetOnly() {
+<span class="nc" id="L109">		return base.isGetOnly();</span>
+	}
+
+	public boolean isTransient() {
+<span class="nc" id="L113">		return base.isTransient();</span>
+	}
+
+	public String getNullValueLabel() {
+<span class="nc" id="L117">		return base.getNullValueLabel();</span>
+	}
+
+	public ValueReturnMode getValueReturnMode() {
+<span class="nc" id="L121">		return base.getValueReturnMode();</span>
+	}
+
+	public InfoCategory getCategory() {
+<span class="nc" id="L125">		return base.getCategory();</span>
+	}
+
+	public boolean isFormControlMandatory() {
+<span class="nc" id="L129">		return base.isFormControlMandatory();</span>
+	}
+
+	public boolean isFormControlEmbedded() {
+<span class="nc" id="L133">		return base.isFormControlEmbedded();</span>
+	}
+
+	public IInfoFilter getFormControlFilter() {
+<span class="nc" id="L137">		return base.getFormControlFilter();</span>
+	}
+
+	public long getAutoUpdatePeriodMilliseconds() {
+<span class="nc" id="L141">		return base.getAutoUpdatePeriodMilliseconds();</span>
+	}
+
+	public boolean isHidden() {
+<span class="nc" id="L145">		return base.isHidden();</span>
+	}
+
+	public boolean isRelevant(Object object) {
+<span class="nc" id="L149">		return base.isRelevant(object);</span>
+	}
+
+	public double getDisplayAreaHorizontalWeight() {
+<span class="nc" id="L153">		return base.getDisplayAreaHorizontalWeight();</span>
+	}
+
+	public double getDisplayAreaVerticalWeight() {
+<span class="nc" id="L157">		return base.getDisplayAreaVerticalWeight();</span>
+	}
+
+	public boolean isDisplayAreaHorizontallyFilled() {
+<span class="nc" id="L161">		return base.isDisplayAreaHorizontallyFilled();</span>
+	}
+
+	public boolean isDisplayAreaVerticallyFilled() {
+<span class="nc" id="L165">		return base.isDisplayAreaVerticallyFilled();</span>
+	}
+
+	public DisplayMode getDisplayMode() {
+<span class="nc" id="L169">		return base.getDisplayMode();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L174">		final int prime = 31;</span>
+<span class="nc" id="L175">		int result = 1;</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">		result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="nc" id="L177">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L182" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L183">			return true;</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L185">			return false;</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L187">			return false;</span>
+<span class="nc" id="L188">		DynamicListPropertyProxy other = (DynamicListPropertyProxy) obj;</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">		if (base == null) {</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">			if (other.base != null)</span>
+<span class="nc" id="L191">				return false;</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">		} else if (!base.equals(other.base))</span>
+<span class="nc" id="L193">			return false;</span>
+<span class="nc" id="L194">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L199">		return &quot;ListPropertyProxy [name=&quot; + getName() + &quot;, base=&quot; + base + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

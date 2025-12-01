@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>OptionButtonsPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">OptionButtonsPlugin.java</span></div><h1>OptionButtonsPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+
+import javax.swing.AbstractButton;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultButtonModel;
+import javax.swing.Icon;
+import javax.swing.JRadioButton;
+import javax.swing.border.Border;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.AbstractControlButton;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Field control plugin that displays toggle buttons allowing to choose an
+ * enumeration item.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L52">public class OptionButtonsPlugin extends AbstractSimpleCustomizableFieldControlPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L56">		return &quot;Option Buttons&quot;;</span>
+	}
+
+	@Override
+	public boolean canDisplayDistinctNullValue() {
+<span class="fc" id="L61">		return true;</span>
+	}
+
+	@Override
+	protected boolean handles(Class&lt;?&gt; javaType) {
+<span class="nc" id="L66">		throw new ReflectionUIError();</span>
+	}
+
+	@Override
+	public boolean handles(ReflectionUI reflectionUI, IFieldControlInput input) {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">		if (!(input.getControlData().getType() instanceof IEnumerationTypeInfo)) {</span>
+<span class="fc" id="L72">			return false;</span>
+		}
+<span class="fc" id="L74">		return true;</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="nc" id="L79">		return new OptionButtonsConfiguration();</span>
+	}
+
+	@Override
+	public OptionButtons createControl(Object renderer, IFieldControlInput input) {
+<span class="fc" id="L84">		return new OptionButtons((SwingRenderer) renderer, input);</span>
+	}
+
+<span class="nc" id="L87">	public static class OptionButtonsConfiguration extends AbstractConfiguration {</span>
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L90">		public OptionButtonsLayout layout = OptionButtonsLayout.HORIZONTAL_FLOW;</span>
+<span class="nc" id="L91">		public OptionButtonType buttonType = OptionButtonType.RADIO;</span>
+<span class="nc" id="L92">		public int spacing = ITypeInfo.DEFAULT_FORM_SPACING * 2;</span>
+	}
+
+<span class="fc" id="L95">	public enum OptionButtonsLayout {</span>
+<span class="fc" id="L96">		HORIZONTAL_FLOW, VERTICAL_FLOW</span>
+	}
+
+<span class="fc" id="L99">	public enum OptionButtonType {</span>
+<span class="fc" id="L100">		RADIO, TOGGLE</span>
+	}
+
+	public class OptionButtons extends ControlPanel implements IAdvancedFieldControl {
+		private static final long serialVersionUID = 1L;
+
+		protected SwingRenderer swingRenderer;
+		protected IFieldControlInput input;
+		protected IFieldControlData data;
+<span class="fc" id="L109">		protected boolean listenerDisabled = false;</span>
+		protected ButtonGroup buttonGroup;
+		protected IEnumerationTypeInfo enumType;
+		protected List&lt;Object&gt; possibleValues;
+		protected Object lastSelectedValue;
+		protected ControlPanel contentPane;
+		protected OptionButtonsConfiguration controlConfiguration;
+
+<span class="fc" id="L117">		public OptionButtons(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L118">			this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L119">			this.input = input;</span>
+<span class="fc" id="L120">			this.data = input.getControlData();</span>
+<span class="fc" id="L121">			this.enumType = (IEnumerationTypeInfo) data.getType();</span>
+<span class="fc" id="L122">			buttonGroup = new ButtonGroup();</span>
+<span class="fc" id="L123">			setLayout(new BorderLayout());</span>
+<span class="fc" id="L124">			add(SwingRendererUtils.flowInLayout(contentPane = new ControlPanel(), GridBagConstraints.CENTER),</span>
+<span class="fc" id="L125">					BorderLayout.CENTER);</span>
+<span class="fc" id="L126">			refreshUI(true);</span>
+<span class="fc" id="L127">		}</span>
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L131" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc" id="L132">				updateControlConfiguration();</span>
+<span class="fc" id="L133">				SwingRendererUtils.showFieldCaptionOnBorder(data, this, new Accessor&lt;Border&gt;() {</span>
+					@Override
+					public Border get() {
+<span class="fc" id="L136">						return new ControlPanel().getBorder();</span>
+					}
+<span class="fc" id="L138">				}, swingRenderer);</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">				if (controlConfiguration.layout == OptionButtonsLayout.HORIZONTAL_FLOW) {</span>
+<span class="fc" id="L140">					contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.X_AXIS));</span>
+<span class="pc bnc" id="L141" title="All 2 branches missed.">				} else if (controlConfiguration.layout == OptionButtonsLayout.VERTICAL_FLOW) {</span>
+<span class="nc" id="L142">					contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));</span>
+<span class="nc" id="L143">				} else {</span>
+<span class="nc" id="L144">					throw new ReflectionUIError();</span>
+				}
+<span class="fc" id="L146">				SwingRendererUtils.handleComponentSizeChange(this);</span>
+			}
+<span class="pc bpc" id="L148" title="1 of 4 branches missed.">			if (enumType.isDynamicEnumeration() || refreshStructure) {</span>
+<span class="fc" id="L149">				possibleValues = Arrays.asList(enumType.getValues());</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">				while (buttonGroup.getButtonCount() &gt; 0) {</span>
+<span class="fc" id="L151">					AbstractButton button = buttonGroup.getElements().nextElement();</span>
+<span class="fc" id="L152">					buttonGroup.remove(button);</span>
+				}
+<span class="fc" id="L154">				contentPane.removeAll();</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">				for (int i = 0; i &lt; possibleValues.size(); i++) {</span>
+<span class="fc" id="L156">					final Object value = possibleValues.get(i);</span>
+<span class="fc" id="L157">					AbstractButton button = createButton(value);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">					if (i &gt; 0) {</span>
+<span class="fc" id="L159">						contentPane.add(Box.createRigidArea(</span>
+<span class="fc" id="L160">								new Dimension(controlConfiguration.spacing, controlConfiguration.spacing)));</span>
+					}
+<span class="fc" id="L162">					contentPane.add(button);</span>
+<span class="fc" id="L163">					buttonGroup.add(button);</span>
+
+				}
+<span class="fc" id="L166">				SwingRendererUtils.handleComponentSizeChange(this);</span>
+			}
+<span class="fc" id="L168">			Object currentValue = data.getValue();</span>
+<span class="fc" id="L169">			updateSelection(currentValue);</span>
+<span class="fc" id="L170">			return true;</span>
+		}
+
+		protected void updateControlConfiguration() {
+<span class="fc" id="L174">			controlConfiguration = (OptionButtonsConfiguration) loadControlCustomization(input);</span>
+<span class="fc" id="L175">		}</span>
+
+		protected void updateSelection(Object currentValue) {
+<span class="fc" id="L178">			listenerDisabled = true;</span>
+			try {
+<span class="fc" id="L180">				int currentValueIndex = possibleValues.indexOf(currentValue);</span>
+<span class="fc bfc" id="L181" title="All 2 branches covered.">				if (currentValueIndex == -1) {</span>
+<span class="fc" id="L182">					buttonGroup.clearSelection();</span>
+<span class="fc" id="L183">				} else {</span>
+<span class="fc" id="L184">					buttonGroup.setSelected(</span>
+<span class="fc" id="L185">							Collections.list(buttonGroup.getElements()).get(currentValueIndex).getModel(), true);</span>
+				}
+<span class="fc" id="L187">			} finally {</span>
+<span class="fc" id="L188">				listenerDisabled = false;</span>
+			}
+<span class="fc" id="L190">			lastSelectedValue = currentValue;</span>
+<span class="fc" id="L191">		}</span>
+
+		protected AbstractButton createButton(final Object value) {
+<span class="fc" id="L194">			final IEnumerationItemInfo itemInfo = enumType.getValueInfo(value);</span>
+			final AbstractButton result;
+<span class="fc bfc" id="L196" title="All 2 branches covered.">			if (controlConfiguration.buttonType == OptionButtonType.RADIO) {</span>
+<span class="fc" id="L197">				result = new JRadioButton(swingRenderer.prepareMessageToDisplay(itemInfo.getCaption()));</span>
+<span class="fc" id="L198">				result.setOpaque(false);</span>
+<span class="fc" id="L199">				result.setForeground(SwingRendererUtils.getColor(data.getLabelForegroundColor()));</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">				if (data.getLabelCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L201">					result.setFont(SwingRendererUtils.loadFontThroughCache(data.getLabelCustomFontResourcePath(),</span>
+<span class="nc" id="L202">							ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()), swingRenderer)</span>
+<span class="nc" id="L203">							.deriveFont(result.getFont().getStyle(), result.getFont().getSize()));</span>
+<span class="nc" id="L204">				} else {</span>
+<span class="fc" id="L205">					result.setFont(new JRadioButton().getFont());</span>
+				}
+<span class="pc bpc" id="L207" title="1 of 2 branches missed.">			} else if (controlConfiguration.buttonType == OptionButtonType.TOGGLE) {</span>
+<span class="fc" id="L208">				result = new AbstractControlButton() {</span>
+
+					private static final long serialVersionUID = 1L;
+
+					{
+<span class="fc" id="L213">						setModel(new DefaultButtonModel() {</span>
+
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public boolean isArmed() {
+<span class="fc bfc" id="L219" title="All 4 branches covered.">								return super.isArmed() || isSelected();</span>
+							}
+
+						});
+					}
+
+					@Override
+					public Image retrieveBackgroundImage() {
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">						if (data.getButtonBackgroundImagePath() == null) {</span>
+<span class="fc" id="L228">							return null;</span>
+						} else {
+<span class="nc" id="L230">							return SwingRendererUtils.loadImageThroughCache(data.getButtonBackgroundImagePath(),</span>
+<span class="nc" id="L231">									ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()),</span>
+<span class="nc" id="L232">									swingRenderer);</span>
+						}
+					}
+
+					@Override
+					public Font retrieveCustomFont() {
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">						if (data.getButtonCustomFontResourcePath() == null) {</span>
+<span class="fc" id="L239">							return null;</span>
+						} else {
+<span class="nc" id="L241">							return SwingRendererUtils.loadFontThroughCache(data.getButtonCustomFontResourcePath(),</span>
+<span class="nc" id="L242">									ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()),</span>
+<span class="nc" id="L243">									swingRenderer);</span>
+						}
+					}
+
+					@Override
+					public Color retrieveBackgroundColor() {
+<span class="fc bfc" id="L249" title="All 2 branches covered.">						if (data.getButtonBackgroundColor() == null) {</span>
+<span class="fc" id="L250">							return null;</span>
+						} else {
+<span class="fc" id="L252">							return SwingRendererUtils.getColor(data.getButtonBackgroundColor());</span>
+						}
+					}
+
+					@Override
+					public Color retrieveForegroundColor() {
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">						if (data.getButtonForegroundColor() == null) {</span>
+<span class="fc" id="L259">							return null;</span>
+						} else {
+<span class="nc" id="L261">							return SwingRendererUtils.getColor(data.getButtonForegroundColor());</span>
+						}
+					}
+
+					@Override
+					public Color retrieveBorderColor() {
+<span class="fc bfc" id="L267" title="All 2 branches covered.">						if (data.getButtonBorderColor() == null) {</span>
+<span class="fc" id="L268">							return null;</span>
+						} else {
+<span class="fc" id="L270">							return SwingRendererUtils.getColor(data.getButtonBorderColor());</span>
+						}
+					}
+
+					@Override
+					public String retrieveText() {
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">						return enumType.isDynamicEnumeration() ? itemInfo.getCaption()</span>
+<span class="fc" id="L277">								: swingRenderer.prepareMessageToDisplay(itemInfo.getCaption());</span>
+					}
+
+					@Override
+					public String retrieveToolTipText() {
+<span class="fc" id="L282">						return super.getToolTipText();</span>
+					}
+
+					@Override
+					public Icon retrieveIcon() {
+<span class="fc" id="L287">						Image image = swingRenderer.getEnumerationItemIconImage(itemInfo);</span>
+<span class="pc bpc" id="L288" title="1 of 2 branches missed.">						if (image == null) {</span>
+<span class="nc" id="L289">							return null;</span>
+						}
+<span class="fc" id="L291">						return SwingRendererUtils.getIcon(image);</span>
+					}
+
+				};
+<span class="fc" id="L295">			} else {</span>
+<span class="nc" id="L296">				throw new ReflectionUIError();</span>
+			}
+<span class="fc" id="L298">			String tooltipText = itemInfo.getOnlineHelp();</span>
+<span class="pc bpc" id="L299" title="1 of 4 branches missed.">			if ((tooltipText != null) &amp;&amp; (tooltipText.length() &gt; 0)) {</span>
+<span class="fc" id="L300">				result.setToolTipText(SwingRendererUtils</span>
+<span class="fc" id="L301">						.adaptToolTipTextToMultiline(swingRenderer.prepareMessageToDisplay(tooltipText)));</span>
+			}
+<span class="fc" id="L303">			result.addActionListener(new ActionListener() {</span>
+				@Override
+				public void actionPerformed(ActionEvent e) {
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">					if (listenerDisabled) {</span>
+<span class="nc" id="L307">						return;</span>
+					}
+					try {
+<span class="fc" id="L310">						Object newValue = value;</span>
+<span class="pc bpc" id="L311" title="1 of 2 branches missed.">						if (data.isNullValueDistinct()) {</span>
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">							if (MiscUtils.equalsOrBothNull(lastSelectedValue, newValue)) {</span>
+<span class="nc" id="L313">								newValue = null;</span>
+							}
+						}
+<span class="fc" id="L316">						data.setValue(newValue);</span>
+<span class="fc" id="L317">						updateSelection(newValue);</span>
+<span class="pc" id="L318">					} catch (Throwable t) {</span>
+<span class="nc" id="L319">						swingRenderer.handleException(OptionButtons.this, t);</span>
+					}
+<span class="fc" id="L321">				}</span>
+			});
+<span class="pc bpc" id="L323" title="1 of 2 branches missed.">			result.setEnabled(!data.isGetOnly());</span>
+<span class="fc" id="L324">			return result;</span>
+		}
+
+		@Override
+		public boolean displayError(Throwable error) {
+<span class="nc" id="L329">			return false;</span>
+		}
+
+		@Override
+		public boolean showsCaption() {
+<span class="fc" id="L334">			return true;</span>
+		}
+
+		@Override
+		public boolean isModificationStackManaged() {
+<span class="fc" id="L339">			return false;</span>
+		}
+
+		@Override
+		public boolean areValueAccessErrorsManaged() {
+<span class="fc" id="L344">			return false;</span>
+		}
+
+		@Override
+		public boolean requestCustomFocus() {
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">			if (data.isGetOnly()) {</span>
+<span class="nc" id="L350">				return false;</span>
+			}
+<span class="fc" id="L352">			Enumeration&lt;AbstractButton&gt; buttonEnum = buttonGroup.getElements();</span>
+<span class="pc bpc" id="L353" title="1 of 2 branches missed.">			while (buttonEnum.hasMoreElements()) {</span>
+<span class="fc" id="L354">				AbstractButton button = buttonEnum.nextElement();</span>
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">				if (SwingRendererUtils.requestAnyComponentFocus(button, swingRenderer)) {</span>
+<span class="fc" id="L356">					return true;</span>
+				}
+			}
+<span class="nc" id="L359">			return false;</span>
+		}
+
+		@Override
+		public void validateControlData(ValidationSession session) throws Exception {
+<span class="nc" id="L364">		}</span>
+
+		@Override
+		public void addMenuContributions(MenuModel menuModel) {
+<span class="fc" id="L368">		}</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

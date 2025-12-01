@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>PolymorphicTypeOptionsFactory.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.factory</a> &gt; <span class="el_source">PolymorphicTypeOptionsFactory.java</span></div><h1>PolymorphicTypeOptionsFactory.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.factory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.info.type.source.PrecomputedTypeInfoSource;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Factory that generates virtual enumeration (type information) from the list
+ * of descendants of the specified polymorphic type. The base polymorphic type
+ * itself is eligible as an item of the resulting enumeration. Abstract types
+ * are filtered out if
+ * {@link ITypeInfo#isPolymorphicInstanceAbstractTypeOptionAllowed()} returns
+ * false for the #{@link #polymorphicType}.
+ * 
+ * Note that each item (returned by {@link #getTypeOptions()}) is adapted to
+ * prevent an infinite recursive enumeration of polymorphic type options.
+ * 
+ * @author olitank
+ *
+ */
+public class PolymorphicTypeOptionsFactory extends GenericEnumerationFactory {
+
+	protected ITypeInfo polymorphicType;
+
+	public PolymorphicTypeOptionsFactory(ReflectionUI reflectionUI, ITypeInfo polymorphicType) {
+<span class="fc" id="L42">		super(reflectionUI, getTypeOptionsCollector(reflectionUI, polymorphicType),</span>
+<span class="fc" id="L43">				&quot;SubTypesEnumeration [polymorphicType=&quot; + polymorphicType.getName() + &quot;]&quot;, &quot;&quot;, false, false);</span>
+<span class="fc" id="L44">		this.polymorphicType = polymorphicType;</span>
+<span class="fc" id="L45">	}</span>
+
+	public static boolean isRelevantFor(ReflectionUI reflectionUI, ITypeInfo type) {
+<span class="fc" id="L48">		return StreamSupport.stream(getTypeOptionsCollector(reflectionUI, type).spliterator(), false)</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">				.anyMatch(typeOption -&gt; !typeOption.getName().equals(type.getName()));</span>
+	}
+
+	protected static Iterable&lt;ITypeInfo&gt; getTypeOptionsCollector(ReflectionUI reflectionUI, ITypeInfo polymorphicType) {
+<span class="fc" id="L53">		return new TypeOptionsCollector(reflectionUI, polymorphicType);</span>
+	}
+
+	/**
+	 * @return the possible types (enumerated from this factory). Each base type
+	 *         precede its sub-types in the result.
+	 */
+	public List&lt;ITypeInfo&gt; getTypeOptions() {
+<span class="fc" id="L61">		List&lt;ITypeInfo&gt; result = new ArrayList&lt;ITypeInfo&gt;();</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">		for (Object item : getOrLoadItems()) {</span>
+<span class="fc" id="L63">			result.add((ITypeInfo) item);</span>
+		}
+<span class="fc" id="L65">		return result;</span>
+	}
+
+	/**
+	 * @param instance The instance to analyze.
+	 * @return the type information among {@link #getTypeOptions()} that best fits
+	 *         the given instance. Note that descendant types have precedence over
+	 *         their ancestors and a type supporting the given instance may be
+	 *         returned even if the actual instance type is not one of this factory
+	 *         type options.
+	 * @throws ReflectionUIError If any ambiguity or inconsistency is detected.
+	 */
+	public ITypeInfo guessSubType(Object instance) throws ReflectionUIError {
+<span class="fc" id="L78">		ITypeInfo result = null;</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">		for (ITypeInfo type : MiscUtils.getReverse(getTypeOptions())) {</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">			if (type.supports(instance)) {</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">				if (result == null) {</span>
+<span class="fc" id="L82">					result = type;</span>
+<span class="fc" id="L83">				} else {</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">					ITypeInfo unwrappedType = type.getName().equals(polymorphicType.getName()) ? polymorphicType</span>
+							: ReflectionUIUtils
+<span class="nc" id="L86">									.listDescendantTypes(polymorphicType,</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">											!polymorphicType.isPolymorphicInstanceAbstractTypeOptionAllowed())</span>
+<span class="nc" id="L88">									.stream().filter(eachType -&gt; eachType.getName().equals(type.getName())).findFirst()</span>
+<span class="nc" id="L89">									.get();</span>
+<span class="nc" id="L90">					List&lt;String&gt; typeDescendantNames = ReflectionUIUtils</span>
+<span class="nc" id="L91">							.listDescendantTypes(unwrappedType,</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">									!polymorphicType.isPolymorphicInstanceAbstractTypeOptionAllowed())</span>
+<span class="nc" id="L93">							.stream().map(eachType -&gt; eachType.getName()).collect(Collectors.toList());</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">					if (typeDescendantNames.contains(result.getName())) {</span>
+<span class="nc" id="L95">						continue;</span>
+					}
+<span class="nc" id="L97">					throw new ReflectionUIError(</span>
+<span class="nc" id="L98">							&quot;Failed to guess the polymorphic value type: Ambiguity detected: More than 1 valid types found:&quot;</span>
+<span class="nc" id="L99">									+ &quot;\n- &quot; + result.getName() + &quot;\n- &quot; + type.getName());</span>
+				}
+			}
+		}
+<span class="fc" id="L103">		return result;</span>
+	}
+
+	@Override
+	protected ResourcePath getItemIconImagePath(Object arrayItem) {
+<span class="fc" id="L108">		ITypeInfo polyTypesItem = (ITypeInfo) arrayItem;</span>
+<span class="fc" id="L109">		return polyTypesItem.getIconImagePath(null);</span>
+	}
+
+	@Override
+	protected String getItemOnlineHelp(Object arrayItem) {
+<span class="fc" id="L114">		ITypeInfo polyTypesItem = (ITypeInfo) arrayItem;</span>
+<span class="fc" id="L115">		return polyTypesItem.getOnlineHelp();</span>
+	}
+
+	@Override
+	protected String getItemName(Object arrayItem) {
+<span class="fc" id="L120">		ITypeInfo polyTypesItem = (ITypeInfo) arrayItem;</span>
+<span class="fc" id="L121">		return polyTypesItem.getName();</span>
+	}
+
+	@Override
+	protected String getItemCaption(Object arrayItem) {
+<span class="fc" id="L126">		ITypeInfo polyTypesItem = (ITypeInfo) arrayItem;</span>
+<span class="fc" id="L127">		String result = polyTypesItem.getCaption();</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">		if (polyTypesItem.getName().equals(polymorphicType.getName())) {</span>
+<span class="nc" id="L129">			result = ReflectionUIUtils.composeMessage(&quot;Basic&quot;, result);</span>
+		}
+<span class="fc" id="L131">		return result;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L136">		return &quot;PolymorphicTypeOptionsFactory [polymorphicType=&quot; + polymorphicType + &quot;]&quot;;</span>
+	}
+
+	public static class TypeOptionsCollector implements Iterable&lt;ITypeInfo&gt; {
+
+<span class="fc" id="L141">		protected static final String ALREADY_USED_TYPE_OPTION_COLLECTORS_PROPERTY_KEY = TypeOptionsCollector.class</span>
+<span class="fc" id="L142">				.getName() + &quot;.ALREADY_USED_TYPE_OPTION_COLLECTORS_PROPERTY_KEY&quot;;</span>
+
+		protected ReflectionUI reflectionUI;
+		protected ITypeInfo polymorphicType;
+		protected List&lt;ITypeInfo&gt; typeOptionCache;
+
+<span class="fc" id="L148">		public TypeOptionsCollector(ReflectionUI reflectionUI, ITypeInfo polymorphicType) {</span>
+<span class="fc" id="L149">			this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L150">			this.polymorphicType = polymorphicType;</span>
+<span class="fc" id="L151">		}</span>
+
+		@Override
+		public Iterator&lt;ITypeInfo&gt; iterator() {
+<span class="fc" id="L155">			typeOptionCache = collect();</span>
+<span class="fc" id="L156">			return typeOptionCache.iterator();</span>
+		}
+
+		protected List&lt;ITypeInfo&gt; collect() {
+<span class="fc" id="L160">			List&lt;ITypeInfo&gt; result = new ArrayList&lt;ITypeInfo&gt;();</span>
+<span class="pc bpc" id="L161" title="1 of 4 branches missed.">			if (polymorphicType.isPolymorphicInstanceAbstractTypeOptionAllowed() || polymorphicType.isConcrete()) {</span>
+<span class="fc" id="L162">				result.add(0, preventPolymorphismRecursivity(reflectionUI, polymorphicType, polymorphicType));</span>
+			}
+<span class="fc bfc" id="L164" title="All 2 branches covered.">			for (ITypeInfo descendantType : ReflectionUIUtils.listDescendantTypes(polymorphicType,</span>
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">					!polymorphicType.isPolymorphicInstanceAbstractTypeOptionAllowed())) {</span>
+<span class="fc" id="L166">				result.add(preventPolymorphismRecursivity(reflectionUI, polymorphicType, descendantType));</span>
+			}
+<span class="fc" id="L168">			List&lt;TypeOptionsCollector&gt; alreadyUsedTypeOptionCollectors = getAlreadyUsedTypeOptionCollectors(</span>
+<span class="fc" id="L169">					polymorphicType.getSpecificProperties());</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">			if (alreadyUsedTypeOptionCollectors != null) {</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">				for (TypeOptionsCollector typeOptionsCollector : alreadyUsedTypeOptionCollectors) {</span>
+<span class="fc" id="L172">					Set&lt;String&gt; alreadyExploredOptionNames = typeOptionsCollector.collect().stream()</span>
+<span class="fc" id="L173">							.map(typeOption -&gt; typeOption.getName()).collect(Collectors.toSet());</span>
+<span class="fc" id="L174">					result = result.stream()</span>
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">							.filter(resultItem -&gt; resultItem.getName().equals(polymorphicType.getName())</span>
+<span class="pc bnc" id="L176" title="All 2 branches missed.">									|| !alreadyExploredOptionNames.contains(resultItem.getName()))</span>
+<span class="fc" id="L177">							.collect(Collectors.toList());</span>
+				}
+			}
+<span class="fc" id="L180">			return result;</span>
+		}
+
+		@SuppressWarnings(&quot;unchecked&quot;)
+		protected List&lt;TypeOptionsCollector&gt; getAlreadyUsedTypeOptionCollectors(Map&lt;String, Object&gt; specificPrperties) {
+<span class="fc" id="L185">			return (List&lt;TypeOptionsCollector&gt;) specificPrperties.get(ALREADY_USED_TYPE_OPTION_COLLECTORS_PROPERTY_KEY);</span>
+		}
+
+		protected Map&lt;String, Object&gt; addAlreadyUsedTypeOptionCollector(Map&lt;String, Object&gt; specificPrperties,
+				TypeOptionsCollector typeOptionsCollector) {
+<span class="fc" id="L190">			Map&lt;String, Object&gt; result = new HashMap&lt;String, Object&gt;(specificPrperties);</span>
+<span class="fc" id="L191">			List&lt;TypeOptionsCollector&gt; typeOptionsCollectors = new ArrayList&lt;TypeOptionsCollector&gt;();</span>
+<span class="fc" id="L192">			List&lt;TypeOptionsCollector&gt; preExistingTypeOptionsCollectors = getAlreadyUsedTypeOptionCollectors(</span>
+<span class="fc" id="L193">					specificPrperties);</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">			if (preExistingTypeOptionsCollectors != null) {</span>
+<span class="fc" id="L195">				typeOptionsCollectors = new ArrayList&lt;TypeOptionsCollector&gt;(preExistingTypeOptionsCollectors);</span>
+			}
+<span class="fc" id="L197">			typeOptionsCollectors.add(typeOptionsCollector);</span>
+<span class="fc" id="L198">			result.put(ALREADY_USED_TYPE_OPTION_COLLECTORS_PROPERTY_KEY, typeOptionsCollectors);</span>
+<span class="fc" id="L199">			return result;</span>
+		}
+
+		protected ITypeInfo preventPolymorphismRecursivity(ReflectionUI reflectionUI, ITypeInfo polymorphicType,
+				ITypeInfo subType) {
+<span class="fc" id="L204">			ITypeInfoSource typeSource = subType.getSource();</span>
+<span class="fc" id="L205">			ITypeInfo result = typeSource.buildTypeInfo(reflectionUI);</span>
+<span class="fc" id="L206">			result = getPolymorphismRecursivityDetectionFactory(reflectionUI, polymorphicType).wrapTypeInfo(result);</span>
+<span class="fc" id="L207">			result = reflectionUI</span>
+<span class="fc" id="L208">					.getTypeInfo(new PrecomputedTypeInfoSource(result, typeSource.getSpecificitiesIdentifier()));</span>
+<span class="fc" id="L209">			result = getPolymorphismRemovalFactory(reflectionUI, polymorphicType).wrapTypeInfo(result);</span>
+<span class="fc" id="L210">			return result;</span>
+		}
+
+		protected InfoProxyFactory getPolymorphismRecursivityDetectionFactory(ReflectionUI reflectionUI,
+				ITypeInfo polymorphicType) {
+<span class="fc" id="L215">			return new InfoProxyFactory() {</span>
+
+				@Override
+				public String getIdentifier() {
+<span class="fc" id="L219">					List&lt;TypeOptionsCollector&gt; alreadyUsedTypeOptionCollectors = getAlreadyUsedTypeOptionCollectors(</span>
+<span class="fc" id="L220">							polymorphicType.getSpecificProperties());</span>
+<span class="fc" id="L221">					return &quot;PolymorphismExplorationDetector [polymorphicType=&quot; + polymorphicType.getName()</span>
+<span class="fc" id="L222">							+ &quot;, typeOptionsAlreadyCollectedFor=&quot;</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">							+ ((alreadyUsedTypeOptionCollectors == null) ? &quot;&quot;</span>
+<span class="fc" id="L224">									: alreadyUsedTypeOptionCollectors.stream()</span>
+<span class="fc" id="L225">											.map(typeOptionsCollector -&gt; typeOptionsCollector.polymorphicType.getName())</span>
+<span class="fc" id="L226">											.collect(Collectors.joining(&quot;,&quot;)))</span>
+<span class="fc" id="L227">							+ &quot;, reflectionUI=&quot; + reflectionUI + &quot;]&quot;;</span>
+				}
+
+				protected Map&lt;String, Object&gt; getSpecificProperties(ITypeInfo type) {
+<span class="fc" id="L231">					return addAlreadyUsedTypeOptionCollector(super.getSpecificProperties(type),</span>
+<span class="fc" id="L232">							TypeOptionsCollector.this);</span>
+				}
+
+			};
+		}
+
+		protected InfoProxyFactory getPolymorphismRemovalFactory(ReflectionUI reflectionUI, ITypeInfo polymorphicType) {
+<span class="fc" id="L239">			return new InfoProxyFactory() {</span>
+				@Override
+				public String getIdentifier() {
+<span class="fc" id="L242">					List&lt;TypeOptionsCollector&gt; alreadyUsedTypeOptionCollectors = getAlreadyUsedTypeOptionCollectors(</span>
+<span class="fc" id="L243">							polymorphicType.getSpecificProperties());</span>
+<span class="fc" id="L244">					return &quot;PolymorphismRemover [polymorphicType=&quot; + polymorphicType.getName()</span>
+<span class="fc" id="L245">							+ &quot;, typeOptionsAlreadyCollectedFor=&quot;</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">							+ ((alreadyUsedTypeOptionCollectors == null) ? &quot;&quot;</span>
+<span class="fc" id="L247">									: alreadyUsedTypeOptionCollectors.stream()</span>
+<span class="fc" id="L248">											.map(typeOptionsCollector -&gt; typeOptionsCollector.polymorphicType.getName())</span>
+<span class="fc" id="L249">											.collect(Collectors.joining(&quot;,&quot;)))</span>
+<span class="fc" id="L250">							+ &quot;, reflectionUI=&quot; + reflectionUI + &quot;]&quot;;</span>
+				}
+
+				@Override
+				protected List&lt;ITypeInfo&gt; getPolymorphicInstanceSubTypes(ITypeInfo type) {
+<span class="fc" id="L255">					return Collections.emptyList();</span>
+				}
+
+			};
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L263">			final int prime = 31;</span>
+<span class="fc" id="L264">			int result = 1;</span>
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">			result = prime * result + ((polymorphicType == null) ? 0 : polymorphicType.hashCode());</span>
+<span class="pc bpc" id="L266" title="1 of 2 branches missed.">			result = prime * result + ((reflectionUI == null) ? 0 : reflectionUI.hashCode());</span>
+<span class="fc" id="L267">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L273">				return true;</span>
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L275">				return false;</span>
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L277">				return false;</span>
+<span class="fc" id="L278">			TypeOptionsCollector other = (TypeOptionsCollector) obj;</span>
+<span class="pc bpc" id="L279" title="1 of 2 branches missed.">			if (polymorphicType == null) {</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">				if (other.polymorphicType != null)</span>
+<span class="nc" id="L281">					return false;</span>
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">			} else if (!polymorphicType.equals(other.polymorphicType))</span>
+<span class="nc" id="L283">				return false;</span>
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">			if (reflectionUI == null) {</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">				if (other.reflectionUI != null)</span>
+<span class="nc" id="L286">					return false;</span>
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">			} else if (!reflectionUI.equals(other.reflectionUI))</span>
+<span class="nc" id="L288">				return false;</span>
+<span class="fc" id="L289">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L294">			return &quot;TypeOptionsCollector [polymorphicType=&quot; + polymorphicType + &quot;, reflectionUI=&quot; + reflectionUI + &quot;]&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

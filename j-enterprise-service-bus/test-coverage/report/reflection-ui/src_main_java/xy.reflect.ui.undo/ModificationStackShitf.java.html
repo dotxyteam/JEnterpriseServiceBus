@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ModificationStackShitf.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.undo</a> &gt; <span class="el_source">ModificationStackShitf.java</span></div><h1>ModificationStackShitf.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.undo;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
+/**
+ * Modification that calls undo() or redo() on the given modification stack
+ * according to the specified offset. If the offset is positive then +offset
+ * redo() calls will be performed. Otherwise -offset undo() calls will be
+ * performed.
+ * 
+ * @author olitank
+ *
+ */
+public class ModificationStackShitf extends AbstractModification {
+
+	protected ModificationStack modificationStack;
+	protected int offset;
+	protected String title;
+
+<span class="fc" id="L22">	public ModificationStackShitf(ModificationStack modificationStack, int offset, String title) {</span>
+<span class="fc" id="L23">		this.modificationStack = modificationStack;</span>
+<span class="fc" id="L24">		this.offset = offset;</span>
+<span class="fc" id="L25">		this.title = title;</span>
+<span class="fc" id="L26">	}</span>
+
+	public ModificationStack getTargetModificationStack() {
+<span class="nc" id="L29">		return modificationStack;</span>
+	}
+
+	@Override
+	protected Runnable createDoJob() {
+<span class="nc" id="L34">		return new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc bnc" id="L37" title="All 2 branches missed.">				if (offset &gt; 0) {</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">					for (int i = 0; i &lt; offset; i++) {</span>
+<span class="nc" id="L39">						shiftForeward();</span>
+					}
+<span class="nc" id="L41">				} else {</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">					for (int i = 0; i &lt; (-offset); i++) {</span>
+<span class="nc" id="L43">						shiftBackward();</span>
+					}
+				}
+<span class="nc" id="L46">			}</span>
+		};
+	}
+
+	@Override
+	protected Runnable createUndoJob() {
+<span class="nc" id="L52">		return new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">				if (offset &gt; 0) {</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">					for (int i = 0; i &lt; offset; i++) {</span>
+<span class="nc" id="L57">						shiftBackward();</span>
+					}
+<span class="nc" id="L59">				} else {</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">					for (int i = 0; i &lt; (-offset); i++) {</span>
+<span class="nc" id="L61">						shiftForeward();</span>
+					}
+				}
+<span class="nc" id="L64">			}</span>
+		};
+	}
+
+	@Override
+	protected Runnable createRedoJob() {
+<span class="nc" id="L70">		return createDoJob();</span>
+	}
+
+	protected void shiftBackward() {
+<span class="nc" id="L74">		modificationStack.undo();</span>
+<span class="nc" id="L75">	}</span>
+
+	protected void shiftForeward() {
+<span class="nc" id="L78">		modificationStack.redo();</span>
+<span class="nc" id="L79">	}</span>
+
+	@Override
+	public boolean isNull() {
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">		return offset == 0;</span>
+	}
+
+	@Override
+	public boolean isComposite() {
+<span class="nc" id="L88">		return true;</span>
+	}
+
+	@Override
+	public String getTitle() {
+<span class="fc" id="L93">		return title;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L98">		return &quot;ModificationStackShitf [modificationStack=&quot; + modificationStack + &quot;, offset=&quot; + offset + &quot;, title=&quot;</span>
+<span class="nc" id="L99">				+ title + &quot;, modifications=&quot;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">				+ Arrays.asList((offset &lt; 0) ? modificationStack.getUndoModifications()</span>
+<span class="nc" id="L101">						: modificationStack.getRedoModifications()).stream().limit(Math.abs(offset))</span>
+<span class="nc" id="L102">						.collect(Collectors.toList())</span>
+<span class="nc" id="L103">				+ &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

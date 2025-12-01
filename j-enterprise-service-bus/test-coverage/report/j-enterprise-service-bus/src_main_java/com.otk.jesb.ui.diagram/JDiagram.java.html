@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>JDiagram.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.ui.diagram</a> &gt; <span class="el_source">JDiagram.java</span></div><h1>JDiagram.java</h1><pre class="source lang-java linenums">package com.otk.jesb.ui.diagram;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.swing.AbstractAction;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
+
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.util.MiscUtils;
+
+import xy.reflect.ui.control.swing.util.ImagePanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+
+public class JDiagram extends ImagePanel implements MouseListener, MouseMotionListener {
+
+	private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L50">	private List&lt;JNode&gt; nodes = new ArrayList&lt;JNode&gt;();</span>
+<span class="fc" id="L51">	private List&lt;JConnection&gt; connections = new ArrayList&lt;JConnection&gt;();</span>
+<span class="fc" id="L52">	private List&lt;JDiagramListener&gt; listeners = new ArrayList&lt;JDiagramListener&gt;();</span>
+
+	private JNode newConnectionStartNode;
+	private JNode newConnectionEndNode;
+	private JNode draggedNode;
+	private Point draggedNodeCenterOffset;
+	private List&lt;JDiagramActionScheme&gt; actionSchemes;
+<span class="fc" id="L59">	private DragIntent dragIntent = DragIntent.MOVE;</span>
+<span class="fc" id="L60">	private int connectionArrowSize = 25;</span>
+<span class="fc" id="L61">	private int connectionLineThickness = 2;</span>
+
+<span class="fc" id="L63">	private Color nodeColor = Color.BLACK;</span>
+<span class="fc" id="L64">	private Color connectionColor = Color.BLACK;</span>
+<span class="fc" id="L65">	private Color textColor = Color.BLACK;</span>
+<span class="fc" id="L66">	private Color selectionColor = new Color(184, 207, 229);</span>
+
+<span class="fc" id="L68">	public JDiagram() {</span>
+<span class="fc" id="L69">		addMouseListener(this);</span>
+<span class="fc" id="L70">		addMouseMotionListener(this);</span>
+<span class="fc" id="L71">		setTransferHandler(new ActionImportTransferHandler());</span>
+<span class="fc" id="L72">	}</span>
+
+	public List&lt;JNode&gt; getNodes() {
+<span class="fc" id="L75">		return nodes;</span>
+	}
+
+	public List&lt;JConnection&gt; getConnections() {
+<span class="nc" id="L79">		return connections;</span>
+	}
+
+	public DragIntent getDragIntent() {
+<span class="nc" id="L83">		return dragIntent;</span>
+	}
+
+	public void setDragIntent(DragIntent dragIntent) {
+<span class="fc" id="L87">		this.dragIntent = dragIntent;</span>
+<span class="fc" id="L88">	}</span>
+
+	public List&lt;JDiagramActionScheme&gt; getActionSchemes() {
+<span class="nc" id="L91">		return actionSchemes;</span>
+	}
+
+	public void setActionSchemes(List&lt;JDiagramActionScheme&gt; actionSchemes) {
+<span class="fc" id="L95">		this.actionSchemes = actionSchemes;</span>
+<span class="fc" id="L96">	}</span>
+
+	public int getConnectionArrowSize() {
+<span class="fc" id="L99">		return connectionArrowSize;</span>
+	}
+
+	public void setConnectionArrowSize(int connectionArrowSize) {
+<span class="nc" id="L103">		this.connectionArrowSize = connectionArrowSize;</span>
+<span class="nc" id="L104">	}</span>
+
+	public int getConnectionLineThickness() {
+<span class="fc" id="L107">		return connectionLineThickness;</span>
+	}
+
+	public void setConnectionLineThickness(int connectionLineThickness) {
+<span class="nc" id="L111">		this.connectionLineThickness = connectionLineThickness;</span>
+<span class="nc" id="L112">	}</span>
+
+	public Color getNodeColor() {
+<span class="nc" id="L115">		return nodeColor;</span>
+	}
+
+	public void setNodeColor(Color nodeColor) {
+<span class="fc" id="L119">		this.nodeColor = nodeColor;</span>
+<span class="fc" id="L120">	}</span>
+
+	public Color getConnectionColor() {
+<span class="fc" id="L123">		return connectionColor;</span>
+	}
+
+	public void setConnectionColor(Color connectionColor) {
+<span class="fc" id="L127">		this.connectionColor = connectionColor;</span>
+<span class="fc" id="L128">	}</span>
+
+	public Color getTextColor() {
+<span class="fc" id="L131">		return textColor;</span>
+	}
+
+	public void setTextColor(Color textColor) {
+<span class="nc" id="L135">		this.textColor = textColor;</span>
+<span class="nc" id="L136">	}</span>
+
+	public Color getSelectionColor() {
+<span class="fc" id="L139">		return selectionColor;</span>
+	}
+
+	public void setSelectionColor(Color selectionColor) {
+<span class="nc" id="L143">		this.selectionColor = selectionColor;</span>
+<span class="nc" id="L144">	}</span>
+
+	public void clear() {
+<span class="fc" id="L147">		nodes.clear();</span>
+<span class="fc" id="L148">		connections.clear();</span>
+<span class="fc" id="L149">	}</span>
+
+	public void scrollTo(JDiagramObject diagramObject) {
+<span class="fc" id="L152">		scrollRectToVisible(diagramObject.getBounds(this));</span>
+<span class="fc" id="L153">	}</span>
+
+	public JNode addNode(Object object, int centerX, int centerY) {
+<span class="fc" id="L156">		JNode newNode = new JNode();</span>
+<span class="fc" id="L157">		newNode.setCenterX(centerX);</span>
+<span class="fc" id="L158">		newNode.setCenterY(centerY);</span>
+<span class="fc" id="L159">		newNode.setValue(object);</span>
+<span class="fc" id="L160">		nodes.add(newNode);</span>
+<span class="fc" id="L161">		return newNode;</span>
+	}
+
+	public JNode findNode(Object value) {
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">		for (JNode node : nodes) {</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">			if (value.equals(node.getValue())) {</span>
+<span class="fc" id="L167">				return node;</span>
+			}
+		}
+<span class="nc" id="L170">		return null;</span>
+	}
+
+	public JConnection findConnection(Object value) {
+<span class="nc bnc" id="L174" title="All 2 branches missed.">		for (JConnection connection : connections) {</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">			if (value.equals(connection.getValue())) {</span>
+<span class="nc" id="L176">				return connection;</span>
+			}
+		}
+<span class="nc" id="L179">		return null;</span>
+	}
+
+	public JDiagramObject findDiagramObject(Object value) {
+		JDiagramObject result;
+<span class="fc" id="L184">		result = findNode(value);</span>
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">		if (result != null) {</span>
+<span class="fc" id="L186">			return result;</span>
+		}
+<span class="nc" id="L188">		result = findConnection(value);</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">		if (result != null) {</span>
+<span class="nc" id="L190">			return result;</span>
+		}
+<span class="nc" id="L192">		return null;</span>
+	}
+
+	public JConnection addConnection(JNode node1, JNode node2, Object object) {
+<span class="fc" id="L196">		JConnection newConn = new JConnection();</span>
+<span class="fc" id="L197">		newConn.setStartNode(node1);</span>
+<span class="fc" id="L198">		newConn.setEndNode(node2);</span>
+<span class="fc" id="L199">		newConn.setValue(object);</span>
+<span class="fc" id="L200">		connections.add(newConn);</span>
+<span class="fc" id="L201">		return newConn;</span>
+	}
+
+	public void addListener(JDiagramListener listener) {
+<span class="fc" id="L205">		listeners.add(listener);</span>
+<span class="fc" id="L206">	}</span>
+
+	@Override
+	public void mouseDragged(MouseEvent mouseEvent) {
+<span class="nc bnc" id="L210" title="All 2 branches missed.">		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">			if (draggedNode != null) {</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">				if (dragIntent == DragIntent.CONNECT) {</span>
+<span class="nc" id="L213">					JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">					if (pointedDiagramObject instanceof JNode) {</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">						if (draggedNode != pointedDiagramObject) {</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">							if (pointedDiagramObject.containsPoint(mouseEvent.getX(), mouseEvent.getY(), this)) {</span>
+<span class="nc" id="L217">								newConnectionStartNode = draggedNode;</span>
+<span class="nc" id="L218">								newConnectionEndNode = (JNode) pointedDiagramObject;</span>
+							}
+						}
+					}
+<span class="nc" id="L222">					setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));</span>
+<span class="nc" id="L223">				} else {</span>
+<span class="nc" id="L224">					setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));</span>
+				}
+<span class="nc" id="L226">				repaint();</span>
+			}
+		}
+<span class="nc" id="L229">	}</span>
+
+	@Override
+	public void mouseMoved(MouseEvent mouseEvent) {
+<span class="nc" id="L233">		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		setToolTipText((pointedDiagramObject != null) ? pointedDiagramObject.getTooltipText() : null);</span>
+<span class="nc" id="L235">	}</span>
+
+	@Override
+	public void mouseClicked(MouseEvent mouseEvent) {
+<span class="nc" id="L239">	}</span>
+
+	@Override
+	public void mousePressed(final MouseEvent mouseEvent) {
+<span class="fc bfc" id="L243" title="All 2 branches covered.">		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {</span>
+<span class="fc" id="L244">			JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());</span>
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">			if (pointedDiagramObject instanceof JNode) {</span>
+<span class="nc" id="L246">				draggedNode = (JNode) pointedDiagramObject;</span>
+<span class="nc" id="L247">				draggedNodeCenterOffset = new Point(draggedNode.getCenterX() - mouseEvent.getX(),</span>
+<span class="nc" id="L248">						draggedNode.getCenterY() - mouseEvent.getY());</span>
+			}
+		}
+<span class="fc" id="L251">		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());</span>
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">		if (pointedDiagramObject != null) {</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">			if ((mouseEvent.getModifiers() &amp; ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {</span>
+<span class="nc" id="L254">				Set&lt;JDiagramObject&gt; newSelection = new HashSet&lt;JDiagramObject&gt;(getSelection());</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">				if (newSelection.contains(pointedDiagramObject)) {</span>
+<span class="nc" id="L256">					newSelection.remove(pointedDiagramObject);</span>
+<span class="nc" id="L257">				} else {</span>
+<span class="nc" id="L258">					newSelection.add(pointedDiagramObject);</span>
+				}
+<span class="nc" id="L260">				setSelection(newSelection);</span>
+<span class="nc" id="L261">			} else {</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">				if (!getSelection().contains(pointedDiagramObject)) {</span>
+<span class="nc" id="L263">					setSelection(Collections.singleton(pointedDiagramObject));</span>
+				}
+			}
+<span class="nc" id="L266">		} else {</span>
+<span class="fc" id="L267">			setSelection(Collections.emptySet());</span>
+		}
+<span class="fc bfc" id="L269" title="All 2 branches covered.">		if (SwingUtilities.isRightMouseButton(mouseEvent)) {</span>
+<span class="fc" id="L270">			JPopupMenu popupMenu = createContextMenu(mouseEvent);</span>
+<span class="fc" id="L271">			popupMenu.show(this, mouseEvent.getX(), mouseEvent.getY());</span>
+		}
+<span class="fc" id="L273">	}</span>
+
+	@Override
+	public void mouseReleased(MouseEvent mouseEvent) {
+<span class="fc" id="L277">		setCursor(Cursor.getDefaultCursor());</span>
+<span class="fc" id="L278">		repaint();</span>
+<span class="fc bfc" id="L279" title="All 2 branches covered.">		if (SwingUtilities.isLeftMouseButton(mouseEvent)) {</span>
+			try {
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">				if (dragIntent == DragIntent.CONNECT) {</span>
+<span class="nc bnc" id="L282" title="All 4 branches missed.">					if ((newConnectionStartNode != null) &amp;&amp; (newConnectionEndNode != null)) {</span>
+<span class="nc" id="L283">						JConnection connection = new JConnection();</span>
+<span class="nc" id="L284">						connection.setStartNode(newConnectionStartNode);</span>
+<span class="nc" id="L285">						connection.setEndNode(newConnectionEndNode);</span>
+<span class="nc" id="L286">						connections.add(connection);</span>
+<span class="nc" id="L287">						newConnectionStartNode = null;</span>
+<span class="nc" id="L288">						newConnectionEndNode = null;</span>
+<span class="nc" id="L289">						repaint();</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">						for (JDiagramListener l : listeners) {</span>
+<span class="nc" id="L291">							l.connectionAdded(connection);</span>
+						}
+<span class="nc" id="L293">						return;</span>
+					}
+				}
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">				if (dragIntent == DragIntent.MOVE) {</span>
+<span class="pc bpc" id="L297" title="1 of 2 branches missed.">					if (draggedNode != null) {</span>
+<span class="nc" id="L298">						Point draggedNodeMove = new Point(</span>
+<span class="nc" id="L299">								mouseEvent.getX() + draggedNodeCenterOffset.x - draggedNode.getCenterX(),</span>
+<span class="nc" id="L300">								mouseEvent.getY() + draggedNodeCenterOffset.y - draggedNode.getCenterY());</span>
+<span class="nc bnc" id="L301" title="All 4 branches missed.">						if ((draggedNodeMove.x != 0) || (draggedNodeMove.y != 0)) {</span>
+<span class="nc" id="L302">							Set&lt;JNode&gt; nodesToMove = new HashSet&lt;JNode&gt;();</span>
+<span class="nc" id="L303">							nodesToMove.add(draggedNode);</span>
+<span class="nc bnc" id="L304" title="All 2 branches missed.">							if (draggedNode.isSelected()) {</span>
+<span class="nc" id="L305">								nodesToMove.addAll(getSelection().stream()</span>
+<span class="nc" id="L306">										.filter(diagramObject -&gt; diagramObject instanceof JNode)</span>
+<span class="nc" id="L307">										.map(diagramObject -&gt; (JNode) diagramObject).collect(Collectors.toSet()));</span>
+							}
+<span class="nc bnc" id="L309" title="All 2 branches missed.">							for (JNode node : nodesToMove) {</span>
+<span class="nc" id="L310">								node.setCenterX(node.getCenterX() + draggedNodeMove.x);</span>
+<span class="nc" id="L311">								node.setCenterY(node.getCenterY() + draggedNodeMove.y);</span>
+							}
+<span class="nc" id="L313">							repaint();</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">							for (JDiagramListener l : listeners) {</span>
+<span class="nc" id="L315">								l.nodesMoved(nodesToMove);</span>
+							}
+<span class="nc" id="L317">							return;</span>
+						}
+					}
+				}
+<span class="fc" id="L321">				JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());</span>
+<span class="pc bpc" id="L322" title="1 of 2 branches missed.">				if (pointedDiagramObject != null) {</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">					if (!((mouseEvent.getModifiers() &amp; ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK)) {</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">						if (getSelection().contains(pointedDiagramObject)) {</span>
+<span class="nc" id="L325">							setSelection(Collections.singleton(pointedDiagramObject));</span>
+						}
+					}
+				}
+<span class="nc" id="L329">			} finally {</span>
+<span class="fc" id="L330">				draggedNode = null;</span>
+<span class="fc" id="L331">				draggedNodeCenterOffset = null;</span>
+			}
+		}
+<span class="fc" id="L334">	}</span>
+
+	public JDiagramObject getPointedDiagramObject(int x, int y) {
+<span class="fc" id="L337">		List&lt;JDiagramObject&gt; diagramObjects = new ArrayList&lt;JDiagramObject&gt;();</span>
+<span class="fc" id="L338">		diagramObjects.addAll(MiscUtils.getReverse(connections));</span>
+<span class="fc" id="L339">		diagramObjects.addAll(MiscUtils.getReverse(nodes));</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">		for (JDiagramObject diagramObject : diagramObjects) {</span>
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">			if (diagramObject.containsPoint(x, y, this)) {</span>
+<span class="nc" id="L342">				return diagramObject;</span>
+			}
+		}
+<span class="fc" id="L345">		return null;</span>
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+<span class="nc" id="L350">	}</span>
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+<span class="nc" id="L354">	}</span>
+
+	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
+<span class="fc" id="L357">		JPopupMenu popupMenu = new JPopupMenu();</span>
+		{
+<span class="pc bpc" id="L359" title="1 of 2 branches missed.">			if (actionSchemes != null) {</span>
+<span class="fc bfc" id="L360" title="All 2 branches covered.">				for (JDiagramActionScheme actionScheme : actionSchemes) {</span>
+<span class="fc" id="L361">					JMenu addMenu = new JMenu(actionScheme.getTitle());</span>
+					{
+<span class="fc" id="L363">						popupMenu.add(addMenu);</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">						for (JDiagramActionCategory category : actionScheme.getActionCategories()) {</span>
+<span class="fc" id="L365">							JMenu categoryMenu = new JMenu(category.getName());</span>
+							{
+<span class="fc" id="L367">								addMenu.add(categoryMenu);</span>
+<span class="fc bfc" id="L368" title="All 2 branches covered.">								for (JDiagramAction action : category.getActions()) {</span>
+<span class="fc" id="L369">									categoryMenu</span>
+<span class="fc" id="L370">											.add(new JMenuItem(new AbstractAction(action.getLabel(), action.getIcon()) {</span>
+												private static final long serialVersionUID = 1L;
+
+												@Override
+												public void actionPerformed(ActionEvent e) {
+<span class="fc" id="L375">													action.perform(mouseEvent.getX(), mouseEvent.getY());</span>
+<span class="fc" id="L376">												}</span>
+											}));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+<span class="fc" id="L385">		return popupMenu;</span>
+	}
+
+	public Set&lt;JDiagramObject&gt; getSelection() {
+<span class="fc" id="L389">		Set&lt;JDiagramObject&gt; result = new HashSet&lt;JDiagramObject&gt;();</span>
+<span class="fc bfc" id="L390" title="All 2 branches covered.">		for (JNode node : nodes) {</span>
+<span class="fc bfc" id="L391" title="All 2 branches covered.">			if (node.isSelected()) {</span>
+<span class="fc" id="L392">				result.add(node);</span>
+			}
+		}
+<span class="fc bfc" id="L395" title="All 2 branches covered.">		for (JConnection connection : connections) {</span>
+<span class="pc bpc" id="L396" title="1 of 2 branches missed.">			if (connection.isSelected()) {</span>
+<span class="nc" id="L397">				result.add(connection);</span>
+			}
+		}
+<span class="fc" id="L400">		return result;</span>
+	}
+
+	protected void setSelection(Set&lt;JDiagramObject&gt; selection, boolean repaintBeforeNotifications) {
+<span class="fc bfc" id="L404" title="All 2 branches covered.">		for (JNode eachNode : nodes) {</span>
+<span class="fc" id="L405">			eachNode.setSelected(selection.contains(eachNode));</span>
+		}
+<span class="fc bfc" id="L407" title="All 2 branches covered.">		for (JConnection eachConnection : connections) {</span>
+<span class="fc" id="L408">			eachConnection.setSelected(selection.contains(eachConnection));</span>
+		}
+<span class="fc bfc" id="L410" title="All 2 branches covered.">		if (repaintBeforeNotifications) {</span>
+<span class="fc" id="L411">			paintImmediately(getBounds());</span>
+		}
+<span class="fc bfc" id="L413" title="All 2 branches covered.">		for (JDiagramListener l : listeners) {</span>
+<span class="fc" id="L414">			l.selectionChanged();</span>
+		}
+<span class="fc" id="L416">	}</span>
+
+	public void setSelection(Set&lt;JDiagramObject&gt; selection) {
+<span class="fc" id="L419">		setSelection(selection, true);</span>
+<span class="fc" id="L420">	}</span>
+
+	@Override
+	public Dimension getPreferredSize() {
+<span class="fc" id="L424">		Dimension result = new Dimension(0, 0);</span>
+<span class="fc" id="L425">		Graphics g = getGraphics();</span>
+<span class="fc bfc" id="L426" title="All 2 branches covered.">		for (JNode node : nodes) {</span>
+<span class="fc" id="L427">			Rectangle nodeBounds = node.getBounds(this);</span>
+<span class="fc" id="L428">			result.width = Math.max(result.width, nodeBounds.x + nodeBounds.width);</span>
+<span class="fc" id="L429">			result.height = Math.max(result.height, nodeBounds.y + nodeBounds.height);</span>
+		}
+<span class="pc bpc" id="L431" title="1 of 2 branches missed.">		if (g != null) {</span>
+<span class="fc" id="L432">			result.width += g.getFontMetrics().getHeight();</span>
+<span class="fc" id="L433">			result.height += g.getFontMetrics().getHeight();</span>
+		}
+<span class="fc" id="L435">		return result;</span>
+	}
+
+	@Override
+	protected void paintComponent(Graphics g) {
+<span class="fc" id="L440">		super.paintComponent(g);</span>
+<span class="fc bfc" id="L441" title="All 2 branches covered.">		for (JNode node : nodes) {</span>
+<span class="fc" id="L442">			paintNode(g, node);</span>
+		}
+<span class="fc bfc" id="L444" title="All 2 branches covered.">		for (JConnection conn : connections) {</span>
+<span class="fc" id="L445">			paintConnection(g, conn);</span>
+		}
+<span class="fc" id="L447">	}</span>
+
+	protected void paintConnection(Graphics g, JConnection connection) {
+<span class="fc" id="L450">		connection.paint(g, this);</span>
+<span class="fc" id="L451">	}</span>
+
+	protected void paintNode(Graphics g, JNode node) {
+<span class="fc" id="L454">		node.paint(g, this);</span>
+<span class="fc" id="L455">	}</span>
+
+	public Component createActionPalette(int tabPlacement1, int tabPlacement2, int itemsBoxAxis) {
+<span class="pc bpc" id="L458" title="1 of 2 branches missed.">		if (actionSchemes == null) {</span>
+<span class="nc" id="L459">			return null;</span>
+		}
+<span class="fc" id="L461">		JTabbedPane result = new JTabbedPane(tabPlacement1);</span>
+<span class="fc bfc" id="L462" title="All 2 branches covered.">		for (JDiagramActionScheme actionScheme : actionSchemes) {</span>
+<span class="fc" id="L463">			JTabbedPane actionSchemeTabbedPane = new JTabbedPane(tabPlacement2);</span>
+<span class="fc bfc" id="L464" title="All 2 branches covered.">			for (JDiagramActionCategory category : actionScheme.getActionCategories()) {</span>
+<span class="fc" id="L465">				JPanel categoryPanel = new JPanel();</span>
+<span class="fc" id="L466">				categoryPanel.setBackground(getBackground());</span>
+<span class="fc" id="L467">				categoryPanel.setLayout(new BoxLayout(categoryPanel, itemsBoxAxis));</span>
+<span class="fc bfc" id="L468" title="All 2 branches covered.">				for (JDiagramAction action : category.getActions()) {</span>
+<span class="fc" id="L469">					JButton button = new JButton(action.getLabel(), action.getIcon());</span>
+<span class="fc" id="L470">					button.setHorizontalTextPosition(JButton.CENTER);</span>
+<span class="fc" id="L471">					button.setVerticalTextPosition(JButton.BOTTOM);</span>
+<span class="fc" id="L472">					button.setBackground(getBackground());</span>
+<span class="fc" id="L473">					button.setBorderPainted(false);</span>
+<span class="fc" id="L474">					button.setTransferHandler(new ActionExportTransferHandler(action));</span>
+<span class="fc" id="L475">					button.addMouseMotionListener(new MouseAdapter() {</span>
+						@Override
+						public void mouseDragged(MouseEvent e) {
+<span class="nc" id="L478">							TransferHandler handle = button.getTransferHandler();</span>
+<span class="nc" id="L479">							handle.exportAsDrag(button, e, TransferHandler.COPY);</span>
+<span class="nc" id="L480">						}</span>
+					});
+<span class="fc" id="L482">					JPanel buttonBox = SwingRendererUtils.flowInLayout(button, GridBagConstraints.CENTER);</span>
+<span class="fc" id="L483">					buttonBox.setMaximumSize(buttonBox.getPreferredSize());</span>
+<span class="fc" id="L484">					categoryPanel.add(buttonBox);</span>
+				}
+<span class="fc" id="L486">				actionSchemeTabbedPane.addTab(category.getName(), categoryPanel);</span>
+			}
+<span class="fc" id="L488">			result.addTab(actionScheme.getTitle(), actionSchemeTabbedPane);</span>
+		}
+<span class="fc" id="L490">		return result;</span>
+	}
+
+	private static class ActionExportTransferHandler extends TransferHandler {
+
+		private static final long serialVersionUID = 1L;
+
+		private JDiagramAction action;
+
+<span class="fc" id="L499">		public ActionExportTransferHandler(JDiagramAction action) {</span>
+<span class="fc" id="L500">			this.action = action;</span>
+<span class="fc" id="L501">		}</span>
+
+		@Override
+		public int getSourceActions(JComponent c) {
+<span class="nc" id="L505">			return DnDConstants.ACTION_COPY_OR_MOVE;</span>
+		}
+
+		@Override
+		protected Transferable createTransferable(JComponent c) {
+<span class="nc" id="L510">			return new TransferableAction(action);</span>
+		}
+
+	}
+
+	private static class ActionImportTransferHandler extends TransferHandler {
+
+		private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L519">		public ActionImportTransferHandler() {</span>
+<span class="fc" id="L520">		}</span>
+
+		@Override
+		public boolean canImport(TransferHandler.TransferSupport support) {
+<span class="nc" id="L524">			return support.isDataFlavorSupported(TransferableAction.DATA_FLAVOR);</span>
+		}
+
+		@Override
+		public boolean importData(TransferHandler.TransferSupport support) {
+<span class="nc" id="L529">			boolean accept = false;</span>
+<span class="nc bnc" id="L530" title="All 2 branches missed.">			if (canImport(support)) {</span>
+				try {
+<span class="nc" id="L532">					Transferable t = support.getTransferable();</span>
+<span class="nc" id="L533">					Object data = t.getTransferData(TransferableAction.DATA_FLAVOR);</span>
+<span class="nc bnc" id="L534" title="All 2 branches missed.">					if (data instanceof JDiagramAction) {</span>
+<span class="nc" id="L535">						Component component = support.getComponent();</span>
+<span class="nc bnc" id="L536" title="All 2 branches missed.">						if (component instanceof JDiagram) {</span>
+<span class="nc" id="L537">							Point dropPoint = support.getDropLocation().getDropPoint();</span>
+<span class="nc" id="L538">							((JDiagramAction) data).perform(dropPoint.x, dropPoint.y);</span>
+<span class="nc" id="L539">							accept = true;</span>
+						}
+					}
+<span class="nc" id="L542">				} catch (Exception e) {</span>
+<span class="nc" id="L543">					throw new UnexpectedError(e);</span>
+				}
+			}
+<span class="nc" id="L546">			return accept;</span>
+		}
+	}
+
+	private static class TransferableAction implements Transferable {
+
+<span class="nc" id="L552">		public static DataFlavor DATA_FLAVOR = new DataFlavor(JDiagramAction.class,</span>
+<span class="nc" id="L553">				JDiagramAction.class.getSimpleName());</span>
+
+		private JDiagramAction action;
+
+<span class="nc" id="L557">		public TransferableAction(JDiagramAction action) {</span>
+<span class="nc" id="L558">			this.action = action;</span>
+<span class="nc" id="L559">		}</span>
+
+		@Override
+		public DataFlavor[] getTransferDataFlavors() {
+<span class="nc" id="L563">			return new DataFlavor[] { DATA_FLAVOR };</span>
+		}
+
+		@Override
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
+<span class="nc" id="L568">			return flavor.equals(DATA_FLAVOR);</span>
+		}
+
+		@Override
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+<span class="nc bnc" id="L573" title="All 2 branches missed.">			if (flavor.equals(DATA_FLAVOR))</span>
+<span class="nc" id="L574">				return action;</span>
+			else
+<span class="nc" id="L576">				throw new UnsupportedFlavorException(flavor);</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

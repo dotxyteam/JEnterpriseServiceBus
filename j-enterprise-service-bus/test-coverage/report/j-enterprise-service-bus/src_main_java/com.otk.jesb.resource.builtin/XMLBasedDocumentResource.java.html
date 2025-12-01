@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>XMLBasedDocumentResource.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.resource.builtin</a> &gt; <span class="el_source">XMLBasedDocumentResource.java</span></div><h1>XMLBasedDocumentResource.java</h1><pre class="source lang-java linenums">package com.otk.jesb.resource.builtin;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.visitor.ModifierVisitor;
+import com.github.javaparser.ast.visitor.Visitable;
+import com.otk.jesb.JESB;
+import com.otk.jesb.Log;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.util.Listener;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
+import com.otk.jesb.util.UpToDate;
+import com.github.javaparser.ast.Modifier;
+import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+
+public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource {
+
+	protected abstract void runClassesGenerationTool(File mainFile, File metaSchemaFile, File outputDirectory)
+			throws Exception;
+
+	protected String text;
+<span class="pc" id="L41">	protected Map&lt;String, String&gt; dependencyTextByFileName = new HashMap&lt;String, String&gt;();</span>
+
+<span class="pc" id="L43">	protected UpToDateGeneratedClasses upToDateGeneratedClasses = new UpToDateGeneratedClasses();</span>
+
+<span class="fc" id="L45">	public XMLBasedDocumentResource() {</span>
+<span class="fc" id="L46">	}</span>
+
+	public XMLBasedDocumentResource(String name) {
+<span class="nc" id="L49">		super(name);</span>
+<span class="nc" id="L50">	}</span>
+
+	public String getText() {
+<span class="fc" id="L53">		return text;</span>
+	}
+
+	public void setText(String text) {
+<span class="fc" id="L57">		this.text = text;</span>
+<span class="fc" id="L58">	}</span>
+
+	public Map&lt;String, String&gt; getDependencyTextByFileName() {
+<span class="nc" id="L61">		return dependencyTextByFileName;</span>
+	}
+
+	public void setDependencyTextByFileName(Map&lt;String, String&gt; dependencyTextByFileName) {
+<span class="fc" id="L65">		this.dependencyTextByFileName = dependencyTextByFileName;</span>
+<span class="fc" id="L66">	}</span>
+
+	public void load(Source source) {
+<span class="nc" id="L69">		dependencyTextByFileName.clear();</span>
+		try {
+<span class="nc" id="L71">			load(source, new Listener&lt;String&gt;() {</span>
+				@Override
+				public void handle(String text) {
+<span class="nc" id="L74">					setText(text);</span>
+<span class="nc" id="L75">				}</span>
+			});
+<span class="nc" id="L77">		} catch (Exception e) {</span>
+<span class="nc" id="L78">			throw new PotentialError(e);</span>
+		}
+<span class="nc" id="L80">	}</span>
+
+	protected String load(Source source, Listener&lt;String&gt; textHandler) throws Exception {
+<span class="nc" id="L83">		try (InputStream in = source.getInputStream()) {</span>
+<span class="nc" id="L84">			String text = MiscUtils.read(in);</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">			for (String dependencyLocation : locateDependencies(text)) {</span>
+<span class="nc" id="L86">				String dependencyFileName = loadDependency(source, dependencyLocation);</span>
+<span class="nc" id="L87">				text = text.replace(dependencyLocation, dependencyFileName);</span>
+			}
+<span class="nc" id="L89">			textHandler.handle(text);</span>
+		}
+<span class="nc" id="L91">		return dependencyTextByFileName.size() + &quot;_&quot; + source.extractFileName();</span>
+	}
+
+	protected List&lt;String&gt; locateDependencies(String text) {
+<span class="nc" id="L95">		List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		for (Pattern compiledPattern : new Pattern[] {</span>
+<span class="nc" id="L97">				Pattern.compile(</span>
+<span class="nc" id="L98">						&quot;&lt;(?:[a-zA-Z0-9_]+:)?import(?:\\s+namespace=\&quot;[^\&quot;]*\&quot;)?\\s+schemaLocation=\&quot;([^\&quot;]+)\&quot;&quot;,</span>
+<span class="nc" id="L99">						Pattern.DOTALL),</span>
+<span class="nc" id="L100">				Pattern.compile(&quot;&lt;(?:[a-zA-Z0-9_]+:)?include\\s+schemaLocation=\&quot;([^\&quot;]+)\&quot;&quot;, Pattern.DOTALL),</span>
+<span class="nc" id="L101">				Pattern.compile(&quot;&lt;\\s*!DOCTYPE[^&gt;]+\&quot;([^\&quot;]+)\&quot;\\s*&gt;&quot;),</span>
+<span class="nc" id="L102">				Pattern.compile(&quot;&lt;\\s*!DOCTYPE[^&gt;]+'([^']+)'\\s*&gt;&quot;),</span>
+<span class="nc" id="L103">				Pattern.compile(&quot;&lt;\\s*!ENTITY[^&gt;]+SYSTEM\\s+\&quot;([^\&quot;]+)\&quot;\\s*&gt;&quot;),</span>
+<span class="nc" id="L104">				Pattern.compile(&quot;&lt;\\s*!ENTITY[^&gt;]+SYSTEM\\s+'([^']+)'\\s*&gt;&quot;),</span>
+<span class="nc" id="L105">				Pattern.compile(&quot;&lt;\\s*!ENTITY[^&gt;]+PUBLIC\\s+\&quot;[^\&quot;]+\&quot;\\s+\&quot;([^\&quot;]+)\&quot;\\s*&gt;&quot;),</span>
+<span class="nc" id="L106">				Pattern.compile(&quot;&lt;\\s*!ENTITY[^&gt;]+PUBLIC\\s+'[^']+'\\s+'([^']+)'\\s*&gt;&quot;) }) {</span>
+<span class="nc" id="L107">			Matcher matcher = compiledPattern.matcher(text);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">			while (matcher.find()) {</span>
+<span class="nc" id="L109">				result.add(matcher.group(1));</span>
+			}
+		}
+<span class="nc" id="L112">		return result;</span>
+	}
+
+	protected String loadDependency(Source source, String dependencyLocation) throws Exception {
+<span class="nc" id="L116">		URI sourceURI = source.toURI();</span>
+<span class="nc" id="L117">		URI dependencyURI = sourceURI.resolve(dependencyLocation);</span>
+		Source dependencySource;
+		try {
+<span class="nc" id="L120">			URL url = dependencyURI.toURL();</span>
+<span class="nc" id="L121">			dependencySource = new URLSource();</span>
+<span class="nc" id="L122">			((URLSource) dependencySource).setUrlSpecification(url.toString());</span>
+<span class="nc" id="L123">		} catch (MalformedURLException e) {</span>
+<span class="nc" id="L124">			File file = new File(dependencyURI);</span>
+<span class="nc" id="L125">			dependencySource = new FileSource();</span>
+<span class="nc" id="L126">			((FileSource) dependencySource).setFile(file);</span>
+		}
+<span class="nc" id="L128">		final String[] dependencyTextHolder = new String[1];</span>
+<span class="nc" id="L129">		String dependencyFileName = load(dependencySource, new Listener&lt;String&gt;() {</span>
+			@Override
+			public void handle(String text) {
+<span class="nc" id="L132">				dependencyTextHolder[0] = text;</span>
+<span class="nc" id="L133">			}</span>
+		});
+<span class="nc" id="L135">		dependencyTextByFileName.put(dependencyFileName, dependencyTextHolder[0]);</span>
+<span class="nc" id="L136">		return dependencyFileName;</span>
+	}
+
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+<span class="fc" id="L141">		super.validate(recursively);</span>
+<span class="pc bpc" id="L142" title="2 of 4 branches missed.">		if ((text == null) || text.trim().isEmpty()) {</span>
+<span class="nc" id="L143">			throw new ValidationError(&quot;Text not provided&quot;);</span>
+		}
+		try {
+<span class="fc" id="L146">			upToDateGeneratedClasses.get();</span>
+<span class="pc" id="L147">		} catch (Throwable t) {</span>
+<span class="nc" id="L148">			throw new ValidationError(&quot;Failed to validate the &quot; + getClass().getSimpleName(), t);</span>
+		}
+<span class="fc" id="L150">	}</span>
+
+<span class="nc" id="L152">	protected static class JAXBPostProcessor {</span>
+
+<span class="fc" id="L154">		private static final Pattern GETTER_PATTERN = Pattern.compile(&quot;^(?:get|is)(.*)&quot;);</span>
+
+		private static String getterToFieldName(String getterMethodName) {
+<span class="fc" id="L157">			Matcher m = GETTER_PATTERN.matcher(getterMethodName);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">			if (!m.matches()) {</span>
+<span class="fc" id="L159">				return null;</span>
+			}
+<span class="fc" id="L161">			String result = m.group(1);</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">			if (result.length() &gt; 0) {</span>
+<span class="fc" id="L163">				result = result.substring(0, 1).toLowerCase() + result.substring(1);</span>
+			}
+<span class="fc" id="L165">			return result;</span>
+		}
+
+		public static void process(File sourceDirectory) throws IOException {
+<span class="fc" id="L169">			List&lt;File&gt; javaFiles = Files.walk(sourceDirectory.toPath()).filter(p -&gt; p.toString().endsWith(&quot;.java&quot;))</span>
+<span class="fc" id="L170">					.map(p -&gt; p.toFile()).collect(Collectors.toList());</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">			for (File file : javaFiles) {</span>
+<span class="fc" id="L172">				CompilationUnit compilationUnit = StaticJavaParser.parse(file);</span>
+<span class="fc" id="L173">				compilationUnit.accept(new ModifierVisitor&lt;Void&gt;() {</span>
+
+					@Override
+					public Visitable visit(FieldDeclaration fieldDeclaration, Void arg) {
+<span class="fc bfc" id="L177" title="All 2 branches covered.">						if (!isXMLPartFieldDeclaration(fieldDeclaration)) {</span>
+<span class="fc" id="L178">							return super.visit(fieldDeclaration, arg);</span>
+						}
+<span class="fc" id="L180">						fieldDeclaration.getModifiers().clear();</span>
+<span class="fc" id="L181">						fieldDeclaration.addModifier(Modifier.Keyword.PUBLIC);</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">						if (isListFieldDeclaration(fieldDeclaration)) {</span>
+<span class="fc" id="L183">							fieldDeclaration.getVariables().forEach(variable -&gt; {</span>
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">								if (!variable.getInitializer().isPresent()) {</span>
+<span class="fc" id="L185">									variable.setInitializer(</span>
+<span class="fc" id="L186">											new ObjectCreationExpr().setType(ArrayList.class.getName() + &quot;&lt;&gt;&quot;));</span>
+								}
+<span class="fc" id="L188">							});</span>
+						}
+<span class="fc" id="L190">						return super.visit(fieldDeclaration, arg);</span>
+					}
+
+					@Override
+					public Visitable visit(MethodDeclaration methodDeclaration, Void arg) {
+<span class="fc bfc" id="L195" title="All 2 branches covered.">						if (!methodDeclaration.getModifiers().contains(new Modifier(Modifier.Keyword.PUBLIC))) {</span>
+<span class="fc" id="L196">							return super.visit(methodDeclaration, arg);</span>
+						}
+<span class="fc bfc" id="L198" title="All 2 branches covered.">						if (!methodDeclaration.getBody().isPresent()) {</span>
+<span class="fc" id="L199">							return super.visit(methodDeclaration, arg);</span>
+						}
+<span class="fc" id="L201">						String methodName = methodDeclaration.getNameAsString();</span>
+<span class="fc" id="L202">						String getterFieldName = getterToFieldName(methodName);</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">						if (getterFieldName == null) {</span>
+<span class="fc" id="L204">							return super.visit(methodDeclaration, arg);</span>
+						}
+<span class="fc" id="L206">						FieldDeclaration getterFieldDeclaration = compilationUnit.findFirst(FieldDeclaration.class,</span>
+<span class="fc" id="L207">								fieldDeclaration -&gt; (getterFieldName</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">										.equals(fieldDeclaration.getVariable(0).getName().asString())</span>
+<span class="fc" id="L209">										|| (&quot;_&quot; + getterFieldName)</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">												.equals(fieldDeclaration.getVariable(0).getName().asString()))</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">										&amp;&amp; isXMLPartFieldDeclaration(fieldDeclaration))</span>
+<span class="fc" id="L212">								.orElse(null);</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">						if (getterFieldDeclaration == null) {</span>
+<span class="fc" id="L214">							return super.visit(methodDeclaration, arg);</span>
+						}
+<span class="fc" id="L216">						return null;</span>
+					}
+
+					private boolean isXMLPartFieldDeclaration(FieldDeclaration fieldDeclaration) {
+<span class="fc" id="L220">						return fieldDeclaration.getAnnotations().stream()</span>
+<span class="fc" id="L221">								.anyMatch(annotation -&gt; annotation.getNameAsString().startsWith(&quot;Xml&quot;));</span>
+					}
+
+					private boolean isListFieldDeclaration(FieldDeclaration fieldDeclaration) {
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">						return fieldDeclaration.getElementType().isClassOrInterfaceType() &amp;&amp; fieldDeclaration</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">								.getElementType().asClassOrInterfaceType().getNameAsString().equals(&quot;List&quot;);</span>
+					}
+
+<span class="fc" id="L229">				}, null);</span>
+<span class="fc" id="L230">				Files.write(file.toPath(), compilationUnit.toString().getBytes());</span>
+			}
+<span class="fc" id="L232">		}</span>
+	}
+
+<span class="fc" id="L235">	protected class UpToDateGeneratedClasses extends UpToDate&lt;List&lt;Class&lt;?&gt;&gt;&gt; {</span>
+
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+<span class="fc" id="L239">			return new Pair&lt;String, Map&lt;String, String&gt;&gt;(text, dependencyTextByFileName);</span>
+		}
+
+		@Override
+		protected List&lt;Class&lt;?&gt;&gt; obtainLatest(Object versionIdentifier) throws VersionAccessException {
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">			if (text == null) {</span>
+<span class="nc" id="L245">				return Collections.emptyList();</span>
+			}
+			try {
+<span class="fc" id="L248">				File directory = MiscUtils.createTemporaryDirectory();</span>
+<span class="fc" id="L249">				File mainFile = new File(directory,</span>
+<span class="fc" id="L250">						&quot;main.&quot; + XMLBasedDocumentResource.this.getClass().getSimpleName().toLowerCase());</span>
+<span class="fc" id="L251">				File metaSchemaFile = new File(directory, &quot;XMLSchema.xsd&quot;);</span>
+<span class="fc" id="L252">				File metaXMLFile = new File(directory, &quot;xml.xsd&quot;);</span>
+<span class="fc" id="L253">				File metaSchemaDTDFile = new File(directory, &quot;XMLSchema.dtd&quot;);</span>
+<span class="fc" id="L254">				File metaSchemaDatatypesDTDFile = new File(directory, &quot;datatypes.dtd&quot;);</span>
+<span class="fc" id="L255">				Map&lt;File, String&gt; dependencyTextByFile = new HashMap&lt;File, String&gt;();</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">				for (Map.Entry&lt;String, String&gt; dependencyTextByFileNameEntry : dependencyTextByFileName.entrySet()) {</span>
+<span class="nc" id="L257">					dependencyTextByFile.put(new File(directory, dependencyTextByFileNameEntry.getKey()),</span>
+<span class="nc" id="L258">							dependencyTextByFileNameEntry.getValue());</span>
+				}
+				try {
+<span class="fc" id="L261">					MiscUtils.write(mainFile, text, false);</span>
+<span class="fc" id="L262">					MiscUtils.write(metaSchemaFile,</span>
+<span class="fc" id="L263">							MiscUtils.read(XSD.class.getResourceAsStream(metaSchemaFile.getName())), false);</span>
+<span class="fc" id="L264">					MiscUtils.write(metaXMLFile, MiscUtils.read(XSD.class.getResourceAsStream(metaXMLFile.getName())),</span>
+<span class="fc" id="L265">							false);</span>
+<span class="fc" id="L266">					MiscUtils.write(metaSchemaDTDFile,</span>
+<span class="fc" id="L267">							MiscUtils.read(XSD.class.getResourceAsStream(metaSchemaDTDFile.getName())), false);</span>
+<span class="fc" id="L268">					MiscUtils.write(metaSchemaDatatypesDTDFile,</span>
+<span class="fc" id="L269">							MiscUtils.read(XSD.class.getResourceAsStream(metaSchemaDatatypesDTDFile.getName())), false);</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">					for (Map.Entry&lt;File, String&gt; dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {</span>
+<span class="nc" id="L271">						MiscUtils.write(dependencyTextByFileEntry.getKey(), dependencyTextByFileEntry.getValue(),</span>
+<span class="nc" id="L272">								false);</span>
+					}
+<span class="fc" id="L274">					File sourceDirectory = MiscUtils.createTemporaryDirectory();</span>
+					try {
+<span class="fc" id="L276">						runClassesGenerationTool(mainFile, metaSchemaFile, sourceDirectory);</span>
+<span class="fc" id="L277">						JAXBPostProcessor.process(sourceDirectory);</span>
+<span class="fc" id="L278">						return MiscUtils.IN_MEMORY_COMPILER.compile(sourceDirectory);</span>
+					} finally {
+<span class="fc" id="L280">						MiscUtils.delete(sourceDirectory);</span>
+					}
+				} finally {
+					try {
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">						for (Map.Entry&lt;File, String&gt; dependencyTextByFileEntry : dependencyTextByFile.entrySet()) {</span>
+<span class="nc" id="L285">							MiscUtils.delete(dependencyTextByFileEntry.getKey());</span>
+						}
+<span class="fc" id="L287">						MiscUtils.delete(metaSchemaDatatypesDTDFile);</span>
+<span class="fc" id="L288">						MiscUtils.delete(metaSchemaDTDFile);</span>
+<span class="fc" id="L289">						MiscUtils.delete(metaXMLFile);</span>
+<span class="fc" id="L290">						MiscUtils.delete(metaSchemaFile);</span>
+<span class="fc" id="L291">						MiscUtils.delete(mainFile);</span>
+<span class="fc" id="L292">						MiscUtils.delete(directory);</span>
+<span class="pc" id="L293">					} catch (Throwable ignore) {</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">						if (JESB.isDebugModeActive()) {</span>
+<span class="nc" id="L295">							Log.get().error(ignore);</span>
+						}
+					}
+				}
+<span class="nc" id="L299">			} catch (Exception e) {</span>
+<span class="nc" id="L300">				throw new PotentialError(e);</span>
+			}
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

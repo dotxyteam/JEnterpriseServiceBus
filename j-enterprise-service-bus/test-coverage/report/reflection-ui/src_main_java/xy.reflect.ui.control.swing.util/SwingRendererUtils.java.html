@@ -1,0 +1,1390 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SwingRendererUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.util</a> &gt; <span class="el_source">SwingRendererUtils.java</span></div><h1>SwingRendererUtils.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.util;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.AWTEventListener;
+import java.awt.event.AWTEventListenerProxy;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultFormatter;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.DefaultFieldControlData;
+import xy.reflect.ui.control.FieldContext;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.IFieldControlPlugin;
+import xy.reflect.ui.control.swing.builder.DialogBuilder.RenderedDialog;
+import xy.reflect.ui.control.swing.plugin.HtmlPlugin;
+import xy.reflect.ui.control.swing.plugin.StyledTextPlugin;
+import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.MethodControlPlaceHolder;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ResourcePath.PathKind;
+import xy.reflect.ui.info.field.FieldInfoProxy;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.factory.InfoProxyFactory;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.Visitor;
+
+/**
+ * Utilities for dealing with {@link SwingRenderer} instances.
+ * 
+ * @author olitank
+ *
+ */
+<span class="nc" id="L113">public class SwingRendererUtils {</span>
+
+<span class="fc" id="L115">	public static final BufferedImage NULL_IMAGE = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);</span>
+<span class="fc" id="L116">	public static final Font NULL_FONT = new Font(Font.SERIF, Font.PLAIN, 1);</span>
+<span class="fc" id="L117">	public static final ImageIcon HELP_ICON = new ImageIcon(ReflectionUI.class.getResource(&quot;resource/help.png&quot;));</span>
+<span class="fc" id="L118">	public static final ImageIcon DETAILS_ICON = new ImageIcon(ReflectionUI.class.getResource(&quot;resource/details.png&quot;));</span>
+<span class="fc" id="L119">	public static final ImageIcon ADD_ICON = new ImageIcon(ReflectionUI.class.getResource(&quot;resource/add.png&quot;));</span>
+<span class="fc" id="L120">	public static final ImageIcon REMOVE_ICON = new ImageIcon(ReflectionUI.class.getResource(&quot;resource/remove.png&quot;));</span>
+<span class="fc" id="L121">	public static final ImageIcon UP_ICON = new ImageIcon(ReflectionUI.class.getResource(&quot;resource/up.png&quot;));</span>
+<span class="fc" id="L122">	public static final ImageIcon DOWN_ICON = new ImageIcon(ReflectionUI.class.getResource(&quot;resource/down.png&quot;));</span>
+<span class="fc" id="L123">	public static final ImageIcon SAVE_ALL_ICON = new ImageIcon(</span>
+<span class="fc" id="L124">			ReflectionUI.class.getResource(&quot;resource/save-all.png&quot;));</span>
+<span class="fc" id="L125">	public static final ImageIcon ERROR_ICON = new ImageIcon(ReflectionUI.class.getResource(&quot;resource/error.png&quot;));</span>
+<span class="fc" id="L126">	public static final ImageIcon ERROR_REFRESHING_ICON = new ImageIcon(</span>
+<span class="fc" id="L127">			ReflectionUI.class.getResource(&quot;resource/error-refreshing.gif&quot;));</span>
+<span class="fc" id="L128">	public static final ImageIcon ERROR_OVERLAY_ICON = new ImageIcon(</span>
+<span class="fc" id="L129">			ReflectionUI.class.getResource(&quot;resource/error-overlay.png&quot;));</span>
+<span class="fc" id="L130">	public static final ImageIcon WEAK_ERROR_OVERLAY_ICON = new ImageIcon(</span>
+<span class="fc" id="L131">			ReflectionUI.class.getResource(&quot;resource/weak-error-overlay.png&quot;));</span>
+
+<span class="fc" id="L133">	public static Map&lt;String, Image&gt; IMAGE_CACHE = new HashMap&lt;String, Image&gt;();</span>
+<span class="fc" id="L134">	public static Map&lt;String, Font&gt; FONT_CACHE = new HashMap&lt;String, Font&gt;();</span>
+
+<span class="fc" id="L136">	private static final Map&lt;GraphicsDevice, Rectangle&gt; MAXIMUM_BOUNDS_BY_GRAPHIC_DEVICE_CACHE = new HashMap&lt;GraphicsDevice, Rectangle&gt;();</span>
+<span class="fc" id="L137">	private static List&lt;Window&gt; windowsToValidate = new ArrayList&lt;Window&gt;();</span>
+<span class="fc" id="L138">	private static boolean windowsValidationScheduled = false;</span>
+
+	public static boolean isNullImage(Image image) {
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">		return (image.getWidth(null) * image.getHeight(null) == 1);</span>
+	}
+
+	public static ImageIcon getSmallIcon(ImageIcon icon) {
+<span class="fc" id="L145">		Image image = icon.getImage();</span>
+<span class="fc" id="L146">		image = SwingRendererUtils.scalePreservingRatio(image, 16, 16, Image.SCALE_SMOOTH);</span>
+<span class="fc" id="L147">		return new ImageIcon(image);</span>
+	}
+
+	public static Image scalePreservingRatio(Image image, int newWidth, int newHeight, int scaleQuality) {
+<span class="fc" id="L151">		Dimension imageSize = new Dimension(image.getWidth(null), image.getHeight(null));</span>
+<span class="fc" id="L152">		Dimension boxSize = new Dimension(newWidth, newHeight);</span>
+<span class="fc" id="L153">		Rectangle imageBoundsInBox = new Rectangle();</span>
+		{
+<span class="fc" id="L155">			float resizeRatioBasedOnWidth = (float) boxSize.width / (float) imageSize.width;</span>
+<span class="fc" id="L156">			float resizeRatioBasedOnHeight = (float) boxSize.height / (float) imageSize.height;</span>
+<span class="fc" id="L157">			float resizeRatio = Math.min(resizeRatioBasedOnWidth, resizeRatioBasedOnHeight);</span>
+<span class="fc" id="L158">			imageBoundsInBox.width = Math.round(imageSize.width * resizeRatio);</span>
+<span class="fc" id="L159">			imageBoundsInBox.height = Math.round(imageSize.height * resizeRatio);</span>
+<span class="fc" id="L160">			imageBoundsInBox.x = Math.round((boxSize.width - imageBoundsInBox.width) / 2f);</span>
+<span class="fc" id="L161">			imageBoundsInBox.y = Math.round((boxSize.height - imageBoundsInBox.height) / 2f);</span>
+		}
+<span class="fc" id="L163">		BufferedImage result = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);</span>
+<span class="fc" id="L164">		Graphics2D g = result.createGraphics();</span>
+<span class="fc" id="L165">		g.drawImage(image.getScaledInstance(imageBoundsInBox.width, imageBoundsInBox.height, Image.SCALE_SMOOTH),</span>
+<span class="fc" id="L166">				imageBoundsInBox.x, imageBoundsInBox.y, null);</span>
+<span class="fc" id="L167">		g.dispose();</span>
+<span class="fc" id="L168">		return result;</span>
+	}
+
+	public static void showTooltipNow(JComponent c) {
+		try {
+<span class="nc" id="L173">			Method showToolTipMehod = ToolTipManager.class.getDeclaredMethod(&quot;show&quot;,</span>
+<span class="nc" id="L174">					new Class&lt;?&gt;[] { JComponent.class });</span>
+<span class="nc" id="L175">			showToolTipMehod.setAccessible(true);</span>
+<span class="nc" id="L176">			showToolTipMehod.invoke(ToolTipManager.sharedInstance(), new Object[] { c });</span>
+<span class="nc" id="L177">		} catch (Throwable e1) {</span>
+			try {
+<span class="nc" id="L179">				KeyEvent ke = new KeyEvent(c, KeyEvent.KEY_PRESSED, System.currentTimeMillis(), InputEvent.CTRL_MASK,</span>
+<span class="nc" id="L180">						KeyEvent.VK_F1, KeyEvent.CHAR_UNDEFINED);</span>
+<span class="nc" id="L181">				c.dispatchEvent(ke);</span>
+<span class="nc" id="L182">			} catch (Throwable e2) {</span>
+<span class="nc" id="L183">				System.err.println(</span>
+<span class="nc" id="L184">						&quot;Failed to show tooltip programmatically: \n1st failure: &quot; + e1 + &quot;\n2nd failure: \n&quot; + e2);</span>
+			}
+		}
+<span class="nc" id="L187">	}</span>
+
+	public static void setRecursivelyEnabled(Component c, boolean b) {
+<span class="nc" id="L190">		c.setEnabled(b);</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		if (c instanceof Container) {</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">			for (Component child : ((Container) c).getComponents()) {</span>
+<span class="nc" id="L193">				setRecursivelyEnabled(child, b);</span>
+			}
+		}
+<span class="nc" id="L196">	}</span>
+
+	public static Window getWindowAncestorOrSelf(Component c) {
+<span class="fc bfc" id="L199" title="All 2 branches covered.">		if (c instanceof Window) {</span>
+<span class="fc" id="L200">			return (Window) c;</span>
+		}
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">		if (c == null) {</span>
+<span class="nc" id="L203">			return null;</span>
+		}
+<span class="fc" id="L205">		return SwingUtilities.getWindowAncestor(c);</span>
+	}
+
+	public static JPanel flowInLayout(Component c, int gridBagConstraintsAnchor) {
+<span class="fc" id="L209">		JPanel result = new ControlPanel();</span>
+<span class="fc" id="L210">		result.setLayout(new GridBagLayout());</span>
+<span class="fc" id="L211">		GridBagConstraints contraints = new GridBagConstraints();</span>
+<span class="fc" id="L212">		contraints.gridx = 0;</span>
+<span class="fc" id="L213">		contraints.gridy = 0;</span>
+<span class="fc" id="L214">		contraints.weightx = 1;</span>
+<span class="fc" id="L215">		contraints.weighty = 1;</span>
+<span class="fc" id="L216">		contraints.anchor = gridBagConstraintsAnchor;</span>
+<span class="fc" id="L217">		result.add(c, contraints);</span>
+<span class="fc" id="L218">		return result;</span>
+	}
+
+	public static Form findParentForm(Component component, SwingRenderer swingRenderer) {
+<span class="fc" id="L222">		Component candidate = component.getParent();</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">		while (candidate != null) {</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">			if (swingRenderer.isRenderedForm(candidate)) {</span>
+<span class="fc" id="L225">				return (Form) candidate;</span>
+			}
+<span class="fc" id="L227">			candidate = candidate.getParent();</span>
+		}
+<span class="fc" id="L229">		return null;</span>
+	}
+
+	public static List&lt;Form&gt; findAncestorForms(Component component, SwingRenderer swingRenderer) {
+<span class="fc" id="L233">		List&lt;Form&gt; result = new ArrayList&lt;Form&gt;();</span>
+<span class="fc" id="L234">		Form ancestor = null;</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">		while (null != (ancestor = findParentForm(component, swingRenderer))) {</span>
+<span class="fc" id="L236">			result.add(ancestor);</span>
+<span class="fc" id="L237">			component = ancestor;</span>
+		}
+<span class="fc" id="L239">		return result;</span>
+	}
+
+	public static Form findAncestorFormOfType(Component component, ITypeInfo type, SwingRenderer swingRenderer) {
+<span class="nc bnc" id="L243" title="All 2 branches missed.">		for (Form form : findAncestorForms(component, swingRenderer)) {</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">			if (type.supports(form.getObject())) {</span>
+<span class="nc" id="L245">				return form;</span>
+			}
+		}
+<span class="nc" id="L248">		return null;</span>
+	}
+
+	public static Form findAncestorFormOfType(Component component, String typeName, SwingRenderer swingRenderer) {
+<span class="fc bfc" id="L252" title="All 2 branches covered.">		for (Form form : findAncestorForms(component, swingRenderer)) {</span>
+<span class="fc" id="L253">			ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L254">			ITypeInfo objectType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(form.getObject()));</span>
+<span class="fc bfc" id="L255" title="All 2 branches covered.">			if (objectType.getName().equals(typeName)) {</span>
+<span class="fc" id="L256">				return form;</span>
+			}
+		}
+<span class="fc" id="L259">		return null;</span>
+	}
+
+	public static Form findMostAncestorForm(Component component, SwingRenderer swingRenderer) {
+<span class="fc" id="L263">		List&lt;Form&gt; ancestors = findAncestorForms(component, swingRenderer);</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">		if (ancestors.size() == 0) {</span>
+<span class="fc" id="L265">			return null;</span>
+		}
+<span class="fc" id="L267">		return ancestors.get(ancestors.size() - 1);</span>
+	}
+
+	public static List&lt;Form&gt; findDescendantForms(Container container, SwingRenderer swingRenderer) {
+<span class="fc" id="L271">		List&lt;Form&gt; result = new ArrayList&lt;Form&gt;();</span>
+<span class="fc bfc" id="L272" title="All 2 branches covered.">		for (Component childComponent : container.getComponents()) {</span>
+<span class="fc bfc" id="L273" title="All 2 branches covered.">			if (swingRenderer.isRenderedForm(childComponent)) {</span>
+<span class="fc" id="L274">				result.add((Form) childComponent);</span>
+			}
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">			if (childComponent instanceof Container) {</span>
+<span class="fc" id="L277">				result.addAll(findDescendantForms((Container) childComponent, swingRenderer));</span>
+			}
+		}
+<span class="fc" id="L280">		return result;</span>
+	}
+
+	public static List&lt;Form&gt; findDescendantFormsOfType(Container container, String typeName,
+			SwingRenderer swingRenderer) {
+<span class="fc" id="L285">		List&lt;Form&gt; result = new ArrayList&lt;Form&gt;();</span>
+<span class="fc bfc" id="L286" title="All 2 branches covered.">		for (Form form : findDescendantForms(container, swingRenderer)) {</span>
+<span class="fc" id="L287">			ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L288">			ITypeInfo objectType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(form.getObject()));</span>
+<span class="fc bfc" id="L289" title="All 2 branches covered.">			if (objectType.getName().equals(typeName)) {</span>
+<span class="fc" id="L290">				result.add(form);</span>
+			}
+		}
+<span class="fc" id="L293">		return result;</span>
+	}
+
+	public static int getStandardCharacterWidth(Component c) {
+<span class="fc" id="L297">		Font font = c.getFont();</span>
+<span class="fc bfc" id="L298" title="All 2 branches covered.">		if (font == null) {</span>
+<span class="fc" id="L299">			font = UIManager.getFont(&quot;Panel.font&quot;);</span>
+		}
+<span class="fc" id="L301">		return c.getFontMetrics(font).charWidth('a');</span>
+	}
+
+	public static int getStandardCharacterHeight(Component c) {
+<span class="fc" id="L305">		Font font = c.getFont();</span>
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">		if (font == null) {</span>
+<span class="nc" id="L307">			font = UIManager.getFont(&quot;Panel.font&quot;);</span>
+		}
+<span class="fc" id="L309">		return c.getFontMetrics(font).getHeight();</span>
+	}
+
+	public static String adaptToolTipTextToMultiline(String toolTipText) {
+<span class="fc bfc" id="L313" title="All 2 branches covered.">		if (toolTipText == null) {</span>
+<span class="fc" id="L314">			return null;</span>
+		} else {
+<span class="fc bfc" id="L316" title="All 2 branches covered.">			if (!MiscUtils.isHTMLText(toolTipText)) {</span>
+<span class="fc" id="L317">				toolTipText = &quot;&lt;HTML&gt;&quot; + MiscUtils.escapeHTML(toolTipText, true) + &quot;&lt;/HTML&gt;&quot;;</span>
+			}
+<span class="fc" id="L319">			return toolTipText;</span>
+		}
+	}
+
+	public static void ensureDividerLocation(final JSplitPane splitPane, final double proportionalLocation) {
+<span class="fc bfc" id="L324" title="All 2 branches covered.">		if (splitPane.isShowing()) {</span>
+<span class="pc bpc" id="L325" title="1 of 4 branches missed.">			if ((splitPane.getWidth() &gt; 0) &amp;&amp; (splitPane.getHeight() &gt; 0)</span>
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">					&amp;&amp; (splitPane.getMinimumDividerLocation() &lt; splitPane.getMaximumDividerLocation())) {</span>
+<span class="fc" id="L327">				splitPane.setDividerLocation(proportionalLocation);</span>
+<span class="fc" id="L328">				splitPane.addComponentListener(new ComponentAdapter() {</span>
+<span class="fc" id="L329">					final int lastDividerLocation = splitPane.getDividerLocation();</span>
+<span class="fc" id="L330">					final Dimension lastSize = splitPane.getSize();</span>
+
+					@Override
+					public void componentResized(ComponentEvent ce) {
+<span class="fc" id="L334">						splitPane.removeComponentListener(this);</span>
+<span class="fc" id="L335">						detectAndFixIgnoredResizeWeightIssue();</span>
+<span class="fc" id="L336">					}</span>
+
+					private void detectAndFixIgnoredResizeWeightIssue() {
+<span class="fc bfc" id="L339" title="All 2 branches covered.">						if (splitPane.getOrientation() == JSplitPane.HORIZONTAL_SPLIT) {</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">							if (lastSize.width == splitPane.getWidth()) {</span>
+<span class="fc" id="L341">								return;</span>
+							}
+						}
+<span class="fc bfc" id="L344" title="All 2 branches covered.">						if (splitPane.getOrientation() == JSplitPane.VERTICAL_SPLIT) {</span>
+<span class="fc bfc" id="L345" title="All 2 branches covered.">							if (lastSize.height == splitPane.getHeight()) {</span>
+<span class="fc" id="L346">								return;</span>
+							}
+						}
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">						if ((splitPane.getResizeWeight() != 0.0)</span>
+<span class="fc bfc" id="L350" title="All 2 branches covered.">								&amp;&amp; (lastDividerLocation == splitPane.getDividerLocation())) {</span>
+<span class="fc" id="L351">							splitPane.setDividerLocation(proportionalLocation);</span>
+						}
+<span class="fc" id="L353">					}</span>
+				});
+<span class="fc" id="L355">			} else {</span>
+<span class="fc" id="L356">				splitPane.addComponentListener(new ComponentAdapter() {</span>
+
+					@Override
+					public void componentResized(ComponentEvent ce) {
+<span class="fc" id="L360">						splitPane.removeComponentListener(this);</span>
+<span class="fc bfc" id="L361" title="All 2 branches covered.">						int dividerSpace = ((splitPane.getOrientation() == JSplitPane.VERTICAL_SPLIT)</span>
+<span class="fc" id="L362">								? splitPane.getHeight()</span>
+<span class="fc" id="L363">								: splitPane.getWidth()) - splitPane.getDividerSize();</span>
+<span class="pc bpc" id="L364" title="1 of 2 branches missed.">						if (dividerSpace &gt; 0) {</span>
+<span class="fc" id="L365">							double currentProportionalLocation = splitPane.getDividerLocation() / (double) dividerSpace;</span>
+<span class="pc bpc" id="L366" title="1 of 2 branches missed.">							if (Math.abs(currentProportionalLocation - proportionalLocation) &lt; 0.2) {</span>
+<span class="fc" id="L367">								return;</span>
+							}
+						}
+<span class="nc" id="L370">						ensureDividerLocation(splitPane, proportionalLocation);</span>
+<span class="nc" id="L371">					}</span>
+				});
+			}
+<span class="fc" id="L374">		} else {</span>
+<span class="fc" id="L375">			splitPane.addHierarchyListener(new HierarchyListener() {</span>
+				@Override
+				public void hierarchyChanged(HierarchyEvent e) {
+<span class="fc bfc" id="L378" title="All 4 branches covered.">					if (((e.getChangeFlags() &amp; HierarchyEvent.SHOWING_CHANGED) != 0) &amp;&amp; splitPane.isShowing()) {</span>
+<span class="fc" id="L379">						splitPane.removeHierarchyListener(this);</span>
+<span class="fc" id="L380">						ensureDividerLocation(splitPane, proportionalLocation);</span>
+					}
+<span class="fc" id="L382">				}</span>
+			});
+		}
+
+<span class="fc" id="L386">	}</span>
+
+	public static void disableComponentTree(JComponent c, final boolean revert) {
+<span class="nc" id="L389">		String CONTAINER_LISTENER_KEY = ReflectionUIUtils.class.getName()</span>
+<span class="nc" id="L390">				+ &quot;.disableComponentTree.CONTAINER_LISTENER_KEY&quot;;</span>
+<span class="nc" id="L391">		String LAST_STATE_KEY = ReflectionUIUtils.class.getName() + &quot;.disableComponentTree.LAST_STATE_KEY&quot;;</span>
+<span class="nc" id="L392">		Boolean lastState = (Boolean) c.getClientProperty(LAST_STATE_KEY);</span>
+<span class="nc bnc" id="L393" title="All 2 branches missed.">		if (revert) {</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">			if (lastState == null) {</span>
+<span class="nc" id="L395">				return;</span>
+			}
+<span class="nc bnc" id="L397" title="All 2 branches missed.">			if (lastState) {</span>
+<span class="nc" id="L398">				c.setEnabled(true);</span>
+			}
+<span class="nc" id="L400">			c.putClientProperty(LAST_STATE_KEY, null);</span>
+<span class="nc" id="L401">			ContainerListener containerListener = (ContainerListener) c.getClientProperty(CONTAINER_LISTENER_KEY);</span>
+<span class="nc" id="L402">			c.removeContainerListener(containerListener);</span>
+<span class="nc" id="L403">		} else {</span>
+<span class="nc bnc" id="L404" title="All 2 branches missed.">			if (lastState != null) {</span>
+<span class="nc" id="L405">				return;</span>
+			}
+<span class="nc" id="L407">			c.putClientProperty(LAST_STATE_KEY, c.isEnabled());</span>
+<span class="nc" id="L408">			c.setEnabled(false);</span>
+<span class="nc" id="L409">			ContainerListener containerListener = new ContainerListener() {</span>
+
+				@Override
+				public void componentRemoved(ContainerEvent e) {
+<span class="nc" id="L413">				}</span>
+
+				@Override
+				public void componentAdded(ContainerEvent e) {
+<span class="nc" id="L417">					Component child = e.getChild();</span>
+<span class="nc bnc" id="L418" title="All 2 branches missed.">					if (!(child instanceof JComponent)) {</span>
+<span class="nc" id="L419">						return;</span>
+					}
+<span class="nc" id="L421">					disableComponentTree((JComponent) child, revert);</span>
+<span class="nc" id="L422">				}</span>
+			};
+<span class="nc" id="L424">			c.addContainerListener(containerListener);</span>
+<span class="nc" id="L425">			c.putClientProperty(CONTAINER_LISTENER_KEY, containerListener);</span>
+		}
+<span class="nc bnc" id="L427" title="All 2 branches missed.">		for (Component child : c.getComponents()) {</span>
+<span class="nc bnc" id="L428" title="All 2 branches missed.">			if (!(child instanceof JComponent)) {</span>
+<span class="nc" id="L429">				continue;</span>
+			}
+<span class="nc" id="L431">			disableComponentTree((JComponent) child, revert);</span>
+		}
+<span class="nc" id="L433">	}</span>
+
+	public static String getWindowTitle(Window window) {
+<span class="pc bpc" id="L436" title="1 of 2 branches missed.">		if (window instanceof JFrame) {</span>
+<span class="fc" id="L437">			return ((JFrame) window).getTitle();</span>
+<span class="nc bnc" id="L438" title="All 2 branches missed.">		} else if (window instanceof JDialog) {</span>
+<span class="nc" id="L439">			return ((JDialog) window).getTitle();</span>
+		} else {
+<span class="nc" id="L441">			return null;</span>
+		}
+	}
+
+	public static Container getContentPane(Window window) {
+<span class="nc bnc" id="L446" title="All 2 branches missed.">		if (window instanceof JFrame) {</span>
+<span class="nc" id="L447">			return ((JFrame) window).getContentPane();</span>
+<span class="nc bnc" id="L448" title="All 2 branches missed.">		} else if (window instanceof JDialog) {</span>
+<span class="nc" id="L449">			return ((JDialog) window).getContentPane();</span>
+		} else {
+<span class="nc" id="L451">			return null;</span>
+		}
+	}
+
+	public static void setContentPane(Window window, Container contentPane) {
+<span class="fc bfc" id="L456" title="All 2 branches covered.">		if (window instanceof JFrame) {</span>
+<span class="fc" id="L457">			((JFrame) window).setContentPane(contentPane);</span>
+<span class="pc bpc" id="L458" title="1 of 2 branches missed.">		} else if (window instanceof JDialog) {</span>
+<span class="fc" id="L459">			((JDialog) window).setContentPane(contentPane);</span>
+<span class="fc" id="L460">		} else {</span>
+<span class="nc" id="L461">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L463">	}</span>
+
+	public static void setUndecorated(Window window, boolean b) {
+<span class="fc bfc" id="L466" title="All 2 branches covered.">		if (window instanceof JDialog) {</span>
+<span class="fc" id="L467">			((JDialog) window).setUndecorated(b);</span>
+<span class="pc bpc" id="L468" title="1 of 2 branches missed.">		} else if (window instanceof JFrame) {</span>
+<span class="fc" id="L469">			((JFrame) window).setUndecorated(b);</span>
+<span class="fc" id="L470">		} else {</span>
+<span class="nc" id="L471">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L473">	}</span>
+
+	public static boolean hasOrContainsFocus(Component c) {
+<span class="nc bnc" id="L476" title="All 2 branches missed.">		if (c.isFocusOwner()) {</span>
+<span class="nc" id="L477">			return true;</span>
+		}
+<span class="nc bnc" id="L479" title="All 2 branches missed.">		if (c instanceof Container) {</span>
+<span class="nc" id="L480">			Container container = (Container) c;</span>
+<span class="nc bnc" id="L481" title="All 2 branches missed.">			for (Component childComponent : container.getComponents()) {</span>
+<span class="nc bnc" id="L482" title="All 2 branches missed.">				if (hasOrContainsFocus(childComponent)) {</span>
+<span class="nc" id="L483">					return true;</span>
+				}
+			}
+		}
+<span class="nc" id="L487">		return false;</span>
+	}
+
+	public static Icon getHelpIcon() {
+<span class="nc" id="L491">		return new ImageIcon(ReflectionUI.class.getResource(&quot;resource/help.png&quot;));</span>
+	}
+
+	public static List&lt;Object&gt; getAllDisplayedObjects(SwingRenderer swingRenderer) {
+<span class="nc" id="L495">		List&lt;Object&gt; result = new ArrayList&lt;Object&gt;();</span>
+<span class="nc bnc" id="L496" title="All 2 branches missed.">		for (Form form : swingRenderer.getAllDisplayedForms()) {</span>
+<span class="nc" id="L497">			result.add(form.getObject());</span>
+		}
+<span class="nc" id="L499">		return result;</span>
+	}
+
+	public static List&lt;Object&gt; getDisplayedInstances(String typeName, SwingRenderer swingRenderer) {
+<span class="nc" id="L503">		List&lt;Object&gt; result = new ArrayList&lt;Object&gt;();</span>
+<span class="nc bnc" id="L504" title="All 2 branches missed.">		for (Object object : getAllDisplayedObjects(swingRenderer)) {</span>
+<span class="nc" id="L505">			ITypeInfo objectType = swingRenderer.getReflectionUI()</span>
+<span class="nc" id="L506">					.getTypeInfo(swingRenderer.getReflectionUI().getTypeInfoSource(object));</span>
+<span class="nc bnc" id="L507" title="All 2 branches missed.">			if (objectType.getName().equals(typeName)) {</span>
+<span class="nc" id="L508">				result.add(object);</span>
+			}
+		}
+<span class="nc" id="L511">		return result;</span>
+	}
+
+	public static void handleComponentSizeChange(Component c) {
+<span class="fc" id="L515">		expectInUIThread();</span>
+<span class="fc" id="L516">		c.invalidate();</span>
+<span class="fc" id="L517">		final Window window = SwingUtilities.getWindowAncestor(c);</span>
+<span class="fc bfc" id="L518" title="All 2 branches covered.">		if (window != null) {</span>
+<span class="fc bfc" id="L519" title="All 2 branches covered.">			if (!windowsToValidate.contains(window)) {</span>
+<span class="fc bfc" id="L520" title="All 2 branches covered.">				if (windowsToValidate.isEmpty()) {</span>
+<span class="fc" id="L521">					windowsValidationScheduled = true;</span>
+<span class="fc" id="L522">					SwingUtilities.invokeLater(new Runnable() {</span>
+						@Override
+						public void run() {
+							try {
+<span class="fc bfc" id="L526" title="All 2 branches covered.">								for (Window window : windowsToValidate) {</span>
+<span class="fc" id="L527">									window.validate();</span>
+								}
+<span class="fc" id="L529">							} finally {</span>
+<span class="fc" id="L530">								windowsToValidate.clear();</span>
+<span class="fc" id="L531">								windowsValidationScheduled = false;</span>
+							}
+<span class="fc" id="L533">						}</span>
+					});
+				}
+<span class="fc" id="L536">				windowsToValidate.add(window);</span>
+			}
+<span class="pc bpc" id="L538" title="1 of 2 branches missed.">			if (!windowsValidationScheduled) {</span>
+<span class="nc" id="L539">				throw new ReflectionUIError();</span>
+			}
+		}
+<span class="fc" id="L542">		c.repaint();</span>
+<span class="fc" id="L543">	}</span>
+
+	public static Rectangle getScreenBounds(Component c) {
+<span class="fc" id="L546">		Window window = getWindowAncestorOrSelf(c);</span>
+<span class="pc bpc" id="L547" title="1 of 2 branches missed.">		if (window != null) {</span>
+<span class="fc" id="L548">			GraphicsDevice device = getWindowCurrentGraphicsDevice(window);</span>
+<span class="pc bpc" id="L549" title="1 of 2 branches missed.">			if (device != null) {</span>
+<span class="fc" id="L550">				Rectangle maxBounds = SwingRendererUtils.getMaximumWindowBounds(device);</span>
+<span class="fc" id="L551">				return maxBounds;</span>
+			}
+		}
+<span class="nc" id="L554">		return new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());</span>
+	}
+
+	public static Dimension getScreenSize(Component c) {
+<span class="nc" id="L558">		return getScreenBounds(c).getSize();</span>
+	}
+
+	public static void adjustWindowInitialBounds(Window window) {
+<span class="fc" id="L562">		window.setLocationRelativeTo(null);</span>
+<span class="fc bfc" id="L563" title="All 2 branches covered.">		if (window.getParent() != null) {</span>
+<span class="fc" id="L564">			Window parentWindow = SwingRendererUtils.getWindowAncestorOrSelf(window.getParent());</span>
+<span class="pc bpc" id="L565" title="1 of 2 branches missed.">			if (parentWindow != null) {</span>
+<span class="fc" id="L566">				GraphicsDevice parentScreen = SwingRendererUtils.getWindowCurrentGraphicsDevice(parentWindow);</span>
+<span class="fc" id="L567">				window.setLocation(parentScreen.getDefaultConfiguration().getBounds().getLocation());</span>
+			}
+		}
+<span class="fc" id="L570">		Rectangle maxBounds = SwingRendererUtils.getMaximumWindowBounds(getWindowCurrentGraphicsDevice(window));</span>
+<span class="fc" id="L571">		int characterSize = getStandardCharacterWidth(window);</span>
+<span class="fc" id="L572">		window.setBounds(maxBounds);</span>
+<span class="fc" id="L573">		window.pack();</span>
+<span class="fc" id="L574">		Rectangle bounds = window.getBounds();</span>
+		int widthGrowth, heightGrowth;
+		{
+<span class="fc" id="L577">			widthGrowth = 4 * characterSize;</span>
+<span class="fc" id="L578">			heightGrowth = 4 * characterSize;</span>
+<span class="fc" id="L579">			bounds.width += widthGrowth;</span>
+<span class="fc" id="L580">			bounds.height += heightGrowth;</span>
+		}
+<span class="fc" id="L582">		int minWidth = characterSize * 60;</span>
+<span class="fc" id="L583">		bounds.width = Math.max(bounds.width, minWidth);</span>
+<span class="fc" id="L584">		bounds = maxBounds.intersection(bounds);</span>
+<span class="fc" id="L585">		bounds.x = maxBounds.x + (maxBounds.width - bounds.width) / 2;</span>
+<span class="fc" id="L586">		bounds.y = maxBounds.y + (maxBounds.height - bounds.height) / 2;</span>
+<span class="fc" id="L587">		window.setBounds(bounds);</span>
+<span class="fc" id="L588">	}</span>
+
+	public static Rectangle getMaximumWindowBounds(GraphicsDevice gd) {
+<span class="fc" id="L591">		Rectangle result = MAXIMUM_BOUNDS_BY_GRAPHIC_DEVICE_CACHE.get(gd);</span>
+<span class="fc bfc" id="L592" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L593">			result = new Rectangle();</span>
+<span class="fc" id="L594">			GraphicsConfiguration gc = gd.getDefaultConfiguration();</span>
+<span class="fc" id="L595">			Rectangle screenBounds = gc.getBounds();</span>
+<span class="fc" id="L596">			Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(gc);</span>
+<span class="fc" id="L597">			result.x = screenBounds.x + screenInsets.left;</span>
+<span class="fc" id="L598">			result.y = screenBounds.y + screenInsets.top;</span>
+<span class="fc" id="L599">			result.height = screenBounds.height - screenInsets.top - screenInsets.bottom;</span>
+<span class="fc" id="L600">			result.width = screenBounds.width - screenInsets.left - screenInsets.right;</span>
+<span class="fc" id="L601">			MAXIMUM_BOUNDS_BY_GRAPHIC_DEVICE_CACHE.put(gd, result);</span>
+		}
+<span class="fc" id="L603">		return result;</span>
+	}
+
+	public static GraphicsDevice getWindowCurrentGraphicsDevice(Window window) {
+<span class="fc" id="L607">		GraphicsDevice result = null;</span>
+<span class="fc" id="L608">		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();</span>
+<span class="fc bfc" id="L609" title="All 2 branches covered.">		for (GraphicsDevice gd : ge.getScreenDevices()) {</span>
+<span class="fc" id="L610">			GraphicsDevice candidateResult = gd;</span>
+<span class="pc bpc" id="L611" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="fc" id="L612">				result = candidateResult;</span>
+<span class="fc" id="L613">			} else {</span>
+<span class="nc bnc" id="L614" title="All 2 branches missed.">				if (window == null) {</span>
+<span class="nc" id="L615">					return result;</span>
+				} else {
+<span class="nc" id="L617">					Rectangle candidateMaximumBounds = getMaximumWindowBounds(candidateResult);</span>
+<span class="nc bnc" id="L618" title="All 2 branches missed.">					if ((window.getWidth() * window.getHeight()) == 0) {</span>
+<span class="nc bnc" id="L619" title="All 2 branches missed.">						if (candidateMaximumBounds.contains(window.getLocation())) {</span>
+<span class="nc" id="L620">							result = candidateResult;</span>
+						}
+<span class="nc" id="L622">					} else {</span>
+<span class="nc" id="L623">						Rectangle candidateResultIntersection = candidateMaximumBounds.intersection(window.getBounds());</span>
+<span class="nc" id="L624">						Rectangle resultMaximumBounds = getMaximumWindowBounds(result);</span>
+<span class="nc" id="L625">						Rectangle resultIntersection = resultMaximumBounds.intersection(window.getBounds());</span>
+<span class="nc" id="L626">						int candidateResultIntersectionArea = candidateResultIntersection.width</span>
+<span class="nc" id="L627">								* candidateResultIntersection.height;</span>
+<span class="nc" id="L628">						int resultIntersectionArea = resultIntersection.width * resultIntersection.height;</span>
+<span class="nc bnc" id="L629" title="All 2 branches missed.">						if (candidateResultIntersectionArea &gt; resultIntersectionArea) {</span>
+<span class="nc" id="L630">							result = candidateResult;</span>
+						}
+					}
+				}
+			}
+		}
+<span class="fc" id="L636">		return result;</span>
+	}
+
+	public static int removeAWTEventListener(AWTEventListener listener) {
+<span class="fc" id="L640">		final List&lt;AWTEventListener&gt; listenersToRemove = new ArrayList&lt;AWTEventListener&gt;();</span>
+<span class="fc bfc" id="L641" title="All 2 branches covered.">		for (AWTEventListener l : Toolkit.getDefaultToolkit().getAWTEventListeners()) {</span>
+<span class="pc bpc" id="L642" title="1 of 2 branches missed.">			if (l == listener) {</span>
+<span class="nc" id="L643">				listenersToRemove.add(l);</span>
+<span class="pc bpc" id="L644" title="1 of 2 branches missed.">			} else if (l instanceof AWTEventListenerProxy) {</span>
+<span class="fc" id="L645">				final AWTEventListenerProxy proxyListener = (AWTEventListenerProxy) l;</span>
+<span class="fc bfc" id="L646" title="All 2 branches covered.">				if (proxyListener.getListener() == listener) {</span>
+<span class="fc" id="L647">					listenersToRemove.add(proxyListener);</span>
+				}
+			}
+		}
+<span class="fc bfc" id="L651" title="All 2 branches covered.">		for (AWTEventListener l : listenersToRemove) {</span>
+<span class="fc" id="L652">			Toolkit.getDefaultToolkit().removeAWTEventListener(l);</span>
+		}
+<span class="fc" id="L654">		return listenersToRemove.size();</span>
+	}
+
+	public static ResourcePath putImageInCache(Image image) {
+<span class="fc" id="L658">		String imagePathSpecification = ResourcePath</span>
+<span class="fc" id="L659">				.specifyMemoryObjectLocation(image.getClass().getName() + &quot;-&quot; + Integer.toString(image.hashCode()));</span>
+<span class="fc" id="L660">		SwingRendererUtils.IMAGE_CACHE.put(imagePathSpecification, image);</span>
+<span class="fc" id="L661">		return new ResourcePath(imagePathSpecification);</span>
+	}
+
+	public static Image loadImageThroughCache(ResourcePath imagePath, Listener&lt;String&gt; errorMessageListener,
+			SwingRenderer swingRenderer) {
+<span class="pc bpc" id="L666" title="1 of 2 branches missed.">		if (imagePath == null) {</span>
+<span class="nc" id="L667">			return null;</span>
+		}
+<span class="pc bpc" id="L669" title="1 of 2 branches missed.">		if (imagePath.getPathKind() == PathKind.MEMORY_OBJECT) {</span>
+<span class="nc" id="L670">			return SwingRendererUtils.IMAGE_CACHE.get(imagePath.getSpecification());</span>
+		}
+<span class="fc" id="L672">		Image result = SwingRendererUtils.IMAGE_CACHE.get(imagePath.getSpecification());</span>
+<span class="fc bfc" id="L673" title="All 2 branches covered.">		if (result == null) {</span>
+			try {
+				URL imageUrl;
+<span class="fc bfc" id="L676" title="All 2 branches covered.">				if (imagePath.getPathKind() == PathKind.CLASS_PATH_RESOURCE) {</span>
+<span class="fc" id="L677">					String classPathResourceLocation = ResourcePath</span>
+<span class="fc" id="L678">							.extractClassPathResourceLocation(imagePath.getSpecification());</span>
+<span class="fc" id="L679">					imageUrl = swingRenderer.getClassPathResourceLoader().getResource(classPathResourceLocation);</span>
+<span class="pc bpc" id="L680" title="1 of 2 branches missed.">					if (imageUrl == null) {</span>
+<span class="nc" id="L681">						throw new ReflectionUIError(</span>
+<span class="nc" id="L682">								&quot;Class path resource not found: '&quot; + classPathResourceLocation + &quot;'&quot;);</span>
+					}
+				} else {
+					try {
+<span class="fc" id="L686">						imageUrl = new File(imagePath.getSpecification()).toURI().toURL();</span>
+<span class="pc" id="L687">					} catch (MalformedURLException e) {</span>
+<span class="nc" id="L688">						throw new ReflectionUIError(e);</span>
+					}
+				}
+<span class="fc" id="L691">				result = ImageIO.read(imageUrl);</span>
+<span class="pc" id="L692">			} catch (IOException e) {</span>
+<span class="nc bnc" id="L693" title="All 2 branches missed.">				if (errorMessageListener != null) {</span>
+<span class="nc" id="L694">					errorMessageListener.handle(&quot;Failed to load image from '&quot; + imagePath + &quot;': &quot; + e.toString());</span>
+				}
+<span class="nc" id="L696">				result = NULL_IMAGE;</span>
+			}
+<span class="fc" id="L698">			SwingRendererUtils.IMAGE_CACHE.put(imagePath.getSpecification(), result);</span>
+		}
+<span class="pc bpc" id="L700" title="1 of 2 branches missed.">		if (result == NULL_IMAGE) {</span>
+<span class="nc" id="L701">			return null;</span>
+		}
+<span class="fc" id="L703">		return result;</span>
+	}
+
+	public static Font loadFontThroughCache(ResourcePath fontPath, Listener&lt;String&gt; errorMessageListener,
+			SwingRenderer swingRenderer) {
+<span class="nc bnc" id="L708" title="All 2 branches missed.">		if (fontPath == null) {</span>
+<span class="nc" id="L709">			return null;</span>
+		}
+<span class="nc bnc" id="L711" title="All 2 branches missed.">		if (fontPath.getPathKind() == PathKind.MEMORY_OBJECT) {</span>
+<span class="nc" id="L712">			return SwingRendererUtils.FONT_CACHE.get(fontPath.getSpecification());</span>
+		}
+<span class="nc" id="L714">		Font result = SwingRendererUtils.FONT_CACHE.get(fontPath.getSpecification());</span>
+<span class="nc bnc" id="L715" title="All 2 branches missed.">		if (result == null) {</span>
+			try {
+				URL imageUrl;
+<span class="nc bnc" id="L718" title="All 2 branches missed.">				if (fontPath.getPathKind() == PathKind.CLASS_PATH_RESOURCE) {</span>
+<span class="nc" id="L719">					String classPathResourceLocation = ResourcePath</span>
+<span class="nc" id="L720">							.extractClassPathResourceLocation(fontPath.getSpecification());</span>
+<span class="nc" id="L721">					imageUrl = swingRenderer.getClassPathResourceLoader().getResource(classPathResourceLocation);</span>
+<span class="nc bnc" id="L722" title="All 2 branches missed.">					if (imageUrl == null) {</span>
+<span class="nc" id="L723">						throw new ReflectionUIError(</span>
+<span class="nc" id="L724">								&quot;Class path resource not found: '&quot; + classPathResourceLocation + &quot;'&quot;);</span>
+					}
+				} else {
+					try {
+<span class="nc" id="L728">						imageUrl = new File(fontPath.getSpecification()).toURI().toURL();</span>
+<span class="nc" id="L729">					} catch (MalformedURLException e) {</span>
+<span class="nc" id="L730">						throw new ReflectionUIError(e);</span>
+					}
+				}
+<span class="nc" id="L733">				result = Font.createFont(Font.TRUETYPE_FONT, imageUrl.openStream());</span>
+<span class="nc" id="L734">			} catch (IOException | FontFormatException e) {</span>
+<span class="nc bnc" id="L735" title="All 2 branches missed.">				if (errorMessageListener != null) {</span>
+<span class="nc" id="L736">					errorMessageListener.handle(&quot;Failed to load font from '&quot; + fontPath + &quot;': &quot; + e.toString());</span>
+				}
+<span class="nc" id="L738">				result = NULL_FONT;</span>
+			}
+<span class="nc" id="L740">			SwingRendererUtils.FONT_CACHE.put(fontPath.getSpecification(), result);</span>
+		}
+<span class="nc bnc" id="L742" title="All 2 branches missed.">		if (result == NULL_FONT) {</span>
+<span class="nc" id="L743">			return null;</span>
+		}
+<span class="nc" id="L745">		return result;</span>
+	}
+
+	public static ImageIcon getIcon(Image iconImage) {
+<span class="fc bfc" id="L749" title="All 2 branches covered.">		if (iconImage != null) {</span>
+<span class="fc" id="L750">			return new ImageIcon(iconImage);</span>
+		} else {
+<span class="fc" id="L752">			return null;</span>
+		}
+	}
+
+	public static ImageIcon getObjectIcon(SwingRenderer swingRenderer, Object object) {
+<span class="fc bfc" id="L757" title="All 2 branches covered.">		if (object == null) {</span>
+<span class="fc" id="L758">			return null;</span>
+		}
+<span class="fc" id="L760">		return getIcon(swingRenderer.getObjectIconImage(object));</span>
+	}
+
+	public static List&lt;Window&gt; getFrontWindows() {
+<span class="fc" id="L764">		List&lt;Window&gt; visibleWindows = Arrays.stream(Window.getWindows()).filter(Window::isVisible)</span>
+<span class="fc" id="L765">				.collect(Collectors.toList());</span>
+<span class="fc" id="L766">		return visibleWindows.stream()</span>
+<span class="fc" id="L767">				.filter(window -&gt; Arrays.stream(window.getOwnedWindows()).noneMatch(visibleWindows::contains))</span>
+<span class="fc" id="L768">				.collect(Collectors.toList());</span>
+	}
+
+	public static List&lt;Window&gt; getOwnerHierarchy(Window window) {
+<span class="nc" id="L772">		List&lt;Window&gt; result = new ArrayList&lt;Window&gt;();</span>
+<span class="nc bnc" id="L773" title="All 2 branches missed.">		while ((window = window.getOwner()) != null) {</span>
+<span class="nc" id="L774">			result.add(window);</span>
+		}
+<span class="nc" id="L776">		return result;</span>
+	}
+
+	public static Component getMessagePane(final String msg, int jOptionPaneMessageType,
+			final SwingRenderer swingRenderer) {
+<span class="fc" id="L781">		JPanel result = new ControlPanel();</span>
+<span class="fc" id="L782">		int spacing = 10;</span>
+<span class="fc" id="L783">		result.setBorder(BorderFactory.createEmptyBorder(spacing, spacing, spacing, spacing));</span>
+<span class="fc" id="L784">		BorderLayout layout = new BorderLayout();</span>
+		{
+<span class="fc" id="L786">			layout.setHgap(spacing);</span>
+<span class="fc" id="L787">			layout.setVgap(spacing);</span>
+<span class="fc" id="L788">			result.setLayout(layout);</span>
+		}
+		{
+			IFieldControlPlugin plugin;
+			Serializable pluginConfiguration;
+			{
+<span class="pc bpc" id="L794" title="1 of 2 branches missed.">				if (MiscUtils.isHTMLText(msg)) {</span>
+<span class="nc" id="L795">					plugin = new HtmlPlugin();</span>
+<span class="nc" id="L796">					pluginConfiguration = new HtmlPlugin.HtmlConfiguration();</span>
+<span class="nc" id="L797">				} else {</span>
+<span class="fc" id="L798">					plugin = new StyledTextPlugin();</span>
+<span class="fc" id="L799">					pluginConfiguration = new StyledTextPlugin.StyledTextConfiguration();</span>
+<span class="fc" id="L800">					((StyledTextPlugin.StyledTextConfiguration) pluginConfiguration).fontName = null;</span>
+<span class="fc" id="L801">					((StyledTextPlugin.StyledTextConfiguration) pluginConfiguration).color = null;</span>
+<span class="fc" id="L802">					((StyledTextPlugin.StyledTextConfiguration) pluginConfiguration).fontSize = -1;</span>
+<span class="fc" id="L803">					((StyledTextPlugin.StyledTextConfiguration) pluginConfiguration).fontItalic = false;</span>
+<span class="fc" id="L804">					((StyledTextPlugin.StyledTextConfiguration) pluginConfiguration).fontBold = false;</span>
+				}
+			}
+<span class="fc" id="L807">			IFieldControlInput textControlInput = new IFieldControlInput() {</span>
+
+<span class="fc" id="L809">				IFieldInfo field = new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {</span>
+					@Override
+					public Object getValue(Object object) {
+<span class="fc" id="L812">						return msg;</span>
+					}
+				};
+
+				@Override
+				public ModificationStack getModificationStack() {
+<span class="nc" id="L818">					return new ModificationStack(null);</span>
+				}
+
+				@Override
+				public IFieldControlData getControlData() {
+<span class="fc" id="L823">					return new DefaultFieldControlData(swingRenderer.getReflectionUI(), null, field) {</span>
+
+						@Override
+						public ColorSpecification getLabelForegroundColor() {
+<span class="fc" id="L827">							return swingRenderer.getReflectionUI().getApplicationInfo().getMainForegroundColor();</span>
+						}
+
+						@Override
+						public ResourcePath getEditorCustomFontResourcePath() {
+<span class="fc" id="L832">							return reflectionUI.getApplicationInfo().getLabelCustomFontResourcePath();</span>
+						}
+
+						@Override
+						public ITypeInfo getType() {
+<span class="fc" id="L837">							return new InfoProxyFactory() {</span>
+
+								@Override
+								protected Map&lt;String, Object&gt; getSpecificProperties(ITypeInfo type) {
+<span class="fc" id="L841">									Map&lt;String, Object&gt; result = new HashMap&lt;String, Object&gt;(</span>
+<span class="fc" id="L842">											super.getSpecificProperties(type));</span>
+<span class="fc" id="L843">									ReflectionUIUtils.setFieldControlPluginConfiguration(result, plugin.getIdentifier(),</span>
+<span class="fc" id="L844">											pluginConfiguration);</span>
+<span class="fc" id="L845">									return result;</span>
+								}
+<span class="fc" id="L847">							}.wrapTypeInfo(super.getType());</span>
+						}
+
+					};
+				}
+
+				@Override
+				public FieldContext getContext() {
+<span class="nc" id="L855">					return FieldContext.NULL_FIELD_CONTEXT;</span>
+				}
+			};
+<span class="fc" id="L858">			Component textControl = (Component) plugin.createControl(swingRenderer, textControlInput);</span>
+<span class="fc" id="L859">			result.add(textControl, BorderLayout.CENTER);</span>
+		}
+		{
+			Icon icon;
+<span class="fc bfc" id="L863" title="All 2 branches covered.">			if (jOptionPaneMessageType == JOptionPane.ERROR_MESSAGE) {</span>
+<span class="fc" id="L864">				icon = UIManager.getIcon(&quot;OptionPane.errorIcon&quot;);</span>
+<span class="pc bpc" id="L865" title="1 of 2 branches missed.">			} else if (jOptionPaneMessageType == JOptionPane.INFORMATION_MESSAGE) {</span>
+<span class="nc" id="L866">				icon = UIManager.getIcon(&quot;OptionPane.informationIcon&quot;);</span>
+<span class="pc bpc" id="L867" title="1 of 2 branches missed.">			} else if (jOptionPaneMessageType == JOptionPane.QUESTION_MESSAGE) {</span>
+<span class="fc" id="L868">				icon = UIManager.getIcon(&quot;OptionPane.questionIcon&quot;);</span>
+<span class="pc bnc" id="L869" title="All 2 branches missed.">			} else if (jOptionPaneMessageType == JOptionPane.WARNING_MESSAGE) {</span>
+<span class="nc" id="L870">				icon = UIManager.getIcon(&quot;OptionPane.warningIcon&quot;);</span>
+<span class="nc bnc" id="L871" title="All 2 branches missed.">			} else if (jOptionPaneMessageType == JOptionPane.PLAIN_MESSAGE) {</span>
+<span class="nc" id="L872">				icon = null;</span>
+<span class="nc" id="L873">			} else {</span>
+<span class="nc" id="L874">				throw new ReflectionUIError();</span>
+			}
+<span class="fc" id="L876">			JLabel iconControl = new JLabel(icon);</span>
+<span class="fc" id="L877">			result.add(SwingRendererUtils.flowInLayout(iconControl, GridBagConstraints.NORTH), BorderLayout.WEST);</span>
+		}
+<span class="fc" id="L879">		return result;</span>
+	}
+
+	public static void removeScrollPaneBorder(JScrollPane scrollPane) {
+<span class="fc" id="L883">		scrollPane.setBorder(BorderFactory.createEmptyBorder());</span>
+<span class="fc" id="L884">		scrollPane.setViewportBorder(BorderFactory.createEmptyBorder());</span>
+<span class="fc" id="L885">	}</span>
+
+	public static boolean requestAnyComponentFocus(Component c, SwingRenderer swingRenderer) {
+<span class="fc bfc" id="L888" title="All 2 branches covered.">		if (c instanceof IAdvancedFieldControl) {</span>
+<span class="fc" id="L889">			return ((IAdvancedFieldControl) c).requestCustomFocus();</span>
+		}
+<span class="fc bfc" id="L891" title="All 2 branches covered.">		if (swingRenderer.isRenderedForm(c)) {</span>
+<span class="fc" id="L892">			return ((Form) c).requestFormFocus();</span>
+		}
+<span class="pc bpc" id="L894" title="1 of 2 branches missed.">		if (!c.isEnabled()) {</span>
+<span class="nc" id="L895">			return false;</span>
+		}
+<span class="pc bpc" id="L897" title="1 of 2 branches missed.">		if (c.hasFocus()) {</span>
+<span class="nc" id="L898">			return true;</span>
+		}
+<span class="fc bfc" id="L900" title="All 2 branches covered.">		if (c.requestFocusInWindow()) {</span>
+<span class="fc" id="L901">			return true;</span>
+		}
+<span class="pc bpc" id="L903" title="1 of 2 branches missed.">		if (c instanceof Container) {</span>
+			try {
+<span class="fc bfc" id="L905" title="All 2 branches covered.">				for (Component child : ((Container) c).getComponents()) {</span>
+<span class="pc bpc" id="L906" title="1 of 2 branches missed.">					if (requestAnyComponentFocus(child, swingRenderer)) {</span>
+<span class="nc" id="L907">						return true;</span>
+					}
+				}
+<span class="pc" id="L910">			} catch (Throwable ignore) {</span>
+			}
+		}
+<span class="fc" id="L913">		return false;</span>
+	}
+
+	public static void displayErrorOnBorderAndTooltip(JComponent borderComponent, JComponent toolTipComponent,
+			Throwable error, SwingRenderer swingRenderer) {
+<span class="fc" id="L918">		Throwable oldError = null;</span>
+		{
+<span class="fc" id="L920">			HyperlinkTooltip oldTooltip = HyperlinkTooltip.get(toolTipComponent);</span>
+<span class="pc bpc" id="L921" title="1 of 2 branches missed.">			if (oldTooltip != null) {</span>
+<span class="nc bnc" id="L922" title="All 2 branches missed.">				if (oldTooltip.getCustomValue() instanceof Throwable) {</span>
+<span class="nc" id="L923">					oldError = (Throwable) oldTooltip.getCustomValue();</span>
+				}
+			}
+		}
+		boolean changeDetected;
+		{
+<span class="pc bpc" id="L929" title="1 of 2 branches missed.">			if (oldError == null) {</span>
+<span class="pc bpc" id="L930" title="1 of 2 branches missed.">				changeDetected = (error != null);</span>
+<span class="fc" id="L931">			} else {</span>
+<span class="nc bnc" id="L932" title="All 2 branches missed.">				if (error == null) {</span>
+<span class="nc" id="L933">					changeDetected = true;</span>
+<span class="nc" id="L934">				} else {</span>
+					try {
+<span class="nc" id="L936">						changeDetected = !MiscUtils.sameExceptionOrBothNull(oldError, error,</span>
+<span class="nc bnc" id="L937" title="All 2 branches missed.">								swingRenderer.getReflectionUI());</span>
+<span class="nc" id="L938">					} catch (Exception e) {</span>
+<span class="nc" id="L939">						changeDetected = true;</span>
+					}
+				}
+			}
+		}
+<span class="pc bpc" id="L944" title="1 of 2 branches missed.">		if (!changeDetected) {</span>
+<span class="fc" id="L945">			return;</span>
+		}
+<span class="nc bnc" id="L947" title="All 2 branches missed.">		String message = (error != null) ? swingRenderer.prepareMessageToDisplay(MiscUtils.getPrettyErrorMessage(error))</span>
+<span class="nc" id="L948">				: null;</span>
+<span class="nc bnc" id="L949" title="All 2 branches missed.">		if (message != null) {</span>
+<span class="nc bnc" id="L950" title="All 2 branches missed.">			if (message.length() == 0) {</span>
+<span class="nc" id="L951">				message = null;</span>
+			}
+		}
+<span class="nc bnc" id="L954" title="All 2 branches missed.">		if (message == null) {</span>
+<span class="nc" id="L955">			unsetErrorBorder(borderComponent, swingRenderer);</span>
+<span class="nc" id="L956">			HyperlinkTooltip.unset(toolTipComponent);</span>
+<span class="nc" id="L957">		} else {</span>
+<span class="nc" id="L958">			setErrorBorder(borderComponent, swingRenderer);</span>
+<span class="nc" id="L959">			HyperlinkTooltip.set(toolTipComponent, message, new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="nc" id="L962">					swingRenderer.openErrorDetailsDialog(borderComponent, error);</span>
+<span class="nc" id="L963">				}</span>
+			});
+<span class="nc" id="L965">			HyperlinkTooltip.get(toolTipComponent).setCustomValue(error);</span>
+		}
+<span class="nc" id="L967">		SwingRendererUtils.handleComponentSizeChange(borderComponent);</span>
+<span class="nc" id="L968">	}</span>
+
+	public static boolean isErrorBorderSet(JComponent borderComponent, SwingRenderer swingRenderer) {
+<span class="fc bfc" id="L971" title="All 2 branches covered.">		if (swingRenderer.isErrorBorder(borderComponent.getBorder())) {</span>
+<span class="fc" id="L972">			return true;</span>
+		}
+<span class="pc bpc" id="L974" title="1 of 2 branches missed.">		if (borderComponent.getBorder() instanceof CompoundBorder) {</span>
+<span class="nc bnc" id="L975" title="All 2 branches missed.">			if (swingRenderer.isErrorBorder(((CompoundBorder) borderComponent.getBorder()).getOutsideBorder())) {</span>
+<span class="nc" id="L976">				return true;</span>
+			}
+		}
+<span class="fc" id="L979">		return false;</span>
+	}
+
+	public static void setErrorBorder(JComponent borderComponent, SwingRenderer swingRenderer) {
+<span class="fc bfc" id="L983" title="All 2 branches covered.">		if (isErrorBorderSet(borderComponent, swingRenderer)) {</span>
+<span class="fc" id="L984">			return;</span>
+		}
+<span class="pc bpc" id="L986" title="1 of 2 branches missed.">		if (borderComponent.getBorder() != null) {</span>
+<span class="nc" id="L987">			borderComponent.setBorder(</span>
+<span class="nc" id="L988">					BorderFactory.createCompoundBorder(swingRenderer.getErrorBorder(), borderComponent.getBorder()));</span>
+<span class="nc" id="L989">		} else {</span>
+<span class="fc" id="L990">			borderComponent.setBorder(swingRenderer.getErrorBorder());</span>
+		}
+<span class="fc" id="L992">	}</span>
+
+	public static void unsetErrorBorder(JComponent borderComponent, SwingRenderer swingRenderer) {
+<span class="nc bnc" id="L995" title="All 2 branches missed.">		if (!isErrorBorderSet(borderComponent, swingRenderer)) {</span>
+<span class="nc" id="L996">			return;</span>
+		}
+<span class="nc bnc" id="L998" title="All 2 branches missed.">		if (borderComponent.getBorder() instanceof CompoundBorder) {</span>
+<span class="nc" id="L999">			borderComponent.setBorder(((CompoundBorder) borderComponent.getBorder()).getInsideBorder());</span>
+<span class="nc" id="L1000">		} else {</span>
+<span class="nc" id="L1001">			borderComponent.setBorder(null);</span>
+		}
+<span class="nc" id="L1003">	}</span>
+
+	public static void showFieldCaptionOnBorder(IFieldControlData fieldControlData, JComponent borderComponent,
+			Accessor&lt;Border&gt; defaultBorderGetter, SwingRenderer swingRenderer) {
+<span class="fc bfc" id="L1007" title="All 2 branches covered.">		if (fieldControlData.getCaption().length() &gt; 0) {</span>
+<span class="fc" id="L1008">			borderComponent.setBorder(BorderFactory</span>
+<span class="fc" id="L1009">					.createTitledBorder(swingRenderer.prepareMessageToDisplay(fieldControlData.getCaption())));</span>
+<span class="fc bfc" id="L1010" title="All 2 branches covered.">			if (fieldControlData.getLabelForegroundColor() != null) {</span>
+<span class="fc" id="L1011">				((TitledBorder) borderComponent.getBorder())</span>
+<span class="fc" id="L1012">						.setTitleColor(SwingRendererUtils.getColor(fieldControlData.getLabelForegroundColor()));</span>
+			}
+<span class="fc bfc" id="L1014" title="All 2 branches covered.">			if (fieldControlData.getBorderColor() != null) {</span>
+<span class="fc" id="L1015">				((TitledBorder) borderComponent.getBorder()).setBorder(</span>
+<span class="fc" id="L1016">						BorderFactory.createLineBorder(SwingRendererUtils.getColor(fieldControlData.getBorderColor())));</span>
+			}
+<span class="pc bpc" id="L1018" title="1 of 2 branches missed.">			if (fieldControlData.getLabelCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L1019">				((TitledBorder) borderComponent.getBorder()).setTitleFont(SwingRendererUtils</span>
+<span class="nc" id="L1020">						.loadFontThroughCache(fieldControlData.getLabelCustomFontResourcePath(),</span>
+<span class="nc" id="L1021">								ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()), swingRenderer)</span>
+<span class="nc" id="L1022">						.deriveFont(((TitledBorder) borderComponent.getBorder()).getTitleFont().getStyle(),</span>
+<span class="nc" id="L1023">								((TitledBorder) borderComponent.getBorder()).getTitleFont().getSize()));</span>
+			}
+<span class="nc" id="L1025">		} else {</span>
+<span class="fc" id="L1026">			borderComponent.setBorder(defaultBorderGetter.get());</span>
+		}
+<span class="fc" id="L1028">	}</span>
+
+	public static List&lt;Form&gt; findObjectDisplayedForms(Object object, SwingRenderer swingRenderer) {
+<span class="fc" id="L1031">		List&lt;Form&gt; result = new ArrayList&lt;Form&gt;();</span>
+<span class="fc bfc" id="L1032" title="All 2 branches covered.">		for (Form form : swingRenderer.getAllDisplayedForms()) {</span>
+<span class="fc bfc" id="L1033" title="All 2 branches covered.">			if (form.getObject() == object) {</span>
+<span class="fc" id="L1034">				result.add(form);</span>
+			}
+		}
+<span class="fc" id="L1037">		return result;</span>
+	}
+
+	public static Form findFirstObjectDisplayedForm(Object object, SwingRenderer swingRenderer) {
+<span class="nc bnc" id="L1041" title="All 2 branches missed.">		for (Form form : findObjectDisplayedForms(object, swingRenderer)) {</span>
+<span class="nc" id="L1042">			return form;</span>
+		}
+<span class="nc" id="L1044">		return null;</span>
+	}
+
+	public static Form findFirstObjectDescendantForm(Object object, Container container, SwingRenderer swingRenderer) {
+<span class="pc bpc" id="L1048" title="1 of 2 branches missed.">		for (Form form : findDescendantForms(container, swingRenderer)) {</span>
+<span class="fc bfc" id="L1049" title="All 2 branches covered.">			if (object == form.getObject()) {</span>
+<span class="fc" id="L1050">				return form;</span>
+			}
+		}
+<span class="nc" id="L1053">		return null;</span>
+	}
+
+	public static FieldControlPlaceHolder findDescendantFieldControlPlaceHolder(Container container, String fieldName,
+			SwingRenderer swingRenderer) {
+<span class="fc" id="L1058">		List&lt;Form&gt; searchForms = new ArrayList&lt;Form&gt;();</span>
+<span class="pc bpc" id="L1059" title="1 of 2 branches missed.">		if (container instanceof Form) {</span>
+<span class="fc" id="L1060">			searchForms.add((Form) container);</span>
+		}
+<span class="fc" id="L1062">		searchForms.addAll(findDescendantForms(container, swingRenderer));</span>
+<span class="pc bpc" id="L1063" title="1 of 2 branches missed.">		for (Form form : searchForms) {</span>
+<span class="fc" id="L1064">			FieldControlPlaceHolder fieldControlPlaceHolder = form.getFieldControlPlaceHolder(fieldName);</span>
+<span class="fc bfc" id="L1065" title="All 2 branches covered.">			if (fieldControlPlaceHolder != null) {</span>
+<span class="fc" id="L1066">				return fieldControlPlaceHolder;</span>
+			}
+		}
+<span class="nc" id="L1069">		return null;</span>
+	}
+
+	public static MethodControlPlaceHolder findDescendantMethodControlPlaceHolder(Container container, String fieldName,
+			SwingRenderer swingRenderer) {
+<span class="nc bnc" id="L1074" title="All 2 branches missed.">		for (Form form : findDescendantForms(container, swingRenderer)) {</span>
+<span class="nc" id="L1075">			MethodControlPlaceHolder methodControlPlaceHolder = form.getMethodControlPlaceHolder(fieldName);</span>
+<span class="nc bnc" id="L1076" title="All 2 branches missed.">			if (methodControlPlaceHolder != null) {</span>
+<span class="nc" id="L1077">				return methodControlPlaceHolder;</span>
+			}
+		}
+<span class="nc" id="L1080">		return null;</span>
+	}
+
+	public static void setMenuBar(Window window, JMenuBar menuBar) {
+<span class="nc bnc" id="L1084" title="All 2 branches missed.">		if (window instanceof JFrame) {</span>
+<span class="nc" id="L1085">			((JFrame) window).setJMenuBar(menuBar);</span>
+<span class="nc bnc" id="L1086" title="All 2 branches missed.">		} else if (window instanceof JDialog) {</span>
+<span class="nc" id="L1087">			((JDialog) window).setJMenuBar(menuBar);</span>
+<span class="nc" id="L1088">		} else {</span>
+<span class="nc" id="L1089">			throw new ReflectionUIError();</span>
+		}
+<span class="nc" id="L1091">	}</span>
+
+	public static JMenuBar getMenuBar(Window window) {
+<span class="nc bnc" id="L1094" title="All 2 branches missed.">		if (window instanceof JFrame) {</span>
+<span class="nc" id="L1095">			return ((JFrame) window).getJMenuBar();</span>
+<span class="nc bnc" id="L1096" title="All 2 branches missed.">		} else if (window instanceof JDialog) {</span>
+<span class="nc" id="L1097">			return ((JDialog) window).getJMenuBar();</span>
+		} else {
+<span class="nc" id="L1099">			throw new ReflectionUIError();</span>
+		}
+	}
+
+	public static void setTitle(Window window, String title) {
+<span class="fc bfc" id="L1104" title="All 2 branches covered.">		if (window instanceof JFrame) {</span>
+<span class="fc" id="L1105">			((JFrame) window).setTitle(title);</span>
+<span class="pc bpc" id="L1106" title="1 of 2 branches missed.">		} else if (window instanceof JDialog) {</span>
+<span class="fc" id="L1107">			((JDialog) window).setTitle(title);</span>
+<span class="fc" id="L1108">		} else {</span>
+<span class="nc" id="L1109">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L1111">	}</span>
+
+	public static String getTitle(Window window) {
+<span class="nc bnc" id="L1114" title="All 2 branches missed.">		if (window instanceof JFrame) {</span>
+<span class="nc" id="L1115">			return ((JFrame) window).getTitle();</span>
+<span class="nc bnc" id="L1116" title="All 2 branches missed.">		} else if (window instanceof JDialog) {</span>
+<span class="nc" id="L1117">			return ((JDialog) window).getTitle();</span>
+		} else {
+<span class="nc" id="L1119">			throw new ReflectionUIError();</span>
+		}
+	}
+
+	public static List&lt;Form&gt; excludeSubForms(List&lt;Form&gt; forms, SwingRenderer swingRenderer) {
+<span class="nc" id="L1124">		List&lt;Form&gt; result = new ArrayList&lt;Form&gt;(forms);</span>
+<span class="nc bnc" id="L1125" title="All 2 branches missed.">		for (Form form : forms) {</span>
+<span class="nc" id="L1126">			result.removeAll(findDescendantForms(form, swingRenderer));</span>
+		}
+<span class="nc" id="L1128">		return result;</span>
+	}
+
+	public static void updateWindowMenu(Component c, SwingRenderer swingRenderer) {
+<span class="fc" id="L1132">		Form topForm = SwingRendererUtils.findMostAncestorForm(c, swingRenderer);</span>
+<span class="fc bfc" id="L1133" title="All 2 branches covered.">		if (topForm == null) {</span>
+<span class="fc bfc" id="L1134" title="All 2 branches covered.">			if (c instanceof Form) {</span>
+<span class="fc" id="L1135">				topForm = (Form) c;</span>
+			}
+		}
+<span class="fc bfc" id="L1138" title="All 2 branches covered.">		if (topForm != null) {</span>
+<span class="fc" id="L1139">			topForm.updateMenuBar();</span>
+		}
+<span class="fc" id="L1141">	}</span>
+
+	public static Color fixSeveralColorRenderingIssues(Color color) {
+<span class="nc" id="L1144">		return new Color(color.getRGB());</span>
+	}
+
+	public static Color getListSelectionBackgroundColor() {
+<span class="nc" id="L1148">		return fixSeveralColorRenderingIssues(UIManager.getColor(&quot;Tree.selectionBackground&quot;));</span>
+	}
+
+	public static Color getListSelectionTextColor() {
+<span class="nc" id="L1152">		return fixSeveralColorRenderingIssues(UIManager.getColor(&quot;Tree.selectionForeground&quot;));</span>
+	}
+
+	public static void refreshAllDisplayedForms(SwingRenderer swingRenderer, boolean refreshStructure) {
+<span class="nc" id="L1156">		List&lt;Form&gt; rootForms = getAllRootForms(swingRenderer);</span>
+<span class="nc bnc" id="L1157" title="All 2 branches missed.">		for (Form form : rootForms) {</span>
+<span class="nc" id="L1158">			form.refresh(refreshStructure);</span>
+		}
+<span class="nc" id="L1160">	}</span>
+
+	public static List&lt;Form&gt; getAllRootForms(SwingRenderer swingRenderer) {
+<span class="nc" id="L1163">		return excludeSubForms(swingRenderer.getAllDisplayedForms(), swingRenderer);</span>
+	}
+
+	public static ModificationStack findParentFormModificationStack(Component component, SwingRenderer swingRenderer) {
+<span class="nc" id="L1167">		Form form = findParentForm(component, swingRenderer);</span>
+<span class="nc bnc" id="L1168" title="All 2 branches missed.">		if (form == null) {</span>
+<span class="nc" id="L1169">			return null;</span>
+		}
+<span class="nc" id="L1171">		return form.getModificationStack();</span>
+	}
+
+	public static Color getColor(ColorSpecification colorSpec) {
+<span class="fc bfc" id="L1175" title="All 2 branches covered.">		if (colorSpec == null) {</span>
+<span class="fc" id="L1176">			return null;</span>
+		}
+<span class="fc" id="L1178">		return new Color(colorSpec.getRed(), colorSpec.getGreen(), colorSpec.getBlue());</span>
+	}
+
+	public static void setColor(ColorSpecification colorSpec, Color color) {
+<span class="nc" id="L1182">		colorSpec.setRed(color.getRed());</span>
+<span class="nc" id="L1183">		colorSpec.setGreen(color.getGreen());</span>
+<span class="nc" id="L1184">		colorSpec.setBlue(color.getBlue());</span>
+<span class="nc" id="L1185">	}</span>
+
+	public static ColorSpecification getColorSpecification(Color color) {
+<span class="nc bnc" id="L1188" title="All 2 branches missed.">		if (color == null) {</span>
+<span class="nc" id="L1189">			return null;</span>
+		}
+<span class="nc" id="L1191">		ColorSpecification result = new ColorSpecification();</span>
+<span class="nc" id="L1192">		setColor(result, color);</span>
+<span class="nc" id="L1193">		return result;</span>
+	}
+
+	public static BufferedImage iconToImage(Icon icon) {
+<span class="nc" id="L1197">		int w = icon.getIconWidth();</span>
+<span class="nc" id="L1198">		int h = icon.getIconHeight();</span>
+<span class="nc" id="L1199">		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();</span>
+<span class="nc" id="L1200">		GraphicsDevice gd = ge.getDefaultScreenDevice();</span>
+<span class="nc" id="L1201">		GraphicsConfiguration gc = gd.getDefaultConfiguration();</span>
+<span class="nc" id="L1202">		BufferedImage image = gc.createCompatibleImage(w, h);</span>
+<span class="nc" id="L1203">		Graphics2D g = image.createGraphics();</span>
+<span class="nc" id="L1204">		icon.paintIcon(null, g, 0, 0);</span>
+<span class="nc" id="L1205">		g.dispose();</span>
+<span class="nc" id="L1206">		return image;</span>
+	}
+
+	public static IFieldControlPlugin findFieldControlPlugin(SwingRenderer swingRenderer, String pluginId) {
+<span class="pc bpc" id="L1210" title="1 of 2 branches missed.">		for (IFieldControlPlugin plugin : swingRenderer.getFieldControlPlugins()) {</span>
+<span class="fc bfc" id="L1211" title="All 2 branches covered.">			if (plugin.getIdentifier().equals(pluginId)) {</span>
+<span class="fc" id="L1212">				return plugin;</span>
+			}
+		}
+<span class="nc" id="L1215">		return null;</span>
+	}
+
+	public static IFieldControlPlugin getCurrentFieldControlPlugin(SwingRenderer swingRenderer,
+			Map&lt;String, Object&gt; specificProperties, IFieldControlInput input) {
+<span class="fc" id="L1220">		String chosenPluginId = ReflectionUIUtils.getFieldControlPluginIdentifier(specificProperties);</span>
+<span class="fc bfc" id="L1221" title="All 2 branches covered.">		if (chosenPluginId != null) {</span>
+<span class="fc" id="L1222">			IFieldControlPlugin plugin = findFieldControlPlugin(swingRenderer, chosenPluginId);</span>
+<span class="pc bpc" id="L1223" title="1 of 2 branches missed.">			if (plugin != null) {</span>
+<span class="pc bpc" id="L1224" title="1 of 2 branches missed.">				if (plugin.handles(swingRenderer.getReflectionUI(), input)) {</span>
+<span class="fc" id="L1225">					return plugin;</span>
+				}
+			}
+		}
+<span class="fc" id="L1229">		return null;</span>
+	}
+
+	public static void generateChangeEventsDuringTextFieldEditing(final JSpinner spinner) {
+<span class="nc" id="L1233">		spinner.addPropertyChangeListener(new PropertyChangeListener() {</span>
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+<span class="nc bnc" id="L1237" title="All 2 branches missed.">				if (&quot;editor&quot;.equals(evt.getPropertyName())) {</span>
+<span class="nc" id="L1238">					JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) spinner.getEditor();</span>
+<span class="nc" id="L1239">					final JFormattedTextField textField = (JFormattedTextField) editor.getTextField();</span>
+<span class="nc" id="L1240">					textField.getDocument().addDocumentListener(new DocumentListener() {</span>
+
+						private void anyUpdate() {
+<span class="nc" id="L1243">							SwingUtilities.invokeLater(new Runnable() {</span>
+								@Override
+								public void run() {
+<span class="nc" id="L1246">									String string = textField.getText();</span>
+									Object value;
+<span class="nc" id="L1248">									DefaultFormatter formatter = ((DefaultFormatter) textField.getFormatter());</span>
+									try {
+<span class="nc" id="L1250">										value = formatter.stringToValue(string);</span>
+<span class="nc" id="L1251">									} catch (ParseException e) {</span>
+<span class="nc" id="L1252">										return;</span>
+									}
+<span class="nc" id="L1254">									int caretPosition = textField.getCaretPosition();</span>
+<span class="nc" id="L1255">									spinner.setValue(value);</span>
+<span class="nc" id="L1256">									textField.setCaretPosition(Math.min(caretPosition, textField.getText().length()));</span>
+<span class="nc" id="L1257">								}</span>
+							});
+
+<span class="nc" id="L1260">						}</span>
+
+						@Override
+						public void removeUpdate(DocumentEvent e) {
+<span class="nc" id="L1264">							anyUpdate();</span>
+<span class="nc" id="L1265">						}</span>
+
+						@Override
+						public void insertUpdate(DocumentEvent e) {
+<span class="nc" id="L1269">							anyUpdate();</span>
+<span class="nc" id="L1270">						}</span>
+
+						@Override
+						public void changedUpdate(DocumentEvent e) {
+<span class="nc" id="L1274">							anyUpdate();</span>
+<span class="nc" id="L1275">						}</span>
+					});
+				}
+<span class="nc" id="L1278">			}</span>
+		});
+
+<span class="nc" id="L1281">	}</span>
+
+	public static void withHighQualityScaling(Graphics2D g, Runnable paintAction) {
+<span class="fc" id="L1284">		Object KEY_ANTIALIASING_ToRestore = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);</span>
+<span class="fc" id="L1285">		Object KEY_INTERPOLATION_ToRestore = g.getRenderingHint(RenderingHints.KEY_INTERPOLATION);</span>
+<span class="fc" id="L1286">		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);</span>
+<span class="fc" id="L1287">		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);</span>
+<span class="fc" id="L1288">		paintAction.run();</span>
+		try {
+<span class="fc" id="L1290">			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, KEY_ANTIALIASING_ToRestore);</span>
+<span class="pc" id="L1291">		} catch (Throwable ignore) {</span>
+		}
+		try {
+<span class="nc" id="L1294">			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, KEY_INTERPOLATION_ToRestore);</span>
+<span class="pc" id="L1295">		} catch (Throwable ignore) {</span>
+		}
+<span class="fc" id="L1297">	}</span>
+
+	public static void expectInUIThread() {
+<span class="pc bpc" id="L1300" title="1 of 2 branches missed.">		if (!SwingUtilities.isEventDispatchThread()) {</span>
+<span class="nc" id="L1301">			throw new ReflectionUIError(&quot;The current thread must be the UI thread.&quot;);</span>
+		}
+<span class="fc" id="L1303">	}</span>
+
+	/**
+	 * @param image The input image.
+	 * @return an image that simulates an activation effect when replacing the given
+	 *         image.
+	 */
+	public static BufferedImage addImageActivationEffect(Image image) {
+<span class="nc" id="L1311">		BufferedImage result = new BufferedImage(image.getWidth(null), image.getHeight(null),</span>
+<span class="nc" id="L1312">				BufferedImage.TYPE_4BYTE_ABGR);</span>
+<span class="nc" id="L1313">		Graphics2D g = result.createGraphics();</span>
+<span class="nc" id="L1314">		g.drawImage(image, 0, 0, null);</span>
+<span class="nc" id="L1315">		g.dispose();</span>
+<span class="nc" id="L1316">		float scalefactor = 0.25f;</span>
+<span class="nc" id="L1317">		float offset = 128f;</span>
+<span class="nc" id="L1318">		return new RescaleOp(new float[] { scalefactor, scalefactor, scalefactor, 1f },</span>
+<span class="nc" id="L1319">				new float[] { offset, offset, offset, 0f }, null).filter(result, null);</span>
+	}
+
+	/**
+	 * @param color The input color.
+	 * @return A color that simulates an activation effect when replacing the given
+	 *         color.
+	 */
+	public static Color addColorActivationEffect(Color color) {
+<span class="fc" id="L1328">		float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);</span>
+<span class="pc bpc" id="L1329" title="1 of 2 branches missed.">		if (hsb[2] &gt; 0.5f) {</span>
+<span class="fc" id="L1330">			hsb[2] -= 0.25f;</span>
+<span class="fc" id="L1331">		} else {</span>
+<span class="nc" id="L1332">			hsb[2] += 0.25f;</span>
+		}
+<span class="fc" id="L1334">		int rgb = Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]);</span>
+<span class="fc" id="L1335">		return new Color(rgb);</span>
+	}
+
+	public static void visitMenubar(JMenuBar menuBar, Visitor&lt;JMenuItem&gt; visitor) {
+<span class="fc bfc" id="L1339" title="All 2 branches covered.">		for (int iMenu = 0; iMenu &lt; menuBar.getMenuCount(); iMenu++) {</span>
+<span class="fc" id="L1340">			JMenu menu = menuBar.getMenu(iMenu);</span>
+<span class="pc bpc" id="L1341" title="1 of 2 branches missed.">			if (!visitMenu(menu, visitor)) {</span>
+<span class="nc" id="L1342">				return;</span>
+			}
+		}
+<span class="fc" id="L1345">	}</span>
+
+	public static boolean visitMenu(JMenu menu, Visitor&lt;JMenuItem&gt; visitor) {
+<span class="pc bpc" id="L1348" title="1 of 2 branches missed.">		if (!visitor.visit(menu)) {</span>
+<span class="nc" id="L1349">			return false;</span>
+		}
+<span class="fc bfc" id="L1351" title="All 2 branches covered.">		for (int iItem = 0; iItem &lt; menu.getItemCount(); iItem++) {</span>
+<span class="fc" id="L1352">			JMenuItem item = menu.getItem(iItem);</span>
+<span class="pc bpc" id="L1353" title="1 of 2 branches missed.">			if (item instanceof JMenu) {</span>
+<span class="nc bnc" id="L1354" title="All 2 branches missed.">				if (!visitMenu((JMenu) item, visitor)) {</span>
+<span class="nc" id="L1355">					return false;</span>
+				}
+			} else {
+<span class="pc bpc" id="L1358" title="1 of 2 branches missed.">				if (!visitor.visit(item)) {</span>
+<span class="nc" id="L1359">					return false;</span>
+				}
+			}
+		}
+<span class="fc" id="L1363">		return true;</span>
+	}
+
+	public static Object findCurrentObject(ITypeInfo type, Component currentComponent, SwingRenderer swingRenderer) {
+<span class="nc bnc" id="L1367" title="All 2 branches missed.">		if (currentComponent instanceof Form) {</span>
+<span class="nc bnc" id="L1368" title="All 2 branches missed.">			if (type.supports(((Form) currentComponent).getObject())) {</span>
+<span class="nc" id="L1369">				return ((Form) currentComponent).getObject();</span>
+			}
+		}
+<span class="nc" id="L1372">		Form currentObjectForm = findAncestorFormOfType(currentComponent, type, swingRenderer);</span>
+<span class="nc bnc" id="L1373" title="All 2 branches missed.">		if (currentObjectForm != null) {</span>
+<span class="nc" id="L1374">			return currentObjectForm.getObject();</span>
+		}
+<span class="nc" id="L1376">		Window currentWindow = getWindowAncestorOrSelf(currentComponent);</span>
+<span class="nc bnc" id="L1377" title="All 2 branches missed.">		if (currentWindow instanceof RenderedDialog) {</span>
+<span class="nc" id="L1378">			Component ownerComponent = ((RenderedDialog) currentWindow).getDialogBuilder().getOwnerComponent();</span>
+<span class="nc bnc" id="L1379" title="All 2 branches missed.">			if (ownerComponent != null) {</span>
+<span class="nc" id="L1380">				Object currentObjectFromParentWindow = findCurrentObject(type, ownerComponent, swingRenderer);</span>
+<span class="nc bnc" id="L1381" title="All 2 branches missed.">				if (currentObjectFromParentWindow != null) {</span>
+<span class="nc" id="L1382">					return currentObjectFromParentWindow;</span>
+				}
+			}
+		}
+<span class="nc" id="L1386">		return null;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>RootInstanceBuilder.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">RootInstanceBuilder.java</span></div><h1>RootInstanceBuilder.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.beans.Transient;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.CodeBuilder;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.TreeVisitor;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+
+/**
+ * This class allows to specify a root value that can be obtained by using, or
+ * even combining, the different instantiation structures
+ * ({@link InstanceBuilder}, {@link InstantiationFunction},
+ * {@link InitializationSwitch}, ...).
+ * 
+ * To provide this flexibility, a dynamically generated class is internally used
+ * as a wrapper for the root value which is then named according to the provided
+ * {@link #rootInstanceName}.
+ * 
+ * The root value type name is computed with the provided
+ * {@link #rootInstanceTypeName} or
+ * {@link #rootInstanceDynamicTypeNameAccessor}.
+ * 
+ * @author olitank
+ *
+ */
+public class RootInstanceBuilder extends InstanceBuilder {
+
+	private String rootInstanceName;
+	private Accessor&lt;String&gt; rootInstanceDynamicTypeNameAccessor;
+	private String rootInstanceTypeName;
+
+<span class="fc" id="L40">	private Accessor&lt;String&gt; rootInstanceWrapperDynamicTypeNameAccessor = new RootInstanceWrapperDynamicTypeNameAccessor();</span>
+<span class="fc" id="L41">	private UpToDate&lt;Class&lt;?&gt;&gt; upToDateRootInstanceClass = new UpToDateRootInstanceClass();</span>
+	private RootInstanceBuilderFacade facade;
+
+<span class="fc" id="L44">	public RootInstanceBuilder() {</span>
+<span class="fc" id="L45">		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);</span>
+<span class="fc" id="L46">	}</span>
+
+<span class="fc" id="L48">	public RootInstanceBuilder(String rootInstanceName, Accessor&lt;String&gt; rootInstanceDynamicTypeNameAccessor) {</span>
+<span class="fc" id="L49">		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);</span>
+<span class="fc" id="L50">		this.rootInstanceName = rootInstanceName;</span>
+<span class="fc" id="L51">		this.rootInstanceDynamicTypeNameAccessor = rootInstanceDynamicTypeNameAccessor;</span>
+<span class="fc" id="L52">	}</span>
+
+<span class="fc" id="L54">	public RootInstanceBuilder(String rootInstanceName, String rootInstanceTypeName) {</span>
+<span class="fc" id="L55">		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);</span>
+<span class="fc" id="L56">		this.rootInstanceName = rootInstanceName;</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">		this.rootInstanceTypeName = (rootInstanceTypeName == null) ? NullInstance.class.getName()</span>
+<span class="fc" id="L58">				: rootInstanceTypeName;</span>
+<span class="fc" id="L59">	}</span>
+
+	@Override
+	public void setTypeName(String typeName) {
+<span class="fc" id="L63">	}</span>
+
+	@Override
+	public void setDynamicTypeNameAccessor(Accessor&lt;String&gt; dynamicTypeNameAccessor) {
+<span class="fc" id="L67">	}</span>
+
+	public String getRootInstanceName() {
+<span class="fc" id="L70">		return rootInstanceName;</span>
+	}
+
+	public void setRootInstanceName(String rootInstanceName) {
+<span class="fc" id="L74">		this.rootInstanceName = rootInstanceName;</span>
+<span class="fc" id="L75">	}</span>
+
+	public Accessor&lt;String&gt; getRootInstanceDynamicTypeNameAccessor() {
+<span class="fc" id="L78">		return rootInstanceDynamicTypeNameAccessor;</span>
+	}
+
+	public void setRootInstanceDynamicTypeNameAccessor(Accessor&lt;String&gt; rootInstanceDynamicTypeNameAccessor) {
+<span class="fc" id="L82">		this.rootInstanceDynamicTypeNameAccessor = rootInstanceDynamicTypeNameAccessor;</span>
+<span class="fc" id="L83">	}</span>
+
+	public String getRootInstanceTypeName() {
+<span class="fc" id="L86">		return rootInstanceTypeName;</span>
+	}
+
+	public void setRootInstanceTypeName(String rootInstanceTypeName) {
+<span class="fc" id="L90">		this.rootInstanceTypeName = rootInstanceTypeName;</span>
+<span class="fc" id="L91">	}</span>
+
+	public synchronized RootInstanceBuilderFacade getFacade() {
+<span class="fc bfc" id="L94" title="All 2 branches covered.">		if (facade == null) {</span>
+<span class="fc" id="L95">			RootInstanceBuilderFacade tmpFacade = (RootInstanceBuilderFacade) Facade.get(this, null);</span>
+<span class="fc" id="L96">			List&lt;Facade&gt; facadeChildren = tmpFacade.getChildren();</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">			if (facadeChildren.size() == 0) {</span>
+<span class="nc" id="L98">				return tmpFacade;</span>
+			}
+<span class="fc" id="L100">			facadeChildren.get(0).setConcrete(true);</span>
+<span class="fc" id="L101">			facade = tmpFacade;</span>
+		}
+<span class="fc" id="L103">		return facade;</span>
+	}
+
+	public List&lt;FacadeOutline&gt; getFacadeOutlineChildren() {
+<span class="fc" id="L107">		return new FacadeOutline(getFacade()).getChildren();</span>
+	}
+
+	@Transient
+	public Object getRootInstantiationNode() {
+<span class="fc" id="L112">		List&lt;Facade&gt; children = getFacade().getChildren();</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">		if (children.size() == 0) {</span>
+<span class="nc" id="L114">			return null;</span>
+		}
+<span class="fc" id="L116">		return children.get(0).getUnderlying();</span>
+	}
+
+	public void setRootInstantiationNode(Object instantiationNode) {
+<span class="nc" id="L120">		List&lt;ParameterInitializer&gt; newParameterInitializers = new ArrayList&lt;ParameterInitializer&gt;();</span>
+<span class="nc" id="L121">		List&lt;InitializationSwitch&gt; newInitializationSwitches = new ArrayList&lt;InitializationSwitch&gt;();</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">		if (instantiationNode instanceof ParameterInitializer) {</span>
+<span class="nc" id="L123">			newParameterInitializers.add((ParameterInitializer) instantiationNode);</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">		} else if (instantiationNode instanceof InitializationSwitch) {</span>
+<span class="nc" id="L125">			newInitializationSwitches.add((InitializationSwitch) instantiationNode);</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		} else if (instantiationNode != null) {</span>
+<span class="nc" id="L127">			throw new UnexpectedError();</span>
+		}
+<span class="nc" id="L129">		setParameterInitializers(newParameterInitializers);</span>
+<span class="nc" id="L130">		setInitializationSwitches(newInitializationSwitches);</span>
+<span class="nc" id="L131">	}</span>
+
+	public List&lt;InstanceBuilderFacade&gt; getWrappedInstanceBuilderFacades() {
+<span class="nc" id="L134">		List&lt;InstanceBuilderFacade&gt; result = new ArrayList&lt;InstanceBuilderFacade&gt;();</span>
+<span class="nc" id="L135">		RootInstanceBuilderFacade rootInstanceBuilderFacade = getFacade();</span>
+<span class="nc" id="L136">		rootInstanceBuilderFacade.visit(new TreeVisitor&lt;Facade&gt;() {</span>
+			@Override
+			public VisitStatus visitNode(Facade facade) {
+<span class="nc bnc" id="L139" title="All 2 branches missed.">				if (facade == rootInstanceBuilderFacade) {</span>
+<span class="nc" id="L140">					return VisitStatus.VISIT_NOT_INTERRUPTED;</span>
+				}
+<span class="nc bnc" id="L142" title="All 2 branches missed.">				if (RootInstanceBuilder.getFromRootInstanceInitializerFacade(facade) != null) {</span>
+<span class="nc" id="L143">					ParameterInitializerFacade initializerFacade = (ParameterInitializerFacade) facade;</span>
+<span class="nc" id="L144">					initializerFacade.getChildren();</span>
+<span class="nc" id="L145">					Object initializerValue = initializerFacade.getCachedValue();</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">					if (initializerValue instanceof InstanceBuilder) {</span>
+<span class="nc" id="L147">						result.add(new InstanceBuilderFacade(facade, (InstanceBuilder) initializerValue));</span>
+					}
+<span class="nc" id="L149">					return VisitStatus.SUBTREE_VISIT_INTERRUPTED;</span>
+				}
+<span class="nc" id="L151">				return VisitStatus.VISIT_NOT_INTERRUPTED;</span>
+			}
+		});
+<span class="nc" id="L154">		return result;</span>
+	}
+
+	@Override
+	public Object build(InstantiationContext context) throws Exception {
+<span class="fc" id="L159">		RootInstanceWrapper wrapper = ((RootInstanceWrapper) super.build(context));</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">		if (wrapper == null) {</span>
+<span class="nc" id="L161">			return null;</span>
+		}
+<span class="fc" id="L163">		return wrapper.getRootInstance();</span>
+	}
+
+	public static RootInstanceBuilder getFromRootInstanceInitializerFacade(Facade facade) {
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">		if ((facade instanceof ParameterInitializerFacade) &amp;&amp; (((ParameterInitializerFacade) facade)</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">				.getCurrentInstanceBuilderFacade() instanceof RootInstanceBuilderFacade)) {</span>
+<span class="fc" id="L169">			return ((RootInstanceBuilderFacade) ((ParameterInitializerFacade) facade).getCurrentInstanceBuilderFacade())</span>
+<span class="fc" id="L170">					.getUnderlying();</span>
+
+		} else {
+<span class="fc" id="L173">			return null;</span>
+		}
+
+	}
+
+<span class="fc" id="L178">	private class UpToDateRootInstanceClass extends UpToDate&lt;Class&lt;?&gt;&gt; {</span>
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+<span class="fc bfc" id="L181" title="All 2 branches covered.">			String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)</span>
+<span class="fc" id="L182">					? rootInstanceDynamicTypeNameAccessor.get()</span>
+<span class="fc" id="L183">					: rootInstanceTypeName;</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">			return (actualRootInstanceTypeName == null) ? null : MiscUtils.getJESBClass(actualRootInstanceTypeName);</span>
+		}
+
+		@Override
+		protected Class&lt;?&gt; obtainLatest(Object versionIdentifier) {
+<span class="fc bfc" id="L189" title="All 2 branches covered.">			String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)</span>
+<span class="fc" id="L190">					? rootInstanceDynamicTypeNameAccessor.get()</span>
+<span class="fc" id="L191">					: rootInstanceTypeName;</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">			if (actualRootInstanceTypeName == null) {</span>
+<span class="fc" id="L193">				actualRootInstanceTypeName = NullInstance.class.getName();</span>
+			}
+<span class="fc" id="L195">			final String finalActualRootInstanceTypeName = actualRootInstanceTypeName;</span>
+			Object finalRootInstanceName;
+<span class="pc bpc" id="L197" title="1 of 2 branches missed.">			if (rootInstanceName != null) {</span>
+<span class="fc" id="L198">				finalRootInstanceName = rootInstanceName;</span>
+<span class="fc" id="L199">			} else {</span>
+<span class="nc" id="L200">				finalRootInstanceName = &quot;none&quot;;</span>
+			}
+			String rootInstanceWrapperClassName;
+			{
+<span class="fc" id="L204">				String arrayComponentTypeName = MiscUtils.getArrayComponentTypeName(actualRootInstanceTypeName);</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">				if (arrayComponentTypeName != null) {</span>
+<span class="fc" id="L206">					rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + &quot;.&quot;</span>
+<span class="fc" id="L207">							+ finalRootInstanceName + &quot;.&quot; + arrayComponentTypeName + &quot;ArrayWrapper&quot;;</span>
+<span class="fc" id="L208">				} else {</span>
+<span class="fc" id="L209">					rootInstanceWrapperClassName = RootInstanceBuilder.class.getPackage().getName() + &quot;.&quot;</span>
+<span class="fc" id="L210">							+ finalRootInstanceName + &quot;.&quot; + actualRootInstanceTypeName + &quot;Wrapper&quot;;</span>
+				}
+<span class="fc" id="L212">				rootInstanceWrapperClassName = rootInstanceWrapperClassName.replace(&quot;$&quot;, &quot;_&quot;);</span>
+			}
+<span class="fc" id="L214">			final String finalRootInstanceWrapperClassName = rootInstanceWrapperClassName;</span>
+<span class="fc" id="L215">			CodeBuilder rootInstanceWrapperClassSourceBuilder = new CodeBuilder();</span>
+			{
+<span class="fc" id="L217">				rootInstanceWrapperClassSourceBuilder.append(</span>
+<span class="fc" id="L218">						&quot;package &quot; + MiscUtils.extractPackageNameFromClassName(rootInstanceWrapperClassName) + &quot;;\n&quot;);</span>
+<span class="fc" id="L219">				rootInstanceWrapperClassSourceBuilder.append(&quot;public class &quot;</span>
+<span class="fc" id="L220">						+ MiscUtils.extractSimpleNameFromClassName(rootInstanceWrapperClassName) + &quot; implements &quot;</span>
+<span class="fc" id="L221">						+ MiscUtils.adaptClassNameToSourceCode(RootInstanceWrapper.class.getName()) + &quot;{\n&quot;);</span>
+<span class="fc" id="L222">				rootInstanceWrapperClassSourceBuilder.indenting(() -&gt; {</span>
+<span class="fc" id="L223">					rootInstanceWrapperClassSourceBuilder</span>
+<span class="fc" id="L224">							.append(&quot;private &quot; + MiscUtils.adaptClassNameToSourceCode(finalActualRootInstanceTypeName)</span>
+<span class="fc" id="L225">									+ &quot; rootInstance;\n&quot;);</span>
+<span class="fc" id="L226">					rootInstanceWrapperClassSourceBuilder.append(</span>
+<span class="fc" id="L227">							&quot;public &quot; + MiscUtils.extractSimpleNameFromClassName(finalRootInstanceWrapperClassName)</span>
+<span class="fc" id="L228">									+ &quot;(&quot; + MiscUtils.adaptClassNameToSourceCode(finalActualRootInstanceTypeName) + &quot; &quot;</span>
+<span class="fc" id="L229">									+ finalRootInstanceName + &quot;) {\n&quot;);</span>
+<span class="fc" id="L230">					rootInstanceWrapperClassSourceBuilder</span>
+<span class="fc" id="L231">							.appendIndented(&quot;this.rootInstance = &quot; + finalRootInstanceName + &quot;;\n&quot;);</span>
+<span class="fc" id="L232">					rootInstanceWrapperClassSourceBuilder.append(&quot;}\n&quot;);</span>
+<span class="fc" id="L233">					rootInstanceWrapperClassSourceBuilder.append(&quot;@Override\n&quot;);</span>
+<span class="fc" id="L234">					rootInstanceWrapperClassSourceBuilder</span>
+<span class="fc" id="L235">							.append(&quot;public &quot; + MiscUtils.adaptClassNameToSourceCode(finalActualRootInstanceTypeName)</span>
+<span class="fc" id="L236">									+ &quot; getRootInstance() {\n&quot;);</span>
+<span class="fc" id="L237">					rootInstanceWrapperClassSourceBuilder.appendIndented(&quot;return rootInstance;\n&quot;);</span>
+<span class="fc" id="L238">					rootInstanceWrapperClassSourceBuilder.append(&quot;}\n&quot;);</span>
+<span class="fc" id="L239">				});</span>
+<span class="fc" id="L240">				rootInstanceWrapperClassSourceBuilder.append(&quot;}\n&quot;);</span>
+			}
+			try {
+<span class="fc" id="L243">				return MiscUtils.IN_MEMORY_COMPILER.compile(rootInstanceWrapperClassName,</span>
+<span class="fc" id="L244">						rootInstanceWrapperClassSourceBuilder.toString());</span>
+<span class="nc" id="L245">			} catch (CompilationError ce) {</span>
+<span class="nc" id="L246">				throw new PotentialError(ce);</span>
+			}
+		}
+	};
+
+<span class="fc" id="L251">	private class RootInstanceWrapperDynamicTypeNameAccessor extends Accessor&lt;String&gt; {</span>
+		@Override
+		public String get() {
+			try {
+<span class="fc" id="L255">				return upToDateRootInstanceClass.get().getName();</span>
+<span class="nc" id="L256">			} catch (VersionAccessException e) {</span>
+<span class="nc" id="L257">				throw new PotentialError(e);</span>
+			}
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

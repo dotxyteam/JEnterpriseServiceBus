@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>JDBCConnection.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.resource.builtin</a> &gt; <span class="el_source">JDBCConnection.java</span></div><h1>JDBCConnection.java</h1><pre class="source lang-java linenums">package com.otk.jesb.resource.builtin;
+
+import java.sql.Connection;
+import java.sql.Driver;
+import java.util.Properties;
+import java.util.concurrent.Semaphore;
+import java.util.function.Function;
+import javax.swing.SwingUtilities;
+
+import com.otk.jesb.Variant;
+import com.otk.jesb.Session;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.resource.Resource;
+import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.ui.GUI;
+import com.otk.jesb.util.MiscUtils;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public class JDBCConnection extends Resource {
+
+<span class="fc" id="L23">	private static final int VALIDITY_CHECK_TIMEOUT_SECONDS = Integer</span>
+<span class="fc" id="L24">			.valueOf(System.getProperty(JDBCConnection.class.getName() + &quot;.validityCheckTimeoutSeconds&quot;, &quot;10&quot;));</span>
+
+	public static void main(String[] args) {
+<span class="nc" id="L27">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L30">				GUI.INSTANCE.openObjectFrame(new JDBCConnection(&quot;test&quot;));</span>
+<span class="nc" id="L31">			}</span>
+		});
+<span class="nc" id="L33">	}</span>
+
+<span class="pc" id="L35">	private Variant&lt;String&gt; driverClassNameVariant = new Variant&lt;String&gt;(String.class);</span>
+<span class="pc" id="L36">	private Variant&lt;String&gt; urlVariant = new Variant&lt;String&gt;(String.class);</span>
+<span class="pc" id="L37">	private Variant&lt;String&gt; userNameVariant = new Variant&lt;String&gt;(String.class);</span>
+<span class="pc" id="L38">	private Variant&lt;String&gt; passwordVariant = new Variant&lt;String&gt;(String.class);</span>
+
+<span class="pc" id="L40">	private Semaphore instanceMutex = new Semaphore(1);</span>
+	private Connection currentSessionInstance;
+	private Session currentSession;
+	private AutoCloseable currentSessionInstanceClosableWrapper;
+
+<span class="fc" id="L45">	public JDBCConnection() {</span>
+<span class="fc" id="L46">	}</span>
+
+	public JDBCConnection(String name) {
+<span class="nc" id="L49">		super(name);</span>
+<span class="nc" id="L50">	}</span>
+
+	public Variant&lt;String&gt; getDriverClassNameVariant() {
+<span class="fc" id="L53">		return driverClassNameVariant;</span>
+	}
+
+	public void setDriverClassNameVariant(Variant&lt;String&gt; driverClassNameVariant) {
+<span class="fc" id="L57">		this.driverClassNameVariant = driverClassNameVariant;</span>
+<span class="fc" id="L58">	}</span>
+
+	public Variant&lt;String&gt; getUrlVariant() {
+<span class="fc" id="L61">		return urlVariant;</span>
+	}
+
+	public void setUrlVariant(Variant&lt;String&gt; urlVariant) {
+<span class="fc" id="L65">		this.urlVariant = urlVariant;</span>
+<span class="fc" id="L66">	}</span>
+
+	public Variant&lt;String&gt; getUserNameVariant() {
+<span class="fc" id="L69">		return userNameVariant;</span>
+	}
+
+	public void setUserNameVariant(Variant&lt;String&gt; userNameVariant) {
+<span class="fc" id="L73">		this.userNameVariant = userNameVariant;</span>
+<span class="fc" id="L74">	}</span>
+
+	public Variant&lt;String&gt; getPasswordVariant() {
+<span class="fc" id="L77">		return passwordVariant;</span>
+	}
+
+	public void setPasswordVariant(Variant&lt;String&gt; passwordVariant) {
+<span class="fc" id="L81">		this.passwordVariant = passwordVariant;</span>
+<span class="fc" id="L82">	}</span>
+
+	private Connection open() throws Exception {
+<span class="fc" id="L85">		String driverClassName = getDriverClassNameVariant().getValue();</span>
+<span class="fc" id="L86">		String url = getUrlVariant().getValue();</span>
+<span class="fc" id="L87">		String userName = getUserNameVariant().getValue();</span>
+<span class="fc" id="L88">		String password = getPasswordVariant().getValue();</span>
+<span class="fc" id="L89">		Class&lt;?&gt; driverClass = MiscUtils.getJESBClass(driverClassName);</span>
+<span class="fc" id="L90">		Driver driverInstance = (Driver) driverClass.getDeclaredConstructor().newInstance();</span>
+<span class="fc" id="L91">		Properties properties = new Properties();</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">		if (userName != null) {</span>
+<span class="nc" id="L93">			properties.setProperty(&quot;user&quot;, userName);</span>
+		}
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">		if (password != null) {</span>
+<span class="nc" id="L96">			properties.setProperty(&quot;password&quot;, password);</span>
+		}
+<span class="fc" id="L98">		return driverInstance.connect(url, properties);</span>
+	}
+
+	public &lt;T&gt; T during(Function&lt;Connection, T&gt; callable) throws Exception {
+<span class="fc" id="L102">		synchronized (this) {</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">			if (currentSessionInstance != null) {</span>
+<span class="nc" id="L104">				return callable.apply(currentSessionInstance);</span>
+			}
+<span class="fc" id="L106">			instanceMutex.acquire();</span>
+			try {
+<span class="fc" id="L108">				Connection instance = open();</span>
+				try {
+<span class="fc" id="L110">					return callable.apply(instance);</span>
+				} finally {
+<span class="fc" id="L112">					instance.close();</span>
+				}
+			} finally {
+<span class="fc" id="L115">				instanceMutex.release();</span>
+			}
+		}
+	}
+
+	public Connection during(Session session) throws Exception {
+<span class="fc" id="L121">		synchronized (this) {</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">			if (currentSessionInstance == null) {</span>
+<span class="fc" id="L123">				instanceMutex.acquire();</span>
+<span class="fc" id="L124">				currentSession = session;</span>
+<span class="fc" id="L125">				currentSessionInstance = open();</span>
+<span class="fc" id="L126">				session.getClosables().add(currentSessionInstanceClosableWrapper = new AutoCloseable() {</span>
+					@Override
+					public void close() throws Exception {
+<span class="fc" id="L129">						synchronized (JDBCConnection.this) {</span>
+<span class="fc" id="L130">							currentSessionInstanceClosableWrapper = null;</span>
+<span class="fc" id="L131">							currentSessionInstance.close();</span>
+<span class="fc" id="L132">							currentSessionInstance = null;</span>
+<span class="fc" id="L133">							currentSession = null;</span>
+<span class="fc" id="L134">							instanceMutex.release();</span>
+						}
+<span class="fc" id="L136">					}</span>
+				});
+<span class="fc" id="L138">			} else {</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">				if (currentSession != session) {</span>
+<span class="nc" id="L140">					throw new IllegalArgumentException(</span>
+<span class="nc" id="L141">							&quot;Unable to share &quot; + this + &quot; instance between &quot; + currentSession + &quot; and &quot; + session);</span>
+				}
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">				if (!currentSessionInstance.isValid(VALIDITY_CHECK_TIMEOUT_SECONDS)) {</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">					if (!session.getClosables().remove(currentSessionInstanceClosableWrapper)) {</span>
+<span class="nc" id="L145">						throw new UnexpectedError();</span>
+					}
+<span class="nc" id="L147">					currentSessionInstanceClosableWrapper.close();</span>
+<span class="nc" id="L148">					return during(session);</span>
+				}
+			}
+<span class="fc" id="L151">			return currentSessionInstance;</span>
+		}
+	}
+
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+<span class="fc" id="L157">		super.validate(recursively);</span>
+<span class="fc" id="L158">		String driverClassName = getDriverClassNameVariant().getValue();</span>
+<span class="fc" id="L159">		String url = getUrlVariant().getValue();</span>
+<span class="pc bpc" id="L160" title="2 of 4 branches missed.">		if ((driverClassName == null) || (driverClassName.trim().length() == 0)) {</span>
+<span class="nc" id="L161">			throw new ValidationError(&quot;Driver class name not provided&quot;);</span>
+		}
+<span class="pc bpc" id="L163" title="2 of 4 branches missed.">		if ((url == null) || (url.trim().length() == 0)) {</span>
+<span class="nc" id="L164">			throw new ValidationError(&quot;Connection URL not provided&quot;);</span>
+		}
+<span class="fc" id="L166">	}</span>
+
+	public String test() throws Exception {
+<span class="nc" id="L169">		instanceMutex.acquire();</span>
+		try {
+<span class="nc" id="L171">			open().close();</span>
+<span class="nc" id="L172">		} finally {</span>
+<span class="nc" id="L173">			instanceMutex.release();</span>
+		}
+<span class="nc" id="L175">		return &quot;Connection successful!&quot;;</span>
+	}
+
+<span class="fc" id="L178">	public static class Metadata implements ResourceMetadata {</span>
+
+		@Override
+		public ResourcePath getResourceIconImagePath() {
+<span class="fc" id="L182">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L183">					.specifyClassPathResourceLocation(JDBCConnection.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+		@Override
+		public Class&lt;? extends Resource&gt; getResourceClass() {
+<span class="fc" id="L188">			return JDBCConnection.class;</span>
+		}
+
+		@Override
+		public String getResourceTypeName() {
+<span class="fc" id="L193">			return &quot;JDBC Connection&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

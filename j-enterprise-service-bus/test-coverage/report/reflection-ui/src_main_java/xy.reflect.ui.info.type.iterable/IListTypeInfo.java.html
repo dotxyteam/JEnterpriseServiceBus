@@ -1,0 +1,634 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>IListTypeInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable</a> &gt; <span class="el_source">IListTypeInfo.java</span></div><h1>IListTypeInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.iterable;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.ITransaction;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.item.DetachedItemDetailsAccessMode;
+import xy.reflect.ui.info.type.iterable.item.IListItemDetailsAccessMode;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.info.type.iterable.structure.IListStructuralInfo;
+import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
+import xy.reflect.ui.info.type.iterable.util.IDynamicListProperty;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.undo.ListModificationFactory;
+import xy.reflect.ui.util.Mapper;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * This interface allows to specify UI-oriented properties of list types.
+ * 
+ * Generating UIs for lists is complex because there are multiple
+ * implementations (arrays, collections, maps, ...) and not enough conventions.
+ * A list can then be ordered or not, unmodifiable or not, supporting null items
+ * or not, etc. This interface allows to describe all sorts of lists so that an
+ * aware renderer will be able to display and allow as much as possible to edit
+ * them all.
+ * 
+ * Structural preferences such as tabular or hierarchical facets of lists are
+ * also supported via the {@link IListStructuralInfo} interface.
+ * 
+ * @author olitank
+ *
+ */
+public interface IListTypeInfo extends ITypeInfo {
+
+	/**
+	 * Dummy instance of this class made for utilitarian purposes.
+	 */
+<span class="nc" id="L51">	public static IListTypeInfo NULL_LIST_TYPE_INFO = new IListTypeInfo() {</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L55">			return &quot;NULL_LIST_TYPE_INFO&quot;;</span>
+		}
+
+		@Override
+		public String getName() {
+<span class="nc" id="L60">			return &quot;NULL_LIST_TYPE_INFO&quot;;</span>
+		}
+
+		@Override
+		public ITypeInfo getParent() {
+<span class="nc" id="L65">			return null;</span>
+		}
+
+		@Override
+		public ITypeInfo getItemType() {
+<span class="nc" id="L70">			return null;</span>
+		}
+
+		@Override
+		public Object[] toArray(Object listValue) {
+<span class="nc" id="L75">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public IValidationJob getListItemAbstractFormValidationJob(ItemPosition itemPosition) {
+<span class="nc" id="L80">			return null;</span>
+		}
+
+		@Override
+		public boolean isItemNodeValidityDetectionEnabled(ItemPosition itemPosition) {
+<span class="nc" id="L85">			return true;</span>
+		}
+
+		@Override
+		public boolean areItemsAutomaticallyPositioned() {
+<span class="nc" id="L90">			return false;</span>
+		}
+
+		@Override
+		public boolean canInstantiateFromArray() {
+<span class="nc" id="L95">			return false;</span>
+		}
+
+		@Override
+		public Object fromArray(Object[] array) {
+<span class="nc" id="L100">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public boolean canReplaceContent() {
+<span class="nc" id="L105">			return false;</span>
+		}
+
+		@Override
+		public void replaceContent(Object listValue, Object[] array) {
+<span class="nc" id="L110">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public IListStructuralInfo getStructuralInfo() {
+<span class="nc" id="L115">			return IListStructuralInfo.NULL_LIST_STRUCTURAL_INFO;</span>
+		}
+
+		@Override
+		public IListItemDetailsAccessMode getDetailsAccessMode() {
+<span class="nc" id="L120">			return new DetachedItemDetailsAccessMode();</span>
+		}
+
+		@Override
+		public boolean isInsertionAllowed() {
+<span class="nc" id="L125">			return false;</span>
+		}
+
+		@Override
+		public boolean isRemovalAllowed() {
+<span class="nc" id="L130">			return false;</span>
+		}
+
+		@Override
+		public boolean isMoveAllowed() {
+<span class="nc" id="L135">			return false;</span>
+		}
+
+		@Override
+		public boolean canViewItemDetails() {
+<span class="nc" id="L140">			return true;</span>
+		}
+
+		@Override
+		public List&lt;IDynamicListAction&gt; getDynamicActions(List&lt;? extends ItemPosition&gt; selection,
+				Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor) {
+<span class="nc" id="L146">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public List&lt;IDynamicListProperty&gt; getDynamicProperties(List&lt;? extends ItemPosition&gt; selection,
+				Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor) {
+<span class="nc" id="L152">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public boolean isItemNullValueSupported() {
+<span class="nc" id="L157">			return false;</span>
+		}
+
+		@Override
+		public ItemCreationMode getItemCreationMode() {
+<span class="nc" id="L162">			return ItemCreationMode.UNDEFINED;</span>
+		}
+
+		@Override
+		public ValueReturnMode getItemReturnMode() {
+<span class="nc" id="L167">			return ValueReturnMode.INDETERMINATE;</span>
+		}
+
+		@Override
+		public ToolsLocation getToolsLocation() {
+<span class="nc" id="L172">			return ToolsLocation.EAST;</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L177">			return Collections.emptyMap();</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="nc" id="L182">			return null;</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="nc" id="L187">			return ReflectionUIUtils.identifierToCaption(getName());</span>
+		}
+
+		@Override
+		public void validate(Object object, ValidationSession session) throws Exception {
+<span class="nc" id="L192">		}</span>
+
+		@Override
+		public String toString(Object object) {
+<span class="nc" id="L196">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public boolean supports(Object localObject) {
+<span class="nc" id="L201">			return false;</span>
+		}
+
+		@Override
+		public void onFormVisibilityChange(Object object, boolean visible) {
+<span class="nc" id="L206">		}</span>
+
+		@Override
+		public void onFormCreation(Object object, boolean beforeOrAFter) {
+<span class="nc" id="L210">		}</span>
+
+		@Override
+		public void save(Object object, File outputFile) {
+<span class="nc" id="L214">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public void load(Object object, File inputFile) {
+<span class="nc" id="L219">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public boolean isPrimitive() {
+<span class="nc" id="L224">			return false;</span>
+		}
+
+		@Override
+		public boolean isModificationStackAccessible() {
+<span class="nc" id="L229">			return true;</span>
+		}
+
+		@Override
+		public boolean isImmutable() {
+<span class="nc" id="L234">			return false;</span>
+		}
+
+		@Override
+		public boolean isConcrete() {
+<span class="nc" id="L239">			return false;</span>
+		}
+
+		@Override
+		public ITransaction createTransaction(Object object) {
+<span class="nc" id="L244">			return null;</span>
+		}
+
+		@Override
+		public void onFormRefresh(Object object) {
+<span class="nc" id="L249">		}</span>
+
+		@Override
+		public Runnable getLastFormRefreshStateRestorationJob(Object object) {
+<span class="nc" id="L253">			return null;</span>
+		}
+
+		@Override
+		public ITypeInfoSource getSource() {
+<span class="nc" id="L258">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public List&lt;ITypeInfo&gt; getPolymorphicInstanceSubTypes() {
+<span class="nc" id="L263">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public boolean isPolymorphicInstanceAbstractTypeOptionAllowed() {
+<span class="nc" id="L268">			return false;</span>
+		}
+
+		@Override
+		public MethodsLayout getMethodsLayout() {
+<span class="nc" id="L273">			return MethodsLayout.HORIZONTAL_FLOW;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getMethods() {
+<span class="nc" id="L278">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public MenuModel getMenuModel() {
+<span class="nc" id="L283">			return new MenuModel();</span>
+		}
+
+		@Override
+		public ResourcePath getIconImagePath(Object object) {
+<span class="nc" id="L288">			return null;</span>
+		}
+
+		@Override
+		public int getFormSpacing() {
+<span class="nc" id="L293">			return ITypeInfo.DEFAULT_FORM_SPACING;</span>
+		}
+
+		@Override
+		public int getFormPreferredWidth() {
+<span class="nc" id="L298">			return -1;</span>
+		}
+
+		@Override
+		public int getFormPreferredHeight() {
+<span class="nc" id="L303">			return -1;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormForegroundColor() {
+<span class="nc" id="L308">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorForegroundColor() {
+<span class="nc" id="L313">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorBackgroundColor() {
+<span class="nc" id="L318">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonForegroundColor() {
+<span class="nc" id="L323">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBorderColor() {
+<span class="nc" id="L328">			return null;</span>
+		}
+
+		@Override
+		public ResourcePath getFormButtonBackgroundImagePath() {
+<span class="nc" id="L333">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBackgroundColor() {
+<span class="nc" id="L338">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBorderColor() {
+<span class="nc" id="L343">			return null;</span>
+		}
+
+		@Override
+		public ResourcePath getFormBackgroundImagePath() {
+<span class="nc" id="L348">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBackgroundColor() {
+<span class="nc" id="L353">			return null;</span>
+		}
+
+		@Override
+		public FieldsLayout getFieldsLayout() {
+<span class="nc" id="L358">			return FieldsLayout.VERTICAL_FLOW;</span>
+		}
+
+		@Override
+		public List&lt;IFieldInfo&gt; getFields() {
+<span class="nc" id="L363">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getConstructors() {
+<span class="nc" id="L368">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public CategoriesStyle getCategoriesStyle() {
+<span class="nc" id="L373">			return CategoriesStyle.getDefault(ReflectionUI.getDefault(), this);</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesForegroundColor() {
+<span class="nc" id="L378">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesBackgroundColor() {
+<span class="nc" id="L383">			return null;</span>
+		}
+
+		@Override
+		public Object copy(Object object) {
+<span class="nc" id="L388">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public boolean canPersist() {
+<span class="nc" id="L393">			return false;</span>
+		}
+
+		@Override
+		public boolean canCopy(Object object) {
+<span class="nc" id="L398">			return false;</span>
+		}
+
+		@Override
+		public boolean isValidationRequired() {
+<span class="nc" id="L403">			return false;</span>
+		}
+
+		@Override
+		public IFieldInfo getSelectionTargetField(ITypeInfo objectType) {
+<span class="nc" id="L408">			return null;</span>
+		}
+<span class="nc" id="L410">	};</span>
+
+	/**
+	 * @return the type of items supported by the lists of this type or null if this
+	 *         type is not known.
+	 */
+	ITypeInfo getItemType();
+
+	/**
+	 * @param listValue An instance of the current list type.
+	 * @return a generic array containing the items of the given list value.
+	 */
+	Object[] toArray(Object listValue);
+
+	/**
+	 * @return true if and only if instances of this list type can be created from
+	 *         generic arrays. Otherwise {@link #fromArray(Object[])} should not be
+	 *         called.
+	 */
+	boolean canInstantiateFromArray();
+
+	/**
+	 * @param array A generic array containing items supported by this list type.
+	 * @return a new instance of this list type containing the same items as the
+	 *         generic array passed as parameter.
+	 */
+	Object fromArray(Object[] array);
+
+	/**
+	 * @return true if and only if instances of this list type can have their
+	 *         content replaced by calling
+	 *         {@link #replaceContent(Object, Object[])}.
+	 */
+	boolean canReplaceContent();
+
+	/**
+	 * Replaces the list of items of the given instance by the one contained in the
+	 * given generic array.
+	 * 
+	 * @param listValue An instance of the current list type.
+	 * @param array     A generic array containing items supported by this list
+	 *                  type.
+	 */
+	void replaceContent(Object listValue, Object[] array);
+
+	/**
+	 * @return tabular and hierarchical preferences about this list type.
+	 */
+	IListStructuralInfo getStructuralInfo();
+
+	/**
+	 * @return preferences about the way item details are displayed. Note that when
+	 *         the list is actually a tree then this method must be called from the
+	 *         root list type information.
+	 */
+	IListItemDetailsAccessMode getDetailsAccessMode();
+
+	/**
+	 * @return whether the position of each item in this list type instances is
+	 *         automatically determined or not (manually).
+	 */
+	boolean areItemsAutomaticallyPositioned();
+
+	/**
+	 * @return whether item addition should be allowed on instances of this list
+	 *         type.
+	 */
+	boolean isInsertionAllowed();
+
+	/**
+	 * @return whether item removal should be allowed on instances of this list
+	 *         type.
+	 */
+	boolean isRemovalAllowed();
+
+	/**
+	 * @return whether item position change should be allowed on instances of this
+	 *         list type.
+	 */
+	boolean isMoveAllowed();
+
+	/**
+	 * @return whether item details display should be allowed on instances of this
+	 *         list type.
+	 */
+	boolean canViewItemDetails();
+
+	/**
+	 * @param selection                       The list of selected item positions.
+	 * @param listModificationFactoryAccessor An object that maps the selection to a
+	 *                                        list modification factory.
+	 * @return actions that can be performed on a list instance according to the
+	 *         given selection of items. Note that when the list is actually a tree
+	 *         then this method must be called from the root list type information
+	 *         since the selection may include items positioned at different levels
+	 *         of depth in the tree.
+	 */
+	List&lt;IDynamicListAction&gt; getDynamicActions(List&lt;? extends ItemPosition&gt; selection,
+			Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor);
+
+	/**
+	 * @param selection                       The list of selected item positions.
+	 * @param listModificationFactoryAccessor An object that maps the selection to a
+	 *                                        list modification factory.
+	 * @return list instance properties that can be accessed according to the given
+	 *         selection of items. Note that when the list is actually a tree then
+	 *         this method must be called from the root list type information since
+	 *         the selection may include items positioned at different levels of
+	 *         depth in the tree.
+	 */
+	List&lt;IDynamicListProperty&gt; getDynamicProperties(List&lt;? extends ItemPosition&gt; selection,
+			Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor);
+
+	/**
+	 * @return whether instances of this list type support null items.
+	 */
+	boolean isItemNullValueSupported();
+
+	/**
+	 * @return an option describing how the UI reacts to item creation requests.
+	 */
+	ItemCreationMode getItemCreationMode();
+
+	/**
+	 * @return the value return mode of the items. It may impact the behavior of the
+	 *         list control.
+	 */
+	ValueReturnMode getItemReturnMode();
+
+	/**
+	 * @param objectType The parent object type.
+	 * @return a field information that will be used to provide the reference/value
+	 *         of the selected item to the parent object. Note that if the selected
+	 *         item type is not compatible with the target field, then null or a
+	 *         default value (when null is not supported) will be provided to the
+	 *         parent object.
+	 */
+	IFieldInfo getSelectionTargetField(ITypeInfo objectType);
+
+	/**
+	 * @param itemPosition The position of the list item to inspect.
+	 * @return whether validation errors should be checked for the element
+	 *         designated by the item position passed as a parameter. Note that in
+	 *         the case of trees, if the checking is disabled for the current item,
+	 *         it will also be disabled for entire subtree.
+	 */
+	boolean isItemNodeValidityDetectionEnabled(ItemPosition itemPosition);
+
+	/**
+	 * Allows to choose how the UI behaves when creating items. Typically it answers
+	 * the question &quot;should the framework require constructor parameter values from
+	 * users or not?&quot;.
+	 * 
+	 * @author olitank
+	 *
+	 */
+
+	/**
+	 * @return where the tool bar will be located on the list control.
+	 */
+	ToolsLocation getToolsLocation();
+
+	/**
+	 * @param itemPosition The position of the list item to validate.
+	 * @return a validation task that can be used to fully validate the state of the
+	 *         item at the given position in the absence of a concrete form that
+	 *         would have orchestrated the item's validation. Subtree items should
+	 *         not be validated by this job since the list/tree control takes care
+	 *         of their validation. Note that this method was added for optimization
+	 *         purposes because, with the Swing toolkit, it was mandatory to create
+	 *         any form from the UI thread, which was therefore slowed down, just to
+	 *         have a form orchestrating the validation.
+	 */
+	IValidationJob getListItemAbstractFormValidationJob(ItemPosition itemPosition);
+
+<span class="fc" id="L585">	public enum ItemCreationMode {</span>
+<span class="fc" id="L586">		/**</span>
+		 * A null value is directly inserted in the list.
+		 */
+<span class="fc" id="L589">		UNVERIFIED_NULL,</span>
+<span class="fc" id="L590">		/**</span>
+		 * The item type is instantiated without requiring user input and the result is
+		 * directly inserted in the list.
+		 */
+<span class="fc" id="L594">		DEFAULT_UNVERIFIED_INSTANCE,</span>
+<span class="fc" id="L595">		/**</span>
+		 * The item type is instantiated according user preferences and the result is
+		 * directly inserted in the list.
+		 */
+<span class="fc" id="L599">		CUSTOM_UNVERIFIED_INSTANCE,</span>
+<span class="fc" id="L600">		/**</span>
+		 * A null value is presented to the user for modification/validation before
+		 * inserting it in the list.
+		 */
+<span class="fc" id="L604">		VERIFIED_NULL,</span>
+<span class="fc" id="L605">		/**</span>
+		 * The item type is instantiated without requiring user input and the result
+		 * presented to the user for modification/validation before inserting it in the
+		 * list.
+		 */
+<span class="fc" id="L610">		DEFAULT_VERIFIED_INSTANCE,</span>
+<span class="fc" id="L611">		/**</span>
+		 * The item type is instantiated according user preferences and the result
+		 * presented to the user for modification/validation before inserting it in the
+		 * list.
+		 */
+<span class="fc" id="L616">		CUSTOM_VERIFIED_INSTANCE,</span>
+<span class="fc" id="L617">		/**</span>
+		 * A relevant mode is used.
+		 */
+<span class="fc" id="L620">		UNDEFINED</span>
+	}
+
+	/**
+	 * Allows to choose where the toolbar will be located on the list control.
+	 * 
+	 * @author olitank
+	 *
+	 */
+<span class="fc" id="L629">	public enum ToolsLocation {</span>
+<span class="fc" id="L630">		NORTH, SOUTH, EAST, WEST, HIDDEN</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

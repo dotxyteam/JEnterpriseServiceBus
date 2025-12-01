@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MenuInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.menu</a> &gt; <span class="el_source">MenuInfo.java</span></div><h1>MenuInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.menu;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import xy.reflect.ui.util.KeyboardKey;
+
+/**
+ * This class represents a menu.
+ * 
+ * @author olitank
+ *
+ */
+public class MenuInfo extends AbstractMenuItemInfo implements IMenuItemContainerInfo {
+
+	public MenuInfo(String name) {
+<span class="nc" id="L18">		super(name);</span>
+<span class="nc" id="L19">	}</span>
+
+<span class="fc" id="L21">	public MenuInfo() {</span>
+<span class="fc" id="L22">	}</span>
+
+<span class="pc" id="L24">	protected List&lt;AbstractMenuItemInfo&gt; items = new ArrayList&lt;AbstractMenuItemInfo&gt;();</span>
+<span class="pc" id="L25">	protected List&lt;MenuItemCategory&gt; itemCategories = new ArrayList&lt;MenuItemCategory&gt;();</span>
+	protected KeyboardKey mnemonicKey;
+
+	@Override
+	public List&lt;AbstractMenuItemInfo&gt; getItems() {
+<span class="fc" id="L30">		return items;</span>
+	}
+
+	public void setItems(List&lt;AbstractMenuItemInfo&gt; items) {
+<span class="nc" id="L34">		this.items = items;</span>
+<span class="nc" id="L35">	}</span>
+
+	public void addItem(AbstractMenuItemInfo item) {
+<span class="fc" id="L38">		this.items.add(item);</span>
+<span class="fc" id="L39">	}</span>
+
+	public List&lt;MenuItemCategory&gt; getItemCategories() {
+<span class="fc" id="L42">		return itemCategories;</span>
+	}
+
+	public void setItemCategories(List&lt;MenuItemCategory&gt; itemCategories) {
+<span class="nc" id="L46">		this.itemCategories = itemCategories;</span>
+<span class="nc" id="L47">	}</span>
+
+	public void addItemCategory(MenuItemCategory itemCategory) {
+<span class="fc" id="L50">		this.itemCategories.add(itemCategory);</span>
+<span class="fc" id="L51">	}</span>
+
+	public KeyboardKey getMnemonicKey() {
+<span class="fc" id="L54">		return mnemonicKey;</span>
+	}
+
+	public void setMnemonicKey(KeyboardKey mnemonicKey) {
+<span class="fc" id="L58">		this.mnemonicKey = mnemonicKey;</span>
+<span class="fc" id="L59">	}</span>
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L63">		final int prime = 31;</span>
+<span class="nc" id="L64">		int result = super.hashCode();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">		result = prime * result + ((itemCategories == null) ? 0 : itemCategories.hashCode());</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		result = prime * result + ((items == null) ? 0 : items.hashCode());</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">		result = prime * result + ((mnemonicKey == null) ? 0 : mnemonicKey.hashCode());</span>
+<span class="nc" id="L68">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L74">			return true;</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">		if (!super.equals(obj))</span>
+<span class="fc" id="L76">			return false;</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L78">			return false;</span>
+<span class="fc" id="L79">		MenuInfo other = (MenuInfo) obj;</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">		if (itemCategories == null) {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">			if (other.itemCategories != null)</span>
+<span class="nc" id="L82">				return false;</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">		} else if (!itemCategories.equals(other.itemCategories))</span>
+<span class="fc" id="L84">			return false;</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">		if (items == null) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">			if (other.items != null)</span>
+<span class="nc" id="L87">				return false;</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		} else if (!items.equals(other.items))</span>
+<span class="fc" id="L89">			return false;</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">		if (mnemonicKey == null) {</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">			if (other.mnemonicKey != null)</span>
+<span class="nc" id="L92">				return false;</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		} else if (!mnemonicKey.equals(other.mnemonicKey))</span>
+<span class="nc" id="L94">			return false;</span>
+<span class="fc" id="L95">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L100">		return &quot;Menu [name=&quot; + caption + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

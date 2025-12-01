@@ -1,0 +1,819 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FieldControlPlaceHolder.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.renderer</a> &gt; <span class="el_source">FieldControlPlaceHolder.java</span></div><h1>FieldControlPlaceHolder.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.renderer;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+
+import xy.reflect.ui.control.AbstractFieldControlData;
+import xy.reflect.ui.control.BufferedFieldControlData;
+import xy.reflect.ui.control.ErrorHandlingFieldControlData;
+import xy.reflect.ui.control.FieldContext;
+import xy.reflect.ui.control.FieldControlDataProxy;
+import xy.reflect.ui.control.FieldControlInputProxy;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.RejectedFieldControlInputException;
+import xy.reflect.ui.control.plugin.IFieldControlPlugin;
+import xy.reflect.ui.control.swing.CheckBoxControl;
+import xy.reflect.ui.control.swing.DialogAccessControl;
+import xy.reflect.ui.control.swing.EmbeddedFormControl;
+import xy.reflect.ui.control.swing.ComboBoxControl;
+import xy.reflect.ui.control.swing.ErrorDisplayControl;
+import xy.reflect.ui.control.swing.ListControl;
+import xy.reflect.ui.control.swing.MutableTypeControl;
+import xy.reflect.ui.control.swing.NullControl;
+import xy.reflect.ui.control.swing.NullableControl;
+import xy.reflect.ui.control.swing.NullablePluginControl;
+import xy.reflect.ui.control.swing.PolymorphicControl;
+import xy.reflect.ui.control.swing.PrimitiveValueControl;
+import xy.reflect.ui.control.swing.TextControl;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.field.ValueOptionsAsEnumerationFieldInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.info.type.source.TypeInfoSourceProxy;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Instances of this class are field control containers.
+ * 
+ * They provide common field control features as error display, undo management,
+ * busy indication, updates synchronization, etc. These features can be tweaked
+ * by making the field control implement the {@link IAdvancedFieldControl}
+ * interface.
+ * 
+ * They also generate the input that will be used by the
+ * {@link #createFieldControl()} method and passed to the control constructor.
+ * 
+ * @author olitank
+ *
+ */
+public class FieldControlPlaceHolder extends ControlPanel implements IFieldControlInput {
+
+	protected static final long serialVersionUID = 1L;
+
+<span class="fc" id="L74">	public static final String CONTROL_BASED_MODIFICATION_STACK_MANAGEMENT_ENABLED_PROPERTY_KEY = FieldControlPlaceHolder.class</span>
+<span class="fc" id="L75">			.getName() + &quot;.CONTROL_MODIFICATION_STACK_MANAGEMENT_ENABLED&quot;;</span>
+<span class="fc" id="L76">	public static final String CONTROL_BASED_VALUE_ACCESS_ERRORS_MANAGEMENT_ENABLED_PROPERTY_KEY = FieldControlPlaceHolder.class</span>
+<span class="fc" id="L77">			.getName() + &quot;.CONTROL_BASED_VALUE_ACCESS_ERRORS_MANAGEMENT_ENABLED&quot;;</span>
+
+	protected final SwingRenderer swingRenderer;
+	protected Component fieldControl;
+	protected Form form;
+	protected IFieldInfo field;
+	protected IFieldControlData controlData;
+<span class="fc" id="L84">	protected boolean layoutInContainerUpdateNeeded = true;</span>
+<span class="fc" id="L85">	protected int positionInContainer = -1;</span>
+<span class="fc" id="L86">	protected boolean ancestorVisible = false;</span>
+	protected AutoUpdater autoRefreshThread;
+	protected Component siblingCaptionControl;
+	protected Component siblingOnlineHelpControl;
+	protected Map&lt;String, Object&gt; lastFieldControlSelectionCriteria;
+
+	public FieldControlPlaceHolder(Form form, IFieldInfo field) {
+<span class="fc" id="L93">		super();</span>
+<span class="fc" id="L94">		this.swingRenderer = form.getSwingRenderer();</span>
+<span class="fc" id="L95">		this.form = form;</span>
+<span class="fc" id="L96">		this.field = field;</span>
+<span class="fc" id="L97">		this.controlData = createControlData();</span>
+<span class="fc" id="L98">		setName(&quot;fieldControlPlaceHolder [field=&quot; + field.getName() + &quot;, parent=&quot; + form.getName() + &quot;]&quot;);</span>
+<span class="fc" id="L99">		setLayout(new BorderLayout());</span>
+<span class="fc" id="L100">		manageVisibiltyChanges();</span>
+<span class="fc" id="L101">	}</span>
+
+	public void initializeUI() {
+<span class="fc" id="L104">		refreshUI(true);</span>
+<span class="fc" id="L105">	}</span>
+
+	public Component getSiblingCaptionControl() {
+<span class="fc" id="L108">		return siblingCaptionControl;</span>
+	}
+
+	public void setSiblingCaptionControl(Component siblingCaptionControl) {
+<span class="fc" id="L112">		this.siblingCaptionControl = siblingCaptionControl;</span>
+<span class="fc" id="L113">	}</span>
+
+	public Component getSiblingOnlineHelpControl() {
+<span class="fc" id="L116">		return siblingOnlineHelpControl;</span>
+	}
+
+	public void setSiblingOnlineHelpControl(Component siblingOnlineHelpControl) {
+<span class="fc" id="L120">		this.siblingOnlineHelpControl = siblingOnlineHelpControl;</span>
+<span class="fc" id="L121">	}</span>
+
+	@Override
+	public Dimension getMinimumSize() {
+		/*
+		 * This method is overridden to avoid issues with the default parent form
+		 * GridBagLayout. If another layout is used then this method may need to be
+		 * overridden again. The minimum size must be equal to the preferred size (that
+		 * may be dynamic in our case because of scroll bars that may appear) since when
+		 * there is not enough space, the GridBagLayout sets its components to their
+		 * minimum size, causing a brutal ugly effect.
+		 */
+<span class="fc" id="L133">		return super.getPreferredSize();</span>
+	}
+
+	protected void manageVisibiltyChanges() {
+<span class="fc" id="L137">		addAncestorListener(new AncestorListener() {</span>
+
+			@Override
+			public void ancestorAdded(AncestorEvent event) {
+<span class="fc" id="L141">				FieldControlPlaceHolder.this.swingRenderer.showBusyDialogWhile(FieldControlPlaceHolder.this,</span>
+<span class="fc" id="L142">						new Runnable() {</span>
+							@Override
+							public void run() {
+<span class="fc" id="L145">								FieldControlPlaceHolder.this.field.onControlVisibilityChange(getObject(), true);</span>
+<span class="fc" id="L146">							}</span>
+<span class="fc" id="L147">						}, ReflectionUIUtils.composeMessage(FieldControlPlaceHolder.this.field.getCaption(),</span>
+<span class="fc" id="L148">								&quot;Setting up...&quot;));</span>
+<span class="fc" id="L149">				ancestorVisible = true;</span>
+<span class="fc" id="L150">				updateAutoRefeshState();</span>
+<span class="fc" id="L151">			}</span>
+
+			@Override
+			public void ancestorRemoved(AncestorEvent event) {
+<span class="fc" id="L155">				FieldControlPlaceHolder.this.swingRenderer.showBusyDialogWhile(FieldControlPlaceHolder.this,</span>
+<span class="fc" id="L156">						new Runnable() {</span>
+							@Override
+							public void run() {
+<span class="fc" id="L159">								FieldControlPlaceHolder.this.field.onControlVisibilityChange(getObject(), false);</span>
+<span class="fc" id="L160">							}</span>
+<span class="fc" id="L161">						}, ReflectionUIUtils.composeMessage(FieldControlPlaceHolder.this.field.getCaption(),</span>
+<span class="fc" id="L162">								&quot;Cleaning up...&quot;));</span>
+<span class="fc" id="L163">				ancestorVisible = false;</span>
+<span class="fc" id="L164">				updateAutoRefeshState();</span>
+<span class="fc" id="L165">			}</span>
+
+			@Override
+			public void ancestorMoved(AncestorEvent event) {
+<span class="fc" id="L169">			}</span>
+
+		});
+<span class="fc" id="L172">	}</span>
+
+	public void updateAutoRefeshState() {
+<span class="fc bfc" id="L175" title="All 2 branches covered.">		if (isAutoRefreshActive()) {</span>
+<span class="fc" id="L176">			stopAutoRefresh();</span>
+		}
+<span class="fc bfc" id="L178" title="All 4 branches covered.">		if ((field.getAutoUpdatePeriodMilliseconds() &gt;= 0) &amp;&amp; ancestorVisible) {</span>
+<span class="fc" id="L179">			startAutoRefresh();</span>
+		}
+<span class="fc" id="L181">	}</span>
+
+	public boolean isAutoRefreshActive() {
+<span class="pc bpc" id="L184" title="1 of 4 branches missed.">		return (autoRefreshThread != null) &amp;&amp; (autoRefreshThread.isRunning());</span>
+	}
+
+	public AutoUpdater createAutoRefreshThread() {
+<span class="fc" id="L188">		return new AutoUpdater();</span>
+	}
+
+	protected void startAutoRefresh() {
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">		if (isAutoRefreshActive()) {</span>
+<span class="nc" id="L193">			return;</span>
+		}
+<span class="fc" id="L195">		autoRefreshThread = createAutoRefreshThread();</span>
+<span class="fc" id="L196">		autoRefreshThread.start();</span>
+<span class="fc" id="L197">	}</span>
+
+	protected void stopAutoRefresh() {
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">		if (!isAutoRefreshActive()) {</span>
+<span class="nc" id="L201">			return;</span>
+		}
+<span class="fc" id="L203">		autoRefreshThread.stop();</span>
+<span class="fc" id="L204">		autoRefreshThread = null;</span>
+<span class="fc" id="L205">	}</span>
+
+	public IFieldInfo getField() {
+<span class="fc" id="L208">		return field;</span>
+	}
+
+	public Object getObject() {
+<span class="fc" id="L212">		return form.getObject();</span>
+	}
+
+	public Form getForm() {
+<span class="nc" id="L216">		return form;</span>
+	}
+
+	@Override
+	public IFieldControlData getControlData() {
+<span class="fc" id="L221">		return controlData;</span>
+	}
+
+	public boolean isLayoutInContainerUpdateNeeded() {
+<span class="fc" id="L225">		return layoutInContainerUpdateNeeded;</span>
+	}
+
+	public void setLayoutInContainerUpdateNeeded(boolean layoutUpdateNeeded) {
+<span class="fc" id="L229">		this.layoutInContainerUpdateNeeded = layoutUpdateNeeded;</span>
+<span class="fc" id="L230">	}</span>
+
+	public int getPositionInContainer() {
+<span class="fc" id="L233">		return positionInContainer;</span>
+	}
+
+	public void setPositionInContainer(int positionInContainer) {
+<span class="fc" id="L237">		this.positionInContainer = positionInContainer;</span>
+<span class="fc" id="L238">	}</span>
+
+	@Override
+	public FieldContext getContext() {
+<span class="fc" id="L242">		return new FieldContext(form.getFilteredObjectType().getName(), field.getName());</span>
+	}
+
+	@Override
+	public ModificationStack getModificationStack() {
+<span class="fc" id="L247">		return form.getModificationStack();</span>
+	}
+
+	protected IFieldControlData makeFieldModificationsUndoable(final IFieldControlData data) {
+<span class="fc" id="L251">		return new FieldControlDataProxy(data) {</span>
+
+			@Override
+			public void setValue(Object newValue) {
+<span class="fc bfc" id="L255" title="All 2 branches covered.">				if (isModificationStackManagedByFieldControl()) {</span>
+<span class="fc" id="L256">					data.setValue(newValue);</span>
+<span class="fc" id="L257">					return;</span>
+				}
+<span class="fc" id="L259">				ReflectionUIUtils.setFieldValueThroughModificationStack(data, newValue, getModificationStack(),</span>
+<span class="fc" id="L260">						ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()));</span>
+<span class="fc" id="L261">			}</span>
+		};
+	}
+
+	protected IFieldControlData handleValueAccessIssues(final IFieldControlData data) {
+<span class="fc" id="L266">		return new ErrorHandlingFieldControlData(data, swingRenderer, FieldControlPlaceHolder.this) {</span>
+
+			@Override
+			protected void displayError(Throwable error) {
+<span class="nc bnc" id="L270" title="All 2 branches missed.">				if (error != null) {</span>
+<span class="nc" id="L271">					swingRenderer.getReflectionUI().logDebug(error);</span>
+				}
+<span class="nc bnc" id="L273" title="All 2 branches missed.">				boolean errorDisplayed = (fieldControl instanceof IAdvancedFieldControl)</span>
+<span class="nc bnc" id="L274" title="All 4 branches missed.">						&amp;&amp; ((IAdvancedFieldControl) fieldControl).displayError((error == null) ? null : error);</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">				if (!errorDisplayed) {</span>
+<span class="nc" id="L276">					super.displayError(error);</span>
+				}
+<span class="nc" id="L278">			}</span>
+
+			@Override
+			public Object getValue() {
+<span class="fc bfc" id="L282" title="All 2 branches covered.">				if (areValueAccessErrorsManagedByFieldControl()) {</span>
+<span class="fc" id="L283">					return data.getValue();</span>
+				}
+<span class="fc" id="L285">				return super.getValue();</span>
+			}
+
+			@Override
+			public void setValue(Object newValue) {
+<span class="fc bfc" id="L290" title="All 2 branches covered.">				if (areValueAccessErrorsManagedByFieldControl()) {</span>
+<span class="fc" id="L291">					data.setValue(newValue);</span>
+<span class="fc" id="L292">					return;</span>
+				}
+<span class="fc" id="L294">				super.setValue(newValue);</span>
+<span class="fc" id="L295">			}</span>
+
+		};
+	}
+
+	protected boolean isModificationStackManagedByFieldControl() {
+<span class="fc" id="L301">		Component c = fieldControl;</span>
+<span class="fc bfc" id="L302" title="All 2 branches covered.">		if (c == null) {</span>
+<span class="fc" id="L303">			return false;</span>
+		}
+<span class="pc bpc" id="L305" title="1 of 2 branches missed.">		if ((c instanceof IAdvancedFieldControl)) {</span>
+<span class="fc" id="L306">			IAdvancedFieldControl fieldControl = (IAdvancedFieldControl) c;</span>
+<span class="fc bfc" id="L307" title="All 2 branches covered.">			if (fieldControl.isModificationStackManaged()) {</span>
+<span class="fc" id="L308">				return true;</span>
+			}
+		}
+<span class="fc" id="L311">		return false;</span>
+	}
+
+	protected boolean areValueAccessErrorsManagedByFieldControl() {
+<span class="fc" id="L315">		Component c = fieldControl;</span>
+<span class="fc bfc" id="L316" title="All 2 branches covered.">		if (c == null) {</span>
+<span class="fc" id="L317">			return false;</span>
+		}
+<span class="pc bpc" id="L319" title="1 of 2 branches missed.">		if ((c instanceof IAdvancedFieldControl)) {</span>
+<span class="fc" id="L320">			IAdvancedFieldControl fieldControl = (IAdvancedFieldControl) c;</span>
+<span class="fc bfc" id="L321" title="All 2 branches covered.">			if (fieldControl.areValueAccessErrorsManaged()) {</span>
+<span class="fc" id="L322">				return true;</span>
+			}
+		}
+<span class="fc" id="L325">		return false;</span>
+	}
+
+	public Component getFieldControl() {
+<span class="fc" id="L329">		return fieldControl;</span>
+	}
+
+	public void refreshUI(boolean refreshStructure) {
+		try {
+<span class="fc bfc" id="L334" title="All 4 branches covered.">			setVisible(!field.isHidden() &amp;&amp; field.isRelevant(getObject()));</span>
+<span class="pc" id="L335">		} catch (Throwable t) {</span>
+<span class="nc" id="L336">			SwingUtilities.invokeLater(new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="nc" id="L339">					swingRenderer.handleException(FieldControlPlaceHolder.this, t);</span>
+<span class="nc" id="L340">				}</span>
+			});
+		}
+<span class="fc bfc" id="L343" title="All 2 branches covered.">		if (siblingCaptionControl != null) {</span>
+<span class="fc" id="L344">			siblingCaptionControl.setVisible(isVisible());</span>
+		}
+<span class="fc bfc" id="L346" title="All 2 branches covered.">		if (siblingOnlineHelpControl != null) {</span>
+<span class="fc" id="L347">			siblingOnlineHelpControl.setVisible(isVisible());</span>
+		}
+<span class="fc bfc" id="L349" title="All 2 branches covered.">		if (!isVisible()) {</span>
+<span class="fc" id="L350">			return;</span>
+		}
+<span class="fc bfc" id="L352" title="All 2 branches covered.">		if (fieldControl == null) {</span>
+			try {
+<span class="fc" id="L354">				fieldControl = createFieldControl();</span>
+				/*
+				 * Save the criteria in a field since the controlData internal structure may
+				 * change:
+				 */
+<span class="fc" id="L359">				lastFieldControlSelectionCriteria = getFieldControlSelectionCriteria(controlData);</span>
+<span class="pc" id="L360">			} catch (Throwable t) {</span>
+<span class="nc" id="L361">				fieldControl = createFieldErrorControl(t);</span>
+			}
+<span class="fc" id="L363">			fieldControl.setName(&quot;fieldControl [field=&quot; + field.getName() + &quot;, parent=&quot; + form.getName() + &quot;]&quot;);</span>
+<span class="fc" id="L364">			layoutFieldControl();</span>
+<span class="fc" id="L365">		} else {</span>
+<span class="pc bpc" id="L366" title="1 of 2 branches missed.">			if ((fieldControl instanceof IAdvancedFieldControl)</span>
+<span class="fc bfc" id="L367" title="All 2 branches covered.">					&amp;&amp; !(refreshStructure &amp;&amp; !getFieldControlSelectionCriteria(createControlData())</span>
+<span class="pc bpc" id="L368" title="1 of 2 branches missed.">							.equals(lastFieldControlSelectionCriteria))) {</span>
+				try {
+<span class="fc bfc" id="L370" title="All 2 branches covered.">					if (!((IAdvancedFieldControl) fieldControl).refreshUI(refreshStructure)) {</span>
+<span class="fc" id="L371">						destroyFieldControl();</span>
+<span class="fc" id="L372">						refreshUI(refreshStructure);</span>
+					}
+<span class="pc" id="L374">				} catch (RejectedFieldControlInputException e) {</span>
+<span class="nc" id="L375">					destroyFieldControl();</span>
+<span class="nc" id="L376">					refreshUI(refreshStructure);</span>
+<span class="nc" id="L377">				}catch (Throwable t) {</span>
+					try {
+<span class="nc" id="L379">						destroyFieldControl();</span>
+<span class="nc" id="L380">						fieldControl = createFieldErrorControl(t);</span>
+<span class="nc" id="L381">						layoutFieldControl();</span>
+<span class="nc" id="L382">					} catch (Throwable t2) {</span>
+						try {
+<span class="nc" id="L384">							swingRenderer.handleException(this, t);</span>
+<span class="nc" id="L385">							swingRenderer.handleException(this, t2);</span>
+<span class="nc" id="L386">						} catch (Throwable t3) {</span>
+<span class="nc" id="L387">							swingRenderer.getReflectionUI().logError(t);	</span>
+<span class="nc" id="L388">							swingRenderer.getReflectionUI().logError(t2);	</span>
+<span class="nc" id="L389">							swingRenderer.getReflectionUI().logError(t3);							</span>
+						}
+					}
+				}
+<span class="nc" id="L393">			} else {</span>
+<span class="nc" id="L394">				destroyFieldControl();</span>
+<span class="nc bnc" id="L395" title="All 2 branches missed.">				if (refreshStructure) {</span>
+<span class="nc" id="L396">					controlData = createControlData();</span>
+				}
+<span class="nc" id="L398">				refreshUI(refreshStructure);</span>
+			}
+		}
+<span class="fc bfc" id="L401" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc" id="L402">			updateAutoRefeshState();</span>
+<span class="fc" id="L403">			updateListSelectionTargetData();</span>
+		}
+<span class="fc" id="L405">	}</span>
+
+	protected void updateListSelectionTargetData() {
+<span class="fc bfc" id="L408" title="All 2 branches covered.">		if (fieldControl instanceof ListControl) {</span>
+<span class="fc" id="L409">			ITypeInfo objectType = swingRenderer.getReflectionUI()</span>
+<span class="fc" id="L410">					.getTypeInfo(swingRenderer.getReflectionUI().getTypeInfoSource(form.getObject()));</span>
+<span class="fc" id="L411">			IFieldInfo selectionTargetField = ((IListTypeInfo) controlData.getType())</span>
+<span class="fc" id="L412">					.getSelectionTargetField(objectType);</span>
+			FieldControlData selectionTargetData;
+<span class="fc bfc" id="L414" title="All 2 branches covered.">			if (selectionTargetField != null) {</span>
+<span class="fc" id="L415">				selectionTargetData = new FieldControlData(selectionTargetField);</span>
+<span class="fc" id="L416">			} else {</span>
+<span class="fc" id="L417">				selectionTargetData = null;</span>
+			}
+<span class="fc" id="L419">			if (!MiscUtils.equalsOrBothNull(selectionTargetData,</span>
+<span class="fc bfc" id="L420" title="All 2 branches covered.">					((ListControl) fieldControl).getSelectionTargetData())) {</span>
+<span class="fc" id="L421">				((ListControl) fieldControl).setSelectionTargetData(selectionTargetData);</span>
+			}
+		}
+<span class="fc" id="L424">	}</span>
+
+	protected void layoutFieldControl() {
+<span class="fc" id="L427">		add(fieldControl, BorderLayout.CENTER);</span>
+<span class="fc" id="L428">		layoutInContainerUpdateNeeded = true;</span>
+<span class="pc bpc" id="L429" title="1 of 2 branches missed.">		if (getParent() != null) {</span>
+<span class="fc" id="L430">			form.updateFieldControlLayoutInContainer(FieldControlPlaceHolder.this);</span>
+<span class="fc" id="L431">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+		}
+<span class="fc" id="L433">	}</span>
+
+	protected void destroyFieldControl() {
+<span class="fc" id="L436">		remove(fieldControl);</span>
+<span class="fc" id="L437">		fieldControl = null;</span>
+<span class="fc" id="L438">	}</span>
+
+	protected IFieldControlData createControlData() {
+<span class="fc" id="L441">		IFieldInfo field = FieldControlPlaceHolder.this.field;</span>
+<span class="fc bfc" id="L442" title="All 2 branches covered.">		if (field.hasValueOptions(getObject())) {</span>
+<span class="fc" id="L443">			field = new ValueOptionsAsEnumerationFieldInfo(this.swingRenderer.reflectionUI, field) {</span>
+				@Override
+				protected Object getObject() {
+<span class="fc" id="L446">					return FieldControlPlaceHolder.this.getObject();</span>
+				}
+			};
+		}
+<span class="fc" id="L450">		final IFieldInfo finalField = field;</span>
+<span class="fc" id="L451">		IFieldControlData result = new FieldControlData(finalField);</span>
+<span class="fc" id="L452">		result = handleValueAccessIssues(result);</span>
+<span class="fc" id="L453">		result = makeFieldModificationsUndoable(result);</span>
+<span class="fc" id="L454">		result = addControlBasedModificationStackManagementStatusProperty(result);</span>
+<span class="fc" id="L455">		result = addControlBasedValueAccessErrorsManagementStatusProperty(result);</span>
+<span class="fc" id="L456">		return result;</span>
+	}
+
+	protected IFieldControlData addControlBasedModificationStackManagementStatusProperty(IFieldControlData result) {
+<span class="fc" id="L460">		return new FieldControlDataProxy(result) {</span>
+
+			@Override
+			public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L464">				Map&lt;String, Object&gt; result = new HashMap&lt;String, Object&gt;(super.getSpecificProperties());</span>
+<span class="fc" id="L465">				result.put(CONTROL_BASED_MODIFICATION_STACK_MANAGEMENT_ENABLED_PROPERTY_KEY,</span>
+<span class="fc bfc" id="L466" title="All 2 branches covered.">						!isModificationStackManagedByFieldControl());</span>
+<span class="fc" id="L467">				return result;</span>
+			}
+		};
+	}
+
+	protected IFieldControlData addControlBasedValueAccessErrorsManagementStatusProperty(IFieldControlData result) {
+<span class="fc" id="L473">		return new FieldControlDataProxy(result) {</span>
+
+			@Override
+			public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L477">				Map&lt;String, Object&gt; result = new HashMap&lt;String, Object&gt;(super.getSpecificProperties());</span>
+<span class="fc" id="L478">				result.put(CONTROL_BASED_VALUE_ACCESS_ERRORS_MANAGEMENT_ENABLED_PROPERTY_KEY,</span>
+<span class="fc bfc" id="L479" title="All 2 branches covered.">						!areValueAccessErrorsManagedByFieldControl());</span>
+<span class="fc" id="L480">				return result;</span>
+			}
+		};
+	}
+
+	public Component createFieldControl() {
+<span class="fc" id="L486">		IFieldControlInput controlInput = this;</span>
+<span class="fc bfc" id="L487" title="All 2 branches covered.">		if (!controlInput.getControlData().isFormControlMandatory()) {</span>
+<span class="fc" id="L488">			Component result = createCustomFieldControl();</span>
+<span class="fc bfc" id="L489" title="All 2 branches covered.">			if (result != null) {</span>
+<span class="fc" id="L490">				return result;</span>
+			}
+		}
+<span class="fc bfc" id="L493" title="All 2 branches covered.">		if (controlInput.getControlData().isNullValueDistinct()) {</span>
+			try {
+<span class="fc" id="L495">				return new NullableControl(this.swingRenderer, controlInput);</span>
+<span class="nc" id="L496">			} catch (RejectedFieldControlInputException e) {</span>
+			}
+		}
+<span class="fc" id="L499">		final Object value = controlInput.getControlData().getValue();</span>
+<span class="fc" id="L500">		final BufferedFieldControlData bufferedFieldControlData = new BufferedFieldControlData(</span>
+<span class="fc" id="L501">				controlInput.getControlData());</span>
+<span class="fc" id="L502">		controlInput = new FieldControlInputProxy(controlInput) {</span>
+
+			@Override
+			public IFieldControlData getControlData() {
+<span class="fc" id="L506">				return bufferedFieldControlData;</span>
+			}
+		};
+<span class="fc bfc" id="L509" title="All 2 branches covered.">		if (value == null) {</span>
+			try {
+<span class="fc" id="L511">				final IFieldControlInput finalControlInput = controlInput;</span>
+<span class="fc" id="L512">				final Component[] result = new Component[1];</span>
+<span class="fc" id="L513">				bufferedFieldControlData.returningValue(value, new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="fc" id="L516">						result[0] = new NullControl(swingRenderer, finalControlInput);</span>
+<span class="fc" id="L517">					}</span>
+				});
+<span class="fc" id="L519">				return result[0];</span>
+<span class="nc" id="L520">			} catch (RejectedFieldControlInputException e) {</span>
+			}
+		}
+<span class="pc bpc" id="L523" title="1 of 2 branches missed.">		if (!controlInput.getControlData().getType().isPrimitive()) {</span>
+<span class="fc" id="L524">			final SpecificitiesIdentifier specificitiesIdentifier = controlInput.getControlData().getType().getSource()</span>
+<span class="fc" id="L525">					.getSpecificitiesIdentifier();</span>
+<span class="fc" id="L526">			final ITypeInfo actualValueType = this.swingRenderer.reflectionUI</span>
+<span class="fc" id="L527">					.getTypeInfo(new TypeInfoSourceProxy(this.swingRenderer.reflectionUI.getTypeInfoSource(value)) {</span>
+						@Override
+						public SpecificitiesIdentifier getSpecificitiesIdentifier() {
+<span class="fc" id="L530">							return specificitiesIdentifier;</span>
+						}
+
+						@Override
+						protected String getTypeInfoProxyFactoryIdentifier() {
+<span class="fc" id="L535">							return &quot;ActualFieldValueTypeInfoProxyFactory [of=&quot; + getClass().getName() + &quot;, form=&quot;</span>
+<span class="fc" id="L536">									+ form.getName() + &quot;, field=&quot; + field.getName() + &quot;]&quot;;</span>
+						}
+					});
+<span class="fc bfc" id="L539" title="All 2 branches covered.">			if (!controlInput.getControlData().getType().getName().equals(actualValueType.getName())) {</span>
+<span class="fc" id="L540">				controlInput = new FieldControlInputProxy(controlInput) {</span>
+					@Override
+					public IFieldControlData getControlData() {
+<span class="fc" id="L543">						return new FieldControlDataProxy(super.getControlData()) {</span>
+							@Override
+							public ITypeInfo getType() {
+<span class="fc" id="L546">								return actualValueType;</span>
+							}
+						};
+					}
+				};
+				try {
+<span class="fc" id="L552">					final IFieldControlInput finalControlInput = controlInput;</span>
+<span class="fc" id="L553">					final Component[] result = new Component[1];</span>
+<span class="fc" id="L554">					bufferedFieldControlData.returningValue(value, new Runnable() {</span>
+						@Override
+						public void run() {
+<span class="fc" id="L557">							result[0] = new MutableTypeControl(swingRenderer, finalControlInput);</span>
+<span class="fc" id="L558">						}</span>
+					});
+<span class="fc" id="L560">					return result[0];</span>
+<span class="nc" id="L561">				} catch (RejectedFieldControlInputException e) {</span>
+				}
+			}
+		}
+<span class="fc bfc" id="L565" title="All 2 branches covered.">		if (controlInput.getControlData().isFormControlEmbedded()) {</span>
+			try {
+<span class="fc" id="L567">				final IFieldControlInput finalControlInput = controlInput;</span>
+<span class="fc" id="L568">				final Component[] result = new Component[1];</span>
+<span class="fc" id="L569">				bufferedFieldControlData.returningValue(value, new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="fc" id="L572">						result[0] = new EmbeddedFormControl(swingRenderer, finalControlInput);</span>
+<span class="fc" id="L573">					}</span>
+				});
+<span class="fc" id="L575">				return result[0];</span>
+<span class="nc" id="L576">			} catch (RejectedFieldControlInputException e) {</span>
+			}
+<span class="nc" id="L578">		} else {</span>
+			try {
+<span class="fc" id="L580">				final IFieldControlInput finalControlInput = controlInput;</span>
+<span class="fc" id="L581">				final Component[] result = new Component[1];</span>
+<span class="fc" id="L582">				bufferedFieldControlData.returningValue(value, new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="fc" id="L585">						result[0] = new DialogAccessControl(swingRenderer, finalControlInput);</span>
+<span class="fc" id="L586">					}</span>
+				});
+<span class="fc" id="L588">				return result[0];</span>
+<span class="nc" id="L589">			} catch (RejectedFieldControlInputException e) {</span>
+			}
+		}
+<span class="nc" id="L592">		throw new RejectedFieldControlInputException();</span>
+	}
+
+	public Component createCustomFieldControl() {
+<span class="fc" id="L596">		IFieldControlInput controlInput = this;</span>
+
+<span class="fc" id="L598">		IFieldControlPlugin currentPlugin = getCurrentPlugin();</span>
+<span class="fc bfc" id="L599" title="All 2 branches covered.">		if (currentPlugin == null) {</span>
+<span class="fc bfc" id="L600" title="All 2 branches covered.">			if (controlInput.getControlData().getType() instanceof IEnumerationTypeInfo) {</span>
+				try {
+<span class="fc" id="L602">					return new ComboBoxControl(swingRenderer, controlInput);</span>
+<span class="nc" id="L603">				} catch (RejectedFieldControlInputException e) {</span>
+				}
+			}
+<span class="fc" id="L606">			if (PolymorphicControl.isCompatibleWith(controlInput.getControlData().getType(),</span>
+<span class="fc bfc" id="L607" title="All 2 branches covered.">					swingRenderer.getReflectionUI())) {</span>
+				try {
+<span class="fc" id="L609">					return new PolymorphicControl(swingRenderer, controlInput);</span>
+<span class="nc" id="L610">				} catch (RejectedFieldControlInputException e) {</span>
+				}
+			}
+<span class="fc bfc" id="L613" title="All 2 branches covered.">			if (!controlInput.getControlData().isNullValueDistinct()) {</span>
+<span class="fc" id="L614">				ITypeInfo fieldType = controlInput.getControlData().getType();</span>
+<span class="fc bfc" id="L615" title="All 2 branches covered.">				if (fieldType instanceof IListTypeInfo) {</span>
+					try {
+<span class="fc" id="L617">						return new ListControl(swingRenderer, controlInput);</span>
+<span class="nc" id="L618">					} catch (RejectedFieldControlInputException e) {</span>
+					}
+				}
+<span class="fc bfc" id="L621" title="All 2 branches covered.">				if (boolean.class.getName().equals(fieldType.getName())</span>
+<span class="fc bfc" id="L622" title="All 2 branches covered.">						|| Boolean.class.getName().equals(fieldType.getName())) {</span>
+					try {
+<span class="fc" id="L624">						return new CheckBoxControl(swingRenderer, controlInput);</span>
+<span class="nc" id="L625">					} catch (RejectedFieldControlInputException e) {</span>
+					}
+				}
+<span class="fc bfc" id="L628" title="All 2 branches covered.">				if (Arrays.stream(ClassUtils.PRIMITIVE_CLASSES).anyMatch(c -&gt; c.getName().equals(fieldType.getName()))</span>
+<span class="fc" id="L629">						|| Arrays.stream(ClassUtils.PRIMITIVE_WRAPPER_CLASSES)</span>
+<span class="fc bfc" id="L630" title="All 2 branches covered.">								.anyMatch(c -&gt; c.getName().equals(fieldType.getName()))) {</span>
+					try {
+<span class="fc" id="L632">						return new PrimitiveValueControl(swingRenderer, controlInput);</span>
+<span class="nc" id="L633">					} catch (RejectedFieldControlInputException e) {</span>
+					}
+				}
+<span class="fc bfc" id="L636" title="All 2 branches covered.">				if (String.class.getName().equals(fieldType.getName())) {</span>
+					try {
+<span class="fc" id="L638">						return new TextControl(swingRenderer, controlInput);</span>
+<span class="nc" id="L639">					} catch (RejectedFieldControlInputException e) {</span>
+					}
+				}
+			}
+		}
+
+<span class="fc bfc" id="L645" title="All 2 branches covered.">		if (currentPlugin != null) {</span>
+<span class="pc bpc" id="L646" title="1 of 4 branches missed.">			if (controlInput.getControlData().isNullValueDistinct() &amp;&amp; !currentPlugin.canDisplayDistinctNullValue()) {</span>
+<span class="nc" id="L647">				controlInput = new FieldControlInputProxy(controlInput) {</span>
+					@Override
+					public IFieldControlData getControlData() {
+<span class="nc" id="L650">						return currentPlugin.filterDistinctNullValueControlData(swingRenderer, super.getControlData());</span>
+					}
+				};
+				try {
+<span class="nc" id="L654">					return new NullablePluginControl(this.swingRenderer, controlInput);</span>
+<span class="nc" id="L655">				} catch (RejectedFieldControlInputException e) {</span>
+				}
+<span class="nc" id="L657">			} else {</span>
+				try {
+					try {
+<span class="fc" id="L660">						return (Component) currentPlugin.createControl(swingRenderer, controlInput);</span>
+<span class="nc" id="L661">					} catch (RejectedFieldControlInputException e) {</span>
+					}
+<span class="nc" id="L663">				} catch (Throwable t) {</span>
+<span class="nc" id="L664">					return createFieldErrorControl(t);</span>
+				}
+			}
+		}
+
+<span class="fc" id="L669">		return null;</span>
+	}
+
+	public Component createFieldErrorControl(final Throwable t) {
+<span class="nc" id="L673">		ErrorDisplayControl result = new ErrorDisplayControl(swingRenderer, this, t);</span>
+<span class="nc" id="L674">		swingRenderer.getReflectionUI().logError(t);</span>
+<span class="nc" id="L675">		return result;</span>
+	}
+
+	protected Map&lt;String, Object&gt; getFieldControlSelectionCriteria(IFieldControlData controlData) {
+<span class="fc" id="L679">		Map&lt;String, Object&gt; result = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L680">		result.put(&quot;typeName&quot;, controlData.getType().getName());</span>
+<span class="fc" id="L681">		result.put(&quot;polymorphic&quot;,</span>
+<span class="fc" id="L682">				PolymorphicControl.isCompatibleWith(controlData.getType(), swingRenderer.getReflectionUI()));</span>
+<span class="fc" id="L683">		result.put(&quot;fieldControlPluginIdentifier&quot;,</span>
+<span class="fc" id="L684">				ReflectionUIUtils.getFieldControlPluginIdentifier(controlData.getType().getSpecificProperties()));</span>
+<span class="fc" id="L685">		result.put(&quot;nullValueDistinct&quot;, controlData.isNullValueDistinct());</span>
+<span class="fc" id="L686">		result.put(&quot;formControlEmbedded&quot;, controlData.isFormControlEmbedded());</span>
+<span class="fc" id="L687">		result.put(&quot;formControlMandatory&quot;, controlData.isFormControlMandatory());</span>
+<span class="fc" id="L688">		return result;</span>
+	}
+
+	public IFieldControlPlugin getCurrentPlugin() {
+<span class="fc" id="L692">		return SwingRendererUtils.getCurrentFieldControlPlugin(swingRenderer,</span>
+<span class="fc" id="L693">				controlData.getType().getSpecificProperties(), this);</span>
+	}
+
+	public boolean showsCaption() {
+<span class="fc bfc" id="L697" title="All 2 branches covered.">		if (((fieldControl instanceof IAdvancedFieldControl)</span>
+<span class="fc bfc" id="L698" title="All 2 branches covered.">				&amp;&amp; ((IAdvancedFieldControl) fieldControl).showsCaption())) {</span>
+<span class="fc" id="L699">			return true;</span>
+		} else {
+<span class="fc" id="L701">			return false;</span>
+		}
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L707">		return &quot;FieldControlPlaceHolder [field=&quot; + field + &quot;, form=&quot; + form + &quot;]&quot;;</span>
+	}
+
+	protected class FieldControlData extends AbstractFieldControlData {
+
+		protected IFieldInfo finalField;
+
+<span class="fc" id="L714">		public FieldControlData(IFieldInfo finalField) {</span>
+<span class="fc" id="L715">			super(swingRenderer.getReflectionUI());</span>
+<span class="fc" id="L716">			this.finalField = finalField;</span>
+<span class="fc" id="L717">		}</span>
+
+		@Override
+		protected Object getObject() {
+<span class="fc" id="L721">			return form.getObject();</span>
+		}
+
+		@Override
+		protected IFieldInfo getField() {
+<span class="fc" id="L726">			return finalField;</span>
+		}
+
+		private FieldControlPlaceHolder getEnclosingInstance() {
+<span class="fc" id="L730">			return FieldControlPlaceHolder.this;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L735">			final int prime = 31;</span>
+<span class="fc" id="L736">			int result = 1;</span>
+<span class="fc" id="L737">			result = prime * result + getEnclosingInstance().hashCode();</span>
+<span class="fc" id="L738">			result = prime * result + super.hashCode();</span>
+<span class="fc" id="L739">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="pc bpc" id="L744" title="1 of 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L745">				return true;</span>
+<span class="pc bpc" id="L746" title="1 of 2 branches missed.">			if (obj == null)</span>
+<span class="fc" id="L747">				return false;</span>
+<span class="nc bnc" id="L748" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L749">				return false;</span>
+<span class="nc" id="L750">			FieldControlData other = (FieldControlData) obj;</span>
+<span class="nc bnc" id="L751" title="All 2 branches missed.">			if (!getEnclosingInstance().equals(other.getEnclosingInstance()))</span>
+<span class="nc" id="L752">				return false;</span>
+<span class="nc bnc" id="L753" title="All 2 branches missed.">			if (!super.equals(other))</span>
+<span class="nc" id="L754">				return false;</span>
+<span class="nc" id="L755">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L760">			return &quot;InitialFieldControlData [of=&quot; + getEnclosingInstance() + &quot;, finalField=&quot; + getField() + &quot;]&quot;;</span>
+		}
+
+	}
+
+	protected class AutoUpdater extends Timer {
+
+		private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L769">		public AutoUpdater() {</span>
+<span class="fc" id="L770">			super(-1, null);</span>
+<span class="fc" id="L771">			setInitialDelay(0);</span>
+<span class="pc bpc" id="L772" title="1 of 2 branches missed.">			if (field.getAutoUpdatePeriodMilliseconds() &gt; Integer.MAX_VALUE) {</span>
+<span class="nc" id="L773">				setDelay(Integer.MAX_VALUE);</span>
+<span class="pc bpc" id="L774" title="1 of 2 branches missed.">			} else if (field.getAutoUpdatePeriodMilliseconds() &lt; Integer.MIN_VALUE) {</span>
+<span class="nc" id="L775">				setDelay(Integer.MIN_VALUE);</span>
+<span class="nc" id="L776">			} else {</span>
+<span class="fc" id="L777">				setDelay((int) field.getAutoUpdatePeriodMilliseconds());</span>
+			}
+<span class="fc" id="L779">			addActionListener(new ActionListener() {</span>
+				@Override
+				public void actionPerformed(ActionEvent e) {
+<span class="fc" id="L782">					executePeriodically();</span>
+<span class="fc" id="L783">				}</span>
+			});
+<span class="fc" id="L785">			setRepeats(true);</span>
+<span class="fc" id="L786">		}</span>
+
+		protected void executePeriodically() {
+<span class="fc bfc" id="L789" title="All 2 branches covered.">			if (isWindowInactive()) {</span>
+<span class="fc" id="L790">				return;</span>
+			}
+<span class="fc" id="L792">			update();</span>
+<span class="fc" id="L793">		}</span>
+
+		protected boolean isWindowInactive() {
+<span class="fc" id="L796">			Window window = SwingUtilities.getWindowAncestor(FieldControlPlaceHolder.this);</span>
+<span class="pc bpc" id="L797" title="1 of 2 branches missed.">			if (window == null) {</span>
+<span class="nc" id="L798">				return true;</span>
+			}
+<span class="fc bfc" id="L800" title="All 2 branches covered.">			if (!SwingRendererUtils.getFrontWindows().contains(window)) {</span>
+<span class="fc" id="L801">				return true;</span>
+			}
+<span class="fc" id="L803">			return false;</span>
+		}
+
+		protected void update() {
+<span class="fc" id="L807">			refreshUI(false);</span>
+<span class="pc bpc" id="L808" title="1 of 2 branches missed.">			if (isLayoutInContainerUpdateNeeded()) {</span>
+<span class="nc" id="L809">				form.updateFieldControlLayoutInContainer(FieldControlPlaceHolder.this);</span>
+			}
+<span class="fc" id="L811">		}</span>
+
+		public String toString() {
+<span class="nc" id="L814">			return &quot;AutoUpdater of &quot; + FieldControlPlaceHolder.this;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

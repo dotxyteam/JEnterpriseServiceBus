@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SpinnerPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">SpinnerPlugin.java</span></div><h1>SpinnerPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.ComponentOrientation;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import javax.swing.BorderFactory;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultFormatter;
+import javax.swing.text.DefaultFormatterFactory;
+
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.ConversionUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.ReschedulableTask;
+
+/**
+ * Field control plugin that allows to use spinners.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L48">public class SpinnerPlugin extends AbstractSimpleCustomizableFieldControlPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L52">		return &quot;Spinner&quot;;</span>
+	}
+
+	@Override
+	protected boolean handles(Class&lt;?&gt; javaType) {
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">		if (javaType.isPrimitive()) {</span>
+<span class="fc" id="L58">			javaType = ClassUtils.primitiveToWrapperClass(javaType);</span>
+		}
+<span class="pc bpc" id="L60" title="2 of 4 branches missed.">		return Number.class.isAssignableFrom(javaType) &amp;&amp; Comparable.class.isAssignableFrom(javaType);</span>
+	}
+
+	@Override
+	public boolean canDisplayDistinctNullValue() {
+<span class="nc" id="L65">		return false;</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="fc" id="L70">		return new SpinnerConfiguration();</span>
+	}
+
+	@Override
+	public Spinner createControl(Object renderer, IFieldControlInput input) {
+<span class="fc" id="L75">		return new Spinner((SwingRenderer) renderer, input);</span>
+	}
+
+	protected static Number parseNumber(String s) {
+		try {
+<span class="fc" id="L80">			return Long.valueOf(s);</span>
+<span class="fc" id="L81">		} catch (NumberFormatException ignore) {</span>
+		}
+		try {
+<span class="fc" id="L84">			return Double.valueOf(s);</span>
+<span class="nc" id="L85">		} catch (NumberFormatException ignore) {</span>
+		}
+<span class="nc" id="L87">		throw new ReflectionUIError(&quot;Cannot convert string to number (long or double): '&quot; + s + &quot;'&quot;);</span>
+	}
+
+<span class="fc" id="L90">	public static class SpinnerConfiguration extends AbstractConfiguration {</span>
+		private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L93">		public String minimum = &quot;0&quot;;</span>
+<span class="fc" id="L94">		public String maximum = &quot;100&quot;;</span>
+<span class="fc" id="L95">		public String stepSize = &quot;1&quot;;</span>
+		public String customNumberFormat;
+
+		public void validate() {
+<span class="nc" id="L99">			parseNumber(minimum);</span>
+<span class="nc" id="L100">			parseNumber(maximum);</span>
+<span class="nc" id="L101">			parseNumber(stepSize);</span>
+<span class="nc" id="L102">		}</span>
+	}
+
+	public class Spinner extends ControlPanel implements IAdvancedFieldControl {
+		private static final long serialVersionUID = 1L;
+
+		protected SwingRenderer swingRenderer;
+		protected IFieldControlInput input;
+		protected IFieldControlData data;
+<span class="fc" id="L111">		protected boolean listenerDisabled = false;</span>
+		protected Class&lt;?&gt; numberClass;
+		protected ReschedulableTask dataUpdateProcess;
+		protected Throwable currentConversionError;
+		protected Throwable currentDataError;
+		protected JSpinner internalSpinner;
+
+		protected SpinnerConfiguration controlCustomization;
+
+<span class="fc" id="L120">		public Spinner(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L121">			this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L122">			this.input = input;</span>
+<span class="fc" id="L123">			this.data = input.getControlData();</span>
+<span class="fc" id="L124">			this.dataUpdateProcess = createDelayedUpdateProcess();</span>
+			try {
+<span class="fc" id="L126">				this.numberClass = swingRenderer.getReflectionUI()</span>
+<span class="fc" id="L127">						.getReflectedClass(input.getControlData().getType().getName());</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">				if (this.numberClass.isPrimitive()) {</span>
+<span class="fc" id="L129">					this.numberClass = ClassUtils.primitiveToWrapperClass(numberClass);</span>
+				}
+<span class="pc" id="L131">			} catch (ClassNotFoundException e1) {</span>
+<span class="nc" id="L132">				throw new ReflectionUIError(e1);</span>
+			}
+<span class="fc" id="L134">			setLayout(new BorderLayout());</span>
+<span class="fc" id="L135">			add(internalSpinner = new JSpinner(), BorderLayout.CENTER);</span>
+<span class="fc" id="L136">			internalSpinner.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);</span>
+<span class="fc" id="L137">			setupEvents();</span>
+<span class="fc" id="L138">			refreshUI(true);</span>
+<span class="fc" id="L139">		}</span>
+
+		protected ReschedulableTask createDelayedUpdateProcess() {
+<span class="fc" id="L142">			return swingRenderer.createDelayedUpdateProcess(this, new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="nc" id="L145">					Spinner.this.commitChanges();</span>
+<span class="nc" id="L146">				}</span>
+<span class="fc" id="L147">			}, 500);</span>
+		}
+
+		protected void setupEvents() {
+<span class="fc" id="L151">			internalSpinner.addChangeListener(new ChangeListener() {</span>
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					try {
+<span class="fc" id="L155">						onSpin();</span>
+<span class="pc" id="L156">					} catch (Throwable t) {</span>
+<span class="nc" id="L157">						swingRenderer.handleException(Spinner.this, t);</span>
+					}
+<span class="fc" id="L159">				}</span>
+			});
+<span class="fc" id="L161">			internalSpinner.addPropertyChangeListener(new PropertyChangeListener() {</span>
+
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+<span class="fc bfc" id="L165" title="All 2 branches covered.">					if (&quot;editor&quot;.equals(evt.getPropertyName())) {</span>
+<span class="fc" id="L166">						JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) internalSpinner.getEditor();</span>
+<span class="fc" id="L167">						final JFormattedTextField textField = (JFormattedTextField) editor.getTextField();</span>
+<span class="fc" id="L168">						textField.setFormatterFactory(new DefaultFormatterFactory(getNumberFormatter()));</span>
+<span class="fc" id="L169">						textField.setHorizontalAlignment(JTextField.LEFT);</span>
+<span class="fc" id="L170">						textField.getDocument().addDocumentListener(new DocumentListener() {</span>
+
+							private void anyUpdate() {
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">								if (listenerDisabled) {</span>
+<span class="fc" id="L174">									return;</span>
+								}
+<span class="nc" id="L176">								SwingUtilities.invokeLater(new Runnable() {</span>
+
+									@SuppressWarnings({ &quot;unchecked&quot;, &quot;rawtypes&quot; })
+									@Override
+									public void run() {
+										try {
+<span class="nc" id="L182">											String string = textField.getText();</span>
+<span class="nc" id="L183">											DefaultFormatter formatter = ((DefaultFormatter) textField.getFormatter());</span>
+											Object value;
+											try {
+<span class="nc" id="L186">												value = formatter.stringToValue(string);</span>
+<span class="nc" id="L187">												SpinnerNumberModel spinnerNumberModel = (SpinnerNumberModel) internalSpinner</span>
+<span class="nc" id="L188">														.getModel();</span>
+<span class="nc" id="L189">												if (((Comparable) value)</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">														.compareTo(spinnerNumberModel.getMaximum()) &gt; 0) {</span>
+<span class="nc" id="L191">													value = spinnerNumberModel.getMaximum();</span>
+<span class="nc" id="L192">													textField.setText(formatter.valueToString(value));</span>
+												}
+<span class="nc" id="L194">												if (((Comparable) value)</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">														.compareTo(spinnerNumberModel.getMinimum()) &lt; 0) {</span>
+<span class="nc" id="L196">													value = spinnerNumberModel.getMinimum();</span>
+<span class="nc" id="L197">													textField.setText(formatter.valueToString(value));</span>
+												}
+<span class="nc" id="L199">												currentConversionError = null;</span>
+<span class="nc" id="L200">											} catch (Throwable t) {</span>
+<span class="nc" id="L201">												currentConversionError = t;</span>
+<span class="nc" id="L202">												return;</span>
+											} finally {
+<span class="nc" id="L204">												updateErrorDisplay();</span>
+											}
+<span class="nc" id="L206">											int caretPosition = textField.getCaretPosition();</span>
+<span class="nc" id="L207">											internalSpinner.setValue(value);</span>
+<span class="nc" id="L208">											textField.setCaretPosition(</span>
+<span class="nc" id="L209">													Math.min(caretPosition, textField.getText().length()));</span>
+<span class="nc" id="L210">										} catch (Throwable t) {</span>
+<span class="nc" id="L211">											swingRenderer.handleException(Spinner.this, t);</span>
+										}
+<span class="nc" id="L213">									}</span>
+								});
+
+<span class="nc" id="L216">							}</span>
+
+							@Override
+							public void removeUpdate(DocumentEvent e) {
+<span class="fc" id="L220">								anyUpdate();</span>
+<span class="fc" id="L221">							}</span>
+
+							@Override
+							public void insertUpdate(DocumentEvent e) {
+<span class="fc" id="L225">								anyUpdate();</span>
+<span class="fc" id="L226">							}</span>
+
+							@Override
+							public void changedUpdate(DocumentEvent e) {
+<span class="nc" id="L230">								anyUpdate();</span>
+<span class="nc" id="L231">							}</span>
+						});
+<span class="fc" id="L233">						textField.addFocusListener(new FocusListener() {</span>
+
+							@Override
+							public void focusLost(FocusEvent e) {
+								try {
+<span class="nc" id="L238">									onFocusLoss();</span>
+<span class="nc" id="L239">								} catch (Throwable t) {</span>
+<span class="nc" id="L240">									swingRenderer.handleException(Spinner.this, t);</span>
+								}
+<span class="nc" id="L242">							}</span>
+
+							@Override
+							public void focusGained(FocusEvent e) {
+<span class="nc" id="L246">							}</span>
+						});
+
+					}
+<span class="fc" id="L250">				}</span>
+			});
+<span class="fc" id="L252">		}</span>
+
+		protected AbstractFormatter getNumberFormatter() {
+			Class&lt;?&gt; javaType;
+			try {
+<span class="fc" id="L257">				javaType = swingRenderer.getReflectionUI()</span>
+<span class="fc" id="L258">						.getReflectedClass(input.getControlData().getType().getName());</span>
+<span class="pc" id="L259">			} catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L260">				throw new ReflectionUIError(e);</span>
+			}
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">			if (javaType.isPrimitive()) {</span>
+<span class="fc" id="L263">				javaType = ClassUtils.primitiveToWrapperClass(javaType);</span>
+			}
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">			NumberFormat numberFormat = (controlCustomization.customNumberFormat == null)</span>
+<span class="fc" id="L266">					? ReflectionUIUtils.getNativeNumberFormat(javaType.asSubclass(Number.class))</span>
+<span class="nc" id="L267">					: new DecimalFormat(controlCustomization.customNumberFormat);</span>
+<span class="fc" id="L268">			return ReflectionUIUtils.getNumberFormatter(numberClass, numberFormat);</span>
+		}
+
+		@SuppressWarnings({ &quot;unchecked&quot;, &quot;rawtypes&quot; })
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="fc" id="L274">			listenerDisabled = true;</span>
+			try {
+<span class="fc bfc" id="L276" title="All 2 branches covered.">				if (refreshStructure) {</span>
+<span class="fc" id="L277">					updateControlConfiguration();</span>
+<span class="fc" id="L278">					Number minimum = getConvertedNumber(controlCustomization.minimum);</span>
+<span class="fc" id="L279">					Number maximum = getConvertedNumber(controlCustomization.maximum);</span>
+<span class="fc" id="L280">					Number stepSize = getConvertedNumber(controlCustomization.stepSize);</span>
+<span class="fc" id="L281">					Number value = minimum;</span>
+<span class="fc" id="L282">					internalSpinner.setModel(</span>
+<span class="fc" id="L283">							new SpinnerNumberModel(value, (Comparable&lt;?&gt;) minimum, (Comparable&lt;?&gt;) maximum, stepSize));</span>
+<span class="pc bpc" id="L284" title="1 of 2 branches missed.">					internalSpinner.setEnabled(!data.isGetOnly());</span>
+<span class="fc bfc" id="L285" title="All 2 branches covered.">					if (data.getBorderColor() != null) {</span>
+<span class="fc" id="L286">						setBorder(BorderFactory.createLineBorder(SwingRendererUtils.getColor(data.getBorderColor())));</span>
+<span class="fc" id="L287">					} else {</span>
+<span class="fc" id="L288">						setBorder(new JSpinner().getBorder());</span>
+					}
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">					if (data.isGetOnly()) {</span>
+<span class="nc" id="L291">						internalSpinner.getEditor().getComponent(0)</span>
+<span class="nc" id="L292">								.setBackground(new JSpinner().getEditor().getComponent(0).getBackground());</span>
+<span class="nc" id="L293">						internalSpinner.getEditor().getComponent(0)</span>
+<span class="nc" id="L294">								.setForeground(new JSpinner().getEditor().getComponent(0).getForeground());</span>
+<span class="nc" id="L295">					} else {</span>
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">						if (data.getEditorBackgroundColor() != null) {</span>
+<span class="fc" id="L297">							internalSpinner.getEditor().getComponent(0)</span>
+<span class="fc" id="L298">									.setBackground(SwingRendererUtils.getColor(data.getEditorBackgroundColor()));</span>
+<span class="fc" id="L299">						} else {</span>
+<span class="nc" id="L300">							internalSpinner.getEditor().getComponent(0)</span>
+<span class="nc" id="L301">									.setBackground(new JSpinner().getEditor().getComponent(0).getBackground());</span>
+						}
+<span class="fc bfc" id="L303" title="All 2 branches covered.">						if (data.getEditorForegroundColor() != null) {</span>
+<span class="fc" id="L304">							internalSpinner.getEditor().getComponent(0)</span>
+<span class="fc" id="L305">									.setForeground(SwingRendererUtils.getColor(data.getEditorForegroundColor()));</span>
+<span class="fc" id="L306">						} else {</span>
+<span class="fc" id="L307">							internalSpinner.getEditor().getComponent(0)</span>
+<span class="fc" id="L308">									.setForeground(new JSpinner().getEditor().getComponent(0).getForeground());</span>
+						}
+					}
+<span class="pc bpc" id="L311" title="1 of 2 branches missed.">					if (data.getEditorCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L312">						internalSpinner.getEditor().getComponent(0)</span>
+<span class="nc" id="L313">								.setFont(</span>
+										SwingRendererUtils
+<span class="nc" id="L315">												.loadFontThroughCache(data.getEditorCustomFontResourcePath(),</span>
+<span class="nc" id="L316">														ReflectionUIUtils.getErrorLogListener(</span>
+<span class="nc" id="L317">																swingRenderer.getReflectionUI()),</span>
+<span class="nc" id="L318">														swingRenderer)</span>
+<span class="nc" id="L319">												.deriveFont(</span>
+<span class="nc" id="L320">														internalSpinner.getEditor().getComponent(0).getFont()</span>
+<span class="nc" id="L321">																.getStyle(),</span>
+<span class="nc" id="L322">														internalSpinner.getEditor().getComponent(0).getFont()</span>
+<span class="nc" id="L323">																.getSize()));</span>
+<span class="nc" id="L324">					} else {</span>
+<span class="fc" id="L325">						internalSpinner.getEditor().getComponent(0).setFont(new JFormattedTextField().getFont());</span>
+					}
+				}
+<span class="pc bpc" id="L328" title="1 of 2 branches missed.">				if (dataUpdateProcess.isActive()) {</span>
+					/*
+					 * If a change is pending, the refresh can then be aborted, as it will be
+					 * performed later after the change is committed. Note that refreshing the
+					 * control would have deleted the new control value before it was committed.
+					 */
+<span class="nc" id="L334">					return true;</span>
+				}
+<span class="fc" id="L336">				SpinnerNumberModel spinnerNumberModel = (SpinnerNumberModel) internalSpinner.getModel();</span>
+<span class="fc" id="L337">				Number value = (Number) data.getValue();</span>
+<span class="pc bpc" id="L338" title="1 of 2 branches missed.">				if (value == null) {</span>
+<span class="nc" id="L339">					value = (Number) spinnerNumberModel.getMinimum();</span>
+				}
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">				if (((Comparable) value).compareTo(spinnerNumberModel.getMaximum()) &gt; 0) {</span>
+<span class="nc" id="L342">					throw new ReflectionUIError(&quot;The value is greater than the maximum value: &quot; + value + &quot; &gt; &quot;</span>
+<span class="nc" id="L343">							+ spinnerNumberModel.getMaximum());</span>
+				}
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">				if (((Comparable) value).compareTo(spinnerNumberModel.getMinimum()) &lt; 0) {</span>
+<span class="nc" id="L346">					throw new ReflectionUIError(&quot;The value is less than the minimum value: &quot; + value + &quot; &lt; &quot;</span>
+<span class="nc" id="L347">							+ spinnerNumberModel.getMinimum());</span>
+				}
+<span class="fc" id="L349">				currentConversionError = null;</span>
+<span class="fc" id="L350">				updateErrorDisplay();</span>
+<span class="fc" id="L351">				internalSpinner.setValue(value);</span>
+<span class="fc" id="L352">				return true;</span>
+			} finally {
+<span class="fc" id="L354">				listenerDisabled = false;</span>
+			}
+		}
+
+		protected void updateControlConfiguration() {
+<span class="fc" id="L359">			controlCustomization = (SpinnerConfiguration) loadControlCustomization(input);</span>
+<span class="fc" id="L360">		}</span>
+
+		protected Number getConvertedNumber(String s) {
+<span class="fc" id="L363">			Number result = parseNumber(s);</span>
+<span class="fc" id="L364">			result = ConversionUtils.convertNumberToTargetClass(result, numberClass);</span>
+<span class="fc" id="L365">			return result;</span>
+		}
+
+		protected void updateErrorDisplay() {
+<span class="fc" id="L369">			JSpinner.DefaultEditor editor = (JSpinner.DefaultEditor) internalSpinner.getEditor();</span>
+<span class="fc" id="L370">			final JFormattedTextField textField = (JFormattedTextField) editor.getTextField();</span>
+<span class="pc bpc" id="L371" title="1 of 2 branches missed.">			if (currentConversionError != null) {</span>
+<span class="nc" id="L372">				SwingRendererUtils.displayErrorOnBorderAndTooltip(this, textField, currentConversionError,</span>
+<span class="nc" id="L373">						swingRenderer);</span>
+<span class="nc" id="L374">				return;</span>
+			}
+<span class="pc bpc" id="L376" title="1 of 2 branches missed.">			if (currentDataError != null) {</span>
+<span class="nc" id="L377">				SwingRendererUtils.displayErrorOnBorderAndTooltip(this, textField, currentDataError,</span>
+<span class="nc" id="L378">						swingRenderer);</span>
+<span class="nc" id="L379">				return;</span>
+			}
+<span class="fc" id="L381">			SwingRendererUtils.displayErrorOnBorderAndTooltip(this, textField, null, swingRenderer);</span>
+<span class="fc" id="L382">		}</span>
+
+		@Override
+		public boolean displayError(Throwable error) {
+<span class="nc" id="L386">			currentDataError = error;</span>
+<span class="nc" id="L387">			updateErrorDisplay();</span>
+<span class="nc" id="L388">			return true;</span>
+		}
+
+		@Override
+		public boolean showsCaption() {
+<span class="fc" id="L393">			return false;</span>
+		}
+
+		protected void onSpin() {
+<span class="pc bpc" id="L397" title="1 of 2 branches missed.">			if (listenerDisabled) {</span>
+<span class="fc" id="L398">				return;</span>
+			}
+<span class="nc" id="L400">			dataUpdateProcess.reschedule();</span>
+<span class="nc" id="L401">		}</span>
+
+		protected void onFocusLoss() {
+<span class="nc bnc" id="L404" title="All 2 branches missed.">			if (dataUpdateProcess.cancelSchedule()) {</span>
+<span class="nc" id="L405">				commitChanges();</span>
+			}
+<span class="nc" id="L407">		}</span>
+
+		protected void commitChanges() {
+<span class="nc" id="L410">			Object value = ConversionUtils.convertNumberToTargetClass((Number) internalSpinner.getValue(), numberClass);</span>
+<span class="nc" id="L411">			data.setValue(value);</span>
+<span class="nc" id="L412">		}</span>
+
+		@Override
+		public boolean isModificationStackManaged() {
+<span class="nc" id="L416">			return false;</span>
+		}
+
+		@Override
+		public boolean areValueAccessErrorsManaged() {
+<span class="fc" id="L421">			return false;</span>
+		}
+
+		@Override
+		public boolean requestCustomFocus() {
+<span class="pc bpc" id="L426" title="1 of 2 branches missed.">			if (data.isGetOnly()) {</span>
+<span class="nc" id="L427">				return false;</span>
+			}
+<span class="fc bfc" id="L429" title="All 2 branches covered.">			for (Component c : getComponents()) {</span>
+<span class="fc bfc" id="L430" title="All 2 branches covered.">				if (SwingRendererUtils.requestAnyComponentFocus(c, swingRenderer)) {</span>
+<span class="fc" id="L431">					return true;</span>
+				}
+			}
+<span class="fc" id="L434">			return false;</span>
+		}
+
+		@Override
+		public void validateControlData(ValidationSession session) throws Exception {
+<span class="nc" id="L439">		}</span>
+
+		@Override
+		public void addMenuContributions(MenuModel menuModel) {
+<span class="fc" id="L443">		}</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

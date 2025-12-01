@@ -1,0 +1,757 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractEditorFormBuilder.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.builder</a> &gt; <span class="el_source">AbstractEditorFormBuilder.java</span></div><h1>AbstractEditorFormBuilder.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.builder;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.Map;
+
+import javax.swing.SwingUtilities;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.ErrorOccurrence;
+import xy.reflect.ui.control.IContext;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.undo.AbstractSimpleModificationListener;
+import xy.reflect.ui.undo.IModification;
+import xy.reflect.ui.undo.IModificationListener;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.undo.SlaveModificationStack;
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * This is a base class for form-based editor factories.
+ * 
+ * Each instance of this class handles a local value/object according to the
+ * specifications provided through the implementation of the various methods.
+ * 
+ * Note that the local value/object is encapsulated in a virtual parent object
+ * for practical reasons. The editor is thus a form representing this capsule.
+ * 
+ * This class also handles the complex relationship that may exists between the
+ * local value/object and a potential parent object. The parent object form will
+ * typically embed (real-time link) or maintain a detached parent-child
+ * relationship (e.g.: child dialog) with the local value/object form. Note that
+ * the local value/object modifications will be committed to the parent object
+ * and forwarded so that they can be undone or redone through the parent
+ * modification stack.
+ * 
+ * A real-time link with the parent object form can be exclusive, meaning that
+ * the local value/object form is the only child of its parent object form. It
+ * affects the 'undo' management.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L61">public abstract class AbstractEditorFormBuilder {</span>
+
+	protected Object initialObjectValue;
+	protected Object currentObjectValue;
+	protected Object lastObjectValue;
+<span class="fc" id="L66">	protected boolean initialized = false;</span>
+	protected Accessor&lt;Object&gt; encapsulatedObjectValueAccessor;
+
+	/**
+	 * @return the renderer used to create the local value/object form(s).
+	 */
+	public abstract SwingRenderer getSwingRenderer();
+
+	/**
+	 * @return the parent object modification stack or null (if there is no parent
+	 *         object).
+	 */
+	protected abstract ModificationStack getParentModificationStack();
+
+	/**
+	 * @return the title (or the title prefix) of the modification(s) that will be
+	 *         communicated to the parent object modification stack.
+	 */
+	protected abstract String getParentModificationTitle();
+
+	/**
+	 * @return whether the modifications that will be communicated to the parent
+	 *         object modification stack are volatile (see
+	 *         {@link IModification#isVolatile()}) (typically because the source
+	 *         field is transient) or not.
+	 */
+	protected abstract boolean isParentModificationVolatile();
+
+	/**
+	 * @return whether modifications of the local value/object can be committed
+	 *         (using the result of {@link #createCommittingModification(Object)})
+	 *         to make them real for the parent object.
+	 */
+	protected abstract boolean canCommitToParent();
+
+	/**
+	 * @param newObjectValue
+	 * @return a modification (may be null) that will be applied in order to make
+	 *         any local value/object modification real for the parent object.
+	 *         Typically primitive field values would need to be committed (set
+	 *         back) to their parent object after modification.
+	 */
+	protected abstract IModification createCommittingModification(Object newObjectValue);
+
+	/**
+	 * @return a modification (may be null) that will be applied in order to revert
+	 *         modifications of the parent object. If null is returned then the
+	 *         default undo modifications will be used.
+	 */
+	protected abstract IModification createUndoModificationsReplacement();
+
+	/**
+	 * Processes exceptions thrown when the local value/object is committed to the
+	 * parent object through a real-time link.
+	 * 
+	 * @param t The thrown exception.
+	 */
+	protected abstract void handleRealtimeLinkCommitException(Throwable t);
+
+	/**
+	 * @return the source of the type information that will be used to handle the
+	 *         local value/object. If null is returned then this type information
+	 *         source will be dynamically inferred from the local value/object.
+	 */
+	protected abstract ITypeInfoSource getEncapsulatedFieldDeclaredTypeSource();
+
+	/**
+	 * @return the return mode (from the parent object) of the local value/object.
+	 */
+	protected abstract ValueReturnMode getReturnModeFromParent();
+
+	/**
+	 * @return true if and only if the null value can be set and then must be
+	 *         distinctly displayed.
+	 */
+	protected abstract boolean isNullValueDistinct();
+
+	/**
+	 * @return the initial local object/value.
+	 */
+	protected abstract Object loadValue();
+
+	/**
+	 * @return an object that will be used to uniquely name the capsule type (may be
+	 *         null).
+	 */
+	protected abstract IContext getContext();
+
+	/**
+	 * @return an secondary object that will be used to uniquely name the capsule
+	 *         type (may be null).
+	 */
+	protected abstract IContext getSubContext();
+
+	/**
+	 * Ensures that the initial local value/object has been acquired.
+	 */
+	protected void ensureIsInitialized() {
+<span class="fc bfc" id="L164" title="All 2 branches covered.">		if (initialized) {</span>
+<span class="fc" id="L165">			return;</span>
+		}
+<span class="fc" id="L167">		encapsulatedObjectValueAccessor = new Accessor&lt;Object&gt;() {</span>
+			{
+<span class="fc" id="L169">				currentObjectValue = ErrorOccurrence.tryCatch(new Accessor&lt;Object&gt;() {</span>
+					@Override
+					public Object get() {
+<span class="fc" id="L172">						lastObjectValue = (initialObjectValue = null);</span>
+<span class="fc" id="L173">						return lastObjectValue = (initialObjectValue = loadValue());</span>
+					}
+				});
+			}
+
+			@Override
+			public Object get() {
+<span class="fc" id="L180">				return ErrorOccurrence.rethrow(currentObjectValue);</span>
+			}
+
+			@Override
+			public void set(Object value) {
+<span class="fc" id="L185">				lastObjectValue = currentObjectValue;</span>
+<span class="fc" id="L186">				currentObjectValue = value;</span>
+<span class="fc" id="L187">			}</span>
+
+		};
+<span class="fc" id="L190">		initialized = true;</span>
+<span class="fc" id="L191">	}</span>
+
+	/**
+	 * @return whether the initial local value/object has been acquired or not.
+	 */
+	public boolean isInitialized() {
+<span class="nc" id="L197">		return initialized;</span>
+	}
+
+	/**
+	 * @return whether the local object/value reference has changed. Typically
+	 *         immutable objects like primitive wrappers would be replaced on every
+	 *         modification.
+	 */
+	public boolean isValueReplaced() {
+<span class="fc bfc" id="L206" title="All 2 branches covered.">		return getCurrentValue() != lastObjectValue;</span>
+	}
+
+	/**
+	 * @return the current local object/value.
+	 */
+	public Object getCurrentValue() {
+<span class="fc" id="L213">		ensureIsInitialized();</span>
+<span class="fc" id="L214">		return encapsulatedObjectValueAccessor.get();</span>
+	}
+
+	/**
+	 * @return a new capsule holding the local value/object.
+	 */
+	public Object getNewCapsule() {
+<span class="fc" id="L221">		ensureIsInitialized();</span>
+<span class="fc" id="L222">		return createEncapsulation().getInstance(encapsulatedObjectValueAccessor);</span>
+	}
+
+	/**
+	 * @return the name of the capsule type.
+	 */
+	protected String getCapsuleTypeName() {
+		String contextDeclaraion;
+		{
+<span class="fc" id="L231">			IContext context = getContext();</span>
+<span class="fc bfc" id="L232" title="All 2 branches covered.">			if (context == null) {</span>
+<span class="fc" id="L233">				contextDeclaraion = &quot;&quot;;</span>
+<span class="fc" id="L234">			} else {</span>
+<span class="fc" id="L235">				contextDeclaraion = &quot;context=&quot; + context.getIdentifier() + &quot;, &quot;;</span>
+			}
+		}
+		String subContextDeclaraion;
+		{
+<span class="fc" id="L240">			IContext subContext = getSubContext();</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">			if (subContext == null) {</span>
+<span class="fc" id="L242">				subContextDeclaraion = &quot;&quot;;</span>
+<span class="fc" id="L243">			} else {</span>
+<span class="fc" id="L244">				subContextDeclaraion = &quot;subContext=&quot; + subContext.getIdentifier() + &quot;, &quot;;</span>
+			}
+		}
+<span class="fc" id="L247">		return &quot;Encapsulation [&quot; + contextDeclaraion + subContextDeclaraion + &quot;encapsulatedObjectType=&quot;</span>
+<span class="fc" id="L248">				+ getSwingRenderer().getReflectionUI().getTypeInfo(getEncapsulatedFieldTypeSource()).getName() + &quot;]&quot;;</span>
+	}
+
+	/**
+	 * @return the local value/object capsule factory.
+	 */
+	public EncapsulatedObjectFactory createEncapsulation() {
+<span class="fc" id="L255">		return new EditorEncapsulation();</span>
+	}
+
+	/**
+	 * @return a form filter that will used (in case the local value/object is
+	 *         represented by a generic form control).
+	 */
+	protected abstract IInfoFilter getEncapsulatedFormFilter();
+
+	/**
+	 * @return whether the local object/value form is embedded in the editor control
+	 *         or displayed in a child dialog. Note that this method has no impact
+	 *         in case the local value/object is not represented by a generic form
+	 *         control.
+	 */
+	protected abstract boolean isEncapsulatedFormEmbedded();
+
+	/**
+	 * @return whether validation errors should be checked for the local
+	 *         object/value.
+	 */
+	protected abstract boolean isEncapsulatedisControlValueValiditionEnabled();
+
+	/**
+	 * @return true if the local value/object must be displayed as a generic form
+	 *         (not a custom control).
+	 */
+	protected boolean isCustomEncapsulatedControlForbidden() {
+<span class="fc" id="L283">		return false;</span>
+	}
+
+	/**
+	 * @return the name of the encapsulated virtual field that will return local
+	 *         value/object.
+	 */
+	protected String getEncapsulatedFieldName() {
+<span class="fc" id="L291">		return &quot;&quot;;</span>
+	}
+
+	/**
+	 * @return the specific properties of the encapsulated field information.
+	 */
+	protected Map&lt;String, Object&gt; getEncapsulatedFieldSpecificProperties() {
+<span class="fc" id="L298">		return Collections.emptyMap();</span>
+	}
+
+	/**
+	 * @return the encapsulated field value return mode.
+	 *         {@link ValueReturnMode.#DIRECT} ({@link ValueReturnMode.#CALCULATED}
+	 *         for primitives) is returned by default, since this encapsulated field
+	 *         value is hosted by the {@link #encapsulatedObjectValueAccessor} and
+	 *         accessed directly.
+	 */
+	protected ValueReturnMode getEncapsulatedFieldValueReturnMode() {
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">		return getSwingRenderer().getReflectionUI().getTypeInfo(getEncapsulatedFieldTypeSource()).isPrimitive()</span>
+<span class="nc" id="L310">				? ValueReturnMode.CALCULATED</span>
+<span class="fc" id="L311">				: ValueReturnMode.DIRECT;</span>
+	}
+
+	/**
+	 * @return whether the encapsulated field value has options. If true then
+	 *         {@link #getEncapsulatedFieldValueOptions()} must not return null.
+	 */
+	protected boolean hasEncapsulatedFieldValueOptions() {
+<span class="fc" id="L319">		return false;</span>
+	}
+
+	/**
+	 * @return the encapsulated field value options. If
+	 *         {@link #hasEncapsulatedFieldValueOptions()} returns true then this
+	 *         method must not return null.
+	 */
+	protected Object[] getEncapsulatedFieldValueOptions() {
+<span class="nc" id="L328">		return null;</span>
+	}
+
+	/**
+	 * @return whether the encapsulated field is get-only. Note that an encapsulated
+	 *         get-only field does not prevent all modifications. The encapsulated
+	 *         field value may be modified and these modifications may be volatile
+	 *         (for calculated values, copies, ..) or persistent even if the new
+	 *         encapsulated field value is not set.
+	 */
+	protected boolean isEncapsulatedFieldGetOnly() {
+<span class="fc bfc" id="L339" title="All 6 branches covered.">		return isInReadOnlyMode() || (hasParentObject() &amp;&amp; !canCommitToParent());</span>
+	}
+
+	/**
+	 * @return the caption of the encapsulated virtual field that will return local
+	 *         value/object.
+	 */
+	protected String getEncapsulatedFieldCaption() {
+<span class="fc" id="L347">		return &quot;&quot;;</span>
+	}
+
+	/**
+	 * @return the source of the type information that is used to qualify the
+	 *         encapsulated virtual field that returns the local value/object.
+	 */
+	protected ITypeInfoSource getEncapsulatedFieldTypeSource() {
+<span class="fc" id="L355">		ITypeInfoSource result = getEncapsulatedFieldDeclaredTypeSource();</span>
+<span class="fc bfc" id="L356" title="All 2 branches covered.">		if (result != null) {</span>
+<span class="fc" id="L357">			return result;</span>
+		}
+<span class="fc" id="L359">		ensureIsInitialized();</span>
+<span class="pc bpc" id="L360" title="1 of 2 branches missed.">		if (initialObjectValue != null) {</span>
+<span class="fc" id="L361">			return getSwingRenderer().getReflectionUI().getTypeInfoSource(initialObjectValue);</span>
+		}
+<span class="nc" id="L363">		return new JavaTypeInfoSource(Object.class, null);</span>
+	}
+
+	/**
+	 * @return whether the editor value is reloaded and its control refreshed every
+	 *         time a modification of the local value/object is detected. It
+	 *         typically allows to keep a calculated read-only local value/object
+	 *         coherent by resetting it whenever it is modified.
+	 */
+	protected boolean isValueReloadedOnModification() {
+<span class="fc" id="L373">		return isInReadOnlyMode();</span>
+	}
+
+	/**
+	 * @return true if the local value/object modifications does not impact the
+	 *         parent object. If there is no parent object then false should be
+	 *         returned.
+	 */
+	protected boolean isInReadOnlyMode() {
+<span class="fc bfc" id="L382" title="All 4 branches covered.">		return hasParentObject() ? !mayModifyParentObject() : false;</span>
+	}
+
+	/**
+	 * @return whether the editor control is empty or not. It can be checked before
+	 *         actually creating the editor control.
+	 */
+	public boolean isFormEmpty() {
+<span class="fc" id="L390">		Object capsule = getNewCapsule();</span>
+<span class="fc" id="L391">		ITypeInfo capsuleType = getSwingRenderer().getReflectionUI()</span>
+<span class="fc" id="L392">				.getTypeInfo(getSwingRenderer().getReflectionUI().getTypeInfoSource(capsule));</span>
+<span class="fc" id="L393">		IFieldInfo encapsulatedField = capsuleType.getFields().get(0);</span>
+<span class="pc bpc" id="L394" title="1 of 2 branches missed.">		if (encapsulatedField.isNullValueDistinct()) {</span>
+<span class="nc" id="L395">			return false;</span>
+		}
+<span class="fc" id="L397">		Object object = getCurrentValue();</span>
+<span class="pc bpc" id="L398" title="1 of 2 branches missed.">		if (object == null) {</span>
+<span class="nc" id="L399">			return false;</span>
+		}
+<span class="fc" id="L401">		ITypeInfo actualObjectType = getSwingRenderer().getReflectionUI()</span>
+<span class="fc" id="L402">				.getTypeInfo(getSwingRenderer().getReflectionUI().getTypeInfoSource(object));</span>
+<span class="pc bpc" id="L403" title="1 of 2 branches missed.">		if (!ReflectionUIUtils.isTypeEmpty(actualObjectType, getEncapsulatedFormFilter())) {</span>
+<span class="fc" id="L404">			return false;</span>
+		}
+<span class="nc" id="L406">		return true;</span>
+	}
+
+	/**
+	 * Creates and return the editor control.
+	 * 
+	 * @param realTimeLinkWithParent  Whether a real-time link should be maintained
+	 *                                with the parent object.
+	 * @param exclusiveLinkWithParent Whether the real-time link with the parent
+	 *                                object (if existing) should be exclusive or
+	 *                                not.
+	 * @return the created editor control.
+	 */
+	public Form createEditorForm(boolean realTimeLinkWithParent, boolean exclusiveLinkWithParent) {
+<span class="fc" id="L420">		Object capsule = getNewCapsule();</span>
+<span class="fc" id="L421">		Form result = getSwingRenderer().createForm(capsule);</span>
+<span class="fc" id="L422">		setupLinkWithParent(result, realTimeLinkWithParent, exclusiveLinkWithParent);</span>
+<span class="fc" id="L423">		return result;</span>
+	}
+
+	/**
+	 * Reloads the local object/value and refreshes the editor control.
+	 * 
+	 * @param editorForm       The created editor control.
+	 * @param refreshStructure Whether the editor control should update its
+	 *                         structure to reflect the recent meta-data changes
+	 *                         (mainly used in design mode).
+	 */
+	public void reloadValue(Form editorForm, boolean refreshStructure) {
+<span class="fc bfc" id="L435" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc" id="L436">			initialized = false;</span>
+<span class="fc" id="L437">			ensureIsInitialized();</span>
+<span class="fc" id="L438">			editorForm.setObject(getNewCapsule());</span>
+<span class="fc" id="L439">		} else {</span>
+<span class="fc" id="L440">			ensureIsInitialized();</span>
+<span class="fc" id="L441">			Object oldValue = ErrorOccurrence.tryCatch(new Accessor&lt;Object&gt;() {</span>
+				@Override
+				public Object get() {
+<span class="fc" id="L444">					return encapsulatedObjectValueAccessor.get();</span>
+				}
+			});
+<span class="fc" id="L447">			Object newValue = ErrorOccurrence.tryCatch(new Accessor&lt;Object&gt;() {</span>
+				@Override
+				public Object get() {
+<span class="fc" id="L450">					return loadValue();</span>
+				}
+			});
+<span class="fc bfc" id="L453" title="All 2 branches covered.">			if (oldValue != newValue) {</span>
+<span class="fc" id="L454">				encapsulatedObjectValueAccessor.set(newValue);</span>
+<span class="fc" id="L455">				refreshStructure = true;</span>
+<span class="fc" id="L456">				ReflectionUI reflectionUI = getSwingRenderer().getReflectionUI();</span>
+<span class="pc bpc" id="L457" title="1 of 2 branches missed.">				ITypeInfo oldValueType = (oldValue == null) ? null</span>
+<span class="fc" id="L458">						: reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(oldValue));</span>
+<span class="pc bpc" id="L459" title="1 of 2 branches missed.">				ITypeInfo newValueType = (newValue == null) ? null</span>
+<span class="fc" id="L460">						: reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(newValue));</span>
+<span class="fc bfc" id="L461" title="All 2 branches covered.">				if (MiscUtils.equalsOrBothNull(oldValueType, newValueType)) {</span>
+<span class="fc" id="L462">					EncapsulatedObjectFactory oldEncapsulation = ((EncapsulatedObjectFactory.TypeInfo) ((PrecomputedTypeInstanceWrapper) editorForm</span>
+<span class="fc" id="L463">							.getObject()).getPrecomputedType()).getFactory();</span>
+<span class="fc" id="L464">					EncapsulatedObjectFactory newEncapsulation = ((EncapsulatedObjectFactory.TypeInfo) ((PrecomputedTypeInstanceWrapper) getNewCapsule())</span>
+<span class="fc" id="L465">							.getPrecomputedType()).getFactory();</span>
+<span class="pc bpc" id="L466" title="1 of 2 branches missed.">					if (oldEncapsulation.equals(newEncapsulation)) {</span>
+<span class="fc" id="L467">						refreshStructure = false;</span>
+					}
+				}
+<span class="fc bfc" id="L470" title="All 2 branches covered.">				if (refreshStructure) {</span>
+<span class="fc" id="L471">					editorForm.setObject(getNewCapsule());</span>
+				}
+			}
+		}
+<span class="fc" id="L475">		editorForm.refresh(refreshStructure);</span>
+<span class="fc" id="L476">	}</span>
+
+	/**
+	 * Installs the link between the local value/object editor control and its
+	 * parent object form.
+	 * 
+	 * @param editorForm              The created local value/object editor control.
+	 * @param realTimeLinkWithParent  Whether a real-time link should be maintained
+	 *                                with the parent object.
+	 * @param exclusiveLinkWithParent Whether the real-time link with the parent
+	 *                                object (if existing) should be exclusive or
+	 *                                not.
+	 */
+	protected void setupLinkWithParent(Form editorForm, boolean realTimeLinkWithParent,
+			boolean exclusiveLinkWithParent) {
+<span class="fc bfc" id="L491" title="All 2 branches covered.">		if (realTimeLinkWithParent) {</span>
+<span class="fc bfc" id="L492" title="All 2 branches covered.">			if (mayModifyParentObject()) {</span>
+<span class="fc" id="L493">				forwardEditorFormModificationsToParentObject(editorForm, exclusiveLinkWithParent);</span>
+			}
+<span class="fc bfc" id="L495" title="All 2 branches covered.">			if (isValueReloadedOnModification()) {</span>
+<span class="fc" id="L496">				reloadValueOnModification(editorForm);</span>
+			}
+		}
+<span class="fc" id="L499">	}</span>
+
+	/**
+	 * @return whether the local value/object has a parent object or not.
+	 */
+	protected boolean hasParentObject() {
+<span class="fc bfc" id="L505" title="All 2 branches covered.">		return getParentModificationStack() != null;</span>
+	}
+
+	/**
+	 * @return whether modifications of the local value/object may impact the parent
+	 *         object.
+	 */
+	public boolean mayModifyParentObject() {
+<span class="pc bpc" id="L513" title="1 of 2 branches missed.">		if (!hasParentObject()) {</span>
+<span class="nc" id="L514">			return false;</span>
+		}
+<span class="fc" id="L516">		ensureIsInitialized();</span>
+<span class="fc" id="L517">		return ReflectionUIUtils.mayModificationsHaveImpact(isValueKnownAsImmutable(), getReturnModeFromParent(),</span>
+<span class="fc" id="L518">				canCommitToParent());</span>
+	}
+
+	/**
+	 * @return whether the local value/object can be modified or not. If there is a
+	 *         doubt then false should be returned.
+	 */
+	protected boolean isValueKnownAsImmutable() {
+<span class="fc" id="L526">		return ReflectionUIUtils.isValueImmutable(getSwingRenderer().getReflectionUI(), initialObjectValue);</span>
+	}
+
+	/**
+	 * Installs a listener that will trigger the editor value reloading and control
+	 * refreshing whenever a modification of the local value/object is detected.
+	 * 
+	 * @param editorForm The created editor control.
+	 */
+	protected void reloadValueOnModification(final Form editorForm) {
+<span class="fc" id="L536">		ModificationStack childModificationStack = editorForm.getModificationStack();</span>
+<span class="fc" id="L537">		childModificationStack.addListener(new AbstractSimpleModificationListener() {</span>
+			@Override
+			protected void handleAnyEvent(IModification modification) {
+<span class="nc" id="L540">				reloadValue(editorForm, false);</span>
+<span class="nc" id="L541">			}</span>
+		});
+<span class="fc" id="L543">	}</span>
+
+	/**
+	 * @param value The new local value.
+	 * @return whether the new local value passed as argument should be integrated
+	 *         in the parent object or not, typically because it was accepted or
+	 *         rejected by a user.
+	 */
+	protected boolean shouldIntegrateNewObjectValue(Object value) {
+<span class="fc" id="L552">		return true;</span>
+	}
+
+	/**
+	 * Installs on the editor control a listener that will forward the local
+	 * value/object modifications to the parent object modification stack.
+	 * 
+	 * @param editorForm              The created editor control.
+	 * @param exclusiveLinkWithParent Whether the real-time link with the parent
+	 *                                object (if existing) is exclusive or not.
+	 */
+	protected void forwardEditorFormModificationsToParentObject(final Form editorForm,
+			boolean exclusiveLinkWithParent) {
+<span class="fc" id="L565">		Accessor&lt;Boolean&gt; childModifAcceptedGetter = new Accessor&lt;Boolean&gt;() {</span>
+			@Override
+			public Boolean get() {
+<span class="fc" id="L568">				return shouldIntegrateNewObjectValue(getCurrentValue());</span>
+			}
+		};
+<span class="fc" id="L571">		Accessor&lt;ValueReturnMode&gt; childValueReturnModeGetter = new Accessor&lt;ValueReturnMode&gt;() {</span>
+			@Override
+			public ValueReturnMode get() {
+<span class="fc" id="L574">				return getReturnModeFromParent();</span>
+			}
+		};
+<span class="fc" id="L577">		Accessor&lt;Boolean&gt; childValueReplacedGetter = new Accessor&lt;Boolean&gt;() {</span>
+			@Override
+			public Boolean get() {
+<span class="fc" id="L580">				return isValueReplaced();</span>
+			}
+		};
+<span class="fc" id="L583">		Accessor&lt;Boolean&gt; childValueTransactionExecutedGetter = Accessor.returning(false);</span>
+<span class="fc" id="L584">		Accessor&lt;IModification&gt; committingModifGetter = new Accessor&lt;IModification&gt;() {</span>
+			@Override
+			public IModification get() {
+<span class="fc bfc" id="L587" title="All 2 branches covered.">				if (!canCommitToParent()) {</span>
+<span class="fc" id="L588">					return null;</span>
+				}
+<span class="fc" id="L590">				return createCommittingModification(getCurrentValue());</span>
+			}
+		};
+<span class="fc" id="L593">		Accessor&lt;IModification&gt; undoModificationsReplacementGetter = new Accessor&lt;IModification&gt;() {</span>
+			@Override
+			public IModification get() {
+<span class="fc" id="L596">				return createUndoModificationsReplacement();</span>
+			}
+		};
+<span class="fc" id="L599">		Accessor&lt;String&gt; masterModifTitleGetter = new Accessor&lt;String&gt;() {</span>
+			@Override
+			public String get() {
+<span class="fc" id="L602">				return getParentModificationTitle();</span>
+			}
+		};
+<span class="fc" id="L605">		Accessor&lt;ModificationStack&gt; masterModifStackGetter = new Accessor&lt;ModificationStack&gt;() {</span>
+			@Override
+			public ModificationStack get() {
+<span class="fc" id="L608">				ModificationStack result = getParentModificationStack();</span>
+<span class="pc bpc" id="L609" title="1 of 2 branches missed.">				if (result == null) {</span>
+<span class="nc" id="L610">					throw new ReflectionUIError();</span>
+				}
+<span class="fc" id="L612">				return result;</span>
+			}
+		};
+<span class="fc" id="L615">		Accessor&lt;Boolean&gt; masterModifVolatileGetter = new Accessor&lt;Boolean&gt;() {</span>
+			@Override
+			public Boolean get() {
+<span class="fc" id="L618">				return isParentModificationVolatile();</span>
+			}
+		};
+<span class="fc" id="L621">		Listener&lt;Throwable&gt; masterModificationExceptionListener = new Listener&lt;Throwable&gt;() {</span>
+			@Override
+			public void handle(Throwable t) {
+<span class="nc" id="L624">				handleRealtimeLinkCommitException(t);</span>
+<span class="nc" id="L625">			}</span>
+		};
+<span class="fc" id="L627">		SlaveModificationStack slaveModificationStack = new SlaveModificationStack(editorForm.toString(),</span>
+<span class="fc" id="L628">				childModifAcceptedGetter, childValueReturnModeGetter, childValueReplacedGetter,</span>
+<span class="fc" id="L629">				childValueTransactionExecutedGetter, committingModifGetter, undoModificationsReplacementGetter,</span>
+<span class="fc" id="L630">				masterModifTitleGetter, masterModifStackGetter, masterModifVolatileGetter, exclusiveLinkWithParent,</span>
+<span class="fc" id="L631">				ReflectionUIUtils.getDebugLogListener(getSwingRenderer().getReflectionUI()),</span>
+<span class="fc" id="L632">				ReflectionUIUtils.getErrorLogListener(getSwingRenderer().getReflectionUI()),</span>
+<span class="fc" id="L633">				masterModificationExceptionListener);</span>
+<span class="pc bpc" id="L634" title="1 of 2 branches missed.">		if (editorForm.getModificationStack() != null) {</span>
+<span class="fc bfc" id="L635" title="All 2 branches covered.">			for (IModificationListener listener : editorForm.getModificationStack().getListeners()) {</span>
+<span class="fc" id="L636">				slaveModificationStack.addSlaveListener(listener);</span>
+			}
+		}
+<span class="fc" id="L639">		editorForm.setModificationStack(slaveModificationStack);</span>
+<span class="fc" id="L640">	}</span>
+
+	/**
+	 * Validates the local value/object form data preferably without using an actual
+	 * form.
+	 * 
+	 * The validation is performed by the job returned by
+	 * {@link #getValueAbstractFormValidationJob()} if not null. Otherwise the
+	 * validation is done by using either the
+	 * {@link ITypeInfo#validate(Object, ValidationSession)} method associated with
+	 * the current local value/object when this validation is equivalent to a
+	 * form-based validation (there is no specific control-based validation), or by
+	 * using a temporary concrete form that will orchestrate the validation.
+	 * 
+	 * @param session If the state of the underlying object is not valid.
+	 * @throws Exception If the state of the underlying object is not valid.
+	 */
+	public void performHeadlessFormValidation(ValidationSession session) throws Exception {
+<span class="fc" id="L658">		SwingRenderer swingRenderer = getSwingRenderer();</span>
+		IValidationJob validationJob;
+<span class="fc" id="L660">		IValidationJob abstractFormValidationJob = getValueAbstractFormValidationJob();</span>
+<span class="fc bfc" id="L661" title="All 2 branches covered.">		if (abstractFormValidationJob == null) {</span>
+<span class="fc" id="L662">			ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+			final ITypeInfo valueType;
+<span class="pc bpc" id="L664" title="1 of 2 branches missed.">			if (getCurrentValue() == null) {</span>
+<span class="nc" id="L665">				valueType = reflectionUI.getTypeInfo(getEncapsulatedFieldTypeSource());</span>
+<span class="nc" id="L666">			} else {</span>
+<span class="fc" id="L667">				valueType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(getCurrentValue()));</span>
+			}
+<span class="fc" id="L669">			IInfoFilter formFilter = getEncapsulatedFormFilter();</span>
+<span class="fc" id="L670">			if (!valueType.getFields().stream()</span>
+<span class="pc bpc" id="L671" title="1 of 6 branches missed.">					.anyMatch(field -&gt; (formFilter.apply(field) != null) &amp;&amp; field.isControlValueValiditionEnabled())</span>
+<span class="pc bpc" id="L672" title="1 of 2 branches missed.">					&amp;&amp; !valueType.getMethods().stream().anyMatch(method -&gt; (formFilter.apply(method) != null)</span>
+<span class="pc bpc" id="L673" title="2 of 4 branches missed.">							&amp;&amp; method.isControlReturnValueValiditionEnabled())) {</span>
+<span class="fc" id="L674">				abstractFormValidationJob = (sessionArg) -&gt; valueType.validate(getCurrentValue(), sessionArg);</span>
+			}
+		}
+<span class="fc bfc" id="L677" title="All 2 branches covered.">		if (abstractFormValidationJob != null)</span>
+
+		{
+			/*
+			 * Manage validation error attribution since it will not be managed
+			 * automatically through a concrete form validation.
+			 */
+<span class="fc" id="L684">			validationJob = swingRenderer.getReflectionUI().getValidationErrorRegistry().attributing(getCurrentValue(),</span>
+<span class="fc" id="L685">					abstractFormValidationJob,</span>
+<span class="fc" id="L686">					validationError -&gt; swingRenderer.getReflectionUI().logDebug(validationError));</span>
+<span class="fc" id="L687">		} else {</span>
+<span class="fc" id="L688">			Form[] form = new Form[1];</span>
+			try {
+<span class="fc" id="L690">				SwingUtilities.invokeAndWait(new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="fc" id="L693">						form[0] = createEditorForm(false, false);</span>
+<span class="fc" id="L694">					}</span>
+				});
+<span class="pc" id="L696">			} catch (InvocationTargetException e) {</span>
+<span class="nc" id="L697">				throw new ReflectionUIError(e);</span>
+<span class="fc" id="L698">			} catch (InterruptedException e) {</span>
+<span class="fc" id="L699">				Thread.currentThread().interrupt();</span>
+<span class="fc" id="L700">				return;</span>
+			}
+<span class="fc" id="L702">			validationJob = (sessionArg) -&gt; form[0].validateForm(sessionArg);</span>
+		}
+<span class="fc" id="L704">		validationJob.validate(session);</span>
+<span class="fc" id="L705">	}</span>
+
+	/**
+	 * Behaves like {@link IFieldControlData#getValueAbstractFormValidationJob()}.
+	 * 
+	 * @return the value corresponding to the behavior described above. Note that
+	 *         null is returned unless this method is overriden
+	 */
+	protected IValidationJob getValueAbstractFormValidationJob() {
+<span class="nc" id="L714">		return null;</span>
+	}
+
+	/**
+	 * Factory used to encapsulate the local value/object for practical reasons.
+	 * 
+	 * @author olitank
+	 *
+	 */
+	public class EditorEncapsulation extends EncapsulatedObjectFactory {
+
+<span class="fc" id="L725">		public EditorEncapsulation() {</span>
+<span class="fc" id="L726">			super(getSwingRenderer().getReflectionUI(), getCapsuleTypeName(),</span>
+<span class="fc" id="L727">					getSwingRenderer().getReflectionUI().getTypeInfo(getEncapsulatedFieldTypeSource()));</span>
+<span class="fc" id="L728">			setFieldName(getEncapsulatedFieldName());</span>
+<span class="fc" id="L729">			setFieldCaption(getEncapsulatedFieldCaption());</span>
+<span class="fc" id="L730">			setFieldGetOnly(isEncapsulatedFieldGetOnly());</span>
+<span class="fc" id="L731">			setFieldNullValueDistinct(isNullValueDistinct());</span>
+<span class="fc" id="L732">			setFieldValueReturnMode(getEncapsulatedFieldValueReturnMode());</span>
+<span class="fc" id="L733">			setFieldFormControlEmbedded(isEncapsulatedFormEmbedded());</span>
+<span class="fc" id="L734">			setFieldValueValidityDetectionEnabled(isEncapsulatedisControlValueValiditionEnabled());</span>
+<span class="fc" id="L735">			setFieldFormControlFilter(getEncapsulatedFormFilter());</span>
+<span class="fc" id="L736">			setFieldFormControlMandatory(isCustomEncapsulatedControlForbidden());</span>
+<span class="fc" id="L737">			setFieldSpecificProperties(getEncapsulatedFieldSpecificProperties());</span>
+<span class="fc" id="L738">		}</span>
+
+		public AbstractEditorFormBuilder getBuilder() {
+<span class="fc" id="L741">			return AbstractEditorFormBuilder.this;</span>
+		}
+
+		@Override
+		protected boolean hasFieldValueOptions() {
+<span class="fc" id="L746">			return hasEncapsulatedFieldValueOptions();</span>
+		}
+
+		@Override
+		protected Object[] getFieldValueOptions() {
+<span class="nc" id="L751">			return getEncapsulatedFieldValueOptions();</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

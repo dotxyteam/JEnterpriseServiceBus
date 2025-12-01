@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ChangedTypeFieldInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.field</a> &gt; <span class="el_source">ChangedTypeFieldInfo.java</span></div><h1>ChangedTypeFieldInfo.java</h1><pre class="source lang-java linenums">
+
+
+package xy.reflect.ui.info.field;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.method.MethodInfoProxy;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.util.Filter;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Field proxy allowing to change the type by performing the specified value
+ * conversions.
+ * 
+ * @author olitank
+ *
+ */
+public class ChangedTypeFieldInfo extends FieldInfoProxy {
+
+	protected ITypeInfo newType;
+	protected Filter&lt;Object&gt; conversionMethod;
+	protected Filter&lt;Object&gt; reverseConversionMethod;
+	protected boolean nullValueConverted;
+
+	public ChangedTypeFieldInfo(IFieldInfo base, ITypeInfo newType, Filter&lt;Object&gt; conversionMethod,
+			Filter&lt;Object&gt; reverseConversionMethod, boolean nullValueConverted) {
+<span class="fc" id="L32">		super(base);</span>
+<span class="fc" id="L33">		this.newType = newType;</span>
+<span class="fc" id="L34">		this.conversionMethod = conversionMethod;</span>
+<span class="fc" id="L35">		this.reverseConversionMethod = reverseConversionMethod;</span>
+<span class="fc" id="L36">		this.nullValueConverted = nullValueConverted;</span>
+<span class="fc" id="L37">	}</span>
+
+	protected Object convert(Object value) {
+<span class="fc bfc" id="L40" title="All 2 branches covered.">		if (conversionMethod == null) {</span>
+<span class="fc" id="L41">			return value;</span>
+		}
+<span class="fc bfc" id="L43" title="All 2 branches covered.">		if (value == null) {</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">			if (!nullValueConverted) {</span>
+<span class="fc" id="L45">				return null;</span>
+			}
+		}
+		try {
+<span class="fc" id="L49">			return conversionMethod.get(value);</span>
+<span class="nc" id="L50">		} catch (Exception e) {</span>
+<span class="nc" id="L51">			throw new ReflectionUIError(e);</span>
+		}
+	}
+
+	protected Object revertConversion(Object value) {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">		if (reverseConversionMethod == null) {</span>
+<span class="nc" id="L57">			return value;</span>
+		}
+<span class="nc bnc" id="L59" title="All 2 branches missed.">		if (value == null) {</span>
+<span class="nc" id="L60">			return null;</span>
+		}
+		try {
+<span class="nc" id="L63">			return reverseConversionMethod.get(value);</span>
+<span class="nc" id="L64">		} catch (Exception e) {</span>
+<span class="nc" id="L65">			throw new ReflectionUIError(e);</span>
+		}
+	}
+
+	@Override
+	public Object getValue(Object object) {
+<span class="fc" id="L71">		Object value = super.getValue(object);</span>
+<span class="fc" id="L72">		Object result = convert(value);</span>
+<span class="fc" id="L73">		return result;</span>
+	}
+
+	@Override
+	public void setValue(Object object, Object value) {
+<span class="nc" id="L78">		super.setValue(object, revertConversion(value));</span>
+<span class="nc" id="L79">	}</span>
+
+	@Override
+	public Runnable getNextUpdateCustomUndoJob(final Object object, final Object newValue) {
+<span class="nc" id="L83">		return super.getNextUpdateCustomUndoJob(object, revertConversion(newValue));</span>
+	}
+	@Override
+	public Runnable getPreviousUpdateCustomRedoJob(final Object object, final Object newValue) {
+<span class="nc" id="L87">		return super.getPreviousUpdateCustomRedoJob(object, revertConversion(newValue));</span>
+	}
+	@Override
+	public Object[] getValueOptions(Object object) {
+<span class="nc" id="L91">		Object[] result = super.getValueOptions(object);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L93">			return null;</span>
+		}
+<span class="nc" id="L95">		Object[] convertedResult = new Object[result.length];</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		for (int i = 0; i &lt; result.length; i++) {</span>
+<span class="nc" id="L97">			convertedResult[i] = convert(result[i]);</span>
+		}
+<span class="nc" id="L99">		return convertedResult;</span>
+	}
+
+	@Override
+	public ITypeInfo getType() {
+<span class="fc" id="L104">		return newType;</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L109">		List&lt;IMethodInfo&gt; superResult = super.getAlternativeConstructors(object);</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">		if (superResult == null) {</span>
+<span class="fc" id="L111">			return null;</span>
+		}
+<span class="nc" id="L113">		List&lt;IMethodInfo&gt; result = new ArrayList&lt;IMethodInfo&gt;();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">		for (IMethodInfo superCtor : superResult) {</span>
+<span class="nc" id="L115">			result.add(new MethodInfoProxy(superCtor) {</span>
+
+				@Override
+				public ITypeInfo getReturnValueType() {
+<span class="nc" id="L119">					return newType;</span>
+				}
+
+				@Override
+				public Object invoke(Object object, InvocationData invocationData) {
+<span class="nc" id="L124">					return convert(super.invoke(object, invocationData));</span>
+				}
+
+			});
+		}
+<span class="nc" id="L129">		return result;</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="fc" id="L134">		return null;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L139">		final int prime = 31;</span>
+<span class="nc" id="L140">		int result = super.hashCode();</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">		result = prime * result + ((conversionMethod == null) ? 0 : conversionMethod.hashCode());</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">		result = prime * result + ((newType == null) ? 0 : newType.hashCode());</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">		result = prime * result + ((reverseConversionMethod == null) ? 0 : reverseConversionMethod.hashCode());</span>
+<span class="nc" id="L144">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L149" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L150">			return true;</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="nc" id="L152">			return false;</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L154">			return false;</span>
+<span class="nc" id="L155">		ChangedTypeFieldInfo other = (ChangedTypeFieldInfo) obj;</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">		if (conversionMethod == null) {</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">			if (other.conversionMethod != null)</span>
+<span class="nc" id="L158">				return false;</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">		} else if (!conversionMethod.equals(other.conversionMethod))</span>
+<span class="nc" id="L160">			return false;</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">		if (newType == null) {</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">			if (other.newType != null)</span>
+<span class="nc" id="L163">				return false;</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">		} else if (!newType.equals(other.newType))</span>
+<span class="nc" id="L165">			return false;</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">		if (reverseConversionMethod == null) {</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">			if (other.reverseConversionMethod != null)</span>
+<span class="nc" id="L168">				return false;</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">		} else if (!reverseConversionMethod.equals(other.reverseConversionMethod))</span>
+<span class="nc" id="L170">			return false;</span>
+<span class="nc" id="L171">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L176">		return &quot;ChangedTypeField [newType=&quot; + newType + &quot;, conversionMethod=&quot; + conversionMethod</span>
+<span class="nc" id="L177">				+ &quot;, reverseConversionMethod=&quot; + reverseConversionMethod + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TreeVisitor.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.util</a> &gt; <span class="el_source">TreeVisitor.java</span></div><h1>TreeVisitor.java</h1><pre class="source lang-java linenums">package com.otk.jesb.util;
+
+import java.util.function.Function;
+
+/**
+ * Simple generic tree visitor interface.
+ * 
+ * @author olitank
+ *
+ * @param &lt;T&gt; The type of the visited elements.
+ */
+public interface TreeVisitor&lt;T&gt; {
+
+	/**
+	 * Called for each visited element.
+	 * 
+	 * @param t The currently visited element.
+	 * @return the visit status.
+	 */
+	VisitStatus visitNode(T t);
+
+	/**
+	 * Enumeration allowing to express how the visit continuation should be managed.
+	 * 
+	 * @author olitank
+	 *
+	 */
+<span class="fc" id="L28">	public enum VisitStatus {</span>
+
+<span class="fc" id="L30">		/**</span>
+		 * The visit was not or should not be interrupted.
+		 */
+<span class="fc" id="L33">		VISIT_NOT_INTERRUPTED,</span>
+
+<span class="fc" id="L35">		/**</span>
+		 * The subtree visit was or should be stopped, but not the whole tree visit.
+		 */
+<span class="fc" id="L38">		SUBTREE_VISIT_INTERRUPTED,</span>
+
+<span class="fc" id="L40">		/**</span>
+		 * The whole tree visit was or should be stopped.
+		 */
+<span class="fc" id="L43">		TREE_VISIT_INTERRUPTED</span>
+	}
+
+	/**
+	 * Performs a subtree visit by using a &quot;depth-first&quot; algorithm.
+	 * 
+	 * @param &lt;T&gt;              The type of the visited elements.
+	 * @param t                The base node of the visit.
+	 * @param visitor          The visitor.
+	 * @param childrenAccessor A function that retrieves the children of the given
+	 *                         node.
+	 * @return the final visit status. Note that if at least 1 descendant subtree
+	 *         visit was interrupted, then the final status will necessarily be
+	 *         {@link VisitStatus#SUBTREE_VISIT_INTERRUPTED} or
+	 *         {@link VisitStatus#TREE_VISIT_INTERRUPTED}.
+	 */
+	public static &lt;T&gt; VisitStatus visitTreeFrom(T t, TreeVisitor&lt;T&gt; visitor,
+			Function&lt;T, Iterable&lt;? extends T&gt;&gt; childrenAccessor) {
+
+<span class="nc" id="L62">		TreeVisitor.VisitStatus finalItemVisitStatus = visitor.visitNode(t);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		if (finalItemVisitStatus == VisitStatus.TREE_VISIT_INTERRUPTED) {</span>
+<span class="nc" id="L64">			return VisitStatus.TREE_VISIT_INTERRUPTED;</span>
+		}
+<span class="nc" id="L66">		return visitTreesFrom(childrenAccessor.apply(t), child -&gt; visitTreeFrom(child, visitor, childrenAccessor),</span>
+<span class="nc" id="L67">				finalItemVisitStatus);</span>
+	}
+
+	/**
+	 * Allows you to recursively visit the provided nodes. The visit can be
+	 * interrupted depending on the successive statuses of individual visits.
+	 *
+	 * @param &lt;T&gt;              The type of the visited elements.
+	 * @param ts               The nodes to visit.
+	 * @param recursiveVisitor A function performing a recursive visit.
+	 * @param initialStatus    The initial status of the visit on which the final
+	 *                         status of the visit depends.
+	 * @return A final combination of the initial status of the visit and the
+	 *         successive statuses of the node visits.
+	 */
+	public static &lt;T&gt; VisitStatus visitTreesFrom(Iterable&lt;? extends T&gt; ts, Function&lt;T, VisitStatus&gt; recursiveVisitor,
+			VisitStatus initialStatus) {
+<span class="fc" id="L84">		VisitStatus result = initialStatus;</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">		if (result != VisitStatus.SUBTREE_VISIT_INTERRUPTED) {</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">			for (T child : ts) {</span>
+<span class="fc" id="L87">				VisitStatus childItemVisitStatus = recursiveVisitor.apply(child);</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">				if (childItemVisitStatus == VisitStatus.TREE_VISIT_INTERRUPTED) {</span>
+<span class="nc" id="L89">					return VisitStatus.TREE_VISIT_INTERRUPTED;</span>
+				}
+<span class="fc" id="L91">				result = combine(result, childItemVisitStatus);</span>
+			}
+		}
+<span class="fc" id="L94">		return result;</span>
+	}
+
+	/**
+	 * @param parentStatus The initial visit status.
+	 * @param childStatus  Another visit status.
+	 * @return A combination of the given visit statues. The result cannot be &quot;less
+	 *         interrupted&quot; than the initial parent status.
+	 */
+	public static VisitStatus combine(VisitStatus parentStatus, VisitStatus childStatus) {
+<span class="fc" id="L104">		VisitStatus result = parentStatus;</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">		if (childStatus == VisitStatus.SUBTREE_VISIT_INTERRUPTED) {</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">			if (result == VisitStatus.VISIT_NOT_INTERRUPTED) {</span>
+<span class="nc" id="L107">				result = VisitStatus.SUBTREE_VISIT_INTERRUPTED;</span>
+			}
+		}
+<span class="fc" id="L110">		return result;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

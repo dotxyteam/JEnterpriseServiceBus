@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>EditorPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">EditorPlugin.java</span></div><h1>EditorPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.awt.Dimension;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.JEditorPane;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.text.EditorKit;
+import javax.swing.text.JTextComponent;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.plugin.StyledTextPlugin.StyledTextConfiguration.ControlDimensionSpecification;
+import xy.reflect.ui.control.swing.plugin.StyledTextPlugin.StyledTextConfiguration.ControlSizeUnit;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Field control plugin that allows to display/update text that conforms to a
+ * specific syntax.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L34">public class EditorPlugin extends StyledTextPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L38">		return &quot;Editor Control&quot;;</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="nc" id="L43">		return new EditorConfiguration();</span>
+	}
+
+	@Override
+	public EditorControl createControl(Object renderer, IFieldControlInput input) {
+<span class="fc" id="L48">		return new EditorControl((SwingRenderer) renderer, input);</span>
+	}
+
+<span class="fc" id="L51">	public static class EditorConfiguration extends AbstractConfiguration {</span>
+		private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L54">		public ControlDimensionSpecification width = new ControlDimensionSpecification();</span>
+<span class="fc" id="L55">		public ControlDimensionSpecification height = new ControlDimensionSpecification();</span>
+		public String syntaxImplementationClassName;
+
+		public int getWidthInPixels() {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">			if (width == null) {</span>
+<span class="fc" id="L60">				return -1;</span>
+			}
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">			if (width.unit == ControlSizeUnit.PIXELS) {</span>
+<span class="fc" id="L63">				return width.value;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">			} else if (width.unit == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L65">				Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L66">				return Math.round((width.value / 100f) * screenSize.width);</span>
+			} else {
+<span class="nc" id="L68">				throw new ReflectionUIError();</span>
+			}
+		}
+
+		public int getHeightInPixels() {
+<span class="fc bfc" id="L73" title="All 2 branches covered.">			if (height == null) {</span>
+<span class="fc" id="L74">				return -1;</span>
+			}
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">			if (height.unit == ControlSizeUnit.PIXELS) {</span>
+<span class="fc" id="L77">				return height.value;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">			} else if (height.unit == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L79">				Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L80">				return Math.round((height.value / 100f) * screenSize.height);</span>
+			} else {
+<span class="nc" id="L82">				throw new ReflectionUIError();</span>
+			}
+		}
+
+		public void validate(ReflectionUI reflectionUI) throws ClassNotFoundException {
+<span class="nc bnc" id="L87" title="All 4 branches missed.">			if ((syntaxImplementationClassName == null) || (syntaxImplementationClassName.length() == 0)) {</span>
+<span class="nc" id="L88">				throw new ReflectionUIError(&quot;Syntax implementation class name not specified !&quot;);</span>
+			}
+<span class="nc" id="L90">			reflectionUI.getReflectedClass(syntaxImplementationClassName);</span>
+<span class="nc" id="L91">		}</span>
+
+	}
+
+	public class EditorControl extends StyledTextControl {
+
+		private static final long serialVersionUID = 1L;
+
+		protected EditorConfiguration controlConfiguration;
+
+<span class="fc" id="L101">		public EditorControl(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L102">			super(swingRenderer, input);</span>
+<span class="fc" id="L103">		}</span>
+
+		@Override
+		public boolean showsCaption() {
+<span class="fc" id="L107">			return true;</span>
+		}
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L112" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc" id="L113">				updateControlConfiguration();</span>
+			}
+<span class="fc" id="L115">			super.refreshUI(refreshStructure);</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">				if (data.getCaption().length() &gt; 0) {</span>
+<span class="fc" id="L118">					setBorder(</span>
+<span class="fc" id="L119">							BorderFactory.createTitledBorder(swingRenderer.prepareMessageToDisplay(data.getCaption())));</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">					if (data.getLabelForegroundColor() != null) {</span>
+<span class="fc" id="L121">						((TitledBorder) getBorder())</span>
+<span class="fc" id="L122">								.setTitleColor(SwingRendererUtils.getColor(data.getLabelForegroundColor()));</span>
+					}
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">					if (data.getBorderColor() != null) {</span>
+<span class="nc" id="L125">						((TitledBorder) getBorder()).setBorder(</span>
+<span class="nc" id="L126">								BorderFactory.createLineBorder(SwingRendererUtils.getColor(data.getBorderColor())));</span>
+					}
+<span class="nc" id="L128">				} else {</span>
+<span class="fc" id="L129">					setBorder(BorderFactory.createEmptyBorder());</span>
+				}
+<span class="fc" id="L131">				textComponent.setBorder(BorderFactory.createEmptyBorder());</span>
+			}
+<span class="fc" id="L133">			return true;</span>
+		}
+
+		@Override
+		protected void updateControlConfiguration() {
+<span class="fc" id="L138">			controlConfiguration = (EditorConfiguration) loadControlCustomization(input);</span>
+<span class="fc" id="L139">		}</span>
+
+		@Override
+		protected JTextComponent createTextComponent() {
+<span class="fc" id="L143">			JEditorPane result = new JEditorPane() {</span>
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void replaceSelection(String content) {
+<span class="fc" id="L149">					boolean listenerWasDisabled = listenerDisabled;</span>
+<span class="fc" id="L150">					listenerDisabled = true;</span>
+					try {
+<span class="fc" id="L152">						super.replaceSelection(content);</span>
+<span class="fc" id="L153">					} finally {</span>
+<span class="fc" id="L154">						listenerDisabled = listenerWasDisabled;</span>
+					}
+					try {
+<span class="fc" id="L157">						EditorControl.this.textComponentEditHappened();</span>
+<span class="pc" id="L158">					} catch (Throwable t) {</span>
+<span class="nc" id="L159">						swingRenderer.handleException(EditorControl.this, t);</span>
+					}
+<span class="fc" id="L161">				}</span>
+
+			};
+<span class="fc" id="L164">			return result;</span>
+		}
+
+		@Override
+		protected void setupTextComponentEvents() {
+<span class="fc" id="L169">			textComponent.addFocusListener(new FocusListener() {</span>
+
+				@Override
+				public void focusLost(FocusEvent e) {
+					try {
+<span class="fc" id="L174">						EditorControl.this.onFocustLoss();</span>
+<span class="pc" id="L175">					} catch (Throwable t) {</span>
+<span class="nc" id="L176">						swingRenderer.handleException(EditorControl.this, t);</span>
+					}
+<span class="fc" id="L178">				}</span>
+
+				@Override
+				public void focusGained(FocusEvent e) {
+<span class="fc" id="L182">				}</span>
+			});
+<span class="fc" id="L184">		}</span>
+
+		@Override
+		protected void updateTextComponentStyle(boolean refreshStructure) {
+<span class="fc bfc" id="L188" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc" id="L189">				String textToRestore = textComponent.getText();</span>
+				try {
+<span class="fc" id="L191">					String syntaxImplementationClassName = controlConfiguration.syntaxImplementationClassName;</span>
+<span class="pc bpc" id="L192" title="2 of 4 branches missed.">					if ((syntaxImplementationClassName != null) &amp;&amp; (syntaxImplementationClassName.length() &gt; 0)) {</span>
+						try {
+<span class="fc" id="L194">							Class&lt;?&gt; editorKitClass = getSyntaxImplementationClassLoader()</span>
+<span class="fc" id="L195">									.loadClass(syntaxImplementationClassName);</span>
+<span class="fc" id="L196">							((JEditorPane) textComponent).setEditorKit((EditorKit) editorKitClass.newInstance());</span>
+<span class="pc" id="L197">						} catch (Exception e) {</span>
+<span class="nc" id="L198">							throw new ReflectionUIError(e);</span>
+						}
+					} else {
+<span class="nc" id="L201">						((JEditorPane) textComponent).setEditorKit(new JEditorPane().getEditorKit());</span>
+					}
+<span class="nc" id="L203">				} finally {</span>
+<span class="fc" id="L204">					textComponent.setText(textToRestore);</span>
+				}
+<span class="fc" id="L206">				textComponent.getDocument().addUndoableEditListener(new UndoableEditListener() {</span>
+					@Override
+					public void undoableEditHappened(UndoableEditEvent e) {
+						try {
+<span class="fc" id="L210">							EditorControl.this.textComponentEditHappened();</span>
+<span class="pc" id="L211">						} catch (Throwable t) {</span>
+<span class="nc" id="L212">							swingRenderer.handleException(EditorControl.this, t);</span>
+						}
+<span class="fc" id="L214">					}</span>
+				});
+<span class="fc" id="L216">				textComponent.getDocument().addDocumentListener(new DocumentListener() {</span>
+
+					void anyUpdate(DocumentEvent e) {
+						try {
+<span class="fc" id="L220">							EditorControl.this.textComponentEditHappened();</span>
+<span class="pc" id="L221">						} catch (Throwable t) {</span>
+<span class="nc" id="L222">							swingRenderer.handleException(EditorControl.this, t);</span>
+						}
+<span class="fc" id="L224">					}</span>
+
+					@Override
+					public void removeUpdate(DocumentEvent e) {
+<span class="fc" id="L228">						anyUpdate(e);</span>
+<span class="fc" id="L229">					}</span>
+
+					@Override
+					public void insertUpdate(DocumentEvent e) {
+<span class="fc" id="L233">						anyUpdate(e);</span>
+<span class="fc" id="L234">					}</span>
+
+					@Override
+					public void changedUpdate(DocumentEvent e) {
+<span class="nc" id="L238">						anyUpdate(e);</span>
+<span class="nc" id="L239">					}</span>
+				});
+			}
+<span class="fc" id="L242">		}</span>
+
+		protected ClassLoader getSyntaxImplementationClassLoader() {
+<span class="fc" id="L245">			return getClass().getClassLoader();</span>
+		}
+
+		@Override
+		protected int getConfiguredScrollPaneHeight() {
+<span class="fc" id="L250">			return controlConfiguration.getHeightInPixels();</span>
+		}
+
+		@Override
+		protected int getConfiguredScrollPaneWidth() {
+<span class="fc" id="L255">			return controlConfiguration.getWidthInPixels();</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

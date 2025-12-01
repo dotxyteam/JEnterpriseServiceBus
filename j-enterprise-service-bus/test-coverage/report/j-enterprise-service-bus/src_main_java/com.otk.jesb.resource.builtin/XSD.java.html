@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>XSD.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.resource.builtin</a> &gt; <span class="el_source">XSD.java</span></div><h1>XSD.java</h1><pre class="source lang-java linenums">package com.otk.jesb.resource.builtin;
+
+import java.io.File;
+import java.util.List;
+import java.util.WeakHashMap;
+import java.util.stream.Collectors;
+
+import org.xml.sax.SAXParseException;
+
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.Log;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.resource.Resource;
+import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+import com.sun.tools.xjc.BadCommandLineException;
+import com.sun.tools.xjc.Driver;
+import com.sun.tools.xjc.XJCListener;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public class XSD extends XMLBasedDocumentResource {
+
+<span class="fc" id="L29">	public XSD() {</span>
+<span class="fc" id="L30">	}</span>
+
+	public XSD(String name) {
+<span class="nc" id="L33">		super(name);</span>
+<span class="nc" id="L34">	}</span>
+
+	@Override
+	protected void runClassesGenerationTool(File mainFile, File metaSchemaFile, File outputDirectory)
+			throws BadCommandLineException {
+<span class="fc" id="L39">		String[] xjcArgs = { &quot;-d&quot;, outputDirectory.getPath(), &quot;-p&quot;,</span>
+<span class="fc" id="L40">				InstantiationUtils.toRelativeTypeNameVariablePart(</span>
+<span class="fc" id="L41">						XSD.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(XSD.this)),</span>
+<span class="fc" id="L42">				mainFile.getPath() };</span>
+
+<span class="fc" id="L44">		final StringBuilder logsBuffer = new StringBuilder();</span>
+		int driverStatus;
+		Throwable driverException;
+		try {
+<span class="fc" id="L48">			driverStatus = Driver.run(xjcArgs, new XJCListener() {</span>
+
+				@Override
+				public void warning(SAXParseException exception) {
+<span class="nc" id="L52">					Log.get().error(&quot;XJC WARNING: &quot; + exception);</span>
+<span class="nc" id="L53">				}</span>
+
+				@Override
+				public void info(SAXParseException exception) {
+<span class="nc" id="L57">					Log.get().information(&quot;XJC INFO: &quot; + exception);</span>
+<span class="nc" id="L58">				}</span>
+
+				@Override
+				public void fatalError(SAXParseException exception) {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">					if (logsBuffer.length() &gt; 0) {</span>
+<span class="nc" id="L63">						logsBuffer.append(&quot;\n&quot;);</span>
+					}
+<span class="nc" id="L65">					logsBuffer.append(&quot;FATAL ERROR: &quot; + exception.toString());</span>
+<span class="nc" id="L66">				}</span>
+
+				@Override
+				public void error(SAXParseException exception) {
+<span class="nc bnc" id="L70" title="All 2 branches missed.">					if (logsBuffer.length() &gt; 0) {</span>
+<span class="nc" id="L71">						logsBuffer.append(&quot;\n&quot;);</span>
+					}
+<span class="nc" id="L73">					logsBuffer.append(&quot;ERROR: &quot; + exception.toString());</span>
+<span class="nc" id="L74">				}</span>
+			});
+<span class="fc" id="L76">			driverException = null;</span>
+<span class="pc" id="L77">		} catch (Throwable t) {</span>
+<span class="nc" id="L78">			driverStatus = -1;</span>
+<span class="nc" id="L79">			driverException = t;</span>
+		}
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">		if (driverStatus != 0) {</span>
+<span class="nc" id="L82">			throw new RuntimeException(&quot;Failed to generate XSD classes&quot;</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">					+ ((logsBuffer.length() &gt; 0) ? (&quot;:\n&quot; + logsBuffer.toString()) : &quot;&quot;), driverException);</span>
+		}
+<span class="fc" id="L85">	}</span>
+
+	public List&lt;RootElementDescriptor&gt; getRootElements() {
+		try {
+<span class="fc" id="L89">			return upToDateGeneratedClasses.get().stream()</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">					.filter(c -&gt; c.getAnnotation(javax.xml.bind.annotation.XmlRootElement.class) != null)</span>
+<span class="fc" id="L91">					.map(c -&gt; new RootElementDescriptor(c)).collect(Collectors.toList());</span>
+<span class="nc" id="L92">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L93">			throw new UnexpectedError(e);</span>
+		}
+	}
+
+	public static class RootElementDescriptor {
+
+		private Class&lt;?&gt; elementClass;
+<span class="fc" id="L100">		private static WeakHashMap&lt;Class&lt;?&gt;, Class&lt;?&gt;&gt; documentClassByRootElementClass = new WeakHashMap&lt;Class&lt;?&gt;, Class&lt;?&gt;&gt;();</span>
+
+<span class="fc" id="L102">		public RootElementDescriptor(Class&lt;?&gt; elementClass) {</span>
+<span class="fc" id="L103">			this.elementClass = elementClass;</span>
+<span class="fc" id="L104">		}</span>
+
+		public String getName() {
+<span class="fc" id="L107">			javax.xml.bind.annotation.XmlRootElement annotation = elementClass</span>
+<span class="fc" id="L108">					.getAnnotation(javax.xml.bind.annotation.XmlRootElement.class);</span>
+<span class="fc" id="L109">			return annotation.name();</span>
+		}
+
+		public Class&lt;?&gt; retrieveClass() {
+<span class="fc" id="L113">			return elementClass;</span>
+		}
+
+		public Class&lt;?&gt; getDocumentClass() {
+<span class="fc" id="L117">			synchronized (documentClassByRootElementClass) {</span>
+<span class="fc" id="L118">				documentClassByRootElementClass.computeIfAbsent(elementClass, elementClass -&gt; {</span>
+<span class="fc" id="L119">					ClassicStructure resultStructure = new ClassicStructure();</span>
+					{
+<span class="fc" id="L121">						SimpleElement rootElement = new SimpleElement();</span>
+<span class="fc" id="L122">						rootElement.setName(getName());</span>
+<span class="fc" id="L123">						rootElement.setTypeNameOrAlias(elementClass.getName());</span>
+<span class="fc" id="L124">						resultStructure.getElements().add(rootElement);</span>
+					}
+<span class="fc" id="L126">					String className = elementClass.getName() + &quot;DocumentObject&quot;;</span>
+					try {
+<span class="fc" id="L128">						return MiscUtils.IN_MEMORY_COMPILER.compile(className,</span>
+<span class="fc" id="L129">								resultStructure.generateJavaTypeSourceCode(className));</span>
+<span class="nc" id="L130">					} catch (CompilationError e) {</span>
+<span class="nc" id="L131">						throw new PotentialError(e);</span>
+					}
+				});
+			}
+<span class="fc" id="L135">			return documentClassByRootElementClass.get(elementClass);</span>
+		}
+
+	}
+
+<span class="fc" id="L140">	public static class Metadata implements ResourceMetadata {</span>
+
+		@Override
+		public ResourcePath getResourceIconImagePath() {
+<span class="fc" id="L144">			return new ResourcePath(</span>
+<span class="fc" id="L145">					ResourcePath.specifyClassPathResourceLocation(XSD.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+		@Override
+		public Class&lt;? extends Resource&gt; getResourceClass() {
+<span class="fc" id="L150">			return XSD.class;</span>
+		}
+
+		@Override
+		public String getResourceTypeName() {
+<span class="fc" id="L155">			return &quot;XSD&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

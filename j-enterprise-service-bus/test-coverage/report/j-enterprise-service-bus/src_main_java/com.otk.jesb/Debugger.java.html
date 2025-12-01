@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Debugger.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">Debugger.java</span></div><h1>Debugger.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.activation.ActivationHandler;
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.builtin.ExecutePlan;
+import com.otk.jesb.solution.Asset;
+import com.otk.jesb.solution.AssetVisitor;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionError;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.Reference;
+import com.otk.jesb.solution.Solution;
+import com.otk.jesb.solution.StepCrossing;
+import com.otk.jesb.solution.Transition;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+
+/**
+ * This class allows to run a {@link Solution} while collecting information to
+ * analyze and understand the progress of the {@link Session}.
+ * 
+ * @author olitank
+ *
+ */
+public class Debugger extends Session {
+
+	private Solution solution;
+	private List&lt;PlanActivation&gt; planActivations;
+<span class="fc" id="L41">	private List&lt;PlanExecutor&gt; activePlanExecutors = new ArrayList&lt;Debugger.PlanExecutor&gt;();</span>
+<span class="fc" id="L42">	private PlanActivationFilter currentPlanActivationFilter = PlanActivationFilter.ACTIVABLE_PLANS;</span>
+<span class="fc" id="L43">	private Console console = Console.DEFAULT;</span>
+<span class="fc" id="L44">	private static boolean scrollLocked = false;</span>
+
+<span class="fc" id="L46">	public Debugger(Solution solution, boolean openSession) {</span>
+<span class="fc" id="L47">		this.solution = solution;</span>
+<span class="fc" id="L48">		planActivations = collectPlanActivations();</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">		if(openSession) {</span>
+<span class="fc" id="L50">			open();</span>
+		}
+<span class="fc" id="L52">	}</span>
+
+	public Console getConsole() {
+<span class="fc" id="L55">		return console;</span>
+	}
+
+	public List&lt;PlanActivation&gt; getPlanActivations() {
+<span class="fc" id="L59">		return planActivations.stream().filter(currentPlanActivationFilter).collect(Collectors.toList());</span>
+	}
+
+	private List&lt;PlanActivation&gt; collectPlanActivations() {
+<span class="fc" id="L63">		final List&lt;PlanActivation&gt; result = new ArrayList&lt;Debugger.PlanActivation&gt;();</span>
+<span class="fc" id="L64">		solution.visitContents(new AssetVisitor() {</span>
+			@Override
+			public boolean visitAsset(Asset asset) {
+<span class="fc bfc" id="L67" title="All 2 branches covered.">				if (asset instanceof Plan) {</span>
+<span class="fc" id="L68">					Plan plan = (Plan) asset;</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">					if (plan.getActivator().getEnabledVariant().getValue()) {</span>
+<span class="fc" id="L70">						result.add(createPlanActivation(plan));</span>
+					}
+				}
+<span class="fc" id="L73">				return true;</span>
+			}
+		});
+<span class="fc" id="L76">		return result;</span>
+	}
+
+	protected PlanActivation createPlanActivation(Plan plan) {
+<span class="fc" id="L80">		return new PlanActivation(plan);</span>
+	}
+
+	public PlanActivationFilter getCurrentPlanActivationFilter() {
+<span class="fc" id="L84">		return currentPlanActivationFilter;</span>
+	}
+
+	public void setCurrentPlanActivationFilter(PlanActivationFilter currentPlanActivationFilter) {
+<span class="nc" id="L88">		this.currentPlanActivationFilter = currentPlanActivationFilter;</span>
+<span class="nc" id="L89">	}</span>
+
+	public List&lt;PlanExecutor&gt; getActivePlanExecutors() {
+<span class="fc" id="L92">		return activePlanExecutors;</span>
+	}
+
+	@Override
+	protected void initiate() {
+<span class="fc" id="L97">	}</span>
+
+	@Override
+	protected void terminate() {
+<span class="fc" id="L101">		deactivatePlans();</span>
+<span class="fc" id="L102">		stopExecutions();</span>
+<span class="fc" id="L103">	}</span>
+
+	public void activatePlans() {
+<span class="fc bfc" id="L106" title="All 2 branches covered.">		for (PlanActivation planActivator : planActivations) {</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">			if (planActivator.isAutomaticallyTriggerable()) {</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">				if (planActivator.isAutomaticTriggerReady()) {</span>
+<span class="nc" id="L109">					planActivator.setAutomaticTriggerReady(false);</span>
+				}
+<span class="fc" id="L111">				planActivator.setAutomaticTriggerReady(true);</span>
+			}
+		}
+<span class="fc" id="L114">	}</span>
+
+	public void deactivatePlans() {
+<span class="fc bfc" id="L117" title="All 2 branches covered.">		for (PlanActivation planActivator : planActivations) {</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">			if (planActivator.isAutomaticallyTriggerable()) {</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">				if (planActivator.isAutomaticTriggerReady()) {</span>
+<span class="fc" id="L120">					planActivator.setAutomaticTriggerReady(false);</span>
+				}
+			}
+		}
+<span class="fc" id="L124">	}</span>
+
+	public void stopExecutions() {
+<span class="fc bfc" id="L127" title="All 2 branches covered.">		for (PlanActivation planActivator : planActivations) {</span>
+<span class="fc" id="L128">			planActivator.stopExecutions();</span>
+		}
+<span class="fc" id="L130">	}</span>
+
+	protected synchronized void onExecutionStart(PlanExecutor planExecutor) {
+<span class="fc" id="L133">		activePlanExecutors.add(planExecutor);</span>
+<span class="fc" id="L134">	}</span>
+
+	protected synchronized void onExecutionEnd(PlanExecutor planExecutor) {
+<span class="fc" id="L137">		activePlanExecutors.remove(planExecutor);</span>
+<span class="fc" id="L138">	}</span>
+
+	public class PlanActivation {
+
+		private Plan plan;
+		private RootInstanceBuilder planInputBuilder;
+<span class="fc" id="L144">		private List&lt;PlanExecutor&gt; planExecutors = new ArrayList&lt;Debugger.PlanExecutor&gt;();</span>
+
+<span class="fc" id="L146">		public PlanActivation(Plan plan) {</span>
+<span class="fc" id="L147">			this.plan = plan;</span>
+<span class="fc" id="L148">			planInputBuilder = new RootInstanceBuilder(&quot;Input&quot;, new Accessor&lt;String&gt;() {</span>
+
+				@Override
+				public String get() {
+<span class="fc" id="L152">					Class&lt;?&gt; inputClass = plan.getActivator().getInputClass();</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">					if (inputClass == null) {</span>
+<span class="fc" id="L154">						return null;</span>
+					}
+<span class="fc" id="L156">					return inputClass.getName();</span>
+				}
+			});
+<span class="fc bfc" id="L159" title="All 2 branches covered.">			if (plan.getActivator().getInputClass() != null) {</span>
+<span class="fc" id="L160">				InstantiationUtils.makeConcreteRecursively(Facade.get(planInputBuilder, null), eachFacade -&gt; {</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">					if (Facade.getAncestors(eachFacade).size() &gt;= 4) {</span>
+<span class="fc" id="L162">						return true;</span>
+					}
+					try {
+<span class="nc" id="L165">						eachFacade.validate(true, Collections.emptyList());</span>
+<span class="nc" id="L166">						return true;</span>
+<span class="fc" id="L167">					} catch (ValidationError e) {</span>
+<span class="fc" id="L168">						return false;</span>
+					}
+				});
+			}
+<span class="fc" id="L172">		}</span>
+
+		public Plan getPlan() {
+<span class="fc" id="L175">			return plan;</span>
+		}
+
+		public String getPlanReferencePath() {
+<span class="fc" id="L179">			return Reference.get(plan).getPath();</span>
+		}
+
+		public RootInstanceBuilder getPlanInputBuilder() {
+<span class="fc bfc" id="L183" title="All 2 branches covered.">			if (plan.getActivator().getInputClass() == null) {</span>
+<span class="fc" id="L184">				return null;</span>
+			}
+<span class="fc" id="L186">			return planInputBuilder;</span>
+		}
+
+		public List&lt;PlanExecutor&gt; getPlanExecutors() {
+<span class="fc" id="L190">			return planExecutors;</span>
+		}
+
+		public boolean isAutomaticTriggerReady() {
+<span class="fc" id="L194">			return plan.getActivator().isAutomaticTriggerReady();</span>
+		}
+
+		public void setAutomaticTriggerReady(boolean ready) {
+<span class="fc bfc" id="L198" title="All 2 branches covered.">			if (ready) {</span>
+<span class="fc" id="L199">				ActivationHandler activationHandler = new ActivationHandler() {</span>
+					@Override
+					public Object trigger(Object planInput) throws ExecutionError {
+<span class="fc" id="L202">						PlanExecutor planExecutor = createPlanExecutor(planInput);</span>
+<span class="fc" id="L203">						planExecutors.add(planExecutor);</span>
+						try {
+<span class="fc" id="L205">							planExecutor.join();</span>
+<span class="pc" id="L206">						} catch (InterruptedException e) {</span>
+<span class="nc" id="L207">							throw new UnexpectedError(e);</span>
+						}
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">						if (planExecutor.getExecutionError() != null) {</span>
+<span class="nc" id="L210">							throw planExecutor.getExecutionError();</span>
+						}
+<span class="fc" id="L212">						return planExecutor.getPlanOutput();</span>
+					}
+				};
+				try {
+<span class="fc" id="L216">					plan.getActivator().initializeAutomaticTrigger(activationHandler);</span>
+<span class="pc" id="L217">				} catch (Exception e) {</span>
+<span class="nc" id="L218">					handleActivationError(e);</span>
+					try {
+<span class="nc" id="L220">						plan.getActivator().finalizeAutomaticTrigger();</span>
+<span class="nc" id="L221">					} catch (Throwable ignore) {</span>
+					}
+				}
+<span class="nc" id="L224">			} else {</span>
+				try {
+<span class="fc" id="L226">					plan.getActivator().finalizeAutomaticTrigger();</span>
+<span class="pc" id="L227">				} catch (Exception e) {</span>
+<span class="nc" id="L228">					handleDeactivationError(e);</span>
+				}
+			}
+<span class="fc" id="L231">		}</span>
+
+		protected PlanExecutor createPlanExecutor(Object planInput) {
+<span class="fc" id="L234">			return new PlanExecutor(plan, planInput);</span>
+		}
+
+		protected void handleActivationError(Exception e) {
+<span class="nc" id="L238">			Log.get().error(e);</span>
+<span class="nc" id="L239">			planExecutors.add(new PlanActivationFailure(plan, e));</span>
+<span class="nc" id="L240">		}</span>
+
+		protected void handleDeactivationError(Exception e) {
+<span class="nc" id="L243">			Log.get().error(e);</span>
+<span class="nc" id="L244">		}</span>
+
+		public boolean isAutomaticallyTriggerable() {
+<span class="fc" id="L247">			return plan.getActivator().isAutomaticallyTriggerable();</span>
+		}
+
+		public void stopExecutions() {
+<span class="fc bfc" id="L251" title="All 2 branches covered.">			for (PlanExecutor planExecutor : planExecutors) {</span>
+<span class="fc" id="L252">				planExecutor.stop();</span>
+			}
+<span class="fc" id="L254">		}</span>
+
+		public Activator getActivator() {
+<span class="fc" id="L257">			return plan.getActivator();</span>
+		}
+
+		public void executePlan() throws Exception {
+<span class="fc" id="L261">			Object planInput = planInputBuilder</span>
+<span class="fc" id="L262">					.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));</span>
+<span class="fc" id="L263">			planExecutors.add(new PlanExecutor(plan, planInput));</span>
+<span class="fc" id="L264">		}</span>
+
+		@Override
+		public String toString() {
+<span class="fc" id="L268">			String result = &quot;(&quot; + planExecutors.size() + &quot;) &quot;;</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">			if (isAutomaticallyTriggerable()) {</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">				if (isAutomaticTriggerReady()) {</span>
+<span class="fc" id="L271">					result += &quot;*&quot;;</span>
+				}
+			}
+<span class="fc" id="L274">			result += plan.getName();</span>
+<span class="fc" id="L275">			return result;</span>
+		}
+	}
+
+	public class PlanExecutor {
+
+		protected Plan plan;
+		protected Object planInput;
+		protected Object planOutput;
+<span class="fc" id="L284">		protected List&lt;StepCrossing&gt; stepCrossings = new ArrayList&lt;StepCrossing&gt;();</span>
+		protected StepCrossing currentStepCrossing;
+		protected ExecutionError executionError;
+		protected Thread thread;
+<span class="fc" id="L288">		protected List&lt;PlanExecutor&gt; children = new ArrayList&lt;Debugger.PlanExecutor&gt;();</span>
+<span class="fc" id="L289">		protected Stack&lt;SubPlanExecutor&gt; subPlanExecutionStack = new Stack&lt;SubPlanExecutor&gt;();</span>
+<span class="fc" id="L290">		protected boolean interrupted = false;</span>
+		protected ExecutionInspector executionInspector;
+		protected ExecutionContext executionContext;
+
+<span class="fc" id="L294">		public PlanExecutor(Plan plan, Object planInput) {</span>
+<span class="fc" id="L295">			this.plan = plan;</span>
+<span class="fc" id="L296">			this.planInput = planInput;</span>
+<span class="fc" id="L297">			this.executionInspector = createExecutionInspector();</span>
+<span class="fc" id="L298">			this.executionContext = new ExecutionContext(Debugger.this, plan);</span>
+<span class="fc" id="L299">			start();</span>
+<span class="fc" id="L300">		}</span>
+
+		protected SubPlanExecutor createSubPlanExecutor(Plan subPlan) {
+<span class="fc" id="L303">			return new SubPlanExecutor(subPlan);</span>
+		}
+
+		protected ExecutionInspector createExecutionInspector() {
+<span class="fc" id="L307">			return new Plan.ExecutionInspector() {</span>
+				@Override
+				public void beforeOperation(StepCrossing stepCrossing) {
+<span class="fc" id="L310">					getTopPlanExecutor().currentStepCrossing = stepCrossing;</span>
+<span class="fc" id="L311">					getTopPlanExecutor().stepCrossings.add(stepCrossing);</span>
+<span class="fc bfc" id="L312" title="All 2 branches covered.">					if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {</span>
+<span class="fc" id="L313">						Plan subPlan = ((ExecutePlan.Builder) stepCrossing.getStep().getOperationBuilder())</span>
+<span class="fc" id="L314">								.getPlanReference().resolve();</span>
+<span class="fc" id="L315">						SubPlanExecutor subPlanExecutor = createSubPlanExecutor(subPlan);</span>
+<span class="fc" id="L316">						getTopPlanExecutor().children.add(subPlanExecutor);</span>
+<span class="fc" id="L317">						subPlanExecutionStack.add(subPlanExecutor);</span>
+					}
+<span class="fc" id="L319">				}</span>
+
+				@Override
+				public void afterOperation(StepCrossing stepCrossing) {
+<span class="fc bfc" id="L323" title="All 2 branches covered.">					if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {</span>
+<span class="fc" id="L324">						SubPlanExecutor subPlanExecutor = subPlanExecutionStack.pop();</span>
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">						if (stepCrossing.getOperationError() != null) {</span>
+<span class="nc" id="L326">							subPlanExecutor.executionError = (stepCrossing</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">									.getOperationError() instanceof ExecutionError)</span>
+<span class="nc" id="L328">											? (ExecutionError) stepCrossing.getOperationError()</span>
+<span class="nc" id="L329">											: new ExecutionError(stepCrossing.getOperationError());</span>
+						}
+					}
+					try {
+<span class="fc" id="L333">						Thread.sleep(500);</span>
+<span class="pc" id="L334">					} catch (InterruptedException e) {</span>
+<span class="nc" id="L335">						Thread.currentThread().interrupt();</span>
+					}
+<span class="fc" id="L337">					getTopPlanExecutor().currentStepCrossing = null;</span>
+<span class="fc" id="L338">				}</span>
+
+				@Override
+				public boolean isExecutionInterrupted() {
+<span class="fc" id="L342">					return Thread.currentThread().isInterrupted();</span>
+				}
+			};
+		}
+
+		public Plan getPlan() {
+<span class="fc" id="L348">			return plan;</span>
+		}
+
+		public String getPlanReferencePath() {
+<span class="nc" id="L352">			return Reference.get(plan).getPath();</span>
+		}
+
+		public boolean isScrollLocked() {
+<span class="fc" id="L356">			return scrollLocked;</span>
+		}
+
+		public void setScrollLocked(boolean scrollLocked) {
+<span class="nc" id="L360">			Debugger.scrollLocked = scrollLocked;</span>
+<span class="nc" id="L361">		}</span>
+
+		public List&lt;StepCrossing&gt; getStepCrossings() {
+<span class="fc" id="L364">			return stepCrossings;</span>
+		}
+
+		public StepCrossing getCurrentStepCrossing() {
+<span class="fc" id="L368">			return currentStepCrossing;</span>
+		}
+
+		public Object getPlanIntput() {
+<span class="nc" id="L372">			return planInput;</span>
+		}
+
+		public Object getPlanOutput() {
+<span class="fc" id="L376">			return planOutput;</span>
+		}
+
+		public boolean isPlanInputRelevant() {
+<span class="pc bpc" id="L380" title="1 of 2 branches missed.">			if (!plan.isInputEnabled()) {</span>
+<span class="fc" id="L381">				return false;</span>
+			}
+<span class="nc bnc" id="L383" title="All 2 branches missed.">			if (isActive()) {</span>
+<span class="nc" id="L384">				return false;</span>
+			}
+<span class="nc" id="L386">			return true;</span>
+		}
+
+		public boolean isPlanOutputRelevant() {
+<span class="pc bpc" id="L390" title="1 of 2 branches missed.">			if (!plan.isOutputEnabled()) {</span>
+<span class="fc" id="L391">				return false;</span>
+			}
+<span class="nc bnc" id="L393" title="All 2 branches missed.">			if (isActive()) {</span>
+<span class="nc" id="L394">				return false;</span>
+			}
+<span class="nc" id="L396">			return true;</span>
+		}
+
+		public ExecutionError getExecutionError() {
+<span class="fc" id="L400">			return executionError;</span>
+		}
+
+		private PlanExecutor getTopPlanExecutor() {
+<span class="fc bfc" id="L404" title="All 2 branches covered.">			if (subPlanExecutionStack.size() &gt; 0) {</span>
+<span class="fc" id="L405">				return subPlanExecutionStack.peek();</span>
+			}
+<span class="fc" id="L407">			return this;</span>
+		}
+
+		public List&lt;PlanExecutor&gt; getChildren() {
+<span class="fc" id="L411">			return children;</span>
+		}
+
+		public int getTransitionOccurrenceCount(Transition transition) {
+<span class="fc" id="L415">			int result = 0;</span>
+<span class="fc bfc" id="L416" title="All 2 branches covered.">			for (StepCrossing stepCrossing : stepCrossings) {</span>
+<span class="fc" id="L417">				List&lt;Transition&gt; validaTransitions = stepCrossing.getValidTransitions();</span>
+<span class="fc bfc" id="L418" title="All 2 branches covered.">				if (validaTransitions != null) {</span>
+<span class="fc bfc" id="L419" title="All 2 branches covered.">					if (validaTransitions.contains(transition)) {</span>
+<span class="fc" id="L420">						result++;</span>
+					}
+				}
+			}
+<span class="fc" id="L424">			return result;</span>
+		}
+
+		public List&lt;Variable&gt; getVariables() {
+<span class="fc" id="L428">			synchronized (executionContext) {</span>
+<span class="fc" id="L429">				return executionContext.getVariables().stream()</span>
+<span class="pc bpc" id="L430" title="1 of 2 branches missed.">						.filter(variable -&gt; !variable.getName().equals(Plan.INPUT_VARIABLE_NAME)</span>
+<span class="fc bfc" id="L431" title="All 2 branches covered.">								&amp;&amp; (variable.getValue() != Variable.UNDEFINED_VALUE))</span>
+<span class="fc" id="L432">						.map(variable -&gt; new Variable.Proxy(variable)).collect(Collectors.toList());</span>
+			}
+		}
+
+		protected synchronized void start() {
+<span class="fc" id="L437">			thread = new Thread(&quot;PlanExecutor [plan=&quot; + plan.getName() + &quot;]&quot;) {</span>
+
+				@Override
+				public void run() {
+<span class="fc" id="L441">					execute();</span>
+<span class="fc" id="L442">					interrupted = isInterrupted();</span>
+<span class="fc" id="L443">				}</span>
+
+			};
+<span class="fc" id="L446">			thread.start();</span>
+<span class="fc" id="L447">		}</span>
+
+		public synchronized void stop() {
+<span class="pc bpc" id="L450" title="1 of 2 branches missed.">			if (!isActive()) {</span>
+<span class="fc" id="L451">				return;</span>
+			}
+<span class="nc bnc" id="L453" title="All 2 branches missed.">			while (thread.isAlive()) {</span>
+<span class="nc" id="L454">				thread.interrupt();</span>
+<span class="nc" id="L455">				MiscUtils.relieveCPU();</span>
+			}
+<span class="nc" id="L457">			thread = null;</span>
+<span class="nc" id="L458">		}</span>
+
+		public synchronized boolean isActive() {
+<span class="pc bpc" id="L461" title="1 of 2 branches missed.">			if (thread != null) {</span>
+<span class="fc bfc" id="L462" title="All 2 branches covered.">				if (thread.isAlive()) {</span>
+<span class="fc" id="L463">					return true;</span>
+				}
+			}
+<span class="fc" id="L466">			return false;</span>
+		}
+
+		public void join() throws InterruptedException {
+<span class="pc bpc" id="L470" title="1 of 2 branches missed.">			if (!isActive()) {</span>
+<span class="nc" id="L471">				return;</span>
+			}
+<span class="fc" id="L473">			thread.join();</span>
+<span class="fc" id="L474">		}</span>
+
+		protected void execute() {
+<span class="fc" id="L477">			onExecutionStart(this);</span>
+			try {
+<span class="fc" id="L479">				planOutput = plan.execute(planInput, executionInspector, executionContext);</span>
+<span class="pc" id="L480">			} catch (ExecutionError e) {</span>
+<span class="nc" id="L481">				handleExecutionError(e);</span>
+			} finally {
+<span class="fc" id="L483">				onExecutionEnd(this);</span>
+			}
+<span class="fc" id="L485">		}</span>
+
+		protected void handleExecutionError(ExecutionError e) {
+<span class="nc" id="L488">			Log.get().error(MiscUtils.getPrintedStackTrace(e));</span>
+<span class="nc" id="L489">			executionError = e;</span>
+<span class="nc" id="L490">		}</span>
+
+		@Override
+		public String toString() {
+<span class="fc bfc" id="L494" title="All 2 branches covered.">			return (isActive() ? &quot;RUNNING&quot;</span>
+<span class="pc bpc" id="L495" title="2 of 4 branches missed.">					: (interrupted ? &quot;INTERRUPTED&quot; : ((executionError == null) ? &quot;DONE&quot; : &quot;FAILED&quot;)));</span>
+		}
+
+		public class SubPlanExecutor extends PlanExecutor {
+
+<span class="fc" id="L500">			public SubPlanExecutor(Plan plan) {</span>
+<span class="fc" id="L501">				super(plan, null);</span>
+<span class="fc" id="L502">			}</span>
+
+			@Override
+			public void start() {
+<span class="fc" id="L506">			}</span>
+
+			@Override
+			public String toString() {
+<span class="nc" id="L510">				return super.toString() + &quot; (&quot; + getPlan().getName() + &quot;)&quot;;</span>
+			}
+		}
+
+	}
+
+	public class PlanActivationFailure extends PlanExecutor {
+
+<span class="nc" id="L518">		public PlanActivationFailure(Plan plan, Exception error) {</span>
+<span class="nc" id="L519">			super(plan, null);</span>
+<span class="nc" id="L520">			this.executionError = new ExecutionError(error);</span>
+<span class="nc" id="L521">		}</span>
+
+		@Override
+		protected void execute() {
+<span class="nc" id="L525">		}</span>
+
+	}
+
+<span class="fc" id="L529">	public enum PlanActivationFilter implements Predicate&lt;PlanActivation&gt; {</span>
+<span class="fc" id="L530">		ALL {</span>
+			@Override
+			public boolean test(PlanActivation planActivator) {
+<span class="nc" id="L533">				return true;</span>
+			}
+		},
+<span class="fc" id="L536">		ACTIVABLE_PLANS {</span>
+			@Override
+			public boolean test(PlanActivation planActivator) {
+<span class="fc" id="L539">				return planActivator.isAutomaticallyTriggerable();</span>
+			}
+		},
+<span class="fc" id="L542">		ACTIVATED_PLANS {</span>
+			@Override
+			public boolean test(PlanActivation planActivator) {
+<span class="nc bnc" id="L545" title="All 4 branches missed.">				return planActivator.isAutomaticallyTriggerable() &amp;&amp; planActivator.isAutomaticTriggerReady();</span>
+			}
+		},
+<span class="fc" id="L548">		DEACTIVATED_PLANS {</span>
+			@Override
+			public boolean test(PlanActivation planActivator) {
+<span class="nc bnc" id="L551" title="All 4 branches missed.">				return planActivator.isAutomaticallyTriggerable() &amp;&amp; !planActivator.isAutomaticTriggerReady();</span>
+			}
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

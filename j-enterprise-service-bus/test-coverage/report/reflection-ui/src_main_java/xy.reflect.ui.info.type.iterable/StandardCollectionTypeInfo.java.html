@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>StandardCollectionTypeInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable</a> &gt; <span class="el_source">StandardCollectionTypeInfo.java</span></div><h1>StandardCollectionTypeInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.iterable;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.item.DetachedItemDetailsAccessMode;
+import xy.reflect.ui.info.type.iterable.item.IListItemDetailsAccessMode;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.info.type.iterable.structure.DefaultListStructuralInfo;
+import xy.reflect.ui.info.type.iterable.structure.IListStructuralInfo;
+import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
+import xy.reflect.ui.info.type.iterable.util.IDynamicListProperty;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.undo.ListModificationFactory;
+import xy.reflect.ui.util.Mapper;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Type information extracted from the Java collection type encapsulated in the
+ * given type information source.
+ * 
+ * @author olitank
+ *
+ */
+public class StandardCollectionTypeInfo extends DefaultTypeInfo implements IListTypeInfo {
+
+	protected ITypeInfo itemType;
+
+	public StandardCollectionTypeInfo(ReflectionUI reflectionUI, JavaTypeInfoSource source, ITypeInfo itemType) {
+<span class="fc" id="L43">		super(reflectionUI, source);</span>
+<span class="fc" id="L44">		this.itemType = itemType;</span>
+<span class="fc" id="L45">	}</span>
+
+	public static boolean isCompatibleWith(Class&lt;?&gt; javaType) {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">		if (Collection.class.isAssignableFrom(javaType)) {</span>
+<span class="fc" id="L49">			return true;</span>
+		}
+<span class="fc" id="L51">		return false;</span>
+	}
+
+	@Override
+	public ITypeInfo getItemType() {
+<span class="fc" id="L56">		return itemType;</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc" id="L61">		return ReflectionUIUtils.getDefaultListTypeCaption(this);</span>
+	}
+
+	@Override
+	public IValidationJob getListItemAbstractFormValidationJob(ItemPosition itemPosition) {
+<span class="fc" id="L66">		return null;</span>
+	}
+
+	@Override
+	public boolean isItemNodeValidityDetectionEnabled(ItemPosition itemPosition) {
+<span class="fc" id="L71">		return true;</span>
+	}
+
+	@Override
+	public IFieldInfo getSelectionTargetField(ITypeInfo objectType) {
+<span class="fc" id="L76">		return null;</span>
+	}
+
+	@Override
+	public boolean isItemNullValueSupported() {
+<span class="fc" id="L81">		return false;</span>
+	}
+
+	@Override
+	public ItemCreationMode getItemCreationMode() {
+<span class="nc" id="L86">		return ItemCreationMode.UNDEFINED;</span>
+	}
+
+	@Override
+	public ValueReturnMode getItemReturnMode() {
+<span class="fc" id="L91">		return ValueReturnMode.INDETERMINATE;</span>
+	}
+
+	@Override
+	public ToolsLocation getToolsLocation() {
+<span class="fc" id="L96">		return ToolsLocation.EAST;</span>
+	}
+
+	@Override
+	public boolean canReplaceContent() {
+<span class="fc" id="L101">		return true;</span>
+	}
+
+	@SuppressWarnings({ &quot;unchecked&quot;, &quot;rawtypes&quot; })
+	@Override
+	public void replaceContent(Object listValue, Object[] array) {
+<span class="fc" id="L107">		Collection tmpCollection = new ArrayList();</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">		for (Object item : array) {</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">			if (listValue instanceof Set) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">				if (tmpCollection.contains(item)) {</span>
+<span class="nc" id="L111">					throw new ReflectionUIError(</span>
+<span class="nc" id="L112">							&quot;Duplicate item: '&quot; + ReflectionUIUtils.toString(reflectionUI, item) + &quot;'&quot;);</span>
+				}
+			}
+<span class="fc" id="L115">			tmpCollection.add(item);</span>
+		}
+<span class="fc" id="L117">		Collection collection = (Collection) listValue;</span>
+<span class="fc" id="L118">		collection.clear();</span>
+<span class="fc" id="L119">		collection.addAll(tmpCollection);</span>
+<span class="fc" id="L120">	}</span>
+
+	@Override
+	public boolean canInstantiateFromArray() {
+<span class="pc bpc" id="L124" title="3 of 4 branches missed.">		return ReflectionUIUtils.canCreateDefaultInstance(this, false) &amp;&amp; canReplaceContent();</span>
+	}
+
+	@Override
+	public Object fromArray(Object[] array) {
+<span class="nc" id="L129">		Object result = ReflectionUIUtils.createDefaultInstance(this, false);</span>
+<span class="nc" id="L130">		replaceContent(result, array);</span>
+<span class="nc" id="L131">		return result;</span>
+	}
+
+	@Override
+	public Object[] toArray(Object listValue) {
+<span class="fc" id="L136">		return ((Collection&lt;?&gt;) listValue).toArray();</span>
+	}
+
+	@Override
+	public IListStructuralInfo getStructuralInfo() {
+<span class="fc" id="L141">		return new DefaultListStructuralInfo(reflectionUI);</span>
+	}
+
+	@Override
+	public IListItemDetailsAccessMode getDetailsAccessMode() {
+<span class="fc" id="L146">		return new DetachedItemDetailsAccessMode();</span>
+	}
+
+	@Override
+	public boolean areItemsAutomaticallyPositioned() {
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">		if (List.class.isAssignableFrom(getJavaType())) {</span>
+<span class="fc" id="L152">			return false;</span>
+		}
+<span class="nc bnc" id="L154" title="All 2 branches missed.">		if (Queue.class.isAssignableFrom(getJavaType())) {</span>
+<span class="nc" id="L155">			return false;</span>
+		}
+<span class="nc bnc" id="L157" title="All 2 branches missed.">		if (LinkedHashSet.class.isAssignableFrom(getJavaType())) {</span>
+<span class="nc" id="L158">			return false;</span>
+		}
+<span class="nc" id="L160">		return true;</span>
+	}
+
+	@Override
+	public boolean isInsertionAllowed() {
+<span class="fc" id="L165">		return true;</span>
+	}
+
+	@Override
+	public boolean isRemovalAllowed() {
+<span class="fc" id="L170">		return true;</span>
+	}
+
+	@Override
+	public boolean isMoveAllowed() {
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">		return !areItemsAutomaticallyPositioned();</span>
+	}
+
+	@Override
+	public boolean canViewItemDetails() {
+<span class="fc" id="L180">		return true;</span>
+	}
+
+	@Override
+	public List&lt;IDynamicListAction&gt; getDynamicActions(List&lt;? extends ItemPosition&gt; selection,
+			Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor) {
+<span class="fc" id="L186">		return Collections.emptyList();</span>
+	}
+
+	@Override
+	public List&lt;IDynamicListProperty&gt; getDynamicProperties(List&lt;? extends ItemPosition&gt; selection,
+			Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor) {
+<span class="fc" id="L192">		return Collections.emptyList();</span>
+	}
+
+	@Override
+	public boolean canCopy(Object object) {
+<span class="nc bnc" id="L197" title="All 2 branches missed.">		if (super.canCopy(object)) {</span>
+<span class="nc" id="L198">			return true;</span>
+		}
+<span class="nc" id="L200">		Object[] srcArray = toArray(object);</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">		if (canInstantiateFromArray()) {</span>
+<span class="nc" id="L202">			boolean ok = true;</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">			for (Object srcItem : srcArray) {</span>
+<span class="nc" id="L204">				ITypeInfo itemType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(srcItem));</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">				if (!itemType.isImmutable()) {</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">					if (!ReflectionUIUtils.canCopy(reflectionUI, srcItem)) {</span>
+<span class="nc" id="L207">						ok = false;</span>
+<span class="nc" id="L208">						break;</span>
+					}
+				}
+			}
+<span class="nc" id="L212">			return ok;</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">		} else if (canReplaceContent()) {</span>
+<span class="nc" id="L214">			return ReflectionUIUtils.canCreateDefaultInstance(this, false);</span>
+		} else {
+<span class="nc" id="L216">			return false;</span>
+		}
+	}
+
+	@Override
+	public Object copy(Object object) {
+<span class="nc bnc" id="L222" title="All 2 branches missed.">		if (super.canCopy(object)) {</span>
+<span class="nc" id="L223">			return super.copy(object);</span>
+		}
+<span class="nc" id="L225">		Object[] srcArray = toArray(object);</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">		if (canInstantiateFromArray()) {</span>
+<span class="nc" id="L227">			Object[] dstArray = new Object[srcArray.length];</span>
+<span class="nc" id="L228">			int i = 0;</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">			for (Object srcItem : srcArray) {</span>
+<span class="nc" id="L230">				ITypeInfo itemType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(srcItem));</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">				if (itemType.isImmutable()) {</span>
+<span class="nc" id="L232">					dstArray[i] = srcItem;</span>
+<span class="nc" id="L233">				} else {</span>
+<span class="nc" id="L234">					Object dstItem = ReflectionUIUtils.copy(reflectionUI, srcItem);</span>
+<span class="nc" id="L235">					dstArray[i] = dstItem;</span>
+				}
+<span class="nc" id="L237">				i++;</span>
+			}
+<span class="nc" id="L239">			return fromArray(dstArray);</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">		} else if (canReplaceContent()) {</span>
+<span class="nc" id="L241">			Object newInstance = ReflectionUIUtils.createDefaultInstance(this, false);</span>
+<span class="nc" id="L242">			replaceContent(newInstance, srcArray);</span>
+<span class="nc" id="L243">			return newInstance;</span>
+		} else {
+<span class="nc" id="L245">			throw new ReflectionUIError(&quot;Cannot copy list: '&quot; + object + &quot;'&quot;);</span>
+		}
+	}
+
+	@Override
+	public String toString(Object object) {
+<span class="nc" id="L251">		List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">		for (Object item : toArray(object)) {</span>
+<span class="nc" id="L253">			result.add(ReflectionUIUtils.toString(reflectionUI, item));</span>
+		}
+<span class="nc" id="L255">		return MiscUtils.stringJoin(result, &quot;, &quot;);</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L260">		final int prime = 31;</span>
+<span class="fc" id="L261">		int result = super.hashCode();</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">		result = prime * result + ((itemType == null) ? 0 : itemType.hashCode());</span>
+<span class="fc" id="L263">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L268" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L269">			return true;</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="fc" id="L271">			return false;</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L273">			return false;</span>
+<span class="nc" id="L274">		StandardCollectionTypeInfo other = (StandardCollectionTypeInfo) obj;</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">		if (itemType == null) {</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">			if (other.itemType != null)</span>
+<span class="nc" id="L277">				return false;</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">		} else if (!itemType.equals(other.itemType))</span>
+<span class="nc" id="L279">			return false;</span>
+<span class="nc" id="L280">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L285">		return &quot;StandardCollectionTypeInfo [source=&quot; + source + &quot;, itemType=&quot; + itemType + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ChangedTypeNameFactory.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.factory</a> &gt; <span class="el_source">ChangedTypeNameFactory.java</span></div><h1>ChangedTypeNameFactory.java</h1><pre class="source lang-java linenums">package xy.reflect.ui.info.type.factory;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.info.type.source.TypeInfoSourceProxy;
+
+/**
+ * Type information factory that renames a type.
+ * 
+ * @author olitank
+ *
+ */
+public class ChangedTypeNameFactory extends InfoProxyFactory {
+
+	protected ReflectionUI reflectionUI;
+	protected String sourceTypeName;
+	protected String targetTypeName;
+
+<span class="nc" id="L21">	public ChangedTypeNameFactory(ReflectionUI reflectionUI, String sourceTypeName, String targetTypeName) {</span>
+<span class="nc" id="L22">		this.reflectionUI = reflectionUI;</span>
+<span class="nc" id="L23">		this.sourceTypeName = sourceTypeName;</span>
+<span class="nc" id="L24">		this.targetTypeName = targetTypeName;</span>
+<span class="nc" id="L25">	}</span>
+
+	public String getSourceTypeName() {
+<span class="nc" id="L28">		return sourceTypeName;</span>
+	}
+
+	public void setSourceTypeName(String sourceTypeName) {
+<span class="nc" id="L32">		this.sourceTypeName = sourceTypeName;</span>
+<span class="nc" id="L33">	}</span>
+
+	public String getTargetTypeName() {
+<span class="nc" id="L36">		return targetTypeName;</span>
+	}
+
+	public void setTargetTypeName(String targetTypeName) {
+<span class="nc" id="L40">		this.targetTypeName = targetTypeName;</span>
+<span class="nc" id="L41">	}</span>
+
+	@Override
+	public String getIdentifier() {
+<span class="nc" id="L45">		return &quot;ChangedTypeNameFactory [sourceTypeName=&quot; + sourceTypeName + &quot;, targetTypeName=&quot; + targetTypeName + &quot;]&quot;;</span>
+	}
+
+	@Override
+	protected ITypeInfo getType(IFieldInfo field, ITypeInfo objectType) {
+<span class="nc" id="L50">		return new TypeInfoSourceProxy(super.getType(field, objectType).getSource()) {</span>
+
+			@Override
+			public SpecificitiesIdentifier getSpecificitiesIdentifier() {
+<span class="nc" id="L54">				return new SpecificitiesIdentifier(targetTypeName, field.getName());</span>
+			}
+
+			@Override
+			protected String getTypeInfoProxyFactoryIdentifier() {
+<span class="nc" id="L59">				return &quot;FieldValueTypeInfoProxyFactory [of=&quot; + ChangedTypeNameFactory.this.getIdentifier() + &quot;]&quot;;</span>
+			}
+
+<span class="nc" id="L62">		}.buildTypeInfo(reflectionUI);</span>
+	}
+
+	@Override
+	protected String getName(ITypeInfo type) {
+<span class="nc bnc" id="L67" title="All 2 branches missed.">		if (type.getName().equals(sourceTypeName)) {</span>
+<span class="nc" id="L68">			return targetTypeName;</span>
+		}
+<span class="nc" id="L70">		return type.getName();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

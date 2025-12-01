@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>HTTPRequestReceiver.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.activation.builtin</a> &gt; <span class="el_source">HTTPRequestReceiver.java</span></div><h1>HTTPRequestReceiver.java</h1><pre class="source lang-java linenums">package com.otk.jesb.activation.builtin;
+
+import java.beans.Transient;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import com.otk.jesb.Reference;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.resource.builtin.HTTPServer;
+import com.otk.jesb.resource.builtin.HTTPServer.RequestHandler;
+import com.otk.jesb.solution.Plan;
+
+<span class="fc" id="L16">public abstract class HTTPRequestReceiver extends Activator {</span>
+
+	protected abstract RequestHandler createRequestHandler(String servicePath);
+
+	protected abstract boolean isCompatibleWith(RequestHandler requestHandler);
+
+<span class="fc" id="L22">	private Reference&lt;HTTPServer&gt; serverReference = new Reference&lt;HTTPServer&gt;(HTTPServer.class);</span>
+<span class="fc" id="L23">	private int servicePathOptionIndex = -1;</span>
+
+	public Reference&lt;HTTPServer&gt; getServerReference() {
+<span class="nc" id="L26">		return serverReference;</span>
+	}
+
+	public void setServerReference(Reference&lt;HTTPServer&gt; serverReference) {
+<span class="fc" id="L30">		this.serverReference = serverReference;</span>
+<span class="fc" id="L31">	}</span>
+
+	protected HTTPServer expectServer() {
+<span class="fc" id="L34">		HTTPServer result = serverReference.resolve();</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L36">			throw new IllegalStateException(&quot;Failed to resolve the server reference&quot;);</span>
+		}
+<span class="fc" id="L38">		return result;</span>
+	}
+
+	public int getServicePathOptionIndex() {
+<span class="nc" id="L42">		return servicePathOptionIndex;</span>
+	}
+
+	public void setServicePathOptionIndex(int servicePathOptionIndex) {
+<span class="fc" id="L46">		this.servicePathOptionIndex = servicePathOptionIndex;</span>
+<span class="fc" id="L47">	}</span>
+
+	@Transient
+	public String getServicePath() {
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if (servicePathOptionIndex == -1) {</span>
+<span class="nc" id="L52">			return null;</span>
+		}
+<span class="fc" id="L54">		List&lt;String&gt; options = getServicePathOptions();</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">		if (servicePathOptionIndex &gt;= options.size()) {</span>
+<span class="nc" id="L56">			return null;</span>
+		}
+<span class="fc" id="L58">		return options.get(servicePathOptionIndex);</span>
+	}
+
+	public void setServicePath(String servicePath) {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">		if (servicePath == null) {</span>
+<span class="nc" id="L63">			this.servicePathOptionIndex = -1;</span>
+<span class="nc" id="L64">			return;</span>
+		}
+<span class="nc" id="L66">		List&lt;String&gt; options = getServicePathOptions();</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">		if (!options.contains(servicePath)) {</span>
+<span class="nc" id="L68">			this.servicePathOptionIndex = -1;</span>
+<span class="nc" id="L69">			return;</span>
+		}
+<span class="nc" id="L71">		this.servicePathOptionIndex = options.indexOf(servicePath);</span>
+<span class="nc" id="L72">	}</span>
+
+	public void addServicePathOption(String servicePath) throws Exception {
+<span class="nc" id="L75">		HTTPServer server = expectServer();</span>
+<span class="nc" id="L76">		RequestHandler newRequestHandler = createRequestHandler(servicePath);</span>
+<span class="nc" id="L77">		newRequestHandler.validate(server);</span>
+<span class="nc" id="L78">		server.getRequestHandlers().add(newRequestHandler);</span>
+<span class="nc" id="L79">		setServicePath(servicePath);</span>
+<span class="nc" id="L80">	}</span>
+
+	public List&lt;String&gt; getServicePathOptions() {
+		try {
+<span class="fc" id="L84">			HTTPServer server = expectServer();</span>
+<span class="fc" id="L85">			List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">			for (RequestHandler requestHandler : server.getRequestHandlers()) {</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">				if (!isCompatibleWith(requestHandler)) {</span>
+<span class="fc" id="L88">					continue;</span>
+				}
+<span class="fc" id="L90">				result.add(requestHandler.getServicePathVariant().getValue());</span>
+			}
+<span class="fc" id="L92">			return result;</span>
+<span class="nc" id="L93">		} catch (IllegalStateException e) {</span>
+<span class="nc" id="L94">			return Collections.emptyList();</span>
+		}
+	}
+
+	public RequestHandler getRequestHandler() {
+		try {
+<span class="fc" id="L100">			String servicePath = getServicePath();</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">			if(servicePath == null) {</span>
+<span class="nc" id="L102">				return null;</span>
+			}
+<span class="fc" id="L104">			HTTPServer server = expectServer();</span>
+<span class="fc" id="L105">			RequestHandler result = server.expectRequestHandler(getServicePath());</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">			if (!isCompatibleWith(result)) {</span>
+<span class="nc" id="L107">				throw new UnexpectedError();</span>
+			}
+<span class="fc" id="L109">			return result;</span>
+<span class="nc" id="L110">		} catch (IllegalStateException | IllegalArgumentException e) {</span>
+<span class="nc" id="L111">			return null;</span>
+		}
+	}
+
+	@Override
+	public boolean isAutomaticallyTriggerable() {
+<span class="fc" id="L117">		return true;</span>
+	}
+
+	@Override
+	public void validate(boolean recursively, Plan plan) throws ValidationError {
+<span class="fc" id="L122">		super.validate(recursively, plan);</span>
+		try {
+<span class="fc" id="L124">			expectServer();</span>
+<span class="pc" id="L125">		} catch (IllegalStateException e) {</span>
+<span class="nc" id="L126">			throw new ValidationError(e.getMessage(), e);</span>
+		}
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">		if (getRequestHandler() == null) {</span>
+<span class="nc" id="L129">			throw new ValidationError(&quot;Failed to resolve the request handler reference&quot;);</span>
+		}
+<span class="fc" id="L131">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

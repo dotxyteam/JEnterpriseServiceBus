@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Plan.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.solution</a> &gt; <span class="el_source">Plan.java</span></div><h1>Plan.java</h1><pre class="source lang-java linenums">package com.otk.jesb.solution;
+
+import java.beans.Transient;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.EnvironmentSettings;
+import com.otk.jesb.Reference;
+import com.otk.jesb.Session;
+import com.otk.jesb.StandardError;
+import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.activation.builtin.LaunchAtStartup;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.util.Accessor;
+
+/**
+ * This class allows to model a set of successive actions (instances of
+ * {@link Operation}) and their trigger ({@link Activator}) in the form of
+ * directed graphs (nodes are instances of {@link Step}).
+ * 
+ * @author olitank
+ *
+ */
+public class Plan extends Asset {
+
+	public static final String INPUT_VARIABLE_NAME = &quot;PLAN_INPUT&quot;;
+
+<span class="fc" id="L42">	public Plan() {</span>
+<span class="fc" id="L43">	}</span>
+
+	public Plan(String name) {
+<span class="fc" id="L46">		super(name);</span>
+<span class="fc" id="L47">	}</span>
+
+<span class="fc" id="L49">	private Activator activator = new LaunchAtStartup();</span>
+<span class="fc" id="L50">	private List&lt;Step&gt; steps = new ArrayList&lt;Step&gt;();</span>
+<span class="fc" id="L51">	private List&lt;Transition&gt; transitions = new ArrayList&lt;Transition&gt;();</span>
+<span class="fc" id="L52">	private transient Set&lt;PlanElement&gt; selectedElements = new HashSet&lt;PlanElement&gt;();</span>
+	private transient PlanElement focusedElementSelectedSurrounding;
+<span class="fc" id="L54">	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + &quot;Output&quot;,</span>
+<span class="fc" id="L55">			new OutputClassNameAccessor());</span>
+
+	public Activator getActivator() {
+<span class="fc" id="L58">		return activator;</span>
+	}
+
+	public void setActivator(Activator activator) {
+<span class="fc" id="L62">		this.activator = activator;</span>
+<span class="fc" id="L63">	}</span>
+
+	public RootInstanceBuilder getOutputBuilder() {
+<span class="fc" id="L66">		return outputBuilder;</span>
+	}
+
+	public void setOutputBuilder(RootInstanceBuilder outputBuilder) {
+<span class="fc" id="L70">		this.outputBuilder = outputBuilder;</span>
+<span class="fc" id="L71">	}</span>
+
+	public boolean isInputEnabled() {
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">		return activator.getInputClass() != null;</span>
+	}
+
+	public boolean isOutputEnabled() {
+<span class="fc bfc" id="L78" title="All 2 branches covered.">		return activator.getOutputClass() != null;</span>
+	}
+
+	public List&lt;Step&gt; getSteps() {
+<span class="fc" id="L82">		return steps;</span>
+	}
+
+	public void setSteps(List&lt;Step&gt; steps) {
+<span class="fc" id="L86">		this.steps = steps;</span>
+<span class="fc" id="L87">	}</span>
+
+	public List&lt;Transition&gt; getTransitions() {
+<span class="fc" id="L90">		return transitions;</span>
+	}
+
+	public void setTransitions(List&lt;Transition&gt; transitions) {
+<span class="fc" id="L94">		this.transitions = transitions;</span>
+<span class="fc" id="L95">	}</span>
+
+	@Transient
+	public Set&lt;PlanElement&gt; getSelectedElements() {
+<span class="pc bpc" id="L99" title="3 of 4 branches missed.">		return selectedElements.stream().filter(element -&gt; steps.contains(element) || transitions.contains(element))</span>
+<span class="fc" id="L100">				.collect(Collectors.toSet());</span>
+	}
+
+	public void setSelectedElements(Set&lt;PlanElement&gt; selectedElements) {
+<span class="fc" id="L104">		this.selectedElements = selectedElements;</span>
+<span class="fc" id="L105">	}</span>
+
+	@Transient
+	public PlanElement getFocusedElementSelectedSurrounding() {
+<span class="fc bfc" id="L109" title="All 2 branches covered.">		return getFocusedElementSurroundings().contains(focusedElementSelectedSurrounding)</span>
+<span class="fc" id="L110">				? focusedElementSelectedSurrounding</span>
+<span class="fc" id="L111">				: null;</span>
+	}
+
+	public void setFocusedElementSelectedSurrounding(PlanElement focusedElementSelectedSurrounding) {
+<span class="fc" id="L115">		this.focusedElementSelectedSurrounding = focusedElementSelectedSurrounding;</span>
+<span class="fc" id="L116">	}</span>
+
+	@Transient
+	public PlanElement getFocusedElement() {
+<span class="fc" id="L120">		Set&lt;PlanElement&gt; selectedElements = getSelectedElements();</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">		return (selectedElements.size() == 1) ? selectedElements.iterator().next() : null;</span>
+	}
+
+	public void setFocusedElement(PlanElement focusedElement) {
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		setSelectedElements((focusedElement != null) ? Collections.singleton(focusedElement) : Collections.emptySet());</span>
+<span class="nc" id="L126">	}</span>
+
+	public List&lt;PlanElement&gt; getFocusedElementSurroundings() {
+<span class="fc" id="L129">		List&lt;PlanElement&gt; result = new ArrayList&lt;PlanElement&gt;();</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">		if (getSelectedElements().size() == 0) {</span>
+<span class="fc" id="L131">			result.addAll(steps);</span>
+<span class="fc" id="L132">			result.addAll(transitions);</span>
+<span class="fc" id="L133">		} else {</span>
+<span class="fc" id="L134">			PlanElement focusedElement = getFocusedElement();</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">			if (focusedElement != null) {</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">				if (focusedElement instanceof Step) {</span>
+<span class="fc" id="L137">					Step step = (Step) focusedElement;</span>
+<span class="pc bnc" id="L138" title="All 2 branches missed.">					result.addAll(transitions.stream().filter(transition -&gt; transition.getEndStep() == step)</span>
+<span class="fc" id="L139">							.collect(Collectors.toList()));</span>
+<span class="fc" id="L140">					result.add(step);</span>
+<span class="pc bnc" id="L141" title="All 2 branches missed.">					result.addAll(transitions.stream().filter(transition -&gt; transition.getStartStep() == step)</span>
+<span class="fc" id="L142">							.collect(Collectors.toList()));</span>
+<span class="pc bnc" id="L143" title="All 2 branches missed.">				} else if (focusedElement instanceof Transition) {</span>
+<span class="nc" id="L144">					Transition transition = (Transition) focusedElement;</span>
+<span class="nc" id="L145">					result.add(transition.getStartStep());</span>
+<span class="nc" id="L146">					result.addAll(transitions.stream()</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">							.filter(anyTransition -&gt; (anyTransition.getStartStep() == transition.getStartStep())</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">									&amp;&amp; (anyTransition.getEndStep() == transition.getEndStep()))</span>
+<span class="nc" id="L149">							.collect(Collectors.toList()));</span>
+<span class="nc" id="L150">					result.add(transition.getEndStep());</span>
+<span class="nc" id="L151">				} else {</span>
+<span class="nc" id="L152">					throw new UnexpectedError();</span>
+				}
+			}
+		}
+<span class="fc" id="L156">		return result;</span>
+	}
+
+	private List&lt;Step&gt; getPrecedingSteps(Step step) {
+<span class="fc" id="L160">		Map&lt;Step, List&lt;Step&gt;&gt; reversedGraph = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">		for (Transition t : transitions) {</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">			if (t.getStartStep().getParent() != step.getParent()) {</span>
+<span class="fc" id="L163">				continue;</span>
+			}
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">			if (t.getEndStep().getParent() != step.getParent()) {</span>
+<span class="nc" id="L166">				continue;</span>
+			}
+<span class="fc" id="L168">			reversedGraph.computeIfAbsent(t.getEndStep(), k -&gt; new ArrayList&lt;&gt;()).add(t.getStartStep());</span>
+		}
+<span class="fc" id="L170">		Set&lt;Step&gt; visited = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L171">		List&lt;Step&gt; ordered = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L172">		collectPrecedingStepsTopologically(step, reversedGraph, visited, ordered);</span>
+<span class="fc" id="L173">		return ordered;</span>
+	}
+
+	private void collectPrecedingStepsTopologically(Step current, Map&lt;Step, List&lt;Step&gt;&gt; graph, Set&lt;Step&gt; visited,
+			List&lt;Step&gt; result) {
+<span class="fc bfc" id="L178" title="All 2 branches covered.">		for (Step pred : graph.getOrDefault(current, Collections.emptyList())) {</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">			if (visited.add(pred)) {</span>
+<span class="fc" id="L180">				collectPrecedingStepsTopologically(pred, graph, visited, result);</span>
+<span class="fc" id="L181">				result.add(pred);</span>
+			}
+		}
+<span class="fc" id="L184">	}</span>
+
+	public boolean isPreceding(Step step1, Step step2) {
+<span class="fc" id="L187">		return getPrecedingSteps(step2).contains(step1);</span>
+	}
+
+	private List&lt;Step&gt; findFirstSteps(List&lt;Step&gt; steps) {
+<span class="fc" id="L191">		List&lt;Step&gt; result = new ArrayList&lt;Step&gt;(steps);</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">		for (Transition t : transitions) {</span>
+<span class="fc" id="L193">			result.remove(t.getEndStep());</span>
+		}
+<span class="fc" id="L195">		return result;</span>
+	}
+
+	private List&lt;Step&gt; findLastSteps(List&lt;Step&gt; steps) {
+<span class="fc" id="L199">		List&lt;Step&gt; result = new ArrayList&lt;Step&gt;(steps);</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">		for (Transition t : transitions) {</span>
+<span class="fc" id="L201">			result.remove(t.getStartStep());</span>
+		}
+<span class="fc" id="L203">		return result;</span>
+	}
+
+	public Object execute(final Object input, ExecutionInspector executionInspector, ExecutionContext context)
+			throws ExecutionError {
+		try {
+<span class="fc bfc" id="L209" title="All 2 branches covered.">			if (!Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {</span>
+<span class="fc" id="L210">				synchronized (context) {</span>
+<span class="fc" id="L211">					context.getVariables().add(EnvironmentSettings.ROOT_VARIABLE_ROOT);</span>
+				}
+			}
+<span class="fc" id="L214">			Class&lt;?&gt; inputClass = activator.getInputClass();</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">			if (inputClass != null) {</span>
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">				if (input != null) {</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">					if (!inputClass.isInstance(input)) {</span>
+<span class="nc" id="L218">						throw new UnexpectedError();</span>
+					}
+				}
+<span class="fc" id="L221">				context.getVariables().add(new Variable() {</span>
+
+					@Override
+					public Object getValue() {
+<span class="fc" id="L225">						return input;</span>
+					}
+
+					@Override
+					public String getName() {
+<span class="fc" id="L230">						return INPUT_VARIABLE_NAME;</span>
+					}
+				});
+			}
+<span class="fc bfc" id="L234" title="All 2 branches covered.">			execute(steps.stream().filter(step -&gt; (step.getParent() == null)).collect(Collectors.toList()), context,</span>
+<span class="fc" id="L235">					executionInspector);</span>
+<span class="fc" id="L236">			return outputBuilder.build(new InstantiationContext(context.getVariables(),</span>
+<span class="fc" id="L237">					getValidationContext(null).getVariableDeclarations()));</span>
+<span class="fc" id="L238">		} catch (Throwable t) {</span>
+<span class="fc" id="L239">			throw new ExecutionError(&quot;Failed to execute plan (&quot; + Reference.get(this).getPath() + &quot;)&quot;, t);</span>
+		}
+	}
+
+	public void execute(List&lt;Step&gt; steps, ExecutionContext context, ExecutionInspector executionInspector)
+			throws ExecutionError {
+<span class="fc bfc" id="L245" title="All 2 branches covered.">		if (steps.size() == 0) {</span>
+<span class="fc" id="L246">			return;</span>
+		}
+<span class="fc" id="L248">		List&lt;Step&gt; firstSteps = findFirstSteps(steps);</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">		if (firstSteps.size() == 0) {</span>
+<span class="nc" id="L250">			throw new ExecutionError(new PlanificationError(&quot;Could not find any initial step&quot;));</span>
+		}
+<span class="fc" id="L252">		List&lt;Variable&gt; initialVariables = new ArrayList&lt;Variable&gt;(context.getVariables());</span>
+<span class="fc" id="L253">		List&lt;Variable&gt; allVariables = new ArrayList&lt;Variable&gt;(initialVariables);</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">		for (Step firstStep : firstSteps) {</span>
+<span class="fc" id="L255">			context.getVariables().clear();</span>
+<span class="fc" id="L256">			context.getVariables().addAll(initialVariables);</span>
+<span class="fc" id="L257">			continueExecution(firstStep, true, context, allVariables, executionInspector);</span>
+		}
+<span class="fc" id="L259">		List&lt;Step&gt; lastSteps = findLastSteps(steps);</span>
+<span class="fc" id="L260">		List&lt;StepOccurrence&gt; lastStepOccurrences = lastSteps.stream()</span>
+<span class="fc" id="L261">				.map(lastStep -&gt; findStepOccurrence(lastStep, allVariables)).collect(Collectors.toList());</span>
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">		if (lastStepOccurrences.contains(null)) {</span>
+<span class="nc" id="L263">			throw new UnexpectedError();</span>
+		}
+<span class="fc" id="L265">		List&lt;Variable&gt; finalVariables = mergeStepOccurrenceVariables(lastStepOccurrences);</span>
+<span class="fc" id="L266">		context.getVariables().clear();</span>
+<span class="fc" id="L267">		context.getVariables().addAll(finalVariables);</span>
+<span class="fc" id="L268">	}</span>
+
+	private void continueExecution(Step fromStep, boolean executionBranchValid, ExecutionContext context,
+			List&lt;Variable&gt; allTakenExecutionPathVariables, ExecutionInspector executionInspector)
+			throws ExecutionError {
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">		if (executionInspector.isExecutionInterrupted()) {</span>
+<span class="nc" id="L274">			return;</span>
+		}
+<span class="fc" id="L276">		List&lt;Transition&gt; outgoingTransitions = transitions.stream()</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">				.filter(transition -&gt; (transition.getStartStep() == fromStep)).collect(Collectors.toList());</span>
+<span class="fc" id="L278">		StepOccurrence currentStepOccurrence = execute(fromStep, outgoingTransitions, executionBranchValid, context,</span>
+<span class="fc" id="L279">				executionInspector);</span>
+<span class="fc" id="L280">		allTakenExecutionPathVariables.add(currentStepOccurrence);</span>
+<span class="fc" id="L281">		final int TRANSITION_NOT_REACHED = 0;</span>
+<span class="fc" id="L282">		final int TRANSITION_REACHED_THROUGH_VALID_BRANCH = 1;</span>
+<span class="fc" id="L283">		final int TRANSITION_REACHED_THROUGH_INVALID_BRANCH = 2;</span>
+<span class="fc bfc" id="L284" title="All 2 branches covered.">		for (Transition outgoingTransition : outgoingTransitions) {</span>
+<span class="fc" id="L285">			boolean endStepAlreadyExecuted = allTakenExecutionPathVariables.stream()</span>
+<span class="fc" id="L286">					.anyMatch(variable -&gt; variable.getName().equals(outgoingTransition.getEndStep().getName()));</span>
+<span class="fc bfc" id="L287" title="All 2 branches covered.">			if (endStepAlreadyExecuted) {</span>
+				/*
+				 * It occurs when the end step is also in a path starting from a preceding
+				 * sibling outgoing transition.
+				 */
+<span class="fc" id="L292">				continue;</span>
+			}
+<span class="fc" id="L294">			List&lt;Transition&gt; convergentTransitions = transitions.stream()</span>
+<span class="fc bfc" id="L295" title="All 2 branches covered.">					.filter(candidateConvergentTransition -&gt; (candidateConvergentTransition</span>
+<span class="fc" id="L296">							.getEndStep() == outgoingTransition.getEndStep()))</span>
+<span class="fc" id="L297">					.collect(Collectors.toList());</span>
+<span class="fc" id="L298">			Map&lt;Transition, Integer&gt; statusByConvergentTransition = new HashMap&lt;Transition, Integer&gt;();</span>
+<span class="fc bfc" id="L299" title="All 2 branches covered.">			for (Transition convergentTransition : convergentTransitions) {</span>
+<span class="fc" id="L300">				int convergentTransitionStatus = TRANSITION_NOT_REACHED;</span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">				for (Variable variable : allTakenExecutionPathVariables) {</span>
+<span class="fc bfc" id="L302" title="All 2 branches covered.">					if ((variable instanceof StepOccurrence)</span>
+<span class="fc bfc" id="L303" title="All 2 branches covered.">							&amp;&amp; (((StepOccurrence) variable).getStep() == convergentTransition.getStartStep())) {</span>
+<span class="fc bfc" id="L304" title="All 2 branches covered.">						if (variable instanceof StepCrossing) {</span>
+<span class="fc" id="L305">							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_VALID_BRANCH;</span>
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">						} else if (variable instanceof StepSkipping) {</span>
+<span class="fc" id="L307">							convergentTransitionStatus = TRANSITION_REACHED_THROUGH_INVALID_BRANCH;</span>
+<span class="fc" id="L308">						} else {</span>
+<span class="nc" id="L309">							throw new UnexpectedError();</span>
+						}
+						break;
+					}
+				}
+<span class="fc" id="L314">				statusByConvergentTransition.put(convergentTransition, convergentTransitionStatus);</span>
+			}
+<span class="fc bfc" id="L316" title="All 2 branches covered.">			boolean readyForNextStep = !statusByConvergentTransition.containsValue(TRANSITION_NOT_REACHED);</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">			if (readyForNextStep) {</span>
+<span class="fc" id="L318">				List&lt;StepOccurrence&gt; startStepOccurrences = convergentTransitions.stream()</span>
+<span class="fc" id="L319">						.map(convergentTransition -&gt; findStepOccurrence(convergentTransition.getStartStep(),</span>
+<span class="fc" id="L320">								allTakenExecutionPathVariables))</span>
+<span class="fc" id="L321">						.collect(Collectors.toList());</span>
+<span class="pc bpc" id="L322" title="1 of 2 branches missed.">				if (startStepOccurrences.contains(null)) {</span>
+<span class="nc" id="L323">					throw new UnexpectedError();</span>
+				}
+<span class="fc" id="L325">				List&lt;Variable&gt; convergentTransitionsMergedVariables = mergeStepOccurrenceVariables(</span>
+<span class="fc" id="L326">						startStepOccurrences);</span>
+<span class="fc" id="L327">				context.getVariables().clear();</span>
+<span class="fc" id="L328">				context.getVariables().addAll(convergentTransitionsMergedVariables);</span>
+<span class="fc bfc" id="L329" title="All 2 branches covered.">				if (outgoingTransition.getCondition() instanceof Transition.ExceptionCondition) {</span>
+<span class="fc" id="L330">					Transition.ExceptionCondition exceptionCondition = (Transition.ExceptionCondition) outgoingTransition</span>
+<span class="fc" id="L331">							.getCondition();</span>
+<span class="fc" id="L332">					Throwable exception = null;</span>
+<span class="fc bfc" id="L333" title="All 2 branches covered.">					if (currentStepOccurrence instanceof StepCrossing) {</span>
+<span class="fc" id="L334">						StepCrossing currentStepCrossing = (StepCrossing) currentStepOccurrence;</span>
+<span class="fc bfc" id="L335" title="All 2 branches covered.">						if (currentStepCrossing.getValidTransitions().contains(outgoingTransition)) {</span>
+<span class="fc" id="L336">							exception = currentStepCrossing.getOperationError();</span>
+						}
+					}
+<span class="fc" id="L339">					Variable exceptionVariable = exceptionCondition.getExceptionVariable(exception);</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">					if (exceptionVariable != null) {</span>
+<span class="fc" id="L341">						context.getVariables().add(exceptionVariable);</span>
+					}
+				}
+<span class="fc" id="L344">				boolean futureExecutionBranchValid = statusByConvergentTransition.entrySet().stream()</span>
+<span class="fc" id="L345">						.anyMatch(entry -&gt; {</span>
+<span class="fc" id="L346">							Transition convergentTransition = entry.getKey();</span>
+<span class="fc" id="L347">							int convergentTransitionStatus = entry.getValue();</span>
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">							if (convergentTransitionStatus != TRANSITION_REACHED_THROUGH_VALID_BRANCH) {</span>
+<span class="nc" id="L349">								return false;</span>
+							}
+<span class="fc" id="L351">							StepCrossing convergentTransitionStartStepCrossing = (StepCrossing) startStepOccurrences</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">									.stream().filter(startStepOccurrence -&gt; startStepOccurrence</span>
+<span class="fc" id="L353">											.getStep() == convergentTransition.getStartStep())</span>
+<span class="fc" id="L354">									.findFirst().get();</span>
+<span class="fc" id="L355">							return convergentTransitionStartStepCrossing.getValidTransitions()</span>
+<span class="fc" id="L356">									.contains(convergentTransition);</span>
+						});
+<span class="fc" id="L358">				continueExecution(outgoingTransition.getEndStep(), futureExecutionBranchValid, context,</span>
+<span class="fc" id="L359">						allTakenExecutionPathVariables, executionInspector);</span>
+			}
+<span class="fc" id="L361">			context.getVariables().forEach(variable -&gt; {</span>
+<span class="fc bfc" id="L362" title="All 2 branches covered.">				if (!allTakenExecutionPathVariables.contains(variable)) {</span>
+<span class="fc" id="L363">					allTakenExecutionPathVariables.add(variable);</span>
+				}
+<span class="fc" id="L365">			});</span>
+		}
+<span class="fc" id="L367">	}</span>
+
+	private List&lt;Variable&gt; mergeStepOccurrenceVariables(List&lt;StepOccurrence&gt; stepOccurrences) {
+<span class="fc" id="L370">		List&lt;Variable&gt; result = new ArrayList&lt;Variable&gt;();</span>
+<span class="fc" id="L371">		stepOccurrences.stream().forEach(stepOccurrence -&gt; {</span>
+<span class="fc bfc" id="L372" title="All 2 branches covered.">			for (Variable variable : stepOccurrence.getPostVariablesSnapshot()) {</span>
+<span class="fc bfc" id="L373" title="All 2 branches covered.">				if (!result.contains(variable)) {</span>
+<span class="fc" id="L374">					result.add(variable);</span>
+				}
+			}
+<span class="fc" id="L377">		});</span>
+<span class="fc" id="L378">		return result;</span>
+	}
+
+	private StepOccurrence findStepOccurrence(Step step, List&lt;Variable&gt; variables) {
+<span class="pc bpc" id="L382" title="1 of 2 branches missed.">		for (Variable variable : variables) {</span>
+<span class="fc bfc" id="L383" title="All 4 branches covered.">			if ((variable instanceof StepOccurrence) &amp;&amp; (((StepOccurrence) variable).getStep() == step)) {</span>
+<span class="fc" id="L384">				return (StepOccurrence) variable;</span>
+			}
+		}
+<span class="nc" id="L387">		return null;</span>
+	}
+
+	private StepOccurrence execute(Step step, List&lt;Transition&gt; outgoingTransitions, boolean executionBranchValid,
+			ExecutionContext context, ExecutionInspector executionInspector) throws ExecutionError {
+<span class="fc bfc" id="L392" title="All 2 branches covered.">		if (executionBranchValid) {</span>
+<span class="fc" id="L393">			StepCrossing stepCrossing = new StepCrossing(step, this);</span>
+			ExecutionError executionError;
+			try {
+				try {
+<span class="fc" id="L397">					execute(stepCrossing, context, executionInspector);</span>
+<span class="fc" id="L398">					executionError = null;</span>
+<span class="fc" id="L399">				} catch (ExecutionError e) {</span>
+<span class="fc" id="L400">					executionError = e;</span>
+				} finally {
+<span class="fc" id="L402">					synchronized (context) {</span>
+<span class="fc" id="L403">						context.getVariables().add(stepCrossing);</span>
+					}
+				}
+<span class="fc bfc" id="L406" title="All 2 branches covered.">				if (outgoingTransitions.size() == 0) {</span>
+<span class="fc bfc" id="L407" title="All 2 branches covered.">					if (executionError != null) {</span>
+<span class="fc" id="L408">						throw executionError;</span>
+					}
+				} else {
+					List&lt;Transition&gt; validTransitions;
+					try {
+<span class="fc" id="L413">						validTransitions = Transition.computeValidTranstions(outgoingTransitions, executionError,</span>
+<span class="fc" id="L414">								context);</span>
+<span class="pc" id="L415">					} catch (Throwable t) {</span>
+<span class="nc" id="L416">						stepCrossing.setOperationError(t);</span>
+<span class="nc" id="L417">						throw new ExecutionError(t);</span>
+					}
+<span class="fc" id="L419">					stepCrossing.setValidTransitions(validTransitions);</span>
+<span class="fc bfc" id="L420" title="All 2 branches covered.">					if (validTransitions.size() == 0) {</span>
+<span class="pc bpc" id="L421" title="1 of 2 branches missed.">						if (executionError != null) {</span>
+<span class="fc" id="L422">							throw executionError;</span>
+						} else {
+<span class="nc" id="L424">							PlanificationError planificationError = new PlanificationError(</span>
+<span class="nc" id="L425">									&quot;Could not find any valid transition from step '&quot; + step + &quot;'&quot;);</span>
+<span class="nc" id="L426">							stepCrossing.setOperationError(planificationError);</span>
+<span class="nc" id="L427">							throw new ExecutionError(planificationError);</span>
+						}
+					}
+				}
+			} finally {
+<span class="fc" id="L432">				stepCrossing.capturePostVariables(context.getVariables());</span>
+			}
+<span class="fc" id="L434">			return stepCrossing;</span>
+		} else {
+<span class="fc" id="L436">			StepSkipping stepSkipping = new StepSkipping(step, this);</span>
+<span class="fc" id="L437">			context.getVariables().add(stepSkipping);</span>
+<span class="fc" id="L438">			stepSkipping.capturePostVariables(context.getVariables());</span>
+<span class="fc" id="L439">			return stepSkipping;</span>
+		}
+	}
+
+	public List&lt;VariableDeclaration&gt; getTransitionContextVariableDeclarations(Transition transition) {
+<span class="fc" id="L444">		List&lt;VariableDeclaration&gt; result = getValidationContext(transition.getStartStep()).getVariableDeclarations();</span>
+<span class="fc" id="L445">		VariableDeclaration startStepVariableDeclaration = getResultVariableDeclaration(transition.getStartStep());</span>
+<span class="fc bfc" id="L446" title="All 2 branches covered.">		if (startStepVariableDeclaration != null) {</span>
+<span class="fc" id="L447">			result = new ArrayList&lt;VariableDeclaration&gt;(result);</span>
+<span class="fc" id="L448">			result.add(startStepVariableDeclaration);</span>
+		}
+<span class="fc" id="L450">		return result;</span>
+	}
+
+	private void execute(StepCrossing stepCrossing, ExecutionContext context, ExecutionInspector executionInspector)
+			throws ExecutionError {
+<span class="fc" id="L455">		Step step = stepCrossing.getStep();</span>
+<span class="fc" id="L456">		context.setCutrrentStep(step);</span>
+<span class="fc" id="L457">		executionInspector.beforeOperation(stepCrossing);</span>
+		try {
+<span class="fc" id="L459">			OperationBuilder&lt;?&gt; operationBuilder = step.getOperationBuilder();</span>
+<span class="fc" id="L460">			Operation operation = operationBuilder.build(context, executionInspector);</span>
+<span class="fc" id="L461">			stepCrossing.setOperation(operation);</span>
+<span class="fc" id="L462">			stepCrossing.setOperationResult(operation.execute());</span>
+<span class="fc" id="L463">		} catch (Throwable t) {</span>
+<span class="fc" id="L464">			stepCrossing.setOperationError(t);</span>
+<span class="fc" id="L465">			throw new ExecutionError(&quot;An error occured at step '&quot; + step.getName() + &quot;'&quot;, t);</span>
+		} finally {
+<span class="fc" id="L467">			executionInspector.afterOperation(stepCrossing);</span>
+		}
+<span class="fc" id="L469">		context.setCutrrentStep(null);</span>
+<span class="fc" id="L470">	}</span>
+
+	public ValidationContext getValidationContext(Step currentStep) {
+		ValidationContext result;
+<span class="fc bfc" id="L474" title="All 4 branches covered.">		if ((currentStep != null) &amp;&amp; (currentStep.getParent() != null)) {</span>
+<span class="fc" id="L475">			result = getValidationContext(currentStep.getParent());</span>
+<span class="fc bfc" id="L476" title="All 2 branches covered.">			for (VariableDeclaration declaration : currentStep.getParent().getContextualVariableDeclarations()) {</span>
+<span class="fc" id="L477">				result = new ValidationContext(result, declaration);</span>
+			}
+<span class="fc" id="L479">		} else {</span>
+<span class="fc" id="L480">			result = new ValidationContext(this, currentStep);</span>
+<span class="fc bfc" id="L481" title="All 2 branches covered.">			if (!Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {</span>
+<span class="fc" id="L482">				result.getVariableDeclarations().add(EnvironmentSettings.ROOT_VALUE_DECLARATION);</span>
+			}
+<span class="fc" id="L484">			Class&lt;?&gt; inputClass = activator.getInputClass();</span>
+<span class="fc bfc" id="L485" title="All 2 branches covered.">			if (inputClass != null) {</span>
+<span class="fc" id="L486">				result.getVariableDeclarations().add(new VariableDeclaration() {</span>
+
+					@Override
+					public String getVariableName() {
+<span class="fc" id="L490">						return INPUT_VARIABLE_NAME;</span>
+					}
+
+					@Override
+					public Class&lt;?&gt; getVariableType() {
+<span class="fc" id="L495">						return inputClass;</span>
+					}
+				});
+			}
+		}
+<span class="fc bfc" id="L500" title="All 2 branches covered.">		List&lt;Step&gt; precedingSteps = (currentStep != null) ? getPrecedingSteps(currentStep)</span>
+<span class="fc bfc" id="L501" title="All 2 branches covered.">				: steps.stream().filter(step -&gt; step.getParent() == null).collect(Collectors.toList());</span>
+<span class="fc bfc" id="L502" title="All 2 branches covered.">		for (Step step : precedingSteps) {</span>
+<span class="fc" id="L503">			VariableDeclaration stepVariableDeclaration = getResultVariableDeclaration(step);</span>
+<span class="fc" id="L504">			result.getVariableDeclarations().addAll(getIncomingTransitionVariableDeclarations(step));</span>
+<span class="fc bfc" id="L505" title="All 2 branches covered.">			if (stepVariableDeclaration != null) {</span>
+<span class="fc" id="L506">				result.getVariableDeclarations().add(stepVariableDeclaration);</span>
+			}
+		}
+<span class="fc" id="L509">		result.getVariableDeclarations().addAll(getIncomingTransitionVariableDeclarations(currentStep));</span>
+<span class="fc" id="L510">		return result;</span>
+	}
+
+	private List&lt;VariableDeclaration&gt; getIncomingTransitionVariableDeclarations(Step step) {
+<span class="fc" id="L514">		List&lt;VariableDeclaration&gt; result = new ArrayList&lt;VariableDeclaration&gt;();</span>
+<span class="fc" id="L515">		List&lt;Transition&gt; incomingTransitions = transitions.stream()</span>
+<span class="fc bfc" id="L516" title="All 2 branches covered.">				.filter(transition -&gt; transition.getEndStep() == step).collect(Collectors.toList());</span>
+<span class="fc" id="L517">		incomingTransitions.forEach(transition -&gt; result.addAll(transition.getVariableDeclarations()));</span>
+<span class="fc" id="L518">		return result;</span>
+	}
+
+	public VariableDeclaration getResultVariableDeclaration(Step step) {
+<span class="fc bfc" id="L522" title="All 2 branches covered.">		if (step.getOperationBuilder().getOperationResultClass(this, step) != null) {</span>
+<span class="fc" id="L523">			return new StepEventuality(step, this);</span>
+		} else {
+<span class="fc" id="L525">			return null;</span>
+		}
+	}
+
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+<span class="fc" id="L531">		super.validate(recursively);</span>
+<span class="fc" id="L532">		List&lt;String&gt; stepNames = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L533" title="All 2 branches covered.">		for (Step step : steps) {</span>
+<span class="pc bpc" id="L534" title="1 of 2 branches missed.">			if (stepNames.contains(step.getName())) {</span>
+<span class="nc" id="L535">				throw new ValidationError(&quot;Duplicate step name detected: '&quot; + step.getName() + &quot;'&quot;);</span>
+			} else {
+<span class="fc" id="L537">				stepNames.add(step.getName());</span>
+			}
+		}
+<span class="fc bfc" id="L540" title="All 2 branches covered.">		if (recursively) {</span>
+<span class="fc bfc" id="L541" title="All 2 branches covered.">			for (Step step : steps) {</span>
+				try {
+<span class="fc" id="L543">					step.validate(recursively, this);</span>
+<span class="fc" id="L544">				} catch (ValidationError e) {</span>
+<span class="fc" id="L545">					throw new ValidationError(&quot;Failed to validate step '&quot; + step.getName() + &quot;'&quot;, e);</span>
+				}
+			}
+<span class="fc bfc" id="L548" title="All 2 branches covered.">			for (Transition transition : transitions) {</span>
+				try {
+<span class="fc" id="L550">					transition.validate(recursively, this);</span>
+<span class="pc" id="L551">				} catch (ValidationError e) {</span>
+<span class="nc" id="L552">					throw new ValidationError(&quot;Failed to validate transition '&quot; + transition.getSummary() + &quot;'&quot;, e);</span>
+				}
+			}
+<span class="fc" id="L555">			activator.validate(recursively, this);</span>
+<span class="fc bfc" id="L556" title="All 2 branches covered.">			if (isOutputEnabled()) {</span>
+<span class="fc" id="L557">				outputBuilder.getFacade().validate(recursively, getValidationContext(null).getVariableDeclarations());</span>
+			}
+		}
+<span class="fc" id="L560">	}</span>
+
+	public static class ValidationContext {
+
+		private Plan plan;
+		private Step step;
+<span class="fc" id="L566">		private List&lt;VariableDeclaration&gt; variableDeclarations = new ArrayList&lt;VariableDeclaration&gt;();</span>
+
+<span class="fc" id="L568">		public ValidationContext(Plan plan, Step step) {</span>
+<span class="fc" id="L569">			this.plan = plan;</span>
+<span class="fc" id="L570">			this.step = step;</span>
+<span class="fc" id="L571">		}</span>
+
+<span class="fc" id="L573">		public ValidationContext(ValidationContext parentContext, VariableDeclaration... newDeclarations) {</span>
+<span class="fc" id="L574">			plan = parentContext.getPlan();</span>
+<span class="fc" id="L575">			step = parentContext.getStep();</span>
+<span class="fc" id="L576">			variableDeclarations.addAll(parentContext.getVariableDeclarations());</span>
+<span class="fc bfc" id="L577" title="All 2 branches covered.">			for (VariableDeclaration newDeclaration : newDeclarations) {</span>
+<span class="fc" id="L578">				variableDeclarations.add(newDeclaration);</span>
+			}
+<span class="fc" id="L580">		}</span>
+
+		public Plan getPlan() {
+<span class="fc" id="L583">			return plan;</span>
+		}
+
+		public Step getStep() {
+<span class="fc" id="L587">			return step;</span>
+		}
+
+		public List&lt;VariableDeclaration&gt; getVariableDeclarations() {
+<span class="fc" id="L591">			return variableDeclarations;</span>
+		}
+
+	}
+
+	public static class ExecutionContext {
+
+		private Session session;
+		private Plan plan;
+		private Step currentStep;
+<span class="fc" id="L601">		private List&lt;Variable&gt; variables = new ArrayList&lt;Variable&gt;();</span>
+
+<span class="fc" id="L603">		public ExecutionContext(Session session, Plan plan) {</span>
+<span class="fc" id="L604">			this.session = session;</span>
+<span class="fc" id="L605">			this.plan = plan;</span>
+<span class="fc" id="L606">		}</span>
+
+		public Session getSession() {
+<span class="fc" id="L609">			return session;</span>
+		}
+
+		public Plan getPlan() {
+<span class="fc" id="L613">			return plan;</span>
+		}
+
+		public Step getCurrentStep() {
+<span class="fc" id="L617">			return currentStep;</span>
+		}
+
+		public void setCutrrentStep(Step step) {
+<span class="fc" id="L621">			this.currentStep = step;</span>
+<span class="fc" id="L622">		}</span>
+
+		public List&lt;Variable&gt; getVariables() {
+<span class="fc" id="L625">			return variables;</span>
+		}
+
+	}
+
+	public interface ExecutionInspector {
+
+<span class="fc" id="L632">		public static final ExecutionInspector DEFAULT = new Plan.ExecutionInspector() {</span>
+
+			@Override
+			public boolean isExecutionInterrupted() {
+<span class="fc" id="L636">				return false;</span>
+			}
+
+			@Override
+			public void beforeOperation(StepCrossing stepCrossing) {
+<span class="fc" id="L641">			}</span>
+
+			@Override
+			public void afterOperation(StepCrossing stepCrossing) {
+<span class="fc" id="L645">			}</span>
+<span class="fc" id="L646">		};</span>
+
+		void beforeOperation(StepCrossing stepCrossing);
+
+		boolean isExecutionInterrupted();
+
+		void afterOperation(StepCrossing stepCrossing);
+
+	}
+
+	public static class PlanificationError extends StandardError {
+
+		private static final long serialVersionUID = 1L;
+
+		public PlanificationError(String message) {
+<span class="nc" id="L661">			super(message);</span>
+<span class="nc" id="L662">		}</span>
+
+	}
+
+	public static class ExecutionError extends StandardError {
+
+		private static final long serialVersionUID = 1L;
+
+		public ExecutionError(Throwable cause) {
+<span class="nc" id="L671">			this(&quot;A problem occured&quot;, cause);</span>
+<span class="nc" id="L672">		}</span>
+
+		private ExecutionError(String message, Throwable cause) {
+<span class="fc bfc" id="L675" title="All 2 branches covered.">			super((cause instanceof ExecutionError) ? (message + &quot;:\n&quot; + cause.getMessage()) : message,</span>
+<span class="fc bfc" id="L676" title="All 2 branches covered.">					(cause instanceof ExecutionError) ? cause.getCause() : cause);</span>
+<span class="fc" id="L677">		}</span>
+
+		@Override
+		public String getMessage() {
+<span class="fc" id="L681">			String result = super.getMessage();</span>
+<span class="pc bpc" id="L682" title="1 of 2 branches missed.">			if (super.getCause() instanceof FunctionCallError) {</span>
+<span class="nc" id="L683">				result += &quot;\n&quot; + ((FunctionCallError) super.getCause()).describeSource();</span>
+			}
+<span class="fc" id="L685">			return result;</span>
+		}
+
+		@Override
+		public synchronized Throwable getCause() {
+<span class="fc" id="L690">			Throwable result = super.getCause();</span>
+<span class="pc bpc" id="L691" title="1 of 2 branches missed.">			if (result instanceof FunctionCallError) {</span>
+<span class="nc" id="L692">				result = ((FunctionCallError) result).getCause();</span>
+			}
+<span class="fc" id="L694">			return result;</span>
+		}
+
+	}
+
+<span class="fc" id="L699">	private class OutputClassNameAccessor extends Accessor&lt;String&gt; {</span>
+		@Override
+		public String get() {
+<span class="fc" id="L702">			Class&lt;?&gt; outputClass = activator.getOutputClass();</span>
+<span class="fc bfc" id="L703" title="All 2 branches covered.">			if (outputClass == null) {</span>
+<span class="fc" id="L704">				return null;</span>
+			}
+<span class="fc" id="L706">			return outputClass.getName();</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

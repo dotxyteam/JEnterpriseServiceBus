@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>JXDateTimePicker.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.util</a> &gt; <span class="el_source">JXDateTimePicker.java</span></div><h1>JXDateTimePicker.java</h1><pre class="source lang-java linenums">
+
+
+package xy.reflect.ui.control.swing.util;
+
+import org.jdesktop.swingx.calendar.SingleDaySelectionModel;
+
+import xy.reflect.ui.util.ReflectionUIError;
+
+import org.jdesktop.swingx.JXDatePicker;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.text.DateFormatter;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.*;
+import java.awt.*;
+
+/**
+ * An extended version the {@link JXDatePicker} allowing to display/edit time
+ * (hour, minute, ...).
+ */
+public class JXDateTimePicker extends JXDatePicker {
+	private static final long serialVersionUID = 1L;
+
+	private JSpinner timeSpinner;
+	private JPanel timePanel;
+	private DateFormat timeFormat;
+
+	public JXDateTimePicker() {
+<span class="nc" id="L34">		super();</span>
+<span class="nc" id="L35">		getMonthView().setSelectionModel(new SingleDaySelectionModel());</span>
+<span class="nc" id="L36">	}</span>
+
+	public JXDateTimePicker(Date d) {
+<span class="nc" id="L39">		this();</span>
+<span class="nc" id="L40">		setDate(d);</span>
+<span class="nc" id="L41">	}</span>
+
+	public void commitEdit() throws ParseException {
+<span class="nc" id="L44">		commitTime();</span>
+<span class="nc" id="L45">		super.commitEdit();</span>
+<span class="nc" id="L46">	}</span>
+
+	public void cancelEdit() {
+<span class="nc" id="L49">		super.cancelEdit();</span>
+<span class="nc" id="L50">		setTimeSpinners();</span>
+<span class="nc" id="L51">	}</span>
+
+	@Override
+	public JPanel getLinkPanel() {
+<span class="nc" id="L55">		super.getLinkPanel();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">		if (timePanel == null) {</span>
+<span class="nc" id="L57">			timePanel = createTimePanel();</span>
+		}
+<span class="nc" id="L59">		setTimeSpinners();</span>
+<span class="nc" id="L60">		return timePanel;</span>
+	}
+
+	private JPanel createTimePanel() {
+<span class="nc" id="L64">		JPanel newPanel = new JPanel();</span>
+<span class="nc" id="L65">		newPanel.setLayout(new FlowLayout());</span>
+<span class="nc" id="L66">		SpinnerDateModel dateModel = new SpinnerDateModel();</span>
+<span class="nc" id="L67">		timeSpinner = new JSpinner(dateModel);</span>
+<span class="nc" id="L68">		timeSpinner.addChangeListener(new ChangeListener() {</span>
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				try {
+<span class="nc" id="L72">					commitEdit();</span>
+<span class="nc" id="L73">				} catch (ParseException e1) {</span>
+<span class="nc" id="L74">					throw new ReflectionUIError(e1);</span>
+				}
+<span class="nc" id="L76">			}</span>
+		});
+<span class="nc bnc" id="L78" title="All 2 branches missed.">		if (timeFormat == null)</span>
+<span class="nc" id="L79">			timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);</span>
+<span class="nc" id="L80">		updateTextFieldFormat();</span>
+<span class="nc" id="L81">		newPanel.add(timeSpinner);</span>
+<span class="nc" id="L82">		newPanel.setBackground(Color.WHITE);</span>
+<span class="nc" id="L83">		return newPanel;</span>
+	}
+
+	private void updateTextFieldFormat() {
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		if (timeSpinner == null)</span>
+<span class="nc" id="L88">			return;</span>
+<span class="nc" id="L89">		JFormattedTextField tf = ((JSpinner.DefaultEditor) timeSpinner.getEditor()).getTextField();</span>
+<span class="nc" id="L90">		DefaultFormatterFactory factory = (DefaultFormatterFactory) tf.getFormatterFactory();</span>
+<span class="nc" id="L91">		DateFormatter formatter = (DateFormatter) factory.getDefaultFormatter();</span>
+		// Change the date format to only show the hours
+<span class="nc" id="L93">		formatter.setFormat(timeFormat);</span>
+<span class="nc" id="L94">	}</span>
+
+	private void commitTime() {
+<span class="nc" id="L97">		Date date = getDate();</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">		if (date != null) {</span>
+<span class="nc" id="L99">			Date time = (Date) timeSpinner.getValue();</span>
+<span class="nc" id="L100">			GregorianCalendar timeCalendar = new GregorianCalendar();</span>
+<span class="nc" id="L101">			timeCalendar.setTime(time);</span>
+
+<span class="nc" id="L103">			GregorianCalendar calendar = new GregorianCalendar();</span>
+<span class="nc" id="L104">			calendar.setTime(date);</span>
+<span class="nc" id="L105">			calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));</span>
+<span class="nc" id="L106">			calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));</span>
+<span class="nc" id="L107">			calendar.set(Calendar.SECOND, 0);</span>
+<span class="nc" id="L108">			calendar.set(Calendar.MILLISECOND, 0);</span>
+
+<span class="nc" id="L110">			Date newDate = calendar.getTime();</span>
+<span class="nc" id="L111">			setDate(newDate);</span>
+		}
+
+<span class="nc" id="L114">	}</span>
+
+	private void setTimeSpinners() {
+<span class="nc" id="L117">		Date date = getDate();</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">		if (date != null) {</span>
+<span class="nc" id="L119">			timeSpinner.setValue(date);</span>
+		}
+<span class="nc" id="L121">	}</span>
+
+	public DateFormat getTimeFormat() {
+<span class="nc" id="L124">		return timeFormat;</span>
+	}
+
+	public void setTimeFormat(DateFormat timeFormat) {
+<span class="nc" id="L128">		this.timeFormat = timeFormat;</span>
+<span class="nc" id="L129">		updateTextFieldFormat();</span>
+<span class="nc" id="L130">	}</span>
+
+	public static void main(String[] args) {
+<span class="nc" id="L133">		Date date = new Date();</span>
+<span class="nc" id="L134">		JFrame frame = new JFrame();</span>
+<span class="nc" id="L135">		frame.setTitle(&quot;Date Time Picker&quot;);</span>
+<span class="nc" id="L136">		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span>
+<span class="nc" id="L137">		JXDateTimePicker dateTimePicker = new JXDateTimePicker();</span>
+<span class="nc" id="L138">		dateTimePicker.setFormats(DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM));</span>
+<span class="nc" id="L139">		dateTimePicker.setTimeFormat(DateFormat.getTimeInstance(DateFormat.MEDIUM));</span>
+
+<span class="nc" id="L141">		dateTimePicker.setDate(date);</span>
+
+<span class="nc" id="L143">		frame.getContentPane().add(dateTimePicker);</span>
+<span class="nc" id="L144">		frame.pack();</span>
+<span class="nc" id="L145">		frame.setVisible(true);</span>
+<span class="nc" id="L146">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

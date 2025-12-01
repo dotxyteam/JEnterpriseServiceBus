@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InitializerFacade.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">InitializerFacade.java</span></div><h1>InitializerFacade.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.util.InstantiationUtils;
+
+import xy.reflect.ui.info.type.ITypeInfo;
+
+public abstract class InitializerFacade extends Facade {
+
+<span class="fc" id="L13">	private static Object UNDEFINED_ABSTRACT_VALUE = new Object() {</span>
+		@Override
+		public String toString() {
+<span class="nc" id="L16">			return InitializerFacade.class.getName() + &quot;.UNDEFINED_ABSTRACT_VALUE&quot;;</span>
+		}
+<span class="fc" id="L18">	};</span>
+
+	private Facade parent;
+<span class="fc" id="L21">	private Object cachedValue = UNDEFINED_ABSTRACT_VALUE;</span>
+
+	protected abstract Object retrieveInitializerValue(Object initializer);
+
+	protected abstract void updateInitializerValue(Object initializer, Object newValue);
+
+	protected abstract ITypeInfo getValueType();
+
+	protected abstract void createUnderlying(Object value);
+
+	protected abstract void deleteUnderlying();
+
+<span class="fc" id="L33">	public InitializerFacade(Facade parent) {</span>
+<span class="fc" id="L34">		this.parent = parent;</span>
+<span class="fc" id="L35">	}</span>
+
+	@Override
+	public Facade getParent() {
+<span class="fc" id="L39">		return parent;</span>
+	}
+
+	protected Object getCachedValue() {
+<span class="nc" id="L43">		return cachedValue;</span>
+	}
+
+	protected String getValueTypeName() {
+<span class="fc" id="L47">		return InstantiationUtils.makeTypeNamesRelative(getValueType().getName(),</span>
+<span class="fc" id="L48">				InstantiationUtils.getAncestorInstanceBuilders(this));</span>
+	}
+
+	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
+<span class="fc" id="L52">		return (InstanceBuilderFacade) Facade.getAncestors(this).stream()</span>
+<span class="fc" id="L53">				.filter(f -&gt; (f instanceof InstanceBuilderFacade)).findFirst().orElse(null);</span>
+	}
+
+	protected Object createDefaultValue() {
+<span class="fc" id="L57">		return InstantiationUtils.getDefaultInterpretableValue(getValueType(), this);</span>
+	}
+
+	@Override
+	public boolean isConcrete() {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">		if (!parent.isConcrete()) {</span>
+<span class="fc" id="L63">			return false;</span>
+		}
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		return getUnderlying() != null;</span>
+	}
+
+	@Override
+	public void setConcrete(boolean b) {
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">		if (b) {</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">			if (!parent.isConcrete()) {</span>
+<span class="nc" id="L72">				parent.setConcrete(true);</span>
+			}
+<span class="fc bfc" id="L74" title="All 2 branches covered.">			if (getUnderlying() == null) {</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">				if (cachedValue == UNDEFINED_ABSTRACT_VALUE) {</span>
+<span class="fc" id="L76">					cachedValue = createDefaultValue();</span>
+				}
+<span class="fc" id="L78">				createUnderlying(cachedValue);</span>
+			}
+<span class="fc" id="L80">		} else {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">			if (getUnderlying() != null) {</span>
+<span class="nc" id="L82">				deleteUnderlying();</span>
+<span class="nc" id="L83">				cachedValue = createDefaultValue();</span>
+			}
+		}
+<span class="fc" id="L86">	}</span>
+
+	protected ValueMode getValueMode() {
+<span class="fc" id="L89">		Object initializer = getUnderlying();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">		if (initializer == null) {</span>
+<span class="fc" id="L91">			return null;</span>
+		}
+<span class="fc" id="L93">		return InstantiationUtils.getValueMode(retrieveInitializerValue(initializer));</span>
+	}
+
+	protected void setValueMode(ValueMode valueMode) {
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">		if (valueMode == null) {</span>
+<span class="nc" id="L98">			setConcrete(false);</span>
+<span class="nc" id="L99">		} else {</span>
+<span class="fc" id="L100">			setConcrete(true);</span>
+<span class="fc" id="L101">			Object newValue = InstantiationUtils.getDefaultInterpretableValue(getValueType(), valueMode, this);</span>
+<span class="fc" id="L102">			Object initializer = getUnderlying();</span>
+<span class="fc" id="L103">			updateInitializerValue(initializer, newValue);</span>
+		}
+<span class="fc" id="L105">	}</span>
+
+	protected Object getValue() {
+<span class="fc" id="L108">		Object initializer = getUnderlying();</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">		if (initializer == null) {</span>
+<span class="fc" id="L110">			return null;</span>
+		}
+<span class="fc" id="L112">		Object result = InstantiationUtils.maintainInterpretableValue(retrieveInitializerValue(initializer),</span>
+<span class="fc" id="L113">				getValueType());</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">		if (result instanceof InstanceBuilder) {</span>
+<span class="fc" id="L115">			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);</span>
+		}
+<span class="fc" id="L117">		return result;</span>
+	}
+
+	protected void setValue(Object value) {
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">		if (value instanceof InstanceBuilderFacade) {</span>
+<span class="nc" id="L122">			value = ((InstanceBuilderFacade) value).getUnderlying();</span>
+		}
+<span class="fc" id="L124">		setConcrete(true);</span>
+<span class="fc" id="L125">		Object initializer = getUnderlying();</span>
+<span class="pc bpc" id="L126" title="3 of 4 branches missed.">		if ((value == null) &amp;&amp; (getValueType().isPrimitive())) {</span>
+<span class="nc" id="L127">			throw new PotentialError(&quot;Cannot set null to a primitive field&quot;);</span>
+		}
+<span class="fc" id="L129">		updateInitializerValue(initializer, cachedValue = value);</span>
+<span class="fc" id="L130">	}</span>
+
+	@Override
+	public List&lt;Facade&gt; getChildren() {
+<span class="fc" id="L134">		List&lt;Facade&gt; result = new ArrayList&lt;Facade&gt;();</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">		if (cachedValue == UNDEFINED_ABSTRACT_VALUE) {</span>
+<span class="fc" id="L136">			Object initializer = getUnderlying();</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">			if (initializer == null) {</span>
+<span class="fc" id="L138">				this.cachedValue = createDefaultValue();</span>
+<span class="fc" id="L139">			} else {</span>
+<span class="fc" id="L140">				this.cachedValue = retrieveInitializerValue(initializer);</span>
+			}
+		}
+<span class="fc bfc" id="L143" title="All 2 branches covered.">		if (cachedValue instanceof InstanceBuilder) {</span>
+<span class="fc" id="L144">			result.addAll(new InstanceBuilderFacade(this, (InstanceBuilder) cachedValue).getChildren());</span>
+		}
+<span class="fc" id="L146">		return result;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

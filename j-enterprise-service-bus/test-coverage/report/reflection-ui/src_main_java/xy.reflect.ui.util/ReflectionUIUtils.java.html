@@ -1,0 +1,1749 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ReflectionUIUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">ReflectionUIUtils.java</span></div><h1>ReflectionUIUtils.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.util;
+
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.FieldPosition;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.swing.text.NumberFormatter;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.DefaultFieldControlData;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IMethodControlData;
+import xy.reflect.ui.control.MethodControlDataProxy;
+import xy.reflect.ui.control.plugin.IFieldControlPlugin;
+import xy.reflect.ui.info.IInfo;
+import xy.reflect.ui.info.ITransaction;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.custom.InfoCustomizations;
+import xy.reflect.ui.info.custom.InfoCustomizations.AbstractFileMenuItemCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.AbstractMenuItemCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.AbstractStandardActionMenuItemCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.ExitMenuItemCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.HelpMenuItemCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.IMenuElementCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.IMenuItemContainerCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.MenuCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.MenuItemCategoryCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.MenuModelCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.OpenMenuItemCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.RedoMenuItemCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.RenewMenuItemCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.ResetMenuItemCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.SaveAsMenuItemCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.SaveMenuItemCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.TypeCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.UndoMenuItemCustomization;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.menu.AbstractMenuItemInfo;
+import xy.reflect.ui.info.menu.DefaultMenuElementPosition;
+import xy.reflect.ui.info.menu.IMenuElementInfo;
+import xy.reflect.ui.info.menu.IMenuElementPosition;
+import xy.reflect.ui.info.menu.MenuElementKind;
+import xy.reflect.ui.info.menu.MenuInfo;
+import xy.reflect.ui.info.menu.MenuItemCategory;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.menu.StandardActionMenuItemInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.info.type.iterable.item.ItemPositionFactory;
+import xy.reflect.ui.undo.AbstractModification;
+import xy.reflect.ui.undo.AbstractModificationProxy;
+import xy.reflect.ui.undo.CancelledModificationException;
+import xy.reflect.ui.undo.FieldControlDataModification;
+import xy.reflect.ui.undo.IModification;
+import xy.reflect.ui.undo.IrreversibleModificationException;
+import xy.reflect.ui.undo.MethodControlDataModification;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.undo.SlaveModificationStack;
+import xy.reflect.ui.undo.UndoOrder;
+
+/**
+ * Utilities for dealing with {@link ReflectionUI} instances.
+ * 
+ * @author olitank
+ *
+ */
+<span class="nc" id="L97">public class ReflectionUIUtils {</span>
+
+	public static final String METHOD_SIGNATURE_REGEX = &quot;([^ ].*) ([^ ]+)? ?\\(([^\\)]*)\\)&quot;;
+	public static final String OBJECT_CLASS_NAME_REGEX = &quot;[a-zA-Z_][a-zA-Z0-9_]*((\\.|\\$)[a-zA-Z0-9_]+)*&quot;;
+	public static final String ARRAY_CLASS_NAME_REGEX = &quot;\\[+(Z|B|S|I|J|F|D|C|L&quot; + OBJECT_CLASS_NAME_REGEX + &quot;;)&quot;;
+
+	public static String buildMethodSignature(String returnTypeName, String methodName,
+			List&lt;String&gt; parameterTypeNames) {
+<span class="fc" id="L105">		StringBuilder result = new StringBuilder();</span>
+<span class="fc" id="L106">		result.append(returnTypeName);</span>
+<span class="fc" id="L107">		result.append(&quot; &quot; + methodName + &quot;(&quot;);</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">		for (int i = 0; i &lt; parameterTypeNames.size(); i++) {</span>
+<span class="fc" id="L109">			String paramTypeName = parameterTypeNames.get(i);</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">			if (i &gt; 0) {</span>
+<span class="fc" id="L111">				result.append(&quot;, &quot;);</span>
+			}
+<span class="fc" id="L113">			result.append(paramTypeName);</span>
+		}
+<span class="fc" id="L115">		result.append(&quot;)&quot;);</span>
+<span class="fc" id="L116">		return result.toString();</span>
+	}
+
+	public static String buildMethodSignature(IMethodInfo method) {
+<span class="fc" id="L120">		ITypeInfo returnType = method.getReturnValueType();</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">		String returnTypeName = (returnType == null) ? &quot;void&quot; : returnType.getName();</span>
+<span class="fc" id="L122">		String methodName = method.getName();</span>
+<span class="fc" id="L123">		List&lt;String&gt; parameterTypeNames = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L124">		List&lt;IParameterInfo&gt; params = method.getParameters();</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">		for (int i = 0; i &lt; params.size(); i++) {</span>
+<span class="fc" id="L126">			IParameterInfo param = params.get(i);</span>
+<span class="fc" id="L127">			parameterTypeNames.add(param.getType().getName());</span>
+		}
+<span class="fc" id="L129">		return buildMethodSignature(returnTypeName, methodName, parameterTypeNames);</span>
+	}
+
+	public static String buildMethodSignature(Method method) {
+<span class="fc" id="L133">		Class&lt;?&gt; returnType = method.getReturnType();</span>
+<span class="fc" id="L134">		String returnTypeName = returnType.getName();</span>
+<span class="fc" id="L135">		String methodName = method.getName();</span>
+<span class="fc" id="L136">		List&lt;String&gt; parameterTypeNames = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L137">		Class&lt;?&gt;[] paramTypes = method.getParameterTypes();</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">		for (int i = 0; i &lt; paramTypes.length; i++) {</span>
+<span class="fc" id="L139">			Class&lt;?&gt; paramType = paramTypes[i];</span>
+<span class="fc" id="L140">			parameterTypeNames.add(paramType.getName());</span>
+		}
+<span class="fc" id="L142">		return buildMethodSignature(returnTypeName, methodName, parameterTypeNames);</span>
+	}
+
+	public static String extractMethodReturnTypeNameFromSignature(String methodSignature) {
+<span class="fc" id="L146">		Pattern pattern = Pattern.compile(METHOD_SIGNATURE_REGEX);</span>
+<span class="fc" id="L147">		Matcher matcher = pattern.matcher(methodSignature);</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">		if (!matcher.matches()) {</span>
+<span class="nc" id="L149">			return null;</span>
+		}
+<span class="fc" id="L151">		String result = matcher.group(1);</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">		if (result != null) {</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">			if (!result.equals(result.trim())) {</span>
+<span class="nc" id="L154">				throw new ReflectionUIError();</span>
+			}
+		}
+<span class="fc" id="L157">		return result;</span>
+	}
+
+	public static String extractMethodNameFromSignature(String methodSignature) {
+<span class="fc" id="L161">		Pattern pattern = Pattern.compile(METHOD_SIGNATURE_REGEX);</span>
+<span class="fc" id="L162">		Matcher matcher = pattern.matcher(methodSignature);</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">		if (!matcher.matches()) {</span>
+<span class="nc" id="L164">			return null;</span>
+		}
+<span class="fc" id="L166">		String result = matcher.group(2);</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L168">			result = &quot;&quot;;</span>
+		}
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">		if (!result.equals(result.trim())) {</span>
+<span class="nc" id="L171">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L173">		return result;</span>
+	}
+
+	public static String[] extractMethodParameterTypeNamesFromSignature(String methodSignature) {
+<span class="fc" id="L177">		Pattern methodSignaturePattern = Pattern.compile(METHOD_SIGNATURE_REGEX);</span>
+<span class="fc" id="L178">		Pattern arrayTypeNamePattern = Pattern.compile(ARRAY_CLASS_NAME_REGEX + &quot;((?=[ ,\\]\\)])|$)&quot;);</span>
+<span class="fc" id="L179">		Matcher matcher = methodSignaturePattern.matcher(methodSignature);</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">		if (!matcher.matches()) {</span>
+<span class="nc" id="L181">			return null;</span>
+		}
+<span class="fc" id="L183">		String paramTypeListString = matcher.group(3);</span>
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">		if (!paramTypeListString.equals(paramTypeListString.trim())) {</span>
+<span class="nc" id="L185">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L187">		List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">		if (paramTypeListString.length() &gt; 0) {</span>
+<span class="fc" id="L189">			int openBracketCount = 0;</span>
+<span class="fc" id="L190">			int parameterTypeNameStart = 0;</span>
+<span class="fc" id="L191">			Matcher arrayTypeNameMatcher = arrayTypeNamePattern.matcher(paramTypeListString);</span>
+<span class="fc" id="L192">			int arrayTypeNameStart = -1;</span>
+<span class="fc" id="L193">			int arrayTypeNameEnd = -1;</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">			for (int i = 0; i &lt; paramTypeListString.length(); i++) {</span>
+<span class="pc bpc" id="L195" title="2 of 6 branches missed.">				if ((i == 0) || ((i &gt;= arrayTypeNameEnd) &amp;&amp; !arrayTypeNameMatcher.hitEnd())) {</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">					if (arrayTypeNameMatcher.find()) {</span>
+<span class="nc" id="L197">						arrayTypeNameStart = arrayTypeNameMatcher.start();</span>
+<span class="nc" id="L198">						arrayTypeNameEnd = arrayTypeNameMatcher.end();</span>
+					}
+				}
+<span class="pc bpc" id="L201" title="2 of 4 branches missed.">				if ((arrayTypeNameStart &lt;= i) &amp;&amp; (i &lt; arrayTypeNameEnd)) {</span>
+<span class="nc" id="L202">					continue;</span>
+				}
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">				if (paramTypeListString.charAt(i) == '[') {</span>
+<span class="nc" id="L205">					openBracketCount++;</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">				} else if (paramTypeListString.charAt(i) == ']') {</span>
+<span class="nc" id="L207">					openBracketCount--;</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">				} else if (paramTypeListString.charAt(i) == ',') {</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">					if (openBracketCount == 0) {</span>
+<span class="nc" id="L210">						result.add(paramTypeListString.substring(parameterTypeNameStart, i));</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">						if ((i + 2) &gt;= paramTypeListString.length()) {</span>
+<span class="nc" id="L212">							throw new ReflectionUIError();</span>
+						}
+<span class="nc bnc" id="L214" title="All 2 branches missed.">						if (paramTypeListString.charAt(i + 1) != ' ') {</span>
+<span class="nc" id="L215">							throw new ReflectionUIError();</span>
+						}
+<span class="nc" id="L217">						parameterTypeNameStart = i + 2;</span>
+<span class="nc" id="L218">						i++;</span>
+					}
+				}
+			}
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">			if (openBracketCount &gt; 0) {</span>
+<span class="nc" id="L223">				throw new ReflectionUIError();</span>
+			}
+<span class="fc" id="L225">			result.add(paramTypeListString.substring(parameterTypeNameStart));</span>
+		}
+<span class="fc" id="L227">		return result.toArray(new String[result.size()]);</span>
+	}
+
+	public static String identifierToCaption(String identifier) {
+<span class="fc bfc" id="L231" title="All 2 branches covered.">		if (identifier.length() == 0) {</span>
+<span class="fc" id="L232">			return &quot;&quot;;</span>
+<span class="pc bpc" id="L233" title="1 of 4 branches missed.">		} else if (identifier.toUpperCase().equals(identifier) &amp;&amp; !identifier.toLowerCase().equals(identifier)) {</span>
+<span class="fc" id="L234">			String[] words = identifier.split(&quot;_&quot;);</span>
+<span class="fc" id="L235">			return Arrays.stream(words).map(String::toLowerCase).map(ReflectionUIUtils::identifierToCaption)</span>
+<span class="fc" id="L236">					.collect(Collectors.joining(&quot; &quot;));</span>
+		} else {
+<span class="fc" id="L238">			StringBuilder result = new StringBuilder();</span>
+<span class="fc" id="L239">			int i = 0;</span>
+<span class="fc" id="L240">			char lastC = 0;</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">			for (char c : identifier.toCharArray()) {</span>
+<span class="fc bfc" id="L242" title="All 4 branches covered.">				if (Character.isWhitespace(c) || Character.isWhitespace(lastC)) {</span>
+<span class="fc" id="L243">					result.append(c);</span>
+<span class="fc bfc" id="L244" title="All 2 branches covered.">				} else if (i == 0) {</span>
+<span class="fc" id="L245">					result.append(Character.toUpperCase(c));</span>
+<span class="fc bfc" id="L246" title="All 4 branches covered.">				} else if (Character.isUpperCase(c) &amp;&amp; !Character.isUpperCase(lastC)) {</span>
+<span class="fc" id="L247">					result.append(&quot; &quot; + c);</span>
+<span class="fc bfc" id="L248" title="All 4 branches covered.">				} else if (Character.isDigit(c) &amp;&amp; !Character.isDigit(lastC)) {</span>
+<span class="fc" id="L249">					result.append(&quot; &quot; + c);</span>
+<span class="fc bfc" id="L250" title="All 4 branches covered.">				} else if (!Character.isLetterOrDigit(c) &amp;&amp; Character.isLetterOrDigit(lastC)) {</span>
+<span class="fc" id="L251">					result.append(&quot; &quot; + c);</span>
+<span class="fc" id="L252">				} else {</span>
+<span class="fc" id="L253">					result.append(c);</span>
+				}
+<span class="fc" id="L255">				lastC = c;</span>
+<span class="fc" id="L256">				i++;</span>
+			}
+<span class="fc" id="L258">			return result.toString();</span>
+		}
+	}
+
+	public static IMethodInfo getNParametersMethod(List&lt;IMethodInfo&gt; methods, int n) {
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">		for (IMethodInfo c : methods) {</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">			if (c.getParameters().size() == n) {</span>
+<span class="fc" id="L265">				return c;</span>
+			}
+		}
+<span class="nc" id="L268">		return null;</span>
+	}
+
+	public static IMethodInfo getZeroParameterMethod(List&lt;IMethodInfo&gt; methods) {
+<span class="fc" id="L272">		return getNParametersMethod(methods, 0);</span>
+	}
+
+	public static &lt;T extends IMethodInfo&gt; T findMethodBySignature(List&lt;T&gt; methods, String signature) {
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">		for (T method : methods) {</span>
+<span class="fc" id="L277">			String candidateMethodSignature = method.getSignature();</span>
+<span class="fc bfc" id="L278" title="All 2 branches covered.">			if (candidateMethodSignature.equals(signature)) {</span>
+<span class="fc" id="L279">				return method;</span>
+			}
+		}
+<span class="nc" id="L282">		return null;</span>
+	}
+
+	public static &lt;T extends IInfo&gt; T findInfoByName(List&lt;T&gt; infos, String name) {
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">		for (T info : infos) {</span>
+<span class="fc bfc" id="L287" title="All 2 branches covered.">			if (info.getName().equals(name)) {</span>
+<span class="fc" id="L288">				return info;</span>
+			}
+		}
+<span class="nc" id="L291">		return null;</span>
+	}
+
+	public static &lt;T extends IInfo&gt; T findInfoByCaption(List&lt;T&gt; infos, String caption) {
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">		for (T info : infos) {</span>
+<span class="fc bfc" id="L296" title="All 2 branches covered.">			if (info.getCaption().equals(caption)) {</span>
+<span class="fc" id="L297">				return info;</span>
+			}
+		}
+<span class="nc" id="L300">		return null;</span>
+	}
+
+	public static &lt;M extends Member&gt; M findJavaMemberByName(M[] members, String memberName) {
+<span class="nc bnc" id="L304" title="All 2 branches missed.">		for (M member : members) {</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">			if (member.getName().equals(memberName)) {</span>
+<span class="nc" id="L306">				return member;</span>
+			}
+		}
+<span class="nc" id="L309">		return null;</span>
+	}
+
+	public static void sortFields(Field[] fields) {
+<span class="fc" id="L313">		Arrays.sort(fields, new Comparator&lt;Field&gt;() {</span>
+			@Override
+			public int compare(Field f1, Field f2) {
+				int result;
+
+<span class="fc" id="L318">				result = f1.getType().getName().toUpperCase().compareTo(f2.getType().getName().toUpperCase());</span>
+<span class="fc bfc" id="L319" title="All 2 branches covered.">				if (result != 0) {</span>
+<span class="fc" id="L320">					return result;</span>
+				}
+
+<span class="fc" id="L323">				result = f1.getName().compareTo(f2.getName());</span>
+<span class="fc bfc" id="L324" title="All 2 branches covered.">				if (result != 0) {</span>
+<span class="fc" id="L325">					return result;</span>
+				}
+
+<span class="fc" id="L328">				return 0;</span>
+			}
+		});
+<span class="fc" id="L331">	}</span>
+
+	public static void sortMethods(Method[] methods) {
+<span class="fc" id="L334">		Arrays.sort(methods, new Comparator&lt;Method&gt;() {</span>
+			@Override
+			public int compare(Method m1, Method m2) {
+				int result;
+
+<span class="fc" id="L339">				List&lt;String&gt; parameterTypeNames1 = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L340" title="All 2 branches covered.">				for (Parameter param : m1.getParameters()) {</span>
+<span class="fc" id="L341">					parameterTypeNames1.add(param.getType().getName());</span>
+				}
+<span class="fc" id="L343">				Collections.sort(parameterTypeNames1);</span>
+<span class="fc" id="L344">				List&lt;String&gt; parameterTypeNames2 = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L345" title="All 2 branches covered.">				for (Parameter param : m2.getParameters()) {</span>
+<span class="fc" id="L346">					parameterTypeNames2.add(param.getType().getName());</span>
+				}
+<span class="fc" id="L348">				Collections.sort(parameterTypeNames2);</span>
+<span class="fc" id="L349">				result = MiscUtils.stringJoin(parameterTypeNames1, &quot;\n&quot;)</span>
+<span class="fc" id="L350">						.compareTo(MiscUtils.stringJoin(parameterTypeNames2, &quot;\n&quot;));</span>
+<span class="fc bfc" id="L351" title="All 2 branches covered.">				if (result != 0) {</span>
+<span class="fc" id="L352">					return result;</span>
+				}
+
+<span class="fc" id="L355">				result = m1.getReturnType().getName().compareTo(m2.getReturnType().getName());</span>
+<span class="fc bfc" id="L356" title="All 2 branches covered.">				if (result != 0) {</span>
+<span class="fc" id="L357">					return result;</span>
+				}
+
+<span class="fc" id="L360">				result = m1.getName().compareTo(m2.getName());</span>
+<span class="pc bpc" id="L361" title="1 of 2 branches missed.">				if (result != 0) {</span>
+<span class="fc" id="L362">					return result;</span>
+				}
+
+<span class="nc" id="L365">				return 0;</span>
+			}
+		});
+<span class="fc" id="L368">	}</span>
+
+	@SuppressWarnings({ &quot;rawtypes&quot; })
+	public static void sortConstructors(Constructor[] constructors) {
+<span class="fc" id="L372">		Arrays.sort(constructors, new Comparator&lt;Constructor&gt;() {</span>
+			@Override
+			public int compare(Constructor m1, Constructor m2) {
+				int result;
+
+<span class="fc" id="L377">				List&lt;String&gt; parameterTypeNames1 = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L378" title="All 2 branches covered.">				for (Parameter param : m1.getParameters()) {</span>
+<span class="fc" id="L379">					parameterTypeNames1.add(param.getType().getName());</span>
+				}
+<span class="fc" id="L381">				Collections.sort(parameterTypeNames1);</span>
+<span class="fc" id="L382">				List&lt;String&gt; parameterTypeNames2 = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L383" title="All 2 branches covered.">				for (Parameter param : m2.getParameters()) {</span>
+<span class="fc" id="L384">					parameterTypeNames2.add(param.getType().getName());</span>
+				}
+<span class="fc" id="L386">				Collections.sort(parameterTypeNames2);</span>
+<span class="fc" id="L387">				result = MiscUtils.stringJoin(parameterTypeNames1, &quot;\n&quot;)</span>
+<span class="fc" id="L388">						.compareTo(MiscUtils.stringJoin(parameterTypeNames2, &quot;\n&quot;));</span>
+<span class="pc bpc" id="L389" title="1 of 2 branches missed.">				if (result != 0) {</span>
+<span class="fc" id="L390">					return result;</span>
+				}
+<span class="nc" id="L392">				return 0;</span>
+			}
+		});
+<span class="fc" id="L395">	}</span>
+
+	public static String composeMessage(String contextMessage, String localMessage) {
+<span class="fc bfc" id="L398" title="All 4 branches covered.">		if ((contextMessage == null) || (contextMessage.length() == 0)) {</span>
+<span class="fc" id="L399">			return localMessage;</span>
+		}
+<span class="fc" id="L401">		return contextMessage + &quot; - &quot; + localMessage;</span>
+	}
+
+	public static Object createDefaultInstance(ITypeInfo type) {
+<span class="fc" id="L405">		return createDefaultInstance(type, true);</span>
+	}
+
+	public static Object createDefaultInstance(ITypeInfo type, boolean subTypeInstanceAllowed) {
+		try {
+<span class="pc bpc" id="L410" title="1 of 2 branches missed.">			if (!type.isConcrete()) {</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">				if (subTypeInstanceAllowed) {</span>
+<span class="nc bnc" id="L412" title="All 2 branches missed.">					if (ReflectionUIUtils.hasPolymorphicInstanceSubTypes(type)) {</span>
+<span class="nc" id="L413">						List&lt;ITypeInfo&gt; subTypes = type.getPolymorphicInstanceSubTypes();</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">						for (ITypeInfo subType : subTypes) {</span>
+							try {
+<span class="nc" id="L416">								return createDefaultInstance(subType, true);</span>
+<span class="nc" id="L417">							} catch (Throwable ignore) {</span>
+							}
+						}
+					}
+				}
+<span class="nc" id="L422">				throw new ReflectionUIError(</span>
+<span class="nc" id="L423">						&quot;Cannot instantiate abstract (or &quot; + Object.class.getSimpleName() + &quot;) type&quot;);</span>
+
+			}
+
+<span class="fc" id="L427">			IMethodInfo zeroParamConstructor = getZeroParameterMethod(type.getConstructors());</span>
+<span class="pc bpc" id="L428" title="1 of 2 branches missed.">			if (zeroParamConstructor != null) {</span>
+<span class="fc" id="L429">				return zeroParamConstructor.invoke(null, new InvocationData(null, zeroParamConstructor));</span>
+			}
+<span class="nc bnc" id="L431" title="All 2 branches missed.">			for (IMethodInfo constructor : type.getConstructors()) {</span>
+<span class="nc" id="L432">				InvocationData invocationData = new InvocationData(null, constructor);</span>
+<span class="nc bnc" id="L433" title="All 2 branches missed.">				if (!ReflectionUIUtils.requiresParameterValue(constructor)) {</span>
+<span class="nc" id="L434">					return constructor.invoke(null, invocationData);</span>
+				}
+			}
+<span class="nc" id="L437">			throw new ReflectionUIError(&quot;Default constructor not found&quot;);</span>
+<span class="nc" id="L438">		} catch (Throwable t) {</span>
+<span class="nc" id="L439">			throw new ReflectionUIError(</span>
+<span class="nc" id="L440">					&quot;Failed to create a default instance of type '&quot; + type.getName() + &quot;': &quot; + t.toString(), t);</span>
+
+		}
+	}
+
+	public static boolean canCreateDefaultInstance(ITypeInfo type, boolean subTypeInstanceAllowed) {
+<span class="fc bfc" id="L446" title="All 2 branches covered.">		if (!type.isConcrete()) {</span>
+<span class="pc bpc" id="L447" title="1 of 2 branches missed.">			if (subTypeInstanceAllowed) {</span>
+<span class="nc bnc" id="L448" title="All 2 branches missed.">				if (ReflectionUIUtils.hasPolymorphicInstanceSubTypes(type)) {</span>
+<span class="nc" id="L449">					List&lt;ITypeInfo&gt; subTypes = type.getPolymorphicInstanceSubTypes();</span>
+<span class="nc bnc" id="L450" title="All 2 branches missed.">					for (ITypeInfo subType : subTypes) {</span>
+<span class="nc" id="L451">						return canCreateDefaultInstance(subType, true);</span>
+					}
+				}
+			}
+<span class="fc" id="L455">			return false;</span>
+		}
+
+<span class="fc" id="L458">		IMethodInfo zeroParamConstructor = getZeroParameterMethod(type.getConstructors());</span>
+<span class="pc bpc" id="L459" title="1 of 2 branches missed.">		if (zeroParamConstructor != null) {</span>
+<span class="fc" id="L460">			return true;</span>
+		}
+<span class="nc bnc" id="L462" title="All 2 branches missed.">		for (IMethodInfo constructor : type.getConstructors()) {</span>
+<span class="nc bnc" id="L463" title="All 2 branches missed.">			if (!ReflectionUIUtils.requiresParameterValue(constructor)) {</span>
+<span class="nc" id="L464">				return true;</span>
+			}
+		}
+<span class="nc" id="L467">		return false;</span>
+	}
+
+	public static &lt;T extends IInfo&gt; Comparator&lt;T&gt; getInfosComparator(final List&lt;String&gt; expectedOrderSpecification,
+			List&lt;T&gt; initialOrder) {
+<span class="fc" id="L472">		final List&lt;T&gt; initialOrderCopy = new ArrayList&lt;T&gt;(initialOrder);</span>
+<span class="fc" id="L473">		return new Comparator&lt;T&gt;() {</span>
+			@Override
+			public int compare(T o1, T o2) {
+<span class="fc bfc" id="L476" title="All 2 branches covered.">				if (expectedOrderSpecification.contains(o1.getName())</span>
+<span class="fc bfc" id="L477" title="All 2 branches covered.">						&amp;&amp; expectedOrderSpecification.contains(o2.getName())) {</span>
+<span class="fc" id="L478">					Integer index1 = new Integer(expectedOrderSpecification.indexOf(o1.getName()));</span>
+<span class="fc" id="L479">					Integer index2 = new Integer(expectedOrderSpecification.indexOf(o2.getName()));</span>
+<span class="fc" id="L480">					return index1.compareTo(index2);</span>
+				}
+<span class="fc bfc" id="L482" title="All 2 branches covered.">				if (expectedOrderSpecification.contains(o1.getName())) {</span>
+<span class="fc" id="L483">					return 1;</span>
+				}
+<span class="fc bfc" id="L485" title="All 2 branches covered.">				if (expectedOrderSpecification.contains(o2.getName())) {</span>
+<span class="fc" id="L486">					return -1;</span>
+				}
+<span class="fc" id="L488">				Integer index1 = new Integer(initialOrderCopy.indexOf(o1));</span>
+<span class="fc" id="L489">				Integer index2 = new Integer(initialOrderCopy.indexOf(o2));</span>
+<span class="fc" id="L490">				return index1.compareTo(index2);</span>
+			}
+		};
+	}
+
+	public static boolean hasPolymorphicInstanceSubTypes(ITypeInfo type) {
+<span class="fc" id="L496">		List&lt;ITypeInfo&gt; polyTypes = type.getPolymorphicInstanceSubTypes();</span>
+<span class="fc bfc" id="L497" title="All 2 branches covered.">		return polyTypes.size() &gt; 0;</span>
+	}
+
+	public static String toString(ReflectionUI reflectionUI, Object object) {
+<span class="fc bfc" id="L501" title="All 2 branches covered.">		if (object == null) {</span>
+<span class="fc" id="L502">			return &quot;&quot;;</span>
+		}
+<span class="fc" id="L504">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc" id="L505">		return type.toString(object);</span>
+	}
+
+	public static ResourcePath getIconImagePath(ReflectionUI reflectionUI, Object object) {
+<span class="pc bpc" id="L509" title="1 of 2 branches missed.">		if (object == null) {</span>
+<span class="nc" id="L510">			return null;</span>
+		}
+<span class="fc" id="L512">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc" id="L513">		return type.getIconImagePath(object);</span>
+	}
+
+	public static boolean canCopy(ReflectionUI reflectionUI, Object object) {
+<span class="pc bpc" id="L517" title="1 of 2 branches missed.">		if (object == null) {</span>
+<span class="nc" id="L518">			return false;</span>
+		}
+<span class="fc" id="L520">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc" id="L521">		return type.canCopy(object);</span>
+	}
+
+	public static Object copy(ReflectionUI reflectionUI, Object object) {
+<span class="fc" id="L525">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc" id="L526">		return type.copy(object);</span>
+	}
+
+	public static void copyFieldValuesAccordingInfos(ReflectionUI reflectionUI, Object src, Object dst,
+			boolean deeply) {
+<span class="nc" id="L531">		copyFieldValuesAccordingInfos(reflectionUI, src, dst, deeply, value -&gt; null);</span>
+<span class="nc" id="L532">	}</span>
+
+	public static void copyFieldValuesAccordingInfos(ReflectionUI reflectionUI, Object src, Object dst, boolean deeply,
+			Function&lt;Pair&lt;ITypeInfo, IFieldInfo&gt;, Function&lt;Object, Object&gt;&gt; customCopierByContext) {
+<span class="nc" id="L536">		copyFieldValuesAccordingInfos(reflectionUI, src, dst, deeply, customCopierByContext,</span>
+<span class="nc" id="L537">				new ArrayList&lt;Pair&lt;Object, Object&gt;&gt;());</span>
+<span class="nc" id="L538">	}</span>
+
+	private static void copyFieldValuesAccordingInfos(ReflectionUI reflectionUI, Object src, Object dst, boolean deeply,
+			Function&lt;Pair&lt;ITypeInfo, IFieldInfo&gt;, Function&lt;Object, Object&gt;&gt; customCopierByContext,
+			List&lt;Pair&lt;Object, Object&gt;&gt; alreadyCopied) {
+<span class="fc" id="L543">		alreadyCopied.add(new Pair&lt;Object, Object&gt;(src, dst));</span>
+<span class="fc" id="L544">		ITypeInfo srcType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(src));</span>
+<span class="fc" id="L545">		ITypeInfo dstType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(dst));</span>
+<span class="fc bfc" id="L546" title="All 2 branches covered.">		for (IFieldInfo dstField : dstType.getFields()) {</span>
+<span class="pc bpc" id="L547" title="1 of 2 branches missed.">			if (dstField.isGetOnly()) {</span>
+<span class="nc" id="L548">				continue;</span>
+			}
+<span class="fc" id="L550">			IFieldInfo srcField = ReflectionUIUtils.findInfoByName(srcType.getFields(), dstField.getName());</span>
+<span class="pc bpc" id="L551" title="1 of 2 branches missed.">			if (srcField == null) {</span>
+<span class="nc" id="L552">				continue;</span>
+			}
+<span class="fc" id="L554">			Object srcFieldValue = srcField.getValue(src);</span>
+<span class="fc" id="L555">			Function&lt;Object, Object&gt; customCopier = customCopierByContext</span>
+<span class="fc" id="L556">					.apply(new Pair&lt;ITypeInfo, IFieldInfo&gt;(srcType, srcField));</span>
+<span class="fc bfc" id="L557" title="All 2 branches covered.">			if (customCopier != null) {</span>
+<span class="fc" id="L558">				Object dstFieldValue = customCopier.apply(srcFieldValue);</span>
+<span class="fc" id="L559">				dstField.setValue(dst, dstFieldValue);</span>
+<span class="fc" id="L560">			} else {</span>
+<span class="fc bfc" id="L561" title="All 2 branches covered.">				if (srcFieldValue == null) {</span>
+<span class="fc" id="L562">					dstField.setValue(dst, null);</span>
+<span class="fc" id="L563">				} else {</span>
+<span class="fc" id="L564">					ITypeInfo fieldValueType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(srcFieldValue));</span>
+<span class="pc bpc" id="L565" title="1 of 4 branches missed.">					if (deeply &amp;&amp; !fieldValueType.isImmutable()) {</span>
+<span class="fc" id="L566">						Object dstFieldValue = null;</span>
+<span class="fc bfc" id="L567" title="All 2 branches covered.">						for (Pair&lt;Object, Object&gt; pair : alreadyCopied) {</span>
+<span class="pc bpc" id="L568" title="1 of 2 branches missed.">							if (pair.getFirst() == srcFieldValue) {</span>
+<span class="nc" id="L569">								dstFieldValue = pair.getSecond();</span>
+<span class="nc" id="L570">								break;</span>
+							}
+						}
+<span class="pc bpc" id="L573" title="1 of 2 branches missed.">						if (dstFieldValue == null) {</span>
+<span class="fc" id="L574">							dstFieldValue = copyAccordingInfos(reflectionUI, srcFieldValue, customCopierByContext,</span>
+<span class="fc" id="L575">									alreadyCopied);</span>
+
+						}
+<span class="fc" id="L578">						dstField.setValue(dst, dstFieldValue);</span>
+<span class="fc" id="L579">					} else {</span>
+<span class="fc" id="L580">						dstField.setValue(dst, srcFieldValue);</span>
+					}
+				}
+			}
+		}
+<span class="fc" id="L585">	}</span>
+
+	public static Object copyAccordingInfos(ReflectionUI reflectionUI, Object srcValue) {
+<span class="nc" id="L588">		return copyAccordingInfos(reflectionUI, srcValue, value -&gt; null);</span>
+	}
+
+	public static Object copyAccordingInfos(ReflectionUI reflectionUI, Object srcValue,
+			Function&lt;Pair&lt;ITypeInfo, IFieldInfo&gt;, Function&lt;Object, Object&gt;&gt; customCopierByContext) {
+<span class="fc" id="L593">		return copyAccordingInfos(reflectionUI, srcValue, customCopierByContext, new ArrayList&lt;Pair&lt;Object, Object&gt;&gt;());</span>
+	}
+
+	private static Object copyAccordingInfos(ReflectionUI reflectionUI, Object srcValue,
+			Function&lt;Pair&lt;ITypeInfo, IFieldInfo&gt;, Function&lt;Object, Object&gt;&gt; customCopierByContext,
+			List&lt;Pair&lt;Object, Object&gt;&gt; alreadyCopied) {
+<span class="fc" id="L599">		ITypeInfo valueType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(srcValue));</span>
+<span class="fc bfc" id="L600" title="All 2 branches covered.">		if (valueType instanceof IListTypeInfo) {</span>
+<span class="fc" id="L601">			Object[] srcListRawValue = ((IListTypeInfo) valueType).toArray(srcValue);</span>
+<span class="fc" id="L602">			Object[] dstListRawValue = new Object[srcListRawValue.length];</span>
+<span class="fc bfc" id="L603" title="All 2 branches covered.">			for (int i = 0; i &lt; srcListRawValue.length; i++) {</span>
+<span class="fc" id="L604">				dstListRawValue[i] = copyAccordingInfos(reflectionUI, srcListRawValue[i], customCopierByContext,</span>
+<span class="fc" id="L605">						alreadyCopied);</span>
+			}
+<span class="fc" id="L607">			DefaultFieldControlData dstListData = new DefaultFieldControlData(reflectionUI) {</span>
+				Object value;
+
+				@Override
+				public Object getValue() {
+<span class="fc bfc" id="L612" title="All 2 branches covered.">					if (value == null) {</span>
+<span class="fc" id="L613">						value = ReflectionUIUtils.createDefaultInstance(valueType, false);</span>
+					}
+<span class="fc" id="L615">					return value;</span>
+				}
+
+				@Override
+				public void setValue(Object newValue) {
+<span class="fc" id="L620">					value = newValue;</span>
+<span class="fc" id="L621">				}</span>
+
+				@Override
+				public boolean isGetOnly() {
+<span class="fc" id="L625">					return false;</span>
+				}
+
+				@Override
+				public ITypeInfo getType() {
+<span class="fc" id="L630">					return valueType;</span>
+				}
+			};
+<span class="fc" id="L633">			ItemPosition dstListUpdateUtility = new ItemPositionFactory(dstListData, null).getRootItemPosition(-1);</span>
+<span class="fc" id="L634">			dstListUpdateUtility.updateContainingList(dstListRawValue);</span>
+<span class="fc" id="L635">			return dstListData.getValue();</span>
+		} else {
+<span class="fc" id="L637">			Object dstValue = ReflectionUIUtils.createDefaultInstance(valueType, false);</span>
+<span class="fc" id="L638">			copyFieldValuesAccordingInfos(reflectionUI, srcValue, dstValue, true, customCopierByContext, alreadyCopied);</span>
+<span class="fc" id="L639">			return dstValue;</span>
+		}
+	}
+
+	public static void checkInstance(ITypeInfo type, Object object) {
+<span class="pc bpc" id="L644" title="1 of 2 branches missed.">		if (!type.supports(object)) {</span>
+<span class="nc" id="L645">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L647">	}</span>
+
+	public static void finalizeModifications(final ModificationStack parentModificationStack,
+			final ModificationStack currentModificationsStack, boolean currentModificationsAccepted,
+			final ValueReturnMode valueReturnMode, final boolean valueReplaced, boolean valueTransactionExecuted,
+			final IModification committingModification, final IModification undoModificationsReplacement,
+			String parentModificationTitle, boolean volatileParentModification, final Listener&lt;String&gt; debugLogListener,
+			Listener&lt;String&gt; errorLogListener) {
+
+<span class="pc bpc" id="L656" title="1 of 2 branches missed.">		if (currentModificationsStack == null) {</span>
+<span class="nc" id="L657">			throw new ReflectionUIError();</span>
+		}
+
+<span class="fc bfc" id="L660" title="All 2 branches covered.">		Runnable parentControlRefreshJob = (parentModificationStack != null) ? new Runnable() {</span>
+			@Override
+			public void run() {
+				/*
+				 * Here we optionally make sure that the parentModificationStack will fire an
+				 * event allowing the parent object UI to refresh and then take into account the
+				 * potential changes.
+				 */
+<span class="fc" id="L668">				parentModificationStack.push(IModification.VOLATILE_MODIFICATION);</span>
+<span class="fc" id="L669">			}</span>
+<span class="fc" id="L670">		} : null;</span>
+
+<span class="fc bfc" id="L672" title="All 4 branches covered.">		if (!mayModificationsHaveImpact(false, valueReturnMode, (committingModification != null))) {</span>
+<span class="pc bpc" id="L673" title="1 of 2 branches missed.">			if (!currentModificationsStack.isInitial()) {</span>
+<span class="pc bpc" id="L674" title="1 of 2 branches missed.">				if (parentControlRefreshJob != null) {</span>
+<span class="fc" id="L675">					parentControlRefreshJob.run();</span>
+				}
+			}
+<span class="fc" id="L678">			return;</span>
+		}
+
+<span class="fc bfc" id="L681" title="All 2 branches covered.">		if (currentModificationsStack.isInitial()) {</span>
+<span class="fc bfc" id="L682" title="All 2 branches covered.">			if (!currentModificationsStack.isExhaustive()) {</span>
+<span class="pc bpc" id="L683" title="1 of 2 branches missed.">				if (parentModificationStack != null) {</span>
+<span class="fc" id="L684">					parentModificationStack.push(IModification.VOLATILE_MODIFICATION);</span>
+				}
+<span class="fc" id="L686">				return;</span>
+			}
+<span class="fc" id="L688">			return;</span>
+		}
+
+<span class="pc bpc" id="L691" title="1 of 2 branches missed.">		if (currentModificationsAccepted) {</span>
+<span class="fc bfc" id="L692" title="All 2 branches covered.">			if (parentModificationStack != null) {</span>
+<span class="fc" id="L693">				parentModificationStack.insideComposite(parentModificationTitle, UndoOrder.FIFO,</span>
+<span class="fc" id="L694">						new Accessor&lt;Boolean&gt;() {</span>
+							@Override
+							public Boolean get() {
+<span class="fc bfc" id="L697" title="All 2 branches covered.">								if (undoModificationsReplacement == null) {</span>
+<span class="fc bfc" id="L698" title="All 2 branches covered.">									if (valueReturnMode != ValueReturnMode.CALCULATED) {</span>
+										/*
+										 * If the modifications were applied on calculated (then temporary) data, it
+										 * would be useless to revert or replay them, and any invalidation would have no
+										 * impact.
+										 */
+<span class="fc bfc" id="L704" title="All 2 branches covered.">										if (currentModificationsStack.wasInvalidated()) {</span>
+<span class="pc bpc" id="L705" title="1 of 2 branches missed.">											if (debugLogListener != null) {</span>
+<span class="fc" id="L706">												debugLogListener.handle(</span>
+<span class="fc" id="L707">														&quot;Sub-modification stack invalidated =&gt; Invalidating parent modification stack: &quot;</span>
+<span class="fc" id="L708">																+ parentModificationStack);</span>
+											}
+<span class="fc" id="L710">											parentModificationStack.invalidate();</span>
+<span class="fc" id="L711">										} else {</span>
+<span class="fc" id="L712">											parentModificationStack.push(ModificationStack.createCompositeModification(</span>
+<span class="fc" id="L713">													null, UndoOrder.getNormal(),</span>
+<span class="fc" id="L714">													currentModificationsStack.getUndoModifications()));</span>
+										}
+									}
+								}
+<span class="fc bfc" id="L718" title="All 4 branches covered.">								if (!ValueReturnMode.isDirectOrProxy(valueReturnMode) || valueReplaced) {</span>
+									/*
+									 * If the modifications were applied directly or through a proxy, it would be
+									 * useless to commit them since we are sure that the actual data (not a copy or
+									 * something else) was altered. However, it is necessary to commit the
+									 * modifications, even if the editor has direct access to the value, when the
+									 * resulting value replaces the old value (with a new identity).
+									 */
+<span class="fc bfc" id="L726" title="All 2 branches covered.">									if (committingModification != null) {</span>
+<span class="pc bpc" id="L727" title="1 of 2 branches missed.">										if (debugLogListener != null) {</span>
+<span class="fc" id="L728">											debugLogListener.handle(&quot;Executing &quot; + committingModification);</span>
+										}
+<span class="fc" id="L730">										parentModificationStack</span>
+<span class="fc bfc" id="L731" title="All 2 branches covered.">												.apply((undoModificationsReplacement == null) ? committingModification</span>
+<span class="fc" id="L732">														: new AbstractModificationProxy(committingModification) {</span>
+
+															@Override
+															public IModification applyAndGetOpposite(
+																	ModificationStack modificationStack)
+																	throws IrreversibleModificationException,
+																	CancelledModificationException {
+																/*
+																 * to prevent the undo modification from being pushed on
+																 * the stack.
+																 */
+<span class="fc" id="L743">																return null;</span>
+															}
+														});
+									}
+								}
+<span class="fc bfc" id="L748" title="All 2 branches covered.">								if (undoModificationsReplacement != null) {</span>
+<span class="fc" id="L749">									parentModificationStack.push(undoModificationsReplacement);</span>
+								}
+<span class="fc" id="L751">								return true;</span>
+							}
+<span class="fc" id="L753">						}, volatileParentModification);</span>
+			}
+<span class="fc" id="L755">		} else {</span>
+<span class="nc bnc" id="L756" title="All 2 branches missed.">			if (valueReturnMode != ValueReturnMode.CALCULATED) {</span>
+<span class="nc bnc" id="L757" title="All 2 branches missed.">				if (valueTransactionExecuted) {</span>
+					/*
+					 * The transaction has been rolled back then the value has recovered its initial
+					 * state =&gt; no need to undo the value modifications anymore.
+					 */
+<span class="nc bnc" id="L762" title="All 2 branches missed.">					if (parentControlRefreshJob != null) {</span>
+<span class="nc" id="L763">						parentControlRefreshJob.run();</span>
+					}
+<span class="nc" id="L765">				} else {</span>
+<span class="nc bnc" id="L766" title="All 2 branches missed.">					if (debugLogListener != null) {</span>
+<span class="nc" id="L767">						debugLogListener.handle(&quot;Undoing sub-modification stack: &quot; + currentModificationsStack);</span>
+					}
+<span class="nc" id="L769">					currentModificationsStack.undoAll();</span>
+<span class="nc bnc" id="L770" title="All 2 branches missed.">					if (!currentModificationsStack.wasInvalidated()) {</span>
+<span class="nc bnc" id="L771" title="All 2 branches missed.">						if (parentControlRefreshJob != null) {</span>
+<span class="nc" id="L772">							parentControlRefreshJob.run();</span>
+						}
+<span class="nc" id="L774">					} else {</span>
+<span class="nc bnc" id="L775" title="All 2 branches missed.">						if (errorLogListener != null) {</span>
+<span class="nc" id="L776">							errorLogListener.handle(</span>
+<span class="nc" id="L777">									&quot;Detected invalidated sub-modification stack: &quot; + currentModificationsStack);</span>
+						}
+<span class="nc bnc" id="L779" title="All 2 branches missed.">						if (parentModificationStack != null) {</span>
+<span class="nc bnc" id="L780" title="All 2 branches missed.">							if (debugLogListener != null) {</span>
+<span class="nc" id="L781">								debugLogListener</span>
+<span class="nc" id="L782">										.handle(&quot;Invalidating parent modification stack: &quot; + parentModificationStack);</span>
+							}
+<span class="nc" id="L784">							parentModificationStack.invalidate();</span>
+						}
+					}
+				}
+			}
+		}
+<span class="fc" id="L790">	}</span>
+
+	public static boolean mayModificationsHaveImpact(boolean valueKnownAsImmutable, ValueReturnMode valueReturnMode,
+			boolean canCommit) {
+<span class="fc bfc" id="L794" title="All 4 branches covered.">		if ((valueReturnMode != ValueReturnMode.CALCULATED) &amp;&amp; !valueKnownAsImmutable) {</span>
+<span class="fc" id="L795">			return true;</span>
+		}
+<span class="fc bfc" id="L797" title="All 2 branches covered.">		if (canCommit) {</span>
+<span class="fc" id="L798">			return true;</span>
+		}
+<span class="fc" id="L800">		return false;</span>
+	}
+
+	public static boolean isValueImmutable(ReflectionUI reflectionUI, Object value) {
+<span class="pc bpc" id="L804" title="1 of 2 branches missed.">		if (value == null) {</span>
+<span class="nc" id="L805">			return true;</span>
+		}
+<span class="fc" id="L807">		ITypeInfo valueType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(value));</span>
+<span class="fc" id="L808">		return valueType.isImmutable();</span>
+	}
+
+	public static void setFieldValueThroughModificationStack(IFieldControlData data, Object newValue,
+			ModificationStack modifStack, Listener&lt;String&gt; debugLogListener) {
+<span class="fc bfc" id="L813" title="All 2 branches covered.">		if (data.isTransient()) {</span>
+			try {
+<span class="fc" id="L815">				data.setValue(newValue);</span>
+<span class="fc" id="L816">			} finally {</span>
+<span class="pc bpc" id="L817" title="1 of 2 branches missed.">				if (debugLogListener != null) {</span>
+<span class="fc" id="L818">					debugLogListener.handle(&quot;Sending volatile modification to: &quot; + modifStack);</span>
+				}
+<span class="fc" id="L820">				modifStack.apply(IModification.VOLATILE_MODIFICATION);</span>
+			}
+		} else {
+<span class="fc" id="L823">			FieldControlDataModification modif = new FieldControlDataModification(data, newValue);</span>
+			try {
+<span class="pc bpc" id="L825" title="1 of 2 branches missed.">				if (debugLogListener != null) {</span>
+<span class="fc" id="L826">					debugLogListener.handle(&quot;Executing &quot; + modif);</span>
+				}
+<span class="fc" id="L828">				modifStack.apply(modif);</span>
+<span class="pc" id="L829">			} catch (Throwable t) {</span>
+<span class="nc bnc" id="L830" title="All 2 branches missed.">				if (debugLogListener != null) {</span>
+<span class="nc" id="L831">					debugLogListener.handle(&quot;Invalidating modification stack: &quot; + modifStack);</span>
+				}
+				try {
+<span class="nc" id="L834">					modifStack.invalidate();</span>
+<span class="nc" id="L835">				} catch (Throwable ignore) {</span>
+				}
+<span class="nc" id="L837">				throw new ReflectionUIError(t);</span>
+			}
+		}
+<span class="fc" id="L840">	}</span>
+
+	public static Object invokeMethodThroughModificationStack(IMethodControlData data, InvocationData invocationData,
+			ModificationStack modifStack, Listener&lt;String&gt; debugLogListener) {
+<span class="fc bfc" id="L844" title="All 2 branches covered.">		if (data.isReadOnly()) {</span>
+			try {
+<span class="fc" id="L846">				return data.invoke(invocationData);</span>
+			} finally {
+<span class="pc bpc" id="L848" title="1 of 2 branches missed.">				if (debugLogListener != null) {</span>
+<span class="fc" id="L849">					debugLogListener.handle(&quot;Sending volatile modification to: &quot; + modifStack);</span>
+				}
+<span class="fc" id="L851">				modifStack.apply(IModification.VOLATILE_MODIFICATION);</span>
+			}
+		} else {
+<span class="fc" id="L854">			final Object[] resultHolder = new Object[1];</span>
+<span class="fc" id="L855">			data = new MethodControlDataProxy(data) {</span>
+				@Override
+				public Object invoke(InvocationData invocationData) {
+<span class="fc" id="L858">					return resultHolder[0] = super.invoke(invocationData);</span>
+				}
+			};
+<span class="fc" id="L861">			MethodControlDataModification modif = new MethodControlDataModification(data, invocationData);</span>
+			try {
+<span class="pc bpc" id="L863" title="1 of 2 branches missed.">				if (debugLogListener != null) {</span>
+<span class="fc" id="L864">					debugLogListener.handle(&quot;Executing &quot; + modif);</span>
+				}
+<span class="fc" id="L866">				modifStack.apply(modif);</span>
+<span class="pc" id="L867">			} catch (Throwable t) {</span>
+<span class="nc bnc" id="L868" title="All 2 branches missed.">				if (debugLogListener != null) {</span>
+<span class="nc" id="L869">					debugLogListener.handle(&quot;Invalidating modification stack: &quot; + modifStack);</span>
+				}
+<span class="nc" id="L871">				modifStack.invalidate();</span>
+<span class="nc" id="L872">				throw new ReflectionUIError(t);</span>
+			}
+<span class="fc" id="L874">			return resultHolder[0];</span>
+		}
+	}
+
+	public static String getDefaultListTypeCaption(IListTypeInfo listType) {
+<span class="fc" id="L879">		ITypeInfo itemType = listType.getItemType();</span>
+<span class="fc bfc" id="L880" title="All 2 branches covered.">		if (itemType == null) {</span>
+<span class="fc" id="L881">			return &quot;List&quot;;</span>
+		} else {
+<span class="fc" id="L883">			return &quot;List Of &quot; + itemType.getCaption() + &quot; Elements&quot;;</span>
+		}
+	}
+
+	public static Listener&lt;String&gt; getDebugLogListener(final ReflectionUI reflectionUI) {
+<span class="fc" id="L888">		return new Listener&lt;String&gt;() {</span>
+			@Override
+			public void handle(String event) {
+<span class="fc" id="L891">				reflectionUI.logDebug(event);</span>
+<span class="fc" id="L892">			}</span>
+		};
+	}
+
+	public static Listener&lt;String&gt; getErrorLogListener(final ReflectionUI reflectionUI) {
+<span class="fc" id="L897">		return new Listener&lt;String&gt;() {</span>
+			@Override
+			public void handle(String event) {
+<span class="nc" id="L900">				reflectionUI.logError(event);</span>
+<span class="nc" id="L901">			}</span>
+		};
+	}
+
+	public static String getContructorDescription(IMethodInfo ctor) {
+<span class="nc" id="L906">		StringBuilder result = new StringBuilder(ctor.getCaption());</span>
+<span class="nc bnc" id="L907" title="All 2 branches missed.">		if (!ReflectionUIUtils.requiresParameterValue(ctor)) {</span>
+<span class="nc" id="L908">			result.append(&quot; - by default&quot;);</span>
+<span class="nc" id="L909">		} else {</span>
+<span class="nc" id="L910">			result.append(&quot; - specify &quot;);</span>
+<span class="nc" id="L911">			result.append(formatRequiredParameterList(ctor.getParameters()));</span>
+		}
+<span class="nc" id="L913">		return result.toString();</span>
+	}
+
+	public static MenuElementKind getMenuElementKind(IMenuElementInfo element) {
+<span class="fc bfc" id="L917" title="All 2 branches covered.">		if (element instanceof MenuInfo) {</span>
+<span class="fc" id="L918">			return MenuElementKind.MENU;</span>
+<span class="fc bfc" id="L919" title="All 2 branches covered.">		} else if (element instanceof MenuItemCategory) {</span>
+<span class="fc" id="L920">			return MenuElementKind.ITEM_CATEGORY;</span>
+<span class="pc bpc" id="L921" title="1 of 2 branches missed.">		} else if (element instanceof AbstractMenuItemInfo) {</span>
+<span class="fc" id="L922">			return MenuElementKind.ITEM;</span>
+		} else {
+<span class="nc" id="L924">			throw new ReflectionUIError();</span>
+		}
+	}
+
+	public static boolean equalsAccordingInfos(Object o1, Object o2, ReflectionUI reflectionUI,
+			IInfoFilter infoFilter) {
+<span class="fc" id="L930">		return equalsAccordingInfos(o1, o2, reflectionUI, infoFilter, new ArrayList&lt;Pair&lt;Object, Object&gt;&gt;());</span>
+	}
+
+	public static boolean equalsAccordingInfos(Object o1, Object o2, ReflectionUI reflectionUI, IInfoFilter infoFilter,
+			List&lt;Pair&lt;Object, Object&gt;&gt; alreadyCompared) {
+<span class="fc bfc" id="L935" title="All 2 branches covered.">		if (o1 == o2) {</span>
+<span class="fc" id="L936">			return true;</span>
+		}
+<span class="pc bpc" id="L938" title="2 of 4 branches missed.">		if ((o1 == null) || (o2 == null)) {</span>
+<span class="nc" id="L939">			return false;</span>
+		}
+<span class="fc bfc" id="L941" title="All 2 branches covered.">		if (ClassUtils.isPrimitiveClassOrWrapperOrString(o1.getClass())) {</span>
+<span class="fc bfc" id="L942" title="All 2 branches covered.">			if (o1.equals(o2)) {</span>
+<span class="fc" id="L943">				return true;</span>
+			} else {
+<span class="fc" id="L945">				return false;</span>
+			}
+		}
+<span class="fc bfc" id="L948" title="All 2 branches covered.">		for (Pair&lt;Object, Object&gt; pair : alreadyCompared) {</span>
+<span class="pc bpc" id="L949" title="3 of 4 branches missed.">			if ((pair.getFirst() == o1) &amp;&amp; (pair.getSecond() == o2)) {</span>
+<span class="nc" id="L950">				return true;</span>
+			}
+		}
+<span class="fc" id="L953">		alreadyCompared.add(new Pair&lt;Object, Object&gt;(o1, o2));</span>
+<span class="fc" id="L954">		ITypeInfo type1 = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(o1));</span>
+<span class="fc" id="L955">		ITypeInfo type2 = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(o2));</span>
+<span class="fc bfc" id="L956" title="All 2 branches covered.">		if (!type1.equals(type2)) {</span>
+<span class="fc" id="L957">			return false;</span>
+		}
+<span class="pc bpc" id="L959" title="1 of 2 branches missed.">		if (type1.isPrimitive()) {</span>
+<span class="nc bnc" id="L960" title="All 2 branches missed.">			if (o1.equals(o2)) {</span>
+<span class="nc" id="L961">				return true;</span>
+			} else {
+<span class="nc" id="L963">				return false;</span>
+			}
+		}
+<span class="fc bfc" id="L966" title="All 2 branches covered.">		for (IFieldInfo field : type1.getFields()) {</span>
+<span class="fc" id="L967">			field = infoFilter.apply(field);</span>
+<span class="pc bpc" id="L968" title="1 of 2 branches missed.">			if (field == null) {</span>
+<span class="nc" id="L969">				continue;</span>
+			}
+<span class="fc" id="L971">			Object value1 = field.getValue(o1);</span>
+<span class="fc" id="L972">			Object value2 = field.getValue(o2);</span>
+<span class="fc bfc" id="L973" title="All 2 branches covered.">			if (!equalsAccordingInfos(value1, value2, reflectionUI, infoFilter, alreadyCompared)) {</span>
+<span class="fc" id="L974">				return false;</span>
+			}
+		}
+<span class="fc bfc" id="L977" title="All 2 branches covered.">		if (type1 instanceof IListTypeInfo) {</span>
+<span class="fc" id="L978">			IListTypeInfo listType = (IListTypeInfo) type1;</span>
+<span class="fc" id="L979">			Object[] rawList1 = listType.toArray(o1);</span>
+<span class="fc" id="L980">			Object[] rawList2 = listType.toArray(o2);</span>
+<span class="fc bfc" id="L981" title="All 2 branches covered.">			if (rawList1.length != rawList2.length) {</span>
+<span class="fc" id="L982">				return false;</span>
+			}
+<span class="fc bfc" id="L984" title="All 2 branches covered.">			for (int i = 0; i &lt; rawList1.length; i++) {</span>
+<span class="fc" id="L985">				Object item1 = rawList1[i];</span>
+<span class="fc" id="L986">				Object item2 = rawList2[i];</span>
+<span class="fc bfc" id="L987" title="All 2 branches covered.">				if (!equalsAccordingInfos(item1, item2, reflectionUI, infoFilter, alreadyCompared)) {</span>
+<span class="fc" id="L988">					return false;</span>
+				}
+			}
+		}
+<span class="pc bpc" id="L992" title="1 of 2 branches missed.">		if (type1 instanceof IEnumerationTypeInfo) {</span>
+<span class="nc" id="L993">			IEnumerationTypeInfo enumType = (IEnumerationTypeInfo) type1;</span>
+<span class="nc" id="L994">			IEnumerationItemInfo valueInfo1 = enumType.getValueInfo(o1);</span>
+<span class="nc" id="L995">			IEnumerationItemInfo valueInfo2 = enumType.getValueInfo(o2);</span>
+<span class="nc bnc" id="L996" title="All 2 branches missed.">			if (!valueInfo1.getName().equals(valueInfo2.getName())) {</span>
+<span class="nc" id="L997">				return false;</span>
+			}
+		}
+<span class="fc" id="L1000">		return true;</span>
+	}
+
+	public static String formatMethodName(String baseName, int duplicateSignatureIndex) {
+<span class="fc" id="L1004">		String result = baseName;</span>
+<span class="pc bpc" id="L1005" title="1 of 2 branches missed.">		if (duplicateSignatureIndex &gt; 0) {</span>
+<span class="nc" id="L1006">			result += &quot;.&quot; + Integer.toString(duplicateSignatureIndex);</span>
+		}
+<span class="fc" id="L1008">		return result;</span>
+	}
+
+	public static String formatMethodCaption(IMethodInfo method, String baseName, int duplicateSignatureIndex) {
+<span class="fc" id="L1012">		String result = ReflectionUIUtils.identifierToCaption(baseName);</span>
+<span class="fc bfc" id="L1013" title="All 2 branches covered.">		if (method.getReturnValueType() != null) {</span>
+<span class="fc" id="L1014">			result = result.replaceAll(&quot;^Get &quot;, &quot;Show &quot;);</span>
+		}
+<span class="pc bpc" id="L1016" title="1 of 2 branches missed.">		if (duplicateSignatureIndex &gt; 0) {</span>
+<span class="nc" id="L1017">			result += &quot; (&quot; + (duplicateSignatureIndex + 1) + &quot;)&quot;;</span>
+		}
+<span class="pc bpc" id="L1019" title="1 of 2 branches missed.">		if (result.length() &gt; 0) {</span>
+<span class="fc bfc" id="L1020" title="All 2 branches covered.">			if (ReflectionUIUtils.requiresParameterValue(method.getParameters())) {</span>
+<span class="fc" id="L1021">				result += &quot;...&quot;;</span>
+			}
+		}
+<span class="fc" id="L1024">		return result;</span>
+	}
+
+	public static String formatRequiredParameterList(List&lt;IParameterInfo&gt; parameters) {
+<span class="fc" id="L1028">		StringBuilder result = new StringBuilder();</span>
+<span class="fc" id="L1029">		int iRequiredParam = 0;</span>
+<span class="fc bfc" id="L1030" title="All 2 branches covered.">		for (IParameterInfo param : parameters) {</span>
+<span class="pc bpc" id="L1031" title="1 of 2 branches missed.">			if (param.isHidden()) {</span>
+<span class="nc" id="L1032">				continue;</span>
+			}
+<span class="fc bfc" id="L1034" title="All 2 branches covered.">			if (iRequiredParam &gt; 0) {</span>
+<span class="pc bpc" id="L1035" title="1 of 2 branches missed.">				if (iRequiredParam == parameters.size() - 1) {</span>
+<span class="fc" id="L1036">					result.append(&quot; AND &quot;);</span>
+<span class="fc" id="L1037">				} else {</span>
+<span class="nc" id="L1038">					result.append(&quot;, &quot;);</span>
+				}
+			}
+<span class="fc" id="L1041">			String paramCaption = param.getCaption();</span>
+<span class="fc bfc" id="L1042" title="All 2 branches covered.">			if (paramCaption.length() &gt; 0) {</span>
+<span class="fc" id="L1043">				result.append(paramCaption);</span>
+<span class="fc" id="L1044">			} else {</span>
+<span class="fc" id="L1045">				result.append(param.getType().getCaption());</span>
+			}
+<span class="fc" id="L1047">			iRequiredParam++;</span>
+		}
+<span class="fc" id="L1049">		return result.toString();</span>
+	}
+
+	public static String formatMethodControlTooltipText(String methodCaption, String methodOnlineHelp,
+			List&lt;IParameterInfo&gt; methodParameters) {
+<span class="fc bfc" id="L1054" title="All 2 branches covered.">		if (methodOnlineHelp != null) {</span>
+<span class="fc" id="L1055">			return methodOnlineHelp;</span>
+		} else {
+<span class="fc bfc" id="L1057" title="All 2 branches covered.">			if (ReflectionUIUtils.requiresParameterValue(methodParameters)) {</span>
+<span class="fc" id="L1058">				String toolTipText = methodCaption;</span>
+<span class="pc bpc" id="L1059" title="1 of 2 branches missed.">				if (toolTipText.length() &gt; 0) {</span>
+<span class="fc" id="L1060">					toolTipText += &quot;\n&quot;;</span>
+				}
+<span class="fc" id="L1062">				toolTipText += &quot;Parameter(s): &quot; + ReflectionUIUtils.formatRequiredParameterList(methodParameters);</span>
+<span class="fc" id="L1063">				return toolTipText;</span>
+			} else {
+<span class="fc" id="L1065">				return null;</span>
+			}
+		}
+	}
+
+	public static List&lt;IMenuElementPosition&gt; getAncestors(IMenuElementPosition elementPosition) {
+<span class="fc" id="L1071">		List&lt;IMenuElementPosition&gt; result = new ArrayList&lt;IMenuElementPosition&gt;();</span>
+<span class="fc bfc" id="L1072" title="All 2 branches covered.">		while (elementPosition.getParent() != null) {</span>
+<span class="fc" id="L1073">			result.add(elementPosition.getParent());</span>
+<span class="fc" id="L1074">			elementPosition = elementPosition.getParent();</span>
+		}
+<span class="fc" id="L1076">		return result;</span>
+	}
+
+	public static Runnable getNextUpdateCustomOrDefaultUndoJob(final IFieldControlData data, Object newValue) {
+<span class="fc" id="L1080">		Runnable result = data.getNextUpdateCustomUndoJob(newValue);</span>
+<span class="fc bfc" id="L1081" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L1082">			result = createNextUpdateDefaultUndoJob(data);</span>
+		}
+<span class="fc" id="L1084">		return result;</span>
+	}
+
+	public static Runnable getNextUpdateCustomOrDefaultUndoJob(Object object, IFieldInfo field, Object newValue) {
+<span class="fc" id="L1088">		Runnable result = field.getNextUpdateCustomUndoJob(object, newValue);</span>
+<span class="fc bfc" id="L1089" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L1090">			result = createNextUpdateDefaultUndoJob(object, field);</span>
+		}
+<span class="fc" id="L1092">		return result;</span>
+	}
+
+	public static Runnable createNextUpdateDefaultUndoJob(final IFieldControlData data) {
+<span class="fc" id="L1096">		final Object oldValue = data.getValue();</span>
+<span class="fc" id="L1097">		return new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L1100">				data.setValue(oldValue);</span>
+<span class="nc" id="L1101">			}</span>
+		};
+	}
+
+	public static Runnable createNextUpdateDefaultUndoJob(final Object object, final IFieldInfo field) {
+<span class="fc" id="L1106">		final Object oldValue = field.getValue(object);</span>
+<span class="fc" id="L1107">		return new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L1110">				field.setValue(object, oldValue);</span>
+<span class="nc" id="L1111">			}</span>
+		};
+	}
+
+	public static Runnable getPreviousUpdateCustomOrDefaultRedoJob(final IFieldControlData data, Object newValue) {
+<span class="nc" id="L1116">		Runnable result = data.getPreviousUpdateCustomRedoJob(newValue);</span>
+<span class="nc bnc" id="L1117" title="All 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L1118">			result = createUpdateJob(data, newValue);</span>
+		}
+<span class="nc" id="L1120">		return result;</span>
+	}
+
+	public static Runnable getPreviousUpdateCustomOrDefaultRedoJob(Object object, IFieldInfo field, Object newValue) {
+<span class="nc" id="L1124">		Runnable result = field.getPreviousUpdateCustomRedoJob(object, newValue);</span>
+<span class="nc bnc" id="L1125" title="All 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L1126">			result = createUpdateJob(object, field, newValue);</span>
+		}
+<span class="nc" id="L1128">		return result;</span>
+	}
+
+	public static Runnable createUpdateJob(final IFieldControlData data, final Object newValue) {
+<span class="nc" id="L1132">		return new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L1135">				data.setValue(newValue);</span>
+<span class="nc" id="L1136">			}</span>
+		};
+	}
+
+	public static Runnable createUpdateJob(final Object object, final IFieldInfo field, final Object newValue) {
+<span class="nc" id="L1141">		return new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L1144">				field.setValue(object, newValue);</span>
+<span class="nc" id="L1145">			}</span>
+		};
+	}
+
+	public static Runnable getPreviousInvocationCustomOrDefaultRedoJob(final IMethodControlData data,
+			InvocationData invocationData) {
+<span class="nc" id="L1151">		Runnable result = data.getPreviousInvocationCustomRedoJob(invocationData);</span>
+<span class="nc bnc" id="L1152" title="All 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L1153">			result = createInvocationJob(data, invocationData);</span>
+		}
+<span class="nc" id="L1155">		return result;</span>
+	}
+
+	public static Runnable getPreviousInvocationCustomOrDefaultRedoJob(final Object object, final IMethodInfo method,
+			InvocationData invocationData) {
+<span class="nc" id="L1160">		Runnable result = method.getPreviousInvocationCustomRedoJob(object, invocationData);</span>
+<span class="nc bnc" id="L1161" title="All 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L1162">			result = createInvocationJob(object, method, invocationData);</span>
+		}
+<span class="nc" id="L1164">		return result;</span>
+	}
+
+	public static Runnable createInvocationJob(final IMethodControlData data, final InvocationData invocationData) {
+<span class="fc" id="L1168">		return new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L1171">				data.invoke(invocationData);</span>
+<span class="fc" id="L1172">			}</span>
+		};
+	}
+
+	public static Runnable createInvocationJob(final Object object, final IMethodInfo method,
+			final InvocationData invocationData) {
+<span class="nc" id="L1178">		return new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L1181">				method.invoke(object, invocationData);</span>
+<span class="nc" id="L1182">			}</span>
+		};
+	}
+
+	public static Runnable createRollbackJob(ITransaction transaction) {
+<span class="nc bnc" id="L1187" title="All 2 branches missed.">		if (transaction == null) {</span>
+<span class="nc" id="L1188">			throw new AssertionError();</span>
+		}
+<span class="nc" id="L1190">		return new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L1193">				transaction.rollback();</span>
+<span class="nc" id="L1194">			}</span>
+		};
+	}
+
+	public static boolean requiresParameterValue(IMethodInfo method) {
+<span class="fc" id="L1199">		return requiresParameterValue(method.getParameters());</span>
+	}
+
+	public static boolean requiresParameterValue(List&lt;IParameterInfo&gt; parameters) {
+<span class="fc bfc" id="L1203" title="All 2 branches covered.">		for (IParameterInfo param : parameters) {</span>
+<span class="pc bpc" id="L1204" title="1 of 2 branches missed.">			if (!param.isHidden()) {</span>
+<span class="fc" id="L1205">				return true;</span>
+			}
+		}
+<span class="fc" id="L1208">		return false;</span>
+	}
+
+	public static void setFieldControlPluginManagementDisabled(Map&lt;String, Object&gt; specificProperties, boolean b) {
+<span class="nc bnc" id="L1212" title="All 2 branches missed.">		if (b) {</span>
+<span class="nc" id="L1213">			specificProperties.put(IFieldControlPlugin.MANAGEMENT_DISABLED_PROPERTY_KEY, Boolean.TRUE);</span>
+<span class="nc" id="L1214">		} else {</span>
+<span class="nc" id="L1215">			specificProperties.remove(IFieldControlPlugin.MANAGEMENT_DISABLED_PROPERTY_KEY);</span>
+		}
+<span class="nc" id="L1217">	}</span>
+
+	public static boolean isFieldControlPluginManagementDisabled(Map&lt;String, Object&gt; specificProperties) {
+<span class="nc" id="L1220">		return Boolean.TRUE.equals(specificProperties.get(IFieldControlPlugin.MANAGEMENT_DISABLED_PROPERTY_KEY));</span>
+	}
+
+	public static void setFieldControlPluginIdentifier(Map&lt;String, Object&gt; specificProperties, String identifier) {
+<span class="fc bfc" id="L1224" title="All 2 branches covered.">		if (identifier == null) {</span>
+<span class="fc" id="L1225">			specificProperties.remove(IFieldControlPlugin.CHOSEN_PROPERTY_KEY);</span>
+<span class="fc" id="L1226">		} else {</span>
+<span class="fc" id="L1227">			specificProperties.put(IFieldControlPlugin.CHOSEN_PROPERTY_KEY, identifier);</span>
+		}
+<span class="fc" id="L1229">	}</span>
+
+	public static String getFieldControlPluginIdentifier(Map&lt;String, Object&gt; specificProperties) {
+<span class="fc" id="L1232">		return (String) specificProperties.get(IFieldControlPlugin.CHOSEN_PROPERTY_KEY);</span>
+	}
+
+	public static void setFieldControlPluginConfiguration(Map&lt;String, Object&gt; specificProperties, String identifier,
+			Serializable controlConfiguration) {
+<span class="pc bpc" id="L1237" title="1 of 2 branches missed.">		if (controlConfiguration == null) {</span>
+<span class="nc" id="L1238">			specificProperties.remove(identifier);</span>
+<span class="nc" id="L1239">		} else {</span>
+<span class="fc" id="L1240">			specificProperties.put(identifier, IOUtils.serializeToHexaText(controlConfiguration));</span>
+		}
+<span class="fc" id="L1242">	}</span>
+
+	public static Serializable getFieldControlPluginConfiguration(Map&lt;String, Object&gt; specificProperties,
+			String identifier) {
+<span class="fc" id="L1246">		String text = (String) specificProperties.get(identifier);</span>
+<span class="fc bfc" id="L1247" title="All 2 branches covered.">		if (text == null) {</span>
+<span class="fc" id="L1248">			return null;</span>
+		}
+<span class="fc" id="L1250">		return (Serializable) IOUtils.deserializeFromHexaText(text);</span>
+	}
+
+	public static void updateFieldControlPluginValues(Map&lt;String, Object&gt; specificProperties, String newPluginId,
+			Serializable newPluginConfig) {
+<span class="fc" id="L1255">		String oldPluginId = ReflectionUIUtils.getFieldControlPluginIdentifier(specificProperties);</span>
+<span class="fc" id="L1256">		ReflectionUIUtils.setFieldControlPluginIdentifier(specificProperties, null);</span>
+<span class="pc bpc" id="L1257" title="1 of 2 branches missed.">		if (oldPluginId != null) {</span>
+<span class="nc" id="L1258">			ReflectionUIUtils.setFieldControlPluginConfiguration(specificProperties, oldPluginId, null);</span>
+		}
+<span class="fc" id="L1260">		ReflectionUIUtils.setFieldControlPluginIdentifier(specificProperties, newPluginId);</span>
+<span class="pc bpc" id="L1261" title="1 of 2 branches missed.">		if (newPluginId != null) {</span>
+<span class="fc" id="L1262">			ReflectionUIUtils.setFieldControlPluginConfiguration(specificProperties, newPluginId, newPluginConfig);</span>
+		}
+<span class="fc" id="L1264">	}</span>
+
+	public static InfoCategory getCategory(IInfo info) {
+<span class="nc bnc" id="L1267" title="All 2 branches missed.">		if (info instanceof IFieldInfo) {</span>
+<span class="nc" id="L1268">			return ((IFieldInfo) info).getCategory();</span>
+<span class="nc bnc" id="L1269" title="All 2 branches missed.">		} else if (info instanceof IMethodInfo) {</span>
+<span class="nc" id="L1270">			return ((IMethodInfo) info).getCategory();</span>
+		} else {
+<span class="nc" id="L1272">			return null;</span>
+		}
+	}
+
+	public static boolean isTypeEmpty(ITypeInfo type, IInfoFilter infoFilter) {
+<span class="fc" id="L1277">		List&lt;IFieldInfo&gt; fields = type.getFields();</span>
+<span class="fc" id="L1278">		List&lt;IMethodInfo&gt; methods = type.getMethods();</span>
+
+<span class="fc" id="L1280">		fields = new ArrayList&lt;IFieldInfo&gt;(fields);</span>
+<span class="fc bfc" id="L1281" title="All 2 branches covered.">		for (Iterator&lt;IFieldInfo&gt; it = fields.iterator(); it.hasNext();) {</span>
+<span class="fc" id="L1282">			IFieldInfo field = it.next();</span>
+<span class="fc" id="L1283">			field = infoFilter.apply(field);</span>
+<span class="fc bfc" id="L1284" title="All 4 branches covered.">			if ((field == null) || field.isHidden()) {</span>
+<span class="fc" id="L1285">				it.remove();</span>
+			}
+		}
+
+<span class="fc" id="L1289">		methods = new ArrayList&lt;IMethodInfo&gt;(methods);</span>
+<span class="fc bfc" id="L1290" title="All 2 branches covered.">		for (Iterator&lt;IMethodInfo&gt; it = methods.iterator(); it.hasNext();) {</span>
+<span class="fc" id="L1291">			IMethodInfo method = it.next();</span>
+<span class="fc" id="L1292">			method = infoFilter.apply(method);</span>
+<span class="pc bpc" id="L1293" title="1 of 4 branches missed.">			if ((method == null) || method.isHidden()) {</span>
+<span class="fc" id="L1294">				it.remove();</span>
+			}
+		}
+
+<span class="pc bpc" id="L1298" title="1 of 2 branches missed.">		return (fields.size() + methods.size()) == 0;</span>
+	}
+
+	public static boolean isConstructor(IMethodInfo method) {
+<span class="pc bpc" id="L1302" title="1 of 2 branches missed.">		return method.getName().length() == 0;</span>
+	}
+
+	public static String buildNameFromMethodSignature(String baseMethodSignature) {
+<span class="fc" id="L1306">		String baseMethodReturnTypeName = ReflectionUIUtils</span>
+<span class="fc" id="L1307">				.extractMethodReturnTypeNameFromSignature(baseMethodSignature);</span>
+<span class="fc" id="L1308">		String baseMethodName = ReflectionUIUtils.extractMethodNameFromSignature(baseMethodSignature);</span>
+<span class="fc" id="L1309">		String[] baseMethodParameterTypeNames = ReflectionUIUtils</span>
+<span class="fc" id="L1310">				.extractMethodParameterTypeNamesFromSignature(baseMethodSignature);</span>
+<span class="fc" id="L1311">		String result = baseMethodReturnTypeName + &quot;-&quot;</span>
+<span class="pc bpc" id="L1312" title="1 of 2 branches missed.">				+ ((baseMethodName.length() == 0) ? &quot;&lt;constructor&gt;&quot; : baseMethodName)</span>
+<span class="fc bfc" id="L1313" title="All 2 branches covered.">				+ ((baseMethodParameterTypeNames.length == 0) ? &quot;&quot;</span>
+<span class="fc" id="L1314">						: (&quot;-&quot; + MiscUtils.stringJoin(Arrays.asList(baseMethodParameterTypeNames), &quot;-&quot;)));</span>
+<span class="fc" id="L1315">		result = result.replace(&quot; &quot;, &quot;_&quot;);</span>
+<span class="fc" id="L1316">		return result;</span>
+	}
+
+	public static DefaultMenuElementPosition getMenuElementPosition(MenuModelCustomization menuModelCustomization,
+			IMenuItemContainerCustomization menuItemContainerCustomization) {
+<span class="fc bfc" id="L1321" title="All 2 branches covered.">		for (MenuCustomization menuCustomization : menuModelCustomization.getMenuCustomizations()) {</span>
+<span class="fc" id="L1322">			DefaultMenuElementPosition result = getMenuElementPosition(menuCustomization,</span>
+<span class="fc" id="L1323">					menuItemContainerCustomization);</span>
+<span class="fc bfc" id="L1324" title="All 2 branches covered.">			if (result != null) {</span>
+<span class="fc" id="L1325">				return result;</span>
+			}
+		}
+<span class="fc" id="L1328">		return null;</span>
+	}
+
+	public static DefaultMenuElementPosition getMenuElementPosition(IMenuItemContainerCustomization fromContainer,
+			IMenuItemContainerCustomization elementContainer) {
+<span class="fc" id="L1333">		String elementName = fromContainer.getName();</span>
+<span class="fc" id="L1334">		MenuElementKind elementKind = getMenuElementKind(fromContainer);</span>
+<span class="fc" id="L1335">		DefaultMenuElementPosition rootPosition = new DefaultMenuElementPosition(elementName, elementKind, null);</span>
+<span class="fc bfc" id="L1336" title="All 2 branches covered.">		if (fromContainer == elementContainer) {</span>
+<span class="fc" id="L1337">			return rootPosition;</span>
+		}
+<span class="fc bfc" id="L1339" title="All 2 branches covered.">		for (AbstractMenuItemCustomization menuItemCustomization : fromContainer.getItemCustomizations()) {</span>
+<span class="pc bpc" id="L1340" title="1 of 2 branches missed.">			if (menuItemCustomization instanceof IMenuItemContainerCustomization) {</span>
+<span class="nc" id="L1341">				DefaultMenuElementPosition result = getMenuElementPosition(</span>
+<span class="nc" id="L1342">						(IMenuItemContainerCustomization) menuItemCustomization, elementContainer);</span>
+<span class="nc bnc" id="L1343" title="All 2 branches missed.">				if (result != null) {</span>
+<span class="nc" id="L1344">					((DefaultMenuElementPosition) result).getRoot().setParent(rootPosition);</span>
+<span class="nc" id="L1345">					return result;</span>
+				}
+			}
+		}
+<span class="fc bfc" id="L1349" title="All 2 branches covered.">		if (fromContainer instanceof MenuCustomization) {</span>
+<span class="fc bfc" id="L1350" title="All 2 branches covered.">			for (MenuItemCategoryCustomization menuItemCategoryCustomization : ((MenuCustomization) fromContainer)</span>
+<span class="fc" id="L1351">					.getItemCategoryCustomizations()) {</span>
+<span class="fc" id="L1352">				DefaultMenuElementPosition result = getMenuElementPosition(menuItemCategoryCustomization,</span>
+<span class="fc" id="L1353">						elementContainer);</span>
+<span class="fc bfc" id="L1354" title="All 2 branches covered.">				if (result != null) {</span>
+<span class="fc" id="L1355">					((DefaultMenuElementPosition) result).getRoot().setParent(rootPosition);</span>
+<span class="fc" id="L1356">					return result;</span>
+				}
+			}
+		}
+<span class="fc" id="L1360">		return null;</span>
+	}
+
+	public static DefaultMenuElementPosition getMenuElementPosition(InfoCustomizations infoCustomizations,
+			IMenuItemContainerCustomization menuItemContainerCustomization) {
+<span class="nc bnc" id="L1365" title="All 2 branches missed.">		for (TypeCustomization tc : infoCustomizations.getTypeCustomizations()) {</span>
+<span class="nc" id="L1366">			DefaultMenuElementPosition result = getMenuElementPosition(tc.getMenuModelCustomization(),</span>
+<span class="nc" id="L1367">					menuItemContainerCustomization);</span>
+<span class="nc bnc" id="L1368" title="All 2 branches missed.">			if (result != null) {</span>
+<span class="nc" id="L1369">				return result;</span>
+			}
+		}
+<span class="nc" id="L1372">		return null;</span>
+	}
+
+	public static MenuElementKind getMenuElementKind(IMenuElementCustomization elementCustomization) {
+<span class="fc" id="L1376">		return ReflectionUIUtils.getMenuElementKind(createMenuElementInfo(elementCustomization));</span>
+	}
+
+	public static MenuModel createMenuModel(MenuModelCustomization menuModelCustomization) {
+<span class="fc" id="L1380">		MenuModel result = new MenuModel();</span>
+<span class="fc bfc" id="L1381" title="All 2 branches covered.">		for (MenuCustomization menuCustomization : menuModelCustomization.getMenuCustomizations()) {</span>
+<span class="fc" id="L1382">			result.getMenus().add((MenuInfo) createMenuElementInfo(menuCustomization));</span>
+		}
+<span class="fc" id="L1384">		return result;</span>
+	}
+
+	public static IMenuElementInfo createMenuElementInfo(IMenuElementCustomization menuElementCustomization) {
+<span class="fc bfc" id="L1388" title="All 2 branches covered.">		if (menuElementCustomization instanceof MenuCustomization) {</span>
+<span class="fc" id="L1389">			MenuInfo result = new MenuInfo();</span>
+<span class="fc" id="L1390">			result.setCaption(menuElementCustomization.getName());</span>
+<span class="fc" id="L1391">			result.setMnemonicKey(((MenuCustomization) menuElementCustomization).getMnemonicKey());</span>
+<span class="fc bfc" id="L1392" title="All 2 branches covered.">			for (MenuItemCategoryCustomization menuItemCategoryCustomization : ((MenuCustomization) menuElementCustomization)</span>
+<span class="fc" id="L1393">					.getItemCategoryCustomizations()) {</span>
+<span class="fc" id="L1394">				result.getItemCategories().add((MenuItemCategory) createMenuElementInfo(menuItemCategoryCustomization));</span>
+			}
+<span class="fc bfc" id="L1396" title="All 2 branches covered.">			for (AbstractMenuItemCustomization menuItemCustomization : ((MenuCustomization) menuElementCustomization)</span>
+<span class="fc" id="L1397">					.getItemCustomizations()) {</span>
+<span class="fc" id="L1398">				result.getItems().add((AbstractMenuItemInfo) createMenuElementInfo(menuItemCustomization));</span>
+			}
+<span class="fc" id="L1400">			return result;</span>
+<span class="fc bfc" id="L1401" title="All 2 branches covered.">		} else if (menuElementCustomization instanceof MenuItemCategoryCustomization) {</span>
+<span class="fc" id="L1402">			MenuItemCategory result = new MenuItemCategory();</span>
+<span class="fc" id="L1403">			result.setCaption(menuElementCustomization.getName());</span>
+<span class="fc bfc" id="L1404" title="All 2 branches covered.">			for (AbstractMenuItemCustomization menuItemCustomization : ((MenuItemCategoryCustomization) menuElementCustomization)</span>
+<span class="fc" id="L1405">					.getItemCustomizations()) {</span>
+<span class="fc" id="L1406">				result.getItems().add((AbstractMenuItemInfo) createMenuElementInfo(menuItemCustomization));</span>
+			}
+<span class="fc" id="L1408">			return result;</span>
+<span class="fc bfc" id="L1409" title="All 2 branches covered.">		} else if (menuElementCustomization instanceof RenewMenuItemCustomization) {</span>
+<span class="fc" id="L1410">			return new StandardActionMenuItemInfo(menuElementCustomization.getName(),</span>
+<span class="fc" id="L1411">					((AbstractMenuItemCustomization) menuElementCustomization).getIconImagePath(),</span>
+<span class="fc" id="L1412">					StandardActionMenuItemInfo.Type.NEW,</span>
+<span class="fc" id="L1413">					((AbstractStandardActionMenuItemCustomization) menuElementCustomization).getKeyboardShortcut());</span>
+<span class="fc bfc" id="L1414" title="All 2 branches covered.">		} else if (menuElementCustomization instanceof OpenMenuItemCustomization) {</span>
+<span class="fc" id="L1415">			return new StandardActionMenuItemInfo(menuElementCustomization.getName(),</span>
+<span class="fc" id="L1416">					((AbstractMenuItemCustomization) menuElementCustomization).getIconImagePath(),</span>
+<span class="fc" id="L1417">					StandardActionMenuItemInfo.Type.OPEN,</span>
+<span class="fc" id="L1418">					((AbstractStandardActionMenuItemCustomization) menuElementCustomization).getKeyboardShortcut(),</span>
+<span class="fc" id="L1419">					((AbstractFileMenuItemCustomization) menuElementCustomization).getFileBrowserConfiguration());</span>
+<span class="fc bfc" id="L1420" title="All 2 branches covered.">		} else if (menuElementCustomization instanceof SaveAsMenuItemCustomization) {</span>
+<span class="fc" id="L1421">			return new StandardActionMenuItemInfo(menuElementCustomization.getName(),</span>
+<span class="fc" id="L1422">					((AbstractMenuItemCustomization) menuElementCustomization).getIconImagePath(),</span>
+<span class="fc" id="L1423">					StandardActionMenuItemInfo.Type.SAVE_AS,</span>
+<span class="fc" id="L1424">					((AbstractStandardActionMenuItemCustomization) menuElementCustomization).getKeyboardShortcut(),</span>
+<span class="fc" id="L1425">					((AbstractFileMenuItemCustomization) menuElementCustomization).getFileBrowserConfiguration());</span>
+<span class="fc bfc" id="L1426" title="All 2 branches covered.">		} else if (menuElementCustomization instanceof SaveMenuItemCustomization) {</span>
+<span class="fc" id="L1427">			return new StandardActionMenuItemInfo(menuElementCustomization.getName(),</span>
+<span class="fc" id="L1428">					((AbstractMenuItemCustomization) menuElementCustomization).getIconImagePath(),</span>
+<span class="fc" id="L1429">					StandardActionMenuItemInfo.Type.SAVE,</span>
+<span class="fc" id="L1430">					((AbstractStandardActionMenuItemCustomization) menuElementCustomization).getKeyboardShortcut(),</span>
+<span class="fc" id="L1431">					((AbstractFileMenuItemCustomization) menuElementCustomization).getFileBrowserConfiguration());</span>
+<span class="fc bfc" id="L1432" title="All 2 branches covered.">		} else if (menuElementCustomization instanceof ExitMenuItemCustomization) {</span>
+<span class="fc" id="L1433">			return new StandardActionMenuItemInfo(menuElementCustomization.getName(),</span>
+<span class="fc" id="L1434">					((AbstractMenuItemCustomization) menuElementCustomization).getIconImagePath(),</span>
+<span class="fc" id="L1435">					StandardActionMenuItemInfo.Type.EXIT,</span>
+<span class="fc" id="L1436">					((AbstractStandardActionMenuItemCustomization) menuElementCustomization).getKeyboardShortcut());</span>
+<span class="pc bpc" id="L1437" title="1 of 2 branches missed.">		} else if (menuElementCustomization instanceof HelpMenuItemCustomization) {</span>
+<span class="nc" id="L1438">			return new StandardActionMenuItemInfo(menuElementCustomization.getName(),</span>
+<span class="nc" id="L1439">					((AbstractMenuItemCustomization) menuElementCustomization).getIconImagePath(),</span>
+<span class="nc" id="L1440">					StandardActionMenuItemInfo.Type.HELP,</span>
+<span class="nc" id="L1441">					((AbstractStandardActionMenuItemCustomization) menuElementCustomization).getKeyboardShortcut());</span>
+<span class="fc bfc" id="L1442" title="All 2 branches covered.">		} else if (menuElementCustomization instanceof RedoMenuItemCustomization) {</span>
+<span class="fc" id="L1443">			return new StandardActionMenuItemInfo(menuElementCustomization.getName(),</span>
+<span class="fc" id="L1444">					((AbstractMenuItemCustomization) menuElementCustomization).getIconImagePath(),</span>
+<span class="fc" id="L1445">					StandardActionMenuItemInfo.Type.REDO,</span>
+<span class="fc" id="L1446">					((AbstractStandardActionMenuItemCustomization) menuElementCustomization).getKeyboardShortcut());</span>
+<span class="fc bfc" id="L1447" title="All 2 branches covered.">		} else if (menuElementCustomization instanceof UndoMenuItemCustomization) {</span>
+<span class="fc" id="L1448">			return new StandardActionMenuItemInfo(menuElementCustomization.getName(),</span>
+<span class="fc" id="L1449">					((AbstractMenuItemCustomization) menuElementCustomization).getIconImagePath(),</span>
+<span class="fc" id="L1450">					StandardActionMenuItemInfo.Type.UNDO,</span>
+<span class="fc" id="L1451">					((AbstractStandardActionMenuItemCustomization) menuElementCustomization).getKeyboardShortcut());</span>
+<span class="pc bpc" id="L1452" title="1 of 2 branches missed.">		} else if (menuElementCustomization instanceof ResetMenuItemCustomization) {</span>
+<span class="fc" id="L1453">			return new StandardActionMenuItemInfo(menuElementCustomization.getName(),</span>
+<span class="fc" id="L1454">					((AbstractMenuItemCustomization) menuElementCustomization).getIconImagePath(),</span>
+<span class="fc" id="L1455">					StandardActionMenuItemInfo.Type.RESET,</span>
+<span class="fc" id="L1456">					((AbstractStandardActionMenuItemCustomization) menuElementCustomization).getKeyboardShortcut());</span>
+		} else {
+<span class="nc" id="L1458">			throw new ReflectionUIError();</span>
+		}
+	}
+
+	public static Object primitiveFromString(String text, Class&lt;?&gt; javaType) {
+<span class="pc bpc" id="L1463" title="1 of 2 branches missed.">		if (javaType.isPrimitive()) {</span>
+<span class="fc" id="L1464">			javaType = ClassUtils.primitiveToWrapperClass(javaType);</span>
+		}
+<span class="pc bpc" id="L1466" title="1 of 2 branches missed.">		if (javaType == Character.class) {</span>
+<span class="nc bnc" id="L1467" title="All 2 branches missed.">			if (text.length() != 1) {</span>
+<span class="nc" id="L1468">				throw new ReflectionUIError(&quot;Invalid value: '&quot; + text + &quot;'. 1 character is expected&quot;);</span>
+			}
+<span class="nc" id="L1470">			return text.charAt(0);</span>
+<span class="pc bpc" id="L1471" title="1 of 2 branches missed.">		} else if (javaType == Boolean.class) {</span>
+<span class="nc bnc" id="L1472" title="All 2 branches missed.">			if (Boolean.TRUE.toString().equals(text)) {</span>
+<span class="nc" id="L1473">				return true;</span>
+			}
+<span class="nc bnc" id="L1475" title="All 2 branches missed.">			if (Boolean.FALSE.toString().equals(text)) {</span>
+<span class="nc" id="L1476">				return false;</span>
+			}
+<span class="nc" id="L1478">			throw new ReflectionUIError(&quot;Invalid boolean: '&quot; + text + &quot;'. Expected '&quot; + Boolean.TRUE.toString()</span>
+<span class="nc" id="L1479">					+ &quot;' or '&quot; + Boolean.FALSE.toString() + &quot;'&quot;);</span>
+		} else {
+			try {
+<span class="fc" id="L1482">				return javaType.getConstructor(new Class[] { String.class }).newInstance(text);</span>
+<span class="nc" id="L1483">			} catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L1484">				throw new ReflectionUIError(e);</span>
+<span class="nc" id="L1485">			} catch (SecurityException e) {</span>
+<span class="nc" id="L1486">				throw new ReflectionUIError(e);</span>
+<span class="nc" id="L1487">			} catch (InstantiationException e) {</span>
+<span class="nc" id="L1488">				throw new ReflectionUIError(e);</span>
+<span class="nc" id="L1489">			} catch (IllegalAccessException e) {</span>
+<span class="nc" id="L1490">				throw new ReflectionUIError(e);</span>
+<span class="nc" id="L1491">			} catch (InvocationTargetException e) {</span>
+<span class="nc bnc" id="L1492" title="All 2 branches missed.">				if (Number.class.isAssignableFrom(javaType)) {</span>
+<span class="nc bnc" id="L1493" title="All 2 branches missed.">					if (e.getTargetException() instanceof NumberFormatException) {</span>
+<span class="nc" id="L1494">						throw new ReflectionUIError(&quot;(&quot; + javaType.getSimpleName() + &quot;) &quot;</span>
+<span class="nc" id="L1495">								+ e.getTargetException().toString() + &quot; (valid example: \&quot;&quot;</span>
+<span class="nc" id="L1496">								+ getNativeNumberFormat(javaType.asSubclass(Number.class)).format(Math.PI) + &quot;\&quot;)&quot;,</span>
+<span class="nc" id="L1497">								e.getTargetException());</span>
+					}
+				}
+<span class="nc" id="L1500">				throw new ReflectionUIError(e.getTargetException());</span>
+<span class="nc" id="L1501">			} catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L1502">				throw new ReflectionUIError(e);</span>
+			}
+		}
+	}
+
+	public static String primitiveToString(Object object) {
+<span class="fc" id="L1508">		Class&lt;?&gt; javaType = object.getClass();</span>
+<span class="pc bpc" id="L1509" title="1 of 2 branches missed.">		if (!ClassUtils.isPrimitiveClassOrWrapper(javaType)) {</span>
+<span class="nc" id="L1510">			throw new RuntimeException(&quot;Invalid primitive type: '&quot; + javaType.getName() + &quot;'&quot;);</span>
+		}
+<span class="fc" id="L1512">		return object.toString();</span>
+	}
+
+	public static NumberFormatter getNumberFormatter(Class&lt;?&gt; javaType, NumberFormat numberFormat) {
+<span class="fc" id="L1516">		NumberFormatter result = new NumberFormatter(new StrictNumberFormat(numberFormat));</span>
+<span class="fc" id="L1517">		result.setValueClass(javaType);</span>
+<span class="fc" id="L1518">		return result;</span>
+	}
+
+	public static NumberFormat getNativeNumberFormat(final Class&lt;? extends Number&gt; javaType) {
+<span class="fc" id="L1522">		return new NumberFormat() {</span>
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Number parse(String source, ParsePosition parsePosition) {
+<span class="nc" id="L1528">				Number result = (Number) primitiveFromString(source, javaType);</span>
+<span class="nc" id="L1529">				parsePosition.setIndex(source.length());</span>
+<span class="nc" id="L1530">				return result;</span>
+			}
+
+			@Override
+			public StringBuffer format(long number, StringBuffer toAppendTo, FieldPosition pos) {
+<span class="fc" id="L1535">				return toAppendTo.append(primitiveToString(castNumber(number, javaType)));</span>
+			}
+
+			@Override
+			public StringBuffer format(double number, StringBuffer toAppendTo, FieldPosition pos) {
+<span class="fc" id="L1540">				return toAppendTo.append(primitiveToString(castNumber(number, javaType)));</span>
+			}
+		};
+	}
+
+	public static &lt;T extends Number&gt; T castNumber(Number number, Class&lt;T&gt; targetClass) {
+<span class="fc bfc" id="L1546" title="All 2 branches covered.">		if (targetClass == Integer.class)</span>
+<span class="fc" id="L1547">			return targetClass.cast(Integer.valueOf(number.intValue()));</span>
+<span class="pc bpc" id="L1548" title="1 of 2 branches missed.">		if (targetClass == Long.class)</span>
+<span class="nc" id="L1549">			return targetClass.cast(Long.valueOf(number.longValue()));</span>
+<span class="pc bpc" id="L1550" title="1 of 2 branches missed.">		if (targetClass == Double.class)</span>
+<span class="fc" id="L1551">			return targetClass.cast(Double.valueOf(number.doubleValue()));</span>
+<span class="nc bnc" id="L1552" title="All 2 branches missed.">		if (targetClass == Float.class)</span>
+<span class="nc" id="L1553">			return targetClass.cast(Float.valueOf(number.floatValue()));</span>
+<span class="nc bnc" id="L1554" title="All 2 branches missed.">		if (targetClass == Short.class)</span>
+<span class="nc" id="L1555">			return targetClass.cast(Short.valueOf(number.shortValue()));</span>
+<span class="nc bnc" id="L1556" title="All 2 branches missed.">		if (targetClass == Byte.class)</span>
+<span class="nc" id="L1557">			return targetClass.cast(Byte.valueOf(number.byteValue()));</span>
+<span class="nc bnc" id="L1558" title="All 2 branches missed.">		if (targetClass == BigInteger.class)</span>
+<span class="nc" id="L1559">			return targetClass.cast(BigInteger.valueOf(number.longValue()));</span>
+<span class="nc bnc" id="L1560" title="All 2 branches missed.">		if (targetClass == BigDecimal.class)</span>
+<span class="nc" id="L1561">			return targetClass.cast(new BigDecimal(number.toString()));</span>
+<span class="nc" id="L1562">		throw new IllegalArgumentException(</span>
+<span class="nc" id="L1563">				&quot;Unsupported number conversion: &quot; + number + &quot; (&quot; + number.getClass() + &quot;) =&gt; &quot; + targetClass);</span>
+	}
+
+	public static String secureNameContent(String s) {
+<span class="fc" id="L1567">		return s.replaceAll(&quot;[^a-zA-Z0-9 ]&quot;, &quot;_&quot;);</span>
+	}
+
+	public static List&lt;Object&gt; collectItemAncestors(ItemPosition itemPosition) {
+<span class="fc" id="L1571">		List&lt;Object&gt; result = new ArrayList&lt;Object&gt;();</span>
+<span class="fc bfc" id="L1572" title="All 2 branches covered.">		for (ItemPosition ancestorPosition : itemPosition.getAncestors()) {</span>
+<span class="fc" id="L1573">			result.add(ancestorPosition.getItem());</span>
+		}
+<span class="fc" id="L1575">		return result;</span>
+	}
+
+	/**
+	 * Allows to ensure that the items behind the given positions are the same
+	 * despite any possible automatic repositioning.
+	 * 
+	 * @param &lt;T&gt;
+	 * @param oldItemPositions  The old item positions.
+	 * @param items             The items values/references.
+	 * @param itemAncestorLists A list containing 1 sub-list of ancestors
+	 *                          values/references corresponding to each item.
+	 * @return the list of up-to-date positions of each item.
+	 */
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static &lt;T extends ItemPosition&gt; List&lt;T&gt; actualizeItemPositions(List&lt;T&gt; oldItemPositions, List&lt;Object&gt; items,
+			List&lt;List&lt;Object&gt;&gt; itemAncestorLists) {
+<span class="pc bpc" id="L1592" title="1 of 2 branches missed.">		if (oldItemPositions.size() != items.size()) {</span>
+<span class="nc" id="L1593">			throw new ReflectionUIError();</span>
+		}
+<span class="pc bpc" id="L1595" title="1 of 2 branches missed.">		if (items.size() != itemAncestorLists.size()) {</span>
+<span class="nc" id="L1596">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L1598">		List&lt;T&gt; result = new ArrayList&lt;T&gt;();</span>
+<span class="fc bfc" id="L1599" title="All 2 branches covered.">		for (int i = 0; i &lt; oldItemPositions.size(); i++) {</span>
+<span class="fc" id="L1600">			T itemPosition = oldItemPositions.get(i);</span>
+<span class="pc bpc" id="L1601" title="1 of 2 branches missed.">			if (itemPosition.isStable()) {</span>
+<span class="pc bpc" id="L1602" title="1 of 2 branches missed.">				if (itemPosition.isValid()) {</span>
+<span class="fc" id="L1603">					result.add(itemPosition);</span>
+				}
+<span class="fc" id="L1605">			} else {</span>
+				Object[] containingListRawValue;
+<span class="nc bnc" id="L1607" title="All 2 branches missed.">				if (itemPosition.isRoot()) {</span>
+<span class="nc" id="L1608">					containingListRawValue = itemPosition.retrieveContainingListRawValue();</span>
+<span class="nc" id="L1609">				} else {</span>
+<span class="nc" id="L1610">					List&lt;T&gt; list = actualizeItemPositions(</span>
+<span class="nc" id="L1611">							Collections.singletonList((T) itemPosition.getParentItemPosition()),</span>
+<span class="nc" id="L1612">							Collections.singletonList(itemAncestorLists.get(i).get(0)), Collections.singletonList(</span>
+<span class="nc" id="L1613">									itemAncestorLists.get(i).subList(1, itemAncestorLists.get(i).size())));</span>
+<span class="nc bnc" id="L1614" title="All 2 branches missed.">					if (list.isEmpty()) {</span>
+<span class="nc" id="L1615">						containingListRawValue = null;</span>
+<span class="nc" id="L1616">					} else {</span>
+<span class="nc" id="L1617">						T parentItemPosition = list.get(0);</span>
+<span class="nc" id="L1618">						itemPosition = (T) parentItemPosition.getSubItemPosition(itemPosition.getIndex());</span>
+<span class="nc" id="L1619">						containingListRawValue = parentItemPosition.retrieveSubListRawValue();</span>
+					}
+				}
+<span class="nc bnc" id="L1622" title="All 2 branches missed.">				if (containingListRawValue != null) {</span>
+<span class="nc bnc" id="L1623" title="All 2 branches missed.">					if (itemPosition.getContainingListType().areItemsAutomaticallyPositioned()) {</span>
+						int index;
+<span class="nc bnc" id="L1625" title="All 2 branches missed.">						if (itemPosition.getItemReturnMode() == ValueReturnMode.DIRECT) {</span>
+<span class="nc" id="L1626">							index = -1;</span>
+<span class="nc bnc" id="L1627" title="All 2 branches missed.">							for (int containingListItemIndex = 0; containingListItemIndex &lt; containingListRawValue.length; containingListItemIndex++) {</span>
+<span class="nc bnc" id="L1628" title="All 2 branches missed.">								if (containingListRawValue[containingListItemIndex] == items.get(i)) {</span>
+<span class="nc" id="L1629">									index = containingListItemIndex;</span>
+<span class="nc" id="L1630">									break;</span>
+								}
+							}
+<span class="nc" id="L1633">						} else {</span>
+<span class="nc" id="L1634">							index = Arrays.asList(containingListRawValue).indexOf(items.get(i));</span>
+						}
+<span class="nc bnc" id="L1636" title="All 2 branches missed.">						if (index != -1) {</span>
+<span class="nc" id="L1637">							itemPosition = (T) itemPosition.getSibling(index);</span>
+<span class="nc" id="L1638">							result.add(itemPosition);</span>
+						}
+<span class="nc" id="L1640">					} else {</span>
+<span class="nc bnc" id="L1641" title="All 2 branches missed.">						if (itemPosition.isValid()) {</span>
+<span class="nc" id="L1642">							result.add(itemPosition);</span>
+						}
+					}
+				}
+			}
+		}
+<span class="fc" id="L1648">		return result;</span>
+	}
+
+	public static List&lt;ITypeInfo&gt; listDescendantTypes(ITypeInfo type) {
+<span class="fc" id="L1652">		List&lt;ITypeInfo&gt; result = new ArrayList&lt;ITypeInfo&gt;();</span>
+<span class="fc" id="L1653">		List&lt;ITypeInfo&gt; subTypes = type.getPolymorphicInstanceSubTypes();</span>
+<span class="fc bfc" id="L1654" title="All 2 branches covered.">		for (ITypeInfo subType : subTypes) {</span>
+<span class="fc" id="L1655">			result.add(subType);</span>
+<span class="fc" id="L1656">			result.addAll(listDescendantTypes(subType));</span>
+		}
+<span class="fc" id="L1658">		return result;</span>
+	}
+
+	public static boolean isTransitivelySlave(ModificationStack slaveModificationStack,
+			ModificationStack masterModificationStack) {
+<span class="nc bnc" id="L1663" title="All 2 branches missed.">		if (!(slaveModificationStack instanceof SlaveModificationStack)) {</span>
+<span class="nc" id="L1664">			return false;</span>
+		}
+<span class="nc" id="L1666">		ModificationStack currentMaster = ((SlaveModificationStack) slaveModificationStack)</span>
+<span class="nc" id="L1667">				.getMasterModificationStackGetter().get();</span>
+<span class="nc bnc" id="L1668" title="All 2 branches missed.">		if (currentMaster != masterModificationStack) {</span>
+<span class="nc" id="L1669">			return isTransitivelySlave(currentMaster, masterModificationStack);</span>
+		}
+<span class="nc" id="L1671">		return true;</span>
+	}
+
+	public static IModification createUndoModificationsReplacement(final IFieldControlData data) {
+<span class="fc" id="L1675">		return createUndoModificationsReplacement(new Accessor&lt;Runnable&gt;() {</span>
+			@Override
+			public Runnable get() {
+<span class="fc" id="L1678">				return data.getLastFormRefreshStateRestorationJob();</span>
+			}
+		});
+	}
+
+	public static IModification createUndoModificationsReplacement(final IMethodControlData data) {
+<span class="fc" id="L1684">		return createUndoModificationsReplacement(new Accessor&lt;Runnable&gt;() {</span>
+			@Override
+			public Runnable get() {
+<span class="fc" id="L1687">				return data.getLastFormRefreshStateRestorationJob();</span>
+			}
+		});
+	}
+
+	public static IModification createUndoModificationsReplacement(final Accessor&lt;Runnable&gt; stateRestorationJobGetter) {
+<span class="fc" id="L1693">		final Runnable stateRestorationJob = stateRestorationJobGetter.get();</span>
+<span class="fc bfc" id="L1694" title="All 2 branches covered.">		if (stateRestorationJob == null) {</span>
+<span class="fc" id="L1695">			return null;</span>
+		}
+<span class="fc" id="L1697">		return new AbstractModification() {</span>
+
+			FutureActionBuilder undoJobBuilder;
+
+			@Override
+			public String getTitle() {
+<span class="nc" id="L1703">				return &quot;Restore Previous State&quot;;</span>
+			}
+
+			@Override
+			protected Runnable createDoJob() {
+<span class="nc" id="L1708">				return new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="nc" id="L1711">						undoJobBuilder.setOption(&quot;runnable&quot;, stateRestorationJobGetter.get());</span>
+<span class="nc" id="L1712">						undoJobBuilder.build();</span>
+<span class="nc" id="L1713">						stateRestorationJob.run();</span>
+<span class="nc" id="L1714">					}</span>
+				};
+			}
+
+			@Override
+			protected Runnable createUndoJob() {
+<span class="nc" id="L1720">				return (undoJobBuilder = new FutureActionBuilder()).will(new FutureActionBuilder.FuturePerformance() {</span>
+					@Override
+					public void perform(Map&lt;String, Object&gt; options) {
+<span class="nc" id="L1723">						((Runnable) options.get(&quot;runnable&quot;)).run();</span>
+<span class="nc" id="L1724">					}</span>
+				});
+			}
+
+			@Override
+			protected Runnable createRedoJob() {
+<span class="nc" id="L1730">				return stateRestorationJob;</span>
+			}
+
+		};
+	}
+
+	public static List&lt;ITypeInfo&gt; listDescendantTypes(ITypeInfo polymorphicType, boolean concreteOnly) {
+<span class="fc" id="L1737">		List&lt;ITypeInfo&gt; result = new ArrayList&lt;ITypeInfo&gt;();</span>
+<span class="fc" id="L1738">		List&lt;ITypeInfo&gt; subTypes = polymorphicType.getPolymorphicInstanceSubTypes();</span>
+<span class="fc bfc" id="L1739" title="All 2 branches covered.">		for (ITypeInfo subType : subTypes) {</span>
+<span class="pc bpc" id="L1740" title="1 of 4 branches missed.">			if (!concreteOnly || subType.isConcrete()) {</span>
+<span class="fc" id="L1741">				result.add(subType);</span>
+			}
+<span class="fc" id="L1743">			result.addAll(listDescendantTypes(subType, concreteOnly));</span>
+		}
+<span class="fc" id="L1745">		return result;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

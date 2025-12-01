@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>StaticTests.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui</a> &gt; <span class="el_source">StaticTests.java</span></div><h1>StaticTests.java</h1><pre class="source lang-java linenums">/*
+ * 
+ */
+package xy.reflect.ui;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import xy.reflect.ui.info.custom.InfoCustomizations;
+import xy.reflect.ui.info.field.GetterFieldInfo;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.field.MembersCapsuleFieldInfo;
+import xy.reflect.ui.info.field.MultipleFieldsAsListFieldInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.factory.InfoProxyFactory;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.info.type.iterable.item.ItemPositionProxy;
+import xy.reflect.ui.info.type.iterable.map.StandardMapAsListTypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
+
+<span class="nc" id="L29">public class StaticTests {</span>
+
+<span class="nc" id="L31">	private static final List&lt;Class&lt;?&gt;&gt; STANDARD_BASE_CLASSES = Arrays.asList(Object.class, Comparable.class);</span>
+
+	@Test
+	public void checkInfoCustomizationsClass() {
+<span class="nc" id="L35">		checkCustomizationClass(InfoCustomizations.class);</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">		for (Class&lt;?&gt; customizationClass : InfoCustomizations.class.getDeclaredClasses()) {</span>
+<span class="nc" id="L37">			checkCustomizationClass(customizationClass);</span>
+		}
+<span class="nc" id="L39">	}</span>
+
+	private void checkCustomizationClass(Class&lt;?&gt; customizationClass) {
+<span class="nc" id="L42">		ITypeInfo customizationTypeInfo = ReflectionUI.getDefault()</span>
+<span class="nc" id="L43">				.getTypeInfo(new JavaTypeInfoSource(customizationClass, null));</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">		for (IFieldInfo field : customizationTypeInfo.getFields()) {</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">			if (field.isGetOnly()) {</span>
+<span class="nc" id="L46">				continue;</span>
+			}
+<span class="nc bnc" id="L48" title="All 2 branches missed.">			if (!(field.getType() instanceof IListTypeInfo)) {</span>
+<span class="nc" id="L49">				continue;</span>
+			}
+<span class="nc bnc" id="L51" title="All 2 branches missed.">			if (field.getType() instanceof StandardMapAsListTypeInfo) {</span>
+<span class="nc" id="L52">				continue;</span>
+			}
+<span class="nc bnc" id="L54" title="All 2 branches missed.">			if (!(field instanceof GetterFieldInfo)) {</span>
+<span class="nc" id="L55">				continue;</span>
+			}
+<span class="nc" id="L57">			Method getter = ((GetterFieldInfo) field).getJavaGetterMethod();</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">			if (getter.getAnnotation(javax.xml.bind.annotation.XmlTransient.class) != null) {</span>
+<span class="nc" id="L59">				continue;</span>
+			}
+<span class="nc bnc" id="L61" title="All 2 branches missed.">			if (getter.getAnnotation(javax.xml.bind.annotation.XmlElements.class) != null) {</span>
+<span class="nc" id="L62">				continue;</span>
+			}
+<span class="nc bnc" id="L64" title="All 2 branches missed.">			if (getter.getAnnotation(javax.xml.bind.annotation.XmlElement.class) != null) {</span>
+<span class="nc" id="L65">				new InfoCustomizations() {</span>
+
+					private static final long serialVersionUID = 1L;
+					{
+<span class="nc" id="L69">						String migratedLocalName = migrator.migrateXMLLocalName(field.getName());</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">						if (migratedLocalName != null) {</span>
+<span class="nc" id="L71">							javax.xml.bind.annotation.XmlElement annotation = getter</span>
+<span class="nc" id="L72">									.getAnnotation(javax.xml.bind.annotation.XmlElement.class);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">							if (!migratedLocalName.equals(annotation.name())) {</span>
+<span class="nc" id="L74">								Assert.fail(&quot;The singular form of list item XML element name specified by annotation (&quot;</span>
+<span class="nc" id="L75">										+ annotation.name() + &quot;) does not match the migrated name (&quot; + migratedLocalName</span>
+<span class="nc" id="L76">										+ &quot;) for &quot; + getter);</span>
+							}
+						}
+					}
+
+				};
+<span class="nc" id="L82">				continue;</span>
+			}
+<span class="nc" id="L84">			Assert.fail(&quot;The plural form of list item XML element name was not changed by annotation for &quot; + getter);</span>
+		}
+<span class="nc" id="L86">	}</span>
+
+	@Test
+	public void checkProxyClasses() {
+<span class="nc" id="L90">		checkProxyCompleteness(ItemPosition.class, ItemPositionProxy.class);</span>
+<span class="nc" id="L91">		checkWrapperMemberInfoProxy(IFieldInfo.class, MembersCapsuleFieldInfo.EncapsulatedFieldInfoProxy.class);</span>
+<span class="nc" id="L92">		checkWrapperMemberInfoProxy(IMethodInfo.class, MembersCapsuleFieldInfo.EncapsulatedMethodInfoProxy.class);</span>
+<span class="nc" id="L93">		checkWrapperMemberInfoProxy(IFieldInfo.class, MultipleFieldsAsListFieldInfo.ListItemDetailsFieldInfo.class);</span>
+<span class="nc" id="L94">		checkWrapperInfoProxyFactory(PrecomputedTypeInstanceWrapper.InfoFactory.class);</span>
+<span class="nc" id="L95">	}</span>
+
+	private &lt;F extends InfoProxyFactory&gt; void checkWrapperInfoProxyFactory(Class&lt;F&gt; proxyFactoryClass) {
+<span class="nc bnc" id="L98" title="All 2 branches missed.">		for (Method method : collectPublicAndProtectedMethods(InfoProxyFactory.class)) {</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">			if (isStandardMethod(method)) {</span>
+<span class="nc" id="L100">				continue;</span>
+			}
+<span class="nc bnc" id="L102" title="All 2 branches missed.">			if (Arrays.asList(method.getParameterTypes()).contains(Object.class) || method.getName()</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">					.equals(&quot;isPrimitive&quot;)/* isPrimitive must be overriden to return false for wrappers */) {</span>
+				try {
+<span class="nc" id="L105">					proxyFactoryClass.getDeclaredMethod(method.getName(), method.getParameterTypes());</span>
+<span class="nc" id="L106">				} catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L107">					Assert.fail(method + &quot; is not implemented in &quot; + proxyFactoryClass);</span>
+				}
+			}
+		}
+<span class="nc" id="L111">	}</span>
+
+	private &lt;B, P extends B&gt; void checkWrapperMemberInfoProxy(Class&lt;B&gt; baseClass, Class&lt;P&gt; proxyClass) {
+<span class="nc bnc" id="L114" title="All 2 branches missed.">		for (Method method : collectPublicAndProtectedMethods(baseClass)) {</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">			if (isStandardMethod(method)) {</span>
+<span class="nc" id="L116">				continue;</span>
+			}
+<span class="nc bnc" id="L118" title="All 2 branches missed.">			if (Arrays.asList(method.getParameterTypes()).contains(Object.class)</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">					|| method.getName().equals(&quot;isPrimitive&quot;)/* isPrimitive must return false for wrappers */) {</span>
+				try {
+<span class="nc" id="L121">					proxyClass.getDeclaredMethod(method.getName(), method.getParameterTypes());</span>
+<span class="nc" id="L122">				} catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L123">					Assert.fail(method + &quot; must be implemented in &quot; + proxyClass</span>
+<span class="nc" id="L124">							+ &quot; (because, either the Object argument has to be mapped, or this method is systematically reimplemented by proxy classes)&quot;);</span>
+				}
+			}
+		}
+<span class="nc" id="L128">	}</span>
+
+	private &lt;B, P extends B&gt; void checkProxyCompleteness(Class&lt;B&gt; baseClass, Class&lt;P&gt; proxyClass)
+			throws SecurityException {
+<span class="nc bnc" id="L132" title="All 2 branches missed.">		for (Method method : collectPublicAndProtectedMethods(baseClass)) {</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">			if (isStandardMethod(method)) {</span>
+<span class="nc" id="L134">				continue;</span>
+			}
+			try {
+<span class="nc" id="L137">				proxyClass.getDeclaredMethod(method.getName(), method.getParameterTypes());</span>
+<span class="nc" id="L138">			} catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L139">				Assert.fail(method + &quot; is not implemented in &quot; + proxyClass);</span>
+			}
+		}
+<span class="nc" id="L142">	}</span>
+
+	private List&lt;Method&gt; collectPublicAndProtectedMethods(Class&lt;?&gt; clazz) {
+<span class="nc" id="L145">		List&lt;Method&gt; result = new ArrayList&lt;Method&gt;();</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">		while (clazz != null) {</span>
+<span class="nc" id="L147">			result.addAll(Arrays.asList(clazz.getDeclaredMethods()));</span>
+<span class="nc" id="L148">			clazz = clazz.getSuperclass();</span>
+		}
+<span class="nc" id="L150">		return result;</span>
+	}
+
+	private boolean isStandardMethod(Method method) {
+<span class="nc bnc" id="L154" title="All 2 branches missed.">		for (Class&lt;?&gt; standardBaseClass : STANDARD_BASE_CLASSES) {</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">			for (Method standardMethod : collectPublicAndProtectedMethods(standardBaseClass)) {</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">				if ((standardMethod.getName().equals(method.getName()))) {</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">					if (Arrays.equals(standardMethod.getParameterTypes(), method.getParameterTypes())) {</span>
+<span class="nc" id="L158">						return true;</span>
+					}
+				}
+			}
+		}
+<span class="nc" id="L163">		return false;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

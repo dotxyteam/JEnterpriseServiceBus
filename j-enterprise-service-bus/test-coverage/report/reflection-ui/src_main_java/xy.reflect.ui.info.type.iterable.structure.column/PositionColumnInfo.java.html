@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>PositionColumnInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.structure.column</a> &gt; <span class="el_source">PositionColumnInfo.java</span></div><h1>PositionColumnInfo.java</h1><pre class="source lang-java linenums">
+
+
+package xy.reflect.ui.info.type.iterable.structure.column;
+
+import java.util.Collections;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Column that displays the position (1 + index) of the current item in the
+ * list.
+ * 
+ * @author olitank
+ *
+ */
+public class PositionColumnInfo extends AbstractInfo implements IColumnInfo {
+
+	protected ReflectionUI reflectionUI;
+
+<span class="fc" id="L25">	public PositionColumnInfo(ReflectionUI reflectionUI) {</span>
+<span class="fc" id="L26">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L27">	}</span>
+
+	@Override
+	public String getCellValue(ItemPosition itemPosition) {
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">		if (itemPosition.isRoot()) {</span>
+<span class="fc" id="L32">			return ReflectionUIUtils.toString(reflectionUI, new Integer(itemPosition.getIndex() + 1));</span>
+		} else {
+<span class="nc" id="L34">			return null;</span>
+		}
+	}
+
+	@Override
+	public boolean hasCellValue(ItemPosition itemPosition) {
+<span class="fc" id="L40">		return itemPosition.isRoot();</span>
+	}
+
+	@Override
+	public int getMinimalCharacterCount() {
+<span class="fc" id="L45">		return 5;</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc" id="L50">		return &quot;N°&quot;;</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc" id="L55">		return &quot;position&quot;;</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="nc" id="L60">		return null;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L65">		return Collections.emptyMap();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L70">		return 1;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">		if (obj == null) {</span>
+<span class="nc" id="L76">			return false;</span>
+		}
+<span class="nc bnc" id="L78" title="All 2 branches missed.">		if (!getClass().equals(obj.getClass())) {</span>
+<span class="nc" id="L79">			return false;</span>
+		}
+<span class="nc" id="L81">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L86">		return &quot;PositionColumnInfo []&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

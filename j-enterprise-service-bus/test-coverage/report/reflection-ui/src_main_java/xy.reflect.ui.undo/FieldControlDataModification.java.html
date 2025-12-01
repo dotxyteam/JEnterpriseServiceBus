@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FieldControlDataModification.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.undo</a> &gt; <span class="el_source">FieldControlDataModification.java</span></div><h1>FieldControlDataModification.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.undo;
+
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.swing.renderer.FieldControlPlaceHolder;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Modification that updates a field control data value.
+ * 
+ * @author olitank
+ *
+ */
+public class FieldControlDataModification extends AbstractModification {
+
+	protected IFieldControlData data;
+	protected Object newValue;
+
+<span class="fc" id="L20">	public FieldControlDataModification(final IFieldControlData data, final Object newValue) {</span>
+<span class="fc" id="L21">		check(data);</span>
+<span class="fc" id="L22">		this.data = data;</span>
+<span class="fc" id="L23">		this.newValue = newValue;</span>
+<span class="fc" id="L24">	}</span>
+
+	protected void check(IFieldControlData data) {
+<span class="fc" id="L27">		if (Boolean.TRUE.equals(data.getSpecificProperties()</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">				.get(FieldControlPlaceHolder.CONTROL_BASED_MODIFICATION_STACK_MANAGEMENT_ENABLED_PROPERTY_KEY))) {</span>
+<span class="nc" id="L29">			throw new ReflectionUIError(&quot;A &quot; + FieldControlDataModification.class.getSimpleName()</span>
+<span class="nc" id="L30">					+ &quot; must not be constructed with a control data that has the control-based modification stack management property enabled.&quot;</span>
+<span class="nc" id="L31">					+ &quot;\n&quot; + &quot;It ensures that a &quot; + FieldControlDataModification.class.getSimpleName()</span>
+<span class="nc" id="L32">					+ &quot; is not already constructed by the &quot; + FieldControlPlaceHolder.class.getSimpleName()</span>
+<span class="nc" id="L33">					+ &quot; undo-management proxy for the same control data.&quot;);</span>
+		}
+<span class="fc" id="L35">	}</span>
+
+	public static String getTitle(String fieldCaption) {
+<span class="pc bpc" id="L38" title="1 of 4 branches missed.">		if ((fieldCaption == null) || (fieldCaption.length() == 0)) {</span>
+<span class="fc" id="L39">			return null;</span>
+		}
+<span class="fc" id="L41">		return &quot;Edit '&quot; + fieldCaption + &quot;'&quot;;</span>
+	}
+
+	@Override
+	public String getTitle() {
+<span class="fc" id="L46">		return getTitle(data.getCaption());</span>
+	}
+
+	@Override
+	protected Runnable createDoJob() {
+<span class="fc" id="L51">		return new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L54">				data.setValue(newValue);</span>
+<span class="fc" id="L55">			}</span>
+		};
+	}
+
+	@Override
+	protected Runnable createUndoJob() {
+<span class="fc" id="L61">		Runnable result = data.getLastFormRefreshStateRestorationJob();</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">		if (result != null) {</span>
+<span class="nc" id="L63">			return result;</span>
+		}
+<span class="fc" id="L65">		return ReflectionUIUtils.getNextUpdateCustomOrDefaultUndoJob(data, newValue);</span>
+	}
+
+	@Override
+	protected Runnable createRedoJob() {
+<span class="nc" id="L70">		Runnable result = data.getLastFormRefreshStateRestorationJob();</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">		if (result != null) {</span>
+<span class="nc" id="L72">			return result;</span>
+		}
+<span class="nc" id="L74">		return ReflectionUIUtils.getPreviousUpdateCustomOrDefaultRedoJob(data, newValue);</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L79">		final int prime = 31;</span>
+<span class="nc" id="L80">		int result = 1;</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		result = prime * result + ((newValue == null) ? 0 : newValue.hashCode());</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">		result = prime * result + ((data == null) ? 0 : data.hashCode());</span>
+<span class="nc" id="L83">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L89">			return true;</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L91">			return false;</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L93">			return false;</span>
+<span class="nc" id="L94">		FieldControlDataModification other = (FieldControlDataModification) obj;</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		if (newValue == null) {</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">			if (other.newValue != null)</span>
+<span class="nc" id="L97">				return false;</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">		} else if (!newValue.equals(other.newValue))</span>
+<span class="nc" id="L99">			return false;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">		if (data == null) {</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">			if (other.data != null)</span>
+<span class="nc" id="L102">				return false;</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		} else if (!data.equals(other.data))</span>
+<span class="nc" id="L104">			return false;</span>
+<span class="nc" id="L105">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L110">		return &quot;FieldControlDataModification [data=&quot; + data + &quot;, newValue=&quot; + newValue + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

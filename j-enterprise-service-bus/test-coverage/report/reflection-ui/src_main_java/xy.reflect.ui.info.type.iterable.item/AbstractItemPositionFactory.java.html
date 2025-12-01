@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractItemPositionFactory.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.item</a> &gt; <span class="el_source">AbstractItemPositionFactory.java</span></div><h1>AbstractItemPositionFactory.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.iterable.item;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+
+/**
+ * Base class of factories that create directly or indirectly
+ * {@link ItemPosition} instances. Actually these factories only create root
+ * item positions that will generate children or sibling item positions.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L18">public abstract class AbstractItemPositionFactory {</span>
+
+	/**
+	 * @return the root list value.
+	 */
+	public abstract Object getRootListValue();
+
+	/**
+	 * Updates the root list value.
+	 * 
+	 * @param rootListValue The new root list value.
+	 */
+	public abstract void setRootListValue(Object rootListValue);
+
+	/**
+	 * @return the type information of the root list value.
+	 */
+	public abstract IListTypeInfo getRootListType();
+
+	/**
+	 * @return root list value return mode.
+	 */
+	public abstract ValueReturnMode getRootListValueReturnMode();
+
+	/**
+	 * @return false if and only if the root list value can be set. Otherwise
+	 *         {@link #setRootListValue(Object)} should not be called.
+	 */
+	public abstract boolean isRootListGetOnly();
+
+	/**
+	 * @return the display name of the root list.
+	 */
+	public abstract String getRootListTitle();
+
+	/**
+	 * @return a job (may be null) that restores the state of the list when its form
+	 *         was last refreshed.
+	 */
+	public abstract Runnable getLastFormRefreshStateRestorationJob();
+
+	/**
+	 * @return the object (typically a list control) from which this factory was
+	 *         created.
+	 */
+	public abstract Object getSource();
+
+	/**
+	 * @param index
+	 * @return the root item position for with given index.
+	 */
+	public ItemPosition getRootItemPosition(int index) {
+<span class="fc" id="L70">		ItemPosition result = createItemPosition();</span>
+<span class="fc" id="L71">		result.factory = this;</span>
+<span class="fc" id="L72">		result.index = index;</span>
+<span class="fc" id="L73">		return result;</span>
+	}
+
+	/**
+	 * @return all the root item positions.
+	 */
+	public List&lt;ItemPosition&gt; getRootItemPositions() {
+<span class="fc" id="L80">		Object[] rootListRawValue = getRootListRawValue();</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">		if (rootListRawValue == null) {</span>
+<span class="nc" id="L82">			return null;</span>
+		}
+<span class="fc" id="L84">		List&lt;ItemPosition&gt; result = new ArrayList&lt;ItemPosition&gt;();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">		for (int i = 0; i &lt; rootListRawValue.length; i++) {</span>
+<span class="fc" id="L86">			result.add(getRootItemPosition(i));</span>
+		}
+<span class="fc" id="L88">		return result;</span>
+	}
+
+	/**
+	 * @return an array containing the root list items.
+	 */
+	public Object[] getRootListRawValue() {
+<span class="fc" id="L95">		Object rootListValue = getRootListValue();</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">		if (rootListValue == null) {</span>
+<span class="nc" id="L97">			return new Object[0];</span>
+		}
+<span class="fc" id="L99">		return getRootListType().toArray(rootListValue);</span>
+	}
+
+	protected ItemPosition createItemPosition() {
+<span class="fc" id="L103">		return new ItemPosition();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

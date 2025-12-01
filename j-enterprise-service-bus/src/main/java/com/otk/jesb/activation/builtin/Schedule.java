@@ -16,6 +16,7 @@ import xy.reflect.ui.info.ResourcePath;
 import java.util.Arrays;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,14 +25,14 @@ import java.time.temporal.ChronoUnit;
 public class Schedule extends Activator {
 
 	private Variant<com.otk.jesb.meta.DateTime> startDateTimeVariant = new Variant<com.otk.jesb.meta.DateTime>(
-			com.otk.jesb.meta.DateTime.class,
-			com.otk.jesb.meta.DateTime.fromJavaUtilDate(new java.util.Date(System.currentTimeMillis() + 60000)));
-	private Variant<Boolean> repeatingVariant = new Variant<Boolean>(Boolean.class, false);
+			com.otk.jesb.meta.DateTime.class, com.otk.jesb.meta.DateTime.now());
+	private Variant<Boolean> repeatingVariant = new Variant<Boolean>(Boolean.class, true);
 	private RepetitionSettingsStructure repetitionSettings = new RepetitionSettingsStructure();
 	private Variant<String> timeZoneIdentifierVariant = new Variant<String>(String.class, null);
 
 	private ActivationHandler activationHandler;
 	private ScheduledExecutorService scheduler;
+	private ThreadPoolExecutor executor;
 
 	public Schedule() {
 	}
@@ -94,6 +95,7 @@ public class Schedule extends Activator {
 	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
 		this.activationHandler = activationHandler;
 		scheduler = MiscUtils.newScheduler(Schedule.class.getName() + "Worker-" + hashCode(), 1);
+		executor = MiscUtils.newExecutor(Schedule.class.getName() + "Executor-" + hashCode(), 1);
 		Runnable task = new Runnable() {
 			@Override
 			public void run() {
@@ -123,6 +125,13 @@ public class Schedule extends Activator {
 				scheduler.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 			});
 			scheduler = null;
+			compositeException.tryCactch(() -> {
+				executor.shutdownNow();
+			});
+			compositeException.tryCactch(() -> {
+				executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+			});
+			executor = null;
 			this.activationHandler = null;
 		});
 	}
@@ -282,7 +291,7 @@ public class Schedule extends Activator {
 			if (repeating) {
 				prepare(task, start, repeating, periodLength, periodUnit, end);
 			}
-			task.run();
+			executor.submit(task);
 		}, delayMilliseconds, TimeUnit.MILLISECONDS);
 	}
 
@@ -340,8 +349,8 @@ public class Schedule extends Activator {
 
 		private Variant<RepetitionSettingsStructurePeriodUnitStructure> periodUnitVariant = new Variant<RepetitionSettingsStructurePeriodUnitStructure>(
 				RepetitionSettingsStructurePeriodUnitStructure.class,
-				RepetitionSettingsStructurePeriodUnitStructure.DAYS);
-		private Variant<Long> periodLengthVariant = new Variant<Long>(Long.class, 1l);
+				RepetitionSettingsStructurePeriodUnitStructure.SECONDS);
+		private Variant<Long> periodLengthVariant = new Variant<Long>(Long.class, 5l);
 		private Variant<com.otk.jesb.meta.DateTime> endDateTimeVariant = new Variant<com.otk.jesb.meta.DateTime>(
 				com.otk.jesb.meta.DateTime.class, null);
 

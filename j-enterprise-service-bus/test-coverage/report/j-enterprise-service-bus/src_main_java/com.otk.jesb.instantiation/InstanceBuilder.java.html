@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InstanceBuilder.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">InstanceBuilder.java</span></div><h1>InstanceBuilder.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.compiler.InMemoryCompiler;
+import com.otk.jesb.meta.TypeInfoProvider;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+
+/**
+ * Allows you to specify and execute the creation (instantiation) and simple
+ * configuration of any object.
+ * 
+ * Reflection is used to get the created objects class from a final type name
+ * computed with the provided {@link #typeName} or
+ * {@link #dynamicTypeNameAccessor}.
+ * 
+ * This final type name may be relative in the sense that it could contain a
+ * variable that will be resolved by using ancestor {@link InstanceBuilder}
+ * instances.
+ * 
+ * If the {@link #selectedConstructorSignature} is not provided, then 1 of the
+ * available constructors will be automatically selected.
+ * 
+ * @author olitank
+ *
+ */
+public class InstanceBuilder extends InitializationCase {
+
+	private String typeName;
+	private Accessor&lt;String&gt; dynamicTypeNameAccessor;
+	private String selectedConstructorSignature;
+
+	/**
+	 * The default constructor.
+	 */
+<span class="fc" id="L50">	public InstanceBuilder() {</span>
+<span class="fc" id="L51">	}</span>
+
+	/**
+	 * Creates an instance that will have the provided type name.
+	 * 
+	 * @param typeName The class name of created objects.
+	 */
+<span class="fc" id="L58">	public InstanceBuilder(String typeName) {</span>
+<span class="fc" id="L59">		setTypeName(typeName);</span>
+<span class="fc" id="L60">	}</span>
+
+	/**
+	 * Creates an instance that will use the provided accessor to get the type name.
+	 * 
+	 * @param dynamicTypeNameAccessor The accessor of created objects class name.
+	 */
+<span class="fc" id="L67">	public InstanceBuilder(Accessor&lt;String&gt; dynamicTypeNameAccessor) {</span>
+<span class="fc" id="L68">		setDynamicTypeNameAccessor(dynamicTypeNameAccessor);</span>
+<span class="fc" id="L69">	}</span>
+
+	/**
+	 * @return The class name of created objects.
+	 */
+	public String getTypeName() {
+<span class="fc bfc" id="L75" title="All 2 branches covered.">		if (dynamicTypeNameAccessor != null) {</span>
+<span class="fc" id="L76">			return &quot;&lt;Dynamic&gt;&quot;;</span>
+		}
+<span class="fc" id="L78">		return typeName;</span>
+	}
+
+	/**
+	 * Updates the class name of created objects.
+	 * 
+	 * @param typeName The new class name of created objects.
+	 */
+	public void setTypeName(String typeName) {
+<span class="fc bfc" id="L87" title="All 2 branches covered.">		if (dynamicTypeNameAccessor != null) {</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">			if (&quot;&lt;Dynamic&gt;&quot;.equals(typeName)) {</span>
+<span class="fc" id="L89">				return;</span>
+			}
+<span class="nc" id="L91">			throw new UnexpectedError();</span>
+		}
+<span class="fc" id="L93">		this.typeName = typeName;</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">		if (typeName != null) {</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">			if (!&quot;&lt;Dynamic&gt;&quot;.equals(typeName)) {</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">				if (!typeName.contains(InstantiationUtils.RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE)) {</span>
+					Class&lt;?&gt; clazz;
+					try {
+<span class="fc" id="L99">						clazz = MiscUtils.getJESBClass(typeName);</span>
+<span class="pc" id="L100">					} catch (Throwable t) {</span>
+<span class="nc" id="L101">						return;</span>
+					}
+<span class="fc bfc" id="L103" title="All 2 branches covered.">					if (clazz.getClassLoader() != null) {</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">						if (clazz.getClassLoader().getClass().getName().startsWith(InMemoryCompiler.class.getName())) {</span>
+<span class="nc" id="L105">							throw new UnexpectedError(</span>
+<span class="nc" id="L106">									&quot;An instance builder static and absolute type name should not reference a dynamically generated class (&quot;</span>
+<span class="nc" id="L107">											+ clazz.getName() + &quot;)&quot;);</span>
+						}
+					}
+				}
+			}
+		}
+<span class="fc" id="L113">	}</span>
+
+	/**
+	 * @return The accessor of created objects class name.
+	 */
+	public Accessor&lt;String&gt; getDynamicTypeNameAccessor() {
+<span class="fc" id="L119">		return dynamicTypeNameAccessor;</span>
+	}
+
+	/**
+	 * Updates the accessor of created objects class name.
+	 * 
+	 * @param dynamicTypeNameAccessor The new accessor of created objects class
+	 *                                name.
+	 */
+	public void setDynamicTypeNameAccessor(Accessor&lt;String&gt; dynamicTypeNameAccessor) {
+<span class="fc" id="L129">		this.dynamicTypeNameAccessor = dynamicTypeNameAccessor;</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">		if (dynamicTypeNameAccessor != null) {</span>
+<span class="fc" id="L131">			this.typeName = null;</span>
+		}
+<span class="fc" id="L133">	}</span>
+
+	/**
+	 * @param ancestorStructureInstanceBuilders The ancestor {@link InstanceBuilder}
+	 *                                          instances.
+	 * @return The created objects class name with any variable resolved using the
+	 *         given ancestor {@link InstanceBuilder} instances.
+	 */
+	public String computeActualTypeName(List&lt;InstanceBuilder&gt; ancestorStructureInstanceBuilders) {
+		String result;
+<span class="fc bfc" id="L143" title="All 2 branches covered.">		if (dynamicTypeNameAccessor != null) {</span>
+<span class="fc" id="L144">			result = dynamicTypeNameAccessor.get();</span>
+<span class="fc" id="L145">		} else {</span>
+<span class="fc" id="L146">			result = typeName;</span>
+		}
+<span class="fc bfc" id="L148" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L149">			result = NullInstance.class.getName();</span>
+		}
+<span class="fc" id="L151">		result = InstantiationUtils.makeTypeNamesAbsolute(result, ancestorStructureInstanceBuilders);</span>
+<span class="fc" id="L152">		return result;</span>
+	}
+
+	/**
+	 * @return The signature of the constructor used to build the target objects, or
+	 *         null.
+	 */
+	public String getSelectedConstructorSignature() {
+<span class="fc" id="L160">		return selectedConstructorSignature;</span>
+	}
+
+	/**
+	 * Updates the signature of the constructor used to build the target objects.
+	 * 
+	 * @param selectedConstructorSignature The new signature or null.
+	 */
+	public void setSelectedConstructorSignature(String selectedConstructorSignature) {
+<span class="fc" id="L169">		this.selectedConstructorSignature = selectedConstructorSignature;</span>
+<span class="fc" id="L170">	}</span>
+
+	/**
+	 * Builds the specified instance.
+	 * 
+	 * @param context Contains contextual information to use.
+	 * @return The specified instance.
+	 * @throws Exception If the creation or configuration of the specified instance
+	 *                   fails.
+	 */
+	public Object build(InstantiationContext context) throws Exception {
+<span class="fc" id="L181">		InstanceBuilderFacade instanceBuilderFacade = (InstanceBuilderFacade) Facade.get(this,</span>
+<span class="fc" id="L182">				context.getParentFacade());</span>
+<span class="fc" id="L183">		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo();</span>
+<span class="fc" id="L184">		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);</span>
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">		if (constructor == null) {</span>
+<span class="nc" id="L186">			String actualTypeName = computeActualTypeName(</span>
+<span class="nc" id="L187">					InstantiationUtils.getAncestorInstanceBuilders(context.getParentFacade()));</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">			if (selectedConstructorSignature == null) {</span>
+<span class="nc" id="L189">				throw new PotentialError(&quot;Cannot create '&quot; + actualTypeName + &quot;' instance: No constructor available&quot;);</span>
+			} else {
+<span class="nc" id="L191">				throw new PotentialError(&quot;Cannot create '&quot; + actualTypeName + &quot;' instance: Constructor not found: '&quot;</span>
+<span class="nc" id="L192">						+ selectedConstructorSignature + &quot;'&quot;);</span>
+			}
+		}
+<span class="fc" id="L195">		List&lt;Facade&gt; initializerFacades = instanceBuilderFacade.collectLiveInitializerFacades(context);</span>
+<span class="fc" id="L196">		Object[] parameterValues = new Object[constructor.getParameters().size()];</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">		for (Facade facade : initializerFacades) {</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">			if (facade instanceof ParameterInitializerFacade) {</span>
+<span class="fc" id="L199">				ParameterInitializerFacade parameterInitializerFacade = (ParameterInitializerFacade) facade;</span>
+				Object parameterValue;
+<span class="fc" id="L201">				parameterValue = InstantiationUtils.interpretValue(</span>
+<span class="fc" id="L202">						parameterInitializerFacade.getUnderlying().getParameterValue(),</span>
+<span class="fc" id="L203">						parameterInitializerFacade.getParameterInfo().getType(),</span>
+<span class="fc" id="L204">						new InstantiationContext(context, parameterInitializerFacade));</span>
+<span class="fc" id="L205">				parameterValues[parameterInitializerFacade.getParameterPosition()] = parameterValue;</span>
+			}
+		}
+		Object object;
+<span class="fc bfc" id="L209" title="All 2 branches covered.">		if (typeInfo instanceof IListTypeInfo) {</span>
+<span class="fc" id="L210">			IListTypeInfo listTypeInfo = (IListTypeInfo) typeInfo;</span>
+<span class="fc" id="L211">			List&lt;Object&gt; itemList = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L212">			List&lt;ListItemInitializerFacade&gt; listItemInitializerFacades = initializerFacades.stream()</span>
+<span class="fc" id="L213">					.filter(facade -&gt; facade instanceof ListItemInitializerFacade)</span>
+<span class="fc" id="L214">					.map(facade -&gt; (ListItemInitializerFacade) facade).collect(Collectors.toList());</span>
+<span class="fc" id="L215">			listItemInitializerFacades = new ArrayList&lt;ListItemInitializerFacade&gt;(listItemInitializerFacades);</span>
+<span class="fc" id="L216">			Collections.sort(listItemInitializerFacades, new Comparator&lt;ListItemInitializerFacade&gt;() {</span>
+				@Override
+				public int compare(ListItemInitializerFacade o1, ListItemInitializerFacade o2) {
+<span class="fc" id="L219">					return Integer.valueOf(o1.getIndex()).compareTo(Integer.valueOf(o2.getIndex()));</span>
+				}
+			});
+<span class="fc bfc" id="L222" title="All 2 branches covered.">			for (ListItemInitializerFacade listItemInitializerFacade : listItemInitializerFacades) {</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">				if (!listItemInitializerFacade.isConcrete()) {</span>
+<span class="nc" id="L224">					continue;</span>
+				}
+<span class="fc" id="L226">				if (!InstantiationUtils.isConditionFullfilled(listItemInitializerFacade.getCondition(),</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">						new InstantiationContext(context, listItemInitializerFacade))) {</span>
+<span class="nc" id="L228">					continue;</span>
+				}
+<span class="fc" id="L230">				ListItemReplicationFacade itemReplicationFacade = listItemInitializerFacade.getItemReplicationFacade();</span>
+<span class="fc bfc" id="L231" title="All 2 branches covered.">				if (itemReplicationFacade != null) {</span>
+<span class="fc" id="L232">					Object iterationListValue = InstantiationUtils.interpretValue(</span>
+<span class="fc" id="L233">							itemReplicationFacade.getIterationListValue(),</span>
+<span class="fc" id="L234">							TypeInfoProvider.getTypeInfo(Object.class.getName()),</span>
+<span class="fc" id="L235">							new InstantiationContext(context, listItemInitializerFacade));</span>
+<span class="pc bpc" id="L236" title="1 of 2 branches missed.">					if (iterationListValue == null) {</span>
+<span class="nc" id="L237">						throw new UnexpectedError(&quot;Cannot replicate item: Iteration list value is null&quot;);</span>
+					}
+<span class="fc" id="L239">					ITypeInfo actualIterationListType = TypeInfoProvider</span>
+<span class="fc" id="L240">							.getTypeInfo(iterationListValue.getClass().getName());</span>
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">					if (!(actualIterationListType instanceof IListTypeInfo)) {</span>
+<span class="nc" id="L242">						throw new UnexpectedError(&quot;Cannot replicate item: Iteration list value is not iterable: '&quot;</span>
+<span class="nc" id="L243">								+ iterationListValue + &quot;'&quot;);</span>
+					}
+<span class="fc" id="L245">					Object[] iterationListArray = ((IListTypeInfo) actualIterationListType).toArray(iterationListValue);</span>
+<span class="fc" id="L246">					ITypeInfo declaredIterationVariableType = itemReplicationFacade</span>
+<span class="fc" id="L247">							.getDeclaredIterationVariableTypeInfo();</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">					for (Object iterationVariableValue : iterationListArray) {</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">						if (declaredIterationVariableType != null) {</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">							if (!declaredIterationVariableType.supports(iterationVariableValue)) {</span>
+<span class="nc" id="L251">								throw new UnexpectedError(&quot;Cannot replicate item: Iteration variable value '&quot;</span>
+<span class="nc" id="L252">										+ iterationVariableValue + &quot;' is not compatible with the declared type '&quot;</span>
+<span class="nc" id="L253">										+ declaredIterationVariableType.getName() + &quot;'&quot;);</span>
+							}
+						}
+<span class="fc" id="L256">						ListItemReplication.IterationVariable iterationVariable = new ListItemReplication.IterationVariable(</span>
+<span class="fc" id="L257">								itemReplicationFacade.getUnderlying(), iterationVariableValue);</span>
+<span class="fc" id="L258">						Object itemValue = InstantiationUtils.interpretValue(</span>
+<span class="fc" id="L259">								listItemInitializerFacade.getUnderlying().getItemValue(),</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">								(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()</span>
+<span class="nc" id="L261">										: TypeInfoProvider.getTypeInfo(Object.class.getName()),</span>
+<span class="fc" id="L262">								new InstantiationContext(new InstantiationContext(context, listItemInitializerFacade),</span>
+<span class="fc" id="L263">										iterationVariable));</span>
+<span class="fc" id="L264">						itemList.add(itemValue);</span>
+					}
+<span class="fc" id="L266">				} else {</span>
+<span class="fc" id="L267">					Object itemValue = InstantiationUtils.interpretValue(</span>
+<span class="fc" id="L268">							listItemInitializerFacade.getUnderlying().getItemValue(),</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">							(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()</span>
+<span class="nc" id="L270">									: TypeInfoProvider.getTypeInfo(Object.class.getName()),</span>
+<span class="fc" id="L271">							new InstantiationContext(context, listItemInitializerFacade));</span>
+<span class="fc" id="L272">					itemList.add(itemValue);</span>
+				}
+			}
+<span class="fc bfc" id="L275" title="All 2 branches covered.">			if (listTypeInfo.canReplaceContent()) {</span>
+<span class="fc" id="L276">				object = constructor.invoke(null, new InvocationData(null, constructor, parameterValues));</span>
+<span class="fc" id="L277">				listTypeInfo.replaceContent(object, itemList.toArray());</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">			} else if (listTypeInfo.canInstantiateFromArray()) {</span>
+<span class="fc" id="L279">				object = listTypeInfo.fromArray(itemList.toArray());</span>
+<span class="fc" id="L280">			} else {</span>
+<span class="nc" id="L281">				throw new UnexpectedError(&quot;Cannot initialize list of type &quot; + listTypeInfo</span>
+<span class="nc" id="L282">						+ &quot;: Cannot replace instance content or instantiate from array&quot;);</span>
+			}
+		} else {
+<span class="fc" id="L285">			object = constructor.invoke(null, new InvocationData(null, constructor, parameterValues));</span>
+		}
+<span class="fc bfc" id="L287" title="All 2 branches covered.">		for (Facade facade : initializerFacades) {</span>
+<span class="fc bfc" id="L288" title="All 2 branches covered.">			if (facade instanceof FieldInitializerFacade) {</span>
+<span class="fc" id="L289">				FieldInitializerFacade fieldInitializerFacade = (FieldInitializerFacade) facade;</span>
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">				if (!InstantiationUtils.isConditionFullfilled(fieldInitializerFacade.getCondition(), context)) {</span>
+<span class="nc" id="L291">					continue;</span>
+				}
+<span class="fc" id="L293">				IFieldInfo fieldInfo = fieldInitializerFacade.getFieldInfo();</span>
+<span class="fc" id="L294">				Object fieldValue = InstantiationUtils.interpretValue(</span>
+<span class="fc" id="L295">						fieldInitializerFacade.getUnderlying().getFieldValue(), fieldInfo.getType(),</span>
+<span class="fc" id="L296">						new InstantiationContext(context, fieldInitializerFacade));</span>
+<span class="fc" id="L297">				fieldInfo.setValue(object, fieldValue);</span>
+			}
+		}
+<span class="fc bfc" id="L300" title="All 2 branches covered.">		if (object instanceof NullInstance) {</span>
+<span class="fc" id="L301">			return null;</span>
+		}
+<span class="fc" id="L303">		return object;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L308">		return &quot;&lt;&quot; + getTypeName() + &quot;&gt;&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ArrayAccessor.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">ArrayAccessor.java</span></div><h1>ArrayAccessor.java</h1><pre class="source lang-java linenums">
+
+
+package xy.reflect.ui.util;
+
+import java.util.Arrays;
+
+/**
+ * Simple generic getter/setter class that stores the accessed value in an
+ * array.
+ * 
+ * @author olitank
+ *
+ * @param &lt;T&gt; The type that is accessed.
+ */
+public class ArrayAccessor&lt;T&gt; extends Accessor&lt;T&gt; {
+
+	protected T[] arrayValue;
+
+	public ArrayAccessor(T[] arrayValue) {
+<span class="fc" id="L21">		super();</span>
+<span class="fc" id="L22">		this.arrayValue = arrayValue;</span>
+<span class="fc" id="L23">	}</span>
+
+	@Override
+	public T get() {
+<span class="fc" id="L27">		return arrayValue[0];</span>
+	}
+
+	@Override
+	public void set(T t) {
+<span class="fc" id="L32">		arrayValue[0] = t;</span>
+<span class="fc" id="L33">	}</span>
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L37">		final int prime = 31;</span>
+<span class="fc" id="L38">		int result = 1;</span>
+<span class="fc" id="L39">		result = prime * result + Arrays.hashCode(arrayValue);</span>
+<span class="fc" id="L40">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L45" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L46">			return true;</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L48">			return false;</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L50">			return false;</span>
+<span class="nc" id="L51">		ArrayAccessor&lt;?&gt; other = (ArrayAccessor&lt;?&gt;) obj;</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">		if (!Arrays.equals(arrayValue, other.arrayValue))</span>
+<span class="nc" id="L53">			return false;</span>
+<span class="nc" id="L54">		return true;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

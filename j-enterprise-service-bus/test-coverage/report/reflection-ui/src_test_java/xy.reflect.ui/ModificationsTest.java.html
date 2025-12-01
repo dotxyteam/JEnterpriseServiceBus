@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ModificationsTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui</a> &gt; <span class="el_source">ModificationsTest.java</span></div><h1>ModificationsTest.java</h1><pre class="source lang-java linenums">/*
+ * 
+ */
+package xy.reflect.ui;
+
+import java.awt.Color;
+import java.io.File;
+import java.util.Date;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+<span class="nc" id="L18">public class ModificationsTest {</span>
+
+	private boolean mayModify(String fieldName) {
+<span class="nc" id="L21">		ReflectionUI reflectionUI = new ReflectionUI();</span>
+<span class="nc" id="L22">		ITypeInfo thisType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(this));</span>
+<span class="nc" id="L23">		IFieldInfo field = ReflectionUIUtils.findInfoByName(thisType.getFields(), fieldName);</span>
+<span class="nc bnc" id="L24" title="All 2 branches missed.">		boolean canCommit = !field.isGetOnly();</span>
+<span class="nc" id="L25">		ValueReturnMode childValueReturnMode = field.getValueReturnMode();</span>
+<span class="nc" id="L26">		return ReflectionUIUtils.mayModificationsHaveImpact(</span>
+<span class="nc" id="L27">				ReflectionUIUtils.isValueImmutable(reflectionUI, field.getValue(this)), childValueReturnMode,</span>
+<span class="nc" id="L28">				canCommit);</span>
+	}
+
+	@Test
+	public void test() {
+<span class="nc" id="L33">		Assert.assertTrue(mayModify(&quot;theNull&quot;));</span>
+<span class="nc" id="L34">		Assert.assertTrue(mayModify(&quot;theInt&quot;));</span>
+<span class="nc" id="L35">		Assert.assertTrue(mayModify(&quot;theInteger&quot;));</span>
+<span class="nc" id="L36">		Assert.assertTrue(mayModify(&quot;theString&quot;));</span>
+<span class="nc" id="L37">		Assert.assertTrue(mayModify(&quot;theFile&quot;));</span>
+<span class="nc" id="L38">		Assert.assertTrue(mayModify(&quot;theColor&quot;));</span>
+<span class="nc" id="L39">		Assert.assertTrue(mayModify(&quot;theDate&quot;));</span>
+
+<span class="nc bnc" id="L41" title="All 2 branches missed.">		Assert.assertTrue(!mayModify(&quot;theGetOnlyNull&quot;));</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">		Assert.assertTrue(!mayModify(&quot;theGetOnlyInt&quot;));</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">		Assert.assertTrue(!mayModify(&quot;theGetOnlyInteger&quot;));</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">		Assert.assertTrue(!mayModify(&quot;theGetOnlyString&quot;));</span>
+<span class="nc" id="L45">		Assert.assertTrue(mayModify(&quot;theGetOnlyFile&quot;));</span>
+<span class="nc" id="L46">		Assert.assertTrue(mayModify(&quot;theGetOnlyColor&quot;));</span>
+<span class="nc" id="L47">		Assert.assertTrue(mayModify(&quot;theGetOnlyDate&quot;));</span>
+
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		Assert.assertTrue(!mayModify(&quot;thePublicFinalNull&quot;));</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		Assert.assertTrue(!mayModify(&quot;thePublicFinalInt&quot;));</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">		Assert.assertTrue(!mayModify(&quot;thePublicFinalInteger&quot;));</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">		Assert.assertTrue(!mayModify(&quot;thePublicFinalString&quot;));</span>
+<span class="nc" id="L53">		Assert.assertTrue(mayModify(&quot;thePublicFinalFile&quot;));</span>
+<span class="nc" id="L54">		Assert.assertTrue(mayModify(&quot;thePublicFinalColor&quot;));</span>
+<span class="nc" id="L55">		Assert.assertTrue(mayModify(&quot;thePublicFinalDate&quot;));</span>
+
+<span class="nc" id="L57">	}</span>
+
+<span class="nc" id="L59">	private Object theNull = null;</span>
+<span class="nc" id="L60">	private int theInt = 0;</span>
+<span class="nc" id="L61">	private Integer theInteger = new Integer(0);</span>
+<span class="nc" id="L62">	private String theString = &quot;&quot;;</span>
+<span class="nc" id="L63">	private File theFile = new File(&quot;&quot;);</span>
+<span class="nc" id="L64">	private Color theColor = new Color(0, 0, 0);</span>
+<span class="nc" id="L65">	private Date theDate = new Date();</span>
+
+	public Object getTheNull() {
+<span class="nc" id="L68">		return theNull;</span>
+	}
+
+	public void setTheNull(Object theNull) {
+<span class="nc" id="L72">		this.theNull = theNull;</span>
+<span class="nc" id="L73">	}</span>
+
+	public int getTheInt() {
+<span class="nc" id="L76">		return theInt;</span>
+	}
+
+	public void setTheInt(int theInt) {
+<span class="nc" id="L80">		this.theInt = theInt;</span>
+<span class="nc" id="L81">	}</span>
+
+	public Integer getTheInteger() {
+<span class="nc" id="L84">		return theInteger;</span>
+	}
+
+	public void setTheInteger(Integer theInteger) {
+<span class="nc" id="L88">		this.theInteger = theInteger;</span>
+<span class="nc" id="L89">	}</span>
+
+	public String getTheString() {
+<span class="nc" id="L92">		return theString;</span>
+	}
+
+	public void setTheString(String theString) {
+<span class="nc" id="L96">		this.theString = theString;</span>
+<span class="nc" id="L97">	}</span>
+
+	public File getTheFile() {
+<span class="nc" id="L100">		return theFile;</span>
+	}
+
+	public void setTheFile(File theFile) {
+<span class="nc" id="L104">		this.theFile = theFile;</span>
+<span class="nc" id="L105">	}</span>
+
+	public Color getTheColor() {
+<span class="nc" id="L108">		return theColor;</span>
+	}
+
+	public void setTheColor(Color theColor) {
+<span class="nc" id="L112">		this.theColor = theColor;</span>
+<span class="nc" id="L113">	}</span>
+
+	public Date getTheDate() {
+<span class="nc" id="L116">		return theDate;</span>
+	}
+
+	public void setTheDate(Date theDate) {
+<span class="nc" id="L120">		this.theDate = theDate;</span>
+<span class="nc" id="L121">	}</span>
+
+<span class="nc" id="L123">	private Object theGetOnlyNull = null;</span>
+<span class="nc" id="L124">	private int theGetOnlyInt = 0;</span>
+<span class="nc" id="L125">	private Integer theGetOnlyInteger = new Integer(0);</span>
+<span class="nc" id="L126">	private String theGetOnlyString = &quot;&quot;;</span>
+<span class="nc" id="L127">	private File theGetOnlyFile = new File(&quot;&quot;);</span>
+<span class="nc" id="L128">	private Color theGetOnlyColor = new Color(0, 0, 0);</span>
+<span class="nc" id="L129">	private Date theGetOnlyDate = new Date();</span>
+
+	public Object getTheGetOnlyNull() {
+<span class="nc" id="L132">		return theGetOnlyNull;</span>
+	}
+
+	public int getTheGetOnlyInt() {
+<span class="nc" id="L136">		return theGetOnlyInt;</span>
+	}
+
+	public Integer getTheGetOnlyInteger() {
+<span class="nc" id="L140">		return theGetOnlyInteger;</span>
+	}
+
+	public String getTheGetOnlyString() {
+<span class="nc" id="L144">		return theGetOnlyString;</span>
+	}
+
+	public File getTheGetOnlyFile() {
+<span class="nc" id="L148">		return theGetOnlyFile;</span>
+	}
+
+	public Color getTheGetOnlyColor() {
+<span class="nc" id="L152">		return theGetOnlyColor;</span>
+	}
+
+	public Date getTheGetOnlyDate() {
+<span class="nc" id="L156">		return theGetOnlyDate;</span>
+	}
+
+<span class="nc" id="L159">	public final Object thePublicFinalNull = null;</span>
+<span class="nc" id="L160">	public final int thePublicFinalInt = 0;</span>
+<span class="nc" id="L161">	public final Integer thePublicFinalInteger = new Integer(0);</span>
+<span class="nc" id="L162">	public final String thePublicFinalString = &quot;&quot;;</span>
+<span class="nc" id="L163">	public final File thePublicFinalFile = new File(&quot;&quot;);</span>
+<span class="nc" id="L164">	public final Color thePublicFinalColor = new Color(0, 0, 0);</span>
+<span class="nc" id="L165">	public final Date thePublicFinalDate = new Date();</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

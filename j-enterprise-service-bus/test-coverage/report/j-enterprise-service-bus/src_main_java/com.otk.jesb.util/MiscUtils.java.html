@@ -1,0 +1,1368 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MiscUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.util</a> &gt; <span class="el_source">MiscUtils.java</span></div><h1>MiscUtils.java</h1><pre class="source lang-java linenums">package com.otk.jesb.util;
+
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.beans.PropertyDescriptor;
+import java.beans.Transient;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.InterruptedIOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.lang.reflect.Array;
+import java.math.BigInteger;
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
+import java.util.WeakHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.output.WriterOutputStream;
+
+import com.otk.jesb.JESB;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.activation.ActivatorMetadata;
+import com.otk.jesb.activation.builtin.LaunchAtStartup;
+import com.otk.jesb.activation.builtin.Operate;
+import com.otk.jesb.activation.builtin.ReadCommandLine;
+import com.otk.jesb.activation.builtin.ReceiveRESTRequest;
+import com.otk.jesb.activation.builtin.ReceiveSOAPRequest;
+import com.otk.jesb.activation.builtin.Schedule;
+import com.otk.jesb.activation.builtin.WatchFileSystem;
+import com.otk.jesb.compiler.InMemoryCompiler;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.operation.builtin.CallRESTAPI;
+import com.otk.jesb.operation.builtin.CallSOAPWebService;
+import com.otk.jesb.operation.builtin.CopyFileOrDirectory;
+import com.otk.jesb.operation.builtin.CreateDirectory;
+import com.otk.jesb.operation.builtin.DeleteFileOrDirectory;
+import com.otk.jesb.operation.builtin.DoNothing;
+import com.otk.jesb.operation.builtin.Evaluate;
+import com.otk.jesb.operation.builtin.ExecuteCommand;
+import com.otk.jesb.operation.builtin.ExecutePlan;
+import com.otk.jesb.operation.builtin.Fail;
+import com.otk.jesb.operation.builtin.GenerateXML;
+import com.otk.jesb.operation.builtin.InspectResource;
+import com.otk.jesb.operation.builtin.JDBCGeneric;
+import com.otk.jesb.operation.builtin.JDBCQuery;
+import com.otk.jesb.operation.builtin.JDBCProcedureCall;
+import com.otk.jesb.operation.builtin.JDBCUpdate;
+import com.otk.jesb.operation.builtin.Log;
+import com.otk.jesb.operation.builtin.MoveFileOrDirectory;
+import com.otk.jesb.operation.builtin.ParseXML;
+import com.otk.jesb.operation.builtin.ReadFile;
+import com.otk.jesb.operation.builtin.Sleep;
+import com.otk.jesb.operation.builtin.WriteFile;
+import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.resource.builtin.HTTPServer;
+import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.resource.builtin.OpenAPIDescription;
+import com.otk.jesb.resource.builtin.SharedStructureModel;
+import com.otk.jesb.resource.builtin.WSDL;
+import com.otk.jesb.resource.builtin.XSD;
+import com.otk.jesb.solution.Asset;
+import com.otk.jesb.solution.CompositeStep;
+import com.otk.jesb.solution.Folder;
+import com.otk.jesb.solution.JAR;
+import com.otk.jesb.solution.LoopCompositeStep;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStreamException;
+import com.thoughtworks.xstream.converters.javabean.BeanProvider;
+import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
+import com.thoughtworks.xstream.converters.reflection.ReflectionConverter;
+import com.thoughtworks.xstream.mapper.MapperWrapper;
+import com.thoughtworks.xstream.security.AnyTypePermission;
+
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.util.ClassUtils;
+
+<span class="nc" id="L129">public class MiscUtils {</span>
+
+<span class="fc" id="L131">	public static final List&lt;OperationMetadata&lt;?&gt;&gt; BUILTIN_OPERATION_METADATAS = Arrays.&lt;OperationMetadata&lt;?&gt;&gt;asList(</span>
+<span class="fc" id="L132">			new DoNothing.Metadata(), new Log.Metadata(), new Evaluate.Metadata(), new Sleep.Metadata(),</span>
+<span class="fc" id="L133">			new ExecutePlan.Metadata(), new ExecuteCommand.Metadata(), new Fail.Metadata(), new ReadFile.Metadata(),</span>
+<span class="fc" id="L134">			new WriteFile.Metadata(), new CreateDirectory.Metadata(), new CopyFileOrDirectory.Metadata(),</span>
+<span class="fc" id="L135">			new MoveFileOrDirectory.Metadata(), new DeleteFileOrDirectory.Metadata(), new InspectResource.Metadata(),</span>
+<span class="fc" id="L136">			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCGeneric.Metadata(),</span>
+<span class="fc" id="L137">			new JDBCProcedureCall.Metadata(), new ParseXML.Metadata(), new GenerateXML.Metadata(),</span>
+<span class="fc" id="L138">			new CallRESTAPI.Metadata(), new CallSOAPWebService.Metadata());</span>
+<span class="fc" id="L139">	public static final List&lt;CompositeStepMetadata&gt; BUILTIN_COMPOSITE_STEP_METADATAS = Arrays</span>
+<span class="fc" id="L140">			.&lt;CompositeStepMetadata&gt;asList(new LoopCompositeStep.Metadata());</span>
+<span class="fc" id="L141">	public static final List&lt;ResourceMetadata&gt; BUILTIN_RESOURCE_METADATAS = Arrays.asList(</span>
+<span class="fc" id="L142">			new SharedStructureModel.Metadata(), new JDBCConnection.Metadata(), new XSD.Metadata(),</span>
+<span class="fc" id="L143">			new OpenAPIDescription.Metadata(), new WSDL.Metadata(), new HTTPServer.Metadata());</span>
+<span class="fc" id="L144">	public static final List&lt;ActivatorMetadata&gt; BUILTIN_ACTIVATOR__METADATAS = Arrays.asList(</span>
+<span class="fc" id="L145">			new LaunchAtStartup.Metadata(), new Operate.Metadata(), new Schedule.Metadata(),</span>
+<span class="fc" id="L146">			new WatchFileSystem.Metadata(), new ReadCommandLine.Metadata(), new ReceiveRESTRequest.Metadata(),</span>
+<span class="fc" id="L147">			new ReceiveSOAPRequest.Metadata());</span>
+
+	public static final String SERIALIZED_FILE_NAME_SUFFIX = &quot;.jesb.xml&quot;;
+<span class="fc" id="L150">	public static final Pattern SPECIAL_REGEX_CHARS_PATTERN = Pattern.compile(&quot;[{}()\\[\\].+*?^$\\\\|]&quot;);</span>
+<span class="fc" id="L151">	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile(&quot;^[a-zA-Z_][a-zA-Z_0-9]*$&quot;);</span>
+<span class="fc" id="L152">	public static final String[] NEW_LINE_SEQUENCES = new String[] { &quot;\r\n&quot;, &quot;\n&quot;, &quot;\r&quot; };</span>
+
+<span class="fc" id="L154">	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();</span>
+	static {
+<span class="fc" id="L156">		configureSolutionDependencies(Collections.emptyList());</span>
+	}
+<span class="fc" id="L158">	public static final XStream XSTREAM = new XStream() {</span>
+		@Override
+		protected MapperWrapper wrapMapper(MapperWrapper next) {
+<span class="fc" id="L161">			return new MapperWrapper(next) {</span>
+				@Override
+				public String serializedClass(@SuppressWarnings(&quot;rawtypes&quot;) Class type) {
+<span class="pc bpc" id="L164" title="2 of 4 branches missed.">					if ((type != null) &amp;&amp; type.isAnonymousClass()) {</span>
+<span class="nc" id="L165">						throw new UnexpectedError(&quot;Cannot serialize instance of class &quot; + type</span>
+<span class="nc" id="L166">								+ &quot;: Anonymous class instance serialization is forbidden&quot;);</span>
+					}
+<span class="fc" id="L168">					return super.serializedClass(type);</span>
+				}
+
+				@Override
+				public boolean shouldSerializeMember(@SuppressWarnings(&quot;rawtypes&quot;) Class definedIn, String fieldName) {
+<span class="fc bfc" id="L173" title="All 2 branches covered.">					if (Throwable.class.isAssignableFrom(definedIn)) {</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">						if (fieldName.equals(&quot;stackTrace&quot;)) {</span>
+<span class="fc" id="L175">							return false;</span>
+						}
+<span class="fc bfc" id="L177" title="All 2 branches covered.">						if (fieldName.equals(&quot;suppressedExceptions&quot;)) {</span>
+<span class="fc" id="L178">							return false;</span>
+						}
+					}
+<span class="fc" id="L181">					return super.shouldSerializeMember(definedIn, fieldName);</span>
+				}
+
+			};
+		}
+	};
+	static {
+<span class="fc" id="L188">		XSTREAM.setClassLoader(MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader());</span>
+<span class="fc" id="L189">		XSTREAM.registerConverter(new JavaBeanConverter(XSTREAM.getMapper(), new BeanProvider() {</span>
+			@Override
+			protected boolean canStreamProperty(PropertyDescriptor descriptor) {
+
+<span class="fc" id="L193">				final boolean canStream = super.canStreamProperty(descriptor);</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">				if (!canStream) {</span>
+<span class="fc" id="L195">					return false;</span>
+				}
+
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">				final boolean readMethodIsTransient = descriptor.getReadMethod() == null</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">						|| descriptor.getReadMethod().getAnnotation(Transient.class) != null;</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">				final boolean writeMethodIsTransient = descriptor.getWriteMethod() == null</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">						|| descriptor.getWriteMethod().getAnnotation(Transient.class) != null;</span>
+<span class="pc bpc" id="L202" title="1 of 4 branches missed.">				final boolean isTransient = readMethodIsTransient || writeMethodIsTransient;</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">				if (isTransient) {</span>
+<span class="fc" id="L204">					return false;</span>
+				}
+
+<span class="fc" id="L207">				return true;</span>
+			}
+
+			@Override
+			public void writeProperty(Object object, String propertyName, Object value) {
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">				if (!propertyWriteable(propertyName, object.getClass())) {</span>
+<span class="nc" id="L213">					return;</span>
+				}
+<span class="fc" id="L215">				super.writeProperty(object, propertyName, value);</span>
+<span class="fc" id="L216">			}</span>
+<span class="fc" id="L217">		}), XStream.PRIORITY_VERY_LOW);</span>
+<span class="fc" id="L218">		XSTREAM.registerConverter(new ReflectionConverter(XSTREAM.getMapper(), XSTREAM.getReflectionProvider()) {</span>
+			@Override
+			public boolean canConvert(@SuppressWarnings(&quot;rawtypes&quot;) Class type) {
+<span class="fc bfc" id="L221" title="All 2 branches covered.">				if ((type != null) &amp;&amp; AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration.class</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">						.isAssignableFrom(type)) {</span>
+<span class="fc" id="L223">					return true;</span>
+				}
+<span class="fc bfc" id="L225" title="All 4 branches covered.">				if ((type != null) &amp;&amp; Throwable.class.isAssignableFrom(type)) {</span>
+<span class="fc" id="L226">					return true;</span>
+				}
+<span class="fc" id="L228">				return false;</span>
+			}
+<span class="fc" id="L230">		}, XStream.PRIORITY_VERY_HIGH);</span>
+<span class="fc" id="L231">		XSTREAM.addPermission(AnyTypePermission.ANY);</span>
+<span class="fc" id="L232">		XSTREAM.ignoreUnknownElements();</span>
+	}
+	private static final String SERIALIZATION_CHARSET_NAME = &quot;UTF-8&quot;;
+<span class="fc" id="L235">	private static final WeakHashMap&lt;Object, String&gt; DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap&lt;Object, String&gt;();</span>
+<span class="fc" id="L236">	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();</span>
+
+	public static ExecutorService newExecutor(final String threadName, int minimumThreadCount) {
+<span class="nc" id="L239">		ThreadPoolExecutor result = new ThreadPoolExecutor(minimumThreadCount, Integer.MAX_VALUE, 300, TimeUnit.SECONDS,</span>
+<span class="nc" id="L240">				new SynchronousQueue&lt;Runnable&gt;(), new ThreadFactory() {</span>
+<span class="nc" id="L241">					private int threadNumber = 0;</span>
+
+					@Override
+					public Thread newThread(Runnable r) {
+<span class="nc" id="L245">						Thread result = new Thread(r);</span>
+<span class="nc" id="L246">						result.setName(threadName + &quot;-&quot; + (threadNumber++));</span>
+<span class="nc" id="L247">						result.setDaemon(true);</span>
+<span class="nc" id="L248">						return result;</span>
+					}
+				});
+<span class="nc" id="L251">		result.allowCoreThreadTimeOut(true);</span>
+<span class="nc" id="L252">		return result;</span>
+	}
+
+	public static ScheduledThreadPoolExecutor newScheduler(final String threadName, int minimumThreadCount) {
+<span class="nc" id="L256">		ScheduledThreadPoolExecutor result = new ScheduledThreadPoolExecutor(minimumThreadCount, new ThreadFactory() {</span>
+<span class="nc" id="L257">			private int threadNumber = 0;</span>
+
+			@Override
+			public Thread newThread(Runnable r) {
+<span class="nc" id="L261">				Thread result = new Thread(r);</span>
+<span class="nc" id="L262">				result.setName(threadName + &quot;-&quot; + (threadNumber++));</span>
+<span class="nc" id="L263">				result.setDaemon(true);</span>
+<span class="nc" id="L264">				return result;</span>
+			}
+		});
+<span class="nc" id="L267">		return result;</span>
+	}
+
+	public static void willRethrowCommonly(Consumer&lt;CompositeException&gt; workWithCompositeException)
+			throws CompositeException {
+<span class="fc" id="L272">		CompositeException.willRethrow(workWithCompositeException, true,</span>
+<span class="fc" id="L273">				&quot;Error(s) occured (see the logs for more information)&quot;, com.otk.jesb.Log.get().getErrorStream());</span>
+<span class="fc" id="L274">	}</span>
+
+	public static void sleepSafely(long durationMilliseconds) {
+		try {
+<span class="fc" id="L278">			Thread.sleep(durationMilliseconds);</span>
+<span class="fc" id="L279">		} catch (InterruptedException e) {</span>
+<span class="fc" id="L280">			Thread.currentThread().interrupt();</span>
+		}
+<span class="fc" id="L282">	}</span>
+
+	public static String escapeRegex(String str) {
+<span class="fc" id="L285">		return SPECIAL_REGEX_CHARS_PATTERN.matcher(str).replaceAll(&quot;\\\\$0&quot;);</span>
+	}
+
+	public static String escapeJavaString(String s) {
+<span class="fc" id="L289">		return s.replace(&quot;\\&quot;, &quot;\\\\&quot;).replace(&quot;\t&quot;, &quot;\\t&quot;).replace(&quot;\b&quot;, &quot;\\b&quot;).replace(&quot;\n&quot;, &quot;\\n&quot;)</span>
+<span class="fc" id="L290">				.replace(&quot;\r&quot;, &quot;\\r&quot;).replace(&quot;\f&quot;, &quot;\\f&quot;).replace(&quot;\'&quot;, &quot;\\'&quot;) // &lt;== not necessary</span>
+<span class="fc" id="L291">				.replace(&quot;\&quot;&quot;, &quot;\\\&quot;&quot;);</span>
+	}
+
+	public static String escapeHTML(String string, boolean convertNewLinesToHTML) {
+<span class="fc" id="L295">		StringBuffer sb = new StringBuffer(string.length());</span>
+<span class="fc" id="L296">		int len = string.length();</span>
+		char currentC;
+<span class="fc" id="L298">		char lastC = 0;</span>
+<span class="fc bfc" id="L299" title="All 2 branches covered.">		for (int i = 0; i &lt; len; i++) {</span>
+<span class="fc" id="L300">			currentC = string.charAt(i);</span>
+<span class="fc" id="L301">			currentC = MiscUtils.standardizeNewLineSequences(lastC, currentC);</span>
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">			if (currentC == '&quot;')</span>
+<span class="nc" id="L303">				sb.append(&quot;&amp;quot;&quot;);</span>
+<span class="pc bpc" id="L304" title="1 of 2 branches missed.">			else if (currentC == '&amp;')</span>
+<span class="nc" id="L305">				sb.append(&quot;&amp;amp;&quot;);</span>
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">			else if (currentC == '&lt;')</span>
+<span class="nc" id="L307">				sb.append(&quot;&amp;lt;&quot;);</span>
+<span class="fc bfc" id="L308" title="All 2 branches covered.">			else if (currentC == '&gt;')</span>
+<span class="fc" id="L309">				sb.append(&quot;&amp;gt;&quot;);</span>
+<span class="pc bpc" id="L310" title="1 of 2 branches missed.">			else if (currentC == '\n')</span>
+				// Handle Newline
+<span class="nc bnc" id="L312" title="All 2 branches missed.">				if (convertNewLinesToHTML) {</span>
+<span class="nc" id="L313">					sb.append(&quot;&lt;BR&gt;&quot;);</span>
+<span class="nc" id="L314">				} else {</span>
+<span class="nc" id="L315">					sb.append(currentC);</span>
+<span class="nc" id="L316">				}</span>
+			else {
+<span class="fc" id="L318">				int ci = 0xffff &amp; currentC;</span>
+<span class="pc bpc" id="L319" title="1 of 2 branches missed.">				if (ci &lt; 160)</span>
+					// nothing special only 7 Bit
+<span class="fc" id="L321">					sb.append(currentC);</span>
+				else {
+					// Not 7 Bit use the unicode system
+<span class="nc" id="L324">					sb.append(&quot;&amp;#&quot;);</span>
+<span class="nc" id="L325">					sb.append(new Integer(ci).toString());</span>
+<span class="nc" id="L326">					sb.append(';');</span>
+				}
+			}
+<span class="fc" id="L329">			lastC = currentC;</span>
+		}
+<span class="fc" id="L331">		return sb.toString();</span>
+	}
+
+	public static String getDigitalUniqueIdentifier() {
+<span class="fc" id="L335">		return String.format(&quot;%040d&quot;, new BigInteger(UUID.randomUUID().toString().replace(&quot;-&quot;, &quot;&quot;), 16));</span>
+	}
+
+	public static String toDigitalUniqueIdentifier(Object object) {
+<span class="fc" id="L339">		synchronized (DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX) {</span>
+<span class="fc" id="L340">			String result = DIGITAL_UNIQUE_IDENTIFIER_CACHE.get(object);</span>
+<span class="fc bfc" id="L341" title="All 2 branches covered.">			if (result == null) {</span>
+<span class="fc" id="L342">				result = getDigitalUniqueIdentifier();</span>
+<span class="fc" id="L343">				DIGITAL_UNIQUE_IDENTIFIER_CACHE.put(object, result);</span>
+			}
+<span class="fc" id="L345">			return result;</span>
+		}
+	}
+
+	public static Object fromFromDigitalUniqueIdentifier(String digitalUniqueIdentifier) {
+<span class="nc" id="L350">		synchronized (DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX) {</span>
+<span class="nc" id="L351">			List&lt;Object&gt; keys = MiscUtils.getKeysFromValue(DIGITAL_UNIQUE_IDENTIFIER_CACHE, digitalUniqueIdentifier);</span>
+<span class="nc bnc" id="L352" title="All 2 branches missed.">			if (keys.size() != 1) {</span>
+<span class="nc" id="L353">				throw new UnexpectedError();</span>
+			}
+<span class="nc" id="L355">			return keys.get(0);</span>
+		}
+	}
+
+	public static &lt;E&gt; Iterable&lt;E&gt; secureIterable(Iterable&lt;E&gt; iterable) {
+<span class="nc" id="L360">		ArrayList&lt;E&gt; list = new ArrayList&lt;E&gt;();</span>
+<span class="nc bnc" id="L361" title="All 2 branches missed.">		for (E item : iterable) {</span>
+<span class="nc" id="L362">			list.add(item);</span>
+		}
+<span class="nc" id="L364">		return list;</span>
+	}
+
+	public static boolean negate(boolean b) {
+<span class="nc bnc" id="L368" title="All 2 branches missed.">		return !b;</span>
+	}
+
+	public static ResourcePath getIconImagePath(Step step) {
+<span class="fc bfc" id="L372" title="All 2 branches covered.">		for (CompositeStepMetadata metadata : MiscUtils.BUILTIN_COMPOSITE_STEP_METADATAS) {</span>
+<span class="pc bpc" id="L373" title="1 of 2 branches missed.">			if (metadata.getCompositeStepClass().equals(step.getClass())) {</span>
+<span class="nc" id="L374">				return metadata.getCompositeStepIconImagePath();</span>
+			}
+		}
+<span class="fc" id="L377">		OperationBuilder&lt;?&gt; operationBuilder = step.getOperationBuilder();</span>
+<span class="pc bpc" id="L378" title="1 of 2 branches missed.">		if (operationBuilder == null) {</span>
+<span class="nc" id="L379">			return null;</span>
+		}
+<span class="pc bpc" id="L381" title="1 of 2 branches missed.">		for (OperationMetadata&lt;?&gt; metadata : MiscUtils.getAllOperationMetadatas()) {</span>
+<span class="fc bfc" id="L382" title="All 2 branches covered.">			if (metadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {</span>
+<span class="fc" id="L383">				return metadata.getOperationIconImagePath();</span>
+			}
+		}
+<span class="nc" id="L386">		return null;</span>
+	}
+
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static &lt;T extends Asset&gt; List&lt;T&gt; findResources(Solution solution, Class&lt;T&gt; resourceClass) {
+<span class="nc" id="L391">		List&lt;T&gt; result = new ArrayList&lt;T&gt;();</span>
+<span class="nc bnc" id="L392" title="All 2 branches missed.">		for (Asset resource : solution.getContents()) {</span>
+<span class="nc bnc" id="L393" title="All 2 branches missed.">			if (resource.getClass().equals(resourceClass)) {</span>
+<span class="nc" id="L394">				result.add((T) resource);</span>
+			}
+<span class="nc bnc" id="L396" title="All 2 branches missed.">			if (resource instanceof Folder) {</span>
+<span class="nc" id="L397">				result.addAll(findDescendantResources((Folder) resource, resourceClass));</span>
+			}
+		}
+<span class="nc" id="L400">		return result;</span>
+	}
+
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static &lt;T extends Asset&gt; List&lt;T&gt; findDescendantResources(Folder folder, Class&lt;T&gt; resourceClass) {
+<span class="nc" id="L405">		List&lt;T&gt; result = new ArrayList&lt;T&gt;();</span>
+<span class="nc bnc" id="L406" title="All 2 branches missed.">		for (Asset resource : folder.getContents()) {</span>
+<span class="nc bnc" id="L407" title="All 2 branches missed.">			if (resource.getClass().equals(resourceClass)) {</span>
+<span class="nc" id="L408">				result.add((T) resource);</span>
+			}
+<span class="nc bnc" id="L410" title="All 2 branches missed.">			if (resource instanceof Folder) {</span>
+<span class="nc" id="L411">				result.addAll(findDescendantResources((Folder) resource, resourceClass));</span>
+			}
+		}
+<span class="nc" id="L414">		return result;</span>
+	}
+
+	public static int convertPositionToIndex(String text, int line, int column) {
+<span class="nc bnc" id="L418" title="All 4 branches missed.">		if (line &lt; 1 || column &lt; 1) {</span>
+<span class="nc" id="L419">			throw new IllegalArgumentException(&quot;Line and column numbers must be &gt;= 1&quot;);</span>
+		}
+<span class="nc" id="L421">		int index = 0;</span>
+<span class="nc" id="L422">		int currentLine = 1;</span>
+<span class="nc" id="L423">		int currentColumn = 1;</span>
+<span class="nc bnc" id="L424" title="All 2 branches missed.">		for (char c : text.toCharArray()) {</span>
+<span class="nc bnc" id="L425" title="All 4 branches missed.">			if (currentLine == line &amp;&amp; currentColumn == column) {</span>
+<span class="nc" id="L426">				return index;</span>
+			}
+
+<span class="nc" id="L429">			index++;</span>
+
+<span class="nc bnc" id="L431" title="All 2 branches missed.">			if (c == '\n') {</span>
+<span class="nc" id="L432">				currentLine++;</span>
+<span class="nc" id="L433">				currentColumn = 1;</span>
+<span class="nc" id="L434">			} else {</span>
+<span class="nc" id="L435">				currentColumn++;</span>
+			}
+		}
+<span class="nc bnc" id="L438" title="All 4 branches missed.">		if (currentLine == line &amp;&amp; currentColumn == column) {</span>
+<span class="nc" id="L439">			return index;</span>
+		} else {
+<span class="nc" id="L441">			throw new IllegalArgumentException(&quot;Line or column out of range&quot;);</span>
+		}
+	}
+
+	public static Pair&lt;Integer, Integer&gt; convertIndexToPosition(String text, int index) {
+<span class="pc bpc" id="L446" title="2 of 4 branches missed.">		if (index &lt; 0 || index &gt; text.length()) {</span>
+<span class="nc" id="L447">			throw new IllegalArgumentException(&quot;Index out of bounds&quot;);</span>
+		}
+
+<span class="fc" id="L450">		int line = 0;</span>
+<span class="fc" id="L451">		int column = 0;</span>
+
+<span class="fc bfc" id="L453" title="All 2 branches covered.">		for (int i = 0; i &lt; index; i++) {</span>
+<span class="fc" id="L454">			char c = text.charAt(i);</span>
+<span class="fc bfc" id="L455" title="All 2 branches covered.">			if (c == '\n') {</span>
+<span class="fc" id="L456">				line++;</span>
+<span class="fc" id="L457">				column = 0;</span>
+<span class="fc" id="L458">			} else {</span>
+<span class="fc" id="L459">				column++;</span>
+			}
+		}
+
+<span class="fc" id="L463">		return new Pair&lt;Integer, Integer&gt;(line, column);</span>
+	}
+
+	public static Point getRectangleBorderContactOfLineToExternalPoint(int rectangleCenterX, int rectangleCenterY,
+			int rectangleWidth, int rectangleHeight, int externalPointX, int externalPointY) {
+<span class="fc" id="L468">		int x = externalPointX;</span>
+<span class="fc" id="L469">		int y = externalPointY;</span>
+<span class="fc" id="L470">		int minX = rectangleCenterX - Math.round(rectangleWidth / 2f);</span>
+<span class="fc" id="L471">		int minY = rectangleCenterY - Math.round(rectangleHeight / 2f);</span>
+<span class="fc" id="L472">		int maxX = rectangleCenterX + Math.round(rectangleWidth / 2f);</span>
+<span class="fc" id="L473">		int maxY = rectangleCenterY + Math.round(rectangleHeight / 2f);</span>
+<span class="pc bpc" id="L474" title="1 of 8 branches missed.">		if ((minX &lt; x &amp;&amp; x &lt; maxX) &amp;&amp; (minY &lt; y &amp;&amp; y &lt; maxY)) {</span>
+<span class="nc" id="L475">			return null;</span>
+		}
+<span class="fc" id="L477">		float midX = (minX + maxX) / 2f;</span>
+<span class="fc" id="L478">		float midY = (minY + maxY) / 2f;</span>
+		// if (midX - x == 0) -&gt; m == ±Inf -&gt; minYx/maxYx == x (because value / ±Inf =
+		// ±0)
+<span class="fc" id="L481">		float m = (midY - y) / (midX - x);</span>
+<span class="fc bfc" id="L482" title="All 2 branches covered.">		if (x &lt;= midX) { // check &quot;left&quot; side</span>
+<span class="fc" id="L483">			float minXy = m * (minX - x) + y;</span>
+<span class="fc bfc" id="L484" title="All 4 branches covered.">			if (minY &lt;= minXy &amp;&amp; minXy &lt;= maxY) {</span>
+<span class="fc" id="L485">				return new Point(Math.round(minX), Math.round(minXy));</span>
+			}
+		}
+<span class="fc bfc" id="L488" title="All 2 branches covered.">		if (x &gt;= midX) { // check &quot;right&quot; side</span>
+<span class="fc" id="L489">			float maxXy = m * (maxX - x) + y;</span>
+<span class="fc bfc" id="L490" title="All 4 branches covered.">			if (minY &lt;= maxXy &amp;&amp; maxXy &lt;= maxY) {</span>
+<span class="fc" id="L491">				return new Point(Math.round(maxX), Math.round(maxXy));</span>
+			}
+		}
+<span class="fc bfc" id="L494" title="All 2 branches covered.">		if (y &lt;= midY) { // check &quot;top&quot; side</span>
+<span class="fc" id="L495">			float minYx = (minY - y) / m + x;</span>
+<span class="pc bpc" id="L496" title="2 of 4 branches missed.">			if (minX &lt;= minYx &amp;&amp; minYx &lt;= maxX) {</span>
+<span class="fc" id="L497">				return new Point(Math.round(minYx), Math.round(minY));</span>
+			}
+		}
+<span class="pc bpc" id="L500" title="1 of 2 branches missed.">		if (y &gt;= midY) { // check &quot;bottom&quot; side</span>
+<span class="fc" id="L501">			float maxYx = (maxY - y) / m + x;</span>
+<span class="pc bpc" id="L502" title="2 of 4 branches missed.">			if (minX &lt;= maxYx &amp;&amp; maxYx &lt;= maxX) {</span>
+<span class="fc" id="L503">				return new Point(Math.round(maxYx), Math.round(maxY));</span>
+			}
+		}
+		// edge case when finding midpoint intersection: m = 0/0 = NaN
+<span class="nc bnc" id="L507" title="All 4 branches missed.">		if (x == midX &amp;&amp; y == midY) {</span>
+<span class="nc" id="L508">			return new Point(x, y);</span>
+		}
+		// Should never happen :) If it does, please tell me!
+<span class="nc" id="L511">		throw new UnexpectedError();</span>
+	}
+
+	public static &lt;T&gt; String stringJoin(T[] array, String separator) {
+<span class="nc" id="L515">		return stringJoin(Arrays.asList(array), separator);</span>
+	}
+
+	public static String stringJoin(List&lt;?&gt; list, String separator) {
+<span class="fc" id="L519">		StringBuilder result = new StringBuilder();</span>
+<span class="fc bfc" id="L520" title="All 2 branches covered.">		for (int i = 0; i &lt; list.size(); i++) {</span>
+<span class="fc" id="L521">			Object item = list.get(i);</span>
+<span class="fc bfc" id="L522" title="All 2 branches covered.">			if (i &gt; 0) {</span>
+<span class="fc" id="L523">				result.append(separator);</span>
+			}
+<span class="pc bpc" id="L525" title="1 of 2 branches missed.">			if (item == null) {</span>
+<span class="nc" id="L526">				result.append(&quot;null&quot;);</span>
+<span class="nc" id="L527">			} else {</span>
+<span class="fc" id="L528">				result.append(item.toString());</span>
+			}
+		}
+<span class="fc" id="L531">		return result.toString();</span>
+	}
+
+	public static &lt;BASE, C extends BASE&gt; List&lt;BASE&gt; convertCollection(Collection&lt;C&gt; ts) {
+<span class="nc" id="L535">		List&lt;BASE&gt; result = new ArrayList&lt;BASE&gt;();</span>
+<span class="nc bnc" id="L536" title="All 2 branches missed.">		for (C t : ts) {</span>
+<span class="nc" id="L537">			result.add((BASE) t);</span>
+		}
+<span class="nc" id="L539">		return result;</span>
+	}
+
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static &lt;BASE, C extends BASE&gt; List&lt;C&gt; convertCollectionUnsafely(Collection&lt;BASE&gt; bs) {
+<span class="nc" id="L544">		List&lt;C&gt; result = new ArrayList&lt;C&gt;();</span>
+<span class="nc bnc" id="L545" title="All 2 branches missed.">		for (BASE b : bs) {</span>
+<span class="nc" id="L546">			result.add((C) b);</span>
+		}
+<span class="nc" id="L548">		return result;</span>
+	}
+
+	public static String adaptClassNameToSourceCode(String className) {
+<span class="fc" id="L552">		className = className.replace(&quot;$&quot;, &quot;.&quot;);</span>
+<span class="fc" id="L553">		int arrayDimension = 0;</span>
+<span class="fc" id="L554">		String arrayComponentTypeName = className;</span>
+<span class="fc bfc" id="L555" title="All 2 branches covered.">		while ((arrayComponentTypeName = getArrayComponentTypeName(arrayComponentTypeName)) != null) {</span>
+<span class="fc" id="L556">			arrayDimension++;</span>
+<span class="fc" id="L557">			className = arrayComponentTypeName;</span>
+		}
+<span class="fc bfc" id="L559" title="All 2 branches covered.">		for (int i = 0; i &lt; arrayDimension; i++) {</span>
+<span class="fc" id="L560">			className += &quot;[]&quot;;</span>
+		}
+<span class="fc" id="L562">		return className;</span>
+	}
+
+	public static String getArrayComponentTypeName(String className) {
+<span class="pc bpc" id="L566" title="1 of 2 branches missed.">		if (className.startsWith(&quot;[[&quot;)) {</span>
+<span class="nc" id="L567">			return className.substring(1);</span>
+		}
+<span class="pc bpc" id="L569" title="1 of 4 branches missed.">		if (className.startsWith(&quot;[L&quot;) &amp;&amp; className.endsWith(&quot;;&quot;)) {</span>
+<span class="fc" id="L570">			return className.substring(2, className.length() - 1);</span>
+		}
+<span class="pc bpc" id="L572" title="1 of 2 branches missed.">		if (className.equals(&quot;[Z&quot;)) {</span>
+<span class="nc" id="L573">			return &quot;boolean&quot;;</span>
+		}
+<span class="fc bfc" id="L575" title="All 2 branches covered.">		if (className.equals(&quot;[B&quot;)) {</span>
+<span class="fc" id="L576">			return &quot;byte&quot;;</span>
+		}
+<span class="pc bpc" id="L578" title="1 of 2 branches missed.">		if (className.equals(&quot;[S&quot;)) {</span>
+<span class="nc" id="L579">			return &quot;short&quot;;</span>
+		}
+<span class="pc bpc" id="L581" title="1 of 2 branches missed.">		if (className.equals(&quot;[I&quot;)) {</span>
+<span class="nc" id="L582">			return &quot;int&quot;;</span>
+		}
+<span class="pc bpc" id="L584" title="1 of 2 branches missed.">		if (className.equals(&quot;[J&quot;)) {</span>
+<span class="nc" id="L585">			return &quot;long&quot;;</span>
+		}
+<span class="pc bpc" id="L587" title="1 of 2 branches missed.">		if (className.equals(&quot;[F&quot;)) {</span>
+<span class="nc" id="L588">			return &quot;float&quot;;</span>
+		}
+<span class="pc bpc" id="L590" title="1 of 2 branches missed.">		if (className.equals(&quot;[D&quot;)) {</span>
+<span class="nc" id="L591">			return &quot;double&quot;;</span>
+		}
+<span class="pc bpc" id="L593" title="1 of 2 branches missed.">		if (className.equals(&quot;[C&quot;)) {</span>
+<span class="nc" id="L594">			return &quot;char&quot;;</span>
+		}
+<span class="fc" id="L596">		return null;</span>
+	}
+
+	public static boolean isArrayTypeName(String className) {
+<span class="nc bnc" id="L600" title="All 2 branches missed.">		return getArrayComponentTypeName(className) != null;</span>
+	}
+
+	public static Class&lt;?&gt; getArrayType(Class&lt;?&gt; componentType) {
+<span class="fc" id="L604">		return Array.newInstance(componentType, 0).getClass();</span>
+	}
+
+	public static String read(InputStream in) throws IOException {
+<span class="fc" id="L608">		return new String(readBinary(in));</span>
+	}
+
+	public static byte[] readBinary(InputStream in) throws IOException {
+		try {
+<span class="fc" id="L613">			ByteArrayOutputStream buffer = new ByteArrayOutputStream();</span>
+			int nRead;
+<span class="fc" id="L615">			byte[] data = new byte[16384];</span>
+<span class="fc bfc" id="L616" title="All 2 branches covered.">			while ((nRead = in.read(data, 0, data.length)) != -1) {</span>
+<span class="fc" id="L617">				buffer.write(data, 0, nRead);</span>
+			}
+<span class="fc" id="L619">			buffer.flush();</span>
+<span class="fc" id="L620">			return buffer.toByteArray();</span>
+<span class="nc" id="L621">		} catch (IOException e) {</span>
+<span class="nc" id="L622">			throw new IOException(&quot;Error while reading input stream: &quot; + e.getMessage(), e);</span>
+		}
+	}
+
+	public static byte[] readBinary(File file) throws IOException {
+<span class="fc" id="L627">		try (FileInputStream in = new FileInputStream(file)) {</span>
+<span class="fc" id="L628">			return readBinary(in);</span>
+		}
+	}
+
+	public static void write(File file, String text, boolean append) throws IOException {
+<span class="fc" id="L633">		writeBinary(file, text.getBytes(), append);</span>
+<span class="fc" id="L634">	}</span>
+
+	public static void writeBinary(File file, byte[] bytes, boolean append) throws IOException {
+<span class="fc" id="L637">		FileOutputStream out = null;</span>
+		try {
+<span class="fc" id="L639">			out = new FileOutputStream(file, append);</span>
+<span class="fc" id="L640">			out.write(bytes);</span>
+<span class="fc" id="L641">			out.flush();</span>
+<span class="fc" id="L642">			out.close();</span>
+<span class="pc" id="L643">		} catch (IOException e) {</span>
+<span class="nc" id="L644">			throw new IOException(&quot;Unable to write file : '&quot; + file.getAbsolutePath() + &quot;': &quot; + e.getMessage(), e);</span>
+		} finally {
+<span class="pc bpc" id="L646" title="1 of 2 branches missed.">			if (out != null) {</span>
+				try {
+<span class="fc" id="L648">					out.close();</span>
+<span class="pc" id="L649">				} catch (IOException e) {</span>
+				}
+			}
+		}
+<span class="fc" id="L653">	}</span>
+
+	public static File createTemporaryFile(String extension) throws IOException {
+<span class="fc" id="L656">		return File.createTempFile(&quot;file-&quot;, &quot;.&quot; + extension);</span>
+	}
+
+	public static File createTemporaryDirectory() throws IOException {
+<span class="fc" id="L660">		File result = File.createTempFile(&quot;directory-&quot;, &quot;.tmp&quot;);</span>
+<span class="fc" id="L661">		delete(result);</span>
+<span class="fc" id="L662">		createDirectory(result);</span>
+<span class="fc" id="L663">		return result;</span>
+	}
+
+	public static void createDirectory(File dir) throws IOException {
+<span class="fc" id="L667">		createDirectory(dir, false);</span>
+<span class="fc" id="L668">	}</span>
+
+	public static void createDirectory(File dir, boolean createNonExistingAncestors) throws IOException {
+<span class="pc bpc" id="L671" title="1 of 2 branches missed.">		if (dir.isDirectory()) {</span>
+<span class="nc" id="L672">			throw new IOException(&quot;Cannot create directory: '&quot; + dir + &quot;': It already exists&quot;);</span>
+		}
+		try {
+<span class="pc bpc" id="L675" title="2 of 6 branches missed.">			if (!(createNonExistingAncestors ? dir.mkdirs() : dir.mkdir())) {</span>
+<span class="nc" id="L676">				throw new IOException(&quot;System error&quot;);</span>
+			}
+<span class="nc" id="L678">		} catch (Exception e) {</span>
+<span class="nc" id="L679">			throw new IOException(&quot;Failed to create directory: '&quot; + dir + &quot;': &quot; + e.toString(), e);</span>
+		}
+<span class="fc" id="L681">	}</span>
+
+	public static void delete(File file) throws IOException {
+<span class="fc" id="L684">		delete(file, null, null);</span>
+<span class="fc" id="L685">	}</span>
+
+	public static void delete(File file, FilenameFilter filter, Listener&lt;Pair&lt;File, Exception&gt;&gt; errorHandler)
+			throws IOException {
+<span class="fc bfc" id="L689" title="All 2 branches covered.">		if (file.isDirectory()) {</span>
+<span class="fc bfc" id="L690" title="All 2 branches covered.">			for (File childFile : file.listFiles(filter)) {</span>
+<span class="fc" id="L691">				delete(childFile, filter, errorHandler);</span>
+			}
+<span class="pc bpc" id="L693" title="1 of 2 branches missed.">			if (file.listFiles().length &gt; 0) {</span>
+<span class="nc" id="L694">				return;</span>
+			}
+		}
+		boolean success;
+		try {
+<span class="fc" id="L699">			success = file.delete();</span>
+<span class="pc bpc" id="L700" title="1 of 2 branches missed.">			if (!success) {</span>
+<span class="nc" id="L701">				throw new IOException(&quot;System error&quot;);</span>
+			}
+<span class="nc" id="L703">		} catch (IOException e) {</span>
+<span class="nc" id="L704">			e = new IOException(</span>
+<span class="nc" id="L705">					&quot;Failed to delete file system resource: '&quot; + file.getAbsolutePath() + &quot;': &quot; + e.getMessage(), e);</span>
+<span class="nc bnc" id="L706" title="All 2 branches missed.">			if (errorHandler != null) {</span>
+<span class="nc" id="L707">				errorHandler.handle(new Pair&lt;File, Exception&gt;(file, e));</span>
+<span class="nc" id="L708">			} else {</span>
+<span class="nc" id="L709">				throw e;</span>
+			}
+		}
+<span class="fc" id="L712">	}</span>
+
+	public static String extractSimpleNameFromClassName(String className) {
+<span class="fc bfc" id="L715" title="All 2 branches covered.">		if (!isPackageNameInClassName(className)) {</span>
+<span class="fc" id="L716">			return className;</span>
+		}
+<span class="fc" id="L718">		return className.substring(className.lastIndexOf(&quot;.&quot;) + 1);</span>
+	}
+
+	public static String extractPackageNameFromClassName(String className) {
+<span class="pc bpc" id="L722" title="1 of 2 branches missed.">		if (!isPackageNameInClassName(className)) {</span>
+<span class="nc" id="L723">			return null;</span>
+		}
+<span class="fc" id="L725">		return className.substring(0, className.lastIndexOf(&quot;.&quot;));</span>
+	}
+
+	public static boolean isPackageNameInClassName(String className) {
+<span class="fc" id="L729">		return className.contains(&quot;.&quot;);</span>
+	}
+
+	public static &lt;K, V&gt; K getFirstKeyFromValue(Map&lt;K, V&gt; map, V value) {
+<span class="nc" id="L733">		List&lt;K&gt; list = getKeysFromValue(map, value);</span>
+<span class="nc bnc" id="L734" title="All 2 branches missed.">		if (list.size() &gt; 0) {</span>
+<span class="nc" id="L735">			return list.get(0);</span>
+		}
+<span class="nc" id="L737">		return null;</span>
+	}
+
+	public static &lt;K, V&gt; List&lt;K&gt; getKeysFromValue(Map&lt;K, V&gt; map, Object value) {
+<span class="nc" id="L741">		List&lt;K&gt; result = new ArrayList&lt;K&gt;();</span>
+<span class="nc bnc" id="L742" title="All 2 branches missed.">		for (Map.Entry&lt;K, V&gt; entry : map.entrySet()) {</span>
+<span class="nc bnc" id="L743" title="All 2 branches missed.">			if (MiscUtils.equalsOrBothNull(entry.getValue(), value)) {</span>
+<span class="nc" id="L744">				result.add(entry.getKey());</span>
+			}
+		}
+<span class="nc" id="L747">		return result;</span>
+	}
+
+	public static boolean equalsOrBothNull(Object o1, Object o2) {
+<span class="fc bfc" id="L751" title="All 2 branches covered.">		if (o1 == null) {</span>
+<span class="fc bfc" id="L752" title="All 2 branches covered.">			return o2 == null;</span>
+		} else {
+<span class="fc" id="L754">			return o1.equals(o2);</span>
+		}
+	}
+
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static &lt;T&gt; T copy(T object) {
+		try {
+<span class="nc" id="L761">			ByteArrayOutputStream output = new ByteArrayOutputStream();</span>
+<span class="nc" id="L762">			serialize(object, output);</span>
+<span class="nc" id="L763">			ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());</span>
+<span class="nc" id="L764">			return (T) deserialize(input);</span>
+<span class="nc" id="L765">		} catch (IOException e) {</span>
+<span class="nc" id="L766">			throw new UnexpectedError(e);</span>
+		}
+	}
+
+	public static void serialize(Object object, OutputStream output) throws IOException {
+		try {
+<span class="fc" id="L772">			XSTREAM.toXML(object, new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));</span>
+<span class="pc" id="L773">		} catch (XStreamException e) {</span>
+<span class="nc" id="L774">			throw new IOException(e);</span>
+		}
+<span class="fc" id="L776">	}</span>
+
+	public static Object deserialize(InputStream input) throws IOException {
+		try {
+<span class="fc" id="L780">			return XSTREAM.fromXML(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));</span>
+<span class="nc" id="L781">		} catch (XStreamException e) {</span>
+<span class="nc" id="L782">			throw new IOException(e);</span>
+		}
+	}
+
+	public static String serialize(Object object) {
+<span class="fc" id="L787">		ByteArrayOutputStream output = new ByteArrayOutputStream();</span>
+		try {
+<span class="fc" id="L789">			serialize(object, output);</span>
+<span class="pc" id="L790">		} catch (IOException e) {</span>
+<span class="nc" id="L791">			throw new UnexpectedError(e);</span>
+		}
+		try {
+<span class="fc" id="L794">			return output.toString(SERIALIZATION_CHARSET_NAME);</span>
+<span class="nc" id="L795">		} catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L796">			throw new UnexpectedError(e);</span>
+		}
+	}
+
+	public static Object deserialize(String inputString) {
+		ByteArrayInputStream input;
+		try {
+<span class="fc" id="L803">			input = new ByteArrayInputStream(inputString.getBytes(SERIALIZATION_CHARSET_NAME));</span>
+<span class="pc" id="L804">		} catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L805">			throw new UnexpectedError(e);</span>
+		}
+		try {
+<span class="fc" id="L808">			return deserialize(input);</span>
+<span class="nc" id="L809">		} catch (IOException e) {</span>
+<span class="nc" id="L810">			throw new UnexpectedError(e);</span>
+		}
+	}
+
+	public static String getPrintedStackTrace(Throwable t) {
+<span class="fc" id="L815">		ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L816">		t.printStackTrace(new PrintStream(out));</span>
+<span class="fc" id="L817">		return out.toString();</span>
+	}
+
+	public static DateFormat getDefaultDateFormat() {
+<span class="nc" id="L821">		return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);</span>
+	}
+
+	public static Date now() {
+<span class="fc" id="L825">		return new Date();</span>
+	}
+
+	public static char standardizeNewLineSequences(char lastC, char c) {
+<span class="fc bfc" id="L829" title="All 2 branches covered.">		for (String newLineSequence : NEW_LINE_SEQUENCES) {</span>
+<span class="pc bpc" id="L830" title="1 of 2 branches missed.">			if (newLineSequence.equals(&quot;&quot; + lastC + c)) {</span>
+<span class="nc" id="L831">				return 0;</span>
+			}
+		}
+<span class="fc bfc" id="L834" title="All 2 branches covered.">		for (String newLineSequence : NEW_LINE_SEQUENCES) {</span>
+<span class="pc bpc" id="L835" title="1 of 2 branches missed.">			if (newLineSequence.startsWith(&quot;&quot; + c)) {</span>
+<span class="nc" id="L836">				return '\n';</span>
+			}
+		}
+<span class="fc" id="L839">		return c;</span>
+	}
+
+	public static &lt;K, V&gt; void add(LinkedHashMap&lt;K, V&gt; linkedHashMap, int index, K key, V value) {
+<span class="nc" id="L843">		List&lt;Map.Entry&lt;K, V&gt;&gt; list = new ArrayList&lt;Map.Entry&lt;K, V&gt;&gt;(linkedHashMap.entrySet());</span>
+<span class="nc" id="L844">		list.add(index, new Map.Entry&lt;K, V&gt;() {</span>
+
+			@Override
+			public K getKey() {
+<span class="nc" id="L848">				return key;</span>
+			}
+
+			@Override
+			public V getValue() {
+<span class="nc" id="L853">				return value;</span>
+			}
+
+			@Override
+			public V setValue(V value) {
+<span class="nc" id="L858">				throw new UnsupportedOperationException();</span>
+			}
+		});
+<span class="nc" id="L861">		linkedHashMap.clear();</span>
+<span class="nc bnc" id="L862" title="All 2 branches missed.">		for (Map.Entry&lt;K, V&gt; entry : list) {</span>
+<span class="nc" id="L863">			linkedHashMap.put(entry.getKey(), entry.getValue());</span>
+		}
+<span class="nc" id="L865">	}</span>
+
+	public static &lt;T&gt; List&lt;T&gt; getReverse(List&lt;T&gt; ts) {
+<span class="fc" id="L868">		List&lt;T&gt; result = new ArrayList&lt;T&gt;(ts);</span>
+<span class="fc" id="L869">		Collections.reverse(result);</span>
+<span class="fc" id="L870">		return result;</span>
+	}
+
+	public static List&lt;Step&gt; getDescendants(CompositeStep&lt;?&gt; compositeStep, Plan plan) {
+<span class="fc" id="L874">		List&lt;Step&gt; result = new ArrayList&lt;Step&gt;();</span>
+<span class="fc bfc" id="L875" title="All 2 branches covered.">		for (Step childStep : compositeStep.getChildren(plan)) {</span>
+<span class="fc" id="L876">			result.add(childStep);</span>
+<span class="pc bpc" id="L877" title="1 of 2 branches missed.">			if (childStep instanceof CompositeStep) {</span>
+<span class="nc" id="L878">				result.addAll(getDescendants((CompositeStep&lt;?&gt;) childStep, plan));</span>
+			}
+		}
+<span class="fc" id="L881">		return result;</span>
+	}
+
+	public static String nextNumbreredName(String name) {
+<span class="fc" id="L885">		final String NUMBERED_NAME_PATTERN = &quot;^(.*)([0-9]+)$&quot;;</span>
+<span class="pc bpc" id="L886" title="1 of 2 branches missed.">		if (!name.matches(NUMBERED_NAME_PATTERN)) {</span>
+<span class="fc" id="L887">			return name + &quot;1&quot;;</span>
+		} else {
+<span class="nc" id="L889">			int number = Integer.valueOf(name.replaceAll(NUMBERED_NAME_PATTERN, &quot;$2&quot;));</span>
+<span class="nc" id="L890">			return name.replaceAll(NUMBERED_NAME_PATTERN, &quot;$1&quot;) + (number + 1);</span>
+		}
+	}
+
+	public static &lt;T&gt; List&lt;T&gt; added(List&lt;T&gt; ts, int index, T newItem) {
+<span class="fc" id="L895">		List&lt;T&gt; result = new ArrayList&lt;T&gt;(ts);</span>
+<span class="fc bfc" id="L896" title="All 2 branches covered.">		if (index == -1) {</span>
+<span class="fc" id="L897">			result.add(newItem);</span>
+<span class="fc" id="L898">		} else {</span>
+<span class="fc" id="L899">			result.add(index, newItem);</span>
+		}
+<span class="fc" id="L901">		return result;</span>
+	}
+
+	public static &lt;T&gt; List&lt;T&gt; removed(List&lt;T&gt; ts, int index, T oldItem) {
+<span class="fc" id="L905">		List&lt;T&gt; result = new ArrayList&lt;T&gt;(ts);</span>
+<span class="pc bpc" id="L906" title="1 of 2 branches missed.">		if (index == -1) {</span>
+<span class="pc bpc" id="L907" title="1 of 2 branches missed.">			if (!result.remove(oldItem)) {</span>
+<span class="nc" id="L908">				throw new NoSuchElementException();</span>
+			}
+		} else {
+<span class="nc bnc" id="L911" title="All 2 branches missed.">			if (!oldItem.equals(result.remove(index))) {</span>
+<span class="nc" id="L912">				throw new NoSuchElementException();</span>
+			}
+		}
+<span class="fc" id="L915">		return result;</span>
+	}
+
+	public static void improveRenderingQuality(Graphics2D g) {
+<span class="fc" id="L919">		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);</span>
+<span class="fc" id="L920">		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);</span>
+<span class="fc" id="L921">	}</span>
+
+	public static boolean areIncompatible(Class&lt;?&gt; class1, Class&lt;?&gt; class2) {
+<span class="nc bnc" id="L924" title="All 2 branches missed.">		if ((class2.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class2) : class2)</span>
+<span class="nc bnc" id="L925" title="All 4 branches missed.">				.isAssignableFrom((class1.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class1) : class1))) {</span>
+<span class="nc" id="L926">			return false;</span>
+		}
+<span class="nc bnc" id="L928" title="All 2 branches missed.">		if ((class1.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class1) : class1)</span>
+<span class="nc bnc" id="L929" title="All 4 branches missed.">				.isAssignableFrom((class2.isPrimitive() ? ClassUtils.primitiveToWrapperClass(class2) : class2))) {</span>
+<span class="nc" id="L930">			return false;</span>
+		}
+<span class="nc" id="L932">		return true;</span>
+	}
+
+	public static int positionAfterReplacement(int positionBefore, String inputString, String target,
+			String replacement) {
+<span class="nc bnc" id="L937" title="All 6 branches missed.">		if (target.isEmpty() || positionBefore &lt; 0 || positionBefore &gt; inputString.length()) {</span>
+<span class="nc" id="L938">			return positionBefore;</span>
+		}
+<span class="nc" id="L940">		int newIndex = positionBefore;</span>
+<span class="nc" id="L941">		int i = 0;</span>
+<span class="nc" id="L942">		int shift = 0;</span>
+<span class="nc bnc" id="L943" title="All 2 branches missed.">		while (i &lt; inputString.length()) {</span>
+<span class="nc" id="L944">			int found = inputString.indexOf(target, i);</span>
+<span class="nc bnc" id="L945" title="All 2 branches missed.">			if (found == -1) {</span>
+<span class="nc" id="L946">				break;</span>
+			}
+<span class="nc" id="L948">			int end = found + target.length();</span>
+<span class="nc bnc" id="L949" title="All 4 branches missed.">			if (positionBefore &gt;= found &amp;&amp; positionBefore &lt; end) {</span>
+				// The index falls inside a replaced segment — it no longer maps to any
+				// position.
+<span class="nc" id="L952">				return -1;</span>
+			}
+<span class="nc bnc" id="L954" title="All 2 branches missed.">			if (found &gt;= positionBefore) {</span>
+				// No need to process further if the replacement occurs after the original
+				// index.
+<span class="nc" id="L957">				break;</span>
+			}
+			// Accumulate the change in length caused by this replacement.
+<span class="nc" id="L960">			shift += replacement.length() - target.length();</span>
+<span class="nc" id="L961">			i = end;</span>
+		}
+<span class="nc" id="L963">		return newIndex + shift;</span>
+	}
+
+	public static OutputStream unifyOutputStreams(final OutputStream... outputStreams) {
+<span class="nc" id="L967">		return new OutputStream() {</span>
+
+			@Override
+			public void write(int b) throws IOException {
+<span class="nc bnc" id="L971" title="All 2 branches missed.">				for (OutputStream out : outputStreams) {</span>
+<span class="nc" id="L972">					out.write(b);</span>
+				}
+<span class="nc" id="L974">			}</span>
+
+			@Override
+			public void write(byte[] b) throws IOException {
+<span class="nc bnc" id="L978" title="All 2 branches missed.">				for (OutputStream out : outputStreams) {</span>
+<span class="nc" id="L979">					out.write(b);</span>
+				}
+<span class="nc" id="L981">			}</span>
+
+			@Override
+			public void write(byte[] b, int off, int len) throws IOException {
+<span class="nc bnc" id="L985" title="All 2 branches missed.">				for (OutputStream out : outputStreams) {</span>
+<span class="nc" id="L986">					out.write(b, off, len);</span>
+				}
+<span class="nc" id="L988">			}</span>
+
+			@Override
+			public void flush() throws IOException {
+<span class="nc bnc" id="L992" title="All 2 branches missed.">				for (OutputStream out : outputStreams) {</span>
+<span class="nc" id="L993">					out.flush();</span>
+				}
+<span class="nc" id="L995">			}</span>
+
+			@Override
+			public void close() throws IOException {
+<span class="nc bnc" id="L999" title="All 2 branches missed.">				for (OutputStream out : outputStreams) {</span>
+<span class="nc" id="L1000">					out.close();</span>
+				}
+<span class="nc" id="L1002">			}</span>
+		};
+	}
+
+	public static String truncateNicely(String s, int length) {
+<span class="pc bpc" id="L1007" title="1 of 2 branches missed.">		if (s.length() &gt; length) {</span>
+<span class="nc" id="L1008">			s = s.substring(0, length - 3) + &quot;...&quot;;</span>
+		}
+<span class="fc" id="L1010">		return s;</span>
+	}
+
+	public static ClassLoader getJESBResourceLoader() {
+<span class="fc" id="L1014">		return IN_MEMORY_COMPILER.getFirstClassLoader();</span>
+	}
+
+	public static Class&lt;?&gt; getJESBClass(String typeName) throws PotentialError {
+<span class="fc" id="L1018">		String arrayComponentTypeName = getArrayComponentTypeName(typeName);</span>
+<span class="fc bfc" id="L1019" title="All 2 branches covered.">		if (arrayComponentTypeName != null) {</span>
+<span class="fc" id="L1020">			return getArrayType(getJESBClass(arrayComponentTypeName));</span>
+		}
+<span class="fc bfc" id="L1022" title="All 2 branches covered.">		if (ClassUtils.PRIMITIVE_CLASS_BY_NAME.containsKey(typeName)) {</span>
+<span class="fc" id="L1023">			return ClassUtils.PRIMITIVE_CLASS_BY_NAME.get(typeName);</span>
+		}
+		try {
+<span class="fc" id="L1026">			return IN_MEMORY_COMPILER.loadClassThroughCache(typeName);</span>
+<span class="fc" id="L1027">		} catch (ClassNotFoundException e1) {</span>
+<span class="fc" id="L1028">			throw new PotentialError(e1);</span>
+		}
+	}
+
+	public static Class&lt;?&gt; getJESBClassFromCanonicalName(String canonicalName) {
+		try {
+<span class="fc" id="L1034">			return getJESBClass(canonicalName);</span>
+<span class="nc" id="L1035">		} catch (PotentialError e1) {</span>
+			try {
+<span class="nc" id="L1037">				int lastDotIndex = canonicalName.lastIndexOf('.');</span>
+<span class="nc bnc" id="L1038" title="All 2 branches missed.">				if (lastDotIndex == -1) {</span>
+<span class="nc" id="L1039">					throw new PotentialError(new UnexpectedError());</span>
+				}
+<span class="nc" id="L1041">				return getJESBClassFromCanonicalName(</span>
+<span class="nc" id="L1042">						canonicalName.substring(0, lastDotIndex) + &quot;$&quot; + canonicalName.substring(lastDotIndex + 1));</span>
+<span class="nc" id="L1043">			} catch (PotentialError e2) {</span>
+<span class="nc" id="L1044">				throw new PotentialError(new ClassNotFoundException(&quot;Canonical name: &quot; + canonicalName));</span>
+			}
+		}
+	}
+
+	public static void relieveCPU() {
+<span class="fc" id="L1050">		sleepSafely(100);</span>
+<span class="fc" id="L1051">	}</span>
+
+	public static Thread redirectStream(final InputStream src, final OutputStream dst, String reason) {
+<span class="fc" id="L1054">		Thread thread = new Thread(&quot;StreamRedirector (&quot; + reason + &quot;)&quot;) {</span>
+			public void run() {
+				try {
+<span class="fc" id="L1057">					while (true) {</span>
+<span class="fc bfc" id="L1058" title="All 2 branches covered.">						if (src.available() &gt; 0) {</span>
+<span class="fc" id="L1059">							int b = src.read();</span>
+<span class="pc bpc" id="L1060" title="1 of 2 branches missed.">							if (b == -1) {</span>
+<span class="nc" id="L1061">								break;</span>
+							}
+<span class="fc" id="L1063">							dst.write(b);</span>
+<span class="fc" id="L1064">						} else {</span>
+<span class="fc bfc" id="L1065" title="All 2 branches covered.">							if (isInterrupted()) {</span>
+<span class="fc" id="L1066">								break;</span>
+							} else {
+<span class="fc" id="L1068">								MiscUtils.relieveCPU();</span>
+							}
+						}
+					}
+<span class="nc" id="L1072">				} catch (IOException e) {</span>
+<span class="nc" id="L1073">					return;</span>
+				}
+<span class="fc" id="L1075">			}</span>
+		};
+<span class="fc" id="L1077">		thread.setPriority(Thread.MIN_PRIORITY);</span>
+<span class="fc" id="L1078">		thread.start();</span>
+<span class="fc" id="L1079">		return thread;</span>
+	}
+
+	public static List&lt;Class&lt;?&gt;&gt; expandWithEnclosedClasses(List&lt;Class&lt;?&gt;&gt; classes) {
+<span class="fc" id="L1083">		classes = new ArrayList&lt;Class&lt;?&gt;&gt;(classes);</span>
+<span class="fc" id="L1084">		List&lt;Class&lt;?&gt;&gt; innerClasses = null;</span>
+		{
+<span class="fc" id="L1086">			while (true) {</span>
+<span class="fc bfc" id="L1087" title="All 2 branches covered.">				innerClasses = ((innerClasses == null) ? classes : innerClasses).stream().flatMap(clazz -&gt; {</span>
+<span class="fc" id="L1088">					List&lt;Class&lt;?&gt;&gt; result = new ArrayList&lt;Class&lt;?&gt;&gt;();</span>
+<span class="fc" id="L1089">					result.addAll(Arrays.asList(clazz.getDeclaredClasses()));</span>
+<span class="fc" id="L1090">					result.addAll(getDeclaredAnonymousClasses(clazz));</span>
+<span class="fc" id="L1091">					return result.stream();</span>
+<span class="fc" id="L1092">				}).collect(Collectors.toList());</span>
+<span class="fc bfc" id="L1093" title="All 2 branches covered.">				if (innerClasses.size() == 0) {</span>
+<span class="fc" id="L1094">					break;</span>
+				}
+<span class="fc" id="L1096">				classes.addAll(innerClasses);</span>
+			}
+		}
+<span class="fc" id="L1099">		return classes;</span>
+	}
+
+	public static List&lt;Class&lt;?&gt;&gt; getDeclaredAnonymousClasses(Class&lt;?&gt; clazz) {
+<span class="fc" id="L1103">		List&lt;Class&lt;?&gt;&gt; result = new ArrayList&lt;Class&lt;?&gt;&gt;();</span>
+<span class="fc" id="L1104">		int i = 1;</span>
+<span class="fc" id="L1105">		while (true) {</span>
+			try {
+<span class="fc" id="L1107">				result.add(clazz.getClassLoader().loadClass(clazz.getName() + &quot;$&quot; + i));</span>
+<span class="fc" id="L1108">			} catch (ClassNotFoundException e) {</span>
+<span class="fc" id="L1109">				break;</span>
+			}
+<span class="fc" id="L1111">			i++;</span>
+		}
+<span class="fc" id="L1113">		return result;</span>
+	}
+
+	public static Class&lt;?&gt; inferOperationClass(Class&lt;?&gt; operationBuilderClass) {
+		try {
+<span class="fc" id="L1118">			return operationBuilderClass.getMethod(&quot;build&quot;, ExecutionContext.class, ExecutionInspector.class)</span>
+<span class="fc" id="L1119">					.getReturnType();</span>
+<span class="nc" id="L1120">		} catch (NoSuchMethodException | SecurityException e) {</span>
+<span class="nc" id="L1121">			throw new UnexpectedError(e);</span>
+		}
+	}
+
+	public static Class&lt;? extends OperationBuilder&lt;?&gt;&gt; findOperationBuilderClass(
+			Class&lt;? extends Operation&gt; operationCass) {
+<span class="pc bpc" id="L1127" title="1 of 2 branches missed.">		for (OperationMetadata&lt;?&gt; metadata : MiscUtils.getAllOperationMetadatas()) {</span>
+<span class="fc bfc" id="L1128" title="All 2 branches covered.">			if (inferOperationClass(metadata.getOperationBuilderClass()) == operationCass) {</span>
+<span class="fc" id="L1129">				return metadata.getOperationBuilderClass();</span>
+			}
+		}
+<span class="nc" id="L1132">		return null;</span>
+	}
+
+	public static List&lt;OperationMetadata&lt;?&gt;&gt; getAllOperationMetadatas() {
+<span class="fc" id="L1136">		List&lt;OperationMetadata&lt;?&gt;&gt; result = new ArrayList&lt;OperationMetadata&lt;?&gt;&gt;();</span>
+<span class="fc" id="L1137">		result.addAll(MiscUtils.BUILTIN_OPERATION_METADATAS);</span>
+<span class="fc" id="L1138">		result.addAll(JAR.PLUGIN_OPERATION_METADATAS);</span>
+<span class="fc" id="L1139">		return result;</span>
+	}
+
+	public static List&lt;ActivatorMetadata&gt; getAllActivatorMetadatas() {
+<span class="fc" id="L1143">		List&lt;ActivatorMetadata&gt; result = new ArrayList&lt;ActivatorMetadata&gt;();</span>
+<span class="fc" id="L1144">		result.addAll(MiscUtils.BUILTIN_ACTIVATOR__METADATAS);</span>
+<span class="fc" id="L1145">		result.addAll(JAR.PLUGIN_ACTIVATOR_METADATAS);</span>
+<span class="fc" id="L1146">		return result;</span>
+	}
+
+	public static List&lt;ResourceMetadata&gt; getAllResourceMetadatas() {
+<span class="fc" id="L1150">		List&lt;ResourceMetadata&gt; result = new ArrayList&lt;ResourceMetadata&gt;();</span>
+<span class="fc" id="L1151">		result.addAll(MiscUtils.BUILTIN_RESOURCE_METADATAS);</span>
+<span class="fc" id="L1152">		result.addAll(JAR.PLUGIN_RESOURCE_METADATAS);</span>
+<span class="fc" id="L1153">		return result;</span>
+	}
+
+	public static void configureSolutionDependencies(List&lt;JAR&gt; jars) {
+<span class="fc" id="L1157">		URLClassLoader jarsClassLoader = new URLClassLoader(</span>
+<span class="fc" id="L1158">				jars.stream().map(JAR::getURL).toArray(length -&gt; new URL[length]), JESB.class.getClassLoader());</span>
+<span class="fc" id="L1159">		IN_MEMORY_COMPILER.setFirstClassLoader(jarsClassLoader);</span>
+<span class="fc" id="L1160">		JAR.PLUGIN_OPERATION_METADATAS.clear();</span>
+<span class="fc" id="L1161">		JAR.PLUGIN_ACTIVATOR_METADATAS.clear();</span>
+<span class="fc" id="L1162">		JAR.PLUGIN_RESOURCE_METADATAS.clear();</span>
+<span class="fc bfc" id="L1163" title="All 2 branches covered.">		for (JAR jar : jars) {</span>
+			JarURLConnection connection;
+			try {
+<span class="fc" id="L1166">				connection = (JarURLConnection) new URL(&quot;jar:&quot; + jar.getURL().toString() + &quot;!/&quot;).openConnection();</span>
+<span class="pc" id="L1167">			} catch (IOException e) {</span>
+<span class="nc" id="L1168">				throw new UnexpectedError(e);</span>
+			}
+			Manifest manifest;
+			try {
+<span class="fc" id="L1172">				manifest = connection.getManifest();</span>
+<span class="pc" id="L1173">			} catch (IOException e) {</span>
+<span class="nc" id="L1174">				continue;</span>
+			}
+<span class="fc" id="L1176">			Attributes attributes = manifest.getMainAttributes();</span>
+<span class="fc" id="L1177">			String operationMetadataClassNames = attributes</span>
+<span class="fc" id="L1178">					.getValue(JAR.PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY);</span>
+<span class="fc" id="L1179">			String activatorMetadataClassNames = attributes</span>
+<span class="fc" id="L1180">					.getValue(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY);</span>
+<span class="fc" id="L1181">			String resourceMetadataClassNames = attributes.getValue(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY);</span>
+<span class="fc bfc" id="L1182" title="All 2 branches covered.">			if (operationMetadataClassNames != null) {</span>
+<span class="fc bfc" id="L1183" title="All 2 branches covered.">				for (String className : operationMetadataClassNames.split(&quot;,&quot;)) {</span>
+<span class="pc bpc" id="L1184" title="1 of 2 branches missed.">					if (className.isEmpty()) {</span>
+<span class="nc" id="L1185">						continue;</span>
+					}
+					try {
+<span class="fc" id="L1188">						JAR.PLUGIN_OPERATION_METADATAS</span>
+<span class="fc" id="L1189">								.add((OperationMetadata&lt;?&gt;) getJESBClass(className).newInstance());</span>
+<span class="pc" id="L1190">					} catch (InstantiationException | IllegalAccessException e) {</span>
+<span class="nc" id="L1191">						throw new UnexpectedError(e);</span>
+					}
+				}
+			}
+<span class="fc bfc" id="L1195" title="All 2 branches covered.">			if (activatorMetadataClassNames != null) {</span>
+<span class="fc bfc" id="L1196" title="All 2 branches covered.">				for (String className : activatorMetadataClassNames.split(&quot;,&quot;)) {</span>
+<span class="fc bfc" id="L1197" title="All 2 branches covered.">					if (className.isEmpty()) {</span>
+<span class="fc" id="L1198">						continue;</span>
+					}
+					try {
+<span class="fc" id="L1201">						JAR.PLUGIN_ACTIVATOR_METADATAS.add((ActivatorMetadata) getJESBClass(className).newInstance());</span>
+<span class="pc" id="L1202">					} catch (InstantiationException | IllegalAccessException e) {</span>
+<span class="nc" id="L1203">						throw new UnexpectedError(e);</span>
+					}
+				}
+			}
+<span class="fc bfc" id="L1207" title="All 2 branches covered.">			if (resourceMetadataClassNames != null) {</span>
+<span class="fc bfc" id="L1208" title="All 2 branches covered.">				for (String className : resourceMetadataClassNames.split(&quot;,&quot;)) {</span>
+<span class="fc bfc" id="L1209" title="All 2 branches covered.">					if (className.isEmpty()) {</span>
+<span class="fc" id="L1210">						continue;</span>
+					}
+					try {
+<span class="fc" id="L1213">						JAR.PLUGIN_RESOURCE_METADATAS.add((ResourceMetadata) getJESBClass(className).newInstance());</span>
+<span class="pc" id="L1214">					} catch (InstantiationException | IllegalAccessException e) {</span>
+<span class="nc" id="L1215">						throw new UnexpectedError(e);</span>
+					}
+				}
+			}
+		}
+<span class="fc" id="L1220">	}</span>
+
+	public static PrintStream createBufferedPrintStream(BiConsumer&lt;String, Boolean&gt; lineConsumer,
+			Supplier&lt;Boolean&gt; enablementStatusSupplier) {
+<span class="fc" id="L1224">		return new PrintStream(new WriterOutputStream(new Writer() {</span>
+<span class="fc" id="L1225">			private final StringBuilder lineBuffer = new StringBuilder();</span>
+
+			@Override
+			public synchronized void write(char[] cbuf, int off, int len) throws IOException {
+<span class="fc bfc" id="L1229" title="All 2 branches covered.">				if (!enablementStatusSupplier.get()) {</span>
+<span class="fc" id="L1230">					return;</span>
+				}
+<span class="fc bfc" id="L1232" title="All 2 branches covered.">				for (int i = 0; i &lt; len; i++) {</span>
+<span class="fc" id="L1233">					char c = cbuf[off + i];</span>
+<span class="fc bfc" id="L1234" title="All 2 branches covered.">					if (c == '\n') {</span>
+<span class="fc" id="L1235">						flush(true);</span>
+<span class="pc bpc" id="L1236" title="1 of 2 branches missed.">					} else if (c == '\r') {</span>
+<span class="nc bnc" id="L1237" title="All 4 branches missed.">						if ((i + 1 &lt; len) &amp;&amp; (cbuf[off + i + 1] == '\n')) {</span>
+<span class="nc" id="L1238">							i++;</span>
+						}
+<span class="nc" id="L1240">						flush(true);</span>
+<span class="nc" id="L1241">					} else {</span>
+<span class="fc" id="L1242">						lineBuffer.append(c);</span>
+					}
+				}
+<span class="fc" id="L1245">			}</span>
+
+			@Override
+			public synchronized void flush() throws IOException {
+<span class="fc bfc" id="L1249" title="All 2 branches covered.">				if (!enablementStatusSupplier.get()) {</span>
+<span class="fc" id="L1250">					return;</span>
+				}
+<span class="fc bfc" id="L1252" title="All 2 branches covered.">				if (lineBuffer.length() &gt; 0) {</span>
+<span class="fc" id="L1253">					flush(false);</span>
+				}
+<span class="fc" id="L1255">			}</span>
+
+			@Override
+			public synchronized void close() throws IOException {
+<span class="nc" id="L1259">				flush();</span>
+<span class="nc" id="L1260">			}</span>
+
+			private void flush(boolean lineTerminated) throws IOException {
+<span class="fc" id="L1263">				String line = lineBuffer.toString();</span>
+<span class="fc" id="L1264">				lineConsumer.accept(line, lineTerminated);</span>
+<span class="fc" id="L1265">				lineBuffer.setLength(0);</span>
+<span class="fc" id="L1266">			}</span>
+<span class="fc" id="L1267">		}, Charset.defaultCharset())) {</span>
+
+			@Override
+			public void println() {
+<span class="nc" id="L1271">				super.println();</span>
+<span class="nc" id="L1272">				flush();</span>
+<span class="nc" id="L1273">			}</span>
+
+			@Override
+			public void println(boolean x) {
+<span class="nc" id="L1277">				super.println(x);</span>
+<span class="nc" id="L1278">				flush();</span>
+<span class="nc" id="L1279">			}</span>
+
+			@Override
+			public void println(char x) {
+<span class="nc" id="L1283">				super.println(x);</span>
+<span class="nc" id="L1284">				flush();</span>
+<span class="nc" id="L1285">			}</span>
+
+			@Override
+			public void println(int x) {
+<span class="nc" id="L1289">				super.println(x);</span>
+<span class="nc" id="L1290">				flush();</span>
+<span class="nc" id="L1291">			}</span>
+
+			@Override
+			public void println(long x) {
+<span class="nc" id="L1295">				super.println(x);</span>
+<span class="nc" id="L1296">				flush();</span>
+<span class="nc" id="L1297">			}</span>
+
+			@Override
+			public void println(float x) {
+<span class="nc" id="L1301">				super.println(x);</span>
+<span class="nc" id="L1302">				flush();</span>
+<span class="nc" id="L1303">			}</span>
+
+			@Override
+			public void println(double x) {
+<span class="nc" id="L1307">				super.println(x);</span>
+<span class="nc" id="L1308">				flush();</span>
+<span class="nc" id="L1309">			}</span>
+
+			@Override
+			public void println(char[] x) {
+<span class="nc" id="L1313">				super.println(x);</span>
+<span class="nc" id="L1314">				flush();</span>
+<span class="nc" id="L1315">			}</span>
+
+			@Override
+			public void println(String x) {
+<span class="fc" id="L1319">				super.println(x);</span>
+<span class="fc" id="L1320">				flush();</span>
+<span class="fc" id="L1321">			}</span>
+
+			@Override
+			public void println(Object x) {
+<span class="nc" id="L1325">				super.println(x);</span>
+<span class="nc" id="L1326">				flush();</span>
+<span class="nc" id="L1327">			}</span>
+
+		};
+	}
+
+	public static boolean isInterruptionException(Throwable t) {
+<span class="pc bpc" id="L1333" title="1 of 2 branches missed.">		if (t instanceof InterruptedException) {</span>
+<span class="nc" id="L1334">			return true;</span>
+<span class="pc bpc" id="L1335" title="1 of 2 branches missed.">		} else if (t instanceof InterruptedIOException) {</span>
+<span class="fc" id="L1336">			return true;</span>
+<span class="nc bnc" id="L1337" title="All 2 branches missed.">		} else if (t.getCause() != null) {</span>
+<span class="nc" id="L1338">			return isInterruptionException(t.getCause());</span>
+		}
+<span class="nc" id="L1340">		return false;</span>
+	}
+
+	public static &lt;T&gt; void makeNumberedNamesUnique(List&lt;T&gt; ts, Function&lt;T, String&gt; nameGetter,
+			BiConsumer&lt;T, String&gt; nameSetter) {
+<span class="fc bfc" id="L1345" title="All 2 branches covered.">		for (int i = 0; i &lt; ts.size(); i++) {</span>
+<span class="fc" id="L1346">			T t = ts.get(i);</span>
+<span class="fc" id="L1347">			String name = nameGetter.apply(t);</span>
+<span class="fc bfc" id="L1348" title="All 2 branches covered.">			while (ts.subList(0, i).stream().map(nameGetter).anyMatch(Predicate.isEqual(name))) {</span>
+<span class="fc" id="L1349">				name = nextNumbreredName(name);</span>
+			}
+<span class="fc" id="L1351">			nameSetter.accept(t, name);</span>
+		}
+<span class="fc" id="L1353">	}</span>
+
+	public static void checkVariables(List&lt;VariableDeclaration&gt; variableDeclarations,
+			List&lt;Variable&gt; variables) {
+<span class="fc" id="L1357">		Set&lt;String&gt; actualVariableNames = variables.stream()</span>
+<span class="fc bfc" id="L1358" title="All 2 branches covered.">				.filter(variable -&gt; variable.getValue() != Variable.UNDEFINED_VALUE).map(variable -&gt; variable.getName())</span>
+<span class="fc" id="L1359">				.collect(Collectors.toSet());</span>
+<span class="fc" id="L1360">		Set&lt;String&gt; expectedVariableNames = variableDeclarations.stream()</span>
+<span class="fc" id="L1361">				.map(variableDeclaration -&gt; variableDeclaration.getVariableName()).collect(Collectors.toSet());</span>
+<span class="pc bpc" id="L1362" title="1 of 2 branches missed.">		if (!actualVariableNames.equals(expectedVariableNames)) {</span>
+<span class="nc" id="L1363">			throw new UnexpectedError();</span>
+		}
+<span class="fc" id="L1365">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

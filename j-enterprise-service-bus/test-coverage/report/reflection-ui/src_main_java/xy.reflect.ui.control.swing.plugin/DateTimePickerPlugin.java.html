@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DateTimePickerPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">DateTimePickerPlugin.java</span></div><h1>DateTimePickerPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.lang.reflect.Field;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.JFormattedTextField;
+import javax.swing.JSpinner;
+import javax.swing.JFormattedTextField.AbstractFormatter;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultFormatterFactory;
+
+import org.jdesktop.swingx.JXDatePicker;
+import org.jdesktop.swingx.calendar.DatePickerFormatter;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.FieldControlDataProxy;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.JXDateTimePicker;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.method.AbstractConstructorInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.factory.InfoProxyFactory;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.info.type.source.TypeInfoSourceProxy;
+import xy.reflect.ui.util.ReschedulableTask;
+import xy.reflect.ui.util.StrictDateFormat;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.MiscUtils;
+
+/**
+ * Field control plugin that allows to display and update adequately
+ * {@link Date} values. Time (hours, minutes, seconds, ...) is handled by this
+ * control.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L63">public class DateTimePickerPlugin extends AbstractSimpleCustomizableFieldControlPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L67">		return &quot;Date And Time Picker&quot;;</span>
+	}
+
+	@Override
+	protected boolean handles(Class&lt;?&gt; javaType) {
+<span class="fc" id="L72">		return javaType.equals(Date.class);</span>
+	}
+
+	@Override
+	public boolean canDisplayDistinctNullValue() {
+<span class="nc" id="L77">		return false;</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="nc" id="L82">		return new DateTimePickerConfiguration();</span>
+	}
+
+	@Override
+	public IFieldControlData filterDistinctNullValueControlData(final Object renderer, IFieldControlData controlData) {
+<span class="nc" id="L87">		return new FieldControlDataProxy(controlData) {</span>
+
+			@Override
+			public ITypeInfo getType() {
+<span class="nc" id="L91">				return new DateTypeInfoProxyFactory(((SwingRenderer) renderer).getReflectionUI())</span>
+<span class="nc" id="L92">						.wrapTypeInfo(super.getType());</span>
+			}
+
+		};
+	}
+
+	protected static class DateTypeInfoProxyFactory extends InfoProxyFactory {
+
+		protected ReflectionUI reflectionUI;
+
+<span class="nc" id="L102">		public DateTypeInfoProxyFactory(ReflectionUI reflectionUI) {</span>
+<span class="nc" id="L103">			this.reflectionUI = reflectionUI;</span>
+<span class="nc" id="L104">		}</span>
+
+		@Override
+		protected List&lt;IMethodInfo&gt; getConstructors(ITypeInfo type) {
+<span class="nc bnc" id="L108" title="All 2 branches missed.">			if (DateConstructor.isCompatibleWith(reflectionUI, type)) {</span>
+<span class="nc" id="L109">				List&lt;IMethodInfo&gt; result = new ArrayList&lt;IMethodInfo&gt;();</span>
+<span class="nc" id="L110">				result.add(new DateConstructor(reflectionUI, type));</span>
+<span class="nc" id="L111">				return result;</span>
+			}
+<span class="nc" id="L113">			return super.getConstructors(type);</span>
+		}
+
+		@Override
+		protected boolean isConcrete(ITypeInfo type) {
+<span class="nc bnc" id="L118" title="All 2 branches missed.">			if (DateConstructor.isCompatibleWith(reflectionUI, type)) {</span>
+<span class="nc" id="L119">				return true;</span>
+			}
+<span class="nc" id="L121">			return super.isConcrete(type);</span>
+		}
+
+	}
+
+	protected static class DateConstructor extends AbstractConstructorInfo {
+
+		protected ReflectionUI reflectionUI;
+		protected ITypeInfo type;
+
+<span class="nc" id="L131">		public DateConstructor(ReflectionUI reflectionUI, ITypeInfo type) {</span>
+<span class="nc" id="L132">			this.reflectionUI = reflectionUI;</span>
+<span class="nc" id="L133">			this.type = type;</span>
+<span class="nc" id="L134">		}</span>
+
+		@Override
+		public ITypeInfo getReturnValueType() {
+<span class="nc" id="L138">			return reflectionUI.getTypeInfo(new TypeInfoSourceProxy(type.getSource()) {</span>
+				@Override
+				public SpecificitiesIdentifier getSpecificitiesIdentifier() {
+<span class="nc" id="L141">					return null;</span>
+				}
+
+				@Override
+				protected String getTypeInfoProxyFactoryIdentifier() {
+<span class="nc" id="L146">					return &quot;ConstructorReturnValueTypeInfoProxyFactory [of=&quot; + getClass().getName() + &quot;]&quot;;</span>
+				}
+			});
+		}
+
+		@Override
+		public List&lt;IParameterInfo&gt; getParameters() {
+<span class="nc" id="L153">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public Object invoke(Object ignore, InvocationData invocationData) {
+<span class="nc" id="L158">			return new Date();</span>
+		}
+
+		public static boolean isCompatibleWith(ReflectionUI reflectionUI, ITypeInfo type) {
+			Class&lt;?&gt; dateClass;
+			try {
+<span class="nc" id="L164">				dateClass = reflectionUI.getReflectedClass(type.getName());</span>
+<span class="nc" id="L165">			} catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L166">				return false;</span>
+			}
+<span class="nc" id="L168">			return Date.class.isAssignableFrom(dateClass);</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L173">			final int prime = 31;</span>
+<span class="nc" id="L174">			int result = super.hashCode();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">			result = prime * result + ((type == null) ? 0 : type.hashCode());</span>
+<span class="nc" id="L176">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L181" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L182">				return true;</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">			if (!super.equals(obj))</span>
+<span class="nc" id="L184">				return false;</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L186">				return false;</span>
+<span class="nc" id="L187">			DateConstructor other = (DateConstructor) obj;</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">			if (type == null) {</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">				if (other.type != null)</span>
+<span class="nc" id="L190">					return false;</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">			} else if (!type.equals(other.type))</span>
+<span class="nc" id="L192">				return false;</span>
+<span class="nc" id="L193">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L198">			return &quot;ColorConstructor [type=&quot; + type + &quot;]&quot;;</span>
+		}
+
+	}
+
+	@Override
+	public DateTimePicker createControl(Object renderer, IFieldControlInput input) {
+<span class="nc" id="L205">		return new DateTimePicker((SwingRenderer) renderer, input);</span>
+	}
+
+<span class="nc" id="L208">	public static class DateTimePickerConfiguration extends AbstractConfiguration {</span>
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L211">		public String dateFormat = &quot;yyyy-MM-dd&quot;;</span>
+<span class="nc" id="L212">		public String timeFormat = &quot;HH:mm:ss&quot;;</span>
+	}
+
+	public class DateTimePicker extends JXDateTimePicker implements IAdvancedFieldControl {
+		private static final long serialVersionUID = 1L;
+
+		protected SwingRenderer swingRenderer;
+		protected IFieldControlInput input;
+		protected IFieldControlData data;
+<span class="nc" id="L221">		protected boolean listenerDisabled = false;</span>
+		protected ReschedulableTask textEditorChangesCommittingProcess;
+<span class="nc" id="L223">		protected boolean initialized = false;</span>
+		protected Throwable currentConversionError;
+		protected Throwable currentDataError;
+
+		protected DateTimePickerConfiguration controlConfiguration;
+
+<span class="nc" id="L229">		public DateTimePicker(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="nc" id="L230">			this.swingRenderer = swingRenderer;</span>
+<span class="nc" id="L231">			this.input = input;</span>
+<span class="nc" id="L232">			this.data = input.getControlData();</span>
+<span class="nc" id="L233">			this.textEditorChangesCommittingProcess = createDelayedUpdateProcess();</span>
+<span class="nc" id="L234">			setupEvents();</span>
+<span class="nc" id="L235">			refreshUI(true);</span>
+<span class="nc" id="L236">			this.initialized = true;</span>
+<span class="nc" id="L237">		}</span>
+
+		protected ReschedulableTask createDelayedUpdateProcess() {
+<span class="nc" id="L240">			return swingRenderer.createDelayedUpdateProcess(this, new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="nc" id="L243">					DateTimePicker.this.commitTextEditorChanges();</span>
+<span class="nc" id="L244">				}</span>
+<span class="nc" id="L245">			}, 3000);</span>
+		}
+
+		@Override
+		public void setFormats(DateFormat... formats) {
+<span class="nc" id="L250">			DateFormat[] strictFormats = new DateFormat[formats.length];</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">			for (int i = 0; i &lt; formats.length; i++) {</span>
+<span class="nc" id="L252">				strictFormats[i] = new StrictDateFormat(formats[i]);</span>
+			}
+<span class="nc" id="L254">			super.setFormats(strictFormats);</span>
+<span class="nc" id="L255">			getEditor().setFormatterFactory(new DefaultFormatterFactory(new DatePickerFormatter(formats, getLocale()) {</span>
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void install(JFormattedTextField ftf) {
+<span class="nc" id="L261">					withListenerDisabled(() -&gt; {</span>
+<span class="nc" id="L262">						super.install(ftf);</span>
+<span class="nc" id="L263">					});</span>
+<span class="nc" id="L264">				}</span>
+			}));
+<span class="nc" id="L266">		}</span>
+
+		@Override
+		public void updateUI() {
+<span class="nc" id="L270">			super.updateUI();</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">			if (initialized) {</span>
+<span class="nc" id="L272">				refreshUI(true);</span>
+			}
+<span class="nc" id="L274">		}</span>
+
+		@Override
+		protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+<span class="nc bnc" id="L278" title="All 2 branches missed.">			if (listenerDisabled) {</span>
+<span class="nc" id="L279">				return;</span>
+			}
+<span class="nc" id="L281">			super.firePropertyChange(propertyName, oldValue, newValue);</span>
+<span class="nc" id="L282">		}</span>
+
+		protected void setupEvents() {
+<span class="nc" id="L285">			addActionListener(new ActionListener() {</span>
+				@Override
+				public void actionPerformed(ActionEvent e) {
+<span class="nc bnc" id="L288" title="All 2 branches missed.">					if (listenerDisabled) {</span>
+<span class="nc" id="L289">						return;</span>
+					}
+					try {
+<span class="nc" id="L292">						textEditorChangesCommittingProcess.cancelSchedule();</span>
+<span class="nc" id="L293">						Date value = getDate();</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">						if (MiscUtils.equalsOrBothNull(value, data.getValue())) {</span>
+<span class="nc" id="L295">							return;</span>
+						}
+<span class="nc" id="L297">						textEditorChangesCommittingProcess.schedule();</span>
+<span class="nc" id="L298">					} catch (Throwable t) {</span>
+<span class="nc" id="L299">						swingRenderer.handleException(DateTimePicker.this, t);</span>
+					}
+<span class="nc" id="L301">				}</span>
+			});
+<span class="nc" id="L303">			final JFormattedTextField editor = DateTimePicker.this.getEditor();</span>
+<span class="nc" id="L304">			editor.getDocument().addDocumentListener(new DocumentListener() {</span>
+
+				private void anyUpdate() {
+<span class="nc bnc" id="L307" title="All 2 branches missed.">					if (listenerDisabled) {</span>
+<span class="nc" id="L308">						return;</span>
+					}
+					try {
+<span class="nc" id="L311">						textEditorChangesCommittingProcess.cancelSchedule();</span>
+<span class="nc" id="L312">						Date value = getDateFromTextEditor();</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">						if (value == null) {</span>
+<span class="nc" id="L314">							return;</span>
+						}
+<span class="nc bnc" id="L316" title="All 2 branches missed.">						if (value.equals(data.getValue())) {</span>
+<span class="nc" id="L317">							return;</span>
+						}
+<span class="nc" id="L319">						textEditorChangesCommittingProcess.schedule();</span>
+<span class="nc" id="L320">					} catch (Throwable t) {</span>
+<span class="nc" id="L321">						swingRenderer.handleException(DateTimePicker.this, t);</span>
+					}
+<span class="nc" id="L323">				}</span>
+
+				@Override
+				public void removeUpdate(DocumentEvent e) {
+<span class="nc" id="L327">					anyUpdate();</span>
+<span class="nc" id="L328">				}</span>
+
+				@Override
+				public void insertUpdate(DocumentEvent e) {
+<span class="nc" id="L332">					anyUpdate();</span>
+<span class="nc" id="L333">				}</span>
+
+				@Override
+				public void changedUpdate(DocumentEvent e) {
+<span class="nc" id="L337">					anyUpdate();</span>
+<span class="nc" id="L338">				}</span>
+			});
+<span class="nc" id="L340">			editor.setFocusLostBehavior(JFormattedTextField.PERSIST);</span>
+<span class="nc" id="L341">			editor.addFocusListener(new FocusListener() {</span>
+
+				@Override
+				public void focusLost(FocusEvent e) {
+					try {
+<span class="nc" id="L346">						onFocusLoss();</span>
+<span class="nc" id="L347">					} catch (Throwable t) {</span>
+<span class="nc" id="L348">						swingRenderer.handleException(DateTimePicker.this, t);</span>
+					}
+<span class="nc" id="L350">				}</span>
+
+				@Override
+				public void focusGained(FocusEvent e) {
+<span class="nc" id="L354">					restoreCaretPosition();</span>
+<span class="nc" id="L355">				}</span>
+
+				private void restoreCaretPosition() {
+<span class="nc" id="L358">					int caretPosition = editor.getCaretPosition();</span>
+<span class="nc" id="L359">					SwingUtilities.invokeLater(new Runnable() {</span>
+						@Override
+						public void run() {
+<span class="nc" id="L362">							editor.setCaretPosition(caretPosition);</span>
+<span class="nc" id="L363">						}</span>
+					});
+<span class="nc" id="L365">				}</span>
+			});
+<span class="nc" id="L367">		}</span>
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="nc" id="L371">			boolean[] result = new boolean[] { false };</span>
+<span class="nc" id="L372">			withListenerDisabled(() -&gt; {</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">				if (refreshStructure) {</span>
+<span class="nc" id="L374">					updateControlConfiguration();</span>
+<span class="nc" id="L375">					setFormats(controlConfiguration.dateFormat + &quot; &quot; + controlConfiguration.timeFormat);</span>
+<span class="nc" id="L376">					setTimeFormat(new SimpleDateFormat(controlConfiguration.timeFormat));</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">					setEnabled(!data.isGetOnly());</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">					if (data.getBorderColor() != null) {</span>
+<span class="nc" id="L379">						setBorder(BorderFactory.createLineBorder(SwingRendererUtils.getColor(data.getBorderColor())));</span>
+<span class="nc" id="L380">					} else {</span>
+<span class="nc" id="L381">						setBorder(new JXDateTimePicker().getBorder());</span>
+					}
+<span class="nc bnc" id="L383" title="All 2 branches missed.">					if (data.isGetOnly()) {</span>
+<span class="nc" id="L384">						getEditor().setBackground(new JXDateTimePicker().getBackground());</span>
+<span class="nc" id="L385">						getEditor().setForeground(new JXDateTimePicker().getForeground());</span>
+<span class="nc" id="L386">					} else {</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">						if (data.getEditorBackgroundColor() != null) {</span>
+<span class="nc" id="L388">							getEditor().setBackground(SwingRendererUtils.getColor(data.getEditorBackgroundColor()));</span>
+<span class="nc" id="L389">						} else {</span>
+<span class="nc" id="L390">							getEditor().setBackground(new JXDateTimePicker().getBackground());</span>
+						}
+<span class="nc bnc" id="L392" title="All 2 branches missed.">						if (data.getEditorForegroundColor() != null) {</span>
+<span class="nc" id="L393">							getEditor().setForeground(SwingRendererUtils.getColor(data.getEditorForegroundColor()));</span>
+<span class="nc" id="L394">						} else {</span>
+<span class="nc" id="L395">							getEditor().setForeground(new JXDateTimePicker().getForeground());</span>
+						}
+					}
+<span class="nc bnc" id="L398" title="All 2 branches missed.">					if (data.getEditorCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L399">						getEditor()</span>
+<span class="nc" id="L400">								.setFont(</span>
+										SwingRendererUtils
+<span class="nc" id="L402">												.loadFontThroughCache(data.getEditorCustomFontResourcePath(),</span>
+<span class="nc" id="L403">														ReflectionUIUtils.getErrorLogListener(</span>
+<span class="nc" id="L404">																swingRenderer.getReflectionUI()),</span>
+<span class="nc" id="L405">														swingRenderer)</span>
+<span class="nc" id="L406">												.deriveFont(getEditor().getFont().getStyle(),</span>
+<span class="nc" id="L407">														getEditor().getFont().getSize()));</span>
+<span class="nc" id="L408">					} else {</span>
+<span class="nc" id="L409">						getEditor().setFont(new JFormattedTextField().getFont());</span>
+					}
+				}
+<span class="nc bnc" id="L412" title="All 2 branches missed.">				if (textEditorChangesCommittingProcess.isActive()) {</span>
+					/*
+					 * If a change is pending, the refresh can then be aborted, as it will be
+					 * performed later after the change is committed. Note that refreshing the
+					 * control would have deleted the new control value before it was committed.
+					 */
+<span class="nc" id="L418">					result[0] = true;</span>
+				}
+<span class="nc" id="L420">				Date date = (Date) data.getValue();</span>
+<span class="nc" id="L421">				currentConversionError = null;</span>
+<span class="nc" id="L422">				updateErrorDisplay();</span>
+<span class="nc" id="L423">				setDate(date);</span>
+<span class="nc" id="L424">				JFormattedTextField editor = this.getEditor();</span>
+<span class="nc" id="L425">				editor.setValue(date);</span>
+<span class="nc" id="L426">				result[0] = true;</span>
+<span class="nc" id="L427">			});</span>
+<span class="nc" id="L428">			return result[0];</span>
+		}
+
+		protected void updateControlConfiguration() {
+<span class="nc" id="L432">			controlConfiguration = (DateTimePickerConfiguration) loadControlCustomization(input);</span>
+<span class="nc" id="L433">		}</span>
+
+		protected void commitTextEditorChanges() {
+<span class="nc" id="L436">			Date value = getDateFromTextEditor();</span>
+<span class="nc bnc" id="L437" title="All 2 branches missed.">			if (value == null) {</span>
+<span class="nc" id="L438">				return;</span>
+			}
+<span class="nc bnc" id="L440" title="All 2 branches missed.">			if (value.equals(data.getValue())) {</span>
+<span class="nc" id="L441">				return;</span>
+			}
+<span class="nc" id="L443">			JFormattedTextField editor = getEditor();</span>
+<span class="nc" id="L444">			int caretPosition = editor.getCaretPosition();</span>
+<span class="nc" id="L445">			withListenerDisabled(() -&gt; {</span>
+<span class="nc" id="L446">				setDate((Date) value);</span>
+<span class="nc" id="L447">			});</span>
+<span class="nc" id="L448">			data.setValue(getDate());</span>
+<span class="nc" id="L449">			editor.setCaretPosition(Math.min(caretPosition, editor.getText().length()));</span>
+<span class="nc" id="L450">		}</span>
+
+		protected void withListenerDisabled(Runnable runnable) {
+<span class="nc" id="L453">			boolean listenerDisabledInitially = listenerDisabled;</span>
+<span class="nc" id="L454">			listenerDisabled = true;</span>
+			try {
+<span class="nc" id="L456">				runnable.run();</span>
+<span class="nc" id="L457">			} finally {</span>
+<span class="nc" id="L458">				listenerDisabled = listenerDisabledInitially;</span>
+			}
+<span class="nc" id="L460">		}</span>
+
+		protected Date getDateFromTextEditor() {
+<span class="nc" id="L463">			JFormattedTextField editor = getEditor();</span>
+<span class="nc" id="L464">			String string = editor.getText();</span>
+<span class="nc" id="L465">			AbstractFormatter formatter = editor.getFormatter();</span>
+			Date result;
+			try {
+<span class="nc" id="L468">				result = (Date) formatter.stringToValue(string);</span>
+<span class="nc" id="L469">				currentConversionError = null;</span>
+<span class="nc" id="L470">			} catch (Throwable t) {</span>
+<span class="nc" id="L471">				currentConversionError = t;</span>
+<span class="nc" id="L472">				return null;</span>
+			} finally {
+<span class="nc" id="L474">				updateErrorDisplay();</span>
+			}
+<span class="nc" id="L476">			return result;</span>
+		}
+
+		protected void onFocusLoss() {
+<span class="nc bnc" id="L480" title="All 2 branches missed.">			if (textEditorChangesCommittingProcess.cancelSchedule()) {</span>
+<span class="nc" id="L481">				commitTextEditorChanges();</span>
+			}
+<span class="nc" id="L483">		}</span>
+
+		protected void updateErrorDisplay() {
+<span class="nc" id="L486">			JFormattedTextField editor = getEditor();</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">			if (currentConversionError != null) {</span>
+<span class="nc" id="L488">				SwingRendererUtils.displayErrorOnBorderAndTooltip(this, editor, currentConversionError, swingRenderer);</span>
+<span class="nc" id="L489">				return;</span>
+			}
+<span class="nc bnc" id="L491" title="All 2 branches missed.">			if (currentDataError != null) {</span>
+<span class="nc" id="L492">				SwingRendererUtils.displayErrorOnBorderAndTooltip(this, editor, currentDataError, swingRenderer);</span>
+<span class="nc" id="L493">				return;</span>
+			}
+<span class="nc" id="L495">			SwingRendererUtils.displayErrorOnBorderAndTooltip(this, editor, null, swingRenderer);</span>
+<span class="nc" id="L496">		}</span>
+
+		@Override
+		public boolean displayError(Throwable error) {
+<span class="nc" id="L500">			currentDataError = error;</span>
+<span class="nc" id="L501">			updateErrorDisplay();</span>
+<span class="nc" id="L502">			return true;</span>
+		}
+
+		@Override
+		public boolean showsCaption() {
+<span class="nc" id="L507">			return false;</span>
+		}
+
+		@Override
+		public boolean isModificationStackManaged() {
+<span class="nc" id="L512">			return false;</span>
+		}
+
+		@Override
+		public boolean areValueAccessErrorsManaged() {
+<span class="nc" id="L517">			return false;</span>
+		}
+
+		@Override
+		public boolean requestCustomFocus() {
+<span class="nc bnc" id="L522" title="All 2 branches missed.">			if (data.isGetOnly()) {</span>
+<span class="nc" id="L523">				return false;</span>
+			}
+<span class="nc" id="L525">			return SwingRendererUtils.requestAnyComponentFocus(getEditor(), swingRenderer);</span>
+		}
+
+		@Override
+		public void validateControlData(ValidationSession session) throws Exception {
+<span class="nc" id="L530">		}</span>
+
+		@Override
+		public void addMenuContributions(MenuModel menuModel) {
+<span class="nc" id="L534">		}</span>
+
+		protected void fixTimeSpinnersNotUpdatingIssue(Date date) {
+			JSpinner timeSpinner;
+			try {
+<span class="nc" id="L539">				Field timeSpinnerField = JXDateTimePicker.class.getDeclaredField(&quot;timeSpinner&quot;);</span>
+<span class="nc" id="L540">				timeSpinnerField.setAccessible(true);</span>
+<span class="nc" id="L541">				timeSpinner = (JSpinner) timeSpinnerField.get(this);</span>
+<span class="nc" id="L542">			} catch (Exception e) {</span>
+<span class="nc" id="L543">				throw new ReflectionUIError(e);</span>
+			}
+			try {
+<span class="nc" id="L546">				timeSpinner.setValue(date);</span>
+<span class="nc" id="L547">			} catch (Exception ignore) {</span>
+			}
+<span class="nc" id="L549">		}</span>
+
+		@Override
+		public void setDate(Date date) {
+<span class="nc" id="L553">			super.setDate(date);</span>
+<span class="nc" id="L554">			fixTimeSpinnersNotUpdatingIssue(date);</span>
+<span class="nc" id="L555">		}</span>
+
+		@Override
+		public void commitEdit() throws ParseException {
+<span class="nc" id="L559">			fixSecondsAndMillisecondsNotSettableIssue();</span>
+<span class="nc" id="L560">		}</span>
+
+		protected void fixSecondsAndMillisecondsNotSettableIssue() throws ParseException {
+<span class="nc" id="L563">			Date date = getDate();</span>
+<span class="nc bnc" id="L564" title="All 2 branches missed.">			if (date != null) {</span>
+				JSpinner timeSpinner;
+				try {
+<span class="nc" id="L567">					Field timeSpinnerField = JXDateTimePicker.class.getDeclaredField(&quot;timeSpinner&quot;);</span>
+<span class="nc" id="L568">					timeSpinnerField.setAccessible(true);</span>
+<span class="nc" id="L569">					timeSpinner = (JSpinner) timeSpinnerField.get(this);</span>
+<span class="nc" id="L570">				} catch (Exception e) {</span>
+<span class="nc" id="L571">					throw new ReflectionUIError(e);</span>
+				}
+<span class="nc" id="L573">				Date time = (Date) timeSpinner.getValue();</span>
+<span class="nc" id="L574">				GregorianCalendar timeCalendar = new GregorianCalendar();</span>
+<span class="nc" id="L575">				timeCalendar.setTime(time);</span>
+
+<span class="nc" id="L577">				GregorianCalendar calendar = new GregorianCalendar();</span>
+<span class="nc" id="L578">				calendar.setTime(date);</span>
+<span class="nc" id="L579">				calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));</span>
+<span class="nc" id="L580">				calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));</span>
+<span class="nc" id="L581">				calendar.set(Calendar.SECOND, timeCalendar.get(Calendar.SECOND));</span>
+<span class="nc" id="L582">				calendar.set(Calendar.MILLISECOND, timeCalendar.get(Calendar.MILLISECOND));</span>
+
+<span class="nc" id="L584">				Date newDate = calendar.getTime();</span>
+<span class="nc" id="L585">				setDate(newDate);</span>
+			}
+			JFormattedTextField _dateField;
+			try {
+<span class="nc" id="L589">				Field _dateFieldField = JXDatePicker.class.getDeclaredField(&quot;_dateField&quot;);</span>
+<span class="nc" id="L590">				_dateFieldField.setAccessible(true);</span>
+<span class="nc" id="L591">				_dateField = (JFormattedTextField) _dateFieldField.get(this);</span>
+<span class="nc" id="L592">			} catch (Exception e) {</span>
+<span class="nc" id="L593">				throw new ReflectionUIError(e);</span>
+			}
+			try {
+<span class="nc" id="L596">				_dateField.commitEdit();</span>
+<span class="nc" id="L597">				fireActionPerformed(COMMIT_KEY);</span>
+<span class="nc" id="L598">			} catch (ParseException e) {</span>
+<span class="nc" id="L599">				throw e;</span>
+			}
+<span class="nc" id="L601">		}</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

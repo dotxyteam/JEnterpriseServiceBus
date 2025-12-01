@@ -36,9 +36,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
@@ -59,6 +59,8 @@ import org.apache.commons.io.output.WriterOutputStream;
 import com.otk.jesb.JESB;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.activation.builtin.LaunchAtStartup;
 import com.otk.jesb.activation.builtin.Operate;
@@ -232,7 +234,7 @@ public class MiscUtils {
 	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
 	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
 
-	public static ExecutorService newExecutor(final String threadName, int minimumThreadCount) {
+	public static ThreadPoolExecutor newExecutor(final String threadName, int minimumThreadCount) {
 		ThreadPoolExecutor result = new ThreadPoolExecutor(minimumThreadCount, Integer.MAX_VALUE, 300, TimeUnit.SECONDS,
 				new SynchronousQueue<Runnable>(), new ThreadFactory() {
 					private int threadNumber = 0;
@@ -249,8 +251,8 @@ public class MiscUtils {
 		return result;
 	}
 
-	public static ScheduledThreadPoolExecutor newScheduler(final String threadName, int minimumThreadCount) {
-		ScheduledThreadPoolExecutor result = new ScheduledThreadPoolExecutor(minimumThreadCount, new ThreadFactory() {
+	public static ScheduledThreadPoolExecutor newScheduler(final String threadName, int threadCount) {
+		ScheduledThreadPoolExecutor result = new ScheduledThreadPoolExecutor(threadCount, new ThreadFactory() {
 			private int threadNumber = 0;
 
 			@Override
@@ -1346,6 +1348,18 @@ public class MiscUtils {
 				name = nextNumbreredName(name);
 			}
 			nameSetter.accept(t, name);
+		}
+	}
+
+	public static void checkVariables(List<VariableDeclaration> variableDeclarations,
+			List<Variable> variables) {
+		Set<String> actualVariableNames = variables.stream()
+				.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE).map(variable -> variable.getName())
+				.collect(Collectors.toSet());
+		Set<String> expectedVariableNames = variableDeclarations.stream()
+				.map(variableDeclaration -> variableDeclaration.getVariableName()).collect(Collectors.toSet());
+		if (!actualVariableNames.equals(expectedVariableNames)) {
+			throw new UnexpectedError();
 		}
 	}
 

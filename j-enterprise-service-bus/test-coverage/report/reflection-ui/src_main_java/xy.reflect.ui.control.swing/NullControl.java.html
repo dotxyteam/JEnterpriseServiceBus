@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>NullControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing</a> &gt; <span class="el_source">NullControl.java</span></div><h1>NullControl.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JTextArea;
+import javax.swing.border.Border;
+
+import xy.reflect.ui.control.FieldControlDataProxy;
+import xy.reflect.ui.control.FieldControlInputProxy;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.Accessor;
+
+/**
+ * Empty field control that allows to represent the null value.
+ * 
+ * @author olitank
+ *
+ */
+public class NullControl extends ControlPanel implements IAdvancedFieldControl {
+
+	protected static final long serialVersionUID = 1L;
+	protected Runnable activationAction;
+	protected IFieldControlInput input;
+	protected IFieldControlData data;
+	protected SwingRenderer swingRenderer;
+	protected TextControl labelComponent;
+
+<span class="fc" id="L42">	public NullControl(final SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L43">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L44">		this.input = input;</span>
+<span class="fc" id="L45">		this.data = input.getControlData();</span>
+<span class="fc" id="L46">		setLayout(new BorderLayout());</span>
+<span class="fc" id="L47">		add(labelComponent = createLabelComponent(), BorderLayout.CENTER);</span>
+<span class="fc" id="L48">		labelComponent.addMouseListener(new MouseAdapter() {</span>
+			@Override
+			public void mousePressed(MouseEvent e) {
+<span class="nc" id="L51">				runActivationAction();</span>
+<span class="nc" id="L52">			}</span>
+		});
+<span class="fc" id="L54">		refreshUI(true);</span>
+<span class="fc" id="L55">	}</span>
+
+	protected TextControl createLabelComponent() {
+<span class="fc" id="L58">		TextControl result = new TextControl(swingRenderer, new FieldControlInputProxy(input) {</span>
+			@Override
+			public IFieldControlData getControlData() {
+<span class="fc" id="L61">				return new FieldControlDataProxy(super.getControlData()) {</span>
+
+					@Override
+					public boolean isGetOnly() {
+<span class="fc" id="L65">						return true;</span>
+					}
+
+					@Override
+					public Object getValue() {
+<span class="fc" id="L70">						String result = base.getNullValueLabel();</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">						if (result == null) {</span>
+<span class="fc" id="L72">							result = &quot;&quot;;</span>
+						}
+<span class="fc" id="L74">						return swingRenderer.prepareMessageToDisplay(result);</span>
+					}
+
+					@Override
+					public ITypeInfo getType() {
+<span class="nc" id="L79">						return new DefaultTypeInfo(swingRenderer.getReflectionUI(),</span>
+<span class="nc" id="L80">								new JavaTypeInfoSource(String.class, null));</span>
+					}
+
+				};
+			}
+
+		}) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected JTextArea createTextComponent() {
+<span class="fc" id="L91">				final JTextArea result = new JTextArea();</span>
+<span class="fc" id="L92">				result.setEditable(false);</span>
+<span class="fc" id="L93">				result.setBorder(null);</span>
+<span class="fc" id="L94">				result.addMouseListener(new MouseAdapter() {</span>
+					@Override
+					public void mousePressed(MouseEvent e) {
+<span class="nc" id="L97">						runActivationAction();</span>
+<span class="nc" id="L98">					}</span>
+				});
+<span class="fc" id="L100">				return result;</span>
+			}
+
+			@Override
+			protected Dimension getScrollPanePreferredSize(Dimension defaultPreferredSize) {
+<span class="fc" id="L105">				return defaultPreferredSize;</span>
+			}
+		};
+<span class="fc" id="L108">		return result;</span>
+	}
+
+	protected void runActivationAction() {
+<span class="nc bnc" id="L112" title="All 2 branches missed.">		if (activationAction != null) {</span>
+			try {
+<span class="nc" id="L114">				activationAction.run();</span>
+<span class="nc" id="L115">			} catch (Throwable t) {</span>
+<span class="nc" id="L116">				swingRenderer.handleException(NullControl.this, t);</span>
+			}
+		}
+<span class="nc" id="L119">	}</span>
+
+	public Runnable getActivationAction() {
+<span class="nc" id="L122">		return activationAction;</span>
+	}
+
+	public void setActivationAction(Runnable action) {
+<span class="fc" id="L126">		this.activationAction = action;</span>
+<span class="fc" id="L127">	}</span>
+
+	@Override
+	public boolean showsCaption() {
+<span class="fc" id="L131">		return true;</span>
+	}
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L136" title="All 2 branches covered.">		if (data.getValue() != null) {</span>
+<span class="fc" id="L137">			return false;</span>
+		}
+<span class="fc bfc" id="L139" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc" id="L140">			SwingRendererUtils.showFieldCaptionOnBorder(data, this, new Accessor&lt;Border&gt;() {</span>
+				@Override
+				public Border get() {
+<span class="fc" id="L143">					return new ControlPanel().getBorder();</span>
+				}
+<span class="fc" id="L145">			}, swingRenderer);</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">			if (input.getControlData().isGetOnly()) {</span>
+<span class="fc" id="L147">				setActivationAction(null);</span>
+<span class="fc" id="L148">			} else {</span>
+<span class="fc" id="L149">				setActivationAction(new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="nc" id="L152">						Object newValue = swingRenderer.onTypeInstantiationRequest(NullControl.this, data.getType());</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">						if (newValue == null) {</span>
+<span class="nc" id="L154">							return;</span>
+						}
+<span class="nc" id="L156">						data.setValue(newValue);</span>
+<span class="nc" id="L157">					}</span>
+				});
+			}
+<span class="fc" id="L160">			labelComponent.refreshUI(true);</span>
+		}
+<span class="fc" id="L162">		return true;</span>
+	}
+
+	@Override
+	public boolean displayError(Throwable error) {
+<span class="nc" id="L167">		return false;</span>
+	}
+
+	@Override
+	public boolean isModificationStackManaged() {
+<span class="nc" id="L172">		return false;</span>
+	}
+
+	@Override
+	public boolean areValueAccessErrorsManaged() {
+<span class="fc" id="L177">		return false;</span>
+	}
+
+	@Override
+	public void validateControlData(ValidationSession session) throws Exception {
+<span class="fc" id="L182">	}</span>
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
+<span class="fc" id="L186">	}</span>
+
+	@Override
+	public boolean requestCustomFocus() {
+<span class="fc" id="L190">		return false;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

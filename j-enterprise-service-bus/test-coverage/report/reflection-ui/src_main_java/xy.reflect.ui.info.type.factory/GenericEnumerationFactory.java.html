@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>GenericEnumerationFactory.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.factory</a> &gt; <span class="el_source">GenericEnumerationFactory.java</span></div><h1>GenericEnumerationFactory.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.factory;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.ITransaction;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.method.AbstractConstructorInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.info.type.source.PrecomputedTypeInfoSource;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.util.IDerivedInstance;
+import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Factory that generates virtual enumeration type information from the
+ * specified list items (accessible via the {@link Iterable} object).
+ * 
+ * @author olitank
+ *
+ */
+public class GenericEnumerationFactory {
+
+	protected ReflectionUI reflectionUI;
+	protected Iterable&lt;?&gt; iterable;
+	protected String enumerationTypeName;
+	protected String typeCaption;
+	protected boolean dynamicEnumeration;
+	protected List&lt;Object&gt; bufferedItems;
+	protected boolean nullSupported;
+
+<span class="fc" id="L51">	public GenericEnumerationFactory(ReflectionUI reflectionUI, Iterable&lt;?&gt; iterable, String enumerationTypeName,</span>
+			String typeCaption, boolean dynamicEnumeration, boolean nullSupported) {
+<span class="fc" id="L53">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L54">		this.iterable = iterable;</span>
+<span class="fc" id="L55">		this.enumerationTypeName = enumerationTypeName;</span>
+<span class="fc" id="L56">		this.typeCaption = typeCaption;</span>
+<span class="fc" id="L57">		this.dynamicEnumeration = dynamicEnumeration;</span>
+<span class="fc" id="L58">		this.nullSupported = nullSupported;</span>
+<span class="fc" id="L59">	}</span>
+
+	public GenericEnumerationFactory(ReflectionUI reflectionUI, Object[] array, String enumerationTypeName,
+			String typeCaption) {
+<span class="nc" id="L63">		this(reflectionUI, Arrays.asList(array), enumerationTypeName, typeCaption, false,</span>
+<span class="nc" id="L64">				Arrays.asList(array).contains(null));</span>
+<span class="nc" id="L65">	}</span>
+
+	protected Map&lt;String, Object&gt; getItemSpecificProperties(Object item) {
+<span class="nc" id="L68">		return Collections.emptyMap();</span>
+	}
+
+	protected String getItemOnlineHelp(Object item) {
+<span class="fc" id="L72">		return null;</span>
+	}
+
+	protected String getItemName(Object item) {
+<span class="fc" id="L76">		return &quot;Item [value=&quot; + ReflectionUIUtils.toString(reflectionUI, item) + &quot;]&quot;;</span>
+	}
+
+	protected String getItemCaption(Object item) {
+<span class="fc" id="L80">		return ReflectionUIUtils.toString(reflectionUI, item);</span>
+	}
+
+	protected ResourcePath getItemIconImagePath(Object item) {
+<span class="fc" id="L84">		return ReflectionUIUtils.getIconImagePath(reflectionUI, item);</span>
+	}
+
+	protected List&lt;Object&gt; getOrLoadItems() {
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		if (bufferedItems == null) {</span>
+<span class="fc" id="L89">			List&lt;Object&gt; result = new ArrayList&lt;Object&gt;();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">			for (Object item : iterable) {</span>
+<span class="fc" id="L91">				result.add(item);</span>
+			}
+<span class="fc" id="L93">			bufferedItems = result;</span>
+		}
+<span class="fc" id="L95">		return bufferedItems;</span>
+	}
+
+	public void resetItemCache() {
+<span class="fc" id="L99">		bufferedItems = null;</span>
+<span class="fc" id="L100">	}</span>
+
+	public Object getItemInstance(Object item) {
+<span class="fc bfc" id="L103" title="All 2 branches covered.">		if (item == null) {</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">			if (!getOrLoadItems().contains(null)) {</span>
+<span class="fc" id="L105">				return null;</span>
+			}
+		}
+<span class="fc" id="L108">		return new PrecomputedTypeInstanceWrapper(new Instance(item), new TypeInfo());</span>
+	}
+
+	public Object getInstanceItem(Object object) {
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">		if (object == null) {</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">			if (getOrLoadItems().contains(null)) {</span>
+<span class="nc" id="L114">				throw new ReflectionUIError(</span>
+<span class="nc" id="L115">						&quot;Raw null value not supported since null is a valid item (&lt;null&gt; item instance expected instead) !&quot;);</span>
+			}
+<span class="nc" id="L117">			return null;</span>
+		}
+<span class="fc" id="L119">		Instance instance = (Instance) ((PrecomputedTypeInstanceWrapper) object).getInstance();</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">		if (!instance.getFactory().equals(this)) {</span>
+<span class="nc" id="L121">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L123">		return instance.getArrayItem();</span>
+	}
+
+	public ITypeInfoSource getInstanceTypeInfoSource(SpecificitiesIdentifier specificitiesIdentifier) {
+<span class="fc" id="L127">		return new PrecomputedTypeInstanceWrapper.TypeInfoSource(new TypeInfo()) {</span>
+			@Override
+			public SpecificitiesIdentifier getSpecificitiesIdentifier() {
+<span class="fc" id="L130">				return specificitiesIdentifier;</span>
+			}
+		};
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L137">		final int prime = 31;</span>
+<span class="fc" id="L138">		int result = 1;</span>
+<span class="fc" id="L139">		result = prime * result + iterable.hashCode();</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">		result = prime * result + ((typeCaption == null) ? 0 : typeCaption.hashCode());</span>
+<span class="fc" id="L141">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L146" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L147">			return true;</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L149">			return false;</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L151">			return false;</span>
+<span class="fc" id="L152">		GenericEnumerationFactory other = (GenericEnumerationFactory) obj;</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">		if (!iterable.equals(other.iterable))</span>
+<span class="nc" id="L154">			return false;</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">		if (typeCaption == null) {</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">			if (other.typeCaption != null)</span>
+<span class="nc" id="L157">				return false;</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">		} else if (!typeCaption.equals(other.typeCaption))</span>
+<span class="nc" id="L159">			return false;</span>
+<span class="fc" id="L160">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L165">		return &quot;GenericEnumerationFactory [enumerationTypeName=&quot; + enumerationTypeName + &quot;, typeCaption=&quot; + typeCaption</span>
+<span class="fc" id="L166">				+ &quot;]&quot;;</span>
+	}
+
+	public class Instance implements IDerivedInstance{
+		protected Object item;
+
+<span class="fc" id="L172">		public Instance(Object item) {</span>
+<span class="fc" id="L173">			this.item = item;</span>
+<span class="fc" id="L174">		}</span>
+
+		@Override
+		public Object getBaseInstance() {
+<span class="nc" id="L178">			return item;</span>
+		}
+
+		public Object getArrayItem() {
+<span class="fc" id="L182">			return item;</span>
+		}
+
+		public GenericEnumerationFactory getFactory() {
+<span class="fc" id="L186">			return GenericEnumerationFactory.this;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L191">			final int prime = 31;</span>
+<span class="fc" id="L192">			int result = 1;</span>
+<span class="fc" id="L193">			result = prime * result + getFactory().hashCode();</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">			result = prime * result + ((item == null) ? 0 : item.hashCode());</span>
+<span class="fc" id="L195">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L201">				return true;</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L203">				return false;</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L205">				return false;</span>
+<span class="fc" id="L206">			Instance other = (Instance) obj;</span>
+<span class="pc bpc" id="L207" title="1 of 2 branches missed.">			if (!getFactory().equals(other.getFactory()))</span>
+<span class="nc" id="L208">				return false;</span>
+<span class="pc bpc" id="L209" title="1 of 2 branches missed.">			if (item == null) {</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">				if (other.item != null)</span>
+<span class="nc" id="L211">					return false;</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">			} else if (!item.equals(other.item))</span>
+<span class="fc" id="L213">				return false;</span>
+<span class="fc" id="L214">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L219">			return &quot;GenericEnumerationInstance [item=&quot; + item + &quot;]&quot;;</span>
+		}
+
+	}
+
+<span class="fc" id="L224">	public class TypeInfo extends AbstractInfo implements IEnumerationTypeInfo {</span>
+
+		@Override
+		public ITypeInfo getParent() {
+<span class="nc" id="L228">			return null;</span>
+		}
+
+		@Override
+		public ITypeInfoSource getSource() {
+<span class="fc" id="L233">			return new PrecomputedTypeInfoSource(TypeInfo.this, null);</span>
+		}
+
+		@Override
+		public boolean isValidationRequired() {
+<span class="nc" id="L238">			return false;</span>
+		}
+
+		@Override
+		public ITransaction createTransaction(Object object) {
+<span class="nc" id="L243">			return null;</span>
+		}
+
+		@Override
+		public void onFormRefresh(Object object) {
+<span class="nc" id="L248">		}</span>
+
+		@Override
+		public Runnable getLastFormRefreshStateRestorationJob(Object object) {
+<span class="nc" id="L252">			return null;</span>
+		}
+
+		@Override
+		public CategoriesStyle getCategoriesStyle() {
+<span class="nc" id="L257">			return CategoriesStyle.getDefault(reflectionUI, reflectionUI.getTypeInfo(getSource()));</span>
+		}
+
+		@Override
+		public ResourcePath getFormBackgroundImagePath() {
+<span class="nc" id="L262">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBackgroundColor() {
+<span class="nc" id="L267">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormForegroundColor() {
+<span class="nc" id="L272">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBorderColor() {
+<span class="nc" id="L277">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBackgroundColor() {
+<span class="nc" id="L282">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonForegroundColor() {
+<span class="nc" id="L287">			return null;</span>
+		}
+
+		@Override
+		public ResourcePath getFormButtonBackgroundImagePath() {
+<span class="nc" id="L292">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBorderColor() {
+<span class="nc" id="L297">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesBackgroundColor() {
+<span class="nc" id="L302">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesForegroundColor() {
+<span class="nc" id="L307">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorForegroundColor() {
+<span class="nc" id="L312">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorBackgroundColor() {
+<span class="nc" id="L317">			return null;</span>
+		}
+
+		@Override
+		public int getFormPreferredWidth() {
+<span class="nc" id="L322">			return -1;</span>
+		}
+
+		@Override
+		public int getFormPreferredHeight() {
+<span class="nc" id="L327">			return -1;</span>
+		}
+
+		@Override
+		public int getFormSpacing() {
+<span class="nc" id="L332">			return ITypeInfo.DEFAULT_FORM_SPACING;</span>
+		}
+
+		@Override
+		public void onFormVisibilityChange(Object object, boolean visible) {
+<span class="nc" id="L337">		}</span>
+
+		@Override
+		public void onFormCreation(Object object, boolean beforeOrAFter) {
+<span class="nc" id="L341">		}</span>
+
+		@Override
+		public boolean canPersist() {
+<span class="nc" id="L345">			return false;</span>
+		}
+
+		@Override
+		public void save(Object object, File outputFile) {
+<span class="nc" id="L350">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public void load(Object object, File inputFile) {
+<span class="nc" id="L355">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public boolean isDynamicEnumeration() {
+<span class="fc" id="L360">			return dynamicEnumeration;</span>
+		}
+
+		@Override
+		public FieldsLayout getFieldsLayout() {
+<span class="nc" id="L365">			return FieldsLayout.VERTICAL_FLOW;</span>
+		}
+
+		@Override
+		public MethodsLayout getMethodsLayout() {
+<span class="nc" id="L370">			return MethodsLayout.HORIZONTAL_FLOW;</span>
+		}
+
+		@Override
+		public MenuModel getMenuModel() {
+<span class="fc" id="L375">			return new MenuModel();</span>
+		}
+
+		@Override
+		public ResourcePath getIconImagePath(Object object) {
+<span class="nc" id="L380">			return null;</span>
+		}
+
+		@Override
+		public boolean isPrimitive() {
+<span class="nc" id="L385">			return false;</span>
+		}
+
+		@Override
+		public boolean isImmutable() {
+<span class="fc" id="L390">			return true;</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L395">			return Collections.emptyMap();</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="nc" id="L400">			return null;</span>
+		}
+
+		@Override
+		public String getName() {
+<span class="fc" id="L405">			return enumerationTypeName;</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="nc" id="L410">			return typeCaption;</span>
+		}
+
+		@Override
+		public boolean isConcrete() {
+<span class="fc" id="L415">			return true;</span>
+		}
+
+		@Override
+		public boolean isModificationStackAccessible() {
+<span class="nc" id="L420">			return false;</span>
+		}
+
+		@Override
+		public List&lt;ITypeInfo&gt; getPolymorphicInstanceSubTypes() {
+<span class="nc" id="L425">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public boolean isPolymorphicInstanceAbstractTypeOptionAllowed() {
+<span class="fc" id="L430">			return false;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getMethods() {
+<span class="fc" id="L435">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public List&lt;IFieldInfo&gt; getFields() {
+<span class="fc" id="L440">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getConstructors() {
+<span class="fc" id="L445">			final List&lt;Object&gt; items = getOrLoadItems();</span>
+<span class="pc bpc" id="L446" title="1 of 2 branches missed.">			if (items.size() == 0) {</span>
+<span class="nc" id="L447">				return Collections.emptyList();</span>
+			} else {
+<span class="fc" id="L449">				return Collections.&lt;IMethodInfo&gt;singletonList(new AbstractConstructorInfo() {</span>
+
+					@Override
+					public ITypeInfo getReturnValueType() {
+<span class="fc" id="L453">						return reflectionUI.getTypeInfo(TypeInfo.this.getSource());</span>
+					}
+
+					@Override
+					public Object invoke(Object ignore, InvocationData invocationData) {
+<span class="nc" id="L458">						return new Instance(items.get(0));</span>
+					}
+
+					@Override
+					public List&lt;IParameterInfo&gt; getParameters() {
+<span class="fc" id="L463">						return Collections.emptyList();</span>
+					}
+				});
+			}
+		}
+
+		@Override
+		public Object[] getValues() {
+<span class="fc" id="L471">			List&lt;Object&gt; result = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L472">			resetItemCache();</span>
+<span class="fc bfc" id="L473" title="All 2 branches covered.">			for (Object item : getOrLoadItems()) {</span>
+<span class="fc" id="L474">				result.add(new Instance(item));</span>
+			}
+<span class="fc" id="L476">			return result.toArray();</span>
+		}
+
+		@Override
+		public IEnumerationItemInfo getValueInfo(final Object object) {
+<span class="fc" id="L481">			ReflectionUIUtils.checkInstance(this, object);</span>
+<span class="fc" id="L482">			Instance instance = (Instance) object;</span>
+<span class="fc" id="L483">			return new ItemInfo(instance.getArrayItem());</span>
+		}
+
+		@Override
+		public boolean supports(Object object) {
+<span class="pc bpc" id="L488" title="1 of 2 branches missed.">			if (object == null) {</span>
+<span class="nc" id="L489">				return nullSupported;</span>
+			}
+<span class="pc bpc" id="L491" title="1 of 2 branches missed.">			if (!(object instanceof Instance)) {</span>
+<span class="nc" id="L492">				return false;</span>
+			}
+<span class="fc" id="L494">			Instance instance = (Instance) object;</span>
+<span class="pc bpc" id="L495" title="1 of 2 branches missed.">			if (!instance.getFactory().equals(getFactory())) {</span>
+<span class="nc" id="L496">				return false;</span>
+			}
+<span class="fc" id="L498">			return true;</span>
+		}
+
+		@Override
+		public void validate(Object object, ValidationSession session) throws Exception {
+<span class="nc" id="L503">			ReflectionUIUtils.checkInstance(this, object);</span>
+<span class="nc" id="L504">		}</span>
+
+		@Override
+		public boolean canCopy(Object object) {
+<span class="nc" id="L508">			ReflectionUIUtils.checkInstance(this, object);</span>
+<span class="nc" id="L509">			return false;</span>
+		}
+
+		@Override
+		public Object copy(Object object) {
+<span class="nc" id="L514">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public String toString(Object object) {
+<span class="nc" id="L519">			ReflectionUIUtils.checkInstance(this, object);</span>
+<span class="nc" id="L520">			Instance instance = (Instance) object;</span>
+<span class="nc" id="L521">			return ReflectionUIUtils.toString(reflectionUI, instance.getArrayItem());</span>
+		}
+
+		public GenericEnumerationFactory getFactory() {
+<span class="fc" id="L525">			return GenericEnumerationFactory.this;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L530">			return getFactory().hashCode();</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="pc bpc" id="L535" title="1 of 2 branches missed.">			if (obj == null) {</span>
+<span class="nc" id="L536">				return false;</span>
+			}
+<span class="pc bpc" id="L538" title="1 of 2 branches missed.">			if (!getClass().equals(obj.getClass())) {</span>
+<span class="nc" id="L539">				return false;</span>
+			}
+<span class="pc bpc" id="L541" title="1 of 2 branches missed.">			if (!getFactory().equals(((TypeInfo) obj).getFactory())) {</span>
+<span class="nc" id="L542">				return false;</span>
+			}
+<span class="fc" id="L544">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L549">			return &quot;TypeInfo [of=&quot; + getFactory() + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public class ItemInfo implements IEnumerationItemInfo {
+
+		protected Object item;
+
+<span class="fc" id="L558">		public ItemInfo(Object item) {</span>
+<span class="fc" id="L559">			this.item = item;</span>
+<span class="fc" id="L560">		}</span>
+
+		public Object getValue() {
+<span class="nc" id="L563">			return item;</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L568">			return getItemSpecificProperties(item);</span>
+		}
+
+		@Override
+		public ResourcePath getIconImagePath() {
+<span class="fc" id="L573">			return getItemIconImagePath(item);</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="fc" id="L578">			return getItemOnlineHelp(item);</span>
+		}
+
+		@Override
+		public String getName() {
+<span class="fc" id="L583">			return getItemName(item);</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="fc" id="L588">			return getItemCaption(item);</span>
+		}
+
+		public GenericEnumerationFactory getFactory() {
+<span class="nc" id="L592">			return GenericEnumerationFactory.this;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L597">			return &quot;ItemInfo [of=&quot; + getFactory() + &quot;, item=&quot; + item + &quot;]&quot;;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

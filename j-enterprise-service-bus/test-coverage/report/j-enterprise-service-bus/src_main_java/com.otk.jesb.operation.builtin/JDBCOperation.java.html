@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>JDBCOperation.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">JDBCOperation.java</span></div><h1>JDBCOperation.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.sql.Connection;
+import java.sql.ParameterMetaData;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.Variant;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.Reference;
+import com.otk.jesb.Session;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.CodeBuilder;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+
+public abstract class JDBCOperation implements Operation {
+
+	protected Session session;
+	protected JDBCConnection connection;
+	protected String statement;
+	protected ParameterValues parameterValues;
+
+<span class="fc" id="L41">	public JDBCOperation(Session session, JDBCConnection connection) {</span>
+<span class="fc" id="L42">		this.session = session;</span>
+<span class="fc" id="L43">		this.connection = connection;</span>
+<span class="fc" id="L44">	}</span>
+
+	protected JDBCConnection getConnection() {
+<span class="fc" id="L47">		return connection;</span>
+	}
+
+	protected Session getSession() {
+<span class="fc" id="L51">		return session;</span>
+	}
+
+	public String getStatement() {
+<span class="nc" id="L55">		return statement;</span>
+	}
+
+	public void setStatement(String statement) {
+<span class="fc" id="L59">		this.statement = statement;</span>
+<span class="fc" id="L60">	}</span>
+
+	public ParameterValues getParameterValues() {
+<span class="fc" id="L63">		return parameterValues;</span>
+	}
+
+	public void setParameterValues(ParameterValues parameterValues) {
+<span class="fc" id="L67">		this.parameterValues = parameterValues;</span>
+<span class="fc" id="L68">	}</span>
+
+	protected PreparedStatement prepare() throws Exception {
+<span class="fc" id="L71">		Connection connectionInstance = connection.during(session);</span>
+<span class="fc" id="L72">		PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);</span>
+<span class="fc" id="L73">		ParameterMetaData parameterMetaData = preparedStatement.getParameterMetaData();</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">		if (parameterMetaData != null) {</span>
+<span class="fc" id="L75">			int expectedParameterCount = preparedStatement.getParameterMetaData().getParameterCount();</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">			if (expectedParameterCount != parameterValues.countParameters()) {</span>
+<span class="nc" id="L77">				throw new IllegalStateException(</span>
+<span class="nc" id="L78">						&quot;Unexpected defined parameter count: &quot; + parameterValues.countParameters() + &quot;. Expected &quot;</span>
+<span class="nc" id="L79">								+ expectedParameterCount + &quot; parameter(s).&quot;);</span>
+			}
+		}
+<span class="fc bfc" id="L82" title="All 2 branches covered.">		for (int i = 0; i &lt; parameterValues.countParameters(); i++) {</span>
+<span class="fc" id="L83">			preparedStatement.setObject(i + 1, parameterValues.getParameterValueByIndex(i));</span>
+		}
+<span class="fc" id="L85">		return preparedStatement;</span>
+	}
+
+<span class="fc" id="L88">	public static abstract class Builder&lt;T extends JDBCOperation&gt; implements OperationBuilder&lt;T&gt; {</span>
+
+<span class="fc" id="L90">		protected Reference&lt;JDBCConnection&gt; connectionReference = new Reference&lt;JDBCConnection&gt;(JDBCConnection.class);</span>
+<span class="fc" id="L91">		protected Variant&lt;String&gt; statementVariant = new Variant&lt;String&gt;(String.class);</span>
+<span class="fc" id="L92">		protected List&lt;ParameterDefinition&gt; parameterDefinitions = new ArrayList&lt;ParameterDefinition&gt;();</span>
+<span class="fc" id="L93">		protected boolean parameterDefinitionAutomatic = false;</span>
+
+<span class="fc" id="L95">		protected UpToDate&lt;Class&lt;? extends ParameterValues&gt;&gt; upToDateParameterValuesClass = new UpToDateParameterValuesClass();</span>
+<span class="fc" id="L96">		protected RootInstanceBuilder parameterValuesBuilder = new RootInstanceBuilder(&quot;Parameters&quot;,</span>
+<span class="fc" id="L97">				new ParameterValuesClassNameAccessor());</span>
+<span class="fc" id="L98">		protected UpToDateMetaParameterDefinitions upToDateMetaParameterDefinitions = new UpToDateMetaParameterDefinitions();</span>
+
+		public boolean isParameterDefinitionAutomatic() {
+<span class="nc" id="L101">			return parameterDefinitionAutomatic;</span>
+		}
+
+		public void setParameterDefinitionAutomatic(boolean parameterDefinitionAutomatic) {
+<span class="fc" id="L105">			this.parameterDefinitionAutomatic = parameterDefinitionAutomatic;</span>
+<span class="fc" id="L106">		}</span>
+
+		public Reference&lt;JDBCConnection&gt; getConnectionReference() {
+<span class="nc" id="L109">			return connectionReference;</span>
+		}
+
+		public void setConnectionReference(Reference&lt;JDBCConnection&gt; connectionReference) {
+<span class="fc" id="L113">			this.connectionReference = connectionReference;</span>
+<span class="fc" id="L114">		}</span>
+
+		public Variant&lt;String&gt; getStatementVariant() {
+<span class="fc" id="L117">			return statementVariant;</span>
+		}
+
+		public void setStatementVariant(Variant&lt;String&gt; statementVariant) {
+<span class="fc" id="L121">			this.statementVariant = statementVariant;</span>
+<span class="fc" id="L122">		}</span>
+
+		protected List&lt;ParameterDefinition&gt; computeParameterDefinitions() {
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">			if (parameterDefinitionAutomatic) {</span>
+				try {
+<span class="nc" id="L127">					return upToDateMetaParameterDefinitions.get();</span>
+<span class="nc" id="L128">				} catch (VersionAccessException e) {</span>
+<span class="nc" id="L129">					throw new PotentialError(e);</span>
+				}
+			} else {
+<span class="fc" id="L132">				return parameterDefinitions;</span>
+			}
+		}
+
+		public List&lt;ParameterDefinition&gt; getParameterDefinitions() {
+<span class="nc" id="L137">			return parameterDefinitions;</span>
+		}
+
+		public void setParameterDefinitions(List&lt;ParameterDefinition&gt; parameterDefinitions) {
+<span class="fc" id="L141">			this.parameterDefinitions = parameterDefinitions;</span>
+<span class="fc" id="L142">		}</span>
+
+		public RootInstanceBuilder getParameterValuesBuilder() {
+<span class="fc" id="L145">			return parameterValuesBuilder;</span>
+		}
+
+		public void setParameterValuesBuilder(RootInstanceBuilder parameterValuesBuilder) {
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">			if (parameterValuesBuilder == null) {</span>
+<span class="nc" id="L150">				throw new UnexpectedError();</span>
+			}
+<span class="fc" id="L152">			this.parameterValuesBuilder = parameterValuesBuilder;</span>
+<span class="fc" id="L153">		}</span>
+
+		protected JDBCConnection getConnection() {
+<span class="fc" id="L156">			return connectionReference.resolve();</span>
+		}
+
+		public void retrieveParameterDefinitions() {
+			try {
+<span class="nc" id="L161">				this.parameterDefinitions = upToDateMetaParameterDefinitions.get();</span>
+<span class="nc" id="L162">			} catch (VersionAccessException e) {</span>
+<span class="nc" id="L163">				throw new PotentialError(e);</span>
+			}
+<span class="nc" id="L165">		}</span>
+
+		protected List&lt;ParameterDefinition&gt; obtainMetaParameterDefinitions() throws Exception {
+<span class="fc" id="L168">			String statement = getStatementVariant().getValue();</span>
+<span class="pc bpc" id="L169" title="2 of 4 branches missed.">			if ((statement == null) || statement.trim().isEmpty()) {</span>
+<span class="nc" id="L170">				return null;</span>
+			}
+<span class="fc" id="L172">			JDBCConnection connection = getConnection();</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">			if (connection == null) {</span>
+<span class="nc" id="L174">				return null;</span>
+			}
+<span class="fc" id="L176">			return connection.during(connectionInstance -&gt; {</span>
+				try {
+<span class="fc" id="L178">					PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);</span>
+<span class="fc" id="L179">					ParameterMetaData parameterMetaData = preparedStatement.getParameterMetaData();</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">					if (parameterMetaData == null) {</span>
+<span class="nc" id="L181">						throw new SQLException(&quot;No SQL statement parameter meta data found&quot;);</span>
+					}
+<span class="fc" id="L183">					List&lt;ParameterDefinition&gt; result = new ArrayList&lt;JDBCOperation.ParameterDefinition&gt;();</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">					for (int i = 0; i &lt; parameterMetaData.getParameterCount(); i++) {</span>
+<span class="fc" id="L185">						ParameterDefinition parameterDefinition = new ParameterDefinition();</span>
+<span class="fc" id="L186">						String parameterTypeName = parameterMetaData.getParameterClassName(i + 1);</span>
+<span class="fc" id="L187">						String parameterName = MiscUtils.extractSimpleNameFromClassName(parameterTypeName);</span>
+<span class="fc" id="L188">						parameterName = parameterName.substring(0, 1).toLowerCase() + parameterName.substring(1);</span>
+<span class="fc" id="L189">						parameterDefinition.setParameterName(parameterName);</span>
+<span class="fc" id="L190">						parameterDefinition.setParameterTypeName(parameterTypeName);</span>
+<span class="fc" id="L191">						result.add(parameterDefinition);</span>
+					}
+<span class="fc" id="L193">					MiscUtils.makeNumberedNamesUnique(result, ParameterDefinition::getParameterName,</span>
+<span class="fc" id="L194">							ParameterDefinition::setParameterName);</span>
+<span class="fc" id="L195">					return result;</span>
+<span class="nc" id="L196">				} catch (SQLException e) {</span>
+<span class="nc" id="L197">					throw new PotentialError(e);</span>
+				}
+			});
+		}
+
+		protected ParameterValues buildParameterValues(ExecutionContext context) throws Exception {
+<span class="fc" id="L203">			return (ParameterValues) getParameterValuesBuilder().build(new InstantiationContext(context.getVariables(),</span>
+<span class="fc" id="L204">					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="fc" id="L209">			JDBCConnection connection = getConnection();</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">			if (connection == null) {</span>
+<span class="nc" id="L211">				throw new ValidationError(&quot;Failed to resolve the connection reference&quot;);</span>
+			}
+<span class="fc" id="L213">			String statement = getStatementVariant().getValue();</span>
+<span class="pc bpc" id="L214" title="2 of 4 branches missed.">			if ((statement == null) || statement.trim().isEmpty()) {</span>
+<span class="nc" id="L215">				throw new ValidationError(&quot;Statement not provided&quot;);</span>
+			}
+			try {
+<span class="fc" id="L218">				connection.during(connectionInstance -&gt; {</span>
+					try {
+<span class="fc" id="L220">						return connectionInstance.prepareStatement(statement);</span>
+<span class="nc" id="L221">					} catch (SQLException e) {</span>
+<span class="nc" id="L222">						throw new PotentialError(e);</span>
+					}
+				});
+<span class="pc" id="L225">			} catch (Exception e) {</span>
+<span class="nc" id="L226">				throw new ValidationError(e.getMessage(), e);</span>
+			}
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="fc" id="L229">				validateParameterDefinitions();</span>
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">				if (parameterValuesBuilder != null) {</span>
+					try {
+<span class="fc" id="L232">						parameterValuesBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L233">								plan.getValidationContext(step).getVariableDeclarations());</span>
+<span class="pc" id="L234">					} catch (ValidationError e) {</span>
+<span class="nc" id="L235">						throw new ValidationError(&quot;Failed to validate the parameter values builder&quot;, e);</span>
+					}
+				}
+			}
+<span class="fc" id="L239">		}</span>
+
+		public void validateParameterDefinitions() throws ValidationError {
+			List&lt;ParameterDefinition&gt; parameterDefinitions;
+			try {
+<span class="fc" id="L244">				parameterDefinitions = computeParameterDefinitions();</span>
+<span class="pc" id="L245">			} catch (Throwable t) {</span>
+<span class="nc" id="L246">				throw new ValidationError(&quot;Failed to get parameter definitions&quot;, t);</span>
+			}
+<span class="pc bpc" id="L248" title="1 of 2 branches missed.">			if (parameterDefinitions != null) {</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">				if (!parameterDefinitionAutomatic) {</span>
+					List&lt;ParameterDefinition&gt; metaParameterDefinitions;
+					try {
+<span class="fc" id="L252">						metaParameterDefinitions = upToDateMetaParameterDefinitions.get();</span>
+<span class="pc" id="L253">					} catch (VersionAccessException e) {</span>
+<span class="nc" id="L254">						metaParameterDefinitions = null;</span>
+					}
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">					if (metaParameterDefinitions != null) {</span>
+<span class="fc" id="L257">						List&lt;String&gt; metaParameterTypeNames = metaParameterDefinitions.stream()</span>
+<span class="fc" id="L258">								.map(ParameterDefinition::getParameterTypeName).collect(Collectors.toList());</span>
+<span class="fc" id="L259">						List&lt;String&gt; parameterTypeNames = parameterDefinitions.stream()</span>
+<span class="fc" id="L260">								.map(ParameterDefinition::getParameterTypeName).collect(Collectors.toList());</span>
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">						if (!metaParameterTypeNames.equals(parameterTypeNames)) {</span>
+<span class="nc" id="L262">							throw new ValidationError(&quot;Parameter types are not valid. Unexpected: &quot; + parameterTypeNames</span>
+<span class="nc" id="L263">									+ &quot;. Expected: &quot; + metaParameterTypeNames);</span>
+						}
+					}
+				}
+			}
+<span class="fc" id="L268">			List&lt;String&gt; parameterNames = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">			for (ParameterDefinition parameterDefinition : parameterDefinitions) {</span>
+<span class="pc bpc" id="L270" title="1 of 2 branches missed.">				if (parameterNames.contains(parameterDefinition.getParameterName())) {</span>
+<span class="nc" id="L271">					throw new ValidationError(</span>
+<span class="nc" id="L272">							&quot;Duplicate parameter name detected: '&quot; + parameterDefinition.getParameterName() + &quot;'&quot;);</span>
+				} else {
+<span class="fc" id="L274">					parameterNames.add(parameterDefinition.getParameterName());</span>
+				}
+				try {
+<span class="fc" id="L277">					parameterDefinition.validate();</span>
+<span class="pc" id="L278">				} catch (ValidationError e) {</span>
+<span class="nc" id="L279">					throw new ValidationError(</span>
+<span class="nc" id="L280">							&quot;Failed to validate the parameter '&quot; + parameterDefinition.getParameterName() + &quot;'&quot;, e);</span>
+				}
+			}
+
+<span class="fc" id="L284">		}</span>
+
+<span class="fc" id="L286">		private class ParameterValuesClassNameAccessor extends Accessor&lt;String&gt; {</span>
+			@Override
+			public String get() {
+				try {
+<span class="fc" id="L290">					Class&lt;? extends ParameterValues&gt; parameterValuesClass = upToDateParameterValuesClass.get();</span>
+<span class="pc bpc" id="L291" title="1 of 2 branches missed.">					if (parameterValuesClass == null) {</span>
+<span class="nc" id="L292">						return null;</span>
+					}
+<span class="fc" id="L294">					return parameterValuesClass.getName();</span>
+<span class="nc" id="L295">				} catch (VersionAccessException e) {</span>
+<span class="nc" id="L296">					throw new PotentialError(e);</span>
+				}
+			}
+		}
+
+<span class="fc" id="L301">		private class UpToDateMetaParameterDefinitions extends UpToDate&lt;List&lt;ParameterDefinition&gt;&gt; {</span>
+
+			@Override
+			protected Object retrieveLastVersionIdentifier() {
+<span class="fc" id="L305">				JDBCConnection connection = getConnection();</span>
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">				return new Pair&lt;String, String&gt;((connection != null) ? MiscUtils.serialize(connection) : null,</span>
+<span class="fc" id="L307">						getStatementVariant().getValue());</span>
+			}
+
+			@Override
+			protected List&lt;ParameterDefinition&gt; obtainLatest(Object versionIdentifier) throws VersionAccessException {
+				try {
+<span class="fc" id="L313">					return obtainMetaParameterDefinitions();</span>
+<span class="nc" id="L314">				} catch (Exception e) {</span>
+<span class="nc" id="L315">					throw new VersionAccessException(e);</span>
+				}
+			}
+
+		}
+
+<span class="fc" id="L321">		private class UpToDateParameterValuesClass extends UpToDate&lt;Class&lt;? extends ParameterValues&gt;&gt; {</span>
+			@Override
+			protected Object retrieveLastVersionIdentifier() {
+<span class="fc" id="L324">				return MiscUtils.serialize(computeParameterDefinitions());</span>
+			}
+
+			@SuppressWarnings(&quot;unchecked&quot;)
+			@Override
+			protected Class&lt;? extends ParameterValues&gt; obtainLatest(Object versionIdentifier) {
+<span class="fc" id="L330">				List&lt;ParameterDefinition&gt; parameterDefinitions = computeParameterDefinitions();</span>
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">				if (parameterDefinitions == null) {</span>
+<span class="nc" id="L332">					return null;</span>
+				}
+<span class="fc" id="L334">				String className = JDBCQuery.class.getName() + &quot;ParameterValues&quot;</span>
+<span class="fc" id="L335">						+ MiscUtils.toDigitalUniqueIdentifier(this);</span>
+<span class="fc" id="L336">				CodeBuilder javaSource = new CodeBuilder();</span>
+<span class="fc" id="L337">				javaSource.append(&quot;package &quot; + MiscUtils.extractPackageNameFromClassName(className) + &quot;;&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L338">				javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L339">				javaSource.append(&quot;public class &quot; + MiscUtils.extractSimpleNameFromClassName(className) + &quot; implements &quot;</span>
+<span class="fc" id="L340">						+ MiscUtils.adaptClassNameToSourceCode(ParameterValues.class.getName()) + &quot;{&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L341">				javaSource.indenting(() -&gt; {</span>
+<span class="fc" id="L342">					javaSource.append(&quot;\n&quot;);</span>
+<span class="fc bfc" id="L343" title="All 2 branches covered.">					for (int i = 0; i &lt; parameterDefinitions.size(); i++) {</span>
+<span class="fc" id="L344">						ParameterDefinition parameterDefinition = parameterDefinitions.get(i);</span>
+<span class="fc" id="L345">						javaSource.append(&quot;private &quot; + parameterDefinition.getParameterTypeName() + &quot; &quot;</span>
+<span class="fc" id="L346">								+ parameterDefinition.getParameterName() + &quot;;\n&quot;);</span>
+					}
+<span class="fc" id="L348">					List&lt;String&gt; constructorParameterDeclarations = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L349" title="All 2 branches covered.">					for (int i = 0; i &lt; parameterDefinitions.size(); i++) {</span>
+<span class="fc" id="L350">						ParameterDefinition parameterDefinition = parameterDefinitions.get(i);</span>
+<span class="fc" id="L351">						constructorParameterDeclarations.add(parameterDefinition.getParameterTypeName() + &quot; &quot;</span>
+<span class="fc" id="L352">								+ parameterDefinition.getParameterName());</span>
+					}
+<span class="fc" id="L354">					javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L355">					javaSource.append(&quot;public &quot; + MiscUtils.extractSimpleNameFromClassName(className) + &quot;(&quot;</span>
+<span class="fc" id="L356">							+ MiscUtils.stringJoin(constructorParameterDeclarations, &quot;, &quot;) + &quot;){&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L357">					javaSource.indenting(() -&gt; {</span>
+<span class="fc bfc" id="L358" title="All 2 branches covered.">						for (int i = 0; i &lt; parameterDefinitions.size(); i++) {</span>
+<span class="fc" id="L359">							ParameterDefinition parameterDefinition = parameterDefinitions.get(i);</span>
+<span class="fc" id="L360">							javaSource.append(&quot;this.&quot; + parameterDefinition.getParameterName() + &quot; = &quot;</span>
+<span class="fc" id="L361">									+ parameterDefinition.getParameterName() + &quot;;\n&quot;);</span>
+						}
+<span class="fc" id="L363">					});</span>
+<span class="fc" id="L364">					javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L365">					javaSource.append(&quot;\n&quot;);</span>
+					{
+<span class="fc" id="L367">						javaSource.append(&quot;@Override&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L368">						javaSource.append(&quot;public Object getParameterValueByIndex(int i) {&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L369">						javaSource.indenting(() -&gt; {</span>
+<span class="fc bfc" id="L370" title="All 2 branches covered.">							for (int i = 0; i &lt; parameterDefinitions.size(); i++) {</span>
+<span class="fc" id="L371">								ParameterDefinition parameterDefinition = parameterDefinitions.get(i);</span>
+<span class="fc" id="L372">								javaSource.append(&quot;if(i == &quot; + i + &quot;) return &quot; + parameterDefinition.getParameterName()</span>
+<span class="fc" id="L373">										+ &quot;;&quot; + &quot;\n&quot;);</span>
+							}
+<span class="fc" id="L375">							javaSource.append(&quot;throw new &quot; + UnexpectedError.class.getName() + &quot;();&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L376">						});</span>
+<span class="fc" id="L377">						javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+					}
+<span class="fc" id="L379">					javaSource.append(&quot;\n&quot;);</span>
+					{
+<span class="fc" id="L381">						javaSource.append(&quot;@Override&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L382">						javaSource.append(&quot;public int countParameters() {&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L383">						javaSource.appendIndented(&quot;return &quot; + parameterDefinitions.size() + &quot;;&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L384">						javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+					}
+<span class="fc bfc" id="L386" title="All 2 branches covered.">					for (int i = 0; i &lt; parameterDefinitions.size(); i++) {</span>
+<span class="fc" id="L387">						ParameterDefinition parameterDefinition = parameterDefinitions.get(i);</span>
+<span class="fc" id="L388">						javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L389">						javaSource.append(&quot;public &quot; + parameterDefinition.getParameterTypeName() + &quot; get&quot;</span>
+<span class="fc" id="L390">								+ parameterDefinition.getParameterName().substring(0, 1).toUpperCase()</span>
+<span class="fc" id="L391">								+ parameterDefinition.getParameterName().substring(1) + &quot;() {&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L392">						javaSource.appendIndented(&quot;return &quot; + parameterDefinition.getParameterName() + &quot;;&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L393">						javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+					}
+<span class="fc" id="L395">				});</span>
+<span class="fc" id="L396">				javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L397">				javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+				try {
+<span class="fc" id="L399">					return (Class&lt;? extends ParameterValues&gt;) MiscUtils.IN_MEMORY_COMPILER.compile(className,</span>
+<span class="fc" id="L400">							javaSource.toString());</span>
+<span class="nc" id="L401">				} catch (CompilationError e) {</span>
+<span class="nc" id="L402">					throw new UnexpectedError(e);</span>
+				}
+			}
+		}
+	}
+
+<span class="fc" id="L408">	public static class ParameterDefinition {</span>
+
+		private String parameterName;
+<span class="fc" id="L411">		private String parameterTypeName = getParameterTypeNameOptions().get(0);</span>
+
+		public String getParameterName() {
+<span class="fc" id="L414">			return parameterName;</span>
+		}
+
+		public void setParameterName(String parameterName) {
+<span class="fc" id="L418">			this.parameterName = parameterName;</span>
+<span class="fc" id="L419">		}</span>
+
+		public String getParameterTypeName() {
+<span class="fc" id="L422">			return parameterTypeName;</span>
+		}
+
+		public void setParameterTypeName(String parameterTypeName) {
+<span class="fc" id="L426">			this.parameterTypeName = parameterTypeName;</span>
+<span class="fc" id="L427">		}</span>
+
+		public static List&lt;String&gt; getParameterTypeNameOptions() {
+<span class="fc" id="L430">			List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L431" title="All 2 branches covered.">			for (Class&lt;?&gt; clazz : Arrays.asList(String.class, Boolean.class, Integer.class, Long.class, Float.class,</span>
+<span class="fc" id="L432">					Double.class, byte[].class, java.sql.Date.class, java.sql.Time.class, java.sql.Timestamp.class)) {</span>
+<span class="fc" id="L433">				result.add(clazz.getName());</span>
+			}
+<span class="fc" id="L435">			return result;</span>
+		}
+
+		public void validate() throws ValidationError {
+<span class="pc bpc" id="L439" title="1 of 2 branches missed.">			if (parameterName == null) {</span>
+<span class="nc" id="L440">				throw new ValidationError(&quot;The parameter name is not provided&quot;);</span>
+			}
+<span class="pc bpc" id="L442" title="1 of 2 branches missed.">			if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(parameterName).matches()) {</span>
+<span class="nc" id="L443">				throw new ValidationError(&quot;Invalid parameter name: '&quot; + parameterName</span>
+<span class="nc" id="L444">						+ &quot;' (should match the following regular expression: &quot;</span>
+<span class="nc" id="L445">						+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + &quot;)&quot;);</span>
+			}
+<span class="pc bpc" id="L447" title="1 of 2 branches missed.">			if (!getParameterTypeNameOptions().contains(parameterTypeName)) {</span>
+<span class="nc" id="L448">				throw new ValidationError(&quot;Illegal parameter type name: '&quot; + parameterTypeName + &quot;': Expected one of &quot;</span>
+<span class="nc" id="L449">						+ getParameterTypeNameOptions());</span>
+			}
+<span class="fc" id="L451">		}</span>
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L455">			final int prime = 31;</span>
+<span class="nc" id="L456">			int result = 1;</span>
+<span class="nc bnc" id="L457" title="All 2 branches missed.">			result = prime * result + ((parameterName == null) ? 0 : parameterName.hashCode());</span>
+<span class="nc bnc" id="L458" title="All 2 branches missed.">			result = prime * result + ((parameterTypeName == null) ? 0 : parameterTypeName.hashCode());</span>
+<span class="nc" id="L459">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L464" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L465">				return true;</span>
+<span class="nc bnc" id="L466" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L467">				return false;</span>
+<span class="nc bnc" id="L468" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L469">				return false;</span>
+<span class="nc" id="L470">			ParameterDefinition other = (ParameterDefinition) obj;</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">			if (parameterName == null) {</span>
+<span class="nc bnc" id="L472" title="All 2 branches missed.">				if (other.parameterName != null)</span>
+<span class="nc" id="L473">					return false;</span>
+<span class="nc bnc" id="L474" title="All 2 branches missed.">			} else if (!parameterName.equals(other.parameterName))</span>
+<span class="nc" id="L475">				return false;</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">			if (parameterTypeName == null) {</span>
+<span class="nc bnc" id="L477" title="All 2 branches missed.">				if (other.parameterTypeName != null)</span>
+<span class="nc" id="L478">					return false;</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">			} else if (!parameterTypeName.equals(other.parameterTypeName))</span>
+<span class="nc" id="L480">				return false;</span>
+<span class="nc" id="L481">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L486">			return &quot;ParameterDefinition [parameterName=&quot; + parameterName + &quot;, parameterTypeName=&quot; + parameterTypeName</span>
+<span class="nc" id="L487">					+ &quot;]&quot;;</span>
+		}
+
+	}
+
+	public static interface ParameterValues {
+		public Object getParameterValueByIndex(int i);
+
+		public int countParameters();
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

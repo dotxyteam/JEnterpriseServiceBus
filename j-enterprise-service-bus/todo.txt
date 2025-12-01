@@ -27,6 +27,8 @@
 	implement the final solution. It's also essential have a branch dedicated to 
 	maintaining at least the latest	stable version, in order to include bug fixes 
 	discovered during the feature addition process.
+- missing LoopCompositeStep documentation
+- Runner plan executors and step crossings will remain and fill the memory
 - allow to use the JESB API to access the current execution context and perform some actions
 - add ExecutePlan.fork option ???
 - add an ExecutePlan option to dynamically select the target plan
@@ -71,6 +73,7 @@
 - allow to view APIs (SOAP/REST) documentation URL in the GUI ???
 (can already be seen in the logs)
 - add other built-in activities (jms, data format, ...)
+- cloud compatibility
 - add JDBC connection/operation timeout options
 - rename JDBC* operations to DB* or Database* or SQL* ???
 - allow to ignore errors ???

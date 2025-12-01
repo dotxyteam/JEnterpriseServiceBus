@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CopyFileOrDirectory.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">CopyFileOrDirectory.java</span></div><h1>CopyFileOrDirectory.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Step;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public class CopyFileOrDirectory extends MoveFileOrDirectory {
+
+	public CopyFileOrDirectory(String sourcePath, String targetPath) {
+<span class="fc" id="L22">		super(sourcePath, targetPath);</span>
+<span class="fc" id="L23">	}</span>
+
+	@Override
+	protected void delete(Path path) throws IOException {
+<span class="nc" id="L27">	}</span>
+
+	@Override
+	protected void move(Path source, Path target, StandardCopyOption... options) throws IOException {
+<span class="fc" id="L31">		super.copy(source, target, options);</span>
+<span class="fc" id="L32">	}</span>
+
+<span class="fc" id="L34">	public static class Builder implements OperationBuilder&lt;CopyFileOrDirectory&gt; {</span>
+
+<span class="fc" id="L36">		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(</span>
+<span class="fc" id="L37">				CopyFileOrDirectory.class.getSimpleName() + &quot;Input&quot;, CopyFileOrDirectory.class.getName());</span>
+
+		public RootInstanceBuilder getInstanceBuilder() {
+<span class="nc" id="L40">			return instanceBuilder;</span>
+		}
+
+		public void setInstanceBuilder(RootInstanceBuilder instanceBuilder) {
+<span class="fc" id="L44">			this.instanceBuilder = instanceBuilder;</span>
+<span class="fc" id="L45">		}</span>
+
+		@Override
+		public CopyFileOrDirectory build(ExecutionContext context, ExecutionInspector executionInspector)
+				throws Exception {
+<span class="fc" id="L50">			return (CopyFileOrDirectory) instanceBuilder.build(new InstantiationContext(context.getVariables(),</span>
+<span class="fc" id="L51">					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="fc" id="L56">			return null;</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">				if (instanceBuilder != null) {</span>
+					try {
+<span class="fc" id="L64">						instanceBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L65">								plan.getValidationContext(step).getVariableDeclarations());</span>
+<span class="pc" id="L66">					} catch (ValidationError e) {</span>
+<span class="nc" id="L67">						throw new ValidationError(&quot;Failed to validate the input builder&quot;, e);</span>
+					}
+				}
+			}
+<span class="fc" id="L71">		}</span>
+
+	}
+
+<span class="fc" id="L75">	public static class Metadata implements OperationMetadata&lt;CopyFileOrDirectory&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L79">			return &quot;Copy File/Directory&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L84">			return &quot;File System&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;CopyFileOrDirectory&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L89">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L94">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L95">					.specifyClassPathResourceLocation(CopyFileOrDirectory.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

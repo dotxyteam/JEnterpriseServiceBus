@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CheckBoxControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing</a> &gt; <span class="el_source">CheckBoxControl.java</span></div><h1>CheckBoxControl.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing;
+
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JCheckBox;
+
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Field control that displays a check box. Compatible with booleans.
+ * 
+ * @author olitank
+ *
+ */
+public class CheckBoxControl extends JCheckBox implements IAdvancedFieldControl {
+
+	protected static final long serialVersionUID = 1L;
+
+	protected SwingRenderer swingRenderer;
+	protected IFieldControlInput input;
+	protected IFieldControlData data;
+
+<span class="fc" id="L33">	public CheckBoxControl(final SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L34">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L35">		this.input = input;</span>
+<span class="fc" id="L36">		this.data = input.getControlData();</span>
+<span class="fc" id="L37">		addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+<span class="fc" id="L41">					data.setValue(isSelected());</span>
+<span class="pc" id="L42">				} catch (Throwable t) {</span>
+<span class="nc" id="L43">					swingRenderer.handleException(CheckBoxControl.this, t);</span>
+				}
+<span class="fc" id="L45">			}</span>
+		});
+<span class="fc" id="L47">		refreshUI(true);</span>
+<span class="fc" id="L48">	}</span>
+
+	@Override
+	public boolean showsCaption() {
+<span class="fc" id="L52">		return true;</span>
+	}
+
+	@Override
+	public boolean displayError(Throwable error) {
+<span class="nc" id="L57">		return false;</span>
+	}
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L62" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc" id="L63">			setText(swingRenderer.prepareMessageToDisplay(data.getCaption()));</span>
+<span class="fc" id="L64">			setOpaque(false);</span>
+<span class="fc" id="L65">			setForeground(SwingRendererUtils.getColor(data.getLabelForegroundColor()));</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">			if (data.getLabelCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L67">				setFont(SwingRendererUtils</span>
+<span class="nc" id="L68">						.loadFontThroughCache(data.getLabelCustomFontResourcePath(),</span>
+<span class="nc" id="L69">								ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()), swingRenderer)</span>
+<span class="nc" id="L70">						.deriveFont(getFont().getStyle(), getFont().getSize()));</span>
+<span class="nc" id="L71">			} else {</span>
+<span class="fc" id="L72">				setFont(new JCheckBox().getFont());</span>
+			}
+<span class="fc bfc" id="L74" title="All 2 branches covered.">			setEnabled(!data.isGetOnly());</span>
+<span class="fc" id="L75">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+		}
+<span class="fc" id="L77">		setSelected(Boolean.TRUE.equals(data.getValue()));</span>
+<span class="fc" id="L78">		return true;</span>
+	}
+
+	@Override
+	public boolean isModificationStackManaged() {
+<span class="fc" id="L83">		return false;</span>
+	}
+
+	@Override
+	public boolean areValueAccessErrorsManaged() {
+<span class="fc" id="L88">		return false;</span>
+	}
+
+	@Override
+	public boolean requestCustomFocus() {
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		if (data.isGetOnly()) {</span>
+<span class="nc" id="L94">			return false;</span>
+		}
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">		for (Component c : getComponents()) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">			if (SwingRendererUtils.requestAnyComponentFocus(c, swingRenderer)) {</span>
+<span class="nc" id="L98">				return true;</span>
+			}
+		}
+<span class="fc" id="L101">		return false;</span>
+
+	}
+
+	@Override
+	public void validateControlData(ValidationSession session) throws Exception {
+<span class="nc" id="L107">	}</span>
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
+<span class="fc" id="L111">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

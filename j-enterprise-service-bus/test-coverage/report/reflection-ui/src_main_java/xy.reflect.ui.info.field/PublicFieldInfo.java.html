@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>PublicFieldInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.field</a> &gt; <span class="el_source">PublicFieldInfo.java</span></div><h1>PublicFieldInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.field;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Field information extracted from a Java field.
+ * 
+ * Note that a unique suffix may be added to the field name to avoid collisions
+ * when there are multiple fields with the same name accessible from the same
+ * class.
+ * 
+ * @author olitank
+ *
+ */
+public class PublicFieldInfo extends AbstractInfo implements IFieldInfo {
+
+	protected Field javaField;
+	protected ReflectionUI reflectionUI;
+	protected Class&lt;?&gt; objectJavaClass;
+<span class="fc" id="L38">	protected int duplicateNameIndex = -1;</span>
+	protected String name;
+	protected String caption;
+
+<span class="fc" id="L42">	public PublicFieldInfo(ReflectionUI reflectionUI, Field field, Class&lt;?&gt; objectJavaClass) {</span>
+<span class="fc" id="L43">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L44">		this.javaField = field;</span>
+<span class="fc" id="L45">		this.objectJavaClass = objectJavaClass;</span>
+<span class="fc" id="L46">		resolveJavaReflectionModelAccessProblems();</span>
+<span class="fc" id="L47">	}</span>
+
+	protected void resolveJavaReflectionModelAccessProblems() {
+		try {
+<span class="fc" id="L51">			javaField.setAccessible(true);</span>
+<span class="pc" id="L52">		} catch (Throwable t) {</span>
+<span class="nc" id="L53">			reflectionUI.logDebug(t);</span>
+		}
+<span class="fc" id="L55">	}</span>
+
+	public Field getJavaField() {
+<span class="fc" id="L58">		return javaField;</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc bfc" id="L63" title="All 2 branches covered.">		if (name == null) {</span>
+<span class="fc" id="L64">			name = javaField.getName();</span>
+<span class="fc" id="L65">			int index = getDuplicateNameIndex(javaField);</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">			if (index &gt; 0) {</span>
+<span class="nc" id="L67">				name += &quot;.&quot; + Integer.toString(index);</span>
+			}
+		}
+<span class="fc" id="L70">		return name;</span>
+	}
+
+	protected int getDuplicateNameIndex(Field javaField) {
+<span class="fc bfc" id="L74" title="All 2 branches covered.">		if (duplicateNameIndex == -1) {</span>
+<span class="fc" id="L75">			duplicateNameIndex = 0;</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">			for (Field otherField : javaField.getDeclaringClass().getFields()) {</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">				if (otherField.getName().equals(javaField.getName())) {</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">					if (!otherField.equals(javaField)) {</span>
+						// other field with same name forcibly declared in base class
+<span class="fc" id="L80">						duplicateNameIndex += 1;</span>
+					}
+				}
+			}
+		}
+<span class="fc" id="L85">		return duplicateNameIndex;</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">		if (caption == null) {</span>
+<span class="fc" id="L91">			caption = ReflectionUIUtils.identifierToCaption(javaField.getName());</span>
+<span class="fc" id="L92">			int index = getDuplicateNameIndex(javaField);</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">			if (index &gt; 0) {</span>
+<span class="fc" id="L94">				caption += &quot; (&quot; + (index + 1) + &quot;)&quot;;</span>
+			}
+		}
+<span class="fc" id="L97">		return caption;</span>
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="fc" id="L102">		return false;</span>
+	}
+
+	@Override
+	public boolean isRelevant(Object object) {
+<span class="fc" id="L107">		return true;</span>
+	}
+
+	@Override
+	public double getDisplayAreaHorizontalWeight() {
+<span class="fc" id="L112">		return 1.0;</span>
+	}
+
+	@Override
+	public double getDisplayAreaVerticalWeight() {
+<span class="fc" id="L117">		return 0.0;</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaHorizontallyFilled() {
+<span class="fc" id="L122">		return true;</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaVerticallyFilled() {
+<span class="fc" id="L127">		return false;</span>
+	}
+
+	@Override
+	public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L132">	}</span>
+
+	@Override
+	public void setValue(Object object, Object value) {
+		try {
+<span class="fc" id="L137">			javaField.set(object, value);</span>
+<span class="pc" id="L138">		} catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L139">			throw new ReflectionUIError(e);</span>
+<span class="nc" id="L140">		} catch (IllegalAccessException e) {</span>
+<span class="nc" id="L141">			throw new ReflectionUIError(e);</span>
+		}
+<span class="fc" id="L143">	}</span>
+
+	@Override
+	public Runnable getNextUpdateCustomUndoJob(Object object, Object value) {
+<span class="nc" id="L147">		return null;</span>
+	}
+
+	@Override
+	public Runnable getPreviousUpdateCustomRedoJob(Object object, Object newValue) {
+<span class="nc" id="L152">		return null;</span>
+	}
+
+	@Override
+	public Object getValue(Object object) {
+		try {
+<span class="fc" id="L158">			return javaField.get(object);</span>
+<span class="nc" id="L159">		} catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L160">			throw new ReflectionUIError(e);</span>
+<span class="nc" id="L161">		} catch (IllegalAccessException e) {</span>
+<span class="nc" id="L162">			throw new ReflectionUIError(e);</span>
+		}
+	}
+
+	@Override
+	public boolean hasValueOptions(Object object) {
+<span class="fc" id="L168">		return false;</span>
+	}
+
+	@Override
+	public Object[] getValueOptions(Object object) {
+<span class="nc" id="L173">		return null;</span>
+	}
+
+	@Override
+	public ITypeInfo getType() {
+<span class="fc" id="L178">		return reflectionUI.getTypeInfo(new JavaTypeInfoSource(javaField.getType(), javaField, -1,</span>
+<span class="fc" id="L179">				new SpecificitiesIdentifier(</span>
+<span class="fc" id="L180">						new JavaTypeInfoSource(objectJavaClass, null).buildTypeInfo(reflectionUI).getName(),</span>
+<span class="fc" id="L181">						getName())));</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L186">		return null;</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="fc" id="L191">		return null;</span>
+	}
+
+	@Override
+	public String getNullValueLabel() {
+<span class="fc" id="L196">		return null;</span>
+	}
+
+	@Override
+	public boolean isNullValueDistinct() {
+<span class="fc" id="L201">		return false;</span>
+	}
+
+	@Override
+	public boolean isGetOnly() {
+<span class="fc" id="L206">		return Modifier.isFinal(javaField.getModifiers());</span>
+	}
+
+	@Override
+	public boolean isTransient() {
+<span class="nc" id="L211">		return false;</span>
+	}
+
+	@Override
+	public ValueReturnMode getValueReturnMode() {
+<span class="nc bnc" id="L216" title="All 2 branches missed.">		return javaField.getType().isPrimitive() ? ValueReturnMode.CALCULATED : ValueReturnMode.DIRECT;</span>
+	}
+
+	public static boolean isCompatibleWith(Field field) {
+<span class="fc" id="L220">		return true;</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="fc" id="L225">		return null;</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="fc" id="L230">		return null;</span>
+	}
+
+	@Override
+	public boolean isFormControlMandatory() {
+<span class="fc" id="L235">		return false;</span>
+	}
+
+	@Override
+	public boolean isFormControlEmbedded() {
+<span class="fc" id="L240">		return false;</span>
+	}
+
+	@Override
+	public IInfoFilter getFormControlFilter() {
+<span class="nc" id="L245">		return IInfoFilter.DEFAULT;</span>
+	}
+
+	@Override
+	public long getAutoUpdatePeriodMilliseconds() {
+<span class="fc" id="L250">		return -1;</span>
+	}
+
+	@Override
+	public boolean isControlValueValiditionEnabled() {
+<span class="fc" id="L255">		return false;</span>
+	}
+
+	@Override
+	public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L260">		return null;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L265">		return Collections.emptyMap();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L270">		final int prime = 31;</span>
+<span class="fc" id="L271">		int result = 1;</span>
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">		result = prime * result + ((javaField == null) ? 0 : javaField.hashCode());</span>
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">		result = prime * result + ((objectJavaClass == null) ? 0 : objectJavaClass.hashCode());</span>
+<span class="pc bpc" id="L274" title="1 of 2 branches missed.">		result = prime * result + ((reflectionUI == null) ? 0 : reflectionUI.hashCode());</span>
+<span class="fc" id="L275">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">		if (this == obj)</span>
+<span class="fc" id="L281">			return true;</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L283">			return false;</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L285">			return false;</span>
+<span class="nc" id="L286">		PublicFieldInfo other = (PublicFieldInfo) obj;</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">		if (javaField == null) {</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">			if (other.javaField != null)</span>
+<span class="nc" id="L289">				return false;</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">		} else if (!javaField.equals(other.javaField))</span>
+<span class="nc" id="L291">			return false;</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">		if (objectJavaClass == null) {</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">			if (other.objectJavaClass != null)</span>
+<span class="nc" id="L294">				return false;</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">		} else if (!objectJavaClass.equals(other.objectJavaClass))</span>
+<span class="nc" id="L296">			return false;</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">		if (reflectionUI == null) {</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">			if (other.reflectionUI != null)</span>
+<span class="nc" id="L299">				return false;</span>
+<span class="nc bnc" id="L300" title="All 2 branches missed.">		} else if (!reflectionUI.equals(other.reflectionUI))</span>
+<span class="nc" id="L301">			return false;</span>
+<span class="nc" id="L302">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L307">		return &quot;PublicFieldInfo [javaField=&quot; + javaField + &quot;, objectJavaClass=&quot; + objectJavaClass + &quot;]&quot;;</span>
+	}
+
+};
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Reference.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">Reference.java</span></div><h1>Reference.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
+import com.otk.jesb.solution.Asset;
+import com.otk.jesb.solution.Folder;
+import com.otk.jesb.solution.Solution;
+
+/**
+ * This class allows to store the access path to an {@link Asset} of a given
+ * type.
+ * 
+ * @author olitank
+ *
+ * @param &lt;T&gt; SPecific type of asset.
+ */
+public class Reference&lt;T extends Asset&gt; {
+
+	private static final String PATH_SEPARATOR = &quot; &gt; &quot;;
+
+	private String path;
+
+	private Class&lt;T&gt; assetClass;
+	private Predicate&lt;T&gt; assetFilter;
+	private Consumer&lt;String&gt; newPathValidator;
+
+<span class="fc" id="L30">	public Reference(Class&lt;T&gt; assetClass, Predicate&lt;T&gt; assetFilter, Consumer&lt;String&gt; newPathValidator) {</span>
+<span class="fc" id="L31">		this.assetClass = assetClass;</span>
+<span class="fc" id="L32">		this.assetFilter = assetFilter;</span>
+<span class="fc" id="L33">		this.newPathValidator = newPathValidator;</span>
+<span class="fc" id="L34">	}</span>
+
+	public Reference() {
+<span class="fc" id="L37">		this(null);</span>
+<span class="fc" id="L38">	}</span>
+
+	public Reference(Class&lt;T&gt; assetClass) {
+<span class="fc" id="L41">		this(assetClass, null, null);</span>
+<span class="fc" id="L42">	}</span>
+
+	public Class&lt;T&gt; getAssetClass() {
+<span class="nc" id="L45">		return assetClass;</span>
+	}
+
+	public void setAssetClass(Class&lt;T&gt; assetClass) {
+<span class="fc" id="L49">		this.assetClass = assetClass;</span>
+<span class="fc" id="L50">	}</span>
+
+	public Predicate&lt;T&gt; getAssetFilter() {
+<span class="nc" id="L53">		return assetFilter;</span>
+	}
+
+	public void setAssetFilter(Predicate&lt;T&gt; assetFilter) {
+<span class="fc" id="L57">		this.assetFilter = assetFilter;</span>
+<span class="fc" id="L58">	}</span>
+
+	public Consumer&lt;String&gt; getNewPathValidator() {
+<span class="nc" id="L61">		return newPathValidator;</span>
+	}
+
+	public void setNewPathValidator(Consumer&lt;String&gt; newPathValidator) {
+<span class="fc" id="L65">		this.newPathValidator = newPathValidator;</span>
+<span class="fc" id="L66">	}</span>
+
+	public String getPath() {
+<span class="fc" id="L69">		return path;</span>
+	}
+
+	public void setPath(String path) {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">		if (newPathValidator != null) {</span>
+<span class="nc" id="L74">			newPathValidator.accept(path);</span>
+		}
+<span class="fc" id="L76">		this.path = path;</span>
+<span class="fc" id="L77">	}</span>
+
+	public List&lt;String&gt; getPathOptions() {
+<span class="fc" id="L80">		List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">		for (Asset asset : getSolutionInstance().getContents()) {</span>
+<span class="fc" id="L82">			result.addAll(findOptionsFrom(asset, asset.getName()));</span>
+		}
+<span class="fc" id="L84">		return result;</span>
+	}
+
+	private List&lt;String&gt; findOptionsFrom(Asset asset, String assetPath) {
+<span class="fc" id="L88">		List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="pc bpc" id="L89" title="3 of 6 branches missed.">		if (assetClass.isInstance(asset) &amp;&amp; ((assetFilter == null) || assetFilter.test(assetClass.cast(asset)))) {</span>
+<span class="fc" id="L90">			result.add(assetPath);</span>
+		}
+<span class="fc bfc" id="L92" title="All 2 branches covered.">		if (asset instanceof Folder) {</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">			for (Asset childAsset : ((Folder) asset).getContents()) {</span>
+<span class="fc" id="L94">				result.addAll(findOptionsFrom(childAsset, assetPath + PATH_SEPARATOR + childAsset.getName()));</span>
+			}
+		}
+<span class="fc" id="L97">		return result;</span>
+	}
+
+	public T resolve() {
+<span class="fc bfc" id="L101" title="All 2 branches covered.">		if (path == null) {</span>
+<span class="fc" id="L102">			return null;</span>
+		}
+<span class="fc bfc" id="L104" title="All 2 branches covered.">		for (Asset asset : getSolutionInstance().getContents()) {</span>
+<span class="fc" id="L105">			T result = resolveFrom(asset, asset.getName());</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">			if (result != null) {</span>
+<span class="fc" id="L107">				return result;</span>
+			}
+		}
+<span class="fc" id="L110">		return null;</span>
+	}
+
+	protected Solution getSolutionInstance() {
+<span class="fc" id="L114">		return Solution.INSTANCE;</span>
+	}
+
+	private T resolveFrom(Asset asset, String assetPath) {
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		if (assetPath.equals(path)) {</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">			if (assetClass.isInstance(asset)) {</span>
+<span class="fc" id="L120">				return assetClass.cast(asset);</span>
+			}
+		}
+<span class="pc bpc" id="L123" title="1 of 4 branches missed.">		if (path.startsWith(assetPath + PATH_SEPARATOR) &amp;&amp; (asset instanceof Folder)) {</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">			for (Asset childAsset : ((Folder) asset).getContents()) {</span>
+<span class="fc" id="L125">				T result = resolveFrom(childAsset, assetPath + PATH_SEPARATOR + childAsset.getName());</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">				if (result != null) {</span>
+<span class="fc" id="L127">					return result;</span>
+				}
+			}
+		}
+<span class="fc" id="L131">		return null;</span>
+	}
+
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static &lt;T extends Asset&gt; Reference&lt;T&gt; get(T asset) {
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">		for (String pathOption : new Reference&lt;T&gt;((Class&lt;T&gt;) asset.getClass()).getPathOptions()) {</span>
+<span class="fc" id="L137">			Reference&lt;T&gt; candidate = new Reference&lt;T&gt;((Class&lt;T&gt;) asset.getClass());</span>
+<span class="fc" id="L138">			candidate.setPath(pathOption);</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">			if (candidate.resolve() == asset) {</span>
+<span class="fc" id="L140">				return candidate;</span>
+			}
+		}
+<span class="nc" id="L143">		return null;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MinimalListUpdater.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">MinimalListUpdater.java</span></div><h1>MinimalListUpdater.java</h1><pre class="source lang-java linenums">package xy.reflect.ui.util;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Abstract class that updates an external list with minimal
+ * insertions/removals. The list starts empty and is only updated via add/remove
+ * methods. The set of keys is stable, and shouldBePresent(key) may evolve.
+ */
+<span class="fc" id="L12">public abstract class MinimalListUpdater&lt;K&gt; {</span>
+
+	/**
+	 * Represents the currently present elements in the external list, in the same
+	 * order as keys from getKeys().
+	 */
+<span class="fc" id="L18">	protected final List&lt;K&gt; presentKeys = new ArrayList&lt;&gt;();</span>
+
+	/** Returns the full stable list of keys (always in the same order). */
+	protected abstract List&lt;K&gt; collectKeys();
+
+	/** Indicates whether the given key should be present in the external list. */
+	protected abstract boolean shouldBePresent(K key);
+
+	/** Adds the given key at the specified index in the external list. */
+	protected abstract void add(int index, K key);
+
+	/** Removes the key at the specified index from the external list. */
+	protected abstract void remove(int index);
+
+	/**
+	 * Optionally updates the given key at the specified index from the external
+	 * list.
+	 */
+	protected void refresh(K current, int index) {
+<span class="fc" id="L37">	}</span>
+
+	/**
+	 * @return the currently present elements in the external list, in the same
+	 *         order as keys from getKeys().
+	 */
+	public List&lt;K&gt; getPresentKeys() {
+<span class="fc" id="L44">		return Collections.unmodifiableList(presentKeys);</span>
+	}
+
+	/**
+	 * Updates the external list by inserting or removing only what is necessary,
+	 * maintaining the order of getKeys(), and minimizing disruptions.
+	 */
+	public void update() {
+<span class="fc" id="L52">		List&lt;K&gt; allKeys = collectKeys();</span>
+		// Step 1: Build the desired list of keys to be present after update
+<span class="fc" id="L54">		List&lt;K&gt; desiredKeys = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">		for (K key : allKeys) {</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">			if (shouldBePresent(key)) {</span>
+<span class="fc" id="L57">				desiredKeys.add(key);</span>
+			}
+		}
+<span class="fc" id="L60">		int presentIndex = 0; // Index in presentKeys</span>
+<span class="fc" id="L61">		int desiredIndex = 0; // Index in desiredKeys</span>
+		// Step 2: Walk through both present and desired lists, updating as needed
+<span class="fc bfc" id="L63" title="All 4 branches covered.">		while (presentIndex &lt; presentKeys.size() || desiredIndex &lt; desiredKeys.size()) {</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">			if (presentIndex &gt;= presentKeys.size()) {</span>
+				// Append remaining desired elements
+<span class="fc" id="L66">				K keyToAdd = desiredKeys.get(desiredIndex);</span>
+<span class="fc" id="L67">				add(presentIndex, keyToAdd);</span>
+<span class="fc" id="L68">				presentKeys.add(presentIndex, keyToAdd);</span>
+<span class="fc" id="L69">				presentIndex++;</span>
+<span class="fc" id="L70">				desiredIndex++;</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">			} else if (desiredIndex &gt;= desiredKeys.size()) {</span>
+				// Remove any leftover elements in presentKeys
+<span class="fc" id="L73">				remove(presentIndex);</span>
+<span class="fc" id="L74">				presentKeys.remove(presentIndex);</span>
+<span class="fc" id="L75">			} else {</span>
+<span class="fc" id="L76">				K current = presentKeys.get(presentIndex);</span>
+<span class="fc" id="L77">				K expected = desiredKeys.get(desiredIndex);</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">				if (current.equals(expected)) {</span>
+					// Element is already in the correct place
+<span class="fc" id="L80">					refresh(current, presentIndex);</span>
+<span class="fc" id="L81">					presentIndex++;</span>
+<span class="fc" id="L82">					desiredIndex++;</span>
+<span class="fc" id="L83">				} else {</span>
+					// Check if expected key exists later in presentKeys
+<span class="fc" id="L85">					int offset = presentKeys.subList(presentIndex, presentKeys.size()).indexOf(expected);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">					if (offset &gt;= 0) {</span>
+						// Remove all keys before the expected one
+<span class="fc bfc" id="L88" title="All 2 branches covered.">						for (int skipped = 0; skipped &lt; offset; skipped++) {</span>
+<span class="fc" id="L89">							remove(presentIndex);</span>
+<span class="fc" id="L90">							presentKeys.remove(presentIndex);</span>
+						}
+<span class="fc" id="L92">					} else {</span>
+						// Insert missing key
+<span class="fc" id="L94">						add(presentIndex, expected);</span>
+<span class="fc" id="L95">						presentKeys.add(presentIndex, expected);</span>
+<span class="fc" id="L96">						presentIndex++;</span>
+<span class="fc" id="L97">						desiredIndex++;</span>
+					}
+				}
+			}
+		}
+<span class="fc" id="L102">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

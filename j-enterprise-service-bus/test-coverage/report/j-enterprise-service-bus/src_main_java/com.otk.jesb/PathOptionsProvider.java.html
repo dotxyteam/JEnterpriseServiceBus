@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>PathOptionsProvider.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">PathOptionsProvider.java</span></div><h1>PathOptionsProvider.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.otk.jesb.PathExplorer.PathNode;
+
+import xy.reflect.ui.info.type.ITypeInfo;
+
+public class PathOptionsProvider {
+
+	protected List&lt;VariableDeclaration&gt; variableDeclarations;
+
+<span class="fc" id="L14">	public PathOptionsProvider(List&lt;VariableDeclaration&gt; variableDeclarations) {</span>
+<span class="fc" id="L15">		this.variableDeclarations = variableDeclarations;</span>
+<span class="fc" id="L16">	}</span>
+
+	public List&lt;PathNode&gt; getRootPathNodes() {
+<span class="fc" id="L19">		List&lt;PathNode&gt; result = new ArrayList&lt;PathExplorer.PathNode&gt;();</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">		for (VariableDeclaration declaration : getVariableDeclarations()) {</span>
+<span class="fc" id="L21">			result.add(new RootPathNode(</span>
+<span class="fc" id="L22">					new PathExplorer(declaration.getVariableType().getName(), declaration.getVariableName())));</span>
+		}
+<span class="fc" id="L24">		return result;</span>
+	}
+
+	protected List&lt;VariableDeclaration&gt; getVariableDeclarations() {
+<span class="fc" id="L28">		return variableDeclarations;</span>
+	}
+
+	private static class RootPathNode implements PathNode {
+
+		private PathExplorer pathExplorer;
+
+<span class="fc" id="L35">		public RootPathNode(PathExplorer pathExplorer) {</span>
+<span class="fc" id="L36">			this.pathExplorer = pathExplorer;</span>
+<span class="fc" id="L37">		}</span>
+
+		@Override
+		public PathExplorer getExplorer() {
+<span class="nc" id="L41">			return null;</span>
+		}
+
+		@Override
+		public PathNode getParent() {
+<span class="nc" id="L46">			return null;</span>
+		}
+
+		@Override
+		public List&lt;PathNode&gt; getChildren() {
+<span class="fc" id="L51">			return pathExplorer.explore();</span>
+		}
+
+		@Override
+		public String getTypicalExpression() {
+<span class="nc" id="L56">			return pathExplorer.getTypicalRootExpression();</span>
+		}
+
+		@Override
+		public String getExpressionPattern() {
+<span class="fc" id="L61">			return pathExplorer.getRootExpressionPattern();</span>
+		}
+
+		@Override
+		public ITypeInfo getExpressionType() {
+<span class="fc" id="L66">			return pathExplorer.getRootExpressionType();</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L71">			return pathExplorer.getTypicalRootExpression();</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

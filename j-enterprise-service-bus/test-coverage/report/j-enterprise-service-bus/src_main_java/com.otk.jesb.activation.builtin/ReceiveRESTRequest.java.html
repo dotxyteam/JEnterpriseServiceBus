@@ -1,0 +1,641 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ReceiveRESTRequest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.activation.builtin</a> &gt; <span class="el_source">ReceiveRESTRequest.java</span></div><h1>ReceiveRESTRequest.java</h1><pre class="source lang-java linenums">package com.otk.jesb.activation.builtin;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.annotation.Priority;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.PreMatching;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.cxf.Bus;
+import org.apache.cxf.common.util.StringUtils;
+import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
+import org.apache.cxf.jaxrs.swagger.ui.SwaggerUiService;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.otk.jesb.Log;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.Reference;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variant;
+import com.otk.jesb.activation.ActivationHandler;
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.activation.ActivatorMetadata;
+import com.otk.jesb.resource.builtin.HTTPServer;
+import com.otk.jesb.resource.builtin.HTTPServer.RequestHandler;
+import com.otk.jesb.resource.builtin.OpenAPIDescription;
+import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor;
+import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.OperationInput;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionError;
+import com.otk.jesb.util.MiscUtils;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import xy.reflect.ui.info.ResourcePath;
+
+<span class="fc" id="L56">public class ReceiveRESTRequest extends HTTPRequestReceiver {</span>
+
+<span class="fc" id="L58">	private Reference&lt;OpenAPIDescription&gt; openAPIDescriptionReference = new Reference&lt;OpenAPIDescription&gt;(</span>
+<span class="fc" id="L59">			OpenAPIDescription.class);</span>
+	private String operationSignature;
+
+	private ActivationHandler activationHandler;
+
+	private OpenAPIDescription expectOpenAPIDescription() {
+<span class="fc" id="L65">		OpenAPIDescription result = openAPIDescriptionReference.resolve();</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L67">			throw new IllegalStateException(&quot;Failed to resolve the OpenAPI Description reference&quot;);</span>
+		}
+<span class="fc" id="L69">		return result;</span>
+	}
+
+	public Reference&lt;OpenAPIDescription&gt; getOpenAPIDescriptionReference() {
+<span class="nc" id="L73">		return openAPIDescriptionReference;</span>
+	}
+
+	public void setOpenAPIDescriptionReference(Reference&lt;OpenAPIDescription&gt; openAPIDescriptionReference) {
+<span class="fc" id="L77">		this.openAPIDescriptionReference = openAPIDescriptionReference;</span>
+<span class="fc" id="L78">		tryToSelectValuesAutomatically();</span>
+<span class="fc" id="L79">	}</span>
+
+	public String getOperationSignature() {
+<span class="nc" id="L82">		return operationSignature;</span>
+	}
+
+	public void setOperationSignature(String operationSignature) {
+<span class="fc" id="L86">		this.operationSignature = operationSignature;</span>
+<span class="fc" id="L87">		tryToSelectValuesAutomatically();</span>
+<span class="fc" id="L88">	}</span>
+
+	private void tryToSelectValuesAutomatically() {
+		try {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">			if (operationSignature == null) {</span>
+<span class="fc" id="L93">				List&lt;String&gt; options = getOperationSignatureOptions();</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">				if (options.size() &gt; 0) {</span>
+<span class="nc" id="L95">					operationSignature = options.get(0);</span>
+				}
+			}
+<span class="nc" id="L98">		} catch (Throwable t) {</span>
+		}
+<span class="fc" id="L100">	}</span>
+
+	@Override
+	protected RESTRequestHandler createRequestHandler(String servicePath) {
+<span class="nc" id="L104">		expectOpenAPIDescription();</span>
+<span class="nc" id="L105">		return new RESTRequestHandler(servicePath, openAPIDescriptionReference);</span>
+	}
+
+	@Override
+	protected boolean isCompatibleWith(RequestHandler requestHandler) {
+<span class="fc bfc" id="L110" title="All 2 branches covered.">		if (!(requestHandler instanceof RESTRequestHandler)) {</span>
+<span class="fc" id="L111">			return false;</span>
+		}
+<span class="fc" id="L113">		OpenAPIDescription openAPIDescription = openAPIDescriptionReference.resolve();</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">		if (openAPIDescription == null) {</span>
+<span class="nc" id="L115">			return false;</span>
+		}
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">		if (((RESTRequestHandler) requestHandler).getOpenAPIDescriptionReference().resolve() != openAPIDescription) {</span>
+<span class="nc" id="L118">			return false;</span>
+		}
+<span class="fc" id="L120">		return true;</span>
+	}
+
+	public List&lt;String&gt; getOperationSignatureOptions() {
+		try {
+<span class="nc" id="L125">			OpenAPIDescription openAPIDescription = expectOpenAPIDescription();</span>
+<span class="nc" id="L126">			return openAPIDescription.getServiceOperationDescriptors().stream().map(o -&gt; o.getOperationSignature())</span>
+<span class="nc" id="L127">					.collect(Collectors.toList());</span>
+<span class="fc" id="L128">		} catch (IllegalStateException e) {</span>
+<span class="fc" id="L129">			return Collections.emptyList();</span>
+		}
+	}
+
+	private OpenAPIDescription.APIOperationDescriptor expectOperationDescriptor() {
+<span class="fc" id="L134">		OpenAPIDescription openAPIDescription = expectOpenAPIDescription();</span>
+<span class="fc" id="L135">		APIOperationDescriptor result = openAPIDescription.getServiceOperationDescriptor(operationSignature);</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L137">			throw new IllegalStateException(</span>
+<span class="nc" id="L138">					&quot;Failed to get the operation descriptor: Invalid operation signature '&quot; + operationSignature + &quot;'&quot;);</span>
+		}
+<span class="fc" id="L140">		return result;</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getInputClass() {
+		try {
+<span class="fc" id="L146">			OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();</span>
+<span class="fc" id="L147">			return operation.getOperationInputClass();</span>
+<span class="nc" id="L148">		} catch (IllegalStateException e) {</span>
+<span class="nc" id="L149">			return null;</span>
+		}
+	}
+
+	@Override
+	public Class&lt;?&gt; getOutputClass() {
+		try {
+<span class="fc" id="L156">			OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();</span>
+<span class="fc" id="L157">			return operation.getOperationOutputClass();</span>
+<span class="nc" id="L158">		} catch (IllegalStateException e) {</span>
+<span class="nc" id="L159">			return null;</span>
+		}
+	}
+
+	@Override
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+<span class="fc" id="L165">		this.activationHandler = activationHandler;</span>
+<span class="fc" id="L166">		HTTPServer server = expectServer();</span>
+<span class="fc" id="L167">		OpenAPIDescription openAPIDescription = expectOpenAPIDescription();</span>
+<span class="fc" id="L168">		OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();</span>
+<span class="fc" id="L169">		String servicePath = getServicePath();</span>
+<span class="fc" id="L170">		RequestHandler requestHandler = server.expectRequestHandler(servicePath);</span>
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">		if (!(requestHandler instanceof RESTRequestHandler)) {</span>
+<span class="nc" id="L172">			throw new IllegalStateException(</span>
+<span class="nc" id="L173">					&quot;Cannot register &quot; + operation + &quot; on &quot; + requestHandler + &quot;: REST request handler required&quot;);</span>
+		}
+<span class="pc bpc" id="L175" title="1 of 2 branches missed.">		if (((RESTRequestHandler) requestHandler).getOpenAPIDescriptionReference().resolve() != openAPIDescription) {</span>
+<span class="nc" id="L176">			throw new IllegalStateException(&quot;Cannot register &quot; + operation + &quot; on &quot; + requestHandler</span>
+<span class="nc" id="L177">					+ &quot;: REST request handler based on OpenAPI description '&quot; + openAPIDescriptionReference.getPath()</span>
+<span class="nc" id="L178">					+ &quot;' required&quot;);</span>
+		}
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">		if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().get(operation) != null) {</span>
+<span class="nc" id="L181">			throw new PotentialError(</span>
+<span class="nc" id="L182">					&quot;Cannot configure &quot; + operation + &quot; of &quot; + requestHandler + &quot;: Operation already configured&quot;);</span>
+		}
+<span class="fc bfc" id="L184" title="All 2 branches covered.">		if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {</span>
+<span class="fc" id="L185">			requestHandler.activate(server);</span>
+		}
+<span class="fc" id="L187">		((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);</span>
+<span class="fc" id="L188">	}</span>
+
+	@Override
+	public void finalizeAutomaticTrigger() throws Exception {
+<span class="fc" id="L192">		MiscUtils.willRethrowCommonly((compositeException) -&gt; {</span>
+<span class="fc" id="L193">			HTTPServer server = compositeException.tryReturnCactch(() -&gt; expectServer());</span>
+<span class="fc" id="L194">			String servicePath = getServicePath();</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">			RequestHandler requestHandler = (server == null) ? null</span>
+<span class="fc" id="L196">					: compositeException.tryReturnCactch(() -&gt; server.expectRequestHandler(servicePath));</span>
+<span class="pc bpc" id="L197" title="1 of 2 branches missed.">			if (requestHandler != null) {</span>
+<span class="fc" id="L198">				OpenAPIDescription.APIOperationDescriptor operation = compositeException</span>
+<span class="fc" id="L199">						.tryReturnCactch(() -&gt; expectOperationDescriptor());</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">				if (operation != null) {</span>
+<span class="fc" id="L201">					((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">					if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {</span>
+<span class="fc" id="L203">						compositeException.tryCactch(() -&gt; {</span>
+<span class="fc" id="L204">							requestHandler.deactivate(server);</span>
+<span class="fc" id="L205">						});</span>
+					}
+				}
+			}
+<span class="fc" id="L209">			this.activationHandler = null;</span>
+<span class="fc" id="L210">		});</span>
+<span class="fc" id="L211">	}</span>
+
+	@Override
+	public boolean isAutomaticTriggerReady() {
+<span class="fc bfc" id="L215" title="All 2 branches covered.">		return activationHandler != null;</span>
+	}
+
+	@Override
+	public void validate(boolean recursively, Plan plan) throws ValidationError {
+<span class="fc" id="L220">		super.validate(recursively, plan);</span>
+		try {
+<span class="fc" id="L222">			expectOperationDescriptor();</span>
+<span class="pc" id="L223">		} catch (IllegalStateException e) {</span>
+<span class="nc" id="L224">			throw new ValidationError(e.getMessage(), e);</span>
+		}
+<span class="fc" id="L226">	}</span>
+
+	public static class RESTRequestHandler extends RequestHandler {
+
+<span class="pc" id="L230">		private Reference&lt;OpenAPIDescription&gt; openAPIDescriptionReference = new Reference&lt;OpenAPIDescription&gt;(</span>
+<span class="pc" id="L231">				OpenAPIDescription.class);</span>
+<span class="pc" id="L232">		private Variant&lt;Boolean&gt; webUIEnabledVariant = new Variant&lt;Boolean&gt;(Boolean.class, true);</span>
+<span class="pc" id="L233">		private WebUISupport webUISupport = new WebUISupport();</span>
+
+<span class="pc" id="L235">		private Map&lt;OpenAPIDescription.APIOperationDescriptor, ActivationHandler&gt; activationHandlerByOperation = new ConcurrentHashMap&lt;OpenAPIDescription.APIOperationDescriptor, ActivationHandler&gt;();</span>
+		private Server endpoint;
+
+		public RESTRequestHandler() {
+<span class="fc" id="L239">			super(null);</span>
+<span class="fc" id="L240">		}</span>
+
+		public RESTRequestHandler(String servicePath, Reference&lt;OpenAPIDescription&gt; openAPIDescriptionReference) {
+<span class="nc" id="L243">			super(servicePath);</span>
+<span class="nc" id="L244">			this.openAPIDescriptionReference = openAPIDescriptionReference;</span>
+<span class="nc" id="L245">		}</span>
+
+		public Variant&lt;Boolean&gt; getWebUIEnabledVariant() {
+<span class="nc" id="L248">			return webUIEnabledVariant;</span>
+		}
+
+		public void setWebUIEnabledVariant(Variant&lt;Boolean&gt; webUIEnabledVariant) {
+<span class="fc" id="L252">			this.webUIEnabledVariant = webUIEnabledVariant;</span>
+<span class="fc" id="L253">		}</span>
+
+		public WebUISupport getWebUISupport() {
+<span class="nc" id="L256">			return webUISupport;</span>
+		}
+
+		public void setWebUISupport(WebUISupport webUISupport) {
+<span class="fc" id="L260">			this.webUISupport = webUISupport;</span>
+<span class="fc" id="L261">		}</span>
+
+		public Reference&lt;OpenAPIDescription&gt; getOpenAPIDescriptionReference() {
+<span class="fc" id="L264">			return openAPIDescriptionReference;</span>
+		}
+
+		public void setOpenAPIDescriptionReference(Reference&lt;OpenAPIDescription&gt; openAPIDescriptionReference) {
+<span class="fc" id="L268">			this.openAPIDescriptionReference = openAPIDescriptionReference;</span>
+<span class="fc" id="L269">		}</span>
+
+		protected Map&lt;OpenAPIDescription.APIOperationDescriptor, ActivationHandler&gt; getActivationHandlerByOperation() {
+<span class="fc" id="L272">			return activationHandlerByOperation;</span>
+		}
+
+		private OpenAPIDescription expectOpenAPIDescription() {
+<span class="fc" id="L276">			OpenAPIDescription result = openAPIDescriptionReference.resolve();</span>
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L278">				throw new IllegalStateException(&quot;Failed to resolve the OpenAPI Description reference&quot;);</span>
+			}
+<span class="fc" id="L280">			return result;</span>
+		}
+
+		@Override
+		protected void install(HTTPServer server) throws Exception {
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">			if (endpoint != null) {</span>
+<span class="nc" id="L286">				throw new UnexpectedError();</span>
+			}
+<span class="fc" id="L288">			OpenAPIDescription openAPIDescription = expectOpenAPIDescription();</span>
+<span class="fc" id="L289">			JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();</span>
+<span class="fc" id="L290">			String servicePath = getServicePathVariant().getValue();</span>
+<span class="fc" id="L291">			factory.setAddress(servicePath);</span>
+<span class="fc" id="L292">			factory.setServiceBeans(Arrays.asList(openAPIDescription.getAPIServiceImplementationClass()</span>
+<span class="fc" id="L293">					.getConstructor(InvocationHandler.class).newInstance(new InvocationHandler() {</span>
+						@Override
+						public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+<span class="fc" id="L296">							APIOperationDescriptor operation = new OpenAPIDescription.APIOperationDescriptor(method);</span>
+<span class="fc" id="L297">							ActivationHandler registeredActivationHandler = getActivationHandlerByOperation()</span>
+<span class="fc" id="L298">									.get(operation);</span>
+<span class="pc bpc" id="L299" title="1 of 2 branches missed.">							if (registeredActivationHandler == null) {</span>
+<span class="nc" id="L300">								throw new UnsupportedOperationException(operation + &quot; not implemented&quot;);</span>
+							}
+<span class="fc" id="L302">							OperationInput operationInput = (OperationInput) operation.getOperationInputClass()</span>
+<span class="fc" id="L303">									.getConstructor(method.getParameterTypes()).newInstance(args);</span>
+							Object operationOutput;
+							try {
+<span class="fc" id="L306">								operationOutput = registeredActivationHandler.trigger(operationInput);</span>
+<span class="fc" id="L307">							} catch (ExecutionError e) {</span>
+<span class="pc bpc" id="L308" title="1 of 2 branches missed.">								if (e.getCause() instanceof OpenAPIDescription.ResponseException) {</span>
+<span class="fc" id="L309">									throw ((OpenAPIDescription.ResponseException) e.getCause())</span>
+<span class="fc" id="L310">											.toWebApplicationException();</span>
+								} else {
+<span class="nc" id="L312">									throw e;</span>
+								}
+							}
+<span class="fc" id="L315">							Class&lt;?&gt; operationOutputClass = operation.getOperationOutputClass();</span>
+<span class="fc bfc" id="L316" title="All 2 branches covered.">							if (operationOutputClass == null) {</span>
+<span class="fc" id="L317">								return null;</span>
+							}
+<span class="fc" id="L319">							return operationOutputClass.getFields()[0].get(operationOutput);</span>
+						}
+<span class="fc" id="L321">					}), openAPIDescription.getSwaggerInitializerResourceClass().newInstance()));</span>
+<span class="fc" id="L322">			factory.setProvider(new JacksonJsonProvider());</span>
+<span class="pc bpc" id="L323" title="1 of 2 branches missed.">			if (webUIEnabledVariant.getValue()) {</span>
+<span class="fc" id="L324">				OpenApiFeature openApiFeature = new CustomOpenApiFeature();</span>
+<span class="fc" id="L325">				openApiFeature.setSupportSwaggerUi(true);</span>
+<span class="fc" id="L326">				openApiFeature.setUseContextBasedConfig(true);</span>
+<span class="fc" id="L327">				openApiFeature.setPrettyPrint(true);</span>
+<span class="fc" id="L328">				openApiFeature.setTitle(webUISupport.getTitleVariant().getValue());</span>
+<span class="fc" id="L329">				openApiFeature.setContactName(webUISupport.getContactNameVariant().getValue());</span>
+<span class="fc" id="L330">				openApiFeature.setContactEmail(webUISupport.getContactEmailVariant().getValue());</span>
+<span class="fc" id="L331">				openApiFeature.setContactUrl(webUISupport.getContactUrlVariant().getValue());</span>
+<span class="fc" id="L332">				openApiFeature.setDescription(webUISupport.getDescriptionVariant().getValue());</span>
+<span class="fc" id="L333">				openApiFeature.setVersion(webUISupport.getVersionVariant().getValue());</span>
+<span class="fc" id="L334">				openApiFeature.setLicense(webUISupport.getLicenseVariant().getValue());</span>
+<span class="fc" id="L335">				openApiFeature.setTermsOfServiceUrl(webUISupport.getTermsOfServiceUrlVariant().getValue());</span>
+<span class="fc" id="L336">				openApiFeature.setScan(false);</span>
+<span class="fc" id="L337">				openApiFeature.setResourceClasses(</span>
+<span class="fc" id="L338">						new HashSet&lt;String&gt;(Arrays.asList(openAPIDescription.getAPIServiceInterface().getName())));</span>
+<span class="fc" id="L339">				OpenApiCustomizer openApiCustomizer = new OpenApiCustomizer() {</span>
+					@Override
+					public void customize(OpenAPI openApi) {
+<span class="nc" id="L342">						io.swagger.v3.oas.models.servers.Server server = new io.swagger.v3.oas.models.servers.Server();</span>
+<span class="nc" id="L343">						server.setUrl(servicePath);</span>
+<span class="nc" id="L344">						openApi.setServers(Collections.singletonList(server));</span>
+<span class="nc" id="L345">					}</span>
+				};
+				{
+<span class="fc" id="L348">					openApiFeature.setCustomizer(openApiCustomizer);</span>
+				}
+<span class="fc" id="L350">				factory.setFeatures(Arrays.asList(openApiFeature));</span>
+			}
+<span class="fc" id="L352">			endpoint = factory.create();</span>
+<span class="fc" id="L353">			Log.get().information(&quot;Published REST service at: &quot; + server.getLocaBaseURL() + servicePath);</span>
+<span class="pc bpc" id="L354" title="1 of 2 branches missed.">			if (webUIEnabledVariant.getValue()) {</span>
+<span class="fc" id="L355">				Log.get().information(&quot;OpenAPI Description: &quot; + server.getLocaBaseURL() + servicePath + &quot;openapi.json&quot;);</span>
+<span class="fc" id="L356">				Log.get().information(&quot;Web UI: &quot; + server.getLocaBaseURL() + servicePath + &quot;api-docs&quot;);</span>
+			}
+<span class="fc" id="L358">		}</span>
+
+		@Override
+		protected void uninstall(HTTPServer server) throws Exception {
+<span class="pc bpc" id="L362" title="1 of 2 branches missed.">			if (endpoint == null) {</span>
+<span class="nc" id="L363">				throw new UnexpectedError();</span>
+			}
+<span class="fc" id="L365">			MiscUtils.willRethrowCommonly((compositeException) -&gt; {</span>
+<span class="fc" id="L366">				compositeException.tryCactch(() -&gt; {</span>
+<span class="fc" id="L367">					endpoint.destroy();</span>
+<span class="fc" id="L368">				});</span>
+<span class="fc" id="L369">				endpoint = null;</span>
+<span class="fc" id="L370">			});</span>
+<span class="fc" id="L371">			String servicePath = getServicePathVariant().getValue();</span>
+<span class="fc" id="L372">			Log.get().information(&quot;Unublished SOAP service: &quot; + server.getLocaBaseURL() + servicePath + &quot;?WSDL&quot;);</span>
+<span class="fc" id="L373">		}</span>
+
+		@Override
+		public void validate(HTTPServer server) throws ValidationError {
+<span class="fc" id="L377">			super.validate(server);</span>
+			try {
+<span class="fc" id="L379">				expectOpenAPIDescription();</span>
+<span class="pc" id="L380">			} catch (IllegalStateException e) {</span>
+<span class="nc" id="L381">				throw new ValidationError(e.getMessage(), e);</span>
+			}
+<span class="fc" id="L383">			webUIEnabledVariant.validate();</span>
+<span class="fc" id="L384">			webUISupport.validate();</span>
+<span class="fc" id="L385">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L389">			return &quot;RESTRequestHandler [openAPIDescription=&quot; + openAPIDescriptionReference.getPath() + &quot;, servicePath=&quot;</span>
+<span class="nc" id="L390">					+ getServicePathVariant().getValue() + &quot;]&quot;;</span>
+		}
+
+<span class="fc" id="L393">		public static class WebUISupport {</span>
+<span class="fc" id="L394">			private Variant&lt;String&gt; titleVariant = new Variant&lt;String&gt;(String.class);</span>
+<span class="fc" id="L395">			private Variant&lt;String&gt; contactNameVariant = new Variant&lt;String&gt;(String.class);</span>
+<span class="fc" id="L396">			private Variant&lt;String&gt; contactEmailVariant = new Variant&lt;String&gt;(String.class);</span>
+<span class="fc" id="L397">			private Variant&lt;String&gt; contactUrlVariant = new Variant&lt;String&gt;(String.class);</span>
+<span class="fc" id="L398">			private Variant&lt;String&gt; descriptionVariant = new Variant&lt;String&gt;(String.class);</span>
+<span class="fc" id="L399">			private Variant&lt;String&gt; versionVariant = new Variant&lt;String&gt;(String.class);</span>
+<span class="fc" id="L400">			private Variant&lt;String&gt; licenseVariant = new Variant&lt;String&gt;(String.class);</span>
+<span class="fc" id="L401">			private Variant&lt;String&gt; termsOfServiceUrlVariant = new Variant&lt;String&gt;(String.class);</span>
+
+			public Variant&lt;String&gt; getTitleVariant() {
+<span class="fc" id="L404">				return titleVariant;</span>
+			}
+
+			public void setTitleVariant(Variant&lt;String&gt; titleVariant) {
+<span class="fc" id="L408">				this.titleVariant = titleVariant;</span>
+<span class="fc" id="L409">			}</span>
+
+			public Variant&lt;String&gt; getContactNameVariant() {
+<span class="fc" id="L412">				return contactNameVariant;</span>
+			}
+
+			public void setContactNameVariant(Variant&lt;String&gt; contactNameVariant) {
+<span class="fc" id="L416">				this.contactNameVariant = contactNameVariant;</span>
+<span class="fc" id="L417">			}</span>
+
+			public Variant&lt;String&gt; getContactEmailVariant() {
+<span class="fc" id="L420">				return contactEmailVariant;</span>
+			}
+
+			public void setContactEmailVariant(Variant&lt;String&gt; contactEmailVariant) {
+<span class="fc" id="L424">				this.contactEmailVariant = contactEmailVariant;</span>
+<span class="fc" id="L425">			}</span>
+
+			public Variant&lt;String&gt; getContactUrlVariant() {
+<span class="fc" id="L428">				return contactUrlVariant;</span>
+			}
+
+			public void setContactUrlVariant(Variant&lt;String&gt; contactUrlVariant) {
+<span class="fc" id="L432">				this.contactUrlVariant = contactUrlVariant;</span>
+<span class="fc" id="L433">			}</span>
+
+			public Variant&lt;String&gt; getDescriptionVariant() {
+<span class="fc" id="L436">				return descriptionVariant;</span>
+			}
+
+			public void setDescriptionVariant(Variant&lt;String&gt; descriptionVariant) {
+<span class="fc" id="L440">				this.descriptionVariant = descriptionVariant;</span>
+<span class="fc" id="L441">			}</span>
+
+			public Variant&lt;String&gt; getVersionVariant() {
+<span class="fc" id="L444">				return versionVariant;</span>
+			}
+
+			public void setVersionVariant(Variant&lt;String&gt; versionVariant) {
+<span class="fc" id="L448">				this.versionVariant = versionVariant;</span>
+<span class="fc" id="L449">			}</span>
+
+			public Variant&lt;String&gt; getLicenseVariant() {
+<span class="fc" id="L452">				return licenseVariant;</span>
+			}
+
+			public void setLicenseVariant(Variant&lt;String&gt; licenseVariant) {
+<span class="fc" id="L456">				this.licenseVariant = licenseVariant;</span>
+<span class="fc" id="L457">			}</span>
+
+			public Variant&lt;String&gt; getTermsOfServiceUrlVariant() {
+<span class="fc" id="L460">				return termsOfServiceUrlVariant;</span>
+			}
+
+			public void setTermsOfServiceUrlVariant(Variant&lt;String&gt; termsOfServiceUrlVariant) {
+<span class="fc" id="L464">				this.termsOfServiceUrlVariant = termsOfServiceUrlVariant;</span>
+<span class="fc" id="L465">			}</span>
+
+			public void validate() throws ValidationError {
+<span class="fc" id="L468">				titleVariant.validate();</span>
+<span class="fc" id="L469">				contactNameVariant.validate();</span>
+<span class="fc" id="L470">				contactEmailVariant.validate();</span>
+<span class="fc" id="L471">				contactUrlVariant.validate();</span>
+<span class="fc" id="L472">				descriptionVariant.validate();</span>
+<span class="fc" id="L473">				versionVariant.validate();</span>
+<span class="fc" id="L474">				licenseVariant.validate();</span>
+<span class="fc" id="L475">				termsOfServiceUrlVariant.validate();</span>
+<span class="fc" id="L476">			}</span>
+		}
+
+		protected static class CustomOpenApiFeature extends OpenApiFeature {
+
+<span class="fc" id="L481">			public CustomOpenApiFeature() {</span>
+<span class="fc" id="L482">				setDelegate(new Portable() {</span>
+
+					@Override
+					public Registration getSwaggerUi(Bus bus, Properties swaggerProps, boolean runAsFilter) {
+<span class="fc" id="L486">						final Registration registration = new Registration();</span>
+
+<span class="pc bpc" id="L488" title="1 of 2 branches missed.">						if (checkSupportSwaggerUiProp(swaggerProps)) {</span>
+<span class="fc" id="L489">							String swaggerUiRoot = findSwaggerUiRoot();</span>
+
+<span class="pc bpc" id="L491" title="1 of 2 branches missed.">							if (swaggerUiRoot != null) {</span>
+<span class="fc" id="L492">								final SwaggerUiResourceLocator locator = new SwaggerUiResourceLocator(swaggerUiRoot);</span>
+<span class="fc" id="L493">								SwaggerUiService swaggerUiService = new SwaggerUiService(locator,</span>
+<span class="fc" id="L494">										getSwaggerUiMediaTypes());</span>
+<span class="fc" id="L495">								swaggerUiService.setConfig(getSwaggerUiConfig());</span>
+
+<span class="pc bpc" id="L497" title="1 of 2 branches missed.">								if (!runAsFilter) {</span>
+<span class="fc" id="L498">									registration.getResources().add(swaggerUiService);</span>
+<span class="fc" id="L499">								} else {</span>
+<span class="nc" id="L500">									registration.getProviders().add(new SwaggerUiServiceFilter(swaggerUiService));</span>
+								}
+
+<span class="fc" id="L503">								registration.getProviders().add(new SwaggerUiResourceFilter(locator));</span>
+<span class="fc" id="L504">								bus.setProperty(&quot;swagger.service.ui.available&quot;, &quot;true&quot;);</span>
+							}
+						}
+
+<span class="fc" id="L508">						return registration;</span>
+					}
+
+				});
+<span class="fc" id="L512">			}</span>
+
+			@PreMatching
+			@Priority(Priorities.USER + 1)
+			class SwaggerUiServiceFilter implements ContainerRequestFilter {
+				private final SwaggerUiService uiService;
+
+<span class="nc" id="L519">				SwaggerUiServiceFilter(SwaggerUiService uiService) {</span>
+<span class="nc" id="L520">					this.uiService = uiService;</span>
+<span class="nc" id="L521">				}</span>
+
+				@Override
+				public void filter(ContainerRequestContext rc) throws IOException {
+<span class="nc bnc" id="L525" title="All 2 branches missed.">					if (HttpMethod.GET.equals(rc.getRequest().getMethod())) {</span>
+<span class="nc" id="L526">						UriInfo ui = rc.getUriInfo();</span>
+<span class="nc" id="L527">						String path = ui.getPath();</span>
+<span class="nc" id="L528">						int uiPathIndex = path.lastIndexOf(&quot;api-docs&quot;);</span>
+<span class="nc bnc" id="L529" title="All 2 branches missed.">						if (uiPathIndex &gt;= 0) {</span>
+<span class="nc bnc" id="L530" title="All 2 branches missed.">							String resourcePath = uiPathIndex + 8 &lt; path.length() ? path.substring(uiPathIndex + 8)</span>
+<span class="nc" id="L531">									: &quot;&quot;;</span>
+<span class="nc" id="L532">							rc.abortWith(uiService.getResource(ui, resourcePath));</span>
+						}
+					}
+<span class="nc" id="L535">				}</span>
+			}
+
+			@PreMatching
+			@Priority(Priorities.USER)
+			class SwaggerUiResourceFilter implements ContainerRequestFilter {
+<span class="fc" id="L541">				private final Pattern PATTERN = Pattern</span>
+<span class="fc" id="L542">						.compile(&quot;.*[.]js|.*[.]gz|.*[.]map|oauth2*[.]html|.*[.]png|.*[.]css|.*[.]ico|&quot;</span>
+								+ &quot;/css/.*|/images/.*|/lib/.*|/fonts/.*&quot;);
+
+				private final SwaggerUiResourceLocator locator;
+
+<span class="fc" id="L547">				SwaggerUiResourceFilter(SwaggerUiResourceLocator locator) {</span>
+<span class="fc" id="L548">					this.locator = locator;</span>
+<span class="fc" id="L549">				}</span>
+
+				@Override
+				public void filter(ContainerRequestContext rc) throws IOException {
+<span class="fc bfc" id="L553" title="All 2 branches covered.">					if (HttpMethod.GET.equals(rc.getRequest().getMethod())) {</span>
+<span class="fc" id="L554">						UriInfo ui = rc.getUriInfo();</span>
+<span class="fc" id="L555">						String path = &quot;/&quot; + ui.getPath();</span>
+<span class="pc bpc" id="L556" title="3 of 4 branches missed.">						if (PATTERN.matcher(path).matches() &amp;&amp; locator.exists(path)) {</span>
+<span class="nc" id="L557">							rc.setRequestUri(URI.create(&quot;api-docs&quot; + path));</span>
+						}
+					}
+<span class="fc" id="L560">				}</span>
+			}
+
+			class SwaggerUiResourceLocator extends org.apache.cxf.jaxrs.swagger.ui.SwaggerUiResourceLocator {
+				private String swaggerUiRoot;
+
+<span class="fc" id="L566">				public SwaggerUiResourceLocator(String swaggerUiRoot) {</span>
+<span class="fc" id="L567">					super(swaggerUiRoot);</span>
+<span class="fc" id="L568">					this.swaggerUiRoot = swaggerUiRoot;</span>
+<span class="fc" id="L569">				}</span>
+
+				/**
+				 * Locate Swagger UI resource corresponding to resource path
+				 * 
+				 * @param resourcePath resource path
+				 * @return Swagger UI resource URL
+				 * @throws MalformedURLException
+				 */
+				public URL locate(String resourcePath) throws MalformedURLException {
+<span class="nc bnc" id="L579" title="All 2 branches missed.">					if (&quot;/swagger-initializer.js&quot;.equals(resourcePath)) {</span>
+<span class="nc" id="L580">						throw new MalformedURLException();</span>
+					}
+<span class="nc bnc" id="L582" title="All 4 branches missed.">					if (StringUtils.isEmpty(resourcePath) || &quot;/&quot;.equals(resourcePath)) {</span>
+<span class="nc" id="L583">						resourcePath = &quot;index.html&quot;;</span>
+					}
+
+<span class="nc bnc" id="L586" title="All 2 branches missed.">					if (resourcePath.startsWith(&quot;/&quot;)) {</span>
+<span class="nc" id="L587">						resourcePath = resourcePath.substring(1);</span>
+					}
+					URL ret;
+
+					try {
+<span class="nc" id="L592">						ret = URI.create(swaggerUiRoot + resourcePath).toURL();</span>
+<span class="nc" id="L593">					} catch (IllegalArgumentException ex) {</span>
+<span class="nc" id="L594">						throw new MalformedURLException(ex.getMessage());</span>
+					}
+<span class="nc" id="L596">					return ret;</span>
+				}
+
+				/**
+				 * Checks the existence of the Swagger UI resource corresponding to resource
+				 * path
+				 * 
+				 * @param resourcePath resource path
+				 * @return &quot;true&quot; if Swagger UI resource exists, &quot;false&quot; otherwise
+				 */
+				public boolean exists(String resourcePath) {
+					try {
+						// The connect() will try to locate the entry (jar file, classpath resource)
+						// and fail with FileNotFoundException /IOException if there is none.
+<span class="nc" id="L610">						locate(resourcePath).openConnection().connect();</span>
+<span class="nc" id="L611">						return true;</span>
+<span class="nc" id="L612">					} catch (IOException ex) {</span>
+<span class="nc" id="L613">						return false;</span>
+					}
+				}
+			}
+		}
+
+	}
+
+<span class="fc" id="L621">	public static class Metadata implements ActivatorMetadata {</span>
+
+		@Override
+		public ResourcePath getActivatorIconImagePath() {
+<span class="fc" id="L625">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L626">					.specifyClassPathResourceLocation(ReceiveRESTRequest.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+		@Override
+		public Class&lt;? extends Activator&gt; getActivatorClass() {
+<span class="fc" id="L631">			return ReceiveRESTRequest.class;</span>
+		}
+
+		@Override
+		public String getActivatorName() {
+<span class="fc" id="L636">			return &quot;Receive REST Request&quot;;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

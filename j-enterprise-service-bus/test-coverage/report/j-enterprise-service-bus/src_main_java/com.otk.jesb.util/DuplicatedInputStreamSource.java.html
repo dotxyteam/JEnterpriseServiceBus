@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DuplicatedInputStreamSource.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.util</a> &gt; <span class="el_source">DuplicatedInputStreamSource.java</span></div><h1>DuplicatedInputStreamSource.java</h1><pre class="source lang-java linenums">package com.otk.jesb.util;
+
+import java.io.*;
+import java.lang.reflect.Field;
+import java.util.*;
+
+import com.otk.jesb.UnexpectedError;
+
+/**
+ * Duplicates an InputStream (e.g. System.in) so that multiple readers can
+ * independently read the same input data.
+ *
+ * The duplicator thread starts automatically when the first reader subscribes
+ * (via newInputStream()) and stops once no readers remain.
+ */
+public class DuplicatedInputStreamSource implements Closeable {
+
+	// --- Example usage ---
+	public static void main(String[] args) throws Exception {
+		@SuppressWarnings(&quot;resource&quot;)
+<span class="nc" id="L21">		DuplicatedInputStreamSource source = new DuplicatedInputStreamSource(System.in);</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">		for (int i = 0; i &lt; 2; i++) {</span>
+<span class="nc" id="L23">			final int idx = i;</span>
+<span class="nc" id="L24">			new Thread(() -&gt; {</span>
+<span class="nc" id="L25">				try (BufferedReader br = new BufferedReader(new InputStreamReader(source.newInputStream()))) {</span>
+					String line;
+<span class="nc bnc" id="L27" title="All 2 branches missed.">					while ((line = br.readLine()) != null)</span>
+<span class="nc" id="L28">						System.out.println(Thread.currentThread().getName() + &quot;&gt; &quot; + line);</span>
+<span class="nc" id="L29">				} catch (IOException e) {</span>
+<span class="nc" id="L30">					System.err.println(Thread.currentThread().getName() + &quot; ended: &quot; + e);</span>
+				}
+<span class="nc" id="L32">			}, &quot;Thread-&quot; + idx).start();</span>
+		}
+<span class="nc" id="L34">	}</span>
+
+	private final BufferedReader sourceReader;
+<span class="fc" id="L37">	private final List&lt;PipedOutputStream&gt; outputs = new ArrayList&lt;&gt;();</span>
+	private Thread duplicatorThread;
+<span class="fc" id="L39">	private volatile boolean closed = false;</span>
+<span class="fc" id="L40">	private volatile boolean running = false;</span>
+
+<span class="fc" id="L42">	public DuplicatedInputStreamSource(InputStream source) {</span>
+<span class="fc" id="L43">		this.sourceReader = new BufferedReader(</span>
+<span class="fc" id="L44">				new InputStreamReader(Objects.requireNonNull(source, &quot;source must not be null&quot;)));</span>
+<span class="fc" id="L45">	}</span>
+
+	public boolean isClosed() {
+<span class="nc" id="L48">		return closed;</span>
+	}
+
+	public synchronized InputStream newInputStream() {
+		/**
+		 * Creates and returns a new InputStream that receives the same data as the
+		 * source. Starts the duplicator thread if necessary.
+		 */
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">		if (closed)</span>
+<span class="nc" id="L57">			throw new IllegalStateException(&quot;Source already closed&quot;);</span>
+
+		try {
+<span class="fc" id="L60">			PipedInputStream in = new PipedInputStream(8192) {</span>
+				/*
+				 * Fix for this issue: https://bugs.java.com/bugdatabase/view_bug?bug_id=4028322
+				 */
+				@Override
+				public synchronized int read() throws IOException {
+					try {
+<span class="fc" id="L67">						return super.read();</span>
+<span class="fc" id="L68">					} catch (IOException e) {</span>
+<span class="pc bpc" id="L69" title="1 of 4 branches missed.">						if (&quot;Pipe broken&quot;.equals(e.getMessage()) || &quot;Write end dead&quot;.equals(e.getMessage())) {</span>
+							try {
+<span class="fc" id="L71">								Field writeSideField = PipedInputStream.class.getDeclaredField(&quot;writeSide&quot;);</span>
+<span class="fc" id="L72">								writeSideField.setAccessible(true);</span>
+<span class="fc" id="L73">								writeSideField.set(this, Thread.currentThread());</span>
+<span class="fc" id="L74">							} catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException</span>
+<span class="nc" id="L75">									| SecurityException e1) {</span>
+<span class="nc" id="L76">								throw new UnexpectedError(e1);</span>
+							}
+<span class="fc" id="L78">							return read();</span>
+						} else {
+<span class="fc" id="L80">							throw e;</span>
+						}
+					}
+				}
+
+			};
+<span class="fc" id="L86">			PipedOutputStream out = new PipedOutputStream(in);</span>
+<span class="fc" id="L87">			outputs.add(out);</span>
+
+			// Start duplicator thread if not already running
+<span class="fc bfc" id="L90" title="All 2 branches covered.">			if (!running) {</span>
+<span class="fc" id="L91">				running = true;</span>
+<span class="fc" id="L92">				duplicatorThread = new Thread(this::duplicateLoop, &quot;DuplicatedInputStreamSource-duplicator&quot;);</span>
+<span class="fc" id="L93">				duplicatorThread.setDaemon(true);</span>
+<span class="fc" id="L94">				duplicatorThread.start();</span>
+			}
+
+<span class="fc" id="L97">			return in;</span>
+<span class="nc" id="L98">		} catch (IOException e) {</span>
+<span class="nc" id="L99">			throw new UncheckedIOException(&quot;Error creating duplicated stream&quot;, e);</span>
+		}
+	}
+
+	/**
+	 * Reads line by line from the source and broadcasts each line to all active
+	 * readers. The loop exits automatically when no readers remain or when the
+	 * source closes.
+	 */
+	private void duplicateLoop() {
+		try {
+			String line;
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">			while (!closed) {</span>
+<span class="pc" id="L112">				synchronized (this) {</span>
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">					if (outputs.isEmpty()) {</span>
+						// No active readers → pause duplicator
+<span class="nc" id="L115">						running = false;</span>
+<span class="nc" id="L116">						return;</span>
+					}
+				}
+
+<span class="nc" id="L120">				line = sourceReader.readLine();</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">				if (line == null)</span>
+<span class="nc" id="L122">					break;</span>
+<span class="nc" id="L123">				pushLine(line);</span>
+			}
+<span class="nc" id="L125">		} catch (IOException e) {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">			if (!closed)</span>
+<span class="nc" id="L127">				throw new UnexpectedError(&quot;Duplicator thread error: &quot; + e, e);</span>
+		} finally {
+<span class="nc" id="L129">			synchronized (this) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">				for (PipedOutputStream out : outputs) {</span>
+					try {
+<span class="nc" id="L132">						out.close();</span>
+<span class="nc" id="L133">					} catch (IOException ignored) {</span>
+					}
+				}
+<span class="nc" id="L136">				outputs.clear();</span>
+<span class="nc" id="L137">				running = false;</span>
+			}
+		}
+<span class="nc" id="L140">	}</span>
+
+	public void pushLine(String line) {
+<span class="fc" id="L143">		byte[] data = (line + System.lineSeparator()).getBytes();</span>
+<span class="fc" id="L144">		synchronized (this) {</span>
+<span class="fc" id="L145">			Iterator&lt;PipedOutputStream&gt; it = outputs.iterator();</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">			while (it.hasNext()) {</span>
+<span class="fc" id="L147">				PipedOutputStream out = it.next();</span>
+				try {
+<span class="fc" id="L149">					out.write(data);</span>
+<span class="fc" id="L150">					out.flush();</span>
+<span class="fc" id="L151">				} catch (IOException e) {</span>
+					try {
+<span class="fc" id="L153">						out.close();</span>
+<span class="pc" id="L154">					} catch (IOException ignored) {</span>
+					}
+<span class="fc" id="L156">					it.remove();</span>
+				}
+			}
+		}
+<span class="fc" id="L160">	}</span>
+
+	@Override
+	public synchronized void close() throws IOException {
+<span class="nc" id="L164">		closed = true;</span>
+<span class="nc" id="L165">		sourceReader.close();</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">		for (PipedOutputStream out : outputs) {</span>
+			try {
+<span class="nc" id="L168">				out.close();</span>
+<span class="nc" id="L169">			} catch (IOException ignored) {</span>
+			}
+		}
+<span class="nc" id="L172">		outputs.clear();</span>
+<span class="nc" id="L173">		running = false;</span>
+<span class="nc" id="L174">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

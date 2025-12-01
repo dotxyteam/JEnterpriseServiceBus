@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InstanceBuilderVariableTreeControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.ui</a> &gt; <span class="el_source">InstanceBuilderVariableTreeControl.java</span></div><h1>InstanceBuilderVariableTreeControl.java</h1><pre class="source lang-java linenums">package com.otk.jesb.ui;
+
+import java.util.Collections;
+
+import javax.swing.ListSelectionModel;
+
+import com.otk.jesb.ui.MappingsControl.Side;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+
+public class InstanceBuilderVariableTreeControl extends MappingsControl.SideControl {
+
+	private static final long serialVersionUID = 1L;
+
+	public InstanceBuilderVariableTreeControl(SwingRenderer swingRenderer, IFieldControlInput input) {
+<span class="fc" id="L16">		super(swingRenderer, input);</span>
+<span class="fc" id="L17">		setSelection(Collections.emptyList());</span>
+<span class="fc" id="L18">	}</span>
+
+	@Override
+	protected Side getSide() {
+<span class="fc" id="L22">		return Side.SOURCE;</span>
+	}
+
+	@Override
+	protected void initializeTreeTableModelAndControl() {
+<span class="fc" id="L27">		super.initializeTreeTableModelAndControl();</span>
+<span class="fc" id="L28">		treeTableComponent.putClientProperty(InstanceBuilderVariableTreeControl.class, this);</span>
+<span class="fc" id="L29">		treeTableComponent.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);</span>
+<span class="fc" id="L30">		treeTableComponent.setDragEnabled(true);</span>
+<span class="fc" id="L31">		treeTableComponent.setTransferHandler(new MappingsControl.PathExportTransferHandler());</span>
+<span class="fc" id="L32">	}</span>
+
+	@Override
+	public boolean requestCustomFocus() {
+<span class="fc" id="L36">		return false;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

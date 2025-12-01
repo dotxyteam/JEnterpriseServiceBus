@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DelegatingFieldInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.field</a> &gt; <span class="el_source">DelegatingFieldInfo.java</span></div><h1>DelegatingFieldInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.field;
+
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+
+/**
+ * Field proxy that delegates to another field that can be replaced dynamically.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L20">public abstract class DelegatingFieldInfo implements IFieldInfo {</span>
+
+	/**
+	 * @return Dynamically the delegate.
+	 */
+	protected abstract IFieldInfo getDelegate();
+
+	/**
+	 * @return An object identifying the delegate. It allows to compare instances of
+	 *         the current class even if the delegate cannot be retrieved. By
+	 *         default the return value is the delegate itself.
+	 */
+	protected Object getDelegateId() {
+<span class="nc" id="L33">		return getDelegate();</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="nc" id="L38">		return getDelegate().getName();</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="nc" id="L43">		return getDelegate().getCaption();</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="nc" id="L48">		return getDelegate().getOnlineHelp();</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L53">		return getDelegate().getSpecificProperties();</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="nc" id="L58">		return getDelegate().getAlternativeConstructors(object);</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="nc" id="L63">		return getDelegate().getAlternativeListItemConstructors(object);</span>
+	}
+
+	@Override
+	public ITypeInfo getType() {
+<span class="nc" id="L68">		return getDelegate().getType();</span>
+	}
+
+	public Object getValue(Object object) {
+<span class="fc" id="L72">		return getDelegate().getValue(object);</span>
+	}
+
+	@Override
+	public boolean hasValueOptions(Object object) {
+<span class="nc" id="L77">		return getDelegate().hasValueOptions(object);</span>
+	}
+
+	@Override
+	public Object[] getValueOptions(Object object) {
+<span class="nc" id="L82">		return getDelegate().getValueOptions(object);</span>
+	}
+
+	@Override
+	public void setValue(Object object, Object value) {
+<span class="nc" id="L87">		getDelegate().setValue(object, value);</span>
+<span class="nc" id="L88">	}</span>
+
+	@Override
+	public Runnable getNextUpdateCustomUndoJob(Object object, Object newValue) {
+<span class="fc" id="L92">		return getDelegate().getNextUpdateCustomUndoJob(object, newValue);</span>
+	}
+
+	@Override
+	public Runnable getPreviousUpdateCustomRedoJob(Object object, Object newValue) {
+<span class="nc" id="L97">		return getDelegate().getPreviousUpdateCustomRedoJob(object, newValue);</span>
+	}
+
+	@Override
+	public boolean isNullValueDistinct() {
+<span class="nc" id="L102">		return getDelegate().isNullValueDistinct();</span>
+	}
+
+	@Override
+	public boolean isGetOnly() {
+<span class="fc" id="L107">		return getDelegate().isGetOnly();</span>
+	}
+
+	@Override
+	public boolean isTransient() {
+<span class="nc" id="L112">		return getDelegate().isTransient();</span>
+	}
+
+	@Override
+	public String getNullValueLabel() {
+<span class="nc" id="L117">		return getDelegate().getNullValueLabel();</span>
+	}
+
+	@Override
+	public ValueReturnMode getValueReturnMode() {
+<span class="nc" id="L122">		return getDelegate().getValueReturnMode();</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="nc" id="L127">		return getDelegate().getCategory();</span>
+	}
+
+	@Override
+	public boolean isFormControlMandatory() {
+<span class="nc" id="L132">		return getDelegate().isFormControlMandatory();</span>
+	}
+
+	@Override
+	public boolean isFormControlEmbedded() {
+<span class="nc" id="L137">		return getDelegate().isFormControlEmbedded();</span>
+	}
+
+	@Override
+	public IInfoFilter getFormControlFilter() {
+<span class="nc" id="L142">		return getDelegate().getFormControlFilter();</span>
+	}
+
+	@Override
+	public long getAutoUpdatePeriodMilliseconds() {
+<span class="nc" id="L147">		return getDelegate().getAutoUpdatePeriodMilliseconds();</span>
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="nc" id="L152">		return getDelegate().isHidden();</span>
+	}
+
+	@Override
+	public boolean isRelevant(Object object) {
+<span class="nc" id="L157">		return getDelegate().isRelevant(object);</span>
+	}
+
+	@Override
+	public double getDisplayAreaHorizontalWeight() {
+<span class="nc" id="L162">		return getDelegate().getDisplayAreaHorizontalWeight();</span>
+	}
+
+	@Override
+	public double getDisplayAreaVerticalWeight() {
+<span class="nc" id="L167">		return getDelegate().getDisplayAreaVerticalWeight();</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaHorizontallyFilled() {
+<span class="nc" id="L172">		return getDelegate().isDisplayAreaHorizontallyFilled();</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaVerticallyFilled() {
+<span class="nc" id="L177">		return getDelegate().isDisplayAreaVerticallyFilled();</span>
+	}
+
+	@Override
+	public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="nc" id="L182">		getDelegate().onControlVisibilityChange(object, visible);</span>
+<span class="nc" id="L183">	}</span>
+
+	@Override
+	public boolean isControlValueValiditionEnabled() {
+<span class="nc" id="L187">		return getDelegate().isControlValueValiditionEnabled();</span>
+	}
+
+	@Override
+	public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L192">		return getDelegate().getValueAbstractFormValidationJob(object);</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L197">		final int prime = 31;</span>
+<span class="nc" id="L198">		int result = 1;</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">		result = prime * result + ((getDelegateId() == null) ? 0 : getDelegateId().hashCode());</span>
+<span class="nc" id="L200">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L205" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L206">			return true;</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L208">			return false;</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L210">			return false;</span>
+<span class="nc" id="L211">		DelegatingFieldInfo other = (DelegatingFieldInfo) obj;</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">		if (getDelegateId() == null) {</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">			if (other.getDelegateId() != null)</span>
+<span class="nc" id="L214">				return false;</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">		} else if (!getDelegateId().equals(other.getDelegateId()))</span>
+<span class="nc" id="L216">			return false;</span>
+<span class="nc" id="L217">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L222">		return &quot;DelegatingFieldInfo [delegate=&quot; + getDelegateId() + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SwingCustomizer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">custom-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.customizer</a> &gt; <span class="el_source">SwingCustomizer.java</span></div><h1>SwingCustomizer.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.customizer;
+
+import java.io.File;
+import java.io.IOException;
+
+import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
+
+import xy.reflect.ui.CustomizedUI;
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.swing.renderer.CustomizedSwingRenderer;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.custom.InfoCustomizations;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.MoreSystemProperties;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.SwingCustomizerUtils;
+import xy.reflect.ui.util.SystemProperties;
+
+/**
+ * This class is a sub-class of {@link SwingRenderer} that allows to customize
+ * generated UIs by visually editing an {@link InfoCustomizations} instance and
+ * instantly previewing the result.
+ * 
+ * @author olitank
+ *
+ */
+public class SwingCustomizer extends CustomizedSwingRenderer {
+
+	public static void main(String[] args) throws Exception {
+<span class="nc" id="L35">		String usageText = &quot;Expected arguments: [ &lt;className&gt; | --help ]&quot;</span>
+				+ &quot;\n  =&gt; &lt;className&gt;: Fully qualified name of a class to instantiate and display in a window&quot;
+				+ &quot;\n  =&gt; --help: Displays this help message&quot; + &quot;\n&quot;
+<span class="nc" id="L38">				+ &quot;\nAdditionally, the following JVM properties can be set:&quot; + &quot;\n&quot; + MoreSystemProperties.describe();</span>
+		final Class&lt;?&gt; clazz;
+<span class="nc bnc" id="L40" title="All 2 branches missed.">		if (args.length == 0) {</span>
+<span class="nc" id="L41">			clazz = Object.class;</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">		} else if (args.length == 1) {</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">			if (args[0].equals(&quot;--help&quot;)) {</span>
+<span class="nc" id="L44">				System.out.println(usageText);</span>
+<span class="nc" id="L45">				return;</span>
+			} else {
+<span class="nc" id="L47">				clazz = Class.forName(args[0]);</span>
+			}
+<span class="nc" id="L49">		} else {</span>
+<span class="nc" id="L50">			throw new IllegalArgumentException(usageText);</span>
+		}
+<span class="nc" id="L52">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L55">				ReflectionUI reflectionUI = SwingCustomizer.getDefault().getReflectionUI();</span>
+<span class="nc" id="L56">				Object object = SwingCustomizer.getDefault().onTypeInstantiationRequest(null,</span>
+<span class="nc" id="L57">						reflectionUI.getTypeInfo(new JavaTypeInfoSource(clazz, null)));</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">				if (object == null) {</span>
+<span class="nc" id="L59">					return;</span>
+				}
+<span class="nc" id="L61">				SwingCustomizer.getDefault().openObjectFrame(object);</span>
+<span class="nc" id="L62">			}</span>
+		});
+<span class="nc" id="L64">	}</span>
+
+	/**
+	 * An {@link ITypeInfo} specific property key used to disable customization
+	 * tools on forms associated to this {@link ITypeInfo} instances.
+	 */
+<span class="fc" id="L70">	public static final String CUSTOMIZATIONS_FORBIDDEN_PROPERTY_KEY = SwingRenderer.class.getName()</span>
+<span class="fc" id="L71">			+ &quot;.CUSTOMIZATIONS_FORBIDDEN&quot;;</span>
+
+<span class="fc" id="L73">	protected static SwingCustomizer defaultInstance;</span>
+
+	protected CustomizationTools customizationTools;
+	protected CustomizationOptions customizationOptions;
+	protected CustomizationController customizationController;
+	protected String infoCustomizationsOutputFilePath;
+
+	/**
+	 * @return the default instance connected to {@link CustomizedUI#getDefault()}.
+	 */
+	public static SwingCustomizer getDefault() {
+<span class="nc bnc" id="L84" title="All 2 branches missed.">		if (defaultInstance == null) {</span>
+<span class="nc" id="L85">			defaultInstance = new SwingCustomizer(CustomizedUI.getDefault());</span>
+<span class="nc" id="L86">			defaultInstance.infoCustomizationsOutputFilePath = SystemProperties.getDefaultInfoCustomizationsFilePath();</span>
+		}
+<span class="nc" id="L88">		return defaultInstance;</span>
+	}
+
+	/**
+	 * A constructor allowing to specify the {@link CustomizedUI} instance and the
+	 * path of the customizations file.
+	 * 
+	 * @param customizedUI                     The {@link CustomizedUI} instance to
+	 *                                         use.
+	 * @param infoCustomizationsOutputFilePath The path of the customizations file
+	 *                                         to use.
+	 */
+	public SwingCustomizer(CustomizedUI customizedUI, String infoCustomizationsOutputFilePath) {
+<span class="fc" id="L101">		super(customizedUI);</span>
+<span class="fc" id="L102">		setInfoCustomizationsOutputFilePath(infoCustomizationsOutputFilePath);</span>
+<span class="fc" id="L103">	}</span>
+
+	/**
+	 * A constructor allowing to specify only the {@link CustomizedUI} instance.
+	 * 
+	 * @param customizedUI The {@link CustomizedUI} instance to use.
+	 */
+	public SwingCustomizer(CustomizedUI customizedUI) {
+<span class="nc" id="L111">		this(customizedUI, null);</span>
+<span class="nc" id="L112">	}</span>
+
+	/**
+	 * @return the path of the customizations file.
+	 */
+	public String getInfoCustomizationsOutputFilePath() {
+<span class="nc" id="L118">		return infoCustomizationsOutputFilePath;</span>
+	}
+
+	/**
+	 * Updates the path of the customizations file. If the new path indicates an
+	 * existing file, then the customizations are loaded from this file. If the file
+	 * does not exist then it is created and initialized.
+	 * 
+	 * @param infoCustomizationsOutputFilePath The path of the customizations file.
+	 */
+	public void setInfoCustomizationsOutputFilePath(String infoCustomizationsOutputFilePath) {
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">		if (infoCustomizationsOutputFilePath != null) {</span>
+<span class="nc" id="L130">			synchronizeInfoCustomizationsWithFile(infoCustomizationsOutputFilePath);</span>
+		}
+<span class="fc" id="L132">		this.infoCustomizationsOutputFilePath = infoCustomizationsOutputFilePath;</span>
+<span class="fc" id="L133">	}</span>
+
+	protected void synchronizeInfoCustomizationsWithFile(String filePath) {
+<span class="nc" id="L136">		File file = new File(filePath);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">		if (file.exists()) {</span>
+			try {
+<span class="nc" id="L139">				getInfoCustomizations().loadFromFile(file, ReflectionUIUtils.getDebugLogListener(getCustomizedUI()));</span>
+<span class="nc" id="L140">			} catch (IOException e) {</span>
+<span class="nc" id="L141">				throw new ReflectionUIError(e);</span>
+			}
+		} else {
+			try {
+<span class="nc" id="L145">				getInfoCustomizations().saveToFile(file, ReflectionUIUtils.getDebugLogListener(getCustomizedUI()));</span>
+<span class="nc" id="L146">			} catch (IOException e) {</span>
+<span class="nc" id="L147">				throw new ReflectionUIError(e);</span>
+			}
+		}
+<span class="nc" id="L150">	}</span>
+
+	/**
+	 * @return the {@link CustomizationTools} instance that is used.
+	 */
+	public CustomizationTools getCustomizationTools() {
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">		if (customizationTools == null) {</span>
+<span class="fc" id="L157">			customizationTools = createCustomizationTools();</span>
+		}
+<span class="fc" id="L159">		return customizationTools;</span>
+	}
+
+	/**
+	 * @return the {@link CustomizationOptions} instance that is used.
+	 */
+	public CustomizationOptions getCustomizationOptions() {
+<span class="nc bnc" id="L166" title="All 2 branches missed.">		if (customizationOptions == null) {</span>
+<span class="nc" id="L167">			customizationOptions = createCustomizationOptions();</span>
+		}
+<span class="nc" id="L169">		return customizationOptions;</span>
+	}
+
+	/**
+	 * @return the {@link CustomizationController} instance that is used.
+	 */
+	public CustomizationController getCustomizationController() {
+<span class="nc bnc" id="L176" title="All 2 branches missed.">		if (customizationController == null) {</span>
+<span class="nc" id="L177">			customizationController = createCustomizationController();</span>
+		}
+<span class="nc" id="L179">		return customizationController;</span>
+	}
+
+	/**
+	 * @return whether customizations are enabled or not. Unless this method is
+	 *         overridden, customizations are disabled if and only if the
+	 *         customizations file path is not defined (null) or if the
+	 *         {@link MoreSystemProperties#HIDE_INFO_CUSTOMIZATIONS_TOOLS} property
+	 *         is set to &quot;true&quot;.
+	 */
+	public boolean isCustomizationsEditorEnabled() {
+<span class="pc bpc" id="L190" title="3 of 4 branches missed.">		return (infoCustomizationsOutputFilePath != null) &amp;&amp; !MoreSystemProperties.areCustomizationToolsDisabled();</span>
+	}
+
+	/**
+	 * @return whether customization tools are customizable or not. Unless this
+	 *         method is overridden, meta-customizations are enabled if and only if
+	 *         the meta-customizations file path system property
+	 *         ({@link MoreSystemProperties#INFO_CUSTOMIZATION_TOOLS_CUSTOMIZATIONS_FILE_PATH})
+	 *         is defined (not null).
+	 */
+	public boolean isMetaCustomizationAllowed() {
+<span class="fc" id="L201">		return MoreSystemProperties.isInfoCustomizationToolsCustomizationAllowed();</span>
+	}
+
+	/**
+	 * @return the main customization tools icon.
+	 */
+	public ImageIcon getCustomizationsIcon() {
+<span class="nc" id="L208">		return SwingCustomizerUtils.CUSTOMIZATION_ICON;</span>
+	}
+
+	protected CustomizationController createCustomizationController() {
+<span class="nc" id="L212">		return new CustomizationController(this);</span>
+	}
+
+	protected CustomizationOptions createCustomizationOptions() {
+<span class="nc" id="L216">		return new CustomizationOptions(this);</span>
+	}
+
+	protected CustomizationTools createCustomizationTools() {
+<span class="nc bnc" id="L220" title="All 2 branches missed.">		if (!MoreSystemProperties.areCustomizationToolsDisabled()) {</span>
+<span class="nc" id="L221">			System.out.println(&quot;Set the following system property to disable the design mode:\n-D&quot;</span>
+<span class="nc" id="L222">					+ MoreSystemProperties.HIDE_INFO_CUSTOMIZATIONS_TOOLS + &quot;=true&quot;);</span>
+		}
+<span class="nc" id="L224">		return new CustomizationTools(this);</span>
+	}
+
+	@Override
+	public CustomizingForm createForm(Object object, IInfoFilter infoFilter) {
+<span class="nc" id="L229">		return new CustomizingForm(this, object, infoFilter);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

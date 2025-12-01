@@ -155,12 +155,16 @@ public class JESB {
 		} else {
 			Log.set(Console.DEFAULT);
 			Log.setVerbosityStatusSupplier(() -> Preferences.INSTANCE.isLogVerbose());
-			setStandardOutput(Console.DEFAULT.getPrintStream(System.out, null, null, null, () -> true));
-			setStandardError(Console.DEFAULT.getPrintStream(System.err, null, null, null, () -> true));
+			setStandardOutput(Console.DEFAULT.getPrintStream(System.out, () -> true));
+			setStandardError(Console.DEFAULT.getPrintStream(System.err, () -> true));
 			System.setOut(Console.DEFAULT.getPrintStream(System.out, LogFile.VERBOSE_LEVEL_NAME, "#009999", "#00FFFF",
 					Log.getVerbosityStatusSupplier()));
 			System.setErr(Console.DEFAULT.getPrintStream(System.err, LogFile.VERBOSE_LEVEL_NAME, "#009999", "#00FFFF",
 					Log.getVerbosityStatusSupplier()));
+			Console.DEFAULT.setPendingInputLineConsumer(line -> {
+				JESB.getStandardInputSource().pushLine(line);
+				JESB.getStandardOutput().println(line);
+			});
 		}
 		Log.get().information("Starting up...");
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -193,7 +197,7 @@ public class JESB {
 			setupSampleSolution();
 		}
 		if (commandLine.hasOption(RUNNER_SWITCH_ARGUMENT)) {
-			runner = new Runner(Solution.INSTANCE);
+			runner = new Runner(Solution.INSTANCE, false);
 			if (commandLine.hasOption(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)) {
 				Solution.INSTANCE.getEnvironmentSettings()
 						.importProperties(new File(commandLine.getOptionValue(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)));

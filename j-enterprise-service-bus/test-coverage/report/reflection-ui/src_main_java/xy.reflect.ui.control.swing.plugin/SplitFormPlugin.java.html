@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SplitFormPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">SplitFormPlugin.java</span></div><h1>SplitFormPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.awt.Component;
+import java.awt.Dimension;
+import java.io.Serializable;
+import javax.swing.BorderFactory;
+import javax.swing.JScrollPane;
+import javax.swing.border.Border;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.FieldControlDataProxy;
+import xy.reflect.ui.control.FieldControlInputProxy;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
+import xy.reflect.ui.control.swing.EmbeddedFormControl;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.ControlScrollPane;
+import xy.reflect.ui.control.swing.util.ControlSplitPane;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.filter.InfoFilterProxy;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Field control plugin that allows to have a split form display with a movable
+ * divider.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L41">public class SplitFormPlugin extends AbstractSimpleCustomizableFieldControlPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L45">		return &quot;Split Form&quot;;</span>
+	}
+
+	@Override
+	public boolean handles(ReflectionUI reflectionUI, IFieldControlInput input) {
+<span class="fc" id="L50">		IFieldControlData data = input.getControlData();</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if (!data.isNullValueDistinct()) {</span>
+<span class="fc" id="L52">			ITypeInfo fieldType = data.getType();</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">			if (fieldType.getFields().size() &gt;= 2) {</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">				if (data.isFormControlEmbedded()) {</span>
+<span class="fc" id="L55">					return true;</span>
+				}
+			}
+		}
+<span class="fc" id="L59">		return false;</span>
+	}
+
+	@Override
+	protected boolean handles(Class&lt;?&gt; javaType) {
+<span class="nc" id="L64">		throw new ReflectionUIError();</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="nc" id="L69">		return new SplitFormConfiguration();</span>
+	}
+
+	@Override
+	public SplitForm createControl(Object renderer, IFieldControlInput input) {
+<span class="fc" id="L74">		return new SplitForm((SwingRenderer) renderer, input);</span>
+	}
+
+	@Override
+	public boolean canDisplayDistinctNullValue() {
+<span class="nc" id="L79">		return false;</span>
+	}
+
+<span class="nc" id="L82">	public static class SplitFormConfiguration extends AbstractConfiguration {</span>
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L85">		public Orientation orientation = Orientation.HORIZONTAL_SPLIT;</span>
+<span class="nc" id="L86">		public int firstLotFieldCount = 1;</span>
+<span class="nc" id="L87">		public double defaultDividerLocation = 0.5;</span>
+		public ControlDimensionSpecification width;
+		public ControlDimensionSpecification height;
+	}
+
+<span class="fc" id="L92">	public enum Orientation {</span>
+<span class="fc" id="L93">		HORIZONTAL_SPLIT, VERTICAL_SPLIT</span>
+	}
+
+<span class="fc" id="L96">	public enum ControlSizeUnit {</span>
+<span class="fc" id="L97">		PIXELS, SCREEN_PERCENT</span>
+	}
+
+<span class="nc" id="L100">	public static class ControlDimensionSpecification implements Serializable {</span>
+
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L104">		public int value = 500;</span>
+<span class="nc" id="L105">		public ControlSizeUnit unit = ControlSizeUnit.PIXELS;</span>
+
+	}
+
+	public class SplitForm extends ControlSplitPane implements IAdvancedFieldControl {
+		private static final long serialVersionUID = 1L;
+
+		protected SwingRenderer swingRenderer;
+		protected IFieldControlInput input;
+		protected IFieldControlData data;
+		protected EmbeddedFormControl subControl1;
+		protected EmbeddedFormControl subControl2;
+<span class="fc" id="L117">		protected boolean refreshListenersDisabled = false;</span>
+		protected SplitFormConfiguration controlConfiguration;
+
+<span class="fc" id="L120">		public SplitForm(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L121">			this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L122">			this.input = input;</span>
+<span class="fc" id="L123">			this.data = input.getControlData();</span>
+<span class="fc" id="L124">			refreshUI(true);</span>
+<span class="fc" id="L125">		}</span>
+
+		@Override
+		public Dimension getPreferredSize() {
+<span class="fc" id="L129">			Dimension result = super.getPreferredSize();</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L131">				result = new Dimension(100, 100);</span>
+			}
+<span class="fc bfc" id="L133" title="All 2 branches covered.">			if (controlConfiguration.width != null) {</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">				if (controlConfiguration.width.unit == ControlSizeUnit.PIXELS) {</span>
+<span class="fc" id="L135">					result.width = controlConfiguration.width.value;</span>
+<span class="pc bnc" id="L136" title="All 2 branches missed.">				} else if (controlConfiguration.width.unit == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L137">					Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L138">					result.width = Math.round((controlConfiguration.width.value / 100f) * screenSize.width);</span>
+<span class="nc" id="L139">				} else {</span>
+<span class="nc" id="L140">					throw new ReflectionUIError();</span>
+				}
+			}
+<span class="fc bfc" id="L143" title="All 2 branches covered.">			if (controlConfiguration.height != null) {</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">				if (controlConfiguration.height.unit == ControlSizeUnit.PIXELS) {</span>
+<span class="fc" id="L145">					result.height = controlConfiguration.height.value;</span>
+<span class="pc bnc" id="L146" title="All 2 branches missed.">				} else if (controlConfiguration.height.unit == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L147">					Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L148">					result.height = Math.round((controlConfiguration.height.value / 100f) * screenSize.height);</span>
+<span class="nc" id="L149">				} else {</span>
+<span class="nc" id="L150">					throw new ReflectionUIError();</span>
+				}
+			}
+<span class="fc" id="L153">			return result;</span>
+		}
+
+		@Override
+		public Dimension getMinimumSize() {
+<span class="nc" id="L158">			Dimension result = super.getMinimumSize();</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">			if (result != null) {</span>
+<span class="nc" id="L160">				Dimension preferredSize = getPreferredSize();</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">				if (preferredSize != null) {</span>
+<span class="nc" id="L162">					result.width = Math.min(result.width, preferredSize.width);</span>
+<span class="nc" id="L163">					result.height = Math.min(result.height, preferredSize.height);</span>
+				}
+			}
+<span class="nc" id="L166">			return result;</span>
+
+		}
+
+		@Override
+		public Dimension getMaximumSize() {
+<span class="nc" id="L172">			Dimension result = super.getMaximumSize();</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">			if (result != null) {</span>
+<span class="nc" id="L174">				Dimension preferredSize = getPreferredSize();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">				if (preferredSize != null) {</span>
+<span class="nc" id="L176">					result.width = Math.max(result.width, preferredSize.width);</span>
+<span class="nc" id="L177">					result.height = Math.max(result.height, preferredSize.height);</span>
+				}
+			}
+<span class="nc" id="L180">			return result;</span>
+		}
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L185" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc" id="L186">				updateControlConfiguration();</span>
+<span class="fc" id="L187">				SwingRendererUtils.showFieldCaptionOnBorder(data, this, new Accessor&lt;Border&gt;() {</span>
+					@Override
+					public Border get() {
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">						if (data.getBorderColor() != null) {</span>
+<span class="nc" id="L191">							return BorderFactory.createLineBorder(SwingRendererUtils.getColor(data.getBorderColor()));</span>
+						} else {
+<span class="fc" id="L193">							return new ControlSplitPane().getBorder();</span>
+						}
+					}
+<span class="fc" id="L196">				}, swingRenderer);</span>
+			}
+<span class="fc" id="L198">			boolean layoutUpdateNeeded = false;</span>
+<span class="pc bpc" id="L199" title="1 of 4 branches missed.">			if ((subControl1 == null) || !subControl1.refreshUI(refreshStructure)) {</span>
+<span class="fc" id="L200">				subControl1 = createSubControl1();</span>
+<span class="fc" id="L201">				layoutUpdateNeeded = true;</span>
+			}
+<span class="pc bpc" id="L203" title="1 of 4 branches missed.">			if ((subControl2 == null) || !subControl2.refreshUI(refreshStructure)) {</span>
+<span class="fc" id="L204">				subControl2 = createSubControl2();</span>
+<span class="fc" id="L205">				layoutUpdateNeeded = true;</span>
+			}
+<span class="fc bfc" id="L207" title="All 4 branches covered.">			if (layoutUpdateNeeded || refreshStructure) {</span>
+<span class="fc" id="L208">				layoutSubControls();</span>
+			}
+<span class="fc" id="L210">			return true;</span>
+		}
+
+		protected void updateControlConfiguration() {
+<span class="fc" id="L214">			controlConfiguration = (SplitFormConfiguration) loadControlCustomization(input);</span>
+<span class="fc" id="L215">		}</span>
+
+		protected void layoutSubControls() {
+<span class="fc bfc" id="L218" title="All 2 branches covered.">			if (controlConfiguration.orientation == Orientation.HORIZONTAL_SPLIT) {</span>
+<span class="fc" id="L219">				setOrientation(ControlSplitPane.HORIZONTAL_SPLIT);</span>
+<span class="fc" id="L220">				setTopComponent(null);</span>
+<span class="fc" id="L221">				setBottomComponent(null);</span>
+<span class="fc" id="L222">				setLeftComponent(createSubControlScrollPane(subControl1));</span>
+<span class="fc" id="L223">				setRightComponent(createSubControlScrollPane(subControl2));</span>
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">			} else if (controlConfiguration.orientation == Orientation.VERTICAL_SPLIT) {</span>
+<span class="fc" id="L225">				setOrientation(ControlSplitPane.VERTICAL_SPLIT);</span>
+<span class="fc" id="L226">				setLeftComponent(null);</span>
+<span class="fc" id="L227">				setRightComponent(null);</span>
+<span class="fc" id="L228">				setTopComponent(createSubControlScrollPane(subControl1));</span>
+<span class="fc" id="L229">				setBottomComponent(createSubControlScrollPane(subControl2));</span>
+<span class="fc" id="L230">			} else {</span>
+<span class="nc" id="L231">				throw new ReflectionUIError();</span>
+			}
+<span class="fc" id="L233">			validate();</span>
+<span class="fc" id="L234">			SwingRendererUtils.ensureDividerLocation(this, controlConfiguration.defaultDividerLocation);</span>
+<span class="fc" id="L235">			setResizeWeight(controlConfiguration.defaultDividerLocation);</span>
+<span class="fc" id="L236">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+<span class="fc" id="L237">		}</span>
+
+		protected JScrollPane createSubControlScrollPane(Component content) {
+<span class="fc" id="L240">			ControlScrollPane result = new ControlScrollPane(content);</span>
+<span class="fc" id="L241">			SwingRendererUtils.removeScrollPaneBorder(result);</span>
+<span class="fc" id="L242">			return result;</span>
+		}
+
+		protected EmbeddedFormControl createSubControl1() {
+<span class="fc" id="L246">			return new EmbeddedFormControl(swingRenderer, new FieldControlInputProxy(input) {</span>
+				@Override
+				public IFieldControlData getControlData() {
+<span class="fc" id="L249">					return new FieldControlDataProxy(super.getControlData()) {</span>
+
+						@Override
+						public String getCaption() {
+<span class="fc" id="L253">							return &quot;&quot;;</span>
+						}
+
+						@Override
+						public IInfoFilter getFormControlFilter() {
+<span class="fc" id="L258">							return new InfoFilterProxy(super.getFormControlFilter()) {</span>
+
+								@Override
+								public IFieldInfo apply(IFieldInfo field) {
+<span class="fc" id="L262">									if (getType().getFields().stream()</span>
+<span class="pc bpc" id="L263" title="1 of 4 branches missed.">											.filter(f -&gt; !(f.isHidden() || (super.apply(f) == null)))</span>
+<span class="fc" id="L264">											.skip(controlConfiguration.firstLotFieldCount)</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">											.anyMatch(f -&gt; f.getName().equals(field.getName()))) {</span>
+<span class="fc" id="L266">										return null;</span>
+									}
+<span class="fc" id="L268">									return field;</span>
+								}
+
+								@Override
+								public IMethodInfo apply(IMethodInfo method) {
+<span class="fc" id="L273">									return null;</span>
+								}
+							};
+						}
+
+					};
+				}
+			});
+		}
+
+		protected EmbeddedFormControl createSubControl2() {
+<span class="fc" id="L284">			return new EmbeddedFormControl(swingRenderer, new FieldControlInputProxy(input) {</span>
+				@Override
+				public IFieldControlData getControlData() {
+<span class="fc" id="L287">					return new FieldControlDataProxy(super.getControlData()) {</span>
+
+						@Override
+						public String getCaption() {
+<span class="fc" id="L291">							return &quot;&quot;;</span>
+						}
+
+						@Override
+						public IInfoFilter getFormControlFilter() {
+<span class="fc" id="L296">							return new InfoFilterProxy(super.getFormControlFilter()) {</span>
+
+								@Override
+								public IFieldInfo apply(IFieldInfo field) {
+<span class="fc" id="L300">									if (getType().getFields().stream()</span>
+<span class="pc bpc" id="L301" title="1 of 4 branches missed.">											.filter(f -&gt; !(f.isHidden() || (super.apply(f) == null)))</span>
+<span class="fc" id="L302">											.limit(controlConfiguration.firstLotFieldCount)</span>
+<span class="fc bfc" id="L303" title="All 2 branches covered.">											.anyMatch(f -&gt; f.getName().equals(field.getName()))) {</span>
+<span class="fc" id="L304">										return null;</span>
+									}
+<span class="fc" id="L306">									return field;</span>
+								}
+
+								@Override
+								public IMethodInfo apply(IMethodInfo method) {
+<span class="fc" id="L311">									return method;</span>
+								}
+							};
+						}
+
+					};
+				}
+			});
+		}
+
+		@Override
+		public boolean displayError(Throwable error) {
+<span class="nc" id="L323">			return false;</span>
+		}
+
+		@Override
+		public boolean showsCaption() {
+<span class="fc" id="L328">			return true;</span>
+		}
+
+		@Override
+		public boolean isModificationStackManaged() {
+<span class="nc" id="L333">			return true;</span>
+		}
+
+		@Override
+		public boolean areValueAccessErrorsManaged() {
+<span class="fc" id="L338">			return true;</span>
+		}
+
+		@Override
+		public boolean requestCustomFocus() {
+<span class="fc bfc" id="L343" title="All 2 branches covered.">			if (SwingRendererUtils.requestAnyComponentFocus(subControl1, swingRenderer)) {</span>
+<span class="fc" id="L344">				return true;</span>
+			}
+<span class="fc bfc" id="L346" title="All 2 branches covered.">			if (SwingRendererUtils.requestAnyComponentFocus(subControl2, swingRenderer)) {</span>
+<span class="fc" id="L347">				return true;</span>
+			}
+<span class="fc" id="L349">			return false;</span>
+		}
+
+		@Override
+		public void validateControlData(ValidationSession session) throws Exception {
+<span class="fc" id="L354">			subControl1.validateControlData(session);</span>
+<span class="fc" id="L355">			subControl2.validateControlData(session);</span>
+<span class="fc" id="L356">		}</span>
+
+		@Override
+		public void addMenuContributions(MenuModel menuModel) {
+<span class="fc" id="L360">			subControl1.addMenuContributions(menuModel);</span>
+<span class="fc" id="L361">		}</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

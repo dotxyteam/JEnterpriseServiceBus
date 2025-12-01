@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ValidationErrorRegistry.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">ValidationErrorRegistry.java</span></div><h1>ValidationErrorRegistry.java</h1><pre class="source lang-java linenums">package xy.reflect.ui.util;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.function.Consumer;
+
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+
+/**
+ * This class is responsible for creating, providing and destroying relations
+ * between objects and their validation errors.
+ * 
+ * This implementation simply maps the object values to their validation errors
+ * by using a key equality-based size-limited cache.
+ * 
+ * WARNING: it actually makes sense to map potentially multiple equal objects to
+ * a single validation error, but it could lead to inconsistencies: validation
+ * errors may get lost if the equals(Object) method of some validated objects
+ * class is not correctly implemented, or appear on valid objects if the
+ * validation depends on a context that is external to the target object. In
+ * such cases a custom implementation of this class should be used in order to
+ * prevent these issues.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L29">public class ValidationErrorRegistry {</span>
+
+<span class="fc" id="L31">	protected Map&lt;Object, Exception&gt; attributionMap = Collections.synchronizedMap(buildAttributionMap());</span>
+<span class="fc" id="L32">	protected WeakHashMap&lt;Thread, Boolean&gt; validationCancellationStatusByThread = new WeakHashMap&lt;Thread, Boolean&gt;();</span>
+
+	/**
+	 * @param object  The validated object.
+	 * @param session The current validation session object.
+	 * @return an object that will be used as a key to access the validation error
+	 *         of the given object from the map returned by
+	 *         {@link #buildAttributionMap()}.
+	 */
+	public Object getValidationErrorMapKey(Object object, ValidationSession session) {
+<span class="fc" id="L42">		return object;</span>
+	}
+
+	/**
+	 * @return the map used to store the relations between objects and validation
+	 *         errors.
+	 */
+	protected Map&lt;Object, Exception&gt; buildAttributionMap() {
+<span class="fc" id="L50">		return MiscUtils.newStandardCache(false);</span>
+	}
+
+	/**
+	 * Stores/replaces the relation between the given validated object and its
+	 * validation error.
+	 * 
+	 * @param object          The validated object.
+	 * @param validationError The validation error.
+	 * @param session         The current validation session object.
+	 */
+	public void attribute(Object object, Exception validationError, ValidationSession session) {
+<span class="fc" id="L62">		attributionMap.put(getValidationErrorMapKey(object, session), validationError);</span>
+<span class="fc" id="L63">	}</span>
+
+	/**
+	 * Removes the relation between the given validated object and an eventual
+	 * validation error if it exists.
+	 * 
+	 * @param object
+	 * @param session
+	 */
+	public void cancelAttribution(Object object, ValidationSession session) {
+<span class="fc" id="L73">		Object attributionKey = getValidationErrorMapKey(object, session);</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">		if (!attributionMap.containsKey(attributionKey)) {</span>
+<span class="fc" id="L75">			return;</span>
+		}
+<span class="fc" id="L77">		attributionMap.remove(attributionKey);</span>
+<span class="fc" id="L78">	}</span>
+
+	/**
+	 * @param object  The validated object.
+	 * @param session
+	 * @return the validation error attributed to the given validated object if it
+	 *         exists or null.
+	 */
+	public Exception getValidationError(Object object, ValidationSession session) {
+<span class="fc" id="L87">		return attributionMap.get(getValidationErrorMapKey(object, null));</span>
+	}
+
+	/**
+	 * @param object        The object that will receive the attribution or be
+	 *                      discharged from it.
+	 * @param validationJob The validation job.
+	 * @return a proxy of the given validation job that will attribute the eventual
+	 *         validation error to the object passed as argument. Note that the
+	 *         validation cancellation status is taken into account and may lead to
+	 *         skipping the error attribution update.
+	 */
+	public IValidationJob attributing(Object object, IValidationJob validationJob, Consumer&lt;Exception&gt; onAttribution) {
+<span class="fc" id="L100">		return (sessionArg) -&gt; {</span>
+			try {
+<span class="fc" id="L102">				validationJob.validate(sessionArg);</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">				if (!isValidationCancelled(Thread.currentThread())) {</span>
+<span class="fc" id="L104">					cancelAttribution(object, sessionArg);</span>
+				}
+<span class="fc" id="L106">			} catch (Throwable t) {</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">				if (isValidationCancelled(Thread.currentThread())) {</span>
+<span class="nc" id="L108">					return;</span>
+				}
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">				if (t instanceof Exception) {</span>
+<span class="fc" id="L111">					attribute(object, (Exception) t, sessionArg);</span>
+<span class="fc" id="L112">					onAttribution.accept((Exception)t);</span>
+<span class="fc" id="L113">					throw (Exception) t;</span>
+				}
+<span class="nc" id="L115">				throw new Error(t);</span>
+			}
+<span class="fc" id="L117">		};</span>
+	}
+
+	/**
+	 * @param runnable The validation job.
+	 * @return a new task that can be used to execute and cancel properly a
+	 *         validation job.
+	 */
+	public BetterFutureTask&lt;Boolean&gt; createValidationTask(Runnable runnable) {
+<span class="fc" id="L126">		return new BetterFutureTask&lt;Boolean&gt;(runnable, true) {</span>
+
+			@Override
+			public void run() {
+<span class="fc" id="L130">				setValidationCancelled(Thread.currentThread(), false);</span>
+<span class="fc" id="L131">				super.run();</span>
+<span class="fc" id="L132">			}</span>
+
+			@Override
+			public boolean cancel(boolean mayInterruptIfRunning) {
+<span class="fc" id="L136">				setValidationCancelled(thread, true);</span>
+<span class="fc" id="L137">				return super.cancel(mayInterruptIfRunning);</span>
+			}
+
+		};
+	}
+
+	/**
+	 * @param thread The validation thread.
+	 * @return whether the validation run by the given thread is cancelled or not.
+	 */
+	public boolean isValidationCancelled(Thread thread) {
+<span class="fc" id="L148">		return Boolean.TRUE.equals(validationCancellationStatusByThread.get(thread));</span>
+	}
+
+	/**
+	 * Updates whether the validation run by the given thread is cancelled or not.
+	 * 
+	 * @param thread    The validation thread.
+	 * @param cancelled The new validation cancellation status.
+	 */
+	public void setValidationCancelled(Thread thread, boolean cancelled) {
+<span class="fc bfc" id="L158" title="All 2 branches covered.">		if (cancelled) {</span>
+<span class="fc" id="L159">			validationCancellationStatusByThread.put(thread, Boolean.TRUE);</span>
+<span class="fc" id="L160">		} else {</span>
+<span class="fc" id="L161">			validationCancellationStatusByThread.remove(thread);</span>
+		}
+<span class="fc" id="L163">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractFileMenuItem.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.menu</a> &gt; <span class="el_source">AbstractFileMenuItem.java</span></div><h1>AbstractFileMenuItem.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.menu;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.SwingUtilities;
+
+import xy.reflect.ui.control.DefaultFieldControlData;
+import xy.reflect.ui.control.DefaultFieldControlInput;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.plugin.FileBrowserPlugin;
+import xy.reflect.ui.control.swing.plugin.FileBrowserPlugin.FileBrowser;
+import xy.reflect.ui.control.swing.plugin.FileBrowserPlugin.FileBrowserConfiguration;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.menu.StandardActionMenuItemInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.factory.InfoProxyFactory;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Base class for persistence (open, save, save as) menu items.
+ * 
+ * @author olitank
+ *
+ */
+public abstract class AbstractFileMenuItem extends AbstractStandardActionMenuItem {
+
+	private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L38">	protected static Map&lt;Form, File&gt; lastFileByForm = MiscUtils.newWeakKeysIdentityBasedMap();</span>
+<span class="fc" id="L39">	protected static Map&lt;Form, Long&gt; lastPersistedVersionByForm = MiscUtils.newWeakKeysIdentityBasedMap();</span>
+
+	protected FileBrowserConfiguration fileBrowserConfiguration;
+
+	protected abstract void persist(SwingRenderer swingRenderer, Form form, File file);
+
+	public AbstractFileMenuItem(SwingRenderer swingRenderer, Form menuBarOwner,
+			StandardActionMenuItemInfo menuItemInfo) {
+<span class="fc" id="L47">		super(swingRenderer, menuBarOwner, menuItemInfo);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">		fileBrowserConfiguration = (menuItemInfo.getFileBrowserConfiguration() != null)</span>
+<span class="fc" id="L49">				? new FileBrowserConfiguration(menuItemInfo.getFileBrowserConfiguration())</span>
+<span class="fc" id="L50">				: null;</span>
+<span class="fc" id="L51">		check();</span>
+<span class="fc" id="L52">	}</span>
+
+	protected void check() {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">		if (fileBrowserConfiguration == null) {</span>
+<span class="nc" id="L56">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L58">		Object object = getContextForm().getObject();</span>
+<span class="fc" id="L59">		ITypeInfo type = swingRenderer.getReflectionUI()</span>
+<span class="fc" id="L60">				.getTypeInfo(swingRenderer.getReflectionUI().getTypeInfoSource(object));</span>
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">		if (!type.canPersist()) {</span>
+<span class="nc" id="L62">			throw new ReflectionUIError(&quot;Type '&quot; + type.getName() + &quot;' cannot persist its instances state&quot;);</span>
+		}
+<span class="fc" id="L64">	}</span>
+
+	public static Map&lt;Form, File&gt; getLastFileByForm() {
+<span class="fc" id="L67">		return lastFileByForm;</span>
+	}
+
+	public static Map&lt;Form, Long&gt; getLastPersistedVersionByForm() {
+<span class="nc" id="L71">		return lastPersistedVersionByForm;</span>
+	}
+
+	public FileBrowserConfiguration getFileBrowserConfiguration() {
+<span class="nc" id="L75">		return fileBrowserConfiguration;</span>
+	}
+
+	public void setFileBrowserConfiguration(FileBrowserConfiguration fileBrowserConfiguration) {
+<span class="nc" id="L79">		this.fileBrowserConfiguration = fileBrowserConfiguration;</span>
+<span class="nc" id="L80">	}</span>
+
+	@Override
+	protected boolean isActive() {
+<span class="fc" id="L84">		return true;</span>
+	}
+
+	protected File retrieveFile() {
+<span class="fc" id="L88">		final File[] fileHolder = new File[1];</span>
+<span class="fc" id="L89">		final FileBrowserPlugin fileBrowserPlugin = new FileBrowserPlugin();</span>
+<span class="fc" id="L90">		IFieldControlInput fileBrowserInput = new DefaultFieldControlInput(swingRenderer.getReflectionUI()) {</span>
+
+			@Override
+			public IFieldControlData getControlData() {
+<span class="fc" id="L94">				return new DefaultFieldControlData(swingRenderer.getReflectionUI()) {</span>
+
+					@Override
+					public Object getValue() {
+<span class="fc" id="L98">						return fileHolder[0];</span>
+					}
+
+					@Override
+					public void setValue(Object value) {
+<span class="fc" id="L103">						fileHolder[0] = (File) value;</span>
+<span class="fc" id="L104">					}</span>
+
+					@Override
+					public ITypeInfo getType() {
+<span class="fc" id="L108">						return new InfoProxyFactory() {</span>
+
+							@Override
+							protected Map&lt;String, Object&gt; getSpecificProperties(ITypeInfo type) {
+<span class="fc" id="L112">								Map&lt;String, Object&gt; result = super.getSpecificProperties(type);</span>
+<span class="fc" id="L113">								result = new HashMap&lt;String, Object&gt;(result);</span>
+<span class="fc" id="L114">								result = fileBrowserPlugin.storeControlCustomization(fileBrowserConfiguration, result);</span>
+<span class="fc" id="L115">								return result;</span>
+							}
+
+<span class="fc" id="L118">						}.wrapTypeInfo(</span>
+<span class="fc" id="L119">								swingRenderer.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(File.class, null)));</span>
+					}
+
+				};
+			}
+
+		};
+<span class="fc" id="L126">		FileBrowser fileBrowser = fileBrowserPlugin.createControl(swingRenderer, fileBrowserInput);</span>
+<span class="fc" id="L127">		fileBrowser.openDialog(menuBarOwner);</span>
+<span class="fc" id="L128">		File result = fileHolder[0];</span>
+<span class="fc" id="L129">		return result;</span>
+	}
+
+	@Override
+	public void execute() {
+<span class="fc" id="L134">		File file = retrieveFile();</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">		if (file == null) {</span>
+<span class="nc" id="L136">			return;</span>
+		}
+<span class="fc" id="L138">		processFile(file);</span>
+<span class="fc" id="L139">	}</span>
+
+	protected void processFile(File file) {
+<span class="fc" id="L142">		Form form = getContextForm();</span>
+		try {
+<span class="fc" id="L144">			persist(swingRenderer, form, file);</span>
+<span class="fc" id="L145">			ModificationStack modifStack = form.getModificationStack();</span>
+<span class="fc" id="L146">			lastPersistedVersionByForm.put(form, modifStack.getStateVersion());</span>
+<span class="fc" id="L147">			lastFileByForm.put(form, file);</span>
+<span class="pc" id="L148">		} catch (Throwable t) {</span>
+<span class="nc" id="L149">			lastPersistedVersionByForm.put(form, -1l);</span>
+<span class="nc" id="L150">			throw new ReflectionUIError(t);</span>
+		} finally {
+<span class="fc" id="L152">			SwingUtilities.invokeLater(new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="fc" id="L155">					SwingRendererUtils.updateWindowMenu(menuBarOwner, swingRenderer);</span>
+<span class="fc" id="L156">				}</span>
+			});
+		}
+<span class="fc" id="L159">	}</span>
+
+	public boolean isFileSynchronized() {
+<span class="fc" id="L162">		ModificationStack modifStack = getContextForm().getModificationStack();</span>
+<span class="fc" id="L163">		Long lastSavedVersion = lastPersistedVersionByForm.get(getContextForm());</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">		if (lastSavedVersion == null) {</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">			if (modifStack.getStateVersion() == 0) {</span>
+<span class="fc" id="L166">				return true;</span>
+			}
+		} else {
+<span class="fc bfc" id="L169" title="All 2 branches covered.">			if (lastSavedVersion.equals(modifStack.getStateVersion())) {</span>
+<span class="fc" id="L170">				return true;</span>
+			}
+		}
+<span class="fc" id="L173">		return false;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

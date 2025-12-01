@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ResourcePath.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info</a> &gt; <span class="el_source">ResourcePath.java</span></div><h1>ResourcePath.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlTransient;
+
+import xy.reflect.ui.util.IOUtils;
+
+/**
+ * This is a renderer-independent resource location class. It allows to specify
+ * how to access a resource from the heap, the class-path or the file system.
+ * 
+ * It will also detect alternative resource location strategies if some exist
+ * for the current resource.
+ * 
+ * Note that objects of this class are just specifications. The actual resource
+ * access must be performed in another class.
+ * 
+ * @author olitank
+ *
+ */
+public class ResourcePath implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	protected static final String CLASSPATH_RESOURCE_PREFIX = &quot;&lt;class-path-resource&gt; &quot;;
+	protected static final String MEMORY_OBJECT_PREFIX = &quot;&lt;memory&gt; &quot;;
+	protected static final int SELF_ALTERNATIVE_INDEX = 0;
+
+	protected String path;
+	protected PathKind pathKind;
+	protected int chosenAlternativeIndex;
+	protected List&lt;ResourcePath&gt; additionalAlternativeOptions;
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L44">		in.defaultReadObject();</span>
+<span class="fc" id="L45">		setSpecification(getSpecification());</span>
+<span class="fc" id="L46">	}</span>
+
+	private void writeObject(ObjectOutputStream out) throws IOException {
+<span class="fc" id="L49">		setSpecification(getSpecification());</span>
+<span class="fc" id="L50">		out.defaultWriteObject();</span>
+<span class="fc" id="L51">	}</span>
+
+	/**
+	 * Resource location strategy enumeration.
+	 * 
+	 * @author olitank
+	 *
+	 */
+<span class="fc" id="L59">	public enum PathKind {</span>
+<span class="fc" id="L60">		CLASS_PATH_RESOURCE, ABSOLUTE_FILE, RELATIVE_FILE, MEMORY_OBJECT</span>
+	}
+
+	/**
+	 * Constructs an empty resource path. {@link #setSpecification(String)} can then
+	 * be used to specify the resource location.
+	 */
+	public ResourcePath() {
+<span class="fc" id="L68">		this(&quot;&quot;);</span>
+<span class="fc" id="L69">	}</span>
+
+	/**
+	 * Constructs a class-path resource path.
+	 * 
+	 * @param classInResourcePackage A class in the same package of the resource.
+	 * @param resourceName           The name of the resource.
+	 */
+	public ResourcePath(Class&lt;?&gt; classInResourcePackage, String resourceName) {
+<span class="fc" id="L78">		this(ResourcePath.specifyClassPathResourceLocation(</span>
+<span class="fc" id="L79">				classInResourcePackage.getPackage().getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;/&quot; + resourceName));</span>
+<span class="fc" id="L80">	}</span>
+
+	/**
+	 * Constructs a resource path from a specification. Specifications can be
+	 * created using the static specify*Location(String) methods of this class.
+	 * 
+	 * @param specification The specification.
+	 */
+<span class="fc" id="L88">	public ResourcePath(String specification) {</span>
+<span class="fc" id="L89">		setSpecification(specification);</span>
+<span class="fc" id="L90">	}</span>
+
+	/**
+	 * @param path A path that could be used as the argument of
+	 *             {@link Class#getResource(String)}
+	 * @return a class-path resource location specification string that can be
+	 *         passed to the {@link #setSpecification(String)} method.
+	 */
+	public static String specifyClassPathResourceLocation(String path) {
+<span class="fc" id="L99">		return ResourcePath.CLASSPATH_RESOURCE_PREFIX + path;</span>
+	}
+
+	/**
+	 * @param path An arbitrary path that will uniquely identify a heap object.
+	 * @return a heap resource location specification string that can be passed to
+	 *         the {@link #setSpecification(String)} method.
+	 */
+	public static String specifyMemoryObjectLocation(String path) {
+<span class="fc" id="L108">		return ResourcePath.MEMORY_OBJECT_PREFIX + path;</span>
+	}
+
+	/**
+	 * @param specification The full resource location specification string.
+	 * @return the path that was passed to the
+	 *         {@link #specifyClassPathResourceLocation(String)} method in order to
+	 *         create the given resource location specification.
+	 */
+	public static String extractClassPathResourceLocation(String specification) {
+<span class="fc" id="L118">		return specification.substring(ResourcePath.CLASSPATH_RESOURCE_PREFIX.length());</span>
+	}
+
+	/**
+	 * @param specification The full resource location specification string.
+	 * @return the path that was passed to the
+	 *         {@link #specifyMemoryObjectLocation(String)} method in order to
+	 *         create the given resource location specification.
+	 */
+	public static String extractMemoryObjectLocation(String specification) {
+<span class="fc" id="L128">		return specification.substring(ResourcePath.MEMORY_OBJECT_PREFIX.length());</span>
+	}
+
+	/**
+	 * @return the raw path to resource. The format depends on the path kind.
+	 */
+	public String getPath() {
+<span class="nc" id="L135">		return path;</span>
+	}
+
+	/**
+	 * This method differs from {@link #getDefaultSpecification()} by returning an
+	 * alternative specification if one was selected using the
+	 * {@link #setChosenAlternative(ResourcePath)} method.
+	 * 
+	 * @return the chosen or default full resource location specification string.
+	 */
+	public String getSpecification() {
+<span class="fc" id="L146">		return getChosen().getDefaultSpecification();</span>
+	}
+
+	/**
+	 * @return the full resource location specification string provided through the
+	 *         {@link #setSpecification(String)} method.
+	 */
+	public String getDefaultSpecification() {
+<span class="fc bfc" id="L154" title="All 2 branches covered.">		if (pathKind == PathKind.CLASS_PATH_RESOURCE) {</span>
+<span class="fc" id="L155">			return ResourcePath.specifyClassPathResourceLocation(path);</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">		} else if (pathKind == PathKind.MEMORY_OBJECT) {</span>
+<span class="fc" id="L157">			return ResourcePath.specifyMemoryObjectLocation(path);</span>
+		} else {
+<span class="fc" id="L159">			return path;</span>
+		}
+	}
+
+	/**
+	 * Sets the full resource location specification string.
+	 * 
+	 * @param specification The full resource location specification string.
+	 */
+	public void setSpecification(String specification) {
+<span class="fc bfc" id="L169" title="All 2 branches covered.">		if (specification.startsWith(ResourcePath.CLASSPATH_RESOURCE_PREFIX)) {</span>
+<span class="fc" id="L170">			path = extractClassPathResourceLocation(specification);</span>
+<span class="fc" id="L171">			pathKind = PathKind.CLASS_PATH_RESOURCE;</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">		} else if (specification.startsWith(ResourcePath.MEMORY_OBJECT_PREFIX)) {</span>
+<span class="fc" id="L173">			path = extractMemoryObjectLocation(specification);</span>
+<span class="fc" id="L174">			pathKind = PathKind.MEMORY_OBJECT;</span>
+<span class="fc" id="L175">		} else {</span>
+<span class="fc" id="L176">			File file = new File(specification);</span>
+<span class="fc" id="L177">			path = file.getPath();</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">			pathKind = file.isAbsolute() ? PathKind.ABSOLUTE_FILE : PathKind.RELATIVE_FILE;</span>
+		}
+<span class="fc" id="L180">		chosenAlternativeIndex = 0;</span>
+<span class="fc" id="L181">	}</span>
+
+	/**
+	 * @return the current resource location strategy.
+	 */
+	public PathKind getPathKind() {
+<span class="fc" id="L187">		ResourcePath chosen = getChosen();</span>
+<span class="fc" id="L188">		return chosen.pathKind;</span>
+	}
+
+	/**
+	 * Allows to specify the location of a file system resource.
+	 * 
+	 * @param file The file system resource path.
+	 */
+	public void setFile(File file) {
+<span class="nc" id="L197">		path = file.getPath();</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">		pathKind = file.isAbsolute() ? PathKind.ABSOLUTE_FILE : PathKind.RELATIVE_FILE;</span>
+<span class="nc" id="L199">		chosenAlternativeIndex = 0;</span>
+<span class="nc" id="L200">	}</span>
+
+	/**
+	 * @return the current or the chosen resource location alternative if one was
+	 *         selected using the {@link #setChosenAlternative(ResourcePath)}
+	 *         method.
+	 */
+	protected ResourcePath getChosen() {
+<span class="fc bfc" id="L208" title="All 2 branches covered.">		if (chosenAlternativeIndex == SELF_ALTERNATIVE_INDEX) {</span>
+<span class="fc" id="L209">			return this;</span>
+		} else {
+<span class="fc" id="L211">			return getChosenAlternative();</span>
+		}
+	}
+
+	/**
+	 * @return the the chosen resource location alternative if one was selected
+	 *         using the {@link #setChosenAlternative(ResourcePath)} method, or null
+	 *         if no choice was made.
+	 */
+	@XmlTransient
+	public ResourcePath getChosenAlternative() {
+<span class="fc" id="L222">		List&lt;ResourcePath&gt; options = getAlternativeOptions();</span>
+<span class="pc bpc" id="L223" title="2 of 4 branches missed.">		if ((chosenAlternativeIndex &gt;= 0) &amp;&amp; (chosenAlternativeIndex &lt; options.size())) {</span>
+<span class="fc" id="L224">			return options.get(chosenAlternativeIndex);</span>
+		}
+<span class="nc" id="L226">		return null;</span>
+	}
+
+	/**
+	 * Allows to select a resource location alternative.
+	 * 
+	 * @param chosenAlternative An alternative resource location. Must be included
+	 *                          in the list returned by the
+	 *                          {@link #getAlternativeOptions()} method.
+	 */
+	public void setChosenAlternative(ResourcePath chosenAlternative) {
+<span class="nc" id="L237">		List&lt;ResourcePath&gt; options = getAlternativeOptions();</span>
+<span class="nc" id="L238">		chosenAlternativeIndex = options.indexOf(chosenAlternative);</span>
+<span class="nc" id="L239">	}</span>
+
+	/**
+	 * @return the list of detected alternative resource locations, each one with a
+	 *         different strategy.
+	 */
+	public List&lt;ResourcePath&gt; getAlternativeOptions() {
+<span class="fc" id="L246">		List&lt;ResourcePath&gt; result = new ArrayList&lt;ResourcePath&gt;();</span>
+<span class="pc bpc" id="L247" title="3 of 4 branches missed.">		if ((pathKind == PathKind.ABSOLUTE_FILE) || (pathKind == PathKind.RELATIVE_FILE)) {</span>
+<span class="pc bpc" id="L248" title="1 of 2 branches missed.">			if (path.trim().length() &gt; 0) {</span>
+<span class="fc" id="L249">				File file = new File(path);</span>
+<span class="fc" id="L250">				result.addAll(findMatchingClassPathResources(file));</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">				if (pathKind == PathKind.ABSOLUTE_FILE) {</span>
+<span class="fc" id="L252">					File currentDir = new File(&quot;.&quot;);</span>
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">					if (IOUtils.isAncestor(currentDir, file)) {</span>
+<span class="nc" id="L254">						File relativeFile = IOUtils.relativizeFile(currentDir, file);</span>
+<span class="nc" id="L255">						result.add(new ResourcePath(relativeFile.getPath()));</span>
+					}
+				}
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">				if (pathKind == PathKind.RELATIVE_FILE) {</span>
+<span class="nc" id="L259">					result.add(new ResourcePath(file.getAbsolutePath()));</span>
+				}
+			}
+		}
+<span class="fc" id="L263">		result.add(SELF_ALTERNATIVE_INDEX, this);</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">		if (additionalAlternativeOptions != null) {</span>
+<span class="nc" id="L265">			result.addAll(additionalAlternativeOptions);</span>
+		}
+<span class="fc" id="L267">		return result;</span>
+	}
+
+	/**
+	 * Allows to specify additional alternative options that will be include in the
+	 * result of {@link #getAlternativeOptions()}.
+	 * 
+	 * @param additionalAlternativeOptions The additional alternative options.
+	 */
+	public void setAdditionalAlternativeOptions(List&lt;ResourcePath&gt; additionalAlternativeOptions) {
+<span class="nc" id="L277">		this.additionalAlternativeOptions = additionalAlternativeOptions;</span>
+<span class="nc" id="L278">	}</span>
+
+	protected Collection&lt;? extends ResourcePath&gt; findMatchingClassPathResources(File file) {
+<span class="fc" id="L281">		List&lt;ResourcePath&gt; result = new ArrayList&lt;ResourcePath&gt;();</span>
+<span class="fc" id="L282">		File candidateResourceFile = new File(file.getAbsoluteFile().getPath());</span>
+<span class="fc" id="L283">		while (true) {</span>
+<span class="fc" id="L284">			File mostAncestorFile = candidateResourceFile.getParentFile();</span>
+<span class="fc bfc" id="L285" title="All 2 branches covered.">			if (mostAncestorFile == null) {</span>
+<span class="fc" id="L286">				break;</span>
+			}
+<span class="fc bfc" id="L288" title="All 2 branches covered.">			while (mostAncestorFile.getParentFile() != null) {</span>
+<span class="fc" id="L289">				mostAncestorFile = mostAncestorFile.getParentFile();</span>
+			}
+<span class="fc" id="L291">			candidateResourceFile = IOUtils.relativizeFile(mostAncestorFile, candidateResourceFile);</span>
+<span class="fc" id="L292">			String candidateResourcePath = candidateResourceFile.getPath().replaceAll(&quot;\\\\&quot;, &quot;/&quot;);</span>
+<span class="fc" id="L293">			URL resourceURL = ResourcePath.class.getClassLoader().getResource(candidateResourcePath);</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">			if (resourceURL != null) {</span>
+<span class="fc" id="L295">				result.add(new ResourcePath(specifyClassPathResourceLocation(candidateResourcePath)));</span>
+			}
+		}
+<span class="fc" id="L298">		return result;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L303">		final int prime = 31;</span>
+<span class="fc" id="L304">		int result = 1;</span>
+<span class="fc" id="L305">		result = prime * result + chosenAlternativeIndex;</span>
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">		result = prime * result + ((path == null) ? 0 : path.hashCode());</span>
+<span class="pc bpc" id="L307" title="1 of 2 branches missed.">		result = prime * result + ((pathKind == null) ? 0 : pathKind.hashCode());</span>
+<span class="fc" id="L308">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L313" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L314">			return true;</span>
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L316">			return false;</span>
+<span class="pc bpc" id="L317" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L318">			return false;</span>
+<span class="fc" id="L319">		ResourcePath other = (ResourcePath) obj;</span>
+<span class="pc bpc" id="L320" title="1 of 2 branches missed.">		if (chosenAlternativeIndex != other.chosenAlternativeIndex)</span>
+<span class="nc" id="L321">			return false;</span>
+<span class="pc bpc" id="L322" title="1 of 2 branches missed.">		if (path == null) {</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">			if (other.path != null)</span>
+<span class="nc" id="L324">				return false;</span>
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">		} else if (!path.equals(other.path))</span>
+<span class="nc" id="L326">			return false;</span>
+<span class="pc bpc" id="L327" title="1 of 2 branches missed.">		if (pathKind != other.pathKind)</span>
+<span class="nc" id="L328">			return false;</span>
+<span class="fc" id="L329">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L334">		return &quot;ResourcePath [path=&quot; + path + &quot;, pathKind=&quot; + pathKind + &quot;, chosenAlternativeIndex=&quot;</span>
+<span class="nc" id="L335">				+ chosenAlternativeIndex + &quot;, getSpecification()=&quot; + getSpecification() + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

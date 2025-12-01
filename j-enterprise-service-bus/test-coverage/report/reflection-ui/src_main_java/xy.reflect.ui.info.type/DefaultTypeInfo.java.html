@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DefaultTypeInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type</a> &gt; <span class="el_source">DefaultTypeInfo.java</span></div><h1>DefaultTypeInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.ITransaction;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.field.GetterFieldInfo;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.field.PublicFieldInfo;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.method.DefaultConstructorInfo;
+import xy.reflect.ui.info.method.DefaultMethodInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.IOUtils;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Type information extracted from the Java type encapsulated in the given type
+ * information source.
+ * 
+ * @author olitank
+ *
+ */
+public class DefaultTypeInfo extends AbstractInfo implements ITypeInfo {
+
+	protected JavaTypeInfoSource source;
+	protected ReflectionUI reflectionUI;
+	protected List&lt;IFieldInfo&gt; fields;
+	protected List&lt;IMethodInfo&gt; methods;
+	protected List&lt;IMethodInfo&gt; constructors;
+<span class="fc" id="L55">	protected final Object mutex = new Object();</span>
+
+<span class="fc" id="L57">	public DefaultTypeInfo(ReflectionUI reflectionUI, JavaTypeInfoSource source) {</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">		if (source == null) {</span>
+<span class="nc" id="L59">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L61">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L62">		this.source = source;</span>
+<span class="fc" id="L63">	}</span>
+
+	@Override
+	public ITypeInfoSource getSource() {
+<span class="fc" id="L67">		return source;</span>
+	}
+
+	@Override
+	public ITransaction createTransaction(Object object) {
+<span class="fc" id="L72">		return null;</span>
+	}
+
+	@Override
+	public void onFormRefresh(Object object) {
+<span class="fc" id="L77">	}</span>
+
+	@Override
+	public Runnable getLastFormRefreshStateRestorationJob(Object object) {
+<span class="fc" id="L81">		return null;</span>
+	}
+
+	@Override
+	public CategoriesStyle getCategoriesStyle() {
+<span class="nc" id="L86">		return CategoriesStyle.getDefault(reflectionUI, reflectionUI.getTypeInfo(getSource()));</span>
+	}
+
+	@Override
+	public ResourcePath getFormBackgroundImagePath() {
+<span class="fc" id="L91">		return null;</span>
+	}
+
+	@Override
+	public ColorSpecification getFormBackgroundColor() {
+<span class="fc" id="L96">		return null;</span>
+	}
+
+	@Override
+	public ColorSpecification getFormForegroundColor() {
+<span class="fc" id="L101">		return null;</span>
+	}
+
+	@Override
+	public ColorSpecification getFormBorderColor() {
+<span class="fc" id="L106">		return null;</span>
+	}
+
+	@Override
+	public ColorSpecification getFormButtonBackgroundColor() {
+<span class="fc" id="L111">		return null;</span>
+	}
+
+	@Override
+	public ColorSpecification getFormButtonForegroundColor() {
+<span class="fc" id="L116">		return null;</span>
+	}
+
+	@Override
+	public ResourcePath getFormButtonBackgroundImagePath() {
+<span class="fc" id="L121">		return null;</span>
+	}
+
+	@Override
+	public ColorSpecification getFormButtonBorderColor() {
+<span class="fc" id="L126">		return null;</span>
+	}
+
+	@Override
+	public ColorSpecification getCategoriesBackgroundColor() {
+<span class="fc" id="L131">		return null;</span>
+	}
+
+	@Override
+	public ColorSpecification getCategoriesForegroundColor() {
+<span class="fc" id="L136">		return null;</span>
+	}
+
+	@Override
+	public ColorSpecification getFormEditorForegroundColor() {
+<span class="fc" id="L141">		return null;</span>
+	}
+
+	@Override
+	public ColorSpecification getFormEditorBackgroundColor() {
+<span class="fc" id="L146">		return null;</span>
+	}
+
+	@Override
+	public int getFormPreferredWidth() {
+<span class="fc" id="L151">		return -1;</span>
+	}
+
+	@Override
+	public int getFormPreferredHeight() {
+<span class="fc" id="L156">		return -1;</span>
+	}
+
+	@Override
+	public int getFormSpacing() {
+<span class="fc" id="L161">		return ITypeInfo.DEFAULT_FORM_SPACING;</span>
+	}
+
+	@Override
+	public void onFormVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L166">	}</span>
+
+	@Override
+	public void onFormCreation(Object object, boolean beforeOrAFter) {
+<span class="fc" id="L170">	}</span>
+
+	public Class&lt;?&gt; getJavaType() {
+<span class="fc" id="L173">		return source.getJavaType();</span>
+	}
+
+	@Override
+	public FieldsLayout getFieldsLayout() {
+<span class="fc" id="L178">		return FieldsLayout.VERTICAL_FLOW;</span>
+	}
+
+	@Override
+	public MethodsLayout getMethodsLayout() {
+<span class="fc" id="L183">		return MethodsLayout.HORIZONTAL_FLOW;</span>
+	}
+
+	@Override
+	public MenuModel getMenuModel() {
+<span class="fc" id="L188">		return new MenuModel();</span>
+	}
+
+	@Override
+	public boolean isPrimitive() {
+<span class="fc" id="L193">		return getJavaType().isPrimitive();</span>
+	}
+
+	@Override
+	public boolean isImmutable() {
+<span class="fc" id="L198">		return ClassUtils.isKnownAsImmutableClass(getJavaType());</span>
+	}
+
+	@Override
+	public boolean isConcrete() {
+<span class="fc bfc" id="L203" title="All 4 branches covered.">		if ((!getJavaType().isPrimitive()) &amp;&amp; Modifier.isAbstract(getJavaType().getModifiers())) {</span>
+<span class="fc" id="L204">			return false;</span>
+		}
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">		if (getJavaType().isInterface()) {</span>
+<span class="nc" id="L207">			return false;</span>
+		}
+<span class="fc bfc" id="L209" title="All 2 branches covered.">		if (getJavaType() == Object.class) {</span>
+<span class="fc" id="L210">			return false;</span>
+		}
+<span class="fc" id="L212">		return true;</span>
+	}
+
+	@Override
+	public boolean isModificationStackAccessible() {
+<span class="fc" id="L217">		return true;</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc" id="L222">		return getJavaType().getName();</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc bfc" id="L227" title="All 2 branches covered.">		if (String.class.equals(getJavaType())) {</span>
+<span class="fc" id="L228">			return &quot;Text&quot;;</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">		} else if (getJavaType().isPrimitive()) {</span>
+<span class="fc" id="L230">			return ClassUtils.primitiveToWrapperClass(getJavaType()).getSimpleName();</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">		} else if (getJavaType().isAnonymousClass()) {</span>
+<span class="nc" id="L232">			ITypeInfo enclosingType = reflectionUI</span>
+<span class="nc" id="L233">					.getTypeInfo(new JavaTypeInfoSource(getJavaType().getEnclosingClass(), null));</span>
+<span class="nc" id="L234">			ITypeInfo baseType = reflectionUI</span>
+<span class="nc" id="L235">					.getTypeInfo(new JavaTypeInfoSource(ClassUtils.getAnonymousClassBase(getJavaType()), null));</span>
+<span class="nc" id="L236">			return ReflectionUIUtils.composeMessage(enclosingType.getCaption(), &quot;Anonymous &quot; + baseType.getCaption());</span>
+		} else {
+<span class="fc" id="L238">			return ReflectionUIUtils.identifierToCaption(getJavaType().getSimpleName()).replaceAll(&quot; *\\$+ *&quot;, &quot; &quot;);</span>
+		}
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getConstructors() {
+<span class="fc" id="L244">		synchronized (mutex) {</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">			if (constructors == null) {</span>
+<span class="fc" id="L246">				constructors = new ArrayList&lt;IMethodInfo&gt;();</span>
+<span class="fc bfc" id="L247" title="All 2 branches covered.">				if (ClassUtils.isPrimitiveClassOrWrapper(getJavaType())) {</span>
+					final Class&lt;?&gt; primitiveClass;
+					final Class&lt;?&gt; wrapperClass;
+<span class="fc bfc" id="L250" title="All 2 branches covered.">					if (ClassUtils.isPrimitiveClass(getJavaType())) {</span>
+<span class="fc" id="L251">						primitiveClass = getJavaType();</span>
+<span class="fc" id="L252">						wrapperClass = ClassUtils.primitiveToWrapperClass(primitiveClass);</span>
+<span class="fc" id="L253">					} else {</span>
+<span class="fc" id="L254">						wrapperClass = getJavaType();</span>
+<span class="fc" id="L255">						primitiveClass = ClassUtils.wrapperToPrimitiveClass(wrapperClass);</span>
+					}
+					Constructor&lt;?&gt; primitiveParamWrapperCtor;
+					try {
+<span class="fc" id="L259">						primitiveParamWrapperCtor = wrapperClass.getConstructor(primitiveClass);</span>
+<span class="pc" id="L260">					} catch (Exception e) {</span>
+<span class="nc" id="L261">						throw new ReflectionUIError(e);</span>
+					}
+<span class="fc" id="L263">					constructors</span>
+<span class="fc" id="L264">							.add(new DefaultConstructorInfo(reflectionUI, primitiveParamWrapperCtor, getJavaType()) {</span>
+
+								@Override
+								public List&lt;IParameterInfo&gt; getParameters() {
+<span class="fc" id="L268">									return Collections.emptyList();</span>
+								}
+
+								@Override
+								public Object invoke(Object ignore, InvocationData invocationData) {
+<span class="nc" id="L273">									invocationData.getProvidedParameterValues().put(0,</span>
+<span class="nc" id="L274">											ClassUtils.getDefaultPrimitiveValue(primitiveClass));</span>
+<span class="nc" id="L275">									return super.invoke(ignore, invocationData);</span>
+								}
+
+							});
+<span class="fc bfc" id="L279" title="All 2 branches covered.">				} else if (String.class == getJavaType()) {</span>
+					try {
+<span class="fc" id="L281">						constructors.add(</span>
+<span class="fc" id="L282">								new DefaultConstructorInfo(reflectionUI, String.class.getConstructor(), getJavaType()));</span>
+<span class="pc" id="L283">					} catch (Exception e) {</span>
+<span class="nc" id="L284">						throw new ReflectionUIError(e);</span>
+					}
+				} else {
+<span class="fc" id="L287">					Constructor&lt;?&gt;[] javaConstructors = getJavaType().getConstructors();</span>
+<span class="fc" id="L288">					ReflectionUIUtils.sortConstructors(javaConstructors);</span>
+<span class="fc bfc" id="L289" title="All 2 branches covered.">					for (Constructor&lt;?&gt; javaConstructor : javaConstructors) {</span>
+<span class="pc bpc" id="L290" title="1 of 2 branches missed.">						if (!DefaultConstructorInfo.isCompatibleWith(javaConstructor, getJavaType())) {</span>
+<span class="nc" id="L291">							continue;</span>
+						}
+<span class="fc" id="L293">						constructors.add(new DefaultConstructorInfo(reflectionUI, javaConstructor, getJavaType()));</span>
+					}
+				}
+			}
+<span class="fc" id="L297">			return constructors;</span>
+		}
+	}
+
+	@Override
+	public List&lt;IFieldInfo&gt; getFields() {
+<span class="fc" id="L303">		synchronized (mutex) {</span>
+<span class="fc bfc" id="L304" title="All 2 branches covered.">			if (fields == null) {</span>
+<span class="fc" id="L305">				fields = new ArrayList&lt;IFieldInfo&gt;();</span>
+<span class="fc" id="L306">				Field[] javaFields = getJavaType().getFields();</span>
+<span class="fc" id="L307">				ReflectionUIUtils.sortFields(javaFields);</span>
+<span class="fc bfc" id="L308" title="All 2 branches covered.">				for (Field javaField : javaFields) {</span>
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">					if (!PublicFieldInfo.isCompatibleWith(javaField)) {</span>
+<span class="nc" id="L310">						continue;</span>
+					}
+<span class="fc" id="L312">					fields.add(new PublicFieldInfo(reflectionUI, javaField, getJavaType()));</span>
+				}
+<span class="fc" id="L314">				Method[] javaMethods = getJavaType().getMethods();</span>
+<span class="fc" id="L315">				ReflectionUIUtils.sortMethods(javaMethods);</span>
+<span class="fc bfc" id="L316" title="All 2 branches covered.">				for (Method javaMethod : javaMethods) {</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">					if (!GetterFieldInfo.isCompatibleWith(javaMethod, getJavaType())) {</span>
+<span class="fc" id="L318">						continue;</span>
+					}
+<span class="fc" id="L320">					GetterFieldInfo getterFieldInfo = new GetterFieldInfo(reflectionUI, javaMethod, getJavaType());</span>
+<span class="fc" id="L321">					fields.add(getterFieldInfo);</span>
+				}
+			}
+<span class="fc" id="L324">			return fields;</span>
+		}
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getMethods() {
+<span class="fc" id="L330">		synchronized (mutex) {</span>
+<span class="fc bfc" id="L331" title="All 2 branches covered.">			if (methods == null) {</span>
+<span class="fc" id="L332">				methods = new ArrayList&lt;IMethodInfo&gt;();</span>
+<span class="fc" id="L333">				Method[] javaMethods = getJavaType().getMethods();</span>
+<span class="fc" id="L334">				ReflectionUIUtils.sortMethods(javaMethods);</span>
+<span class="fc bfc" id="L335" title="All 2 branches covered.">				for (Method javaMethod : javaMethods) {</span>
+<span class="fc bfc" id="L336" title="All 2 branches covered.">					if (!DefaultMethodInfo.isCompatibleWith(javaMethod, getJavaType())) {</span>
+<span class="fc" id="L337">						continue;</span>
+					}
+<span class="fc" id="L339">					methods.add(new DefaultMethodInfo(reflectionUI, javaMethod, getJavaType()));</span>
+				}
+			}
+<span class="fc" id="L342">			return methods;</span>
+		}
+	}
+
+	@Override
+	public boolean supports(Object object) {
+<span class="fc bfc" id="L348" title="All 2 branches covered.">		if (getJavaType().isPrimitive()) {</span>
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">			if (object == null) {</span>
+<span class="nc" id="L350">				return false;</span>
+			}
+<span class="fc" id="L352">			return ClassUtils.primitiveToWrapperClass(getJavaType()).isInstance(object);</span>
+		} else {
+<span class="fc bfc" id="L354" title="All 2 branches covered.">			if (object == null) {</span>
+<span class="fc" id="L355">				return true;</span>
+			}
+<span class="fc" id="L357">			return getJavaType().isInstance(object);</span>
+		}
+	}
+
+	@Override
+	public List&lt;ITypeInfo&gt; getPolymorphicInstanceSubTypes() {
+<span class="fc" id="L363">		return Collections.emptyList();</span>
+	}
+
+	@Override
+	public boolean isPolymorphicInstanceAbstractTypeOptionAllowed() {
+<span class="fc" id="L368">		return false;</span>
+	}
+
+	@Override
+	public String toString(Object object) {
+<span class="fc" id="L373">		ReflectionUIUtils.checkInstance(this, object);</span>
+<span class="fc bfc" id="L374" title="All 2 branches covered.">		if (object instanceof String) {</span>
+<span class="fc" id="L375">			return (String) object;</span>
+<span class="fc bfc" id="L376" title="All 2 branches covered.">		} else if (ClassUtils.isPrimitiveClassOrWrapper(getJavaType())) {</span>
+<span class="fc" id="L377">			return ReflectionUIUtils.primitiveToString(object);</span>
+		} else {
+<span class="fc" id="L379">			String result = object.toString();</span>
+<span class="pc bpc" id="L380" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L381">				result = &quot;&quot;;</span>
+			}
+<span class="fc" id="L383">			String pattern = MiscUtils.escapeRegex(getJavaType().getName()) + &quot;@([0-9a-z]+)&quot;;</span>
+<span class="fc" id="L384">			String replacement = getCaption() + &quot; [id=$1]&quot;;</span>
+<span class="fc" id="L385">			result = result.replaceAll(pattern, replacement);</span>
+<span class="fc" id="L386">			result = result.replace(getJavaType().getName(), getCaption());</span>
+<span class="fc" id="L387">			return result;</span>
+		}
+	}
+
+	@Override
+	public ResourcePath getIconImagePath(Object object) {
+<span class="fc" id="L393">		return null;</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="fc" id="L398">		return null;</span>
+	}
+
+	@Override
+	public void validate(Object object, ValidationSession session) throws Exception {
+<span class="fc" id="L403">		ReflectionUIUtils.checkInstance(this, object);</span>
+<span class="fc" id="L404">	}</span>
+
+	@Override
+	public ITypeInfo getParent() {
+<span class="fc bfc" id="L408" title="All 2 branches covered.">		if (source.getJavaType().getEnclosingClass() != null) {</span>
+<span class="pc bpc" id="L409" title="1 of 2 branches missed.">			if (!Modifier.isStatic(source.getJavaType().getModifiers())) {</span>
+<span class="nc" id="L410">				return reflectionUI.getTypeInfo(new JavaTypeInfoSource(source.getJavaType().getEnclosingClass(), null));</span>
+			}
+		}
+<span class="fc" id="L413">		return null;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L418">		return Collections.emptyMap();</span>
+	}
+
+	@Override
+	public boolean canPersist() {
+<span class="nc bnc" id="L423" title="All 2 branches missed.">		if (Serializable.class.isAssignableFrom(getJavaType())) {</span>
+<span class="nc" id="L424">			return true;</span>
+		}
+<span class="nc" id="L426">		return false;</span>
+	}
+
+	@Override
+	public boolean isValidationRequired() {
+<span class="fc" id="L431">		return false;</span>
+	}
+
+	@Override
+	public void save(Object object, File outputFile) {
+<span class="nc" id="L436">		try (FileOutputStream out = new FileOutputStream(outputFile)) {</span>
+<span class="nc" id="L437">			IOUtils.serialize(object, out);</span>
+<span class="nc" id="L438">		} catch (IOException e) {</span>
+<span class="nc" id="L439">			throw new ReflectionUIError(e);</span>
+		}
+<span class="nc" id="L441">	}</span>
+
+	@Override
+	public void load(Object object, File inputFile) {
+		Object loaded;
+<span class="nc" id="L446">		try (FileInputStream in = new FileInputStream(inputFile)) {</span>
+<span class="nc" id="L447">			loaded = IOUtils.deserialize(in);</span>
+<span class="nc" id="L448">		} catch (IOException e) {</span>
+<span class="nc" id="L449">			throw new ReflectionUIError(e);</span>
+		}
+		try {
+<span class="nc" id="L452">			ReflectionUIUtils.copyFieldValuesAccordingInfos(reflectionUI, loaded, object, true);</span>
+<span class="nc" id="L453">		} catch (Throwable t) {</span>
+<span class="nc" id="L454">			throw new ReflectionUIError(&quot;Deserializion error: Deep copy failure: &quot; + t.toString(), t);</span>
+		}
+<span class="nc" id="L456">	}</span>
+
+	@Override
+	public boolean canCopy(Object object) {
+<span class="pc bpc" id="L460" title="1 of 2 branches missed.">		if (object == null) {</span>
+<span class="nc" id="L461">			return true;</span>
+		}
+<span class="fc" id="L463">		ReflectionUIUtils.checkInstance(this, object);</span>
+<span class="pc bpc" id="L464" title="1 of 2 branches missed.">		if (object instanceof Serializable) {</span>
+<span class="nc" id="L465">			return true;</span>
+		}
+<span class="fc" id="L467">		return false;</span>
+	}
+
+	@Override
+	public Object copy(Object object) {
+<span class="pc bpc" id="L472" title="1 of 2 branches missed.">		if (object == null) {</span>
+<span class="nc" id="L473">			return null;</span>
+		}
+<span class="fc" id="L475">		ReflectionUIUtils.checkInstance(this, object);</span>
+<span class="pc bpc" id="L476" title="1 of 2 branches missed.">		if (object instanceof Serializable) {</span>
+<span class="fc" id="L477">			return IOUtils.copyThroughSerialization((Serializable) object);</span>
+		}
+<span class="nc" id="L479">		throw new ReflectionUIError();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L484">		final int prime = 31;</span>
+<span class="fc" id="L485">		int result = 1;</span>
+<span class="pc bpc" id="L486" title="1 of 2 branches missed.">		result = prime * result + ((reflectionUI == null) ? 0 : reflectionUI.hashCode());</span>
+<span class="pc bpc" id="L487" title="1 of 2 branches missed.">		result = prime * result + ((source == null) ? 0 : source.hashCode());</span>
+<span class="fc" id="L488">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L493" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L494">			return true;</span>
+<span class="pc bpc" id="L495" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L496">			return false;</span>
+<span class="pc bpc" id="L497" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L498">			return false;</span>
+<span class="fc" id="L499">		DefaultTypeInfo other = (DefaultTypeInfo) obj;</span>
+<span class="pc bpc" id="L500" title="1 of 2 branches missed.">		if (reflectionUI == null) {</span>
+<span class="nc bnc" id="L501" title="All 2 branches missed.">			if (other.reflectionUI != null)</span>
+<span class="nc" id="L502">				return false;</span>
+<span class="pc bpc" id="L503" title="1 of 2 branches missed.">		} else if (!reflectionUI.equals(other.reflectionUI))</span>
+<span class="nc" id="L504">			return false;</span>
+<span class="pc bpc" id="L505" title="1 of 2 branches missed.">		if (source == null) {</span>
+<span class="nc bnc" id="L506" title="All 2 branches missed.">			if (other.source != null)</span>
+<span class="nc" id="L507">				return false;</span>
+<span class="pc bpc" id="L508" title="1 of 2 branches missed.">		} else if (!source.equals(other.source))</span>
+<span class="fc" id="L509">			return false;</span>
+<span class="nc" id="L510">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L515">		return &quot;DefaultTypeInfo [source=&quot; + source + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

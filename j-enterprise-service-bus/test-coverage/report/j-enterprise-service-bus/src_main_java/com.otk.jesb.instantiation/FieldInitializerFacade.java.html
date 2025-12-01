@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FieldInitializerFacade.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">FieldInitializerFacade.java</span></div><h1>FieldInitializerFacade.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.List;
+
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.InstantiationUtils;
+
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+public class FieldInitializerFacade extends InitializerFacade {
+
+	private String fieldName;
+	private IFieldInfo fieldInfo;
+
+	public FieldInitializerFacade(Facade parent, String fieldName) {
+<span class="fc" id="L22">		super(parent);</span>
+<span class="fc" id="L23">		this.fieldName = fieldName;</span>
+<span class="fc" id="L24">	}</span>
+
+	@Override
+	public List&lt;VariableDeclaration&gt; getAdditionalVariableDeclarations(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations) {
+<span class="fc" id="L29">		List&lt;VariableDeclaration&gt; baseResult = getParent().getAdditionalVariableDeclarations(null,</span>
+<span class="fc" id="L30">				baseVariableDeclarations);</span>
+<span class="fc" id="L31">		List&lt;VariableDeclaration&gt; result = baseResult;</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">		if (function == null) {</span>
+<span class="fc" id="L33">			return result;</span>
+		}
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">		if (getCondition() == function) {</span>
+<span class="nc" id="L36">			return baseResult;</span>
+		}
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">		if (getFieldValue() == function) {</span>
+<span class="fc" id="L39">			return result;</span>
+		}
+<span class="nc" id="L41">		throw new UnexpectedError();</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getFunctionReturnType(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations) {
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">		if (getCondition() == function) {</span>
+<span class="nc" id="L48">			return boolean.class;</span>
+		}
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		if (getFieldValue() == function) {</span>
+<span class="fc" id="L51">			return ((DefaultTypeInfo) getFieldInfo().getType()).getJavaType();</span>
+		}
+<span class="nc" id="L53">		throw new UnexpectedError();</span>
+	}
+
+	@Override
+	public void validate(boolean recursively, List&lt;VariableDeclaration&gt; variableDeclarations) throws ValidationError {
+<span class="fc bfc" id="L58" title="All 2 branches covered.">		if (!isConcrete()) {</span>
+<span class="fc" id="L59">			return;</span>
+		}
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">		if (getCondition() != null) {</span>
+<span class="nc" id="L62">			InstantiationUtils.validateValue(getCondition(), TypeInfoProvider.getTypeInfo(boolean.class), getParent(),</span>
+<span class="nc" id="L63">					&quot;condition&quot;, true, variableDeclarations);</span>
+		}
+<span class="fc" id="L65">		InstantiationUtils.validateValue(getUnderlying().getFieldValue(), getFieldInfo().getType(), this, &quot;field value&quot;,</span>
+<span class="fc" id="L66">				recursively, variableDeclarations);</span>
+<span class="fc" id="L67">	}</span>
+
+	@Override
+	public String express() {
+<span class="fc" id="L71">		Object value = getFieldValue();</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">		if (value instanceof InstanceBuilderFacade) {</span>
+<span class="nc" id="L73">			value = ((InstanceBuilderFacade) value).getUnderlying();</span>
+		}
+<span class="fc" id="L75">		String result = InstantiationUtils.express(value);</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">		if (getCondition() != null) {</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">			result = &quot;IF &quot; + InstantiationUtils.express(getCondition()) + ((result != null) ? (&quot; THEN &quot; + result) : &quot;&quot;);</span>
+		}
+<span class="fc" id="L79">		return result;</span>
+	}
+
+	public Object createDefaultFieldValue() {
+<span class="nc" id="L83">		return super.createDefaultValue();</span>
+	}
+
+	public IFieldInfo getFieldInfo() {
+<span class="fc bfc" id="L87" title="All 2 branches covered.">		if (fieldInfo == null) {</span>
+<span class="fc" id="L88">			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();</span>
+<span class="fc" id="L89">			fieldInfo = ReflectionUIUtils.findInfoByName(parentTypeInfo.getFields(), fieldName);</span>
+		}
+<span class="fc" id="L91">		return fieldInfo;</span>
+	}
+
+	@Override
+	public FieldInitializer getUnderlying() {
+<span class="fc" id="L96">		return ((InitializationCase) getParent().getUnderlying()).getFieldInitializer(fieldName);</span>
+	}
+
+	@Override
+	protected void createUnderlying(Object value) {
+<span class="fc" id="L101">		((InitializationCase) getParent().getUnderlying()).getFieldInitializers()</span>
+<span class="fc" id="L102">				.add(new FieldInitializer(fieldName, value));</span>
+<span class="fc" id="L103">	}</span>
+
+	@Override
+	protected void deleteUnderlying() {
+<span class="nc" id="L107">		((InitializationCase) getParent().getUnderlying()).removeFieldInitializer(fieldName);</span>
+<span class="nc" id="L108">	}</span>
+
+	@Override
+	protected Object retrieveInitializerValue(Object initializer) {
+<span class="fc" id="L112">		return ((FieldInitializer) initializer).getFieldValue();</span>
+	}
+
+	@Override
+	protected void updateInitializerValue(Object initializer, Object newValue) {
+<span class="fc" id="L117">		((FieldInitializer) initializer).setFieldValue(newValue);</span>
+<span class="fc" id="L118">	}</span>
+
+	@Override
+	protected ITypeInfo getValueType() {
+<span class="fc" id="L122">		return getFieldInfo().getType();</span>
+	}
+
+	public String getFieldName() {
+<span class="nc" id="L126">		return fieldName;</span>
+	}
+
+	public String getFieldTypeName() {
+<span class="fc" id="L130">		return super.getValueTypeName();</span>
+	}
+
+	public InstantiationFunction getCondition() {
+<span class="fc" id="L134">		FieldInitializer fieldInitializer = getUnderlying();</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">		if (fieldInitializer == null) {</span>
+<span class="fc" id="L136">			return null;</span>
+		}
+<span class="fc" id="L138">		return fieldInitializer.getCondition();</span>
+	}
+
+	public void setCondition(InstantiationFunction condition) {
+<span class="nc" id="L142">		setConcrete(true);</span>
+<span class="nc" id="L143">		FieldInitializer fieldInitializer = getUnderlying();</span>
+<span class="nc bnc" id="L144" title="All 4 branches missed.">		if ((condition != null) &amp;&amp; (condition.getFunctionBody() == null)) {</span>
+<span class="nc" id="L145">			condition = new InstantiationFunction(&quot;return true;&quot;);</span>
+		}
+<span class="nc" id="L147">		fieldInitializer.setCondition(condition);</span>
+<span class="nc" id="L148">	}</span>
+
+	public ValueMode getFieldValueMode() {
+<span class="fc" id="L151">		return super.getValueMode();</span>
+	}
+
+	public void setFieldValueMode(ValueMode valueMode) {
+<span class="fc" id="L155">		super.setValueMode(valueMode);</span>
+<span class="fc" id="L156">	}</span>
+
+	public Object getFieldValue() {
+<span class="fc" id="L159">		return super.getValue();</span>
+	}
+
+	public void setFieldValue(Object value) {
+<span class="fc" id="L163">		super.setValue(value);</span>
+<span class="fc" id="L164">	}</span>
+
+	@Override
+	public String toString() {
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">		return fieldName + ((getCondition() != null) ? &quot;?&quot; : &quot;&quot;);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

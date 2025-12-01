@@ -129,11 +129,9 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					return currentIndex;
 				}
 			};
-			synchronized (context) {
-				context.getVariables().add(iterationIndexVariable);
-			}
+			List<Variable> initialVariables = new ArrayList<Variable>(context.getVariables());
 			try {
-				List<Variable> initialVariables = new ArrayList<Variable>(context.getVariables());
+				context.getVariables().add(iterationIndexVariable);
 				for (Step descendantStep : ((LoopCompositeStep) context.getCurrentStep())
 						.getDescendantResultProducingSteps(context.getPlan())) {
 					context.getVariables().add(new StepSkipping(descendantStep, context.getPlan()));
@@ -144,6 +142,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					if (executionInspector.isExecutionInterrupted()) {
 						break;
 					}
+					MiscUtils.checkVariables(loopEndConditionVariableDeclarations, context.getVariables());
 					if ((Boolean) loopEndCondition
 							.getCompiledVersion(null, loopEndConditionVariableDeclarations, boolean.class)
 							.call(context.getVariables())) {
@@ -151,6 +150,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					}
 					context.getVariables().clear();
 					context.getVariables().addAll(initialVariables);
+					context.getVariables().add(iterationIndexVariable);
 					try {
 						context.getPlan().execute(insideLoopSteps, context, executionInspector);
 					} catch (Exception e) {
@@ -175,7 +175,8 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					currentIndex++;
 				}
 			} finally {
-				context.getVariables().remove(iterationIndexVariable);
+				context.getVariables().clear();
+				context.getVariables().addAll(initialVariables);
 			}
 			if (resultLists != null) {
 				Object[] resultConstructorArguments = IntStream.range(0, resultLists.length).mapToObj(i -> {

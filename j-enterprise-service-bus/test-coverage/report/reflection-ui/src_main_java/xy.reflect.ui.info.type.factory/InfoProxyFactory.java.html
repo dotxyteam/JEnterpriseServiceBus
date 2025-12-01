@@ -1,0 +1,3530 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InfoProxyFactory.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.factory</a> &gt; <span class="el_source">InfoProxyFactory.java</span></div><h1>InfoProxyFactory.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.factory;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.info.AbstractInfoProxy;
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.ITransaction;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.app.IApplicationInfo;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.CategoriesStyle;
+import xy.reflect.ui.info.type.ITypeInfo.FieldsLayout;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.ITypeInfo.MethodsLayout;
+import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo.ItemCreationMode;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo.ToolsLocation;
+import xy.reflect.ui.info.type.iterable.item.IListItemDetailsAccessMode;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
+import xy.reflect.ui.info.type.iterable.structure.IListStructuralInfo;
+import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
+import xy.reflect.ui.info.type.iterable.util.IDynamicListProperty;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.undo.ListModificationFactory;
+import xy.reflect.ui.util.Mapper;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.info.method.InvocationData;
+
+/**
+ * This is a basic implementation of abstract UI model transformers.
+ * 
+ * By default this class generates proxies that behave exactly like the wrapped
+ * objects. In order to change the generated UI behavior, the appropriate
+ * methods of this class must be overridden.
+ * 
+ * By convention these methods have the same name as the methods of the
+ * underlying abstract UI model elements that they affect. In addition, they
+ * have parameters that specify the invocation context.
+ * 
+ * Ex: Overriding {@link #getCaption(IFieldInfo, ITypeInfo)} allows to change
+ * the behavior of {@link IFieldInfo#getCaption()} according to the parent
+ * {@link ITypeInfo} instance.
+ * 
+ * Note: To avoid accidentally wrapping the same object with the same proxy
+ * multiple times, a check is made by comparing the return values of
+ * {@link #getIdentifier ()} for the factories that generated each proxy. If a
+ * duplicate is found then an exception is thrown. It may then be necessary to
+ * override {@link #getIdentifier ()} to distinguish between two presumed
+ * identical proxies.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L73">public abstract class InfoProxyFactory implements IInfoProxyFactory {</span>
+
+<span class="fc" id="L75">	protected static final String ACTIVE_FACTORIES_KEY = InfoProxyFactory.class.getName() + &quot;ACTIVE_FACTORIES&quot;;</span>
+
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static List&lt;InfoProxyFactory&gt; listFactories(IApplicationInfo application) {
+<span class="fc" id="L79">		return (List&lt;InfoProxyFactory&gt;) application.getSpecificProperties().get(ACTIVE_FACTORIES_KEY);</span>
+	}
+
+	@SuppressWarnings(&quot;unchecked&quot;)
+	public static List&lt;InfoProxyFactory&gt; listFactories(ITypeInfo type) {
+<span class="fc" id="L84">		return (List&lt;InfoProxyFactory&gt;) type.getSpecificProperties().get(ACTIVE_FACTORIES_KEY);</span>
+	}
+
+	/**
+	 * @return the identifier of this proxy factory.
+	 */
+	public String getIdentifier() {
+<span class="fc" id="L91">		return getClass().getName();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L96">		final int prime = 31;</span>
+<span class="fc" id="L97">		int result = 1;</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">		result = prime * result + ((getIdentifier() == null) ? 0 : getIdentifier().hashCode());</span>
+<span class="fc" id="L99">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L105">			return true;</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L107">			return false;</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L109">			return false;</span>
+<span class="fc" id="L110">		InfoProxyFactory other = (InfoProxyFactory) obj;</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">		if (getIdentifier() == null) {</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">			if (other.getIdentifier() != null)</span>
+<span class="nc" id="L113">				return false;</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">		} else if (!getIdentifier().equals(other.getIdentifier()))</span>
+<span class="fc" id="L115">			return false;</span>
+<span class="fc" id="L116">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L121">		return &quot;TypeInfoProxyFactory [id=&quot; + getIdentifier() + &quot;]&quot;;</span>
+	}
+
+	@Override
+	public IApplicationInfo wrapApplicationInfo(IApplicationInfo appInfo) {
+<span class="fc" id="L126">		return new GeneratedApplicationInfoProxy(appInfo);</span>
+	}
+
+	@Override
+	public ITypeInfo wrapTypeInfo(final ITypeInfo type) {
+<span class="fc bfc" id="L131" title="All 2 branches covered.">		if (type instanceof IListTypeInfo) {</span>
+<span class="fc" id="L132">			return new GeneratedListTypeInfoProxy((IListTypeInfo) type);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">		} else if (type instanceof IEnumerationTypeInfo) {</span>
+<span class="fc" id="L134">			return new GeneratedEnumerationTypeInfoProxy((IEnumerationTypeInfo) type);</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">		} else if (type instanceof IMapEntryTypeInfo) {</span>
+<span class="fc" id="L136">			return new GeneratedMapEntryTypeInfoProxy((IMapEntryTypeInfo) type);</span>
+		} else {
+<span class="fc" id="L138">			return new GeneratedBasicTypeInfoProxy(type);</span>
+		}
+	}
+
+	/**
+	 * @param type
+	 * @return the given the information (unless overridden).
+	 */
+	protected ITypeInfo wrapSubTypeInfo(ITypeInfo type) {
+<span class="fc" id="L147">		return type;</span>
+	}
+
+	/**
+	 * @param type
+	 * @return the given the information (unless overridden).
+	 */
+	protected ITypeInfo wrapItemTypeInfo(ITypeInfo type) {
+<span class="fc" id="L155">		return type;</span>
+	}
+
+	/**
+	 * @param type
+	 * @return the given the information (unless overridden).
+	 */
+	protected ITypeInfo wrapMethodReturnValueTypeInfo(ITypeInfo type) {
+<span class="fc" id="L163">		return type;</span>
+	}
+
+	/**
+	 * @param type
+	 * @return the given the information (unless overridden).
+	 */
+	protected ITypeInfo wrapParameterTypeInfo(ITypeInfo type) {
+<span class="fc" id="L171">		return type;</span>
+	}
+
+	/**
+	 * @param type
+	 * @return the given the information (unless overridden).
+	 */
+	protected ITypeInfo wrapFieldTypeInfo(ITypeInfo type) {
+<span class="fc" id="L179">		return type;</span>
+	}
+
+	@Override
+	public IFieldInfo wrapFieldInfo(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L184">		return new GeneratedFieldInfoProxy(field, objectType);</span>
+	}
+
+	@Override
+	public IParameterInfo wrapParameterInfo(IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L189">		return new GeneratedParameterInfoProxy(param, method, objectType);</span>
+	}
+
+	@Override
+	public IEnumerationItemInfo wrapEnumerationItemInfo(IEnumerationItemInfo itemInfo,
+			IEnumerationTypeInfo parentEnumType) {
+<span class="fc" id="L195">		return new GeneratedEnumerationItemInfoProxy(itemInfo, parentEnumType);</span>
+	}
+
+	@Override
+	public IMethodInfo wrapConstructorInfo(IMethodInfo constructor, ITypeInfo objectType) {
+<span class="fc" id="L200">		return new GeneratedConstructorInfoProxy(constructor, objectType);</span>
+	}
+
+	@Override
+	public IMethodInfo wrapMethodInfo(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L205">		return new GeneratedMethodInfoProxy(method, objectType);</span>
+	}
+
+	@Override
+	public IApplicationInfo unwrapApplicationInfo(final IApplicationInfo appInfo) {
+<span class="nc" id="L210">		GeneratedApplicationInfoProxy proxy = (GeneratedApplicationInfoProxy) appInfo;</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L212">			throw new ReflectionUIError();</span>
+		}
+<span class="nc" id="L214">		return proxy.base;</span>
+	}
+
+	@Override
+	public ITypeInfo unwrapTypeInfo(final ITypeInfo type) {
+<span class="nc" id="L219">		GeneratedBasicTypeInfoProxy proxy = (GeneratedBasicTypeInfoProxy) type;</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L221">			throw new ReflectionUIError();</span>
+		}
+<span class="nc" id="L223">		return proxy.base;</span>
+	}
+
+	@Override
+	public IFieldInfo unwrapFieldInfo(final IFieldInfo field, ITypeInfo objectType) {
+<span class="nc" id="L228">		GeneratedFieldInfoProxy proxy = (GeneratedFieldInfoProxy) field;</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L230">			throw new ReflectionUIError();</span>
+		}
+<span class="nc" id="L232">		return proxy.base;</span>
+	}
+
+	@Override
+	public IMethodInfo unwrapMethodInfo(final IMethodInfo method, ITypeInfo objectType) {
+<span class="nc" id="L237">		GeneratedMethodInfoProxy proxy = (GeneratedMethodInfoProxy) method;</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L239">			throw new ReflectionUIError();</span>
+		}
+<span class="nc" id="L241">		return proxy.base;</span>
+	}
+
+	@Override
+	public IMethodInfo unwrapConstructorInfo(final IMethodInfo constructor, ITypeInfo objectType) {
+<span class="nc" id="L246">		GeneratedConstructorInfoProxy proxy = (GeneratedConstructorInfoProxy) constructor;</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L248">			throw new ReflectionUIError();</span>
+		}
+<span class="nc" id="L250">		return proxy.base;</span>
+	}
+
+	@Override
+	public IParameterInfo unwrapParameterInfo(final IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+<span class="nc" id="L255">		GeneratedParameterInfoProxy proxy = (GeneratedParameterInfoProxy) param;</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L257">			throw new ReflectionUIError();</span>
+		}
+<span class="nc" id="L259">		return proxy.base;</span>
+	}
+
+	@Override
+	public IEnumerationItemInfo unwrapEnumerationItemInfo(final IEnumerationItemInfo itemInfo,
+			IEnumerationTypeInfo parentEnumType) {
+<span class="nc" id="L265">		GeneratedEnumerationItemInfoProxy proxy = (GeneratedEnumerationItemInfoProxy) itemInfo;</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L267">			throw new ReflectionUIError();</span>
+		}
+<span class="nc" id="L269">		return proxy.base;</span>
+	}
+
+	/**
+	 * @param type The type information to analyze.
+	 * @return whether the given type information is a proxy generated by the
+	 *         current factory.
+	 */
+	public boolean isWrappingTypeInfo(final ITypeInfo type) {
+<span class="nc bnc" id="L278" title="All 2 branches missed.">		if (!(type instanceof GeneratedBasicTypeInfoProxy)) {</span>
+<span class="nc" id="L279">			return false;</span>
+		}
+<span class="nc" id="L281">		GeneratedBasicTypeInfoProxy proxy = (GeneratedBasicTypeInfoProxy) type;</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L283">			return false;</span>
+		}
+<span class="nc" id="L285">		return true;</span>
+	}
+
+	/**
+	 * @param field      The field information to analyze.
+	 * @param objectType The parent object type information.
+	 * @return whether the given field information is a proxy generated by the
+	 *         current factory.
+	 */
+	public boolean isWrappingFieldInfo(final IFieldInfo field, ITypeInfo objectType) {
+<span class="nc bnc" id="L295" title="All 2 branches missed.">		if (!(field instanceof GeneratedFieldInfoProxy)) {</span>
+<span class="nc" id="L296">			return false;</span>
+		}
+<span class="nc" id="L298">		GeneratedFieldInfoProxy proxy = (GeneratedFieldInfoProxy) field;</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L300">			return false;</span>
+		}
+<span class="nc" id="L302">		return true;</span>
+	}
+
+	/**
+	 * @param method     The method information to analyze.
+	 * @param objectType The parent object type information.
+	 * @return whether the given method information is a proxy generated by the
+	 *         current factory.
+	 */
+	public boolean isWrappingMethodInfo(final IMethodInfo method, ITypeInfo objectType) {
+<span class="nc bnc" id="L312" title="All 2 branches missed.">		if (!(method instanceof GeneratedMethodInfoProxy)) {</span>
+<span class="nc" id="L313">			return false;</span>
+		}
+<span class="nc" id="L315">		GeneratedMethodInfoProxy proxy = (GeneratedMethodInfoProxy) method;</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L317">			return false;</span>
+		}
+<span class="nc" id="L319">		return true;</span>
+	}
+
+	/**
+	 * @param constructor The constructor information to analyze.
+	 * @param objectType  The parent object type information.
+	 * @return whether the given constructor information is a proxy generated by the
+	 *         current factory.
+	 */
+	public boolean isWrappingConstructorInfo(final IMethodInfo constructor, ITypeInfo objectType) {
+<span class="nc bnc" id="L329" title="All 2 branches missed.">		if (!(constructor instanceof GeneratedConstructorInfoProxy)) {</span>
+<span class="nc" id="L330">			return false;</span>
+		}
+<span class="nc" id="L332">		GeneratedConstructorInfoProxy proxy = (GeneratedConstructorInfoProxy) constructor;</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L334">			return false;</span>
+		}
+<span class="nc" id="L336">		return true;</span>
+	}
+
+	/**
+	 * @param param      The parameter information to analyze.
+	 * @param method     The parent method information.
+	 * @param objectType The parent object type information.
+	 * @return whether the given parameter information is a proxy generated by the
+	 *         current factory.
+	 */
+	public boolean isWrappingParameterInfo(final IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+<span class="nc bnc" id="L347" title="All 2 branches missed.">		if (!(param instanceof GeneratedParameterInfoProxy)) {</span>
+<span class="nc" id="L348">			return false;</span>
+		}
+<span class="nc" id="L350">		GeneratedParameterInfoProxy proxy = (GeneratedParameterInfoProxy) param;</span>
+<span class="nc bnc" id="L351" title="All 2 branches missed.">		if (!proxy.factory.equals(InfoProxyFactory.this)) {</span>
+<span class="nc" id="L352">			return false;</span>
+		}
+<span class="nc" id="L354">		return true;</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param object     Parameter of
+	 *                   {@link IFieldInfo#getValueAbstractFormValidationJob(Object)}.
+	 * @param objectType The parent type information.
+	 * @return the result of
+	 *         {@link IFieldInfo#getValueAbstractFormValidationJob(Object)} unless
+	 *         overridden.
+	 */
+	protected IValidationJob getValueAbstractFormValidationJob(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="nc" id="L367">		return field.getValueAbstractFormValidationJob(object);</span>
+	}
+
+	/**
+	 * @param method      The method information.
+	 * @param object      Parameter of
+	 *                    {@link IMethodInfo#getReturnValueAbstractFormValidationJob(Object, Object)}.
+	 * @param returnValue Parameter of
+	 *                    {@link IMethodInfo#getReturnValueAbstractFormValidationJob(Object, Object)}.
+	 * @param objectType  The parent type information.
+	 * @return the result of
+	 *         {@link IMethodInfo#getReturnValueAbstractFormValidationJob(Object, Object)}
+	 *         unless overridden.
+	 */
+	protected IValidationJob getReturnValueAbstractFormValidationJob(IMethodInfo method, Object object,
+			Object returnValue, ITypeInfo objectType) {
+<span class="fc" id="L383">		return method.getReturnValueAbstractFormValidationJob(object, returnValue);</span>
+	}
+
+	/**
+	 * @param listType     The list type information.
+	 * @param itemPosition Parameter of
+	 *                     {@link IListTypeInfo#getListItemAbstractFormValidationJob(ItemPosition)}.
+	 * @return the result of
+	 *         {@link IListTypeInfo#getListItemAbstractFormValidationJob(ItemPosition)}
+	 *         unless overridden.
+	 */
+	protected IValidationJob getListItemAbstractFormValidationJob(IListTypeInfo listType, ItemPosition itemPosition) {
+<span class="fc" id="L395">		return listType.getListItemAbstractFormValidationJob(itemPosition);</span>
+	}
+
+	/**
+	 * @param param      The parameter information.
+	 * @param object     Parameter of
+	 *                   {@link IParameterInfo#getDefaultValue(Object)}.
+	 * @param method     The parent method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IParameterInfo#getDefaultValue(Object)} unless
+	 *         overridden.
+	 */
+	protected Object getDefaultValue(IParameterInfo param, Object object, IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L408">		return param.getDefaultValue(object);</span>
+	}
+
+	/**
+	 * @param param      The parameter information.
+	 * @param object     Parameter of
+	 *                   {@link IParameterInfo#hasValueOptions(Object)}.
+	 * @param method     The parent method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IParameterInfo#hasValueOptions(Object)} unless
+	 *         overridden.
+	 */
+	protected boolean hasValueOptions(IParameterInfo param, Object object, IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L421">		return param.hasValueOptions(object);</span>
+	}
+
+	/**
+	 * @param param      The parameter information.
+	 * @param object     Parameter of
+	 *                   {@link IParameterInfo#getValueOptions(Object)}.
+	 * @param method     The parent method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IParameterInfo#getValueOptions(Object)} unless
+	 *         overridden.
+	 */
+	protected Object[] getValueOptions(IParameterInfo param, Object object, IMethodInfo method, ITypeInfo objectType) {
+<span class="nc" id="L434">		return param.getValueOptions(object);</span>
+	}
+
+	/**
+	 * @param param      The parameter information.
+	 * @param method     The parent method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IParameterInfo#getPosition()} unless overridden.
+	 */
+	protected int getPosition(IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L444">		return param.getPosition();</span>
+	}
+
+	/**
+	 * @param param      The parameter information.
+	 * @param method     The parent method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IParameterInfo#getType()} unless overridden.
+	 */
+	protected ITypeInfo getType(IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L454">		return wrapParameterTypeInfo(param.getType());</span>
+	}
+
+	/**
+	 * @param param      The parameter information.
+	 * @param method     The parent method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IParameterInfo#isNullValueDistinct()} unless
+	 *         overridden.
+	 */
+	protected boolean isNullValueDistinct(IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L465">		return param.isNullValueDistinct();</span>
+	}
+
+	/**
+	 * @param param      The parameter information.
+	 * @param method     The parent method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IParameterInfo#getCaption()} unless overridden.
+	 */
+	protected String getCaption(IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L475">		return param.getCaption();</span>
+	}
+
+	/**
+	 * @param param      The parameter information.
+	 * @param method     The parent method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IParameterInfo#isHidden()} unless overridden.
+	 */
+	protected boolean isHidden(IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L485">		return param.isHidden();</span>
+	}
+
+	/**
+	 * @param param      The parameter information.
+	 * @param method     The parent method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IParameterInfo#getName()} unless overridden.
+	 */
+	protected String getName(IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L495">		return param.getName();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getCategory()} unless overridden.
+	 */
+	protected InfoCategory getCategory(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L504">		return field.getCategory();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#wrapFieldTypeInfo()} unless
+	 *         overridden.
+	 */
+	protected ITypeInfo getType(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L514">		return wrapFieldTypeInfo(field.getType());</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param object     Parameter of
+	 *                   {@link IFieldInfo#getAlternativeConstructors(Object)}.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getAlternativeConstructors(Object)}
+	 *         unless overridden.
+	 */
+	protected List&lt;IMethodInfo&gt; getAlternativeConstructors(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="fc" id="L526">		return field.getAlternativeConstructors(object);</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param object     Parameter of
+	 *                   {@link IFieldInfo#getAlternativeListItemConstructors(Object)}.
+	 * @param objectType The parent type information.
+	 * @return the result of
+	 *         {@link IFieldInfo#getAlternativeListItemConstructors(Object)} unless
+	 *         overridden.
+	 */
+	protected List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(IFieldInfo field, Object object,
+			ITypeInfo objectType) {
+<span class="fc" id="L540">		return field.getAlternativeListItemConstructors(object);</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param object     Parameter of {@link IFieldInfo#getValue(Object)}.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getValue(Object)} unless overridden.
+	 */
+	protected Object getValue(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="fc" id="L550">		return field.getValue(object);</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param object     Parameter of {@link IFieldInfo#hasValueOptions(Object)}.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#hasValueOptions(Object)} unless
+	 *         overridden.
+	 */
+	protected boolean hasValueOptions(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="fc" id="L561">		return field.hasValueOptions(object);</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param object     Parameter of {@link IFieldInfo#getValueOptions(Object)}.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getValueOptions(Object)} unless
+	 *         overridden.
+	 */
+	protected Object[] getValueOptions(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="fc" id="L572">		return field.getValueOptions(object);</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#isNullValueDistinct()} unless
+	 *         overridden.
+	 */
+	protected boolean isNullValueDistinct(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L582">		return field.isNullValueDistinct();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getNullValueLabel()} unless
+	 *         overridden.
+	 */
+	protected String getNullValueLabel(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L592">		return field.getNullValueLabel();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#isTransient()} unless overridden.
+	 */
+	protected boolean isTransient(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L601">		return field.isTransient();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#isGetOnly()} unless overridden.
+	 */
+	protected boolean isGetOnly(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L610">		return field.isGetOnly();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getValueReturnMode()} unless
+	 *         overridden.
+	 */
+	protected ValueReturnMode getValueReturnMode(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L620">		return field.getValueReturnMode();</span>
+	}
+
+	/**
+	 * Executes {@link IFieldInfo#setValue(Object, Object)} unless overridden.
+	 * 
+	 * @param field      The field information.
+	 * @param object     Parameter of {@link IFieldInfo#setValue(Object, Object)}.
+	 * @param value      Parameter of {@link IFieldInfo#setValue(Object, Object)}.
+	 * @param objectType The parent type information.
+	 */
+	protected void setValue(IFieldInfo field, Object object, Object value, ITypeInfo objectType) {
+<span class="fc" id="L632">		field.setValue(object, value);</span>
+<span class="fc" id="L633">	}</span>
+
+	/**
+	 * @param field      The field information.
+	 * @param object     Parameter of
+	 *                   {@link IFieldInfo#getNextUpdateCustomUndoJob(Object, Object)}.
+	 * @param value      Parameter of
+	 *                   {@link IFieldInfo#getNextUpdateCustomUndoJob(Object, Object)}.
+	 * @param objectType The parent type information.
+	 * @return the result of
+	 *         {@link IFieldInfo#getNextUpdateCustomUndoJob(Object, Object)} unless
+	 *         overridden.
+	 */
+	protected Runnable getNextUpdateCustomUndoJob(IFieldInfo field, Object object, Object value, ITypeInfo objectType) {
+<span class="fc" id="L647">		return field.getNextUpdateCustomUndoJob(object, value);</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param object     Parameter of
+	 *                   {@link IFieldInfo#getPreviousUpdateCustomRedoJob(Object, Object)}.
+	 * @param value      Parameter of
+	 *                   {@link IFieldInfo#getPreviousUpdateCustomRedoJob(Object, Object)}.
+	 * @param objectType The parent type information.
+	 * @return the result of
+	 *         {@link IFieldInfo#getPreviousUpdateCustomRedoJob(Object, Object)}
+	 *         unless overridden.
+	 */
+	protected Runnable getPreviousUpdateCustomRedoJob(IFieldInfo field, Object object, Object value,
+			ITypeInfo objectType) {
+<span class="nc" id="L663">		return field.getPreviousUpdateCustomRedoJob(object, value);</span>
+	}
+
+	/**
+	 * @param type   The type information.
+	 * @param object Parameter of {@link ITypeInfo#toString(Object)}.
+	 * @return the result of {@link ITypeInfo#toString(Object)} unless overridden.
+	 */
+	protected String toString(ITypeInfo type, Object object) {
+<span class="fc" id="L672">		return type.toString(object);</span>
+	}
+
+	/**
+	 * @param type   The type information.
+	 * @param object Parameter of {@link ITypeInfo#canCopy(Object)}.
+	 * @return the result of {@link ITypeInfo#canCopy(Object)} unless overridden.
+	 */
+	protected boolean canCopy(ITypeInfo type, Object object) {
+<span class="fc" id="L681">		return type.canCopy(object);</span>
+	}
+
+	/**
+	 * @param type   The type information.
+	 * @param object Parameter of {@link ITypeInfo#copy(Object)}.
+	 * @return the result of {@link ITypeInfo#copy(Object)} unless overridden.
+	 */
+	protected Object copy(ITypeInfo type, Object object) {
+<span class="nc" id="L690">		return type.copy(object);</span>
+	}
+
+	/**
+	 * @param type   The type information.
+	 * @param object Parameter of {@link ITypeInfo#getIconImagePath(Object)}.
+	 * @return the result of {@link ITypeInfo#getIconImagePath(Object)} unless
+	 *         overridden.
+	 */
+	protected ResourcePath getIconImagePath(ITypeInfo type, Object object) {
+<span class="fc" id="L700">		return type.getIconImagePath(object);</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFieldsLayout()} unless overridden.
+	 */
+	protected FieldsLayout getFieldsLayout(ITypeInfo type) {
+<span class="fc" id="L708">		return type.getFieldsLayout();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getMethodsLayout()} unless overridden.
+	 */
+	protected MethodsLayout getMethodsLayout(ITypeInfo type) {
+<span class="fc" id="L716">		return type.getMethodsLayout();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getMenuModel()} unless overridden.
+	 */
+	protected MenuModel getMenuModel(ITypeInfo type) {
+<span class="fc" id="L724">		return type.getMenuModel();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getCaption()} unless overridden.
+	 */
+	protected String getCaption(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L733">		return field.getCaption();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getName()} unless overridden.
+	 */
+	protected String getName(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L742">		return field.getName();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#isHidden()} unless overridden.
+	 */
+	protected boolean isHidden(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L751">		return field.isHidden();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param object     Parameter of {@link IMethodInfo#isRelevant(Object)}.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#isRelevant()} unless overridden.
+	 */
+	protected boolean isRelevant(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="fc" id="L761">		return field.isRelevant(object);</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getDisplayAreaHorizontalWeight()}
+	 *         unless overridden.
+	 */
+	protected double getDisplayAreaHorizontalWeight(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L771">		return field.getDisplayAreaHorizontalWeight();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getDisplayAreaVerticalWeight()}
+	 *         unless overridden.
+	 */
+	protected double getDisplayAreaVerticalWeight(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L781">		return field.getDisplayAreaVerticalWeight();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#isDisplayAreaHorizontallyFilled()}
+	 *         unless overridden.
+	 */
+	protected boolean isDisplayAreaHorizontallyFilled(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L791">		return field.isDisplayAreaHorizontallyFilled();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#isDisplayAreaVerticallyFilled()}
+	 *         unless overridden.
+	 */
+	protected boolean isDisplayAreaVerticallyFilled(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L801">		return field.isDisplayAreaVerticallyFilled();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getCategory()} unless overridden.
+	 */
+	protected InfoCategory getCategory(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L810">		return method.getCategory();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#isReadOnly()} unless overridden.
+	 */
+	protected boolean isReadOnly(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L819">		return method.isReadOnly();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getNullReturnValueLabel()} unless
+	 *         overridden.
+	 */
+	protected String getNullReturnValueLabel(IMethodInfo method, ITypeInfo objectType) {
+<span class="nc" id="L829">		return method.getNullReturnValueLabel();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getNullReturnValueLabel()} unless
+	 *         overridden.
+	 */
+	protected ValueReturnMode getValueReturnMode(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L839">		return method.getValueReturnMode();</span>
+	}
+
+	/**
+	 * @param method         The method information.
+	 * @param object         Parameter of
+	 *                       {@link IMethodInfo#invoke(Object, InvocationData)}.
+	 * @param invocationData Parameter of
+	 *                       {@link IMethodInfo#invoke(Object, InvocationData)}.
+	 * @param objectType     The parent type information.
+	 * @return the result of {@link IMethodInfo#invoke(Object, InvocationData)}
+	 *         unless overridden.
+	 */
+	protected Object invoke(IMethodInfo method, Object object, InvocationData invocationData, ITypeInfo objectType) {
+<span class="fc" id="L853">		return method.invoke(object, invocationData);</span>
+	}
+
+	/**
+	 * @param method         The method information.
+	 * @param object         Parameter of
+	 *                       {@link IMethodInfo#getConfirmationMessage(Object, InvocationData)}.
+	 * @param invocationData Parameter of
+	 *                       {@link IMethodInfo#getConfirmationMessage(Object, InvocationData)}.
+	 * @param objectType     The parent type information.
+	 * @return the result of
+	 *         {@link IMethodInfo#getConfirmationMessage(Object, InvocationData)}
+	 *         unless overridden.
+	 */
+	protected String getConfirmationMessage(IMethodInfo method, Object object, InvocationData invocationData,
+			ITypeInfo objectType) {
+<span class="fc" id="L869">		return method.getConfirmationMessage(object, invocationData);</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getParameters()} unless overridden.
+	 */
+	protected List&lt;IParameterInfo&gt; getParameters(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L878">		return method.getParameters();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getReturnValueType()} unless
+	 *         overridden.
+	 */
+	protected ITypeInfo getReturnValueType(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L888">		return wrapMethodReturnValueTypeInfo(method.getReturnValueType());</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#isNullReturnValueDistinct()} unless
+	 *         overridden.
+	 */
+	protected boolean isNullReturnValueDistinct(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L898">		return method.isNullReturnValueDistinct();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#isReturnValueDetached()} unless
+	 *         overridden.
+	 */
+	protected boolean isReturnValueDetached(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L908">		return method.isReturnValueDetached();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#isReturnValueIgnored()} unless
+	 *         overridden.
+	 */
+	protected boolean isReturnValueIgnored(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L918">		return method.isReturnValueIgnored();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getCaption()} unless overridden.
+	 */
+	protected String getCaption(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L927">		return method.getCaption();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of
+	 *         {@link IMethodInfo#getParametersValidationCustomCaption()} unless
+	 *         overridden.
+	 */
+	protected String getParametersValidationCustomCaption(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L938">		return method.getParametersValidationCustomCaption();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getExecutionSuccessMessage()} unless
+	 *         overridden.
+	 */
+	protected String getExecutionSuccessMessage(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L948">		return method.getExecutionSuccessMessage();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getName()} unless overridden.
+	 */
+	protected String getName(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L957">		return method.getName();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#isHidden()} unless overridden.
+	 */
+	protected boolean isHidden(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L966">		return method.isHidden();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param object     Parameter of {@link IMethodInfo#isRelevant(Object)}.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#isRelevant()} unless overridden.
+	 */
+	protected boolean isRelevant(IMethodInfo method, Object object, ITypeInfo objectType) {
+<span class="fc" id="L976">		return method.isRelevant(object);</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of
+	 *         {@link IMethodInfo#isControlReturnValueValiditionEnabled()} unless
+	 *         overridden.
+	 */
+	protected boolean isControlReturnValueValiditionEnabled(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L987">		return method.isControlReturnValueValiditionEnabled();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#isLastInvocationDataUsedByDefault()}
+	 *         unless overridden.
+	 */
+	protected boolean isLastInvocationDataUsedByDefault(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L997">		return method.isLastInvocationDataUsedByDefault();</span>
+	}
+
+	/**
+	 * Executes {@link IMethodInfo#onControlVisibilityChange(Object, boolean)}
+	 * unless overridden.
+	 * 
+	 * @param method     The method information.
+	 * @param object     Parameter of
+	 *                   {@link IMethodInfo#onControlVisibilityChange(Object, boolean)}.
+	 * @param visible    Parameter of
+	 *                   {@link IMethodInfo#onControlVisibilityChange(Object, boolean)}.
+	 * @param objectType The parent type information.
+	 */
+	protected void onControlVisibilityChange(IMethodInfo method, Object object, boolean visible, ITypeInfo objectType) {
+<span class="fc" id="L1012">		method.onControlVisibilityChange(object, visible);</span>
+<span class="fc" id="L1013">	}</span>
+
+	/**
+	 * @param method     The method information.
+	 * @param object     Parameter of {@link IMethodInfo#isEnabled(Object)}.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#isEnabled(Object)} unless
+	 *         overridden.
+	 */
+	protected boolean isEnabled(IMethodInfo method, Object object, ITypeInfo objectType) {
+<span class="fc" id="L1023">		return method.isEnabled(object);</span>
+	}
+
+	/**
+	 * Executes {@link IFieldInfo#onControlVisibilityChange(Object, boolean)} unless
+	 * overridden.
+	 * 
+	 * @param field      The field information.
+	 * @param object     Parameter of
+	 *                   {@link IFieldInfo#onControlVisibilityChange(Object, boolean)}.
+	 * @param visible    Parameter of
+	 *                   {@link IFieldInfo#onControlVisibilityChange(Object, boolean)}.
+	 * @param objectType The parent type information.
+	 */
+	protected void onControlVisibilityChange(IFieldInfo field, Object object, boolean visible, ITypeInfo objectType) {
+<span class="fc" id="L1038">		field.onControlVisibilityChange(object, visible);</span>
+<span class="fc" id="L1039">	}</span>
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getSignature()} unless overridden.
+	 */
+	protected String getSignature(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L1047">		return method.getSignature();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IEnumerationTypeInfo#getValues()} unless
+	 *         overridden.
+	 */
+	protected Object[] getValues(IEnumerationTypeInfo type) {
+<span class="fc" id="L1056">		return type.getValues();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IEnumerationTypeInfo#isDynamicEnumeration()}
+	 *         unless overridden.
+	 */
+	protected boolean isDynamicEnumeration(IEnumerationTypeInfo type) {
+<span class="fc" id="L1065">		return type.isDynamicEnumeration();</span>
+	}
+
+	/**
+	 * Executes {@link IListTypeInfo#replaceContent(Object, Object[])} unless
+	 * overridden.
+	 * 
+	 * @param type      The type information.
+	 * @param listValue Parameter of
+	 *                  {@link IListTypeInfo#replaceContent(Object, Object[])}.
+	 * @param array     Parameter of
+	 *                  {@link IListTypeInfo#replaceContent(Object, Object[])}.
+	 */
+	protected void replaceContent(IListTypeInfo type, Object listValue, Object[] array) {
+<span class="fc" id="L1079">		type.replaceContent(listValue, array);</span>
+<span class="fc" id="L1080">	}</span>
+
+	/**
+	 * @param type  The type information.
+	 * @param array Parameter of {@link IListTypeInfo#fromArray(Object[]))}.
+	 * @return the result of {@link IListTypeInfo#fromArray(Object[]))} unless
+	 *         overridden.
+	 */
+	protected Object fromArray(IListTypeInfo type, Object[] array) {
+<span class="nc" id="L1089">		return type.fromArray(array);</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#canInstantiateFromArray()} unless
+	 *         overridden.
+	 */
+	protected boolean canInstantiateFromArray(IListTypeInfo type) {
+<span class="fc" id="L1098">		return type.canInstantiateFromArray();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#canReplaceContent()} unless
+	 *         overridden.
+	 */
+	protected boolean canReplaceContent(IListTypeInfo type) {
+<span class="fc" id="L1107">		return type.canReplaceContent();</span>
+	}
+
+	/**
+	 * @param type                            The type information.
+	 * @param selection                       Parameter of
+	 *                                        {@link IListTypeInfo#getDynamicActions(List, Mapper)}.
+	 * @param listModificationFactoryAccessor Parameter of
+	 *                                        {@link IListTypeInfo#getDynamicActions(List, Mapper)}.
+	 * @return the result of {@link IListTypeInfo#getDynamicActions(List, Mapper)}
+	 *         unless overridden.
+	 */
+	protected List&lt;IDynamicListAction&gt; getDynamicActions(IListTypeInfo type, List&lt;? extends ItemPosition&gt; selection,
+			Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor) {
+<span class="fc" id="L1121">		return type.getDynamicActions(selection, listModificationFactoryAccessor);</span>
+	}
+
+	/**
+	 * @param type                            The type information.
+	 * @param selection                       Parameter of
+	 *                                        {@link IListTypeInfo#getDynamicProperties(List, Mapper)}.
+	 * @param listModificationFactoryAccessor Parameter of
+	 *                                        {@link IListTypeInfo#getDynamicProperties(List, Mapper)}.
+	 * @return the result of
+	 *         {@link IListTypeInfo#getDynamicProperties(List, Mapper)} unless
+	 *         overridden.
+	 */
+	protected List&lt;IDynamicListProperty&gt; getDynamicProperties(IListTypeInfo type,
+			List&lt;? extends ItemPosition&gt; selection,
+			Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor) {
+<span class="fc" id="L1137">		return type.getDynamicProperties(selection, listModificationFactoryAccessor);</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#getItemType()} unless overridden.
+	 */
+	protected ITypeInfo getItemType(IListTypeInfo type) {
+<span class="fc" id="L1145">		return wrapItemTypeInfo(type.getItemType());</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#getStructuralInfo()} unless
+	 *         overridden.
+	 */
+	protected IListStructuralInfo getStructuralInfo(IListTypeInfo type) {
+<span class="fc" id="L1154">		return type.getStructuralInfo();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#getDetailsAccessMode()} unless
+	 *         overridden.
+	 */
+	protected IListItemDetailsAccessMode getDetailsAccessMode(IListTypeInfo type) {
+<span class="fc" id="L1163">		return type.getDetailsAccessMode();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#isItemNullValueSupported()} unless
+	 *         overridden.
+	 */
+	protected boolean isItemNullValueSupported(IListTypeInfo type) {
+<span class="fc" id="L1172">		return type.isItemNullValueSupported();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#areItemsAutomaticallyPositioned()}
+	 *         unless overridden.
+	 */
+	protected boolean areItemsAutomaticallyPositioned(IListTypeInfo type) {
+<span class="fc" id="L1181">		return type.areItemsAutomaticallyPositioned();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#isMoveAllowed()} unless
+	 *         overridden.
+	 */
+	protected boolean isMoveAllowed(IListTypeInfo type) {
+<span class="fc" id="L1190">		return type.isMoveAllowed();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#getItemCreationMode()} unless
+	 *         overridden.
+	 */
+	protected ItemCreationMode getItemCreationMode(IListTypeInfo type) {
+<span class="fc" id="L1199">		return type.getItemCreationMode();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#getItemReturnMode()} unless
+	 *         overridden.
+	 */
+	protected ValueReturnMode getItemReturnMode(IListTypeInfo type) {
+<span class="fc" id="L1208">		return type.getItemReturnMode();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#getToolsLocation()} unless
+	 *         overridden.
+	 */
+	protected ToolsLocation getToolsLocation(IListTypeInfo type) {
+<span class="fc" id="L1217">		return type.getToolsLocation();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#isInsertionAllowed()} unless
+	 *         overridden.
+	 */
+	protected boolean isInsertionAllowed(IListTypeInfo type) {
+<span class="fc" id="L1226">		return type.isInsertionAllowed();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#isRemovalAllowed()} unless
+	 *         overridden.
+	 */
+	protected boolean isRemovalAllowed(IListTypeInfo type) {
+<span class="fc" id="L1235">		return type.isRemovalAllowed();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IListTypeInfo#canViewItemDetails()} unless
+	 *         overridden.
+	 */
+	protected boolean canViewItemDetails(IListTypeInfo type) {
+<span class="fc" id="L1244">		return type.canViewItemDetails();</span>
+	}
+
+	/**
+	 * @param type      The type information.
+	 * @param listValue Parameter of {@link IListTypeInfo#toArray(Object)}.
+	 * @return the result of {@link IListTypeInfo#toArray(Object)} unless
+	 *         overridden.
+	 */
+	protected Object[] toArray(IListTypeInfo type, Object listValue) {
+<span class="fc" id="L1254">		return type.toArray(listValue);</span>
+	}
+
+	/**
+	 * @param type               The type information.
+	 * @param filteredObjectType Parameter of
+	 *                           {@link IListTypeInfo#isItemNodeValidityDetectionEnabled(ItemPosition)}.
+	 * @return the result of
+	 *         {@link IListTypeInfo#isItemNodeValidityDetectionEnabled(ItemPosition)}
+	 *         unless overridden.
+	 */
+	protected boolean isItemNodeValidityDetectionEnabled(IListTypeInfo type, ItemPosition itemPosition) {
+<span class="fc" id="L1266">		return type.isItemNodeValidityDetectionEnabled(itemPosition);</span>
+	}
+
+	/**
+	 * @param type       The type information.
+	 * @param objectType Parameter of
+	 *                   {@link IListTypeInfo#getSelectionTargetField(ITypeInfo)}.
+	 * @return the result of
+	 *         {@link IListTypeInfo#getSelectionTargetField(ITypeInfo)} unless
+	 *         overridden.
+	 */
+	protected IFieldInfo getSelectionTargetField(IListTypeInfo type, ITypeInfo objectType) {
+<span class="fc" id="L1278">		return type.getSelectionTargetField(objectType);</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getConstructors()} unless overridden.
+	 */
+	protected List&lt;IMethodInfo&gt; getConstructors(ITypeInfo type) {
+<span class="fc" id="L1286">		return type.getConstructors();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFields()} unless overridden.
+	 */
+	protected List&lt;IFieldInfo&gt; getFields(ITypeInfo type) {
+<span class="fc" id="L1294">		return type.getFields();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getMethods()} unless overridden.
+	 */
+	protected List&lt;IMethodInfo&gt; getMethods(ITypeInfo type) {
+<span class="fc" id="L1302">		return type.getMethods();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getPolymorphicInstanceSubTypes()}
+	 *         unless overridden.
+	 */
+	protected List&lt;ITypeInfo&gt; getPolymorphicInstanceSubTypes(ITypeInfo type) {
+<span class="fc" id="L1311">		return type.getPolymorphicInstanceSubTypes();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#isConcrete()} unless overridden.
+	 */
+	protected boolean isConcrete(ITypeInfo type) {
+<span class="fc" id="L1319">		return type.isConcrete();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#isPrimitive()} unless overridden.
+	 */
+	protected boolean isPrimitive(ITypeInfo type) {
+<span class="fc" id="L1327">		return type.isPrimitive();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#isImmutable()} unless overridden.
+	 */
+	protected boolean isImmutable(ITypeInfo type) {
+<span class="fc" id="L1335">		return type.isImmutable();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#canPersist()} unless overridden.
+	 */
+	protected boolean canPersist(ITypeInfo type) {
+<span class="nc" id="L1343">		return type.canPersist();</span>
+	}
+
+	/**
+	 * Executes {@link ITypeInfo#save(Object, OutputStream)} unless overridden.
+	 * 
+	 * @param type       The type information.
+	 * @param object     Parameter of {@link ITypeInfo#save(Object, File)}.
+	 * @param outputFile Parameter of {@link ITypeInfo#save(Object, File)}.
+	 */
+	protected void save(ITypeInfo type, Object object, File outputFile) {
+<span class="nc" id="L1354">		type.save(object, outputFile);</span>
+<span class="nc" id="L1355">	}</span>
+
+	/**
+	 * Executes {@link ITypeInfo#load(Object, InputStream)} unless overridden.
+	 * 
+	 * @param type      The type information.
+	 * @param object    Parameter of {@link ITypeInfo#load(Object, File)}.
+	 * @param inputFile Parameter of {@link ITypeInfo#load(Object, File)}.
+	 */
+	protected void load(ITypeInfo type, Object object, File inputFile) {
+<span class="nc" id="L1365">		type.load(object, inputFile);</span>
+<span class="nc" id="L1366">	}</span>
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#isModificationStackAccessible()}
+	 *         unless overridden.
+	 */
+	protected boolean isModificationStackAccessible(ITypeInfo type) {
+<span class="fc" id="L1374">		return type.isModificationStackAccessible();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#isValidationRequired()} unless
+	 *         overridden.
+	 */
+	protected boolean isValidationRequired(ITypeInfo type) {
+<span class="fc" id="L1383">		return type.isValidationRequired();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of
+	 *         {@link ITypeInfo#isPolymorphicInstanceAbstractTypeOptionAllowed()}
+	 *         unless overridden.
+	 */
+	protected boolean isPolymorphicInstanceAbstractTypeOptionAllowed(ITypeInfo type) {
+<span class="fc" id="L1393">		return type.isPolymorphicInstanceAbstractTypeOptionAllowed();</span>
+	}
+
+	/**
+	 * @param type   The type information.
+	 * @param object Parameter of {@link ITypeInfo#supports(Object)}.
+	 * @return the result of {@link ITypeInfo#supports(Object)} unless overridden.
+	 */
+	protected boolean supports(ITypeInfo type, Object object) {
+<span class="fc" id="L1402">		return type.supports(object);</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getCaption()} unless overridden.
+	 */
+	protected String getCaption(ITypeInfo type) {
+<span class="fc" id="L1410">		return type.getCaption();</span>
+	}
+
+	/**
+	 * @param type    The type information.
+	 * @param object  Parameter of
+	 *                {@link ITypeInfo#onFormVisibilityChange(Object, boolean)}.
+	 * @param visible Parameter of
+	 *                {@link ITypeInfo#onFormVisibilityChange(Object, boolean)}.
+	 * @return the result of
+	 *         {@link ITypeInfo#onFormVisibilityChange(Object, boolean)} unless
+	 *         overridden.
+	 */
+	protected void onFormVisibilityChange(ITypeInfo type, Object object, boolean visible) {
+<span class="fc" id="L1424">		type.onFormVisibilityChange(object, visible);</span>
+<span class="fc" id="L1425">	}</span>
+
+	/**
+	 * @param type    The type information.
+	 * @param object  Parameter of
+	 *                {@link ITypeInfo#onFormCreation(Object, boolean)}.
+	 * @param visible Parameter of
+	 *                {@link ITypeInfo#onFormCreation(Object, boolean)}.
+	 * @return the result of {@link ITypeInfo#onFormCreation(Object, boolean)}
+	 *         unless overridden.
+	 */
+	protected void onFormCreation(ITypeInfo type, Object object, boolean beforeOrAfter) {
+<span class="fc" id="L1437">		type.onFormCreation(object, beforeOrAfter);</span>
+<span class="fc" id="L1438">	}</span>
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getName()} unless overridden.
+	 */
+	protected String getName(ITypeInfo type) {
+<span class="fc" id="L1445">		return type.getName();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getName()} unless overridden.
+	 */
+	protected String getName(IApplicationInfo appInfo) {
+<span class="nc" id="L1453">		return appInfo.getName();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getCaption()} unless
+	 *         overridden.
+	 */
+	protected String getCaption(IApplicationInfo appInfo) {
+<span class="nc" id="L1462">		return appInfo.getCaption();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of
+	 *         {@link IApplicationInfo#isSystemIntegrationCrossPlatform()} unless
+	 *         overridden.
+	 */
+	protected boolean isSystemIntegrationCrossPlatform(IApplicationInfo appInfo) {
+<span class="fc" id="L1472">		return appInfo.isSystemIntegrationCrossPlatform();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getIconImagePath()} unless
+	 *         overridden.
+	 */
+	protected ResourcePath getIconImagePath(IApplicationInfo appInfo) {
+<span class="fc" id="L1481">		return appInfo.getIconImagePath();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getOnlineHelp()} unless
+	 *         overridden.
+	 */
+	protected String getOnlineHelp(IApplicationInfo appInfo) {
+<span class="nc" id="L1490">		return appInfo.getOnlineHelp();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getMainBackgroundColor()}
+	 *         unless overridden.
+	 */
+	protected ColorSpecification getMainBackgroundColor(IApplicationInfo appInfo) {
+<span class="fc" id="L1499">		return appInfo.getMainBackgroundColor();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getMainForegroundColor()}
+	 *         unless overridden.
+	 */
+	protected ColorSpecification getMainForegroundColor(IApplicationInfo appInfo) {
+<span class="fc" id="L1508">		return appInfo.getMainForegroundColor();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getMainBorderColor()} unless
+	 *         overridden.
+	 */
+	protected ColorSpecification getMainBorderColor(IApplicationInfo appInfo) {
+<span class="fc" id="L1517">		return appInfo.getMainBorderColor();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getMainEditorBackgroundColor()}
+	 *         unless overridden.
+	 */
+	protected ColorSpecification getMainEditorBackgroundColor(IApplicationInfo appInfo) {
+<span class="fc" id="L1526">		return appInfo.getMainEditorBackgroundColor();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getMainEditorForegroundColor()}
+	 *         unless overridden.
+	 */
+	protected ColorSpecification getMainEditorForegroundColor(IApplicationInfo appInfo) {
+<span class="fc" id="L1535">		return appInfo.getMainEditorForegroundColor();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getMainBackgroundImagePath()}
+	 *         unless overridden.
+	 */
+	protected ResourcePath getMainBackgroundImagePath(IApplicationInfo appInfo) {
+<span class="fc" id="L1544">		return appInfo.getMainBackgroundImagePath();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getMainButtonBackgroundColor()}
+	 *         unless overridden.
+	 */
+	protected ColorSpecification getMainButtonBackgroundColor(IApplicationInfo appInfo) {
+<span class="fc" id="L1553">		return appInfo.getMainButtonBackgroundColor();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of
+	 *         {@link IApplicationInfo#getMainButtonBackgroundImagePath()} unless
+	 *         overridden.
+	 */
+	protected ResourcePath getMainButtonBackgroundImagePath(IApplicationInfo appInfo) {
+<span class="fc" id="L1563">		return appInfo.getMainButtonBackgroundImagePath();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of
+	 *         {@link IApplicationInfo#getButtonCustomFontResourcePath()} unless
+	 *         overridden.
+	 */
+	protected ResourcePath getButtonCustomFontResourcePath(IApplicationInfo appInfo) {
+<span class="fc" id="L1573">		return appInfo.getButtonCustomFontResourcePath();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of
+	 *         {@link IApplicationInfo#getLabelCustomFontResourcePath()} unless
+	 *         overridden.
+	 */
+	protected ResourcePath getLabelCustomFontResourcePath(IApplicationInfo appInfo) {
+<span class="fc" id="L1583">		return appInfo.getLabelCustomFontResourcePath();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of
+	 *         {@link IApplicationInfo#getEditorCustomFontResourcePath()} unless
+	 *         overridden.
+	 */
+	protected ResourcePath getEditorCustomFontResourcePath(IApplicationInfo appInfo) {
+<span class="fc" id="L1593">		return appInfo.getEditorCustomFontResourcePath();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getMainButtonForegroundColor()}
+	 *         unless overridden.
+	 */
+	protected ColorSpecification getMainButtonForegroundColor(IApplicationInfo appInfo) {
+<span class="fc" id="L1602">		return appInfo.getMainButtonForegroundColor();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getMainButtonBorderColor()}
+	 *         unless overridden.
+	 */
+	protected ColorSpecification getMainButtonBorderColor(IApplicationInfo appInfo) {
+<span class="fc" id="L1611">		return appInfo.getMainButtonBorderColor();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getTitleBackgroundColor()}
+	 *         unless overridden.
+	 */
+	protected ColorSpecification getTitleBackgroundColor(IApplicationInfo appInfo) {
+<span class="nc" id="L1620">		return appInfo.getTitleBackgroundColor();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getTitleForegroundColor()}
+	 *         unless overridden.
+	 */
+	protected ColorSpecification getTitleForegroundColor(IApplicationInfo appInfo) {
+<span class="nc" id="L1629">		return appInfo.getTitleForegroundColor();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of
+	 *         {@link IApplicationInfo#getTitleCustomFontResourcePath()} unless
+	 *         overridden.
+	 */
+	protected ResourcePath getTitleCustomFontResourcePath(IApplicationInfo appInfo) {
+<span class="nc" id="L1639">		return appInfo.getTitleCustomFontResourcePath();</span>
+	}
+
+	/**
+	 * @param appInfo The application information.
+	 * @return the result of {@link IApplicationInfo#getSpecificProperties()} unless
+	 *         overridden.
+	 */
+	protected Map&lt;String, Object&gt; getSpecificProperties(IApplicationInfo appInfo) {
+<span class="fc" id="L1648">		return appInfo.getSpecificProperties();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getSource()} unless overridden.
+	 */
+	protected ITypeInfoSource getSource(final ITypeInfo type) {
+<span class="fc" id="L1656">		return type.getSource();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getParent()} unless overridden.
+	 */
+	protected ITypeInfo getParent(final ITypeInfo type) {
+<span class="fc" id="L1664">		return type.getParent();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getCategoriesStyle()} unless
+	 *         overridden.
+	 */
+	protected CategoriesStyle getCategoriesStyle(ITypeInfo type) {
+<span class="fc" id="L1673">		return type.getCategoriesStyle();</span>
+	}
+
+	/**
+	 * @param type   The type information.
+	 * @param object Parameter of {@link ITypeInfo#createTransaction(Object)}.
+	 * @return the result of {@link ITypeInfo#createTransaction(Object)} unless
+	 *         overridden.
+	 */
+	protected ITransaction createTransaction(ITypeInfo type, Object object) {
+<span class="fc" id="L1683">		return type.createTransaction(object);</span>
+	}
+
+	/**
+	 * Executes {@link ITypeInfo#onFormRefresh(Object)} unless overridden.
+	 * 
+	 * @param type   The type information.
+	 * @param object Parameter of {@link ITypeInfo#onFormRefresh(Object)}.
+	 */
+	protected void onFormRefresh(ITypeInfo type, Object object) {
+<span class="fc" id="L1693">		type.onFormRefresh(object);</span>
+<span class="fc" id="L1694">	}</span>
+
+	/**
+	 * Executes {@link ITypeInfo#onFormRefresh(Object)} unless overridden.
+	 * 
+	 * @param type   The type information.
+	 * @param object Parameter of
+	 *               {@link ITypeInfo#getLastFormRefreshStateRestorationJob(Object)}.
+	 * @return the result of
+	 *         {@link ITypeInfo#getLastFormRefreshStateRestorationJob()} unless
+	 *         overridden.
+	 */
+	protected Runnable getLastFormRefreshStateRestorationJob(ITypeInfo type, Object object) {
+<span class="fc" id="L1707">		return type.getLastFormRefreshStateRestorationJob(object);</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormBackgroundImagePath()} unless
+	 *         overridden.
+	 */
+	protected ResourcePath getFormBackgroundImagePath(ITypeInfo type) {
+<span class="fc" id="L1716">		return type.getFormBackgroundImagePath();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormBackgroundColor()} unless
+	 *         overridden.
+	 */
+	protected ColorSpecification getFormBackgroundColor(ITypeInfo type) {
+<span class="fc" id="L1725">		return type.getFormBackgroundColor();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormForegroundColor()} unless
+	 *         overridden.
+	 */
+	protected ColorSpecification getFormForegroundColor(ITypeInfo type) {
+<span class="fc" id="L1734">		return type.getFormForegroundColor();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormBorderColor()} unless
+	 *         overridden.
+	 */
+	protected ColorSpecification getFormBorderColor(ITypeInfo type) {
+<span class="fc" id="L1743">		return type.getFormBorderColor();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormButtonForegroundColor()} unless
+	 *         overridden.
+	 */
+	protected ColorSpecification getFormButtonForegroundColor(ITypeInfo type) {
+<span class="fc" id="L1752">		return type.getFormButtonForegroundColor();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormButtonBorderColor()} unless
+	 *         overridden.
+	 */
+	protected ColorSpecification getFormButtonBorderColor(ITypeInfo type) {
+<span class="fc" id="L1761">		return type.getFormButtonBorderColor();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormButtonBackgroundImagePath()}
+	 *         unless overridden.
+	 */
+	protected ResourcePath getFormButtonBackgroundImagePath(ITypeInfo type) {
+<span class="fc" id="L1770">		return type.getFormButtonBackgroundImagePath();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormButtonBackgroundColor()} unless
+	 *         overridden.
+	 */
+	protected ColorSpecification getFormButtonBackgroundColor(ITypeInfo type) {
+<span class="fc" id="L1779">		return type.getFormButtonBackgroundColor();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getCategoriesForegroundColor()} unless
+	 *         overridden.
+	 */
+	protected ColorSpecification getCategoriesForegroundColor(ITypeInfo type) {
+<span class="fc" id="L1788">		return type.getCategoriesForegroundColor();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getCategoriesBackgroundColor()} unless
+	 *         overridden.
+	 */
+	protected ColorSpecification getCategoriesBackgroundColor(ITypeInfo type) {
+<span class="fc" id="L1797">		return type.getCategoriesBackgroundColor();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormEditorBackgroundColor()} unless
+	 *         overridden.
+	 */
+	protected ColorSpecification getFormEditorBackgroundColor(ITypeInfo type) {
+<span class="fc" id="L1806">		return type.getFormEditorBackgroundColor();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormEditorForegroundColor()} unless
+	 *         overridden.
+	 */
+	protected ColorSpecification getFormEditorForegroundColor(ITypeInfo type) {
+<span class="fc" id="L1815">		return type.getFormEditorForegroundColor();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormPreferredWidth()} unless
+	 *         overridden.
+	 */
+	protected int getFormPreferredWidth(ITypeInfo type) {
+<span class="fc" id="L1824">		return type.getFormPreferredWidth();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormPreferredHeight()} unless
+	 *         overridden.
+	 */
+	protected int getFormPreferredHeight(ITypeInfo type) {
+<span class="fc" id="L1833">		return type.getFormPreferredHeight();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getFormSpacing()} unless overridden.
+	 */
+	protected int getFormSpacing(ITypeInfo type) {
+<span class="fc" id="L1841">		return type.getFormSpacing();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IMapEntryTypeInfo#getKeyField()} unless
+	 *         overridden.
+	 */
+	protected IFieldInfo getKeyField(IMapEntryTypeInfo type) {
+<span class="nc" id="L1850">		return wrapFieldInfo(type.getKeyField(), type);</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link IMapEntryTypeInfo#getValueField()} unless
+	 *         overridden.
+	 */
+	protected IFieldInfo getValueField(IMapEntryTypeInfo type) {
+<span class="nc" id="L1859">		return wrapFieldInfo(type.getValueField(), type);</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#isFormControlMandatory()} unless
+	 *         overridden.
+	 */
+	protected boolean isFormControlMandatory(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L1869">		return field.isFormControlMandatory();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#isFormControlEmbedded()} unless
+	 *         overridden.
+	 */
+	protected boolean isFormControlEmbedded(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L1879">		return field.isFormControlEmbedded();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getFormControlFilter()} unless
+	 *         overridden.
+	 */
+	protected IInfoFilter getFormControlFilter(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L1889">		return field.getFormControlFilter();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getAutoUpdatePeriodMilliseconds()}
+	 *         unless overridden.
+	 */
+	protected long getAutoUpdatePeriodMilliseconds(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L1899">		return field.getAutoUpdatePeriodMilliseconds();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#isControlValueValiditionEnabled()}
+	 *         unless overridden.
+	 */
+	protected boolean isControlValueValiditionEnabled(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L1909">		return field.isControlValueValiditionEnabled();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getOnlineHelp()} unless overridden.
+	 */
+	protected String getOnlineHelp(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L1918">		return field.getOnlineHelp();</span>
+	}
+
+	/**
+	 * @param field      The field information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IFieldInfo#getSpecificProperties()} unless
+	 *         overridden.
+	 */
+	protected Map&lt;String, Object&gt; getSpecificProperties(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L1928">		return field.getSpecificProperties();</span>
+	}
+
+	/**
+	 * @param param      The parameter information.
+	 * @param method     The parent method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IParameterInfo#getOnlineHelp()} unless
+	 *         overridden.
+	 */
+	protected String getOnlineHelp(IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L1939">		return param.getOnlineHelp();</span>
+	}
+
+	/**
+	 * @param param      The parameter information.
+	 * @param method     The parent method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IParameterInfo#getSpecificProperties()} unless
+	 *         overridden.
+	 */
+	protected Map&lt;String, Object&gt; getSpecificProperties(IParameterInfo param, IMethodInfo method,
+			ITypeInfo objectType) {
+<span class="nc" id="L1951">		return param.getSpecificProperties();</span>
+	}
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getOnlineHelp()} unless overridden.
+	 */
+	protected String getOnlineHelp(ITypeInfo type) {
+<span class="fc" id="L1959">		return type.getOnlineHelp();</span>
+	}
+
+	/**
+	 * @param type    The type information.
+	 * @param object  Parameter of
+	 *                {@link ITypeInfo#validate(Object, ValidationSession)}.
+	 * @param session Parameter of
+	 *                {@link ITypeInfo#validate(Object, ValidationSession)}.
+	 * @throws Exception If {@link ITypeInfo#validate(Object)} throws the exception
+	 *                   unless overridden.
+	 */
+	protected void validate(ITypeInfo type, Object object, ValidationSession session) throws Exception {
+<span class="fc" id="L1972">		type.validate(object, session);</span>
+<span class="fc" id="L1973">	}</span>
+
+	/**
+	 * @param type The type information.
+	 * @return the result of {@link ITypeInfo#getSpecificProperties()} unless
+	 *         overridden.
+	 */
+	protected Map&lt;String, Object&gt; getSpecificProperties(ITypeInfo type) {
+<span class="fc" id="L1981">		return type.getSpecificProperties();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getOnlineHelp()} unless overridden.
+	 */
+	protected String getOnlineHelp(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L1990">		return method.getOnlineHelp();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getIconImagePath()} unless
+	 *         overridden.
+	 */
+	protected ResourcePath getIconImagePath(IMethodInfo method, ITypeInfo objectType) {
+<span class="fc" id="L2000">		return method.getIconImagePath();</span>
+	}
+
+	/**
+	 * @param method     The method information.
+	 * @param objectType The parent type information.
+	 * @return the result of {@link IMethodInfo#getSpecificProperties()} unless
+	 *         overridden.
+	 */
+	protected Map&lt;String, Object&gt; getSpecificProperties(IMethodInfo method, ITypeInfo objectType) {
+<span class="nc" id="L2010">		return method.getSpecificProperties();</span>
+	}
+
+	/**
+	 * @param method         The method information.
+	 * @param objectType     The parent type information.
+	 * @param object         Parameter of
+	 *                       {@link IMethodInfo#validateParameters(Object, InvocationData)}.
+	 * @param invocationData Parameter of
+	 *                       {@link IMethodInfo#validateParameters(Object, InvocationData)}.
+	 * @throws Exception If
+	 *                   {@link IMethodInfo#validateParameters(Object, InvocationData)}
+	 *                   throws the exception unless overridden.
+	 */
+	protected void validateParameters(IMethodInfo method, ITypeInfo objectType, Object object,
+			InvocationData invocationData) throws Exception {
+<span class="fc" id="L2026">		method.validateParameters(object, invocationData);</span>
+<span class="fc" id="L2027">	}</span>
+
+	/**
+	 * @param method         The method information.
+	 * @param objectType     The parent type information.
+	 * @param object         Parameter of
+	 *                       {@link IMethodInfo#getNextInvocationUndoJob(Object, InvocationData)}.
+	 * @param invocationData Parameter of
+	 *                       {@link IMethodInfo#getNextInvocationUndoJob(Object, InvocationData)}.
+	 * @return the result of
+	 *         {@link IMethodInfo#getNextInvocationUndoJob(Object, InvocationData)}
+	 *         unless overridden.
+	 */
+	protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType, Object object,
+			InvocationData invocationData) {
+<span class="fc" id="L2042">		return method.getNextInvocationUndoJob(object, invocationData);</span>
+	}
+
+	/**
+	 * @param method         The method information.
+	 * @param objectType     The parent type information.
+	 * @param object         Parameter of
+	 *                       {@link IMethodInfo#getPreviousInvocationCustomRedoJob(Object, InvocationData)}.
+	 * @param invocationData Parameter of
+	 *                       {@link IMethodInfo#getPreviousInvocationCustomRedoJob(Object, InvocationData)}.
+	 * @return the result of
+	 *         {@link IMethodInfo#getPreviousInvocationCustomRedoJob(Object, InvocationData)}
+	 *         unless overridden.
+	 */
+	protected Runnable getPreviousInvocationCustomRedoJob(IMethodInfo method, ITypeInfo objectType, Object object,
+			InvocationData invocationData) {
+<span class="nc" id="L2058">		return method.getPreviousInvocationCustomRedoJob(object, invocationData);</span>
+	}
+
+	/**
+	 * @param type   The type information.
+	 * @param object Parameter of {@link IEnumerationTypeInfo#getValueInfo(Object)}.
+	 * @return the result of {@link IEnumerationTypeInfo#getValueInfo(Object)}
+	 *         unless overridden.
+	 */
+	protected IEnumerationItemInfo getValueInfo(IEnumerationTypeInfo type, Object object) {
+<span class="fc" id="L2068">		return type.getValueInfo(object);</span>
+	}
+
+	/**
+	 * @param info           The enumeration item information.
+	 * @param parentEnumType The parent enumeration type information.
+	 * @return the result of {@link IEnumerationItemInfo#getName()} unless
+	 *         overridden.
+	 */
+	protected String getName(IEnumerationItemInfo info, IEnumerationTypeInfo parentEnumType) {
+<span class="fc" id="L2078">		return info.getName();</span>
+	}
+
+	/**
+	 * @param info           The enumeration item information.
+	 * @param parentEnumType The parent enumeration type information.
+	 * @return the result of {@link IEnumerationItemInfo#getValue()} unless
+	 *         overridden.
+	 */
+	protected Object getValue(IEnumerationItemInfo info, IEnumerationTypeInfo parentEnumType) {
+<span class="nc" id="L2088">		return info.getValue();</span>
+	}
+
+	/**
+	 * @param info           The enumeration item information.
+	 * @param parentEnumType The parent enumeration type information.
+	 * @return the result of {@link IEnumerationItemInfo#getSpecificProperties()}
+	 *         unless overridden.
+	 */
+	protected Map&lt;String, Object&gt; getSpecificProperties(IEnumerationItemInfo info,
+			IEnumerationTypeInfo parentEnumType) {
+<span class="nc" id="L2099">		return info.getSpecificProperties();</span>
+	}
+
+	/**
+	 * @param info           The enumeration item information.
+	 * @param parentEnumType The parent enumeration type information.
+	 * @return the result of {@link IEnumerationItemInfo#getIconImagePath()} unless
+	 *         overridden.
+	 */
+	protected ResourcePath getIconImagePath(IEnumerationItemInfo info, IEnumerationTypeInfo parentEnumType) {
+<span class="fc" id="L2109">		return info.getIconImagePath();</span>
+	}
+
+	/**
+	 * @param info           The enumeration item information.
+	 * @param parentEnumType The parent enumeration type information.
+	 * @return the result of {@link IEnumerationItemInfo#getOnlineHelp()} unless
+	 *         overridden.
+	 */
+	protected String getOnlineHelp(IEnumerationItemInfo info, IEnumerationTypeInfo parentEnumType) {
+<span class="fc" id="L2119">		return info.getOnlineHelp();</span>
+	}
+
+	/**
+	 * @param info           The enumeration item information.
+	 * @param parentEnumType The parent enumeration type information.
+	 * @return the result of {@link IEnumerationItemInfo#getCaption()} unless
+	 *         overridden.
+	 */
+	protected String getCaption(IEnumerationItemInfo info, IEnumerationTypeInfo parentEnumType) {
+<span class="fc" id="L2129">		return info.getCaption();</span>
+	}
+
+	public class GeneratedApplicationInfoProxy extends AbstractInfoProxy implements IApplicationInfo {
+
+<span class="fc" id="L2134">		protected InfoProxyFactory factory = InfoProxyFactory.this;</span>
+		protected IApplicationInfo base;
+		protected String name;
+
+<span class="fc" id="L2138">		public GeneratedApplicationInfoProxy(IApplicationInfo appInfo) {</span>
+<span class="fc" id="L2139">			this.base = appInfo;</span>
+<span class="fc" id="L2140">			checkActiveFactories();</span>
+<span class="fc" id="L2141">		}</span>
+
+		public InfoProxyFactory getFactory() {
+<span class="nc" id="L2144">			return factory;</span>
+		}
+
+		@Override
+		public String getName() {
+<span class="nc bnc" id="L2149" title="All 2 branches missed.">			if (name == null) {</span>
+<span class="nc" id="L2150">				name = InfoProxyFactory.this.getName(base);</span>
+			}
+<span class="nc" id="L2152">			return name;</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="nc" id="L2157">			return InfoProxyFactory.this.getCaption(base);</span>
+		}
+
+		@Override
+		public boolean isSystemIntegrationCrossPlatform() {
+<span class="fc" id="L2162">			return InfoProxyFactory.this.isSystemIntegrationCrossPlatform(base);</span>
+		}
+
+		@Override
+		public ResourcePath getIconImagePath() {
+<span class="fc" id="L2167">			return InfoProxyFactory.this.getIconImagePath(base);</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="nc" id="L2172">			return InfoProxyFactory.this.getOnlineHelp(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getMainBackgroundColor() {
+<span class="fc" id="L2177">			return InfoProxyFactory.this.getMainBackgroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getMainForegroundColor() {
+<span class="fc" id="L2182">			return InfoProxyFactory.this.getMainForegroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getMainBorderColor() {
+<span class="fc" id="L2187">			return InfoProxyFactory.this.getMainBorderColor(base);</span>
+		}
+
+		@Override
+		public ResourcePath getMainBackgroundImagePath() {
+<span class="fc" id="L2192">			return InfoProxyFactory.this.getMainBackgroundImagePath(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getMainEditorForegroundColor() {
+<span class="fc" id="L2197">			return InfoProxyFactory.this.getMainEditorForegroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getMainEditorBackgroundColor() {
+<span class="fc" id="L2202">			return InfoProxyFactory.this.getMainEditorBackgroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getMainButtonBackgroundColor() {
+<span class="fc" id="L2207">			return InfoProxyFactory.this.getMainButtonBackgroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getMainButtonForegroundColor() {
+<span class="fc" id="L2212">			return InfoProxyFactory.this.getMainButtonForegroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getMainButtonBorderColor() {
+<span class="fc" id="L2217">			return InfoProxyFactory.this.getMainButtonBorderColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getTitleBackgroundColor() {
+<span class="fc" id="L2222">			return InfoProxyFactory.this.getTitleBackgroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getTitleForegroundColor() {
+<span class="fc" id="L2227">			return InfoProxyFactory.this.getTitleForegroundColor(base);</span>
+		}
+
+		@Override
+		public ResourcePath getTitleCustomFontResourcePath() {
+<span class="fc" id="L2232">			return InfoProxyFactory.this.getTitleCustomFontResourcePath(base);</span>
+		}
+
+		@Override
+		public ResourcePath getMainButtonBackgroundImagePath() {
+<span class="fc" id="L2237">			return InfoProxyFactory.this.getMainButtonBackgroundImagePath(base);</span>
+		}
+
+		@Override
+		public ResourcePath getButtonCustomFontResourcePath() {
+<span class="fc" id="L2242">			return InfoProxyFactory.this.getButtonCustomFontResourcePath(base);</span>
+		}
+
+		@Override
+		public ResourcePath getLabelCustomFontResourcePath() {
+<span class="fc" id="L2247">			return InfoProxyFactory.this.getLabelCustomFontResourcePath(base);</span>
+		}
+
+		@Override
+		public ResourcePath getEditorCustomFontResourcePath() {
+<span class="fc" id="L2252">			return InfoProxyFactory.this.getEditorCustomFontResourcePath(base);</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L2257">			return traceActiveFactory(InfoProxyFactory.this.getSpecificProperties(base));</span>
+		}
+
+		protected Map&lt;String, Object&gt; traceActiveFactory(Map&lt;String, Object&gt; specificProperties) {
+<span class="fc" id="L2261">			Map&lt;String, Object&gt; result = new HashMap&lt;String, Object&gt;(specificProperties);</span>
+<span class="fc" id="L2262">			List&lt;InfoProxyFactory&gt; factories = listFactories(base);</span>
+<span class="fc bfc" id="L2263" title="All 2 branches covered.">			if (factories == null) {</span>
+<span class="fc" id="L2264">				factories = new ArrayList&lt;InfoProxyFactory&gt;();</span>
+			}
+<span class="fc" id="L2266">			factories.add(InfoProxyFactory.this);</span>
+<span class="fc" id="L2267">			result.put(ACTIVE_FACTORIES_KEY, factories);</span>
+<span class="fc" id="L2268">			return result;</span>
+		}
+
+		protected void checkActiveFactories() {
+<span class="fc" id="L2272">			List&lt;InfoProxyFactory&gt; factories = listFactories(base);</span>
+<span class="fc bfc" id="L2273" title="All 2 branches covered.">			if (factories != null) {</span>
+<span class="fc" id="L2274">				List&lt;String&gt; factoryIds = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L2275" title="All 2 branches covered.">				for (InfoProxyFactory factory : factories) {</span>
+<span class="fc" id="L2276">					factoryIds.add(factory.getIdentifier());</span>
+				}
+<span class="fc" id="L2278">				Collections.reverse(factoryIds);</span>
+<span class="pc bpc" id="L2279" title="1 of 2 branches missed.">				if (factoryIds.contains(factory.getIdentifier())) {</span>
+<span class="nc" id="L2280">					StringBuilder msg = new StringBuilder();</span>
+<span class="nc" id="L2281">					msg.append(&quot;Duplicate proxy creation detected:&quot; + &quot;\nNew proxy factory identifier:\n- &quot;</span>
+<span class="nc" id="L2282">							+ InfoProxyFactory.this.getIdentifier() + &quot;\nExisting factories identifers:\n&quot;);</span>
+<span class="nc bnc" id="L2283" title="All 2 branches missed.">					for (String id : factoryIds) {</span>
+<span class="nc" id="L2284">						msg.append(&quot;- &quot; + id + &quot;\n&quot;);</span>
+					}
+<span class="nc" id="L2286">					msg.append(</span>
+<span class="nc" id="L2287">							&quot;If the factories actually differ, please override the getIdentifier() method to differenciate them&quot;);</span>
+<span class="nc" id="L2288">					throw new ReflectionUIError(msg.toString());</span>
+				}
+			}
+<span class="fc" id="L2291">		}</span>
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L2295">			final int prime = 31;</span>
+<span class="nc" id="L2296">			int result = super.hashCode();</span>
+<span class="nc bnc" id="L2297" title="All 2 branches missed.">			result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="nc bnc" id="L2298" title="All 2 branches missed.">			result = prime * result + ((factory == null) ? 0 : factory.hashCode());</span>
+<span class="nc" id="L2299">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L2304" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L2305">				return true;</span>
+<span class="nc bnc" id="L2306" title="All 2 branches missed.">			if (!super.equals(obj))</span>
+<span class="nc" id="L2307">				return false;</span>
+<span class="nc bnc" id="L2308" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L2309">				return false;</span>
+<span class="nc" id="L2310">			GeneratedApplicationInfoProxy other = (GeneratedApplicationInfoProxy) obj;</span>
+<span class="nc bnc" id="L2311" title="All 2 branches missed.">			if (base == null) {</span>
+<span class="nc bnc" id="L2312" title="All 2 branches missed.">				if (other.base != null)</span>
+<span class="nc" id="L2313">					return false;</span>
+<span class="nc bnc" id="L2314" title="All 2 branches missed.">			} else if (!base.equals(other.base))</span>
+<span class="nc" id="L2315">				return false;</span>
+<span class="nc bnc" id="L2316" title="All 2 branches missed.">			if (factory == null) {</span>
+<span class="nc bnc" id="L2317" title="All 2 branches missed.">				if (other.factory != null)</span>
+<span class="nc" id="L2318">					return false;</span>
+<span class="nc bnc" id="L2319" title="All 2 branches missed.">			} else if (!factory.equals(other.factory))</span>
+<span class="nc" id="L2320">				return false;</span>
+<span class="nc" id="L2321">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L2326">			return &quot;GeneratedApplicationInfoProxy [name=&quot; + getName() + &quot;, factory=&quot; + factory + &quot;, base=&quot; + base + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public class GeneratedBasicTypeInfoProxy extends AbstractInfoProxy implements ITypeInfo {
+
+<span class="fc" id="L2333">		protected InfoProxyFactory factory = InfoProxyFactory.this;</span>
+		protected ITypeInfo base;
+		protected String name;
+		protected List&lt;IFieldInfo&gt; fields;
+		protected List&lt;IMethodInfo&gt; methods;
+		protected List&lt;IMethodInfo&gt; constructors;
+		protected MenuModel menuModel;
+
+<span class="fc" id="L2341">		public GeneratedBasicTypeInfoProxy(ITypeInfo type) {</span>
+<span class="fc" id="L2342">			this.base = type;</span>
+<span class="fc" id="L2343">			checkActiveFactories();</span>
+<span class="fc" id="L2344">		}</span>
+
+		public InfoProxyFactory getFactory() {
+<span class="nc" id="L2347">			return factory;</span>
+		}
+
+		@Override
+		public String getName() {
+<span class="fc bfc" id="L2352" title="All 2 branches covered.">			if (name == null) {</span>
+<span class="fc" id="L2353">				name = InfoProxyFactory.this.getName(base);</span>
+			}
+<span class="fc" id="L2355">			return name;</span>
+		}
+
+		@Override
+		public ITypeInfo getParent() {
+<span class="fc" id="L2360">			return InfoProxyFactory.this.getParent(base);</span>
+		}
+
+		@Override
+		public ITypeInfoSource getSource() {
+<span class="fc" id="L2365">			return InfoProxyFactory.this.getSource(base);</span>
+		}
+
+		@Override
+		public ITransaction createTransaction(Object object) {
+<span class="fc" id="L2370">			return InfoProxyFactory.this.createTransaction(base, object);</span>
+		}
+
+		@Override
+		public void onFormRefresh(Object object) {
+<span class="fc" id="L2375">			InfoProxyFactory.this.onFormRefresh(base, object);</span>
+<span class="fc" id="L2376">		}</span>
+
+		@Override
+		public Runnable getLastFormRefreshStateRestorationJob(Object object) {
+<span class="fc" id="L2380">			return InfoProxyFactory.this.getLastFormRefreshStateRestorationJob(base, object);</span>
+		}
+
+		@Override
+		public CategoriesStyle getCategoriesStyle() {
+<span class="fc" id="L2385">			return InfoProxyFactory.this.getCategoriesStyle(base);</span>
+		}
+
+		@Override
+		public ResourcePath getFormBackgroundImagePath() {
+<span class="fc" id="L2390">			return InfoProxyFactory.this.getFormBackgroundImagePath(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBackgroundColor() {
+<span class="fc" id="L2395">			return InfoProxyFactory.this.getFormBackgroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getFormForegroundColor() {
+<span class="fc" id="L2400">			return InfoProxyFactory.this.getFormForegroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBorderColor() {
+<span class="fc" id="L2405">			return InfoProxyFactory.this.getFormBorderColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBackgroundColor() {
+<span class="fc" id="L2410">			return InfoProxyFactory.this.getFormButtonBackgroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonForegroundColor() {
+<span class="fc" id="L2415">			return InfoProxyFactory.this.getFormButtonForegroundColor(base);</span>
+		}
+
+		@Override
+		public ResourcePath getFormButtonBackgroundImagePath() {
+<span class="fc" id="L2420">			return InfoProxyFactory.this.getFormButtonBackgroundImagePath(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBorderColor() {
+<span class="fc" id="L2425">			return InfoProxyFactory.this.getFormButtonBorderColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesBackgroundColor() {
+<span class="fc" id="L2430">			return InfoProxyFactory.this.getCategoriesBackgroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesForegroundColor() {
+<span class="fc" id="L2435">			return InfoProxyFactory.this.getCategoriesForegroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorForegroundColor() {
+<span class="fc" id="L2440">			return InfoProxyFactory.this.getFormEditorForegroundColor(base);</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorBackgroundColor() {
+<span class="fc" id="L2445">			return InfoProxyFactory.this.getFormEditorBackgroundColor(base);</span>
+		}
+
+		@Override
+		public int getFormPreferredWidth() {
+<span class="fc" id="L2450">			return InfoProxyFactory.this.getFormPreferredWidth(base);</span>
+		}
+
+		@Override
+		public int getFormPreferredHeight() {
+<span class="fc" id="L2455">			return InfoProxyFactory.this.getFormPreferredHeight(base);</span>
+		}
+
+		@Override
+		public int getFormSpacing() {
+<span class="fc" id="L2460">			return InfoProxyFactory.this.getFormSpacing(base);</span>
+		}
+
+		@Override
+		public void onFormVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L2465">			InfoProxyFactory.this.onFormVisibilityChange(base, object, visible);</span>
+<span class="fc" id="L2466">		}</span>
+
+		@Override
+		public void onFormCreation(Object object, boolean beforeOrAfter) {
+<span class="fc" id="L2470">			InfoProxyFactory.this.onFormCreation(base, object, beforeOrAfter);</span>
+<span class="fc" id="L2471">		}</span>
+
+		@Override
+		public String getCaption() {
+<span class="fc" id="L2475">			return InfoProxyFactory.this.getCaption(base);</span>
+		}
+
+		@Override
+		public boolean supports(Object object) {
+<span class="fc" id="L2480">			return InfoProxyFactory.this.supports(base, object);</span>
+		}
+
+		@Override
+		public boolean isConcrete() {
+<span class="fc" id="L2485">			return InfoProxyFactory.this.isConcrete(base);</span>
+		}
+
+		@Override
+		public boolean isPrimitive() {
+<span class="fc" id="L2490">			return InfoProxyFactory.this.isPrimitive(base);</span>
+		}
+
+		@Override
+		public boolean isImmutable() {
+<span class="fc" id="L2495">			return InfoProxyFactory.this.isImmutable(base);</span>
+		}
+
+		@Override
+		public boolean canPersist() {
+<span class="fc" id="L2500">			return InfoProxyFactory.this.canPersist(base);</span>
+		}
+
+		@Override
+		public void save(Object object, File outputFile) {
+<span class="fc" id="L2505">			InfoProxyFactory.this.save(base, object, outputFile);</span>
+<span class="fc" id="L2506">		}</span>
+
+		@Override
+		public void load(Object object, File inputFile) {
+<span class="fc" id="L2510">			InfoProxyFactory.this.load(base, object, inputFile);</span>
+<span class="fc" id="L2511">		}</span>
+
+		@Override
+		public boolean isModificationStackAccessible() {
+<span class="fc" id="L2515">			return InfoProxyFactory.this.isModificationStackAccessible(base);</span>
+		}
+
+		@Override
+		public boolean isValidationRequired() {
+<span class="fc" id="L2520">			return InfoProxyFactory.this.isValidationRequired(base);</span>
+		}
+
+		@Override
+		public boolean isPolymorphicInstanceAbstractTypeOptionAllowed() {
+<span class="fc" id="L2525">			return InfoProxyFactory.this.isPolymorphicInstanceAbstractTypeOptionAllowed(base);</span>
+		}
+
+		@Override
+		public List&lt;ITypeInfo&gt; getPolymorphicInstanceSubTypes() {
+<span class="fc" id="L2530">			List&lt;ITypeInfo&gt; result = new ArrayList&lt;ITypeInfo&gt;();</span>
+<span class="fc bfc" id="L2531" title="All 2 branches covered.">			for (ITypeInfo subType : InfoProxyFactory.this.getPolymorphicInstanceSubTypes(base)) {</span>
+<span class="fc" id="L2532">				result.add(wrapSubTypeInfo(subType));</span>
+			}
+<span class="fc" id="L2534">			return result;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getMethods() {
+<span class="fc bfc" id="L2539" title="All 2 branches covered.">			if (methods == null) {</span>
+<span class="fc" id="L2540">				methods = new ArrayList&lt;IMethodInfo&gt;();</span>
+<span class="fc bfc" id="L2541" title="All 2 branches covered.">				for (IMethodInfo method : InfoProxyFactory.this.getMethods(base)) {</span>
+<span class="fc" id="L2542">					methods.add(wrapMethodInfo(method, base));</span>
+				}
+			}
+<span class="fc" id="L2545">			return methods;</span>
+		}
+
+		@Override
+		public List&lt;IFieldInfo&gt; getFields() {
+<span class="fc bfc" id="L2550" title="All 2 branches covered.">			if (fields == null) {</span>
+<span class="fc" id="L2551">				fields = new ArrayList&lt;IFieldInfo&gt;();</span>
+<span class="fc bfc" id="L2552" title="All 2 branches covered.">				for (IFieldInfo field : InfoProxyFactory.this.getFields(base)) {</span>
+<span class="fc" id="L2553">					fields.add(wrapFieldInfo(field, base));</span>
+				}
+			}
+<span class="fc" id="L2556">			return fields;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getConstructors() {
+<span class="fc bfc" id="L2561" title="All 2 branches covered.">			if (constructors == null) {</span>
+<span class="fc" id="L2562">				constructors = new ArrayList&lt;IMethodInfo&gt;();</span>
+<span class="fc bfc" id="L2563" title="All 2 branches covered.">				for (IMethodInfo constructor : InfoProxyFactory.this.getConstructors(base)) {</span>
+<span class="fc" id="L2564">					constructors.add(wrapConstructorInfo(constructor, base));</span>
+				}
+			}
+<span class="fc" id="L2567">			return constructors;</span>
+		}
+
+		@Override
+		public MenuModel getMenuModel() {
+<span class="fc bfc" id="L2572" title="All 2 branches covered.">			if (menuModel == null) {</span>
+<span class="fc" id="L2573">				menuModel = InfoProxyFactory.this.getMenuModel(base);</span>
+			}
+<span class="fc" id="L2575">			return menuModel;</span>
+		}
+
+		@Override
+		public String toString(Object object) {
+<span class="fc" id="L2580">			return InfoProxyFactory.this.toString(base, object);</span>
+		}
+
+		@Override
+		public boolean canCopy(Object object) {
+<span class="fc" id="L2585">			return InfoProxyFactory.this.canCopy(base, object);</span>
+		}
+
+		@Override
+		public Object copy(Object object) {
+<span class="nc" id="L2590">			return InfoProxyFactory.this.copy(base, object);</span>
+		}
+
+		@Override
+		public ResourcePath getIconImagePath(Object object) {
+<span class="fc" id="L2595">			return InfoProxyFactory.this.getIconImagePath(base, object);</span>
+		}
+
+		@Override
+		public FieldsLayout getFieldsLayout() {
+<span class="fc" id="L2600">			return InfoProxyFactory.this.getFieldsLayout(base);</span>
+		}
+
+		@Override
+		public MethodsLayout getMethodsLayout() {
+<span class="fc" id="L2605">			return InfoProxyFactory.this.getMethodsLayout(base);</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="fc" id="L2610">			return InfoProxyFactory.this.getOnlineHelp(base);</span>
+		}
+
+		@Override
+		public void validate(Object object, ValidationSession session) throws Exception {
+<span class="fc" id="L2615">			InfoProxyFactory.this.validate(base, object, session);</span>
+<span class="fc" id="L2616">		}</span>
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L2620">			return traceActiveFactory(InfoProxyFactory.this.getSpecificProperties(base));</span>
+		}
+
+		protected Map&lt;String, Object&gt; traceActiveFactory(Map&lt;String, Object&gt; specificProperties) {
+<span class="fc" id="L2624">			Map&lt;String, Object&gt; result = new HashMap&lt;String, Object&gt;(specificProperties);</span>
+<span class="fc" id="L2625">			List&lt;InfoProxyFactory&gt; factories = listFactories(base);</span>
+<span class="fc bfc" id="L2626" title="All 2 branches covered.">			if (factories == null) {</span>
+<span class="fc" id="L2627">				factories = new ArrayList&lt;InfoProxyFactory&gt;();</span>
+			}
+<span class="fc" id="L2629">			factories.add(InfoProxyFactory.this);</span>
+<span class="fc" id="L2630">			result.put(ACTIVE_FACTORIES_KEY, factories);</span>
+<span class="fc" id="L2631">			return result;</span>
+		}
+
+		protected void checkActiveFactories() {
+<span class="fc" id="L2635">			List&lt;InfoProxyFactory&gt; factories = listFactories(base);</span>
+<span class="fc bfc" id="L2636" title="All 2 branches covered.">			if (factories != null) {</span>
+<span class="fc" id="L2637">				List&lt;String&gt; factoryIds = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L2638" title="All 2 branches covered.">				for (InfoProxyFactory factory : factories) {</span>
+<span class="fc" id="L2639">					factoryIds.add(factory.getIdentifier());</span>
+				}
+<span class="fc" id="L2641">				Collections.reverse(factoryIds);</span>
+<span class="pc bpc" id="L2642" title="1 of 2 branches missed.">				if (factoryIds.contains(factory.getIdentifier())) {</span>
+<span class="nc" id="L2643">					StringBuilder msg = new StringBuilder();</span>
+<span class="nc" id="L2644">					msg.append(&quot;Duplicate proxy creation detected:&quot; + &quot;\nNew proxy factory identifier:\n- &quot;</span>
+<span class="nc" id="L2645">							+ InfoProxyFactory.this.getIdentifier() + &quot;\nExisting factories identifers:\n&quot;);</span>
+<span class="nc bnc" id="L2646" title="All 2 branches missed.">					for (String id : factoryIds) {</span>
+<span class="nc" id="L2647">						msg.append(&quot;- &quot; + id + &quot;\n&quot;);</span>
+					}
+<span class="nc" id="L2649">					msg.append(</span>
+<span class="nc" id="L2650">							&quot;If the factories actually differ, please override the getIdentifier() method to differenciate them&quot;);</span>
+<span class="nc" id="L2651">					throw new ReflectionUIError(msg.toString());</span>
+				}
+			}
+<span class="fc" id="L2654">		}</span>
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L2658">			final int prime = 31;</span>
+<span class="fc" id="L2659">			int result = super.hashCode();</span>
+<span class="pc bpc" id="L2660" title="1 of 2 branches missed.">			result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="pc bpc" id="L2661" title="1 of 2 branches missed.">			result = prime * result + ((factory == null) ? 0 : factory.hashCode());</span>
+<span class="fc" id="L2662">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="fc bfc" id="L2667" title="All 2 branches covered.">			if (this == obj)</span>
+<span class="fc" id="L2668">				return true;</span>
+<span class="fc bfc" id="L2669" title="All 2 branches covered.">			if (!super.equals(obj))</span>
+<span class="fc" id="L2670">				return false;</span>
+<span class="pc bpc" id="L2671" title="1 of 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L2672">				return false;</span>
+<span class="fc" id="L2673">			GeneratedBasicTypeInfoProxy other = (GeneratedBasicTypeInfoProxy) obj;</span>
+<span class="pc bpc" id="L2674" title="1 of 2 branches missed.">			if (base == null) {</span>
+<span class="nc bnc" id="L2675" title="All 2 branches missed.">				if (other.base != null)</span>
+<span class="nc" id="L2676">					return false;</span>
+<span class="pc bpc" id="L2677" title="1 of 2 branches missed.">			} else if (!base.equals(other.base))</span>
+<span class="nc" id="L2678">				return false;</span>
+<span class="pc bpc" id="L2679" title="1 of 2 branches missed.">			if (factory == null) {</span>
+<span class="nc bnc" id="L2680" title="All 2 branches missed.">				if (other.factory != null)</span>
+<span class="nc" id="L2681">					return false;</span>
+<span class="fc bfc" id="L2682" title="All 2 branches covered.">			} else if (!factory.equals(other.factory))</span>
+<span class="fc" id="L2683">				return false;</span>
+<span class="fc" id="L2684">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L2689">			return &quot;GeneratedBasicTypeInfoProxy [name=&quot; + getName() + &quot;, factory=&quot; + factory + &quot;, base=&quot; + base + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public class GeneratedListTypeInfoProxy extends GeneratedBasicTypeInfoProxy implements IListTypeInfo {
+
+<span class="fc" id="L2696">		public GeneratedListTypeInfoProxy(IListTypeInfo type) {</span>
+<span class="fc" id="L2697">			super(type);</span>
+<span class="fc" id="L2698">		}</span>
+
+		@Override
+		public IValidationJob getListItemAbstractFormValidationJob(ItemPosition itemPosition) {
+<span class="fc" id="L2702">			return InfoProxyFactory.this.getListItemAbstractFormValidationJob((IListTypeInfo) base, itemPosition);</span>
+		}
+
+		@Override
+		public boolean isItemNodeValidityDetectionEnabled(ItemPosition itemPosition) {
+<span class="fc" id="L2707">			return InfoProxyFactory.this.isItemNodeValidityDetectionEnabled((IListTypeInfo) base, itemPosition);</span>
+		}
+
+		@Override
+		public IFieldInfo getSelectionTargetField(ITypeInfo objectType) {
+<span class="fc" id="L2712">			return InfoProxyFactory.this.getSelectionTargetField((IListTypeInfo) base, objectType);</span>
+		}
+
+		@Override
+		public Object[] toArray(Object listValue) {
+<span class="fc" id="L2717">			return InfoProxyFactory.this.toArray((IListTypeInfo) base, listValue);</span>
+		}
+
+		@Override
+		public boolean isItemNullValueSupported() {
+<span class="fc" id="L2722">			return InfoProxyFactory.this.isItemNullValueSupported((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public boolean areItemsAutomaticallyPositioned() {
+<span class="fc" id="L2727">			return InfoProxyFactory.this.areItemsAutomaticallyPositioned((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public boolean isMoveAllowed() {
+<span class="fc" id="L2732">			return InfoProxyFactory.this.isMoveAllowed((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public ItemCreationMode getItemCreationMode() {
+<span class="fc" id="L2737">			return InfoProxyFactory.this.getItemCreationMode((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public ValueReturnMode getItemReturnMode() {
+<span class="fc" id="L2742">			return InfoProxyFactory.this.getItemReturnMode((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public ToolsLocation getToolsLocation() {
+<span class="fc" id="L2747">			return InfoProxyFactory.this.getToolsLocation((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public boolean isInsertionAllowed() {
+<span class="fc" id="L2752">			return InfoProxyFactory.this.isInsertionAllowed((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public boolean isRemovalAllowed() {
+<span class="fc" id="L2757">			return InfoProxyFactory.this.isRemovalAllowed((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public boolean canViewItemDetails() {
+<span class="fc" id="L2762">			return InfoProxyFactory.this.canViewItemDetails((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public IListStructuralInfo getStructuralInfo() {
+<span class="fc" id="L2767">			return InfoProxyFactory.this.getStructuralInfo((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public IListItemDetailsAccessMode getDetailsAccessMode() {
+<span class="fc" id="L2772">			return InfoProxyFactory.this.getDetailsAccessMode((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public ITypeInfo getItemType() {
+<span class="fc" id="L2777">			return InfoProxyFactory.this.getItemType((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public void replaceContent(Object listValue, Object[] array) {
+<span class="fc" id="L2782">			InfoProxyFactory.this.replaceContent((IListTypeInfo) base, listValue, array);</span>
+<span class="fc" id="L2783">		}</span>
+
+		@Override
+		public Object fromArray(Object[] array) {
+<span class="nc" id="L2787">			return InfoProxyFactory.this.fromArray((IListTypeInfo) base, array);</span>
+		}
+
+		@Override
+		public boolean canInstantiateFromArray() {
+<span class="fc" id="L2792">			return InfoProxyFactory.this.canInstantiateFromArray((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public boolean canReplaceContent() {
+<span class="fc" id="L2797">			return InfoProxyFactory.this.canReplaceContent((IListTypeInfo) base);</span>
+		}
+
+		@Override
+		public List&lt;IDynamicListAction&gt; getDynamicActions(List&lt;? extends ItemPosition&gt; selection,
+				Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor) {
+<span class="fc" id="L2803">			return InfoProxyFactory.this.getDynamicActions((IListTypeInfo) base, selection,</span>
+<span class="fc" id="L2804">					listModificationFactoryAccessor);</span>
+		}
+
+		@Override
+		public List&lt;IDynamicListProperty&gt; getDynamicProperties(List&lt;? extends ItemPosition&gt; selection,
+				Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor) {
+<span class="fc" id="L2810">			return InfoProxyFactory.this.getDynamicProperties((IListTypeInfo) base, selection,</span>
+<span class="fc" id="L2811">					listModificationFactoryAccessor);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L2816">			return &quot;GeneratedListTypeInfoProxy [name=&quot; + getName() + &quot;, itemType=&quot; + getItemType() + &quot;, factory=&quot;</span>
+<span class="fc" id="L2817">					+ factory + &quot;, base=&quot; + base + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public class GeneratedEnumerationTypeInfoProxy extends GeneratedBasicTypeInfoProxy implements IEnumerationTypeInfo {
+
+<span class="fc" id="L2824">		public GeneratedEnumerationTypeInfoProxy(IEnumerationTypeInfo type) {</span>
+<span class="fc" id="L2825">			super(type);</span>
+<span class="fc" id="L2826">		}</span>
+
+		@Override
+		public boolean isDynamicEnumeration() {
+<span class="fc" id="L2830">			return InfoProxyFactory.this.isDynamicEnumeration((IEnumerationTypeInfo) base);</span>
+		}
+
+		@Override
+		public Object[] getValues() {
+<span class="fc" id="L2835">			return InfoProxyFactory.this.getValues((IEnumerationTypeInfo) base);</span>
+		}
+
+		@Override
+		public IEnumerationItemInfo getValueInfo(Object object) {
+<span class="fc" id="L2840">			IEnumerationItemInfo itemInfo = InfoProxyFactory.this.getValueInfo((IEnumerationTypeInfo) base, object);</span>
+<span class="fc" id="L2841">			return wrapEnumerationItemInfo(itemInfo, (IEnumerationTypeInfo) base);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L2846">			return &quot;GeneratedEnumerationTypeInfoProxy [name=&quot; + getName() + &quot;,factory=&quot; + factory + &quot;, base=&quot; + base</span>
+<span class="fc" id="L2847">					+ &quot;]&quot;;</span>
+		}
+
+	}
+
+	public class GeneratedMapEntryTypeInfoProxy extends GeneratedBasicTypeInfoProxy implements IMapEntryTypeInfo {
+
+<span class="fc" id="L2854">		public GeneratedMapEntryTypeInfoProxy(IMapEntryTypeInfo type) {</span>
+<span class="fc" id="L2855">			super(type);</span>
+<span class="fc" id="L2856">		}</span>
+
+		@Override
+		public IFieldInfo getKeyField() {
+<span class="nc" id="L2860">			return InfoProxyFactory.this.getKeyField((IMapEntryTypeInfo) base);</span>
+		}
+
+		@Override
+		public IFieldInfo getValueField() {
+<span class="nc" id="L2865">			return InfoProxyFactory.this.getValueField((IMapEntryTypeInfo) base);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L2870">			return &quot;GeneratedMapEntryTypeInfoProxy [name=&quot; + getName() + &quot;, factory=&quot; + factory + &quot;, base=&quot; + base</span>
+<span class="nc" id="L2871">					+ &quot;]&quot;;</span>
+		}
+
+	}
+
+	public class GeneratedFieldInfoProxy extends AbstractInfoProxy implements IFieldInfo {
+
+<span class="fc" id="L2878">		protected InfoProxyFactory factory = InfoProxyFactory.this;</span>
+
+		protected IFieldInfo base;
+		protected ITypeInfo objectType;
+		protected String name;
+
+<span class="fc" id="L2884">		public GeneratedFieldInfoProxy(IFieldInfo field, ITypeInfo objectType) {</span>
+<span class="fc" id="L2885">			this.base = field;</span>
+<span class="fc" id="L2886">			this.objectType = objectType;</span>
+<span class="fc" id="L2887">		}</span>
+
+		@Override
+		public String getName() {
+<span class="fc bfc" id="L2891" title="All 2 branches covered.">			if (name == null) {</span>
+<span class="fc" id="L2892">				name = InfoProxyFactory.this.getName(base, objectType);</span>
+			}
+<span class="fc" id="L2894">			return name;</span>
+		}
+
+		@Override
+		public boolean isHidden() {
+<span class="fc" id="L2899">			return InfoProxyFactory.this.isHidden(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isRelevant(Object object) {
+<span class="fc" id="L2904">			return InfoProxyFactory.this.isRelevant(base, object, objectType);</span>
+		}
+
+		@Override
+		public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L2909">			return InfoProxyFactory.this.getValueAbstractFormValidationJob(base, object, objectType);</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L2914">			return InfoProxyFactory.this.getAlternativeConstructors(base, object, objectType);</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="fc" id="L2919">			return InfoProxyFactory.this.getAlternativeListItemConstructors(base, object, objectType);</span>
+		}
+
+		@Override
+		public double getDisplayAreaHorizontalWeight() {
+<span class="fc" id="L2924">			return InfoProxyFactory.this.getDisplayAreaHorizontalWeight(base, objectType);</span>
+		}
+
+		@Override
+		public double getDisplayAreaVerticalWeight() {
+<span class="fc" id="L2929">			return InfoProxyFactory.this.getDisplayAreaVerticalWeight(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isDisplayAreaHorizontallyFilled() {
+<span class="fc" id="L2934">			return InfoProxyFactory.this.isDisplayAreaHorizontallyFilled(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isDisplayAreaVerticallyFilled() {
+<span class="fc" id="L2939">			return InfoProxyFactory.this.isDisplayAreaVerticallyFilled(base, objectType);</span>
+		}
+
+		@Override
+		public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L2944">			InfoProxyFactory.this.onControlVisibilityChange(base, object, visible, objectType);</span>
+<span class="fc" id="L2945">		}</span>
+
+		@Override
+		public String getCaption() {
+<span class="fc" id="L2949">			return InfoProxyFactory.this.getCaption(base, objectType);</span>
+		}
+
+		@Override
+		public void setValue(Object object, Object value) {
+<span class="fc" id="L2954">			InfoProxyFactory.this.setValue(base, object, value, objectType);</span>
+<span class="fc" id="L2955">		}</span>
+
+		@Override
+		public Runnable getNextUpdateCustomUndoJob(Object object, Object value) {
+<span class="fc" id="L2959">			return InfoProxyFactory.this.getNextUpdateCustomUndoJob(base, object, value, objectType);</span>
+		}
+
+		@Override
+		public Runnable getPreviousUpdateCustomRedoJob(Object object, Object value) {
+<span class="nc" id="L2964">			return InfoProxyFactory.this.getPreviousUpdateCustomRedoJob(base, object, value, objectType);</span>
+		}
+
+		@Override
+		public boolean isGetOnly() {
+<span class="fc" id="L2969">			return InfoProxyFactory.this.isGetOnly(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isTransient() {
+<span class="fc" id="L2974">			return InfoProxyFactory.this.isTransient(base, objectType);</span>
+		}
+
+		@Override
+		public ValueReturnMode getValueReturnMode() {
+<span class="fc" id="L2979">			return InfoProxyFactory.this.getValueReturnMode(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isNullValueDistinct() {
+<span class="fc" id="L2984">			return InfoProxyFactory.this.isNullValueDistinct(base, objectType);</span>
+		}
+
+		@Override
+		public String getNullValueLabel() {
+<span class="fc" id="L2989">			return InfoProxyFactory.this.getNullValueLabel(base, objectType);</span>
+
+		}
+
+		@Override
+		public Object getValue(Object object) {
+<span class="fc" id="L2995">			return InfoProxyFactory.this.getValue(base, object, objectType);</span>
+		}
+
+		@Override
+		public boolean hasValueOptions(Object object) {
+<span class="fc" id="L3000">			return InfoProxyFactory.this.hasValueOptions(base, object, objectType);</span>
+		}
+
+		@Override
+		public Object[] getValueOptions(Object object) {
+<span class="fc" id="L3005">			return InfoProxyFactory.this.getValueOptions(base, object, objectType);</span>
+		}
+
+		@Override
+		public ITypeInfo getType() {
+<span class="fc" id="L3010">			return InfoProxyFactory.this.getType(base, objectType);</span>
+		}
+
+		@Override
+		public InfoCategory getCategory() {
+<span class="fc" id="L3015">			return InfoProxyFactory.this.getCategory(base, objectType);</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="fc" id="L3020">			return InfoProxyFactory.this.getOnlineHelp(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isFormControlMandatory() {
+<span class="fc" id="L3025">			return InfoProxyFactory.this.isFormControlMandatory(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isFormControlEmbedded() {
+<span class="fc" id="L3030">			return InfoProxyFactory.this.isFormControlEmbedded(base, objectType);</span>
+		}
+
+		@Override
+		public IInfoFilter getFormControlFilter() {
+<span class="fc" id="L3035">			return InfoProxyFactory.this.getFormControlFilter(base, objectType);</span>
+		}
+
+		public long getAutoUpdatePeriodMilliseconds() {
+<span class="fc" id="L3039">			return InfoProxyFactory.this.getAutoUpdatePeriodMilliseconds(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isControlValueValiditionEnabled() {
+<span class="fc" id="L3044">			return InfoProxyFactory.this.isControlValueValiditionEnabled(base, objectType);</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L3049">			return InfoProxyFactory.this.getSpecificProperties(base, objectType);</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L3054">			final int prime = 31;</span>
+<span class="fc" id="L3055">			int result = super.hashCode();</span>
+<span class="pc bpc" id="L3056" title="1 of 2 branches missed.">			result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="pc bpc" id="L3057" title="1 of 2 branches missed.">			result = prime * result + ((objectType == null) ? 0 : objectType.hashCode());</span>
+<span class="pc bpc" id="L3058" title="1 of 2 branches missed.">			result = prime * result + ((factory == null) ? 0 : factory.hashCode());</span>
+<span class="fc" id="L3059">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="fc bfc" id="L3064" title="All 2 branches covered.">			if (this == obj)</span>
+<span class="fc" id="L3065">				return true;</span>
+<span class="fc bfc" id="L3066" title="All 2 branches covered.">			if (!super.equals(obj))</span>
+<span class="fc" id="L3067">				return false;</span>
+<span class="pc bpc" id="L3068" title="1 of 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L3069">				return false;</span>
+<span class="fc" id="L3070">			GeneratedFieldInfoProxy other = (GeneratedFieldInfoProxy) obj;</span>
+<span class="pc bpc" id="L3071" title="1 of 2 branches missed.">			if (base == null) {</span>
+<span class="nc bnc" id="L3072" title="All 2 branches missed.">				if (other.base != null)</span>
+<span class="nc" id="L3073">					return false;</span>
+<span class="pc bpc" id="L3074" title="1 of 2 branches missed.">			} else if (!base.equals(other.base))</span>
+<span class="nc" id="L3075">				return false;</span>
+<span class="pc bpc" id="L3076" title="1 of 2 branches missed.">			if (objectType == null) {</span>
+<span class="nc bnc" id="L3077" title="All 2 branches missed.">				if (other.objectType != null)</span>
+<span class="nc" id="L3078">					return false;</span>
+<span class="pc bpc" id="L3079" title="1 of 2 branches missed.">			} else if (!objectType.equals(other.objectType))</span>
+<span class="nc" id="L3080">				return false;</span>
+<span class="pc bpc" id="L3081" title="1 of 2 branches missed.">			if (factory == null) {</span>
+<span class="nc bnc" id="L3082" title="All 2 branches missed.">				if (other.factory != null)</span>
+<span class="nc" id="L3083">					return false;</span>
+<span class="pc bpc" id="L3084" title="1 of 2 branches missed.">			} else if (!factory.equals(other.factory))</span>
+<span class="nc" id="L3085">				return false;</span>
+<span class="fc" id="L3086">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L3091">			return &quot;GeneratedFieldInfoProxy [name=&quot; + getName() + &quot;, factory=&quot; + factory + &quot;, base=&quot; + base + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public class GeneratedMethodInfoProxy extends AbstractInfoProxy implements IMethodInfo {
+
+<span class="fc" id="L3098">		protected InfoProxyFactory factory = InfoProxyFactory.this;</span>
+
+		protected IMethodInfo base;
+		protected ITypeInfo objectType;
+		protected String name;
+
+<span class="fc" id="L3104">		public GeneratedMethodInfoProxy(IMethodInfo method, ITypeInfo objectType) {</span>
+<span class="fc" id="L3105">			this.base = method;</span>
+<span class="fc" id="L3106">			this.objectType = objectType;</span>
+<span class="fc" id="L3107">		}</span>
+
+		@Override
+		public String getName() {
+<span class="fc bfc" id="L3111" title="All 2 branches covered.">			if (name == null) {</span>
+<span class="fc" id="L3112">				name = InfoProxyFactory.this.getName(base, objectType);</span>
+			}
+<span class="fc" id="L3114">			return name;</span>
+		}
+
+		@Override
+		public boolean isHidden() {
+<span class="fc" id="L3119">			return InfoProxyFactory.this.isHidden(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isRelevant(Object object) {
+<span class="fc" id="L3124">			return InfoProxyFactory.this.isRelevant(base, object, objectType);</span>
+		}
+
+		@Override
+		public IValidationJob getReturnValueAbstractFormValidationJob(Object object, Object returnValue) {
+<span class="fc" id="L3129">			return InfoProxyFactory.this.getReturnValueAbstractFormValidationJob(base, object, returnValue, objectType);</span>
+		}
+
+		@Override
+		public boolean isControlReturnValueValiditionEnabled() {
+<span class="fc" id="L3134">			return InfoProxyFactory.this.isControlReturnValueValiditionEnabled(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isLastInvocationDataUsedByDefault() {
+<span class="fc" id="L3139">			return InfoProxyFactory.this.isLastInvocationDataUsedByDefault(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isEnabled(Object object) {
+<span class="fc" id="L3144">			return InfoProxyFactory.this.isEnabled(base, object, objectType);</span>
+		}
+
+		@Override
+		public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L3149">			InfoProxyFactory.this.onControlVisibilityChange(base, object, visible, objectType);</span>
+<span class="fc" id="L3150">		}</span>
+
+		@Override
+		public String getSignature() {
+<span class="fc" id="L3154">			return InfoProxyFactory.this.getSignature(base, objectType);</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="fc" id="L3159">			return InfoProxyFactory.this.getCaption(base, objectType);</span>
+		}
+
+		@Override
+		public String getParametersValidationCustomCaption() {
+<span class="fc" id="L3164">			return InfoProxyFactory.this.getParametersValidationCustomCaption(base, objectType);</span>
+		}
+
+		@Override
+		public String getExecutionSuccessMessage() {
+<span class="fc" id="L3169">			return InfoProxyFactory.this.getExecutionSuccessMessage(base, objectType);</span>
+		}
+
+		@Override
+		public ITypeInfo getReturnValueType() {
+<span class="fc" id="L3174">			return InfoProxyFactory.this.getReturnValueType(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isNullReturnValueDistinct() {
+<span class="fc" id="L3179">			return InfoProxyFactory.this.isNullReturnValueDistinct(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isReturnValueDetached() {
+<span class="fc" id="L3184">			return InfoProxyFactory.this.isReturnValueDetached(base, objectType);</span>
+		}
+
+		@Override
+		public boolean isReturnValueIgnored() {
+<span class="fc" id="L3189">			return InfoProxyFactory.this.isReturnValueIgnored(base, objectType);</span>
+		}
+
+		@Override
+		public List&lt;IParameterInfo&gt; getParameters() {
+<span class="fc" id="L3194">			List&lt;IParameterInfo&gt; result = new ArrayList&lt;IParameterInfo&gt;();</span>
+<span class="fc bfc" id="L3195" title="All 2 branches covered.">			for (IParameterInfo param : InfoProxyFactory.this.getParameters(base, objectType)) {</span>
+<span class="fc" id="L3196">				result.add(wrapParameterInfo(param, base, objectType));</span>
+			}
+<span class="fc" id="L3198">			return result;</span>
+		}
+
+		@Override
+		public Object invoke(Object object, InvocationData invocationData) {
+<span class="fc" id="L3203">			return InfoProxyFactory.this.invoke(base, object, invocationData, objectType);</span>
+		}
+
+		@Override
+		public String getConfirmationMessage(Object object, InvocationData invocationData) {
+<span class="fc" id="L3208">			return InfoProxyFactory.this.getConfirmationMessage(base, object, invocationData, objectType);</span>
+		}
+
+		@Override
+		public boolean isReadOnly() {
+<span class="fc" id="L3213">			return InfoProxyFactory.this.isReadOnly(base, objectType);</span>
+		}
+
+		@Override
+		public String getNullReturnValueLabel() {
+<span class="nc" id="L3218">			return InfoProxyFactory.this.getNullReturnValueLabel(base, objectType);</span>
+		}
+
+		@Override
+		public ValueReturnMode getValueReturnMode() {
+<span class="fc" id="L3223">			return InfoProxyFactory.this.getValueReturnMode(base, objectType);</span>
+		}
+
+		@Override
+		public InfoCategory getCategory() {
+<span class="fc" id="L3228">			return InfoProxyFactory.this.getCategory(base, objectType);</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="fc" id="L3233">			return InfoProxyFactory.this.getOnlineHelp(base, objectType);</span>
+		}
+
+		@Override
+		public ResourcePath getIconImagePath() {
+<span class="fc" id="L3238">			return InfoProxyFactory.this.getIconImagePath(base, objectType);</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L3243">			return InfoProxyFactory.this.getSpecificProperties(base, objectType);</span>
+		}
+
+		@Override
+		public void validateParameters(Object object, InvocationData invocationData) throws Exception {
+<span class="fc" id="L3248">			InfoProxyFactory.this.validateParameters(base, objectType, object, invocationData);</span>
+<span class="fc" id="L3249">		}</span>
+
+		@Override
+		public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
+<span class="fc" id="L3253">			return InfoProxyFactory.this.getNextInvocationUndoJob(base, objectType, object, invocationData);</span>
+		}
+
+		@Override
+		public Runnable getPreviousInvocationCustomRedoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L3258">			return InfoProxyFactory.this.getPreviousInvocationCustomRedoJob(base, objectType, object, invocationData);</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L3263">			final int prime = 31;</span>
+<span class="fc" id="L3264">			int result = super.hashCode();</span>
+<span class="pc bpc" id="L3265" title="1 of 2 branches missed.">			result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="pc bpc" id="L3266" title="1 of 2 branches missed.">			result = prime * result + ((objectType == null) ? 0 : objectType.hashCode());</span>
+<span class="pc bpc" id="L3267" title="1 of 2 branches missed.">			result = prime * result + ((factory == null) ? 0 : factory.hashCode());</span>
+<span class="fc" id="L3268">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="fc bfc" id="L3273" title="All 2 branches covered.">			if (this == obj)</span>
+<span class="fc" id="L3274">				return true;</span>
+<span class="fc bfc" id="L3275" title="All 2 branches covered.">			if (!super.equals(obj))</span>
+<span class="fc" id="L3276">				return false;</span>
+<span class="pc bpc" id="L3277" title="1 of 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L3278">				return false;</span>
+<span class="fc" id="L3279">			GeneratedMethodInfoProxy other = (GeneratedMethodInfoProxy) obj;</span>
+<span class="pc bpc" id="L3280" title="1 of 2 branches missed.">			if (base == null) {</span>
+<span class="nc bnc" id="L3281" title="All 2 branches missed.">				if (other.base != null)</span>
+<span class="nc" id="L3282">					return false;</span>
+<span class="fc bfc" id="L3283" title="All 2 branches covered.">			} else if (!base.equals(other.base))</span>
+<span class="fc" id="L3284">				return false;</span>
+<span class="pc bpc" id="L3285" title="1 of 2 branches missed.">			if (objectType == null) {</span>
+<span class="nc bnc" id="L3286" title="All 2 branches missed.">				if (other.objectType != null)</span>
+<span class="nc" id="L3287">					return false;</span>
+<span class="pc bpc" id="L3288" title="1 of 2 branches missed.">			} else if (!objectType.equals(other.objectType))</span>
+<span class="nc" id="L3289">				return false;</span>
+<span class="pc bpc" id="L3290" title="1 of 2 branches missed.">			if (factory == null) {</span>
+<span class="nc bnc" id="L3291" title="All 2 branches missed.">				if (other.factory != null)</span>
+<span class="nc" id="L3292">					return false;</span>
+<span class="pc bpc" id="L3293" title="1 of 2 branches missed.">			} else if (!factory.equals(other.factory))</span>
+<span class="nc" id="L3294">				return false;</span>
+<span class="fc" id="L3295">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L3300">			return &quot;GeneratedMethodInfoProxy [signature=&quot; + getSignature() + &quot;, factory=&quot; + factory + &quot;, base=&quot; + base</span>
+<span class="fc" id="L3301">					+ &quot;]&quot;;</span>
+		}
+
+	}
+
+	public class GeneratedConstructorInfoProxy extends GeneratedMethodInfoProxy {
+
+<span class="fc" id="L3308">		public GeneratedConstructorInfoProxy(IMethodInfo ctor, ITypeInfo objectType) {</span>
+<span class="fc" id="L3309">			super(ctor, objectType);</span>
+<span class="fc" id="L3310">		}</span>
+
+	}
+
+	public class GeneratedParameterInfoProxy extends AbstractInfoProxy implements IParameterInfo {
+
+<span class="fc" id="L3316">		protected InfoProxyFactory factory = InfoProxyFactory.this;</span>
+
+		protected IParameterInfo base;
+		protected IMethodInfo method;
+		protected ITypeInfo objectType;
+		protected String name;
+
+<span class="fc" id="L3323">		public GeneratedParameterInfoProxy(IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {</span>
+<span class="fc" id="L3324">			this.base = param;</span>
+<span class="fc" id="L3325">			this.method = method;</span>
+<span class="fc" id="L3326">			this.objectType = objectType;</span>
+<span class="fc" id="L3327">		}</span>
+
+		@Override
+		public String getName() {
+<span class="fc bfc" id="L3331" title="All 2 branches covered.">			if (name == null) {</span>
+<span class="fc" id="L3332">				name = InfoProxyFactory.this.getName(base, method, objectType);</span>
+			}
+<span class="fc" id="L3334">			return name;</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="fc" id="L3339">			return InfoProxyFactory.this.getCaption(base, method, objectType);</span>
+		}
+
+		@Override
+		public boolean isHidden() {
+<span class="fc" id="L3344">			return InfoProxyFactory.this.isHidden(base, method, objectType);</span>
+		}
+
+		@Override
+		public boolean isNullValueDistinct() {
+<span class="fc" id="L3349">			return InfoProxyFactory.this.isNullValueDistinct(base, method, objectType);</span>
+		}
+
+		@Override
+		public ITypeInfo getType() {
+<span class="fc" id="L3354">			return InfoProxyFactory.this.getType(base, method, objectType);</span>
+		}
+
+		@Override
+		public int getPosition() {
+<span class="fc" id="L3359">			return InfoProxyFactory.this.getPosition(base, method, objectType);</span>
+		}
+
+		@Override
+		public Object getDefaultValue(Object object) {
+<span class="fc" id="L3364">			return InfoProxyFactory.this.getDefaultValue(base, object, method, objectType);</span>
+		}
+
+		@Override
+		public boolean hasValueOptions(Object object) {
+<span class="fc" id="L3369">			return InfoProxyFactory.this.hasValueOptions(base, object, method, objectType);</span>
+		}
+
+		@Override
+		public Object[] getValueOptions(Object object) {
+<span class="nc" id="L3374">			return InfoProxyFactory.this.getValueOptions(base, object, method, objectType);</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="fc" id="L3379">			return InfoProxyFactory.this.getOnlineHelp(base, method, objectType);</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L3384">			return InfoProxyFactory.this.getSpecificProperties(base, method, objectType);</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L3389">			final int prime = 31;</span>
+<span class="nc" id="L3390">			int result = super.hashCode();</span>
+<span class="nc bnc" id="L3391" title="All 2 branches missed.">			result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="nc bnc" id="L3392" title="All 2 branches missed.">			result = prime * result + ((objectType == null) ? 0 : objectType.hashCode());</span>
+<span class="nc bnc" id="L3393" title="All 2 branches missed.">			result = prime * result + ((factory == null) ? 0 : factory.hashCode());</span>
+<span class="nc bnc" id="L3394" title="All 2 branches missed.">			result = prime * result + ((method == null) ? 0 : method.hashCode());</span>
+<span class="nc" id="L3395">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L3400" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L3401">				return true;</span>
+<span class="nc bnc" id="L3402" title="All 2 branches missed.">			if (!super.equals(obj))</span>
+<span class="nc" id="L3403">				return false;</span>
+<span class="nc bnc" id="L3404" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L3405">				return false;</span>
+<span class="nc" id="L3406">			GeneratedParameterInfoProxy other = (GeneratedParameterInfoProxy) obj;</span>
+<span class="nc bnc" id="L3407" title="All 2 branches missed.">			if (base == null) {</span>
+<span class="nc bnc" id="L3408" title="All 2 branches missed.">				if (other.base != null)</span>
+<span class="nc" id="L3409">					return false;</span>
+<span class="nc bnc" id="L3410" title="All 2 branches missed.">			} else if (!base.equals(other.base))</span>
+<span class="nc" id="L3411">				return false;</span>
+<span class="nc bnc" id="L3412" title="All 2 branches missed.">			if (objectType == null) {</span>
+<span class="nc bnc" id="L3413" title="All 2 branches missed.">				if (other.objectType != null)</span>
+<span class="nc" id="L3414">					return false;</span>
+<span class="nc bnc" id="L3415" title="All 2 branches missed.">			} else if (!objectType.equals(other.objectType))</span>
+<span class="nc" id="L3416">				return false;</span>
+<span class="nc bnc" id="L3417" title="All 2 branches missed.">			if (factory == null) {</span>
+<span class="nc bnc" id="L3418" title="All 2 branches missed.">				if (other.factory != null)</span>
+<span class="nc" id="L3419">					return false;</span>
+<span class="nc bnc" id="L3420" title="All 2 branches missed.">			} else if (!factory.equals(other.factory))</span>
+<span class="nc" id="L3421">				return false;</span>
+<span class="nc bnc" id="L3422" title="All 2 branches missed.">			if (method == null) {</span>
+<span class="nc bnc" id="L3423" title="All 2 branches missed.">				if (other.method != null)</span>
+<span class="nc" id="L3424">					return false;</span>
+<span class="nc bnc" id="L3425" title="All 2 branches missed.">			} else if (!method.equals(other.method))</span>
+<span class="nc" id="L3426">				return false;</span>
+<span class="nc" id="L3427">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L3432">			return &quot;GeneratedParameterInfoProxy [name=&quot; + getName() + &quot;, factory=&quot; + factory + &quot;, base=&quot; + base</span>
+<span class="nc" id="L3433">					+ &quot;, method=&quot; + method + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public class GeneratedEnumerationItemInfoProxy extends AbstractInfoProxy implements IEnumerationItemInfo {
+
+<span class="fc" id="L3440">		protected InfoProxyFactory factory = InfoProxyFactory.this;</span>
+
+		protected IEnumerationItemInfo base;
+		protected IEnumerationTypeInfo parentEnumType;
+		protected String name;
+
+<span class="fc" id="L3446">		public GeneratedEnumerationItemInfoProxy(IEnumerationItemInfo base, IEnumerationTypeInfo parentEnumType) {</span>
+<span class="fc" id="L3447">			this.base = base;</span>
+<span class="fc" id="L3448">			this.parentEnumType = parentEnumType;</span>
+<span class="fc" id="L3449">		}</span>
+
+		@Override
+		public String getName() {
+<span class="fc bfc" id="L3453" title="All 2 branches covered.">			if (name == null) {</span>
+<span class="fc" id="L3454">				name = InfoProxyFactory.this.getName(base, parentEnumType);</span>
+			}
+<span class="fc" id="L3456">			return name;</span>
+		}
+
+		@Override
+		public Object getValue() {
+<span class="nc" id="L3461">			return InfoProxyFactory.this.getValue(base, parentEnumType);</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="fc" id="L3466">			return InfoProxyFactory.this.getCaption(base, parentEnumType);</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="fc" id="L3471">			return InfoProxyFactory.this.getOnlineHelp(base, parentEnumType);</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L3476">			return InfoProxyFactory.this.getSpecificProperties(base, parentEnumType);</span>
+		}
+
+		@Override
+		public ResourcePath getIconImagePath() {
+<span class="fc" id="L3481">			return InfoProxyFactory.this.getIconImagePath(base, parentEnumType);</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L3486">			final int prime = 31;</span>
+<span class="nc" id="L3487">			int result = super.hashCode();</span>
+<span class="nc bnc" id="L3488" title="All 2 branches missed.">			result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="nc bnc" id="L3489" title="All 2 branches missed.">			result = prime * result + ((factory == null) ? 0 : factory.hashCode());</span>
+<span class="nc bnc" id="L3490" title="All 2 branches missed.">			result = prime * result + ((parentEnumType == null) ? 0 : parentEnumType.hashCode());</span>
+<span class="nc" id="L3491">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L3496" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L3497">				return true;</span>
+<span class="nc bnc" id="L3498" title="All 2 branches missed.">			if (!super.equals(obj))</span>
+<span class="nc" id="L3499">				return false;</span>
+<span class="nc bnc" id="L3500" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L3501">				return false;</span>
+<span class="nc" id="L3502">			GeneratedEnumerationItemInfoProxy other = (GeneratedEnumerationItemInfoProxy) obj;</span>
+<span class="nc bnc" id="L3503" title="All 2 branches missed.">			if (base == null) {</span>
+<span class="nc bnc" id="L3504" title="All 2 branches missed.">				if (other.base != null)</span>
+<span class="nc" id="L3505">					return false;</span>
+<span class="nc bnc" id="L3506" title="All 2 branches missed.">			} else if (!base.equals(other.base))</span>
+<span class="nc" id="L3507">				return false;</span>
+<span class="nc bnc" id="L3508" title="All 2 branches missed.">			if (factory == null) {</span>
+<span class="nc bnc" id="L3509" title="All 2 branches missed.">				if (other.factory != null)</span>
+<span class="nc" id="L3510">					return false;</span>
+<span class="nc bnc" id="L3511" title="All 2 branches missed.">			} else if (!factory.equals(other.factory))</span>
+<span class="nc" id="L3512">				return false;</span>
+<span class="nc bnc" id="L3513" title="All 2 branches missed.">			if (parentEnumType == null) {</span>
+<span class="nc bnc" id="L3514" title="All 2 branches missed.">				if (other.parentEnumType != null)</span>
+<span class="nc" id="L3515">					return false;</span>
+<span class="nc bnc" id="L3516" title="All 2 branches missed.">			} else if (!parentEnumType.equals(other.parentEnumType))</span>
+<span class="nc" id="L3517">				return false;</span>
+<span class="nc" id="L3518">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L3523">			return &quot;GeneratedEnumerationItemInfoProxy [name=&quot; + getName() + &quot;, factory=&quot; + factory + &quot;,base=&quot; + base</span>
+<span class="nc" id="L3524">					+ &quot;]&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

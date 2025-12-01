@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InitializationSwitch.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">InitializationSwitch.java</span></div><h1>InitializationSwitch.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Allows to specify multiple conditional exclusive instantiation cases.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L12">public class InitializationSwitch {</span>
+
+<span class="fc" id="L14">	private List&lt;CaseEntry&gt; caseEntries = new ArrayList&lt;CaseEntry&gt;();</span>
+	private InitializationCase defaultInitializationCase;
+
+	public List&lt;CaseEntry&gt; getCaseEntries() {
+<span class="fc" id="L18">		return caseEntries;</span>
+	}
+
+	public void setCaseEntries(List&lt;CaseEntry&gt; caseEntries) {
+<span class="fc" id="L22">		this.caseEntries = caseEntries;</span>
+<span class="fc" id="L23">	}</span>
+
+	public InitializationCase getDefaultInitializationCase() {
+<span class="fc" id="L26">		return defaultInitializationCase;</span>
+	}
+
+	public void setDefaultInitializationCase(InitializationCase defaultInitializationCase) {
+<span class="fc" id="L30">		this.defaultInitializationCase = defaultInitializationCase;</span>
+<span class="fc" id="L31">	}</span>
+
+	public InstantiationFunction findCondition(InitializationCase initializationCase) {
+<span class="nc bnc" id="L34" title="All 2 branches missed.">		if (initializationCase == defaultInitializationCase) {</span>
+<span class="nc" id="L35">			return null;</span>
+		}
+<span class="nc bnc" id="L37" title="All 2 branches missed.">		return caseEntries.stream().filter(entry -&gt; entry.getInitializationCase() == initializationCase)</span>
+<span class="nc" id="L38">				.map(CaseEntry::getCondition).findFirst().orElse(null);</span>
+	}
+
+	public void insertCase(int index, InstantiationFunction condition, InitializationCase initializationCase) {
+<span class="nc" id="L42">		caseEntries.add(index, new CaseEntry(condition, initializationCase));</span>
+<span class="nc" id="L43">	}</span>
+
+	public void addCase(InstantiationFunction condition, InitializationCase initializationCase) {
+<span class="nc" id="L46">		insertCase(caseEntries.size(), condition, initializationCase);</span>
+<span class="nc" id="L47">	}</span>
+
+	public InitializationCase findCase(InstantiationFunction condition) {
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		return caseEntries.stream().filter(entry -&gt; (entry.getCondition() == condition))</span>
+<span class="fc" id="L51">				.map(CaseEntry::getInitializationCase).findFirst().orElse(null);</span>
+	}
+
+	public boolean removeCase(InstantiationFunction condition) {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		return caseEntries.removeIf(entry -&gt; (entry.getCondition() == condition));</span>
+	}
+
+	public static class CaseEntry {
+		private InstantiationFunction condition;
+		private InitializationCase initializationCase;
+
+		public CaseEntry() {
+<span class="fc" id="L63">			this(null, null);</span>
+<span class="fc" id="L64">		}</span>
+
+<span class="fc" id="L66">		public CaseEntry(InstantiationFunction condition, InitializationCase initializationCase) {</span>
+<span class="fc" id="L67">			this.condition = condition;</span>
+<span class="fc" id="L68">			this.initializationCase = initializationCase;</span>
+<span class="fc" id="L69">		}</span>
+
+		public InstantiationFunction getCondition() {
+<span class="fc" id="L72">			return condition;</span>
+		}
+
+		public void setCondition(InstantiationFunction condition) {
+<span class="fc" id="L76">			this.condition = condition;</span>
+<span class="fc" id="L77">		}</span>
+
+		public InitializationCase getInitializationCase() {
+<span class="fc" id="L80">			return initializationCase;</span>
+		}
+
+		public void setInitializationCase(InitializationCase initializationCase) {
+<span class="fc" id="L84">			this.initializationCase = initializationCase;</span>
+<span class="fc" id="L85">		}</span>
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

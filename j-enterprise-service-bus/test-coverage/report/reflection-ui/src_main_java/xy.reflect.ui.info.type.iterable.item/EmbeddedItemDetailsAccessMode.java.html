@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>EmbeddedItemDetailsAccessMode.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.item</a> &gt; <span class="el_source">EmbeddedItemDetailsAccessMode.java</span></div><h1>EmbeddedItemDetailsAccessMode.java</h1><pre class="source lang-java linenums">
+
+
+package xy.reflect.ui.info.type.iterable.item;
+
+import javax.xml.bind.annotation.XmlElement;
+
+/**
+ * Implementation of {@link IListItemDetailsAccessMode} specifying that items
+ * should be displayed in the same window as the list component, typically in an
+ * embedded details area that contains the currently selected item.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L16">public class EmbeddedItemDetailsAccessMode implements IListItemDetailsAccessMode {</span>
+	private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L19">	protected ItemDetailsAreaPosition embeddedDetailsAreaPosition = ItemDetailsAreaPosition.RIGHT;</span>
+<span class="fc" id="L20">	protected double defaultEmbeddedDetailsAreaOccupationRatio = 0.66;</span>
+
+	@Override
+	public boolean hasDetachedDetailsDisplayOption() {
+<span class="fc" id="L24">		return false;</span>
+	}
+
+	@Override
+	public boolean hasEmbeddedDetailsDisplayArea() {
+<span class="fc" id="L29">		return true;</span>
+	}
+
+	@Override
+	@XmlElement(name = &quot;detailsAreaPosition&quot;)
+	public ItemDetailsAreaPosition getEmbeddedDetailsAreaPosition() {
+<span class="fc" id="L35">		return embeddedDetailsAreaPosition;</span>
+	}
+
+	public void setEmbeddedDetailsAreaPosition(ItemDetailsAreaPosition embeddedDetailsAreaPosition) {
+<span class="fc" id="L39">		this.embeddedDetailsAreaPosition = embeddedDetailsAreaPosition;</span>
+<span class="fc" id="L40">	}</span>
+
+	@Override
+	@XmlElement(name = &quot;defaultDetailsAreaOccupationRatio&quot;)
+	public double getDefaultEmbeddedDetailsAreaOccupationRatio() {
+<span class="fc" id="L45">		return defaultEmbeddedDetailsAreaOccupationRatio;</span>
+	}
+
+	public void setDefaultEmbeddedDetailsAreaOccupationRatio(double defaultEmbeddedDetailsAreaOccupationRatio) {
+<span class="fc" id="L49">		this.defaultEmbeddedDetailsAreaOccupationRatio = defaultEmbeddedDetailsAreaOccupationRatio;</span>
+<span class="fc" id="L50">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

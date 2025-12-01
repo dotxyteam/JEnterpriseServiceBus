@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AlternativeWindowDecorationsPanel.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.util</a> &gt; <span class="el_source">AlternativeWindowDecorationsPanel.java</span></div><h1>AlternativeWindowDecorationsPanel.java</h1><pre class="source lang-java linenums">
+
+
+package xy.reflect.ui.control.swing.util;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Arrays;
+
+import javax.swing.*;
+
+/**
+ * Alternative decorations (title bar, border, ...) for windows.
+ * 
+ * @author olitank
+ *
+ */
+public class AlternativeWindowDecorationsPanel extends JPanel {
+
+	private static final long serialVersionUID = 1L;
+	private static final int W = 4;
+<span class="fc" id="L22">	private final SideLabel left = new SideLabel(Side.W);</span>
+<span class="fc" id="L23">	private final SideLabel right = new SideLabel(Side.E);</span>
+<span class="fc" id="L24">	private final SideLabel top = new SideLabel(Side.N);</span>
+<span class="fc" id="L25">	private final SideLabel bottom = new SideLabel(Side.S);</span>
+<span class="fc" id="L26">	private final SideLabel topleft = new SideLabel(Side.NW);</span>
+<span class="fc" id="L27">	private final SideLabel topright = new SideLabel(Side.NE);</span>
+<span class="fc" id="L28">	private final SideLabel bottomleft = new SideLabel(Side.SW);</span>
+<span class="fc" id="L29">	private final SideLabel bottomright = new SideLabel(Side.SE);</span>
+<span class="fc" id="L30">	private final JPanel contentPane = new JPanel(new BorderLayout());</span>
+<span class="fc" id="L31">	private JLabel titleLabel = new JLabel(&quot;&quot;, JLabel.CENTER) {</span>
+
+		private static final long serialVersionUID = 1L;
+
+		{
+<span class="fc" id="L36">			Font font = getFont();</span>
+<span class="fc" id="L37">			font = new Font(font.getName(), Font.BOLD, Math.round(font.getSize() * 1.2f));</span>
+<span class="fc" id="L38">			setFont(font);</span>
+		}
+
+		@Override
+		public Color getForeground() {
+<span class="fc" id="L43">			return getTitleBarForegroundColor();</span>
+		}
+
+	};
+<span class="fc" id="L47">	private final JPanel titlePanel = new JPanel(new BorderLayout());</span>
+<span class="fc" id="L48">	private final JPanel resizePanel = new JPanel(new BorderLayout()) {</span>
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected void paintComponent(Graphics g) {
+<span class="fc" id="L54">			Graphics2D g2 = (Graphics2D) g.create();</span>
+<span class="fc" id="L55">			int w = getWidth();</span>
+<span class="fc" id="L56">			int h = getHeight();</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">			if (isTitleBarBackgroundPainted()) {</span>
+<span class="fc" id="L58">				g2.setPaint(getTitleBarBackgroundColor());</span>
+<span class="fc" id="L59">				g2.fillRect(0, 0, w, top.getHeight() + titlePanel.getHeight());</span>
+			}
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">			if (isBorderPainted()) {</span>
+<span class="fc" id="L62">				g2.setPaint(getBorderColor());</span>
+<span class="fc" id="L63">				g2.drawRect(0, 0, w - 1, h - 1);</span>
+			}
+
+<span class="fc" id="L66">			g2.dispose();</span>
+<span class="fc" id="L67">		}</span>
+	};
+	private JButton maximizeButton;
+	private JButton closeButton;
+
+	public AlternativeWindowDecorationsPanel(String windowTitle, Icon windowIcon) {
+<span class="fc" id="L73">		super(new BorderLayout());</span>
+<span class="fc" id="L74">		initialize(windowTitle, windowIcon);</span>
+<span class="fc" id="L75">	}</span>
+
+	public AlternativeWindowDecorationsPanel(String windowTitle, Icon windowIcon, Window window,
+			Component windowContent) {
+<span class="fc" id="L79">		this(windowTitle, windowIcon);</span>
+<span class="fc" id="L80">		configureWindow(window);</span>
+<span class="fc" id="L81">		contentPane.add(windowContent);</span>
+<span class="fc" id="L82">	}</span>
+
+	public JButton getMaximizeButton() {
+<span class="nc" id="L85">		return maximizeButton;</span>
+	}
+
+	public JButton getCloseButton() {
+<span class="nc" id="L89">		return closeButton;</span>
+	}
+
+	public JPanel getContentPane() {
+<span class="nc" id="L93">		return contentPane;</span>
+	}
+
+	public JLabel getTitleLabel() {
+<span class="fc" id="L97">		return titleLabel;</span>
+	}
+
+	protected Color getTitleBarBackgroundColor() {
+<span class="nc" id="L101">		return Color.RED;</span>
+	}
+
+	protected Color getTitleBarForegroundColor() {
+<span class="nc" id="L105">		return Color.YELLOW;</span>
+	}
+
+	protected Color getBorderColor() {
+<span class="nc" id="L109">		return Color.CYAN;</span>
+	}
+
+	protected boolean isTitleBarBackgroundPainted() {
+<span class="nc" id="L113">		return true;</span>
+	}
+
+	protected boolean isBorderPainted() {
+<span class="nc" id="L117">		return true;</span>
+	}
+
+	public void initialize(String title, Icon icon) {
+
+<span class="fc" id="L122">		setOpaque(false);</span>
+<span class="fc" id="L123">		add(resizePanel, BorderLayout.CENTER);</span>
+
+<span class="fc" id="L125">		titleLabel.setText(title);</span>
+<span class="fc" id="L126">		titleLabel.setIcon(icon);</span>
+
+<span class="fc" id="L128">		DragWindowListener dwl = new DragWindowListener();</span>
+<span class="fc" id="L129">		titlePanel.addMouseListener(dwl);</span>
+<span class="fc" id="L130">		titlePanel.addMouseMotionListener(dwl);</span>
+<span class="fc" id="L131">		titlePanel.setOpaque(false);</span>
+<span class="fc" id="L132">		titlePanel.setBorder(BorderFactory.createEmptyBorder(W, W, W, W));</span>
+<span class="fc" id="L133">		titlePanel.add(titleLabel);</span>
+<span class="fc" id="L134">		titlePanel.add(makeButtons(), BorderLayout.EAST);</span>
+
+<span class="fc" id="L136">		JPanel titlePanelContainer = new JPanel(new BorderLayout(0, 0));</span>
+<span class="fc" id="L137">		titlePanelContainer.add(top, BorderLayout.NORTH);</span>
+<span class="fc" id="L138">		titlePanelContainer.add(titlePanel, BorderLayout.CENTER);</span>
+
+<span class="fc" id="L140">		JPanel northPanel = new JPanel(new BorderLayout(0, 0));</span>
+<span class="fc" id="L141">		northPanel.add(topleft, BorderLayout.WEST);</span>
+<span class="fc" id="L142">		northPanel.add(titlePanelContainer, BorderLayout.CENTER);</span>
+<span class="fc" id="L143">		northPanel.add(topright, BorderLayout.EAST);</span>
+
+<span class="fc" id="L145">		JPanel southPanel = new JPanel(new BorderLayout());</span>
+<span class="fc" id="L146">		southPanel.add(bottomleft, BorderLayout.WEST);</span>
+<span class="fc" id="L147">		southPanel.add(bottom, BorderLayout.CENTER);</span>
+<span class="fc" id="L148">		southPanel.add(bottomright, BorderLayout.EAST);</span>
+
+<span class="fc" id="L150">		resizePanel.add(left, BorderLayout.WEST);</span>
+<span class="fc" id="L151">		resizePanel.add(right, BorderLayout.EAST);</span>
+<span class="fc" id="L152">		resizePanel.add(northPanel, BorderLayout.NORTH);</span>
+<span class="fc" id="L153">		resizePanel.add(southPanel, BorderLayout.SOUTH);</span>
+<span class="fc" id="L154">		resizePanel.add(contentPane, BorderLayout.CENTER);</span>
+
+<span class="fc" id="L156">		titlePanelContainer.setOpaque(false);</span>
+<span class="fc" id="L157">		northPanel.setOpaque(false);</span>
+<span class="fc" id="L158">		southPanel.setOpaque(false);</span>
+
+<span class="fc" id="L160">		contentPane.setOpaque(false);</span>
+<span class="fc" id="L161">		resizePanel.setOpaque(false);</span>
+<span class="fc" id="L162">	}</span>
+
+	private JPanel makeButtons() {
+<span class="fc" id="L165">		JPanel result = new JPanel();</span>
+<span class="fc" id="L166">		result.setLayout(new FlowLayout());</span>
+<span class="fc" id="L167">		result.setOpaque(false);</span>
+<span class="fc" id="L168">		result.add(maximizeButton = makeMaximizeButton());</span>
+<span class="fc" id="L169">		result.add(closeButton = makeCloseButton());</span>
+<span class="fc" id="L170">		return result;</span>
+	}
+
+	private JButton makeCloseButton() {
+<span class="fc" id="L174">		final JButton button = new JButton(new CloseIcon());</span>
+<span class="fc" id="L175">		button.setContentAreaFilled(false);</span>
+<span class="fc" id="L176">		button.setFocusPainted(false);</span>
+<span class="fc" id="L177">		button.setBorder(BorderFactory.createEmptyBorder());</span>
+<span class="fc" id="L178">		button.setOpaque(false);</span>
+<span class="fc" id="L179">		button.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L182">				JComponent b = (JComponent) e.getSource();</span>
+<span class="nc" id="L183">				Window w = SwingUtilities.getWindowAncestor(b);</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">				if (w != null) {</span>
+<span class="nc" id="L185">					w.dispatchEvent(new WindowEvent(w, WindowEvent.WINDOW_CLOSING));</span>
+				}
+<span class="nc" id="L187">			}</span>
+		});
+<span class="fc" id="L189">		return button;</span>
+	}
+
+	private JButton makeMaximizeButton() {
+<span class="fc" id="L193">		final JButton button = new JButton(new MaximizeIcon());</span>
+<span class="fc" id="L194">		button.setContentAreaFilled(false);</span>
+<span class="fc" id="L195">		button.setFocusPainted(false);</span>
+<span class="fc" id="L196">		button.setBorder(BorderFactory.createEmptyBorder());</span>
+<span class="fc" id="L197">		button.setOpaque(false);</span>
+<span class="fc" id="L198">		button.addActionListener(new ActionListener() {</span>
+
+			Rectangle minimizedBounds;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L204">				JComponent b = (JComponent) e.getSource();</span>
+<span class="nc" id="L205">				Window w = SwingUtilities.getWindowAncestor(b);</span>
+<span class="nc" id="L206">				Rectangle maximizedBounds = SwingRendererUtils</span>
+<span class="nc" id="L207">						.getMaximumWindowBounds(SwingRendererUtils.getWindowCurrentGraphicsDevice(w));</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">				if (almostEquals(w.getBounds(), maximizedBounds, maximizedBounds.width / 30)) {</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">					if (minimizedBounds == null) {</span>
+<span class="nc" id="L210">						minimizedBounds = new Rectangle(maximizedBounds);</span>
+<span class="nc" id="L211">						minimizedBounds.grow(-minimizedBounds.width / 6, -minimizedBounds.height / 6);</span>
+					}
+<span class="nc" id="L213">					w.setBounds(minimizedBounds);</span>
+<span class="nc" id="L214">				} else {</span>
+<span class="nc" id="L215">					minimizedBounds = w.getBounds();</span>
+<span class="nc" id="L216">					w.setBounds(maximizedBounds);</span>
+				}
+<span class="nc" id="L218">			}</span>
+
+			boolean almostEquals(Rectangle bounds1, Rectangle bounds2, int maxError) {
+<span class="nc bnc" id="L221" title="All 2 branches missed.">				if (Math.abs(bounds1.x - bounds2.x) &gt; maxError) {</span>
+<span class="nc" id="L222">					return false;</span>
+				}
+<span class="nc bnc" id="L224" title="All 2 branches missed.">				if (Math.abs(bounds1.y - bounds2.y) &gt; maxError) {</span>
+<span class="nc" id="L225">					return false;</span>
+				}
+<span class="nc bnc" id="L227" title="All 2 branches missed.">				if (Math.abs((bounds1.x + bounds1.width) - (bounds2.x + bounds2.width)) &gt; maxError) {</span>
+<span class="nc" id="L228">					return false;</span>
+				}
+<span class="nc bnc" id="L230" title="All 2 branches missed.">				if (Math.abs((bounds1.y + bounds1.height) - (bounds2.y + bounds2.height)) &gt; maxError) {</span>
+<span class="nc" id="L231">					return false;</span>
+				}
+<span class="nc" id="L233">				return true;</span>
+			}
+		});
+<span class="fc" id="L236">		return button;</span>
+	}
+
+	protected void configureWindow(Window window) {
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">		if (window instanceof JFrame) {</span>
+<span class="fc" id="L241">			((JFrame) window).setUndecorated(true);</span>
+<span class="pc bnc" id="L242" title="All 2 branches missed.">		} else if (window instanceof JDialog) {</span>
+<span class="nc" id="L243">			((JDialog) window).setUndecorated(true);</span>
+<span class="nc" id="L244">		} else {</span>
+<span class="nc" id="L245">			throw new IllegalArgumentException();</span>
+		}
+<span class="fc" id="L247">		ResizeWindowListener rwl = new ResizeWindowListener(window);</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">		for (SideLabel l : Arrays.asList(left, right, top, bottom, topleft, topright, bottomleft, bottomright)) {</span>
+<span class="fc" id="L249">			l.addMouseListener(rwl);</span>
+<span class="fc" id="L250">			l.addMouseMotionListener(rwl);</span>
+		}
+<span class="fc" id="L252">	}</span>
+
+	private enum Side {
+<span class="fc" id="L255">		N(Cursor.N_RESIZE_CURSOR, new Dimension(0, Side.THICKNESS)),</span>
+<span class="fc" id="L256">		W(Cursor.W_RESIZE_CURSOR, new Dimension(Side.THICKNESS, 0)),</span>
+<span class="fc" id="L257">		E(Cursor.E_RESIZE_CURSOR, new Dimension(Side.THICKNESS, 0)),</span>
+<span class="fc" id="L258">		S(Cursor.S_RESIZE_CURSOR, new Dimension(0, Side.THICKNESS)),</span>
+<span class="fc" id="L259">		NW(Cursor.NW_RESIZE_CURSOR, new Dimension(Side.THICKNESS, Side.THICKNESS)),</span>
+<span class="fc" id="L260">		NE(Cursor.NE_RESIZE_CURSOR, new Dimension(Side.THICKNESS, Side.THICKNESS)),</span>
+<span class="fc" id="L261">		SW(Cursor.SW_RESIZE_CURSOR, new Dimension(Side.THICKNESS, Side.THICKNESS)),</span>
+<span class="fc" id="L262">		SE(Cursor.SE_RESIZE_CURSOR, new Dimension(Side.THICKNESS, Side.THICKNESS));</span>
+
+<span class="fc" id="L264">		private static final int THICKNESS = 4;</span>
+
+		public final Dimension dim;
+		public final int cursor;
+
+<span class="fc" id="L269">		private Side(int cursor, Dimension dim) {</span>
+<span class="fc" id="L270">			this.cursor = cursor;</span>
+<span class="fc" id="L271">			this.dim = dim;</span>
+<span class="fc" id="L272">		}</span>
+	}
+
+	private static class SideLabel extends JLabel {
+		private static final long serialVersionUID = 1L;
+		public final Side side;
+
+		public SideLabel(Side side) {
+<span class="fc" id="L280">			super();</span>
+<span class="fc" id="L281">			this.side = side;</span>
+<span class="fc" id="L282">			setCursor(Cursor.getPredefinedCursor(side.cursor));</span>
+<span class="fc" id="L283">		}</span>
+
+		@Override
+		public Dimension getPreferredSize() {
+<span class="fc" id="L287">			return side.dim;</span>
+		}
+
+		@Override
+		public Dimension getMinimumSize() {
+<span class="nc" id="L292">			return side.dim;</span>
+		}
+
+		@Override
+		public Dimension getMaximumSize() {
+<span class="nc" id="L297">			return side.dim;</span>
+		}
+	}
+
+	private static class ResizeWindowListener extends MouseAdapter {
+		private final Window window;
+		private Rectangle rect;
+
+		public ResizeWindowListener(Window window) {
+<span class="fc" id="L306">			super();</span>
+<span class="fc" id="L307">			this.window = window;</span>
+<span class="fc" id="L308">			this.rect = window.getBounds();</span>
+<span class="fc" id="L309">		}</span>
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+<span class="nc" id="L313">			rect = window.getBounds();</span>
+<span class="nc" id="L314">		}</span>
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+<span class="nc bnc" id="L318" title="All 2 branches missed.">			if (rect == null) {</span>
+<span class="nc" id="L319">				return;</span>
+			}
+<span class="nc" id="L321">			Side side = ((SideLabel) e.getComponent()).side;</span>
+<span class="nc" id="L322">			window.setBounds(getResizedRect(rect, side, e.getX(), e.getY()));</span>
+<span class="nc" id="L323">		}</span>
+
+		private static Rectangle getResizedRect(Rectangle r, Side side, int dx, int dy) {
+<span class="nc bnc" id="L326" title="All 9 branches missed.">			switch (side) {</span>
+			case NW:
+<span class="nc" id="L328">				r.y += dy;</span>
+<span class="nc" id="L329">				r.height -= dy;</span>
+<span class="nc" id="L330">				r.x += dx;</span>
+<span class="nc" id="L331">				r.width -= dx;</span>
+<span class="nc" id="L332">				break;</span>
+			case N:
+<span class="nc" id="L334">				r.y += dy;</span>
+<span class="nc" id="L335">				r.height -= dy;</span>
+<span class="nc" id="L336">				break;</span>
+			case NE:
+<span class="nc" id="L338">				r.y += dy;</span>
+<span class="nc" id="L339">				r.height -= dy;</span>
+<span class="nc" id="L340">				r.width += dx;</span>
+<span class="nc" id="L341">				break;</span>
+			case W:
+<span class="nc" id="L343">				r.x += dx;</span>
+<span class="nc" id="L344">				r.width -= dx;</span>
+<span class="nc" id="L345">				break;</span>
+			case E:
+<span class="nc" id="L347">				r.width += dx;</span>
+<span class="nc" id="L348">				break;</span>
+			case SW:
+<span class="nc" id="L350">				r.height += dy;</span>
+<span class="nc" id="L351">				r.x += dx;</span>
+<span class="nc" id="L352">				r.width -= dx;</span>
+<span class="nc" id="L353">				break;</span>
+			case S:
+<span class="nc" id="L355">				r.height += dy;</span>
+<span class="nc" id="L356">				break;</span>
+			case SE:
+<span class="nc" id="L358">				r.height += dy;</span>
+<span class="nc" id="L359">				r.width += dx;</span>
+<span class="nc" id="L360">				break;</span>
+			default:
+<span class="nc" id="L362">				throw new AssertionError(&quot;Unknown SideLabel&quot;);</span>
+			}
+<span class="nc" id="L364">			return r;</span>
+		}
+	}
+
+<span class="fc" id="L368">	private static class DragWindowListener extends MouseAdapter {</span>
+<span class="fc" id="L369">		private final transient Point startPt = new Point();</span>
+		private transient Window window;
+
+		@Override
+		public void mousePressed(MouseEvent me) {
+<span class="nc bnc" id="L374" title="All 2 branches missed.">			if (window == null) {</span>
+<span class="nc" id="L375">				Object o = me.getSource();</span>
+<span class="nc bnc" id="L376" title="All 2 branches missed.">				if (o instanceof Window) {</span>
+<span class="nc" id="L377">					window = (Window) o;</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">				} else if (o instanceof JComponent) {</span>
+<span class="nc" id="L379">					window = SwingUtilities.windowForComponent(me.getComponent());</span>
+				}
+			}
+<span class="nc" id="L382">			startPt.setLocation(me.getPoint());</span>
+<span class="nc" id="L383">		}</span>
+
+		@Override
+		public void mouseDragged(MouseEvent me) {
+<span class="nc bnc" id="L387" title="All 2 branches missed.">			if (window != null) {</span>
+<span class="nc" id="L388">				Point eventLocationOnScreen = me.getLocationOnScreen();</span>
+<span class="nc" id="L389">				window.setLocation(eventLocationOnScreen.x - startPt.x, eventLocationOnScreen.y - startPt.y);</span>
+			}
+<span class="nc" id="L391">		}</span>
+	}
+
+<span class="fc" id="L394">	private class CloseIcon implements Icon {</span>
+		@Override
+		public void paintIcon(Component c, Graphics g, int x, int y) {
+<span class="fc" id="L397">			g.translate(x, y);</span>
+<span class="fc" id="L398">			g.setColor(getTitleBarForegroundColor());</span>
+<span class="fc" id="L399">			g.drawLine(4, 4, 11, 11);</span>
+<span class="fc" id="L400">			g.drawLine(4, 5, 10, 11);</span>
+<span class="fc" id="L401">			g.drawLine(5, 4, 11, 10);</span>
+<span class="fc" id="L402">			g.drawLine(11, 4, 4, 11);</span>
+<span class="fc" id="L403">			g.drawLine(11, 5, 5, 11);</span>
+<span class="fc" id="L404">			g.drawLine(10, 4, 4, 10);</span>
+<span class="fc" id="L405">			g.translate(-x, -y);</span>
+<span class="fc" id="L406">		}</span>
+
+		@Override
+		public int getIconWidth() {
+<span class="fc" id="L410">			return 16;</span>
+		}
+
+		@Override
+		public int getIconHeight() {
+<span class="fc" id="L415">			return 16;</span>
+		}
+	}
+
+<span class="fc" id="L419">	private class MaximizeIcon implements Icon {</span>
+		@Override
+		public void paintIcon(Component c, Graphics g, int x, int y) {
+<span class="fc" id="L422">			g.translate(x, y);</span>
+<span class="fc" id="L423">			g.setColor(getTitleBarForegroundColor());</span>
+<span class="fc" id="L424">			g.drawLine(4, 4, 11, 4);</span>
+<span class="fc" id="L425">			g.drawLine(11, 4, 11, 11);</span>
+<span class="fc" id="L426">			g.drawLine(11, 11, 4, 11);</span>
+<span class="fc" id="L427">			g.drawLine(4, 11, 4, 4);</span>
+<span class="fc" id="L428">			g.translate(-x, -y);</span>
+<span class="fc" id="L429">		}</span>
+
+		@Override
+		public int getIconWidth() {
+<span class="fc" id="L433">			return 16;</span>
+		}
+
+		@Override
+		public int getIconHeight() {
+<span class="fc" id="L438">			return 16;</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

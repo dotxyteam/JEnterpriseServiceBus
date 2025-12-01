@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>EmbeddedFormControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing</a> &gt; <span class="el_source">EmbeddedFormControl.java</span></div><h1>EmbeddedFormControl.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+
+import javax.swing.border.Border;
+
+import xy.reflect.ui.control.ErrorHandlingFieldControlData;
+import xy.reflect.ui.control.FieldControlInputProxy;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
+import xy.reflect.ui.undo.FieldControlDataModification;
+import xy.reflect.ui.undo.IModification;
+import xy.reflect.ui.undo.IModificationListener;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.undo.SlaveModificationStack;
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Field control that displays an embedded form allowing to edit the field
+ * value.
+ * 
+ * @author olitank
+ *
+ */
+public class EmbeddedFormControl extends ControlPanel implements IAdvancedFieldControl {
+
+	protected static final long serialVersionUID = 1L;
+	protected SwingRenderer swingRenderer;
+	protected IFieldControlData data;
+
+	protected Component textControl;
+	protected Component iconControl;
+	protected IFieldControlInput input;
+	protected Form subForm;
+	protected Object lastSubFormObject;
+
+<span class="fc" id="L52">	public EmbeddedFormControl(final SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L53">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L54">		input = new FieldControlInputProxy(input) {</span>
+<span class="fc" id="L55">			IFieldControlData errorHandlingFieldControlData = new ErrorHandlingFieldControlData(super.getControlData(),</span>
+<span class="fc" id="L56">					swingRenderer, EmbeddedFormControl.this);</span>
+
+			@Override
+			public IFieldControlData getControlData() {
+<span class="fc" id="L60">				return errorHandlingFieldControlData;</span>
+			}
+		};
+<span class="fc" id="L63">		this.input = input;</span>
+<span class="fc" id="L64">		this.data = input.getControlData();</span>
+<span class="fc" id="L65">		setLayout(new BorderLayout());</span>
+<span class="fc" id="L66">		refreshUI(true);</span>
+<span class="fc" id="L67">	}</span>
+
+	public Form getSubForm() {
+<span class="nc" id="L70">		return subForm;</span>
+	}
+
+	@Override
+	public boolean requestCustomFocus() {
+<span class="fc" id="L75">		return SwingRendererUtils.requestAnyComponentFocus(subForm, swingRenderer);</span>
+	}
+
+	protected void handleSubFormModifications() {
+<span class="fc" id="L79">		Accessor&lt;Boolean&gt; childModifAcceptedGetter = Accessor.returning(Boolean.TRUE);</span>
+<span class="fc" id="L80">		Accessor&lt;ValueReturnMode&gt; childValueReturnModeGetter = new Accessor&lt;ValueReturnMode&gt;() {</span>
+			@Override
+			public ValueReturnMode get() {
+<span class="fc" id="L83">				return data.getValueReturnMode();</span>
+			}
+		};
+<span class="fc" id="L86">		Accessor&lt;Boolean&gt; childValueReplacedGetter = new Accessor&lt;Boolean&gt;() {</span>
+			@Override
+			public Boolean get() {
+<span class="fc bfc" id="L89" title="All 2 branches covered.">				return lastSubFormObject != subForm.getObject();</span>
+			}
+		};
+<span class="fc" id="L92">		Accessor&lt;Boolean&gt; childValueTransactionExecutedGetter = Accessor.returning(false);</span>
+<span class="fc" id="L93">		Accessor&lt;IModification&gt; committingModifGetter = new Accessor&lt;IModification&gt;() {</span>
+			@Override
+			public IModification get() {
+<span class="fc bfc" id="L96" title="All 2 branches covered.">				if (data.isGetOnly()) {</span>
+<span class="fc" id="L97">					return null;</span>
+				}
+<span class="fc" id="L99">				return new FieldControlDataModification(data, subForm.getObject());</span>
+			}
+		};
+<span class="fc" id="L102">		Accessor&lt;IModification&gt; undoModificationsReplacementGetter = new Accessor&lt;IModification&gt;() {</span>
+			@Override
+			public IModification get() {
+<span class="fc" id="L105">				return ReflectionUIUtils.createUndoModificationsReplacement(data);</span>
+			}
+		};
+<span class="fc" id="L108">		Accessor&lt;String&gt; childModifTitleGetter = new Accessor&lt;String&gt;() {</span>
+			@Override
+			public String get() {
+<span class="fc" id="L111">				return FieldControlDataModification.getTitle(data.getCaption());</span>
+			}
+		};
+<span class="fc" id="L114">		Accessor&lt;ModificationStack&gt; masterModifStackGetter = new Accessor&lt;ModificationStack&gt;() {</span>
+			@Override
+			public ModificationStack get() {
+<span class="fc" id="L117">				return input.getModificationStack();</span>
+			}
+		};
+<span class="fc" id="L120">		Accessor&lt;Boolean&gt; masterModifVolatileGetter = new Accessor&lt;Boolean&gt;() {</span>
+			@Override
+			public Boolean get() {
+<span class="fc" id="L123">				return data.isTransient();</span>
+			}
+		};
+<span class="fc" id="L126">		boolean exclusiveLinkWithParent = Boolean.TRUE.equals(input.getControlData().getSpecificProperties()</span>
+<span class="fc" id="L127">				.get(EncapsulatedObjectFactory.ENCAPSULATION_STATUS_PROPERTY_KEY));</span>
+<span class="fc" id="L128">		Listener&lt;Throwable&gt; masterModificationExceptionListener = new Listener&lt;Throwable&gt;() {</span>
+			@Override
+			public void handle(Throwable t) {
+<span class="nc" id="L131">				swingRenderer.handleException(EmbeddedFormControl.this, t);</span>
+<span class="nc" id="L132">			}</span>
+		};
+<span class="fc" id="L134">		SlaveModificationStack slaveModficationStack = new SlaveModificationStack(subForm.getName(),</span>
+<span class="fc" id="L135">				childModifAcceptedGetter, childValueReturnModeGetter, childValueReplacedGetter,</span>
+<span class="fc" id="L136">				childValueTransactionExecutedGetter, committingModifGetter, undoModificationsReplacementGetter,</span>
+<span class="fc" id="L137">				childModifTitleGetter, masterModifStackGetter, masterModifVolatileGetter, exclusiveLinkWithParent,</span>
+<span class="fc" id="L138">				ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()),</span>
+<span class="fc" id="L139">				ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()),</span>
+<span class="fc" id="L140">				masterModificationExceptionListener);</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">		for (IModificationListener listener : subForm.getModificationStack().getListeners()) {</span>
+<span class="fc" id="L142">			slaveModficationStack.addSlaveListener(listener);</span>
+		}
+<span class="fc" id="L144">		subForm.setModificationStack(slaveModficationStack);</span>
+<span class="fc" id="L145">	}</span>
+
+	@Override
+	public boolean showsCaption() {
+<span class="fc" id="L149">		return true;</span>
+	}
+
+	@Override
+	public boolean displayError(Throwable error) {
+<span class="nc" id="L154">		return false;</span>
+	}
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L159" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc" id="L160">			SwingRendererUtils.showFieldCaptionOnBorder(data, this, new Accessor&lt;Border&gt;() {</span>
+				@Override
+				public Border get() {
+<span class="fc" id="L163">					return new ControlPanel().getBorder();</span>
+				}
+<span class="fc" id="L165">			}, swingRenderer);</span>
+<span class="fc" id="L166">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+		}
+<span class="fc bfc" id="L168" title="All 2 branches covered.">		if (subForm == null) {</span>
+<span class="fc" id="L169">			lastSubFormObject = data.getValue();</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">			if (lastSubFormObject == null) {</span>
+<span class="nc" id="L171">				throw new ReflectionUIError();</span>
+			}
+<span class="fc" id="L173">			subForm = swingRenderer.createForm(lastSubFormObject, data.getFormControlFilter());</span>
+<span class="fc" id="L174">			handleSubFormModifications();</span>
+<span class="fc" id="L175">			add(subForm, BorderLayout.CENTER);</span>
+<span class="fc" id="L176">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+<span class="fc" id="L177">		} else {</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc" id="L179">				subForm.setInfoFilter(data.getFormControlFilter());</span>
+			}
+<span class="fc" id="L181">			final Object newSubFormObject = data.getValue();</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">			if (newSubFormObject == null) {</span>
+<span class="fc" id="L183">				return false;</span>
+			}
+<span class="fc bfc" id="L185" title="All 2 branches covered.">			if (newSubFormObject == subForm.getObject()) {</span>
+<span class="fc" id="L186">				subForm.refresh(refreshStructure);</span>
+<span class="fc" id="L187">			} else {</span>
+<span class="fc" id="L188">				final ITypeInfo subFormObjectType = swingRenderer.getReflectionUI()</span>
+<span class="fc" id="L189">						.getTypeInfo(swingRenderer.getReflectionUI().getTypeInfoSource(subForm.getObject()));</span>
+<span class="fc" id="L190">				final ITypeInfo newSubFormObjectType = swingRenderer.getReflectionUI()</span>
+<span class="fc" id="L191">						.getTypeInfo(swingRenderer.getReflectionUI().getTypeInfoSource(newSubFormObject));</span>
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">				if (subFormObjectType.equals(newSubFormObjectType)) {</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">					if (isShowing()) {</span>
+<span class="fc" id="L194">						swingRenderer.showBusyDialogWhile(this, new Runnable() {</span>
+							@Override
+							public void run() {
+<span class="fc" id="L197">								subFormObjectType.onFormVisibilityChange(subForm.getObject(), false);</span>
+<span class="fc" id="L198">								subForm.setObject(newSubFormObject);</span>
+<span class="fc" id="L199">								newSubFormObjectType.onFormVisibilityChange(newSubFormObject, true);</span>
+<span class="fc" id="L200">							}</span>
+<span class="fc" id="L201">						}, &quot;Refreshing &quot; + data.getCaption() + &quot;...&quot;);</span>
+<span class="fc" id="L202">					} else {</span>
+<span class="fc" id="L203">						subForm.setObject(newSubFormObject);</span>
+					}
+<span class="fc" id="L205">					subForm.refresh(refreshStructure);</span>
+<span class="fc" id="L206">				} else {</span>
+<span class="nc" id="L207">					return false;</span>
+				}
+			}
+		}
+<span class="fc" id="L211">		return true;</span>
+	}
+
+	@Override
+	public boolean isModificationStackManaged() {
+<span class="fc" id="L216">		return true;</span>
+	}
+
+	@Override
+	public boolean areValueAccessErrorsManaged() {
+<span class="fc" id="L221">		return true;</span>
+	}
+
+	@Override
+	public void validateControlData(ValidationSession session) throws Exception {
+<span class="fc" id="L226">		subForm.validateForm(session);</span>
+<span class="fc" id="L227">	}</span>
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
+<span class="fc" id="L231">		subForm.addMenuContributionTo(menuModel);</span>
+<span class="fc" id="L232">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

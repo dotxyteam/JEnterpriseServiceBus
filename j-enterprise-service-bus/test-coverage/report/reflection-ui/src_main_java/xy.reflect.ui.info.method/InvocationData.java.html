@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InvocationData.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.method</a> &gt; <span class="el_source">InvocationData.java</span></div><h1>InvocationData.java</h1><pre class="source lang-java linenums">
+
+
+package xy.reflect.ui.info.method;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.info.parameter.IParameterInfo;
+
+/**
+ * Method parameter values class. Parameters are referenced by their positions.
+ * The class holds the default and chosen (provided) parameter values. If a
+ * parameter value is not provided then the default value is used. If neither of
+ * these values is provided then the null value is used.
+ * 
+ * @author olitank
+ *
+ */
+public class InvocationData implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L27">	protected Map&lt;Integer, Object&gt; valueByParameterPosition = new HashMap&lt;Integer, Object&gt;();</span>
+<span class="fc" id="L28">	protected Map&lt;Integer, Object&gt; defaultValueByParameterPosition = new HashMap&lt;Integer, Object&gt;();</span>
+
+<span class="fc" id="L30">	public InvocationData(InvocationData invocationData) {</span>
+<span class="fc" id="L31">		valueByParameterPosition.putAll(invocationData.valueByParameterPosition);</span>
+<span class="fc" id="L32">		defaultValueByParameterPosition.putAll(invocationData.defaultValueByParameterPosition);</span>
+<span class="fc" id="L33">	}</span>
+
+<span class="fc" id="L35">	public InvocationData(Object object, List&lt;IParameterInfo&gt; parameters, Object... parameterValues) {</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">		for (IParameterInfo param : parameters) {</span>
+<span class="fc" id="L37">			defaultValueByParameterPosition.put(param.getPosition(), param.getDefaultValue(object));</span>
+		}
+<span class="fc bfc" id="L39" title="All 2 branches covered.">		for (int i = 0; i &lt; parameterValues.length; i++) {</span>
+<span class="fc" id="L40">			valueByParameterPosition.put(i, parameterValues[i]);</span>
+		}
+<span class="fc" id="L42">	}</span>
+
+	public InvocationData(Object object, IMethodInfo method, Object... parameterValues) {
+<span class="fc" id="L45">		this(object, method.getParameters(), parameterValues);</span>
+<span class="fc" id="L46">	}</span>
+
+	private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L49">		in.defaultReadObject();</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		if (defaultValueByParameterPosition == null) {</span>
+<span class="nc" id="L51">			defaultValueByParameterPosition = new HashMap&lt;Integer, Object&gt;();</span>
+		}
+<span class="fc" id="L53">	}</span>
+
+	public Map&lt;Integer, Object&gt; getProvidedParameterValues() {
+<span class="fc" id="L56">		return valueByParameterPosition;</span>
+	}
+
+	public void setProvidedParameterValues(Map&lt;Integer, Object&gt; providedValues) {
+<span class="nc" id="L60">		this.valueByParameterPosition = providedValues;</span>
+<span class="nc" id="L61">	}</span>
+
+	public Map&lt;Integer, Object&gt; getDefaultParameterValues() {
+<span class="fc" id="L64">		return defaultValueByParameterPosition;</span>
+	}
+
+	public void setDefaultParameterValues(Map&lt;Integer, Object&gt; defaultValues) {
+<span class="nc" id="L68">		this.defaultValueByParameterPosition = defaultValues;</span>
+<span class="nc" id="L69">	}</span>
+
+	public Object getParameterValue(int parameterPosition) {
+<span class="fc bfc" id="L72" title="All 2 branches covered.">		if (valueByParameterPosition.containsKey(parameterPosition)) {</span>
+<span class="fc" id="L73">			return valueByParameterPosition.get(parameterPosition);</span>
+		} else {
+<span class="fc" id="L75">			return defaultValueByParameterPosition.get(parameterPosition);</span>
+		}
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L81">		final int prime = 31;</span>
+<span class="fc" id="L82">		int result = 1;</span>
+<span class="fc" id="L83">		result = prime * result</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">				+ ((defaultValueByParameterPosition == null) ? 0 : defaultValueByParameterPosition.hashCode());</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">		result = prime * result + ((valueByParameterPosition == null) ? 0 : valueByParameterPosition.hashCode());</span>
+<span class="fc" id="L86">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L91" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L92">			return true;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L94">			return false;</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L96">			return false;</span>
+<span class="nc" id="L97">		InvocationData other = (InvocationData) obj;</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">		if (defaultValueByParameterPosition == null) {</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">			if (other.defaultValueByParameterPosition != null)</span>
+<span class="nc" id="L100">				return false;</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">		} else if (!defaultValueByParameterPosition.equals(other.defaultValueByParameterPosition))</span>
+<span class="nc" id="L102">			return false;</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		if (valueByParameterPosition == null) {</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">			if (other.valueByParameterPosition != null)</span>
+<span class="nc" id="L105">				return false;</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">		} else if (!valueByParameterPosition.equals(other.valueByParameterPosition))</span>
+<span class="nc" id="L107">			return false;</span>
+<span class="nc" id="L108">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L113">		Map&lt;Integer, Object&gt; values = new HashMap&lt;Integer, Object&gt;();</span>
+<span class="fc" id="L114">		values.putAll(defaultValueByParameterPosition);</span>
+<span class="fc" id="L115">		values.putAll(valueByParameterPosition);</span>
+<span class="fc" id="L116">		return values.toString();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

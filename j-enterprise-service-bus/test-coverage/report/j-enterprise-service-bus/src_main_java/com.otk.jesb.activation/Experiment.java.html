@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Experiment.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.activation</a> &gt; <span class="el_source">Experiment.java</span></div><h1>Experiment.java</h1><pre class="source lang-java linenums">package com.otk.jesb.activation;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javax.swing.SwingUtilities;
+
+import com.otk.jesb.Session;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.activation.builtin.WatchFileSystem;
+import com.otk.jesb.AbstractExperiment;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.ui.GUI;
+
+public class Experiment extends AbstractExperiment implements AutoCloseable {
+
+	public static void main(String... args) {
+<span class="nc" id="L20">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L23">				try (Experiment experiment = new Experiment(new WatchFileSystem())) {</span>
+<span class="nc" id="L24">					GUI.INSTANCE.openObjectFrame(experiment);</span>
+<span class="nc" id="L25">				} catch (Exception e) {</span>
+<span class="nc" id="L26">					throw new UnexpectedError(e);</span>
+				}
+<span class="nc" id="L28">			}</span>
+		});
+<span class="nc" id="L30">	}</span>
+
+<span class="fc" id="L32">	public Experiment(Activator activator) {</span>
+<span class="fc" id="L33">		setActivator(activator);</span>
+<span class="fc" id="L34">	}</span>
+
+	public ActivationEventBasket carryOut() throws Throwable {
+<span class="fc" id="L37">		return new ActivationEventBasket();</span>
+	}
+
+<span class="fc" id="L40">	public class ActivationEventBasket extends Session {</span>
+
+<span class="fc" id="L42">		private List&lt;ActivationEvent&gt; activationEvents = new ArrayList&lt;ActivationEvent&gt;();</span>
+
+		@Override
+		protected void initiate() {
+			try {
+<span class="fc" id="L47">				Experiment.this.getActivator().initializeAutomaticTrigger(getActivationHandler());</span>
+<span class="pc" id="L48">			} catch (Exception e) {</span>
+<span class="nc" id="L49">				throw new PotentialError(e);</span>
+			}
+<span class="fc" id="L51">		}</span>
+
+		@Override
+		protected void terminate() {
+			try {
+<span class="fc" id="L56">				Experiment.this.getActivator().finalizeAutomaticTrigger();</span>
+<span class="pc" id="L57">			} catch (Exception e) {</span>
+<span class="nc" id="L58">				throw new PotentialError(e);</span>
+			}
+<span class="fc" id="L60">		}</span>
+
+		private ActivationHandler getActivationHandler() {
+<span class="fc" id="L63">			return new ActivationHandler() {</span>
+				@Override
+				public Object trigger(Object planInput) throws ExecutionError {
+<span class="fc" id="L66">					long eventTimestamp = System.currentTimeMillis();</span>
+<span class="fc" id="L67">					Object planOutput = Experiment.this.execute(planInput, Plan.ExecutionInspector.DEFAULT,</span>
+<span class="fc" id="L68">							new Plan.ExecutionContext(ActivationEventBasket.this, Experiment.this));</span>
+<span class="fc" id="L69">					activationEvents.add(new ActivationEvent(eventTimestamp, planInput, planOutput));</span>
+<span class="fc" id="L70">					return planOutput;</span>
+				}
+			};
+		}
+
+		public List&lt;ActivationEvent&gt; getActivationEvents() {
+<span class="fc" id="L76">			return activationEvents;</span>
+		}
+
+	}
+
+	public static class ActivationEvent {
+
+		private long timestamp;
+		private Object input;
+		private Object output;
+
+<span class="fc" id="L87">		public ActivationEvent(long timestamp, Object input, Object output) {</span>
+<span class="fc" id="L88">			this.timestamp = timestamp;</span>
+<span class="fc" id="L89">			this.input = input;</span>
+<span class="fc" id="L90">			this.output = output;</span>
+<span class="fc" id="L91">		}</span>
+
+		public String getFormattedTimestamp() {
+<span class="fc" id="L94">			return new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ss.SSS&quot;).format(new Date(timestamp));</span>
+		}
+
+		public Object getInput() {
+<span class="fc" id="L98">			return input;</span>
+		}
+
+		public Object getOutput() {
+<span class="fc" id="L102">			return output;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,9 +1,12 @@
 package com.otk.jesb;
 
 import java.io.PrintStream;
+import java.text.DateFormat;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import com.otk.jesb.solution.Solution;
+import com.otk.jesb.util.MiscUtils;
 
 /**
  * This class is the base for building the list of execution message records for
@@ -16,15 +19,36 @@ public abstract class Log {
 
 	private static Log instance = new Log() {
 		protected PrintStream createErrorStream() {
-			return System.err;
+			return createPrintStream("ERROR", System.err);
 		}
 
 		protected PrintStream createWarningStream() {
-			return System.err;
+			return createPrintStream("WARNING", System.err);
 		}
 
 		protected PrintStream createInformationStream() {
-			return System.out;
+			return createPrintStream("INFORMATION", System.out);
+		}
+
+		private PrintStream createPrintStream(String levelName, PrintStream baseStream) {
+			return MiscUtils.createBufferedPrintStream(new BiConsumer<String, Boolean>() {
+				private boolean previousLineTerminated = true;
+
+				@Override
+				public void accept(String line, Boolean lineTerminated) {
+					if (previousLineTerminated) {
+						String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM)
+								.format(MiscUtils.now());
+						line = "- " + date + " - " + levelName + " [" + Thread.currentThread().getName() + "] " + line;
+					}
+					if (lineTerminated) {
+						baseStream.println(line);
+					} else {
+						baseStream.print(line);
+					}
+					previousLineTerminated = lineTerminated;
+				}
+			}, () -> true);
 		}
 
 	};

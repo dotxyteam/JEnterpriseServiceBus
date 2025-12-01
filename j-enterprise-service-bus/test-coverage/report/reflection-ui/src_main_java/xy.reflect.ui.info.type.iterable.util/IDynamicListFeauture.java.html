@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>IDynamicListFeauture.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.util</a> &gt; <span class="el_source">IDynamicListFeauture.java</span></div><h1>IDynamicListFeauture.java</h1><pre class="source lang-java linenums">package xy.reflect.ui.info.type.iterable.util;
+
+/**
+ * This interface is the base type of list features that can be accessed
+ * according to the current selection of items. Such features will typically be
+ * available on the list control tool bar.
+ * 
+ * @author olitank
+ *
+ */
+public interface IDynamicListFeauture {
+
+<span class="fc" id="L13">	public enum DisplayMode {</span>
+<span class="fc" id="L14">		TOOLBAR, CONTEXT_MENU, TOOLBAR_AND_CONTEXT_MENU;</span>
+		
+		public static DisplayMode getDefault() {
+<span class="fc" id="L17">			return TOOLBAR_AND_CONTEXT_MENU;</span>
+		}
+	}
+
+	/**
+	 * @return a value specifying where the feature should be made available.
+	 */
+	DisplayMode getDisplayMode();
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

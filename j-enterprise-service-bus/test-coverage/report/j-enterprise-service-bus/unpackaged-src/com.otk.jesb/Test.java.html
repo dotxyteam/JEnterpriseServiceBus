@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Test.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">unpackaged-src</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">Test.java</span></div><h1>Test.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.function.Consumer;
+
+<span class="nc" id="L7">public class Test {</span>
+
+	public static void main(String[] args) throws InterruptedException {
+<span class="nc" id="L10">		Console.DEFAULT.log(&quot;Repeat (yes/no)?&quot;);</span>
+		String answer;
+<span class="nc" id="L12">		Consumer&lt;String&gt; initialConsoleInput = Console.DEFAULT.getPendingInputLineConsumer();</span>
+		try {
+<span class="nc" id="L14">			BlockingQueue&lt;String&gt; blockingQueue = new LinkedBlockingDeque&lt;String&gt;(1);</span>
+<span class="nc" id="L15">			Console.DEFAULT.setPendingInputLineConsumer(line -&gt; {</span>
+				try {
+<span class="nc" id="L17">					blockingQueue.put(line);</span>
+<span class="nc" id="L18">				} catch (InterruptedException e) {</span>
+<span class="nc" id="L19">					throw new UnexpectedError(e);</span>
+				}
+<span class="nc" id="L21">			});</span>
+<span class="nc" id="L22">			answer = blockingQueue.take();</span>
+<span class="nc" id="L23">		} finally {</span>
+<span class="nc" id="L24">			Console.DEFAULT.setPendingInputLineConsumer(initialConsoleInput);</span>
+		}
+<span class="nc" id="L26">		if(answer.equals(&quot;yes&quot;)) {</span>
+			
+		}
+<span class="nc" id="L29">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

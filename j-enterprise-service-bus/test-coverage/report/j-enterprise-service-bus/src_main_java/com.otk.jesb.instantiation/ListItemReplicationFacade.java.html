@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ListItemReplicationFacade.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">ListItemReplicationFacade.java</span></div><h1>ListItemReplicationFacade.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.InstantiationUtils;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.util.ClassUtils;
+
+public class ListItemReplicationFacade {
+
+	private ListItemInitializerFacade listItemInitializerFacade;
+	private ListItemReplication listItemReplication;
+
+<span class="nc" id="L21">	public ListItemReplicationFacade(ListItemInitializerFacade listItemInitializerFacade) {</span>
+<span class="nc" id="L22">		this.listItemInitializerFacade = listItemInitializerFacade;</span>
+<span class="nc" id="L23">		this.listItemReplication = new ListItemReplication();</span>
+<span class="nc" id="L24">	}</span>
+
+<span class="fc" id="L26">	public ListItemReplicationFacade(ListItemInitializerFacade listItemInitializerFacade,</span>
+			ListItemReplication listItemReplication) {
+<span class="fc" id="L28">		this.listItemInitializerFacade = listItemInitializerFacade;</span>
+<span class="fc" id="L29">		this.listItemReplication = listItemReplication;</span>
+<span class="fc" id="L30">	}</span>
+
+	public ListItemReplication getUnderlying() {
+<span class="fc" id="L33">		return listItemReplication;</span>
+	}
+
+	public ListItemInitializerFacade getListItemInitializerFacade() {
+<span class="nc" id="L37">		return listItemInitializerFacade;</span>
+	}
+
+	public String getIterationVariableName() {
+<span class="fc" id="L41">		return listItemReplication.getIterationVariableName();</span>
+	}
+
+	public void setIterationVariableName(String iterationVariableName) {
+<span class="nc" id="L45">		listItemReplication.setIterationVariableName(iterationVariableName);</span>
+<span class="nc" id="L46">	}</span>
+
+	public Object getIterationListValue() {
+<span class="fc" id="L49">		return InstantiationUtils.maintainInterpretableValue(listItemReplication.getIterationListValue(),</span>
+<span class="fc" id="L50">				TypeInfoProvider.getTypeInfo(Object.class.getName()));</span>
+	}
+
+	public void setIterationListValue(Object iterationListValue) {
+<span class="nc" id="L54">		listItemReplication.setIterationListValue(iterationListValue);</span>
+<span class="nc" id="L55">	}</span>
+
+	public String getIterationVariableTypeName() {
+<span class="fc" id="L58">		return listItemReplication.getIterationVariableTypeName();</span>
+	}
+
+	public void setIterationVariableTypeName(String iterationVariableTypeName) {
+<span class="nc" id="L62">		listItemReplication.setIterationVariableTypeName(iterationVariableTypeName);</span>
+<span class="nc" id="L63">	}</span>
+
+	public ValueMode getIterationListValueMode() {
+<span class="nc" id="L66">		return InstantiationUtils.getValueMode(getIterationListValue());</span>
+	}
+
+	public void setIterationListValueMode(ValueMode valueMode) {
+		Object iterationListValue;
+<span class="nc bnc" id="L71" title="All 2 branches missed.">		if (valueMode == ValueMode.FUNCTION) {</span>
+<span class="nc" id="L72">			String functionBody = &quot;return new &quot; + ArrayList.class.getName() + &quot;&lt;Object&gt;();&quot;;</span>
+<span class="nc" id="L73">			iterationListValue = new InstantiationFunction(functionBody);</span>
+<span class="nc" id="L74">		} else {</span>
+<span class="nc" id="L75">			iterationListValue = new ArrayList&lt;Object&gt;();</span>
+		}
+<span class="nc" id="L77">		setIterationListValue(iterationListValue);</span>
+<span class="nc" id="L78">	}</span>
+
+	public ITypeInfo getDeclaredIterationVariableTypeInfo() {
+<span class="fc" id="L81">		String iterationVariableTypeName = getIterationVariableTypeName();</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">		if (iterationVariableTypeName != null) {</span>
+<span class="nc" id="L83">			return TypeInfoProvider.getTypeInfo(getIterationVariableTypeName());</span>
+		}
+<span class="fc" id="L85">		return null;</span>
+	}
+
+	public ITypeInfo guessIterationVariableTypeInfo(List&lt;VariableDeclaration&gt; variableDeclarations) {
+<span class="fc" id="L89">		Object iterationListValue = getIterationListValue();</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">		if (iterationListValue instanceof InstantiationFunction) {</span>
+<span class="fc" id="L91">			InstantiationFunction function = (InstantiationFunction) iterationListValue;</span>
+<span class="fc" id="L92">			InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(</span>
+<span class="fc" id="L93">					variableDeclarations, listItemInitializerFacade);</span>
+			try {
+<span class="fc" id="L95">				ITypeInfo type = function.guessReturnTypeInfo(compilationContext.getPrecompiler(),</span>
+<span class="fc" id="L96">						compilationContext.getVariableDeclarations(function));</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">				if (!(type instanceof IListTypeInfo)) {</span>
+<span class="nc" id="L98">					throw new IllegalStateException(&quot;Invalid iteration list function return type '&quot; + type.getName()</span>
+<span class="nc" id="L99">							+ &quot;': Expected array or standard collection type&quot;);</span>
+				}
+<span class="fc" id="L101">				return ((IListTypeInfo) type).getItemType();</span>
+<span class="nc" id="L102">			} catch (CompilationError e) {</span>
+<span class="nc" id="L103">				return null;</span>
+			}
+		} else {
+<span class="nc bnc" id="L106" title="All 2 branches missed.">			if (iterationListValue != null) {</span>
+<span class="nc" id="L107">				ITypeInfo actualIterationListType = TypeInfoProvider.getTypeInfo(iterationListValue.getClass());</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">				if (!(actualIterationListType instanceof IListTypeInfo)) {</span>
+<span class="nc" id="L109">					throw new IllegalStateException(</span>
+<span class="nc" id="L110">							&quot;Invalid iteration list value type '&quot; + iterationListValue.getClass().getName()</span>
+<span class="nc" id="L111">									+ &quot;': Expected array or standard collection type&quot;);</span>
+				}
+<span class="nc" id="L113">				Object[] iterationListItems = ((IListTypeInfo) actualIterationListType).toArray(iterationListValue);</span>
+<span class="nc" id="L114">				Class&lt;?&gt; baseItemClass = null;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">				for (Object item : iterationListItems) {</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">					if (item == null) {</span>
+<span class="nc" id="L117">						continue;</span>
+					}
+<span class="nc bnc" id="L119" title="All 2 branches missed.">					if (baseItemClass == null) {</span>
+<span class="nc" id="L120">						baseItemClass = item.getClass();</span>
+<span class="nc" id="L121">					} else {</span>
+<span class="nc" id="L122">						Class&lt;? extends Object&gt; itemClass = item.getClass();</span>
+<span class="nc bnc" id="L123" title="All 4 branches missed.">						while ((itemClass != null) &amp;&amp; !itemClass.isAssignableFrom(baseItemClass)) {</span>
+<span class="nc" id="L124">							itemClass = itemClass.getSuperclass();</span>
+						}
+<span class="nc bnc" id="L126" title="All 2 branches missed.">						baseItemClass = (itemClass != null) ? itemClass : Object.class;</span>
+					}
+				}
+<span class="nc bnc" id="L129" title="All 2 branches missed.">				if (baseItemClass == null) {</span>
+<span class="nc" id="L130">					return null;</span>
+				} else {
+<span class="nc" id="L132">					return TypeInfoProvider.getTypeInfo(baseItemClass, new Class&lt;?&gt;[] { baseItemClass });</span>
+				}
+			} else {
+<span class="nc" id="L135">				return null;</span>
+			}
+		}
+	}
+
+	public String preprendExpression(String baseExpression) {
+<span class="nc" id="L141">		return &quot;FOR &quot; + getIterationVariableName() + &quot; IN &quot; + InstantiationUtils.express(getIterationListValue())</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">				+ ((baseExpression != null) ? (&quot; LOOP &quot; + baseExpression) : &quot;&quot;);</span>
+	}
+
+	public void validate(List&lt;VariableDeclaration&gt; variableDeclarations) throws ValidationError {
+		try {
+<span class="fc" id="L147">			ITypeInfo guessedIterationVariableType = guessIterationVariableTypeInfo(variableDeclarations);</span>
+<span class="fc" id="L148">			ITypeInfo declaredIterationVariableType = getDeclaredIterationVariableTypeInfo();</span>
+<span class="pc bpc" id="L149" title="2 of 4 branches missed.">			if ((guessedIterationVariableType != null) &amp;&amp; (declaredIterationVariableType != null)) {</span>
+<span class="nc" id="L150">				Class&lt;?&gt; declaredItemClass = ((DefaultTypeInfo) declaredIterationVariableType).getJavaType();</span>
+<span class="nc" id="L151">				Class&lt;?&gt; inferredItemClass = ((DefaultTypeInfo) guessedIterationVariableType).getJavaType();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">				if (!(inferredItemClass.isPrimitive() ? ClassUtils.primitiveToWrapperClass(inferredItemClass)</span>
+<span class="nc" id="L153">						: inferredItemClass).isAssignableFrom(</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">								(declaredItemClass.isPrimitive() ? ClassUtils.primitiveToWrapperClass(declaredItemClass)</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">										: declaredItemClass))) {</span>
+<span class="nc" id="L156">					throw new IllegalStateException(&quot;The declared iteration variable type '&quot;</span>
+<span class="nc" id="L157">							+ declaredItemClass.getName() + &quot;' is not derived from the detected item type '&quot;</span>
+<span class="nc" id="L158">							+ inferredItemClass.getName() + &quot;'&quot;);</span>
+				}
+			}
+<span class="nc" id="L161">		} catch (Exception e) {</span>
+<span class="nc" id="L162">			throw new ValidationError(&quot;Iteration variable type evaluation error&quot;, e);</span>
+		}
+<span class="fc" id="L164">		InstantiationUtils.validateValue(getIterationListValue(), TypeInfoProvider.getTypeInfo(Object.class),</span>
+<span class="fc" id="L165">				listItemInitializerFacade, &quot;iteration list value&quot;, true, variableDeclarations);</span>
+<span class="fc" id="L166">	}</span>
+
+	@Override
+	public String toString() {
+<span class="nc" id="L170">		return preprendExpression(null);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

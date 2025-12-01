@@ -1,0 +1,856 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CustomizationToolsUI.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">custom-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.customizer</a> &gt; <span class="el_source">CustomizationToolsUI.java</span></div><h1>CustomizationToolsUI.java</h1><pre class="source lang-java linenums">package xy.reflect.ui.control.swing.customizer;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.swing.SwingUtilities;
+
+import xy.reflect.ui.CustomizedUI;
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.MethodContext;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.app.IApplicationInfo;
+import xy.reflect.ui.info.custom.InfoCustomizations;
+import xy.reflect.ui.info.custom.InfoCustomizations.AbstractCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.AbstractMemberCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.ApplicationCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.ColumnCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.ConversionMethodFinder;
+import xy.reflect.ui.info.custom.InfoCustomizations.CustomTypeInfoFinder;
+import xy.reflect.ui.info.custom.InfoCustomizations.CustomizationCategory;
+import xy.reflect.ui.info.custom.InfoCustomizations.FieldCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.FieldTypeSpecificities;
+import xy.reflect.ui.info.custom.InfoCustomizations.IMenuElementCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.IMenuItemContainerCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.ITypeInfoFinder;
+import xy.reflect.ui.info.custom.InfoCustomizations.JavaClassBasedTypeInfoFinder;
+import xy.reflect.ui.info.custom.InfoCustomizations.ListCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.Mapping;
+import xy.reflect.ui.info.custom.InfoCustomizations.MenuCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.MethodCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.ParameterCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.TextualStorage;
+import xy.reflect.ui.info.custom.InfoCustomizations.TypeConversion;
+import xy.reflect.ui.info.custom.InfoCustomizations.TypeCustomization;
+import xy.reflect.ui.info.field.FieldInfoProxy;
+import xy.reflect.ui.info.field.GetterFieldInfo;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.field.MethodReturnValueAsFieldInfo;
+import xy.reflect.ui.info.menu.IMenuElementPosition;
+import xy.reflect.ui.info.menu.MenuElementKind;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.method.MethodInfoProxy;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.factory.IInfoProxyFactory;
+import xy.reflect.ui.info.type.factory.InfoProxyFactory;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * This is a sub-class of {@link ReflectionUI} that generates the abstract UI
+ * model of customization tools.
+ * 
+ * @author olitank
+ *
+ */
+public class CustomizationToolsUI extends CustomizedUI {
+
+<span class="fc" id="L79">	protected static final String IS_FIELD_TYPE_SPECIFICITIES_TYPE = CustomizationToolsUI.class.getName() + &quot;.is&quot;</span>
+<span class="fc" id="L80">			+ FieldTypeSpecificities.class.getSimpleName();</span>
+<span class="fc" id="L81">	protected static final List&lt;ResourcePath&gt; SYSTEM_FONT_PATHS = new ArrayList&lt;ResourcePath&gt;();</span>
+	static {
+<span class="fc bfc" id="L83" title="All 2 branches covered.">		for (Font font : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {</span>
+<span class="fc" id="L84">			ResourcePath fontPath = new ResourcePath(ResourcePath.specifyMemoryObjectLocation(font.getName()));</span>
+<span class="fc" id="L85">			SwingRendererUtils.FONT_CACHE.put(fontPath.getSpecification(), font);</span>
+<span class="fc" id="L86">			SYSTEM_FONT_PATHS.add(fontPath);</span>
+		}
+<span class="fc" id="L88">	}</span>
+
+	protected final SwingCustomizer swingCustomizer;
+
+	public CustomizationToolsUI(InfoCustomizations infoCustomizations, SwingCustomizer swingCustomizer) {
+<span class="fc" id="L93">		super(infoCustomizations);</span>
+<span class="fc" id="L94">		this.swingCustomizer = swingCustomizer;</span>
+<span class="fc" id="L95">	}</span>
+
+	public SwingCustomizer getSwingCustomizer() {
+<span class="fc" id="L98">		return swingCustomizer;</span>
+	}
+
+	@Override
+	protected IInfoProxyFactory createBeforeInfoCustomizationsFactory() {
+<span class="fc" id="L103">		return new InfoProxyFactory() {</span>
+
+			@Override
+			public String toString() {
+<span class="nc" id="L107">				return &quot;Before&quot; + CustomizationTools.class.getName() + InfoProxyFactory.class.getSimpleName();</span>
+			}
+
+			@Override
+			protected String getCaption(IEnumerationItemInfo info, IEnumerationTypeInfo parentEnumType) {
+<span class="nc" id="L112">				Object itemValue = info.getValue();</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">				if (itemValue instanceof IMenuItemContainerCustomization) {</span>
+<span class="nc" id="L114">					IMenuElementPosition position = ReflectionUIUtils.getMenuElementPosition(</span>
+<span class="nc" id="L115">							swingCustomizer.getInfoCustomizations(), (IMenuItemContainerCustomization) itemValue);</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">					if (position == null) {</span>
+<span class="nc" id="L117">						return ((IMenuItemContainerCustomization) itemValue).getName();</span>
+					}
+<span class="nc" id="L119">					List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L120">					result.add(position.getElementName());</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">					while (position.getParent() != null) {</span>
+<span class="nc" id="L122">						position = position.getParent();</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">						if (position.getElementKind() == MenuElementKind.MENU) {</span>
+<span class="nc" id="L124">							result.add(0, position.getElementName());</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">						} else if (position.getElementKind() == MenuElementKind.ITEM_CATEGORY) {</span>
+<span class="nc" id="L126">							result.add(0, &quot;(&quot; + position.getElementName() + &quot;)&quot;);</span>
+<span class="nc" id="L127">						} else {</span>
+<span class="nc" id="L128">							throw new ReflectionUIError();</span>
+						}
+					}
+<span class="nc" id="L131">					return MiscUtils.stringJoin(result, &quot; / &quot;);</span>
+				}
+<span class="nc bnc" id="L133" title="All 2 branches missed.">				if (info.getValue() instanceof ResourcePath) {</span>
+<span class="nc" id="L134">					ResourcePath resourcePath = (ResourcePath) itemValue;</span>
+<span class="nc" id="L135">					return resourcePath.getDefaultSpecification();</span>
+				}
+<span class="nc" id="L137">				return super.getCaption(info, parentEnumType);</span>
+			}
+
+			@Override
+			protected boolean hasValueOptions(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="pc bpc" id="L142" title="3 of 4 branches missed.">				if ((object instanceof AbstractMemberCustomization) &amp;&amp; field.getName().equals(&quot;categoryName&quot;)) {</span>
+<span class="nc" id="L143">					return true;</span>
+<span class="pc bpc" id="L144" title="3 of 4 branches missed.">				} else if ((object instanceof MethodCustomization) &amp;&amp; field.getName().equals(&quot;menuLocation&quot;)) {</span>
+<span class="nc" id="L145">					return true;</span>
+				} else {
+<span class="fc" id="L147">					return super.hasValueOptions(field, object, objectType);</span>
+				}
+			}
+
+			@Override
+			protected Object[] getValueOptions(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="nc bnc" id="L153" title="All 4 branches missed.">				if ((object instanceof AbstractMemberCustomization) &amp;&amp; field.getName().equals(&quot;categoryName&quot;)) {</span>
+<span class="nc" id="L154">					List&lt;String&gt; result = InfoCustomizations.getMemberCategoryNameOptions(</span>
+<span class="nc" id="L155">							swingCustomizer.getInfoCustomizations(), (AbstractMemberCustomization) object);</span>
+<span class="nc" id="L156">					return result.toArray();</span>
+<span class="nc bnc" id="L157" title="All 4 branches missed.">				} else if ((object instanceof MethodCustomization) &amp;&amp; field.getName().equals(&quot;menuLocation&quot;)) {</span>
+<span class="nc" id="L158">					TypeCustomization tc = InfoCustomizations.findParentTypeCustomization(</span>
+<span class="nc" id="L159">							swingCustomizer.getInfoCustomizations(), (MethodCustomization) object);</span>
+<span class="nc" id="L160">					List&lt;IMenuItemContainerCustomization&gt; result = InfoCustomizations</span>
+<span class="nc" id="L161">							.getAllMenuItemContainerCustomizations(tc);</span>
+<span class="nc" id="L162">					return result.toArray();</span>
+				} else {
+<span class="nc" id="L164">					return super.getValueOptions(field, object, objectType);</span>
+				}
+			}
+
+			@Override
+			protected Map&lt;String, Object&gt; getSpecificProperties(ITypeInfo type) {
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">				if (type.getName().equals(FieldTypeSpecificities.class.getName())) {</span>
+<span class="nc" id="L171">					Map&lt;String, Object&gt; result = new HashMap&lt;String, Object&gt;(super.getSpecificProperties(type));</span>
+<span class="nc" id="L172">					result.put(IS_FIELD_TYPE_SPECIFICITIES_TYPE, Boolean.TRUE);</span>
+<span class="nc" id="L173">					return result;</span>
+				}
+<span class="fc" id="L175">				return super.getSpecificProperties(type);</span>
+			}
+
+			@Override
+			protected String getName(ITypeInfo type) {
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">				if (type.getName().equals(FieldTypeSpecificities.class.getName())) {</span>
+<span class="nc" id="L181">					return InfoCustomizations.class.getName();</span>
+				}
+<span class="fc" id="L183">				return super.getName(type);</span>
+			}
+
+			@Override
+			protected String getCaption(ITypeInfo type) {
+<span class="nc bnc" id="L188" title="All 2 branches missed.">				if (type.getName().equals(FieldTypeSpecificities.class.getName())) {</span>
+<span class="nc" id="L189">					return &quot;&quot;;</span>
+				}
+<span class="nc" id="L191">				return super.getCaption(type);</span>
+			}
+
+			@Override
+			protected List&lt;IFieldInfo&gt; getFields(ITypeInfo type) {
+				Class&lt;?&gt; objectClass;
+				try {
+<span class="fc" id="L198">					objectClass = CustomizationToolsUI.this.getReflectedClass(type.getName());</span>
+<span class="pc" id="L199">				} catch (Exception e) {</span>
+<span class="nc" id="L200">					objectClass = null;</span>
+				}
+<span class="pc bpc" id="L202" title="2 of 4 branches missed.">				if ((objectClass != null) &amp;&amp; AbstractCustomization.class.isAssignableFrom(objectClass)) {</span>
+<span class="nc" id="L203">					List&lt;IFieldInfo&gt; result = new ArrayList&lt;IFieldInfo&gt;();</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">					for (IFieldInfo field : super.getFields(type)) {</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">						if (field.getName().equals(InfoCustomizations.UID_FIELD_NAME)) {</span>
+<span class="nc" id="L206">							continue;</span>
+						}
+<span class="nc bnc" id="L208" title="All 2 branches missed.">						if (field.getName().equals(InfoCustomizations.INITIAL_STATE_FIELD_NAME)) {</span>
+<span class="nc" id="L209">							continue;</span>
+						}
+<span class="nc" id="L211">						result.add(field);</span>
+					}
+<span class="nc bnc" id="L213" title="All 2 branches missed.">					if (type.getName().equals(MethodCustomization.class.getName())) {</span>
+<span class="nc" id="L214">						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {</span>
+							@Override
+							public String getName() {
+<span class="nc" id="L217">								return &quot;menuLocationSelector&quot;;</span>
+							}
+
+							@Override
+							public String getCaption() {
+<span class="nc" id="L222">								return ReflectionUIUtils.identifierToCaption(getName());</span>
+							}
+
+							@Override
+							public ITypeInfo getType() {
+<span class="nc" id="L227">								return CustomizationToolsUI.this.getTypeInfo(new JavaTypeInfoSource(</span>
+<span class="nc" id="L228">										MenuLocationSelector.class,</span>
+<span class="nc" id="L229">										new SpecificitiesIdentifier(MethodCustomization.class.getName(), getName())));</span>
+							}
+
+							@Override
+							public Object getValue(Object object) {
+<span class="nc" id="L234">								return new MenuLocationSelector(swingCustomizer.getInfoCustomizations(),</span>
+<span class="nc" id="L235">										(MethodCustomization) object);</span>
+							}
+
+							@Override
+							public void setValue(Object object, Object value) {
+<span class="nc bnc" id="L240" title="All 2 branches missed.">								((MethodCustomization) object).setMenuLocation((value == null) ? null</span>
+<span class="nc" id="L241">										: ((MenuLocationSelector) value).getSelectedMenuItemContainerCustomization());</span>
+<span class="nc" id="L242">							}</span>
+
+							@Override
+							public boolean isGetOnly() {
+<span class="nc" id="L246">								return false;</span>
+							}
+
+						});
+					}
+<span class="nc" id="L251">					List&lt;IMethodInfo&gt; baseMethods = super.getMethods(type);</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">					for (IMethodInfo targetMethod : baseMethods) {</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">						if (shouldProvideCustomizedUIAs1stParameter(type, targetMethod)) {</span>
+<span class="nc" id="L254">							String getterFieldName = GetterFieldInfo.getterToFieldName(targetMethod.getName());</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">							if (getterFieldName != null) {</span>
+<span class="nc" id="L256">								String setterName = GetterFieldInfo.fieldToSetterName(getterFieldName);</span>
+<span class="nc" id="L257">								result.add(new MethodReturnValueAsFieldInfo(CustomizationToolsUI.this,</span>
+<span class="nc" id="L258">										provideCustomizedUIAs1stParameter(targetMethod), type) {</span>
+
+									IMethodInfo setter;
+<span class="nc" id="L261">									private boolean setterInitialized = false;</span>
+
+									@Override
+									public String getName() {
+<span class="nc" id="L265">										return getterFieldName;</span>
+									}
+
+									IMethodInfo getSetter() {
+<span class="nc bnc" id="L269" title="All 2 branches missed.">										if (!setterInitialized) {</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">											for (IMethodInfo method : baseMethods) {</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">												if (method.getName().equals(setterName)) {</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">													if (method.getParameters().size() == 2) {</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">														if (shouldProvideCustomizedUIAs1stParameter(type, method)) {</span>
+<span class="nc" id="L274">															setter = provideCustomizedUIAs1stParameter(method);</span>
+<span class="nc" id="L275">															break;</span>
+														}
+													}
+												}
+											}
+<span class="nc" id="L280">											setterInitialized = true;</span>
+										}
+<span class="nc" id="L282">										return setter;</span>
+									}
+
+									@Override
+									public boolean isGetOnly() {
+<span class="nc" id="L287">										IMethodInfo setter = getSetter();</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">										if (setter == null) {</span>
+<span class="nc" id="L289">											return super.isGetOnly();</span>
+										}
+<span class="nc" id="L291">										return false;</span>
+									}
+
+									@Override
+									public void setValue(Object object, Object value) {
+<span class="nc" id="L296">										IMethodInfo setter = getSetter();</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">										if (setter == null) {</span>
+<span class="nc" id="L298">											super.setValue(object, value);</span>
+<span class="nc" id="L299">											return;</span>
+										}
+<span class="nc" id="L301">										setter.invoke(object, new InvocationData(object, setter, value));</span>
+<span class="nc" id="L302">									}</span>
+
+									@Override
+									public Runnable getNextUpdateCustomUndoJob(Object object, Object value) {
+<span class="nc" id="L306">										IMethodInfo setter = getSetter();</span>
+<span class="nc bnc" id="L307" title="All 2 branches missed.">										if (setter == null) {</span>
+<span class="nc" id="L308">											return super.getNextUpdateCustomUndoJob(object, value);</span>
+										}
+<span class="nc" id="L310">										return setter.getNextInvocationUndoJob(object,</span>
+<span class="nc" id="L311">												new InvocationData(object, setter, value));</span>
+									}
+
+									@Override
+									public Runnable getPreviousUpdateCustomRedoJob(Object object, Object value) {
+<span class="nc" id="L316">										IMethodInfo setter = getSetter();</span>
+<span class="nc bnc" id="L317" title="All 2 branches missed.">										if (setter == null) {</span>
+<span class="nc" id="L318">											return super.getPreviousUpdateCustomRedoJob(object, value);</span>
+										}
+<span class="nc" id="L320">										return setter.getPreviousInvocationCustomRedoJob(object,</span>
+<span class="nc" id="L321">												new InvocationData(object, setter, value));</span>
+									}
+								});
+							}
+
+						}
+					}
+<span class="nc" id="L328">					return result;</span>
+				} else {
+<span class="fc" id="L330">					return super.getFields(type);</span>
+				}
+			}
+
+			@Override
+			protected List&lt;IMethodInfo&gt; getMethods(ITypeInfo type) {
+<span class="pc bpc" id="L336" title="1 of 2 branches missed.">				if (type.getName().equals(ListCustomization.class.getName())) {</span>
+<span class="nc" id="L337">					List&lt;IMethodInfo&gt; result = new ArrayList&lt;IMethodInfo&gt;(super.getMethods(type));</span>
+<span class="nc" id="L338">					result.add(getListItemTypeCustomizationDisplayMethod());</span>
+<span class="nc" id="L339">					return result;</span>
+<span class="pc bpc" id="L340" title="1 of 2 branches missed.">				} else if (type.getName().equals(MethodCustomization.class.getName())) {</span>
+<span class="nc" id="L341">					List&lt;IMethodInfo&gt; result = new ArrayList&lt;IMethodInfo&gt;(super.getMethods(type));</span>
+<span class="nc" id="L342">					result.add(getLastInvocationDataStorageMethod());</span>
+<span class="nc" id="L343">					return result;</span>
+				} else {
+<span class="fc" id="L345">					List&lt;IMethodInfo&gt; result = new ArrayList&lt;IMethodInfo&gt;(super.getMethods(type));</span>
+<span class="fc bfc" id="L346" title="All 2 branches covered.">					for (int i = 0; i &lt; result.size(); i++) {</span>
+<span class="fc" id="L347">						IMethodInfo targetMethod = result.get(i);</span>
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">						if (shouldProvideCustomizedUIAs1stParameter(type, targetMethod)) {</span>
+<span class="nc" id="L349">							String getterFieldName = GetterFieldInfo.getterToFieldName(targetMethod.getName());</span>
+<span class="nc bnc" id="L350" title="All 2 branches missed.">							if (getterFieldName == null) {</span>
+<span class="nc" id="L351">								result.set(i, provideCustomizedUIAs1stParameter(targetMethod));</span>
+							}
+						}
+					}
+<span class="fc" id="L355">					return result;</span>
+				}
+			}
+
+			private boolean shouldProvideCustomizedUIAs1stParameter(ITypeInfo type, IMethodInfo targetMethod) {
+				Class&lt;?&gt; objectClass;
+				try {
+<span class="fc" id="L362">					objectClass = CustomizationToolsUI.this.getReflectedClass(type.getName());</span>
+<span class="pc" id="L363">				} catch (Exception e) {</span>
+<span class="nc" id="L364">					objectClass = null;</span>
+				}
+<span class="fc" id="L366">				final Class&lt;?&gt; finalObjectClass = objectClass;</span>
+<span class="pc bpc" id="L367" title="1 of 2 branches missed.">				if ((finalObjectClass != null) &amp;&amp; Arrays</span>
+<span class="fc" id="L368">						.asList(AbstractConfiguration.class, TypeCustomization.class, ConversionMethodFinder.class,</span>
+<span class="fc" id="L369">								Mapping.class, TextualStorage.class, JavaClassBasedTypeInfoFinder.class,</span>
+<span class="fc" id="L370">								CustomTypeInfoFinder.class)</span>
+<span class="pc bpc" id="L371" title="1 of 2 branches missed.">						.stream().anyMatch(targetClass -&gt; targetClass.isAssignableFrom(finalObjectClass))) {</span>
+<span class="pc bpc" id="L372" title="1 of 2 branches missed.">					if (targetMethod.getParameters().size() &gt; 0) {</span>
+<span class="nc" id="L373">						if (targetMethod.getParameters().get(0).getType().getName()</span>
+<span class="nc bnc" id="L374" title="All 2 branches missed.">								.equals(ReflectionUI.class.getName())) {</span>
+<span class="nc" id="L375">							return true;</span>
+						}
+					}
+				}
+<span class="fc" id="L379">				return false;</span>
+			}
+
+			private IMethodInfo provideCustomizedUIAs1stParameter(IMethodInfo base) {
+<span class="nc" id="L383">				return new MethodInfoProxy(base) {</span>
+
+					@Override
+					public String getSignature() {
+<span class="nc" id="L387">						return ReflectionUIUtils.buildMethodSignature(this);</span>
+					}
+
+					@Override
+					public String getCaption() {
+<span class="nc" id="L392">						return ReflectionUIUtils.formatMethodCaption(this, getName(), 0);</span>
+					}
+
+					@Override
+					public List&lt;IParameterInfo&gt; getParameters() {
+<span class="nc" id="L397">						List&lt;IParameterInfo&gt; result = new ArrayList&lt;IParameterInfo&gt;(super.getParameters());</span>
+<span class="nc" id="L398">						result.remove(0);</span>
+<span class="nc" id="L399">						return result;</span>
+					}
+
+					@Override
+					public Object invoke(Object object, InvocationData invocationData) {
+<span class="nc" id="L404">						InvocationData newInvocationData = new InvocationData(invocationData);</span>
+<span class="nc" id="L405">						invocationData.getProvidedParameterValues().forEach(</span>
+<span class="nc" id="L406">								(key, value) -&gt; newInvocationData.getProvidedParameterValues().put(key + 1, value));</span>
+<span class="nc" id="L407">						invocationData.getDefaultParameterValues().forEach(</span>
+<span class="nc" id="L408">								(key, value) -&gt; newInvocationData.getDefaultParameterValues().put(key + 1, value));</span>
+<span class="nc" id="L409">						newInvocationData.getProvidedParameterValues().put(0, swingCustomizer.getReflectionUI());</span>
+<span class="nc" id="L410">						newInvocationData.getDefaultParameterValues().remove(0);</span>
+<span class="nc" id="L411">						return super.invoke(object, newInvocationData);</span>
+					}
+
+				};
+			}
+
+			protected IMethodInfo getLastInvocationDataStorageMethod() {
+<span class="nc" id="L418">				return new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {</span>
+
+					@Override
+					public String getSignature() {
+<span class="nc" id="L422">						return ReflectionUIUtils.buildMethodSignature(this);</span>
+					}
+
+					@Override
+					public String getName() {
+<span class="nc" id="L427">						return &quot;storeLastInvocationData&quot;;</span>
+					}
+
+					@Override
+					public String getCaption() {
+<span class="nc" id="L432">						return &quot;Store Last Invocation Data&quot;;</span>
+					}
+
+					@Override
+					public Object invoke(Object object, InvocationData invocationData) {
+<span class="nc" id="L437">						MethodCustomization mc = (MethodCustomization) object;</span>
+<span class="nc" id="L438">						TypeCustomization tc = InfoCustomizations</span>
+<span class="nc" id="L439">								.findParentTypeCustomization(swingCustomizer.getInfoCustomizations(), mc);</span>
+<span class="nc" id="L440">						InvocationData lastInvocationData = swingCustomizer.getLastInvocationDataByMethodContext()</span>
+<span class="nc" id="L441">								.get(new MethodContext(tc.getTypeName(), mc.getMethodSignature()));</span>
+<span class="nc bnc" id="L442" title="All 2 branches missed.">						if (lastInvocationData == null) {</span>
+<span class="nc" id="L443">							throw new ReflectionUIError(</span>
+<span class="nc" id="L444">									&quot;Last invocation data not found for the method '&quot; + mc.getMethodSignature() + &quot;'&quot;);</span>
+						}
+<span class="nc" id="L446">						List&lt;TextualStorage&gt; storages = new ArrayList&lt;InfoCustomizations.TextualStorage&gt;(</span>
+<span class="nc" id="L447">								mc.getSerializedInvocationDatas());</span>
+<span class="nc" id="L448">						TextualStorage newStorage = new TextualStorage();</span>
+<span class="nc" id="L449">						InvocationData toStore = new InvocationData(lastInvocationData);</span>
+<span class="nc bnc" id="L450" title="All 2 branches missed.">						for (Integer parameterPosition : toStore.getProvidedParameterValues().keySet()) {</span>
+							// no need to store the default value if an actual value was provided
+<span class="nc" id="L452">							toStore.getDefaultParameterValues().remove(parameterPosition);</span>
+						}
+<span class="nc" id="L454">						newStorage.save(swingCustomizer.getReflectionUI(), toStore);</span>
+<span class="nc" id="L455">						storages.add(newStorage);</span>
+<span class="nc" id="L456">						mc.setSerializedInvocationDatas(storages);</span>
+<span class="nc" id="L457">						return null;</span>
+					}
+
+					@Override
+					public boolean isReadOnly() {
+<span class="nc" id="L462">						return false;</span>
+					}
+
+					@Override
+					public Runnable getNextInvocationUndoJob(final Object object, InvocationData invocationData) {
+<span class="nc" id="L467">						return new Runnable() {</span>
+
+							@Override
+							public void run() {
+<span class="nc" id="L471">								MethodCustomization mc = (MethodCustomization) object;</span>
+<span class="nc" id="L472">								List&lt;TextualStorage&gt; storages = new ArrayList&lt;InfoCustomizations.TextualStorage&gt;(</span>
+<span class="nc" id="L473">										mc.getSerializedInvocationDatas());</span>
+<span class="nc" id="L474">								storages.remove(storages.size() - 1);</span>
+<span class="nc" id="L475">								mc.setSerializedInvocationDatas(storages);</span>
+<span class="nc" id="L476">							}</span>
+						};
+					}
+
+				};
+			}
+
+			protected IMethodInfo getListItemTypeCustomizationDisplayMethod() {
+<span class="nc" id="L484">				return new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {</span>
+
+					@Override
+					public String getSignature() {
+<span class="nc" id="L488">						return ReflectionUIUtils.buildMethodSignature(this);</span>
+					}
+
+					@Override
+					public String getName() {
+<span class="nc" id="L493">						return &quot;displayItemTypeCustomization&quot;;</span>
+					}
+
+					@Override
+					public String getCaption() {
+<span class="nc" id="L498">						return &quot;Display Item Type Customization&quot;;</span>
+					}
+
+					@Override
+					public boolean isReadOnly() {
+<span class="nc" id="L503">						return true;</span>
+					}
+
+					@Override
+					public Object invoke(final Object object, InvocationData invocationData) {
+<span class="nc bnc" id="L508" title="All 2 branches missed.">						if (swingCustomizer.isCustomizationsEditorEnabled()) {</span>
+<span class="nc" id="L509">							SwingUtilities.invokeLater(new Runnable() {</span>
+								@Override
+								public void run() {
+<span class="nc" id="L512">									ListCustomization lc = (ListCustomization) object;</span>
+<span class="nc bnc" id="L513" title="All 2 branches missed.">									if (lc.getItemTypeName() == null) {</span>
+<span class="nc" id="L514">										SwingRenderer renderer = swingCustomizer.getCustomizationTools()</span>
+<span class="nc" id="L515">												.getToolsRenderer();</span>
+<span class="nc" id="L516">										renderer.openInformationDialog(null, &quot;The item type is not defined&quot;,</span>
+<span class="nc" id="L517">												renderer.getObjectTitle(lc));</span>
+<span class="nc" id="L518">									} else {</span>
+<span class="nc" id="L519">										TypeCustomization t = InfoCustomizations.getTypeCustomization(</span>
+<span class="nc" id="L520">												swingCustomizer.getInfoCustomizations(), lc.getItemTypeName());</span>
+<span class="nc" id="L521">										swingCustomizer.getCustomizationTools().openCustomizationEditor(null, t);</span>
+									}
+<span class="nc" id="L523">								}</span>
+							});
+						}
+<span class="nc" id="L526">						return null;</span>
+					}
+
+				};
+			}
+
+			@Override
+			protected String toString(ITypeInfo type, Object object) {
+<span class="nc bnc" id="L534" title="All 2 branches missed.">				if (object instanceof TypeCustomization) {</span>
+<span class="nc" id="L535">					return ((TypeCustomization) object).getTypeName();</span>
+<span class="nc bnc" id="L536" title="All 2 branches missed.">				} else if (object instanceof FieldCustomization) {</span>
+<span class="nc" id="L537">					return ((FieldCustomization) object).getFieldName();</span>
+<span class="nc bnc" id="L538" title="All 2 branches missed.">				} else if (object instanceof MethodCustomization) {</span>
+<span class="nc" id="L539">					return ((MethodCustomization) object).getMethodName();</span>
+<span class="nc bnc" id="L540" title="All 2 branches missed.">				} else if (object instanceof ParameterCustomization) {</span>
+<span class="nc" id="L541">					return ((ParameterCustomization) object).getParameterName();</span>
+<span class="nc bnc" id="L542" title="All 2 branches missed.">				} else if (object instanceof ColumnCustomization) {</span>
+<span class="nc" id="L543">					return ((ColumnCustomization) object).getColumnName();</span>
+<span class="nc bnc" id="L544" title="All 2 branches missed.">				} else if (object instanceof CustomizationCategory) {</span>
+<span class="nc" id="L545">					return ((CustomizationCategory) object).getName();</span>
+<span class="nc bnc" id="L546" title="All 2 branches missed.">				} else if (object instanceof ResourcePath) {</span>
+<span class="nc" id="L547">					String result = ((ResourcePath) object).getSpecification();</span>
+<span class="nc bnc" id="L548" title="All 2 branches missed.">					if (result.length() == 0) {</span>
+<span class="nc" id="L549">						result = &quot;&lt;Path not specified&gt;&quot;;</span>
+					}
+<span class="nc" id="L551">					return result;</span>
+<span class="nc bnc" id="L552" title="All 2 branches missed.">				} else if (object instanceof IMenuElementCustomization) {</span>
+<span class="nc" id="L553">					return ((IMenuElementCustomization) object).getName();</span>
+<span class="nc bnc" id="L554" title="All 2 branches missed.">				} else if (object instanceof TypeConversion) {</span>
+<span class="nc" id="L555">					String result = &quot;To &quot;;</span>
+<span class="nc" id="L556">					ITypeInfoFinder newTypeFinder = ((TypeConversion) object).getNewTypeFinder();</span>
+<span class="nc bnc" id="L557" title="All 2 branches missed.">					if (MiscUtils.equalsOrBothNull(newTypeFinder, new TypeConversion().getNewTypeFinder())) {</span>
+<span class="nc" id="L558">						result += &quot;...&quot;;</span>
+<span class="nc" id="L559">					} else {</span>
+<span class="nc" id="L560">						result += &quot;&lt;&quot; + ReflectionUIUtils.toString(CustomizationToolsUI.this, newTypeFinder) + &quot;&gt;&quot;;</span>
+					}
+<span class="nc" id="L562">					return result;</span>
+<span class="nc bnc" id="L563" title="All 2 branches missed.">				} else if (object instanceof Mapping) {</span>
+<span class="nc" id="L564">					String result = &quot;Convert&quot;;</span>
+<span class="nc" id="L565">					ConversionMethodFinder reverseConversion = ((Mapping) object).getReverseConversionMethodFinder();</span>
+<span class="nc bnc" id="L566" title="All 2 branches missed.">					if (reverseConversion != null) {</span>
+<span class="nc bnc" id="L567" title="All 2 branches missed.">						if (reverseConversion.getConversionMethodSignature() != null) {</span>
+<span class="nc" id="L568">							String typeName = ReflectionUIUtils.extractMethodReturnTypeNameFromSignature(</span>
+<span class="nc" id="L569">									reverseConversion.getConversionMethodSignature());</span>
+<span class="nc" id="L570">							result += &quot; From &quot; + typeName;</span>
+						}
+					}
+<span class="nc" id="L573">					ConversionMethodFinder conversion = ((Mapping) object).getConversionMethodFinder();</span>
+<span class="nc bnc" id="L574" title="All 2 branches missed.">					if (conversion != null) {</span>
+<span class="nc bnc" id="L575" title="All 2 branches missed.">						if (conversion.getConversionMethodSignature() != null) {</span>
+<span class="nc" id="L576">							String typeName = ReflectionUIUtils.extractMethodReturnTypeNameFromSignature(</span>
+<span class="nc" id="L577">									conversion.getConversionMethodSignature());</span>
+<span class="nc" id="L578">							result += &quot; To &quot; + typeName;</span>
+						}
+					}
+<span class="nc" id="L581">					result += &quot;...&quot;;</span>
+<span class="nc" id="L582">					return result;</span>
+<span class="nc bnc" id="L583" title="All 2 branches missed.">				} else if (object instanceof JavaClassBasedTypeInfoFinder) {</span>
+<span class="nc" id="L584">					return ((JavaClassBasedTypeInfoFinder) object).getClassName();</span>
+<span class="nc bnc" id="L585" title="All 2 branches missed.">				} else if (object instanceof CustomTypeInfoFinder) {</span>
+<span class="nc" id="L586">					return &quot;Custom Type Implemented By &quot; + ((CustomTypeInfoFinder) object).getImplementationClassName();</span>
+<span class="nc bnc" id="L587" title="All 2 branches missed.">				} else if (object instanceof TextualStorage) {</span>
+<span class="nc" id="L588">					Object stored = ((TextualStorage) object).load(swingCustomizer.getReflectionUI());</span>
+<span class="nc" id="L589">					String result = ReflectionUIUtils.toString(CustomizationToolsUI.this, stored);</span>
+<span class="nc bnc" id="L590" title="All 2 branches missed.">					if (stored != null) {</span>
+<span class="nc" id="L591">						ITypeInfo storedType = CustomizationToolsUI.this</span>
+<span class="nc" id="L592">								.getTypeInfo(CustomizationToolsUI.this.getTypeInfoSource(stored));</span>
+<span class="nc" id="L593">						result = &quot;(&quot; + storedType.getCaption() + &quot;) &quot; + result;</span>
+					}
+<span class="nc" id="L595">					return result;</span>
+<span class="nc bnc" id="L596" title="All 2 branches missed.">				} else if (object instanceof FieldTypeSpecificities) {</span>
+<span class="nc" id="L597">					return &quot;&quot;;</span>
+				} else {
+<span class="nc" id="L599">					return super.toString(type, object);</span>
+				}
+			}
+
+			@Override
+			protected ITypeInfo getType(IFieldInfo field, ITypeInfo objectType) {
+<span class="pc bpc" id="L605" title="1 of 2 branches missed.">				if (field.getType().getName().equals(ColorSpecification.class.getName())) {</span>
+<span class="nc" id="L606">					return getTypeInfo(new JavaTypeInfoSource(Color.class,</span>
+<span class="nc" id="L607">							new SpecificitiesIdentifier(objectType.getName(), field.getName())));</span>
+				}
+<span class="fc" id="L609">				return super.getType(field, objectType);</span>
+			}
+
+			@Override
+			protected Object getValue(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="pc bpc" id="L614" title="1 of 2 branches missed.">				if (field.getType().getName().equals(ColorSpecification.class.getName())) {</span>
+<span class="nc" id="L615">					ColorSpecification colorSpec = (ColorSpecification) super.getValue(field, object, objectType);</span>
+<span class="nc bnc" id="L616" title="All 2 branches missed.">					if (colorSpec == null) {</span>
+<span class="nc" id="L617">						return null;</span>
+					}
+<span class="nc" id="L619">					return SwingRendererUtils.getColor(colorSpec);</span>
+<span class="pc bpc" id="L620" title="1 of 2 branches missed.">				} else if ((object instanceof ApplicationCustomization)</span>
+<span class="nc bnc" id="L621" title="All 2 branches missed.">						&amp;&amp; field.getName().endsWith(&quot;CustomFontResourcePath&quot;)) {</span>
+<span class="nc" id="L622">					ResourcePath result = (ResourcePath) super.getValue(field, object, objectType);</span>
+<span class="nc bnc" id="L623" title="All 2 branches missed.">					if (result != null) {</span>
+<span class="nc" id="L624">						result.setAdditionalAlternativeOptions(SYSTEM_FONT_PATHS);</span>
+					}
+<span class="nc" id="L626">					return result;</span>
+				} else {
+<span class="fc" id="L628">					return super.getValue(field, object, objectType);</span>
+				}
+			}
+
+			@Override
+			protected void setValue(IFieldInfo field, Object object, Object value, ITypeInfo objectType) {
+<span class="nc bnc" id="L634" title="All 2 branches missed.">				if (field.getType().getName().equals(ColorSpecification.class.getName())) {</span>
+<span class="nc" id="L635">					Color color = (Color) value;</span>
+<span class="nc" id="L636">					ColorSpecification colorSpec = null;</span>
+<span class="nc bnc" id="L637" title="All 2 branches missed.">					if (color != null) {</span>
+<span class="nc" id="L638">						colorSpec = SwingRendererUtils.getColorSpecification(color);</span>
+					}
+<span class="nc" id="L640">					super.setValue(field, object, colorSpec, objectType);</span>
+<span class="nc" id="L641">				} else {</span>
+<span class="nc" id="L642">					super.setValue(field, object, value, objectType);</span>
+				}
+<span class="nc" id="L644">			}</span>
+
+		};
+	}
+
+	@Override
+	protected IInfoProxyFactory createAfterInfoCustomizationsFactory() {
+<span class="fc" id="L651">		return new InfoProxyFactory() {</span>
+
+			@Override
+			public String toString() {
+<span class="nc" id="L655">				return &quot;After&quot; + CustomizationTools.class.getName() + InfoProxyFactory.class.getSimpleName();</span>
+			}
+
+			@Override
+			protected List&lt;IFieldInfo&gt; getFields(ITypeInfo type) {
+<span class="pc bpc" id="L660" title="1 of 2 branches missed.">				if (Boolean.TRUE.equals(type.getSpecificProperties().get(IS_FIELD_TYPE_SPECIFICITIES_TYPE))) {</span>
+<span class="nc" id="L661">					List&lt;IFieldInfo&gt; result = new ArrayList&lt;&gt;(super.getFields(type));</span>
+<span class="nc bnc" id="L662" title="All 2 branches missed.">					for (Iterator&lt;IFieldInfo&gt; it = result.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L663">						IFieldInfo field = it.next();</span>
+<span class="nc" id="L664">						InfoCategory category = field.getCategory();</span>
+<span class="nc bnc" id="L665" title="All 2 branches missed.">						if (category != null) {</span>
+<span class="nc bnc" id="L666" title="All 2 branches missed.">							if (!Arrays.asList(&quot;Types&quot;, &quot;Lists&quot;, &quot;Enumerations&quot;).contains(category.getCaption())) {</span>
+<span class="nc" id="L667">								it.remove();</span>
+							}
+						}
+					}
+<span class="nc" id="L671">					return result;</span>
+				}
+<span class="fc" id="L673">				return super.getFields(type);</span>
+			}
+
+			@Override
+			protected String getOnlineHelp(IApplicationInfo appInfo) {
+<span class="nc" id="L678">				return fixOnlineHelp(super.getOnlineHelp(appInfo));</span>
+			}
+
+			@Override
+			protected String getOnlineHelp(IFieldInfo field, ITypeInfo objectType) {
+<span class="fc" id="L683">				return fixOnlineHelp(super.getOnlineHelp(field, objectType));</span>
+			}
+
+			@Override
+			protected String getOnlineHelp(IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+<span class="nc" id="L688">				return fixOnlineHelp(super.getOnlineHelp(param, method, objectType));</span>
+			}
+
+			@Override
+			protected String getOnlineHelp(ITypeInfo type) {
+<span class="nc" id="L693">				return fixOnlineHelp(super.getOnlineHelp(type));</span>
+			}
+
+			@Override
+			protected String getOnlineHelp(IMethodInfo method, ITypeInfo objectType) {
+<span class="nc" id="L698">				return fixOnlineHelp(super.getOnlineHelp(method, objectType));</span>
+			}
+
+			@Override
+			protected String getOnlineHelp(IEnumerationItemInfo info, IEnumerationTypeInfo parentEnumType) {
+<span class="nc" id="L703">				return fixOnlineHelp(super.getOnlineHelp(info, parentEnumType));</span>
+			}
+
+			/**
+			 * @param onlineHelp Online help message.
+			 * @return an improved online help message (see the class OnlineHelpFi)x.
+			 */
+			protected String fixOnlineHelp(String onlineHelp) {
+<span class="pc bpc" id="L711" title="1 of 2 branches missed.">				if (onlineHelp == null) {</span>
+<span class="fc" id="L712">					return null;</span>
+				}
+<span class="nc bnc" id="L714" title="All 2 branches missed.">				if (MiscUtils.isHTMLText(onlineHelp)) {</span>
+<span class="nc" id="L715">					return onlineHelp;</span>
+				}
+<span class="nc" id="L717">				return &quot;&lt;HTML&gt;&quot; + OnlineHelpFix.adaptToHtml(onlineHelp) + &quot;&lt;/HTML&gt;&quot;;</span>
+			}
+
+		};
+	}
+
+	@Override
+	public void logError(String msg) {
+<span class="nc" id="L725">		super.logError(msg);</span>
+<span class="nc" id="L726">	}</span>
+
+	protected static class MenuLocationSelector {
+
+		protected InfoCustomizations infoCustomizations;
+		protected MethodCustomization methodCustomization;
+		protected IMenuItemContainerCustomization selectedMenuItemContainerCustomization;
+
+<span class="nc" id="L734">		public MenuLocationSelector(InfoCustomizations infoCustomizations, MethodCustomization methodCustomization) {</span>
+<span class="nc" id="L735">			this.infoCustomizations = infoCustomizations;</span>
+<span class="nc" id="L736">			this.methodCustomization = methodCustomization;</span>
+<span class="nc" id="L737">			selectedMenuItemContainerCustomization = methodCustomization.getMenuLocation();</span>
+<span class="nc" id="L738">		}</span>
+
+		public List&lt;MenuCustomization&gt; getMenuCustomizations() {
+<span class="nc" id="L741">			TypeCustomization tc = InfoCustomizations.findParentTypeCustomization(infoCustomizations,</span>
+<span class="nc" id="L742">					methodCustomization);</span>
+<span class="nc" id="L743">			return tc.getMenuModelCustomization().getMenuCustomizations();</span>
+		}
+
+		public IMenuItemContainerCustomization getSelectedMenuItemContainerCustomization() {
+<span class="nc" id="L747">			return selectedMenuItemContainerCustomization;</span>
+		}
+
+		public void setSelectedMenuItemContainerCustomization(
+				IMenuItemContainerCustomization selectedMenuItemContainerCustomization) {
+<span class="nc" id="L752">			this.selectedMenuItemContainerCustomization = selectedMenuItemContainerCustomization;</span>
+<span class="nc" id="L753">		}</span>
+
+		public void validate() {
+<span class="nc bnc" id="L756" title="All 2 branches missed.">			if (selectedMenuItemContainerCustomization == null) {</span>
+<span class="nc" id="L757">				throw new IllegalStateException(&quot;Menu item container not selected!&quot;);</span>
+			}
+<span class="nc" id="L759">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc bnc" id="L763" title="All 2 branches missed.">			return (selectedMenuItemContainerCustomization != null) ? selectedMenuItemContainerCustomization.getName()</span>
+<span class="nc" id="L764">					: &quot;&lt;None&gt;&quot;;</span>
+		}
+
+	}
+
+	/**
+	 * This class is used to improve online help messages of customization tools by
+	 * converting them to HTML. It is intended to be a temporary fix while updating
+	 * the help messages.
+	 * 
+	 * @author olitank
+	 *
+	 */
+<span class="nc" id="L777">	public static class OnlineHelpFix {</span>
+
+<span class="nc" id="L779">		protected static final List&lt;Character&gt; ALL_LEGACY_BULLET_CHARACTERS = Arrays.asList('-', '.');</span>
+
+		public static String adaptToHtml(String onlineHelp) {
+<span class="nc" id="L782">			String result = onlineHelp;</span>
+<span class="nc" id="L783">			result = MiscUtils.escapeHTML(result, false);</span>
+<span class="nc" id="L784">			result = result.replace(&quot;&amp;nbsp;&quot;, &quot;&quot;);</span>
+<span class="nc" id="L785">			result = convertBullets(result, ALL_LEGACY_BULLET_CHARACTERS);</span>
+<span class="nc" id="L786">			return result;</span>
+		}
+
+		protected static String convertBullets(String onlineHelp, List&lt;Character&gt; bulletCharacters) {
+<span class="nc" id="L790">			String result = onlineHelp;</span>
+<span class="nc bnc" id="L791" title="All 2 branches missed.">			if (bulletCharacters.size() == 0) {</span>
+<span class="nc" id="L792">				throw new ReflectionUIError();</span>
+			}
+<span class="nc" id="L794">			Character bulletCharacter = bulletCharacters.get(0);</span>
+<span class="nc" id="L795">			String escapedBulletCharacter = MiscUtils.escapeRegex(Character.toString(bulletCharacter));</span>
+<span class="nc" id="L796">			boolean bulletFound = false;</span>
+<span class="nc bnc" id="L797" title="All 2 branches missed.">			for (Pattern bulletPattern : Arrays.asList(</span>
+<span class="nc" id="L798">					Pattern.compile(&quot;\\n\\s+&quot; + escapedBulletCharacter + &quot;(.*?)(?=(\\n\\s+&quot; + escapedBulletCharacter</span>
+<span class="nc" id="L799">							+ &quot;|\\n[A-Za-z0-9]|$))&quot;, Pattern.DOTALL),</span>
+<span class="nc" id="L800">					Pattern.compile(&quot;\\n&quot; + escapedBulletCharacter + &quot;(.*?)(?=(\\n&quot; + escapedBulletCharacter + &quot;|$))&quot;,</span>
+<span class="nc" id="L801">							Pattern.DOTALL))) {</span>
+<span class="nc" id="L802">				Matcher matcher = bulletPattern.matcher(result);</span>
+<span class="nc bnc" id="L803" title="All 2 branches missed.">				if (matcher.find()) {</span>
+<span class="nc" id="L804">					bulletFound = true;</span>
+<span class="nc" id="L805">					StringBuffer replacementResult = new StringBuffer();</span>
+<span class="nc" id="L806">					StringBuffer headReplacementResult = new StringBuffer();</span>
+					{
+<span class="nc" id="L808">						matcher.appendReplacement(headReplacementResult, &quot;&quot;);</span>
+<span class="nc" id="L809">						matcher.find(matcher.start());</span>
+					}
+<span class="nc" id="L811">					replacementResult.append(processParagraph(headReplacementResult.toString()) + &quot;&lt;UL&gt;&quot;);</span>
+					do {
+<span class="nc bnc" id="L813" title="All 2 branches missed.">						if (bulletCharacters.size() == 1) {</span>
+<span class="nc" id="L814">							StringBuffer subReplacementResult = new StringBuffer();</span>
+<span class="nc" id="L815">							matcher.appendReplacement(subReplacementResult, &quot;$1&quot;);</span>
+<span class="nc bnc" id="L816" title="All 2 branches missed.">							if (headReplacementResult != null) {</span>
+<span class="nc" id="L817">								replacementResult.append(&quot;&lt;LI&gt;&quot; + processParagraph(</span>
+<span class="nc" id="L818">										subReplacementResult.toString().substring(headReplacementResult.length()))</span>
+<span class="nc" id="L819">										+ &quot;&lt;/LI&gt;&quot;);</span>
+<span class="nc" id="L820">							} else {</span>
+<span class="nc" id="L821">								replacementResult</span>
+<span class="nc" id="L822">										.append(&quot;&lt;LI&gt;&quot; + processParagraph(subReplacementResult.toString()) + &quot;&lt;/LI&gt;&quot;);</span>
+							}
+<span class="nc" id="L824">						} else {</span>
+<span class="nc" id="L825">							StringBuffer subReplacementResult = new StringBuffer();</span>
+<span class="nc" id="L826">							subReplacementResult.append(result.substring(matcher.start(1), matcher.end(1)));</span>
+<span class="nc" id="L827">							replacementResult.append(&quot;&lt;LI&gt;&quot; + convertBullets(subReplacementResult.toString(),</span>
+<span class="nc" id="L828">									bulletCharacters.subList(1, bulletCharacters.size())) + &quot;&lt;/LI&gt;&quot;);</span>
+							// to make matcher.appendTail(replacementResult) work
+<span class="nc" id="L830">							matcher.appendReplacement(new StringBuffer(), &quot;&quot;);</span>
+						}
+<span class="nc" id="L832">						headReplacementResult = null;</span>
+<span class="nc bnc" id="L833" title="All 2 branches missed.">					} while (matcher.find());</span>
+<span class="nc" id="L834">					replacementResult.append(&quot;&lt;/UL&gt;&quot;);</span>
+<span class="nc" id="L835">					StringBuffer tailReplacementResult = new StringBuffer();</span>
+					{
+<span class="nc" id="L837">						matcher.appendTail(tailReplacementResult);</span>
+					}
+<span class="nc" id="L839">					replacementResult.append(processParagraph(tailReplacementResult.toString()));</span>
+<span class="nc" id="L840">					result = replacementResult.toString();</span>
+				}
+			}
+<span class="nc" id="L843">			result = result.replace(&quot;\n&quot;, &quot; &quot;);</span>
+<span class="nc bnc" id="L844" title="All 2 branches missed.">			if (!bulletFound) {</span>
+<span class="nc" id="L845">				result = processParagraph(result);</span>
+			}
+<span class="nc" id="L847">			return result;</span>
+		}
+
+		protected static String processParagraph(String string) {
+<span class="nc" id="L851">			return &quot;&lt;P width=\&quot;300\&quot;&gt;&quot; + string + &quot;&lt;/P&gt;&quot;;</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

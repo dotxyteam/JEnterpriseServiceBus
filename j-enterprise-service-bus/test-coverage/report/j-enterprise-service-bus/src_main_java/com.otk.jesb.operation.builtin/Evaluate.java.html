@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Evaluate.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">Evaluate.java</span></div><h1>Evaluate.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.io.IOException;
+import java.util.List;
+
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.Structure;
+import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.Structure.StructuredElement;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public class Evaluate implements Operation {
+
+	private Object value;
+
+<span class="fc" id="L34">	public Evaluate(Object value) {</span>
+<span class="fc" id="L35">		this.value = value;</span>
+<span class="fc" id="L36">	}</span>
+
+	@Override
+	public Object execute() throws IOException {
+<span class="fc" id="L40">		return value;</span>
+	}
+
+<span class="fc" id="L43">	public static class Metadata implements OperationMetadata&lt;Evaluate&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L47">			return &quot;Evaluate&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L52">			return &quot;General&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;Evaluate&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L57">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L62">			return new ResourcePath(</span>
+<span class="fc" id="L63">					ResourcePath.specifyClassPathResourceLocation(Evaluate.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+<span class="fc" id="L67">	public static class Builder implements OperationBuilder&lt;Evaluate&gt; {</span>
+
+<span class="fc" id="L69">		private ValueKind valueKind = new SimpleValueKind();</span>
+<span class="fc" id="L70">		private boolean multiple = false;</span>
+
+<span class="fc" id="L72">		private final UpToDate&lt;Class&lt;?&gt;&gt; upToDateValueClass = new UpToDateValueClass();</span>
+<span class="fc" id="L73">		private RootInstanceBuilder valueBuilder = new RootInstanceBuilder(&quot;Value&quot;, new ValueClassNameAccessor());</span>
+
+		public RootInstanceBuilder getValueBuilder() {
+<span class="fc" id="L76">			return valueBuilder;</span>
+		}
+
+		public ValueKind getValueKind() {
+<span class="fc" id="L80">			return valueKind;</span>
+		}
+
+		public void setValueKind(ValueKind valueKind) {
+<span class="fc" id="L84">			this.valueKind = valueKind;</span>
+<span class="fc" id="L85">		}</span>
+
+		public boolean isMultiple() {
+<span class="fc" id="L88">			return multiple;</span>
+		}
+
+		public void setMultiple(boolean multiple) {
+<span class="fc" id="L92">			this.multiple = multiple;</span>
+<span class="fc" id="L93">		}</span>
+
+		public void setValueBuilder(RootInstanceBuilder valueBuilder) {
+<span class="fc" id="L96">			this.valueBuilder = valueBuilder;</span>
+<span class="fc" id="L97">		}</span>
+
+		@Override
+		public Evaluate build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+<span class="fc" id="L101">			return new Evaluate(valueBuilder.build(new InstantiationContext(context.getVariables(),</span>
+<span class="fc" id="L102">					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+			try {
+<span class="fc" id="L108">				return upToDateValueClass.get();</span>
+<span class="nc" id="L109">			} catch (VersionAccessException e) {</span>
+<span class="nc" id="L110">				return null;</span>
+			}
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">			if (valueKind == null) {</span>
+<span class="nc" id="L117">				throw new ValidationError(&quot;Value kind not provided&quot;);</span>
+			}
+			try {
+<span class="fc" id="L120">				valueKind.validate(true);</span>
+<span class="pc" id="L121">			} catch (ValidationError e) {</span>
+<span class="nc" id="L122">				throw new ValidationError(&quot;Failed to validate the value kind&quot;, e);</span>
+			}
+<span class="fc bfc" id="L124" title="All 2 branches covered.">			if (recursively) {</span>
+				try {
+<span class="fc" id="L126">					valueBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L127">							plan.getValidationContext(step).getVariableDeclarations());</span>
+<span class="pc" id="L128">				} catch (ValidationError e) {</span>
+<span class="nc" id="L129">					throw new ValidationError(&quot;Failed to validate the value builder&quot;, e);</span>
+				}
+			}
+<span class="fc" id="L132">		}</span>
+
+<span class="fc" id="L134">		private class UpToDateValueClass extends UpToDate&lt;Class&lt;?&gt;&gt; {</span>
+			@Override
+			protected Object retrieveLastVersionIdentifier() {
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">				return new Pair&lt;String, Boolean&gt;((valueKind != null) ? MiscUtils.serialize(valueKind) : null, multiple);</span>
+			}
+
+			@Override
+			protected Class&lt;?&gt; obtainLatest(Object versionIdentifier) {
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">				if (valueKind == null) {</span>
+<span class="nc" id="L143">					return null;</span>
+				} else {
+<span class="fc" id="L145">					Class&lt;?&gt; result = valueKind.obtainClass();</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">					if (multiple) {</span>
+<span class="fc" id="L147">						result = MiscUtils.getArrayType(result);</span>
+					}
+<span class="fc" id="L149">					return result;</span>
+				}
+			}
+		}
+
+<span class="fc" id="L154">		private class ValueClassNameAccessor extends Accessor&lt;String&gt; {</span>
+			@Override
+			public String get() {
+				Class&lt;?&gt; valueClass;
+				try {
+<span class="fc" id="L159">					valueClass = upToDateValueClass.get();</span>
+<span class="pc" id="L160">				} catch (VersionAccessException e) {</span>
+<span class="nc" id="L161">					throw new PotentialError(e);</span>
+				}
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">				if (valueClass == null) {</span>
+<span class="nc" id="L164">					return null;</span>
+				}
+<span class="fc" id="L166">				return valueClass.getName();</span>
+			}
+		}
+
+<span class="fc" id="L170">		public static abstract class ValueKind {</span>
+
+			public abstract Class&lt;?&gt; obtainClass();
+
+			public abstract void validate(boolean recursively) throws ValidationError;
+
+		}
+
+<span class="fc" id="L178">		public static class SimpleValueKind extends ValueKind {</span>
+
+<span class="fc" id="L180">			private SimpleElement internalElement = new SimpleElement();</span>
+
+			public String getTypeNameOrAlias() {
+<span class="fc" id="L183">				return internalElement.getTypeNameOrAlias();</span>
+			}
+
+			public void setTypeNameOrAlias(String typeNameOrAlias) {
+<span class="fc" id="L187">				internalElement.setTypeNameOrAlias(typeNameOrAlias);</span>
+<span class="fc" id="L188">			}</span>
+
+			public List&lt;String&gt; getTypeNameOrAliasOptions() {
+<span class="nc" id="L191">				return internalElement.getTypeNameOrAliasOptions();</span>
+			}
+
+			@Override
+			public Class&lt;?&gt; obtainClass() {
+<span class="fc" id="L196">				return MiscUtils.getJESBClass(internalElement.getTypeName(null));</span>
+			}
+
+			public void validate(boolean recursively) throws ValidationError {
+<span class="fc" id="L200">				internalElement.validate(recursively);</span>
+<span class="fc" id="L201">			}</span>
+
+		}
+
+<span class="fc" id="L205">		public static class StructuredValueKind extends ValueKind {</span>
+<span class="fc" id="L206">			private StructuredElement internalElement = new StructuredElement();</span>
+
+			public Structure getStructure() {
+<span class="fc" id="L209">				return internalElement.getStructure();</span>
+			}
+
+			public void setStructure(Structure structure) {
+<span class="fc" id="L213">				internalElement.setStructure(structure);</span>
+<span class="fc" id="L214">			}</span>
+
+			public void validate(boolean recursively) throws ValidationError {
+<span class="fc" id="L217">				internalElement.validate(recursively);</span>
+<span class="fc" id="L218">			}</span>
+
+			@Override
+			public Class&lt;?&gt; obtainClass() {
+				try {
+<span class="fc" id="L223">					String className = Evaluate.class.getName() + &quot;Result&quot; + InstantiationUtils</span>
+<span class="fc" id="L224">							.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(this));</span>
+<span class="fc" id="L225">					return MiscUtils.IN_MEMORY_COMPILER.compile(className,</span>
+<span class="fc" id="L226">							getStructure().generateJavaTypeSourceCode(className));</span>
+<span class="nc" id="L227">				} catch (CompilationError e) {</span>
+<span class="nc" id="L228">					throw new PotentialError(e);</span>
+				}
+			}
+
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

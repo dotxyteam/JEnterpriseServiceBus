@@ -1,0 +1,851 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Structure.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">Structure.java</span></div><h1>Structure.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.meta.Date;
+import com.otk.jesb.meta.DateTime;
+import com.otk.jesb.resource.builtin.SharedStructureModel;
+import com.otk.jesb.solution.Solution;
+import com.otk.jesb.Reference;
+import com.otk.jesb.util.CodeBuilder;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.TreeVisitor;
+import com.otk.jesb.util.TreeVisitor.VisitStatus;
+
+import xy.reflect.ui.util.ClassUtils;
+
+/**
+ * This class allows to model the data manipulated in a {@link Solution}.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L31">public abstract class Structure {</span>
+
+	public abstract String generateJavaTypeSourceCode(String className, String implemented, String extended,
+			String afterPackageDeclaration, String afterFieldDeclarations, String additionalMethodDeclarations,
+			Map&lt;Object, Object&gt; options);
+
+	public abstract TreeVisitor.VisitStatus visitElements(TreeVisitor&lt;Element&gt; visitor);
+
+	public abstract void validate(boolean recursively) throws ValidationError;
+
+	public abstract String toString();
+
+	public String generateJavaTypeSourceCode(String className) {
+<span class="fc" id="L44">		return generateJavaTypeSourceCode(className, null, null, null, null, null, Collections.emptyMap());</span>
+	}
+
+<span class="fc" id="L47">	public static class ClassicStructure extends Structure {</span>
+
+<span class="fc" id="L49">		private List&lt;Element&gt; elements = new ArrayList&lt;Element&gt;();</span>
+
+		public List&lt;Element&gt; getElements() {
+<span class="fc" id="L52">			return elements;</span>
+		}
+
+		public void setElements(List&lt;Element&gt; elements) {
+<span class="fc" id="L56">			this.elements = elements;</span>
+<span class="fc" id="L57">		}</span>
+
+		@Override
+		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
+				String additionalyExtended, String afterPackageDeclaration, String afterFieldDeclarations,
+				String afterMethodDeclarations, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L63">			CodeBuilder result = new CodeBuilder();</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">			if (MiscUtils.isPackageNameInClassName(className)) {</span>
+<span class="fc" id="L65">				result.append(&quot;package &quot; + MiscUtils.extractPackageNameFromClassName(className) + &quot;;&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L66">				result.append(&quot;\n&quot;);</span>
+			}
+<span class="fc bfc" id="L68" title="All 4 branches covered.">			if ((afterPackageDeclaration != null) &amp;&amp; !afterPackageDeclaration.isEmpty()) {</span>
+<span class="fc" id="L69">				result.append(afterPackageDeclaration + &quot;\n&quot;);</span>
+			}
+<span class="fc" id="L71">			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);</span>
+<span class="fc" id="L72">			result.append(&quot;public class &quot; + classSimpleName</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">					+ ((additionalyExtended != null) ? (&quot; extends &quot; + additionalyExtended) : &quot;&quot;)</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">					+ ((additionalyImplemented != null) ? (&quot; implements &quot; + additionalyImplemented) : &quot;&quot;) + &quot;{&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L75">			result.append(&quot;\n&quot;);</span>
+<span class="fc" id="L76">			result.indenting(() -&gt; {</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">				if (elements.size() &gt; 0) {</span>
+<span class="fc" id="L78">					result.append(elements.stream().map((e) -&gt; e.generateJavaFieldDeclaration(className, options))</span>
+<span class="fc" id="L79">							.collect(Collectors.joining()));</span>
+<span class="fc" id="L80">					result.append(&quot;\n&quot;);</span>
+				}
+<span class="fc bfc" id="L82" title="All 4 branches covered.">				if ((afterFieldDeclarations != null) &amp;&amp; !afterFieldDeclarations.isEmpty()) {</span>
+<span class="fc" id="L83">					result.append(afterFieldDeclarations);</span>
+<span class="fc" id="L84">					result.append(&quot;\n&quot;);</span>
+				}
+<span class="fc" id="L86">				result.append(generateJavaConstructorSourceCode(className, options));</span>
+<span class="fc" id="L87">				result.append(&quot;\n&quot;);</span>
+<span class="fc" id="L88">				result.append(elements.stream().map((e) -&gt; e.generateJavaMethodDeclarations(className, options))</span>
+<span class="fc" id="L89">						.filter(Objects::nonNull).map(declaration -&gt; declaration + &quot;\n&quot;).collect(Collectors.joining()));</span>
+<span class="fc" id="L90">				result.append(generateJavaToStringMethodSourceCode(className, options));</span>
+<span class="fc" id="L91">				result.append(&quot;\n&quot;);</span>
+<span class="pc bpc" id="L92" title="1 of 4 branches missed.">				if ((afterMethodDeclarations != null) &amp;&amp; !afterMethodDeclarations.isEmpty()) {</span>
+<span class="fc" id="L93">					result.append(afterMethodDeclarations);</span>
+<span class="fc" id="L94">					result.append(&quot;\n&quot;);</span>
+				}
+<span class="fc" id="L96">				result.append(elements.stream()</span>
+<span class="fc" id="L97">						.map((e) -&gt; e.generateRequiredInnerJavaTypesSourceCode(className, options))</span>
+<span class="fc" id="L98">						.filter(Objects::nonNull).map(declaration -&gt; declaration + &quot;\n&quot;).collect(Collectors.joining()));</span>
+<span class="fc" id="L99">			});</span>
+<span class="fc" id="L100">			result.append(&quot;\n&quot;);</span>
+<span class="fc" id="L101">			result.append(&quot;}\n&quot;);</span>
+<span class="fc" id="L102">			return result.toString();</span>
+		}
+
+		protected String generateJavaToStringMethodSourceCode(String className, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L106">			CodeBuilder result = new CodeBuilder();</span>
+<span class="fc" id="L107">			result.append(&quot;@Override\n&quot;);</span>
+<span class="fc" id="L108">			result.append(&quot;public String toString() {\n&quot;);</span>
+<span class="fc" id="L109">			result.appendIndented(generateJavaToStringMethodBody(className, options) + &quot;\n&quot;);</span>
+<span class="fc" id="L110">			result.append(&quot;}\n&quot;);</span>
+<span class="fc" id="L111">			return result.toString();</span>
+		}
+
+		protected String generateJavaToStringMethodBody(String className, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L115">			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);</span>
+<span class="fc" id="L116">			return &quot;return \&quot;&quot; + classSimpleName + &quot; [&quot; + elements.stream()</span>
+<span class="fc" id="L117">					.map((e) -&gt; (e.getName() + &quot;=\&quot; + &quot; + e.getName() + &quot; + \&quot;&quot;)).collect(Collectors.joining(&quot;, &quot;))</span>
+<span class="fc" id="L118">					+ &quot;]\&quot;;&quot;;</span>
+		}
+
+		protected String generateJavaConstructorSourceCode(String className, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L122">			CodeBuilder result = new CodeBuilder();</span>
+<span class="fc" id="L123">			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);</span>
+<span class="fc" id="L124">			result.append(</span>
+<span class="fc" id="L125">					&quot;public &quot; + classSimpleName + &quot;(&quot;</span>
+<span class="fc" id="L126">							+ MiscUtils.stringJoin(</span>
+<span class="fc" id="L127">									elements.stream()</span>
+<span class="fc" id="L128">											.map((e) -&gt; e.generateJavaConstructorParameterDeclaration(className,</span>
+<span class="fc" id="L129">													options))</span>
+<span class="fc" id="L130">											.filter(Objects::nonNull).collect(Collectors.toList()),</span>
+<span class="fc" id="L131">									&quot;, &quot;)</span>
+<span class="fc" id="L132">							+ &quot;){&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L133">			result.appendIndented(generateJavaConstructorBody(className, options));</span>
+<span class="fc" id="L134">			result.append(&quot;}\n&quot;);</span>
+<span class="fc" id="L135">			return result.toString();</span>
+		}
+
+		protected String generateJavaConstructorBody(String className, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L139">			return elements.stream().map((e) -&gt; (e.generateJavaFieldConstructorStatement(className, options)))</span>
+<span class="fc" id="L140">					.filter(Objects::nonNull).map(statement -&gt; statement + &quot;\n&quot;).collect(Collectors.joining());</span>
+		}
+
+		@Override
+		public TreeVisitor.VisitStatus visitElements(TreeVisitor&lt;Element&gt; visitor) {
+<span class="fc" id="L145">			return TreeVisitor.visitTreesFrom(elements, element -&gt; element.visit(visitor),</span>
+<span class="fc" id="L146">					TreeVisitor.VisitStatus.VISIT_NOT_INTERRUPTED);</span>
+		}
+
+		@Override
+		public void validate(boolean recursively) throws ValidationError {
+<span class="fc bfc" id="L151" title="All 2 branches covered.">			if (elements.size() == 0) {</span>
+<span class="fc" id="L152">				throw new ValidationError(&quot;No declared element&quot;);</span>
+			}
+<span class="fc" id="L154">			List&lt;String&gt; elementNames = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">			for (Element element : elements) {</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">				if (elementNames.contains(element.getName())) {</span>
+<span class="nc" id="L157">					throw new ValidationError(</span>
+<span class="nc" id="L158">							&quot;Duplicate name detected among child elements: '&quot; + element.getName() + &quot;'&quot;);</span>
+				} else {
+<span class="fc" id="L160">					elementNames.add(element.getName());</span>
+				}
+			}
+<span class="fc bfc" id="L163" title="All 2 branches covered.">			if (recursively) {</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">				for (Element element : elements) {</span>
+<span class="fc" id="L165">					element.validate(recursively);</span>
+				}
+			}
+<span class="fc" id="L168">		}</span>
+
+		@Override
+		public String toString() {
+<span class="fc" id="L172">			return &quot;&lt;ClassicStructure&gt;&quot;;</span>
+		}
+
+	}
+
+	public static class DerivedClassicStructure extends ClassicStructure {
+
+		private String baseStructureTypeName;
+		private Structure baseStructure;
+
+<span class="nc" id="L182">		public DerivedClassicStructure(String baseStructureTypeName, Structure baseStructure) {</span>
+<span class="nc" id="L183">			this.baseStructureTypeName = baseStructureTypeName;</span>
+<span class="nc" id="L184">			this.baseStructure = baseStructure;</span>
+<span class="nc" id="L185">		}</span>
+
+		public Structure getBaseStructure() {
+<span class="nc" id="L188">			return baseStructure;</span>
+		}
+
+		public String getBaseStructureTypeName() {
+<span class="nc" id="L192">			return baseStructureTypeName;</span>
+		}
+
+		private List&lt;Element&gt; collectRecursivelyBaseStructureElements(Structure baseStructure) {
+<span class="nc bnc" id="L196" title="All 2 branches missed.">			if (baseStructure instanceof DerivedClassicStructure) {</span>
+<span class="nc" id="L197">				DerivedClassicStructure derivedStructure = (DerivedClassicStructure) baseStructure;</span>
+<span class="nc" id="L198">				List&lt;Element&gt; result = new ArrayList&lt;Structure.Element&gt;();</span>
+<span class="nc" id="L199">				result.addAll(collectRecursivelyBaseStructureElements(derivedStructure.getBaseStructure()));</span>
+<span class="nc" id="L200">				result.addAll(derivedStructure.getElements());</span>
+<span class="nc" id="L201">				return result;</span>
+			}
+<span class="nc bnc" id="L203" title="All 2 branches missed.">			if (baseStructure instanceof ClassicStructure) {</span>
+<span class="nc" id="L204">				ClassicStructure baseClassicStructure = (ClassicStructure) baseStructure;</span>
+<span class="nc" id="L205">				return baseClassicStructure.getElements();</span>
+			}
+<span class="nc bnc" id="L207" title="All 2 branches missed.">			if (baseStructure instanceof SharedStructureReference) {</span>
+<span class="nc" id="L208">				return collectRecursivelyBaseStructureElements(((SharedStructureReference) baseStructure).resolve());</span>
+			}
+<span class="nc" id="L210">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		protected String generateJavaConstructorSourceCode(String className, Map&lt;Object, Object&gt; options) {
+<span class="nc" id="L215">			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);</span>
+<span class="nc" id="L216">			String result = super.generateJavaConstructorSourceCode(className, options);</span>
+<span class="nc" id="L217">			List&lt;Element&gt; baseStructureElements = collectRecursivelyBaseStructureElements(baseStructure);</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">			if (baseStructureElements.size() &gt; 0) {</span>
+<span class="nc" id="L219">				result = result.replace(classSimpleName + &quot;(&quot;,</span>
+<span class="nc" id="L220">						classSimpleName + &quot;(&quot;</span>
+<span class="nc" id="L221">								+ baseStructureElements.stream()</span>
+<span class="nc" id="L222">										.map(element -&gt; element.generateJavaConstructorParameterDeclaration(</span>
+<span class="nc" id="L223">												baseStructureTypeName, options))</span>
+<span class="nc" id="L224">										.collect(Collectors.joining(&quot;, &quot;))</span>
+<span class="nc" id="L225">								+ &quot;, &quot;);</span>
+			}
+<span class="nc" id="L227">			return result;</span>
+		}
+
+		@Override
+		protected String generateJavaConstructorBody(String className, Map&lt;Object, Object&gt; options) {
+<span class="nc" id="L232">			String result = super.generateJavaConstructorBody(className, options);</span>
+<span class="nc" id="L233">			List&lt;Element&gt; baseStructureElements = collectRecursivelyBaseStructureElements(baseStructure);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">			if (baseStructureElements.size() &gt; 0) {</span>
+<span class="nc" id="L235">				result = &quot;super(&quot;</span>
+<span class="nc" id="L236">						+ baseStructureElements.stream().map(Element::getName).collect(Collectors.joining(&quot;, &quot;))</span>
+<span class="nc" id="L237">						+ &quot;);\n&quot; + result;</span>
+			}
+<span class="nc" id="L239">			return result;</span>
+		}
+
+		@Override
+		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
+				String additionalyExtended, String afterPackageDeclaration, String afterFieldDeclarations,
+				String afterMethodDeclarations, Map&lt;Object, Object&gt; options) {
+<span class="nc" id="L246">			String classSimpleName = MiscUtils.extractSimpleNameFromClassName(className);</span>
+<span class="nc" id="L247">			return super.generateJavaTypeSourceCode(className, additionalyImplemented, additionalyExtended,</span>
+<span class="nc" id="L248">					afterPackageDeclaration, afterFieldDeclarations, afterMethodDeclarations, options).replace(</span>
+<span class="nc" id="L249">							&quot;class &quot; + classSimpleName,</span>
+<span class="nc" id="L250">							&quot;class &quot; + classSimpleName + &quot; extends &quot; + baseStructureTypeName);</span>
+		}
+
+	}
+
+<span class="fc" id="L255">	public static class EnumerationStructure extends Structure {</span>
+<span class="fc" id="L256">		private List&lt;EnumerationItem&gt; items = new ArrayList&lt;EnumerationItem&gt;();</span>
+
+		public List&lt;EnumerationItem&gt; getItems() {
+<span class="fc" id="L259">			return items;</span>
+		}
+
+		public void setItems(List&lt;EnumerationItem&gt; items) {
+<span class="fc" id="L263">			this.items = items;</span>
+<span class="fc" id="L264">		}</span>
+
+		@Override
+		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
+				String additionalyExtended, String afterPackageDeclaration, String afterFieldDeclarations,
+				String additionalMethodDeclarations, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L270">			CodeBuilder result = new CodeBuilder();</span>
+<span class="fc bfc" id="L271" title="All 2 branches covered.">			if (MiscUtils.isPackageNameInClassName(className)) {</span>
+<span class="fc" id="L272">				result.append(&quot;package &quot; + MiscUtils.extractPackageNameFromClassName(className) + &quot;;&quot; + &quot;\n&quot;);</span>
+			}
+<span class="fc" id="L274">			result.append(&quot;public enum &quot; + MiscUtils.extractSimpleNameFromClassName(className)</span>
+<span class="pc bpc" id="L275" title="1 of 2 branches missed.">					+ ((additionalyExtended != null) ? (&quot; extends &quot; + additionalyExtended) : &quot;&quot;)</span>
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">					+ ((additionalyImplemented != null) ? (&quot; implements &quot; + additionalyImplemented) : &quot;&quot;) + &quot;{&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L277">			result.appendIndented(</span>
+<span class="fc" id="L278">					MiscUtils.stringJoin(items.stream().map((e) -&gt; e.getName()).collect(Collectors.toList()), &quot;, &quot;)</span>
+<span class="fc" id="L279">							+ &quot;;&quot; + &quot;\n&quot;);</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">			if (additionalMethodDeclarations != null) {</span>
+<span class="nc" id="L281">				result.appendIndented(additionalMethodDeclarations + &quot;\n&quot;);</span>
+			}
+<span class="fc" id="L283">			result.append(&quot;}&quot;);</span>
+<span class="fc" id="L284">			return result.toString();</span>
+		}
+
+		@Override
+		public VisitStatus visitElements(TreeVisitor&lt;Element&gt; visitor) {
+<span class="fc" id="L289">			return VisitStatus.VISIT_NOT_INTERRUPTED;</span>
+		}
+
+		@Override
+		public void validate(boolean recursively) throws ValidationError {
+<span class="fc bfc" id="L294" title="All 2 branches covered.">			if (items.size() == 0) {</span>
+<span class="fc" id="L295">				throw new ValidationError(&quot;No declared item&quot;);</span>
+			}
+<span class="fc" id="L297">			List&lt;String&gt; itemNames = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L298" title="All 2 branches covered.">			for (EnumerationItem item : items) {</span>
+<span class="pc bpc" id="L299" title="1 of 2 branches missed.">				if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(item.getName()).matches()) {</span>
+<span class="nc" id="L300">					throw new ValidationError(&quot;Invalid element name: '&quot; + item.getName()</span>
+<span class="nc" id="L301">							+ &quot;' (should match the following regular expression: &quot;</span>
+<span class="nc" id="L302">							+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + &quot;)&quot;);</span>
+				}
+<span class="pc bpc" id="L304" title="1 of 2 branches missed.">				if (itemNames.contains(item.getName())) {</span>
+<span class="nc" id="L305">					throw new ValidationError(&quot;Duplicate name detected among child items: '&quot; + item.getName() + &quot;'&quot;);</span>
+				} else {
+<span class="fc" id="L307">					itemNames.add(item.getName());</span>
+				}
+			}
+<span class="fc" id="L310">		}</span>
+
+		@Override
+		public String toString() {
+<span class="fc" id="L314">			return &quot;&lt;EnumerationStructure&gt;&quot;;</span>
+		}
+
+	}
+
+<span class="nc" id="L319">	public static class SharedStructureReference extends Structure {</span>
+
+<span class="nc" id="L321">		private Reference&lt;SharedStructureModel&gt; modelReference = new Reference&lt;SharedStructureModel&gt;(</span>
+<span class="nc" id="L322">				SharedStructureModel.class, model -&gt; {</span>
+<span class="nc" id="L323">					Reference&lt;SharedStructureModel&gt; newModelReference = Reference.get(model);</span>
+					try {
+<span class="nc" id="L325">						checkNoReferenceCycleAndResolve(newModelReference, false);</span>
+<span class="nc" id="L326">						return true;</span>
+<span class="nc" id="L327">					} catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L328">						return false;</span>
+					}
+<span class="nc" id="L330">				}, newPath -&gt;</span>
+
+				{
+<span class="nc bnc" id="L333" title="All 2 branches missed.">					if (newPath != null) {</span>
+<span class="nc" id="L334">						Reference&lt;SharedStructureModel&gt; newModelReference = new Reference&lt;SharedStructureModel&gt;(</span>
+<span class="nc" id="L335">								SharedStructureModel.class);</span>
+<span class="nc" id="L336">						newModelReference.setPath(newPath);</span>
+<span class="nc" id="L337">						checkNoReferenceCycleAndResolve(newModelReference, true);</span>
+					}
+<span class="nc" id="L339">				});</span>
+
+		public Reference&lt;SharedStructureModel&gt; getModelReference() {
+<span class="nc" id="L342">			return modelReference;</span>
+		}
+
+		public void setModelReference(Reference&lt;SharedStructureModel&gt; modelReference) {
+<span class="nc" id="L346">			this.modelReference = modelReference;</span>
+<span class="nc" id="L347">		}</span>
+
+		public Structure resolve() {
+<span class="nc" id="L350">			return checkNoReferenceCycleAndResolve(modelReference, true);</span>
+		}
+
+		private Structure checkNoReferenceCycleAndResolve(Reference&lt;SharedStructureModel&gt; modelReference,
+				boolean recursiveCheck) {
+<span class="nc bnc" id="L355" title="All 2 branches missed.">			if (modelReference != null) {</span>
+<span class="nc" id="L356">				SharedStructureModel model = modelReference.resolve();</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">				if (model != null) {</span>
+<span class="nc" id="L358">					Structure modelStructure = model.getStructure();</span>
+<span class="nc bnc" id="L359" title="All 2 branches missed.">					if (modelStructure instanceof SharedStructureReference) {</span>
+<span class="nc bnc" id="L360" title="All 2 branches missed.">						if (modelStructure == SharedStructureReference.this) {</span>
+<span class="nc" id="L361">							throw new IllegalArgumentException(&quot;Shared structure reference cycle detected&quot;);</span>
+						}
+<span class="nc bnc" id="L363" title="All 2 branches missed.">						if (recursiveCheck) {</span>
+<span class="nc" id="L364">							return checkNoReferenceCycleAndResolve(</span>
+<span class="nc" id="L365">									((SharedStructureReference) modelStructure).getModelReference(), recursiveCheck);</span>
+						}
+					}
+<span class="nc bnc" id="L368" title="All 2 branches missed.">					if (modelStructure instanceof ClassicStructure) {</span>
+<span class="nc" id="L369">						checkNoReferenceCycle((ClassicStructure) modelStructure, recursiveCheck);</span>
+					}
+<span class="nc" id="L371">					return modelStructure;</span>
+				}
+			}
+<span class="nc" id="L374">			return null;</span>
+		}
+
+		private void checkNoReferenceCycle(ClassicStructure classicStructure, boolean recursiveCheck) {
+<span class="nc bnc" id="L378" title="All 2 branches missed.">			for (Element element : classicStructure.getElements()) {</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">				if (element instanceof StructuredElement) {</span>
+<span class="nc" id="L380">					Structure subStructure = ((StructuredElement) element).getStructure();</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">					if (subStructure instanceof SharedStructureReference) {</span>
+<span class="nc bnc" id="L382" title="All 2 branches missed.">						if (subStructure == SharedStructureReference.this) {</span>
+<span class="nc" id="L383">							throw new IllegalArgumentException(&quot;Shared structure reference cycle detected&quot;);</span>
+						}
+<span class="nc bnc" id="L385" title="All 2 branches missed.">						if (recursiveCheck) {</span>
+<span class="nc" id="L386">							checkNoReferenceCycleAndResolve(</span>
+<span class="nc" id="L387">									((SharedStructureReference) subStructure).getModelReference(), recursiveCheck);</span>
+						}
+					}
+<span class="nc bnc" id="L390" title="All 2 branches missed.">					if (subStructure instanceof ClassicStructure) {</span>
+<span class="nc" id="L391">						checkNoReferenceCycle((ClassicStructure) subStructure, recursiveCheck);</span>
+					}
+				}
+			}
+<span class="nc" id="L395">		}</span>
+
+		public Class&lt;?&gt; getStructuredClass() {
+<span class="nc bnc" id="L398" title="All 2 branches missed.">			if (modelReference == null) {</span>
+<span class="nc" id="L399">				return null;</span>
+			}
+<span class="nc" id="L401">			SharedStructureModel model = modelReference.resolve();</span>
+<span class="nc bnc" id="L402" title="All 2 branches missed.">			if (model == null) {</span>
+<span class="nc" id="L403">				return null;</span>
+			}
+<span class="nc" id="L405">			return model.getStructuredClass();</span>
+		}
+
+		@Override
+		public String generateJavaTypeSourceCode(String className, String additionalyImplemented,
+				String additionalyExtended, String afterPackageDeclaration, String afterFieldDeclarations,
+				String additionalMethodDeclarations, Map&lt;Object, Object&gt; options) {
+<span class="nc" id="L412">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public VisitStatus visitElements(TreeVisitor&lt;Element&gt; visitor) {
+<span class="nc" id="L417">			Structure resolvedStructure = resolve();</span>
+<span class="nc bnc" id="L418" title="All 2 branches missed.">			if (resolvedStructure == null) {</span>
+<span class="nc" id="L419">				return VisitStatus.VISIT_NOT_INTERRUPTED;</span>
+			}
+<span class="nc" id="L421">			return resolvedStructure.visitElements(visitor);</span>
+		}
+
+		@Override
+		public void validate(boolean recursively) throws ValidationError {
+<span class="nc bnc" id="L426" title="All 2 branches missed.">			if (modelReference == null) {</span>
+<span class="nc" id="L427">				throw new ValidationError(&quot;Shared structure model reference not set&quot;);</span>
+			}
+<span class="nc" id="L429">			SharedStructureModel model = modelReference.resolve();</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">			if (model == null) {</span>
+<span class="nc" id="L431">				throw new ValidationError(&quot;Failed to resolve the shared structure model reference&quot;);</span>
+			}
+<span class="nc" id="L433">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L437">			return &quot;&lt;SharedStructureReference&gt;&quot;;</span>
+		}
+	}
+
+<span class="fc" id="L441">	public static class EnumerationItem {</span>
+<span class="fc" id="L442">		private String name = &quot;ITEM&quot;;</span>
+
+		public String getName() {
+<span class="fc" id="L445">			return name;</span>
+		}
+
+		public void setName(String name) {
+<span class="fc" id="L449">			this.name = name;</span>
+<span class="fc" id="L450">		}</span>
+
+		@Override
+		public String toString() {
+<span class="fc" id="L454">			return name;</span>
+		}
+	}
+
+<span class="fc" id="L458">	public static abstract class Element {</span>
+<span class="fc" id="L459">		private String name = &quot;element&quot;;</span>
+		private Optionality optionality;
+<span class="fc" id="L461">		private boolean multiple = false;</span>
+
+		protected abstract String getTypeName(String parentClassName);
+
+		protected abstract String generateRequiredInnerJavaTypesSourceCode(String parentClassName,
+				Map&lt;Object, Object&gt; options);
+
+		protected abstract TreeVisitor.VisitStatus visit(TreeVisitor&lt;Element&gt; visitor);
+
+		public String getName() {
+<span class="fc" id="L471">			return name;</span>
+		}
+
+		public void setName(String name) {
+<span class="fc" id="L475">			this.name = name;</span>
+<span class="fc" id="L476">		}</span>
+
+		public Optionality getOptionality() {
+<span class="fc" id="L479">			return optionality;</span>
+		}
+
+		public void setOptionality(Optionality optionality) {
+<span class="fc" id="L483">			this.optionality = optionality;</span>
+<span class="fc" id="L484">		}</span>
+
+		public boolean isMultiple() {
+<span class="fc" id="L487">			return multiple;</span>
+		}
+
+		public void setMultiple(boolean multiple) {
+<span class="fc" id="L491">			this.multiple = multiple;</span>
+<span class="fc" id="L492">		}</span>
+
+		protected String getFinalTypeNameAdaptedToSourceCode(String parentClassName) {
+<span class="fc bfc" id="L495" title="All 2 branches covered.">			if (multiple) {</span>
+<span class="fc" id="L496">				return MiscUtils.adaptClassNameToSourceCode(getTypeName(parentClassName)) + &quot;[]&quot;;</span>
+			} else {
+<span class="fc" id="L498">				return MiscUtils.adaptClassNameToSourceCode(getTypeName(parentClassName));</span>
+			}
+		}
+
+		protected String generateJavaFieldDeclaration(String parentClassName, Map&lt;Object, Object&gt; options) {
+<span class="fc bfc" id="L503" title="All 2 branches covered.">			String result = ElementAccessMode.ACCESSORS.isSet(options) ? &quot;private &quot; : &quot;public &quot;;</span>
+<span class="fc bfc" id="L504" title="All 2 branches covered.">			if (getOptionality() == null) {</span>
+<span class="fc" id="L505">				result += &quot;final &quot;;</span>
+			}
+<span class="fc" id="L507">			result += getFinalTypeNameAdaptedToSourceCode(parentClassName) + &quot; &quot; + getName();</span>
+<span class="fc bfc" id="L508" title="All 4 branches covered.">			if ((getOptionality() != null) &amp;&amp; (getOptionality().getDefaultValueExpression() != null)) {</span>
+<span class="fc" id="L509">				result += &quot;=&quot; + getOptionality().getDefaultValueExpression();</span>
+			}
+<span class="fc" id="L511">			result += &quot;;\n&quot;;</span>
+<span class="fc" id="L512">			return result;</span>
+		}
+
+		protected String generateJavaMethodDeclarations(String parentClassName, Map&lt;Object, Object&gt; options) {
+<span class="fc bfc" id="L516" title="All 2 branches covered.">			if (ElementAccessMode.ACCESSORS.isSet(options)) {</span>
+<span class="fc" id="L517">				CodeBuilder result = new CodeBuilder();</span>
+<span class="fc" id="L518">				String finalTypeName = getFinalTypeNameAdaptedToSourceCode(parentClassName);</span>
+<span class="fc" id="L519">				result.append(&quot;public &quot; + finalTypeName + &quot; get&quot; + name.substring(0, 1).toUpperCase()</span>
+<span class="fc" id="L520">						+ name.substring(1) + &quot;() {\n&quot;);</span>
+<span class="fc" id="L521">				result.appendIndented(&quot;return &quot; + name + &quot;;\n&quot;);</span>
+<span class="fc" id="L522">				result.append(&quot;}\n&quot;);</span>
+<span class="fc bfc" id="L523" title="All 2 branches covered.">				if (getOptionality() != null) {</span>
+<span class="fc" id="L524">					result.append(&quot;\n&quot;);</span>
+<span class="fc" id="L525">					result.append(&quot;public void set&quot; + name.substring(0, 1).toUpperCase() + name.substring(1) + &quot;(&quot;</span>
+<span class="fc" id="L526">							+ finalTypeName + &quot; &quot; + name + &quot;) {\n&quot;);</span>
+<span class="fc" id="L527">					result.appendIndented(&quot;this.&quot; + name + &quot; = &quot; + name + &quot;;\n&quot;);</span>
+<span class="fc" id="L528">					result.append(&quot;}\n&quot;);</span>
+				}
+<span class="fc" id="L530">				return result.toString();</span>
+			} else {
+<span class="fc" id="L532">				return null;</span>
+			}
+		}
+
+		protected String generateJavaConstructorParameterDeclaration(String parentClassName,
+				Map&lt;Object, Object&gt; options) {
+<span class="fc bfc" id="L538" title="All 2 branches covered.">			if (getOptionality() != null) {</span>
+<span class="fc" id="L539">				return null;</span>
+			}
+<span class="fc" id="L541">			return getFinalTypeNameAdaptedToSourceCode(parentClassName) + &quot; &quot; + getName();</span>
+		}
+
+		protected String generateJavaFieldConstructorStatement(String parentClassName, Map&lt;Object, Object&gt; options) {
+<span class="fc bfc" id="L545" title="All 2 branches covered.">			if (getOptionality() != null) {</span>
+<span class="fc" id="L546">				return null;</span>
+			}
+<span class="fc" id="L548">			return &quot;this.&quot; + getName() + &quot;=&quot; + getName() + &quot;;&quot;;</span>
+		}
+
+		public void validate(boolean recursively) throws ValidationError {
+<span class="pc bpc" id="L552" title="1 of 2 branches missed.">			if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(name).matches()) {</span>
+<span class="nc" id="L553">				throw new ValidationError(</span>
+<span class="nc" id="L554">						&quot;Invalid element name: '&quot; + name + &quot;' (should match the following regular expression: &quot;</span>
+<span class="nc" id="L555">								+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + &quot;)&quot;);</span>
+			}
+<span class="fc bfc" id="L557" title="All 2 branches covered.">			if (optionality != null) {</span>
+<span class="fc bfc" id="L558" title="All 2 branches covered.">				if (optionality.getDefaultValueExpression() != null) {</span>
+					try {
+<span class="fc" id="L560">						new Expression&lt;Object&gt;(optionality.getDefaultValueExpression(), Object.class)</span>
+<span class="fc" id="L561">								.compile(Collections.emptyList());</span>
+<span class="pc" id="L562">					} catch (CompilationError e) {</span>
+<span class="nc" id="L563">						throw new ValidationError(&quot;Invalid default value expression detected&quot;, e);</span>
+					}
+				}
+			}
+<span class="fc" id="L567">		}</span>
+
+		@Override
+		public String toString() {
+<span class="fc" id="L571">			String result = name;</span>
+<span class="fc bfc" id="L572" title="All 2 branches covered.">			if (optionality == null) {</span>
+<span class="fc" id="L573">				result = &quot;(&quot; + result + &quot;)&quot;;</span>
+			}
+<span class="pc bpc" id="L575" title="1 of 2 branches missed.">			if (multiple) {</span>
+<span class="nc" id="L576">				result = result + &quot;*&quot;;</span>
+			}
+<span class="fc bfc" id="L578" title="All 2 branches covered.">			if (optionality != null) {</span>
+<span class="fc" id="L579">				result = result + &quot;?&quot;;</span>
+			}
+<span class="fc" id="L581">			return result;</span>
+		}
+
+	}
+
+	public static class ElementProxy extends Element {
+		private Element base;
+
+<span class="fc" id="L589">		public ElementProxy(Element base) {</span>
+<span class="fc" id="L590">			this.base = base;</span>
+<span class="fc" id="L591">		}</span>
+
+		public String getName() {
+<span class="fc" id="L594">			return base.getName();</span>
+		}
+
+		public void setName(String name) {
+<span class="nc" id="L598">			base.setName(name);</span>
+<span class="nc" id="L599">		}</span>
+
+		public Optionality getOptionality() {
+<span class="fc" id="L602">			return base.getOptionality();</span>
+		}
+
+		public void setOptionality(Optionality optionality) {
+<span class="nc" id="L606">			base.setOptionality(optionality);</span>
+<span class="nc" id="L607">		}</span>
+
+		public boolean isMultiple() {
+<span class="nc" id="L610">			return base.isMultiple();</span>
+		}
+
+		public void setMultiple(boolean multiple) {
+<span class="nc" id="L614">			base.setMultiple(multiple);</span>
+<span class="nc" id="L615">		}</span>
+
+		@Override
+		protected String getTypeName(String parentClassName) {
+<span class="nc" id="L619">			return base.getTypeName(parentClassName);</span>
+		}
+
+		@Override
+		protected String getFinalTypeNameAdaptedToSourceCode(String parentClassName) {
+<span class="fc" id="L624">			return base.getFinalTypeNameAdaptedToSourceCode(parentClassName);</span>
+		}
+
+		@Override
+		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L629">			return base.generateRequiredInnerJavaTypesSourceCode(parentClassName, options);</span>
+		}
+
+		@Override
+		protected String generateJavaFieldDeclaration(String parentClassName, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L634">			return base.generateJavaFieldDeclaration(parentClassName, options);</span>
+		}
+
+		@Override
+		protected String generateJavaMethodDeclarations(String parentClassName, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L639">			return base.generateJavaMethodDeclarations(parentClassName, options);</span>
+		}
+
+		@Override
+		protected String generateJavaConstructorParameterDeclaration(String parentClassName,
+				Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L645">			return base.generateJavaConstructorParameterDeclaration(parentClassName, options);</span>
+		}
+
+		@Override
+		protected String generateJavaFieldConstructorStatement(String parentClassName, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L650">			return base.generateJavaFieldConstructorStatement(parentClassName, options);</span>
+		}
+
+		@Override
+		protected VisitStatus visit(TreeVisitor&lt;Element&gt; visitor) {
+<span class="nc" id="L655">			return base.visit(visitor);</span>
+		}
+
+		public void validate(boolean recursively) throws ValidationError {
+<span class="nc" id="L659">			base.validate(recursively);</span>
+<span class="nc" id="L660">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L664">			return &quot;ElementProxy [base=&quot; + base + &quot;]&quot;;</span>
+		}
+
+	}
+
+<span class="fc" id="L669">	public static class SimpleElement extends Element {</span>
+
+<span class="fc" id="L671">		public static final Map&lt;String, String&gt; TYPE_NAME_BY_ALIAS = Collections</span>
+<span class="fc" id="L672">				.unmodifiableMap(new HashMap&lt;String, String&gt;() {</span>
+					private static final long serialVersionUID = 1L;
+					{
+<span class="fc" id="L675">						put(&quot;&lt;binary&gt;&quot;, byte[].class.getName());</span>
+					}
+<span class="fc" id="L677">				});</span>
+
+<span class="fc" id="L679">		private String typeNameOrAlias = getTypeNameOrAliasOptions().get(0);</span>
+
+		public String getTypeNameOrAlias() {
+<span class="fc" id="L682">			return typeNameOrAlias;</span>
+		}
+
+		public void setTypeNameOrAlias(String typeNameOrAlias) {
+<span class="fc" id="L686">			this.typeNameOrAlias = typeNameOrAlias;</span>
+<span class="fc" id="L687">		}</span>
+
+		@Override
+		public String getTypeName(String parentClassName) {
+<span class="fc" id="L691">			return TYPE_NAME_BY_ALIAS.getOrDefault(typeNameOrAlias, typeNameOrAlias);</span>
+		}
+
+		public List&lt;String&gt; getTypeNameOrAliasOptions() {
+<span class="fc" id="L695">			List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L696">			result.add(String.class.getName());</span>
+<span class="fc" id="L697">			result.addAll(Arrays.asList(ClassUtils.PRIMITIVE_CLASSES).stream().map(cls -&gt; cls.getName())</span>
+<span class="fc" id="L698">					.collect(Collectors.toList()));</span>
+<span class="fc" id="L699">			result.addAll(Arrays.asList(ClassUtils.PRIMITIVE_WRAPPER_CLASSES).stream().map(cls -&gt; cls.getName())</span>
+<span class="fc" id="L700">					.collect(Collectors.toList()));</span>
+<span class="fc" id="L701">			result.add(Date.class.getName());</span>
+<span class="fc" id="L702">			result.add(DateTime.class.getName());</span>
+<span class="fc" id="L703">			result.addAll(TYPE_NAME_BY_ALIAS.keySet());</span>
+<span class="fc" id="L704">			return result;</span>
+		}
+
+		@Override
+		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L709">			return null;</span>
+		}
+
+		@Override
+		protected VisitStatus visit(TreeVisitor&lt;Element&gt; visitor) {
+<span class="fc" id="L714">			return visitor.visitNode(this);</span>
+		}
+
+		@Override
+		public void validate(boolean recursively) throws ValidationError {
+<span class="fc" id="L719">			super.validate(recursively);</span>
+<span class="pc bpc" id="L720" title="2 of 4 branches missed.">			if ((typeNameOrAlias == null) || typeNameOrAlias.isEmpty()) {</span>
+<span class="nc" id="L721">				throw new ValidationError(&quot;Type name not provided&quot;);</span>
+			}
+			try {
+<span class="fc" id="L724">				MiscUtils.getJESBClass(TYPE_NAME_BY_ALIAS.getOrDefault(typeNameOrAlias, typeNameOrAlias));</span>
+<span class="pc" id="L725">			} catch (Exception e) {</span>
+<span class="nc" id="L726">				throw new ValidationError(&quot;Failed to validate the type name: '&quot; + typeNameOrAlias + &quot;'&quot;, e);</span>
+			}
+<span class="fc" id="L728">		}</span>
+
+	}
+
+<span class="fc" id="L732">	public static class StructuredElement extends Element {</span>
+
+<span class="fc" id="L734">		private Structure structure = new ClassicStructure();</span>
+
+		public Structure getStructure() {
+<span class="fc" id="L737">			return structure;</span>
+		}
+
+		public void setStructure(Structure structure) {
+<span class="fc" id="L741">			this.structure = structure;</span>
+<span class="fc" id="L742">		}</span>
+
+		@Override
+		protected String generateRequiredInnerJavaTypesSourceCode(String parentClassName, Map&lt;Object, Object&gt; options) {
+<span class="pc bpc" id="L746" title="1 of 2 branches missed.">			if (structure instanceof SharedStructureReference) {</span>
+<span class="nc" id="L747">				return &quot;&quot;;</span>
+			}
+<span class="fc" id="L749">			String className = getStructuredClassName(parentClassName);</span>
+<span class="fc" id="L750">			return &quot;static &quot; + structure.generateJavaTypeSourceCode(className, null, null, null, null, null, options);</span>
+		}
+
+		@Override
+		protected String getTypeName(String parentClassName) {
+<span class="fc" id="L755">			return getStructuredClassName(parentClassName);</span>
+		}
+
+		protected String getStructuredClassName(String parentClassName) {
+<span class="pc bpc" id="L759" title="1 of 2 branches missed.">			if (structure instanceof SharedStructureReference) {</span>
+<span class="nc" id="L760">				Class&lt;?&gt; structuredClass = ((SharedStructureReference) structure).getStructuredClass();</span>
+<span class="nc" id="L761">				return structuredClass.getName();</span>
+			}
+<span class="fc bfc" id="L763" title="All 2 branches covered.">			boolean parentClassInner = !MiscUtils.isPackageNameInClassName(parentClassName);</span>
+			/*
+			 * The Java language requires nested classes to have a name different from that
+			 * of all enclosing classes, regardless of the depth of the nesting. This code
+			 * detects nesting and adds a prefix to comply with this constraint.
+			 */
+<span class="fc bfc" id="L769" title="All 2 branches covered.">			String prefix = (parentClassInner ? parentClassName : &quot;&quot;);</span>
+<span class="fc" id="L770">			return prefix + getName().substring(0, 1).toUpperCase() + getName().substring(1) + &quot;Structure&quot;;</span>
+		}
+
+		public List&lt;Element&gt; getSubElements() {
+<span class="pc bpc" id="L774" title="1 of 2 branches missed.">			if (!(structure instanceof ClassicStructure)) {</span>
+<span class="nc" id="L775">				return null;</span>
+			}
+<span class="fc" id="L777">			return ((ClassicStructure) structure).getElements();</span>
+		}
+
+		public void setSubElements(List&lt;Element&gt; elements) {
+<span class="pc bpc" id="L781" title="1 of 2 branches missed.">			if (!(structure instanceof ClassicStructure)) {</span>
+<span class="nc" id="L782">				return;</span>
+			}
+<span class="fc" id="L784">			((ClassicStructure) structure).setElements(elements);</span>
+<span class="fc" id="L785">		}</span>
+
+		@Override
+		protected VisitStatus visit(TreeVisitor&lt;Element&gt; visitor) {
+<span class="nc" id="L789">			VisitStatus result = visitor.visitNode(this);</span>
+<span class="nc bnc" id="L790" title="All 2 branches missed.">			if (structure != null) {</span>
+<span class="nc" id="L791">				result = TreeVisitor.combine(result, structure.visitElements(visitor));</span>
+			}
+<span class="nc" id="L793">			return result;</span>
+		}
+
+		@Override
+		public void validate(boolean recursively) throws ValidationError {
+<span class="fc" id="L798">			super.validate(recursively);</span>
+<span class="pc bpc" id="L799" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="pc bpc" id="L800" title="1 of 2 branches missed.">				if (structure != null) {</span>
+<span class="fc" id="L801">					structure.validate(recursively);</span>
+				}
+			}
+<span class="fc" id="L804">		}</span>
+	}
+
+<span class="fc" id="L807">	public static class Optionality {</span>
+		private String defaultValueExpression;
+
+		public String getDefaultValueExpression() {
+<span class="fc" id="L811">			return defaultValueExpression;</span>
+		}
+
+		public void setDefaultValueExpression(String defaultValueExpression) {
+<span class="fc" id="L815">			this.defaultValueExpression = defaultValueExpression;</span>
+<span class="fc" id="L816">		}</span>
+	}
+
+	private interface CodeGenerationOption {
+
+		public static boolean isSet(CodeGenerationOption option, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L822">			return option.equals(options.get(option.getClass()));</span>
+		}
+
+		public static void set(CodeGenerationOption option, Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L826">			options.put(option.getClass(), option);</span>
+<span class="fc" id="L827">		}</span>
+
+		public static Map&lt;Object, Object&gt; singletonOptions(CodeGenerationOption option) {
+<span class="fc" id="L830">			return Collections.singletonMap(option.getClass(), option);</span>
+		}
+	}
+
+<span class="fc" id="L834">	public enum ElementAccessMode implements CodeGenerationOption {</span>
+<span class="fc" id="L835">		PUBLIC_FIELD, ACCESSORS;</span>
+
+		public boolean isSet(Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L838">			return CodeGenerationOption.isSet(this, options);</span>
+		}
+
+		public void set(Map&lt;Object, Object&gt; options) {
+<span class="fc" id="L842">			CodeGenerationOption.set(this, options);</span>
+<span class="fc" id="L843">		}</span>
+
+		public Map&lt;Object, Object&gt; singletonOptions() {
+<span class="fc" id="L846">			return CodeGenerationOption.singletonOptions(this);</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

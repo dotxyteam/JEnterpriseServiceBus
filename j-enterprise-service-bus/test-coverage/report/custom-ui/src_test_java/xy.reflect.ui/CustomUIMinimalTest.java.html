@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CustomUIMinimalTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">custom-ui</a> &gt; <a href="../index.html" class="el_bundle">src/test/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui</a> &gt; <span class="el_source">CustomUIMinimalTest.java</span></div><h1>CustomUIMinimalTest.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.SwingUtilities;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import xy.reflect.ui.control.swing.builder.StandardEditorBuilder;
+import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
+
+<span class="nc" id="L17">public class CustomUIMinimalTest {</span>
+
+<span class="nc" id="L19">	private List&lt;String&gt; errors = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L20">	private CustomizedUI customizedUI = new CustomizedUI() {</span>
+		@Override
+		public void logError(String msg) {
+<span class="nc" id="L23">			errors.add(msg);</span>
+<span class="nc" id="L24">		}</span>
+	};
+<span class="nc" id="L26">	private SwingCustomizer renderer = new SwingCustomizer(customizedUI);</span>
+
+	@Before
+	public void resetLoggedErrors() {
+<span class="nc" id="L30">		errors.clear();</span>
+<span class="nc" id="L31">	}</span>
+
+	@After
+	public void checkLoggedErrors() {
+<span class="nc bnc" id="L35" title="All 2 branches missed.">		if (errors.size() &gt; 0) {</span>
+<span class="nc" id="L36">			throw new AssertionError(errors.toString());</span>
+		}
+<span class="nc" id="L38">	}</span>
+
+	@Test
+	public void test() throws Exception {
+<span class="nc" id="L42">		SwingUtilities.invokeAndWait(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L45">				Object object = new Thread();</span>
+<span class="nc" id="L46">				StandardEditorBuilder dialogBuilder = renderer.openObjectDialog(null, object,</span>
+<span class="nc" id="L47">						renderer.getObjectTitle(object), renderer.getObjectIconImage(object), true, false);</span>
+<span class="nc" id="L48">				Assert.assertTrue(dialogBuilder.getCreatedDialog().isVisible());</span>
+<span class="nc" id="L49">				dialogBuilder.getCreatedDialog().dispose();</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">				Assert.assertTrue(!dialogBuilder.getCreatedDialog().isVisible());</span>
+<span class="nc" id="L51">			}</span>
+		});
+<span class="nc" id="L53">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

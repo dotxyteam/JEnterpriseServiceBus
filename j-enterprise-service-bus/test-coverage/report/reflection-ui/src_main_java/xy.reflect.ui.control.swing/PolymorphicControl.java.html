@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>PolymorphicControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing</a> &gt; <span class="el_source">PolymorphicControl.java</span></div><h1>PolymorphicControl.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing;
+
+import java.awt.BorderLayout;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.border.Border;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.BufferedFieldControlData;
+import xy.reflect.ui.control.CustomContext;
+import xy.reflect.ui.control.ErrorHandlingFieldControlData;
+import xy.reflect.ui.control.ErrorOccurrence;
+import xy.reflect.ui.control.ErrorWithDefaultValue;
+import xy.reflect.ui.control.FieldControlDataProxy;
+import xy.reflect.ui.control.FieldControlInputProxy;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IContext;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.RejectedFieldControlInputException;
+import xy.reflect.ui.control.swing.builder.AbstractEditorFormBuilder;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.factory.PolymorphicTypeOptionsFactory;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.undo.CancelledModificationException;
+import xy.reflect.ui.undo.FieldControlDataModification;
+import xy.reflect.ui.undo.IModification;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.Mapper;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.Pair;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Field control that can display values of different types. It uses 2
+ * sub-controls: an enumeration control to display possible types, and another
+ * dynamic control to display the actual field value. Note that the constructor
+ * throws a {@link RejectedFieldControlInputException} if it detects that it is
+ * being recreated recursively inside the dynamic control.
+ * 
+ * @author olitank
+ *
+ */
+public class PolymorphicControl extends ControlPanel implements IAdvancedFieldControl {
+
+	protected static final long serialVersionUID = 1L;
+
+	protected SwingRenderer swingRenderer;
+	protected BufferedFieldControlData data;
+
+	protected ITypeInfo polymorphicType;
+	protected PolymorphicTypeOptionsFactory typeOptionsFactory;
+
+	protected AbstractEditorFormBuilder typeEnumerationControlBuilder;
+	protected AbstractEditorFormBuilder dynamicControlBuilder;
+	protected Form dynamicControl;
+	protected Form typeEnumerationControl;
+<span class="fc" id="L71">	protected Map&lt;ITypeInfo, Pair&lt;AbstractEditorFormBuilder, Form&gt;&gt; dynamicControlCache = new HashMap&lt;ITypeInfo, Pair&lt;AbstractEditorFormBuilder, Form&gt;&gt;();</span>
+
+	protected ITypeInfo dynamicControlInstanceType;
+	protected IFieldControlInput input;
+<span class="fc" id="L75">	protected Map&lt;ITypeInfo, Object&gt; subTypeInstanceCache = new HashMap&lt;ITypeInfo, Object&gt;();</span>
+	protected Throwable currentError;
+
+	public static boolean isCompatibleWith(ITypeInfo type, ReflectionUI reflectionUI) {
+<span class="fc" id="L79">		return PolymorphicTypeOptionsFactory.isRelevantFor(reflectionUI, type);</span>
+	}
+
+<span class="fc" id="L82">	public PolymorphicControl(final SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">		if (!isCompatibleWith(input.getControlData().getType(), swingRenderer.getReflectionUI())) {</span>
+<span class="nc" id="L84">			throw new RejectedFieldControlInputException();</span>
+		}
+<span class="fc" id="L86">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L87">		input = new FieldControlInputProxy(input) {</span>
+<span class="fc" id="L88">			IFieldControlData errorHandlingFieldControlData = new ErrorHandlingFieldControlData(super.getControlData(),</span>
+<span class="fc" id="L89">					swingRenderer, null) {</span>
+
+				@Override
+				protected void handleError(Throwable t) {
+<span class="fc" id="L93">					currentError = t;</span>
+<span class="fc" id="L94">				}</span>
+			};
+<span class="fc" id="L96">			BufferedFieldControlData bufferedFieldControlData = new BufferedFieldControlData(</span>
+<span class="fc" id="L97">					errorHandlingFieldControlData);</span>
+
+			@Override
+			public IFieldControlData getControlData() {
+<span class="fc" id="L101">				return bufferedFieldControlData;</span>
+			}
+		};
+<span class="fc" id="L104">		this.input = input;</span>
+<span class="fc" id="L105">		this.data = (BufferedFieldControlData) input.getControlData();</span>
+<span class="fc" id="L106">		this.polymorphicType = input.getControlData().getType();</span>
+<span class="fc" id="L107">		this.typeOptionsFactory = new PolymorphicTypeOptionsFactory(swingRenderer.getReflectionUI(), polymorphicType);</span>
+<span class="fc" id="L108">		setLayout(new BorderLayout());</span>
+<span class="fc" id="L109">		refreshUI(true);</span>
+<span class="fc" id="L110">	}</span>
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc" id="L115">			SwingRendererUtils.showFieldCaptionOnBorder(data, this, new Accessor&lt;Border&gt;() {</span>
+				@Override
+				public Border get() {
+<span class="fc" id="L118">					return new ControlPanel().getBorder();</span>
+				}
+<span class="fc" id="L120">			}, swingRenderer);</span>
+<span class="fc" id="L121">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+<span class="fc" id="L122">			subTypeInstanceCache.clear();</span>
+<span class="fc" id="L123">			dynamicControlCache.clear();</span>
+<span class="fc" id="L124">			typeOptionsFactory.resetItemCache();</span>
+		}
+<span class="fc" id="L126">		Object value = data.getValue();</span>
+<span class="fc" id="L127">		data.returningValue(value, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L130">				refreshTypeEnumerationControl(refreshStructure);</span>
+<span class="fc" id="L131">			}</span>
+		});
+<span class="fc" id="L133">		data.returningValue(value, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L136">				refreshDynamicControl(refreshStructure);</span>
+<span class="fc" id="L137">			}</span>
+		});
+<span class="fc" id="L139">		return true;</span>
+	}
+
+	protected Form createTypeEnumerationControl() {
+<span class="fc" id="L143">		Accessor&lt;ITypeInfo&gt; currentSubTypeAccessor = new Accessor&lt;ITypeInfo&gt;() {</span>
+			@Override
+			public ITypeInfo get() {
+<span class="fc" id="L146">				return getSubType(data.getValue());</span>
+			}
+		};
+<span class="fc" id="L149">		Listener&lt;Object&gt; dynamicControlUpdater = new Listener&lt;Object&gt;() {</span>
+			@Override
+			public void handle(Object instance) {
+<span class="fc" id="L152">				data.returningValue(instance, new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="fc" id="L155">						refreshDynamicControl(false);</span>
+<span class="fc" id="L156">					}</span>
+				});
+<span class="fc" id="L158">			}</span>
+		};
+<span class="fc" id="L160">		Mapper&lt;ITypeInfo, Object&gt; instantiator = new Mapper&lt;ITypeInfo, Object&gt;() {</span>
+			@Override
+			public Object get(ITypeInfo selectedSubType) {
+<span class="fc" id="L163">				return swingRenderer.onTypeInstantiationRequest(PolymorphicControl.this, selectedSubType);</span>
+			}
+		};
+<span class="fc" id="L166">		Listener&lt;Throwable&gt; commitExceptionHandler = new Listener&lt;Throwable&gt;() {</span>
+			@Override
+			public void handle(Throwable t) {
+<span class="nc" id="L169">				swingRenderer.handleException(PolymorphicControl.this, t);</span>
+<span class="nc" id="L170">				refreshTypeEnumerationControl(false);</span>
+<span class="nc" id="L171">			}</span>
+		};
+<span class="fc" id="L173">		typeEnumerationControlBuilder = new TypeEnumerationControlBuilder(swingRenderer, this, input,</span>
+<span class="fc" id="L174">				typeOptionsFactory, currentSubTypeAccessor, dynamicControlUpdater, subTypeInstanceCache, instantiator,</span>
+<span class="fc" id="L175">				commitExceptionHandler);</span>
+<span class="fc" id="L176">		return typeEnumerationControlBuilder.createEditorForm(true, false);</span>
+	}
+
+	protected ITypeInfo getSubType(Object instance) {
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">		if (instance == null) {</span>
+<span class="nc" id="L181">			return null;</span>
+		}
+<span class="fc" id="L183">		ITypeInfo result = MiscUtils.getFirstKeyFromValue(subTypeInstanceCache, instance);</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L185">			result = typeOptionsFactory.guessSubType(instance);</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L187">				result = swingRenderer.getReflectionUI()</span>
+<span class="nc" id="L188">						.getTypeInfo(swingRenderer.getReflectionUI().getTypeInfoSource(instance));</span>
+<span class="nc" id="L189">			} else {</span>
+<span class="fc" id="L190">				subTypeInstanceCache.put(result, instance);</span>
+			}
+		}
+<span class="fc" id="L193">		return result;</span>
+	}
+
+	protected void refreshTypeEnumerationControl(boolean refreshStructure) {
+<span class="fc bfc" id="L197" title="All 2 branches covered.">		if (typeEnumerationControl != null) {</span>
+<span class="fc" id="L198">			typeEnumerationControlBuilder.reloadValue(typeEnumerationControl, refreshStructure);</span>
+<span class="fc" id="L199">		} else {</span>
+<span class="fc" id="L200">			add(typeEnumerationControl = createTypeEnumerationControl(), BorderLayout.NORTH);</span>
+<span class="fc" id="L201">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+		}
+<span class="fc" id="L203">	}</span>
+
+	protected String getEnumerationValueCaption(ITypeInfo actualFieldValueType) {
+<span class="nc" id="L206">		return actualFieldValueType.getCaption();</span>
+	}
+
+	protected Form createDynamicControl(final ITypeInfo instanceType) {
+<span class="fc" id="L210">		Listener&lt;Throwable&gt; commitExceptionHandler = new Listener&lt;Throwable&gt;() {</span>
+			@Override
+			public void handle(Throwable t) {
+<span class="nc" id="L213">				throw new ReflectionUIError(t);</span>
+			}
+		};
+<span class="fc" id="L216">		ITypeInfo nonRecursivelyPolymorphicInstanceType = typeOptionsFactory.getTypeOptions().stream()</span>
+<span class="fc" id="L217">				.filter(type -&gt; type.getName().equals(instanceType.getName())).findFirst().orElse(instanceType);</span>
+<span class="fc" id="L218">		dynamicControlBuilder = new DynamicControlBuilder(swingRenderer, this, input,</span>
+<span class="fc" id="L219">				nonRecursivelyPolymorphicInstanceType, commitExceptionHandler);</span>
+<span class="fc" id="L220">		return dynamicControlBuilder.createEditorForm(true, false);</span>
+	}
+
+	protected void refreshDynamicControl(boolean refreshStructure) {
+<span class="fc" id="L224">		Object instance = data.getValue();</span>
+<span class="fc" id="L225">		ITypeInfo instanceType = getSubType(instance);</span>
+<span class="pc bpc" id="L226" title="1 of 4 branches missed.">		if ((dynamicControlInstanceType == null) &amp;&amp; (instanceType == null)) {</span>
+			// no dynamic control
+<span class="nc" id="L228">			return;</span>
+<span class="pc bpc" id="L229" title="1 of 4 branches missed.">		} else if ((dynamicControlInstanceType != null) &amp;&amp; (instanceType == null)) {</span>
+			// hide dynamic control
+<span class="nc" id="L231">			remove(dynamicControl);</span>
+<span class="nc" id="L232">			dynamicControl = null;</span>
+<span class="nc" id="L233">			dynamicControlInstanceType = null;</span>
+<span class="nc" id="L234">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+<span class="pc bpc" id="L235" title="1 of 4 branches missed.">		} else if ((instanceType != null) &amp;&amp; instanceType.equals(dynamicControlInstanceType)) {</span>
+			// refresh dynamic control
+<span class="pc bpc" id="L237" title="1 of 2 branches missed.">			if (currentError != null) {</span>
+				// display the current error (over the last valid instance value)
+<span class="nc" id="L239">				instance = new ErrorOccurrence(new ErrorWithDefaultValue(currentError, instance));</span>
+			}
+<span class="fc" id="L241">			data.returningValue(instance, new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="fc" id="L244">					dynamicControlBuilder.reloadValue(dynamicControl, refreshStructure);</span>
+<span class="fc" id="L245">				}</span>
+			});
+<span class="fc" id="L247">		} else {</span>
+			// show/replace dynamic control
+<span class="fc bfc" id="L249" title="All 2 branches covered.">			if (dynamicControlInstanceType != null) {</span>
+<span class="fc" id="L250">				remove(dynamicControl);</span>
+			}
+<span class="fc" id="L252">			Pair&lt;AbstractEditorFormBuilder, Form&gt; dynamicControlAndBuilder = dynamicControlCache.get(instanceType);</span>
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">			if (dynamicControlAndBuilder != null) {</span>
+<span class="nc" id="L254">				dynamicControlBuilder = dynamicControlAndBuilder.getFirst();</span>
+<span class="nc" id="L255">				dynamicControl = dynamicControlAndBuilder.getSecond();</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">				if (currentError != null) {</span>
+					// display the current error (over the last valid instance value)
+<span class="nc" id="L258">					instance = new ErrorOccurrence(new ErrorWithDefaultValue(currentError, instance));</span>
+				}
+<span class="nc" id="L260">				data.returningValue(instance, new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="nc" id="L263">						dynamicControlBuilder.reloadValue(dynamicControl, refreshStructure);</span>
+<span class="nc" id="L264">					}</span>
+				});
+<span class="nc" id="L266">			} else {</span>
+<span class="fc" id="L267">				data.returningValue(instance, new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="fc" id="L270">						dynamicControl = createDynamicControl(instanceType);</span>
+<span class="fc" id="L271">					}</span>
+				});
+<span class="fc" id="L273">				dynamicControlCache.put(instanceType,</span>
+<span class="fc" id="L274">						new Pair&lt;AbstractEditorFormBuilder, Form&gt;(dynamicControlBuilder, dynamicControl));</span>
+<span class="pc bpc" id="L275" title="1 of 2 branches missed.">				if (currentError != null) {</span>
+					// display the current error (over the last valid instance value)
+<span class="nc" id="L277">					data.returningValue(new ErrorOccurrence(currentError), new Runnable() {</span>
+						@Override
+						public void run() {
+<span class="nc" id="L280">							dynamicControlBuilder.reloadValue(dynamicControl, refreshStructure);</span>
+<span class="nc" id="L281">						}</span>
+					});
+				}
+			}
+<span class="fc" id="L285">			dynamicControlInstanceType = instanceType;</span>
+<span class="fc" id="L286">			add(dynamicControl, BorderLayout.CENTER);</span>
+<span class="fc" id="L287">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+		}
+<span class="fc" id="L289">	}</span>
+
+	@Override
+	public boolean showsCaption() {
+<span class="fc" id="L293">		return true;</span>
+	}
+
+	@Override
+	public boolean displayError(Throwable error) {
+<span class="nc" id="L298">		return false;</span>
+	}
+
+	@Override
+	public boolean isModificationStackManaged() {
+<span class="fc" id="L303">		return true;</span>
+	}
+
+	@Override
+	public boolean areValueAccessErrorsManaged() {
+<span class="fc" id="L308">		return true;</span>
+	}
+
+	@Override
+	public boolean requestCustomFocus() {
+<span class="fc bfc" id="L313" title="All 2 branches covered.">		if (SwingRendererUtils.requestAnyComponentFocus(typeEnumerationControl, swingRenderer)) {</span>
+<span class="fc" id="L314">			return true;</span>
+		}
+<span class="pc bpc" id="L316" title="1 of 2 branches missed.">		if (dynamicControl != null) {</span>
+<span class="pc bpc" id="L317" title="1 of 2 branches missed.">			if (SwingRendererUtils.requestAnyComponentFocus(dynamicControl, swingRenderer)) {</span>
+<span class="nc" id="L318">				return true;</span>
+			}
+		}
+<span class="fc" id="L321">		return false;</span>
+	}
+
+	@Override
+	public void validateControlData(ValidationSession session) throws Exception {
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">		if (dynamicControl != null) {</span>
+<span class="fc" id="L327">			dynamicControl.validateForm(session);</span>
+		}
+<span class="fc" id="L329">	}</span>
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">		if (dynamicControl != null) {</span>
+<span class="fc" id="L334">			dynamicControl.addMenuContributionTo(menuModel);</span>
+		}
+<span class="fc" id="L336">	}</span>
+
+	protected static class TypeEnumerationControlBuilder extends AbstractEditorFormBuilder {
+
+		protected SwingRenderer swingRenderer;
+		protected PolymorphicControl ownerComponent;
+		protected IFieldControlInput input;
+		protected IFieldControlData data;
+		protected PolymorphicTypeOptionsFactory typeOptionsFactory;
+		protected Listener&lt;Object&gt; dynamicControlUpdater;
+		protected Map&lt;ITypeInfo, Object&gt; subTypeInstanceCache;
+		protected Mapper&lt;ITypeInfo, Object&gt; instantiator;
+		protected Listener&lt;Throwable&gt; commitExceptionHandler;
+
+<span class="fc" id="L350">		public TypeEnumerationControlBuilder(SwingRenderer swingRenderer, PolymorphicControl ownerComponent,</span>
+				IFieldControlInput input, PolymorphicTypeOptionsFactory typeOptionsFactory,
+				Accessor&lt;ITypeInfo&gt; currentSubTypeAccessor, Listener&lt;Object&gt; dynamicControlUpdater,
+				Map&lt;ITypeInfo, Object&gt; subTypeInstanceCache, Mapper&lt;ITypeInfo, Object&gt; instantiator,
+				Listener&lt;Throwable&gt; commitExceptionHandler) {
+<span class="fc" id="L355">			this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L356">			this.ownerComponent = ownerComponent;</span>
+<span class="fc" id="L357">			input = new FieldControlInputProxy(input) {</span>
+<span class="fc" id="L358">				IFieldControlData fieldControlDataProxy = new FieldControlDataProxy(super.getControlData()) {</span>
+
+					@Override
+					public Object getValue() {
+<span class="fc" id="L362">						return typeOptionsFactory.getItemInstance(currentSubTypeAccessor.get());</span>
+					}
+
+					@Override
+					public void setValue(Object newValue) {
+<span class="fc" id="L367">						Object instance = optionToInstance(newValue);</span>
+						try {
+<span class="fc" id="L369">							dynamicControlUpdater.handle(instance);</span>
+<span class="pc" id="L370">						} catch (Throwable t) {</span>
+<span class="nc" id="L371">							commitExceptionHandler.handle(t);</span>
+<span class="nc" id="L372">							throw new CancelledModificationException();</span>
+						}
+<span class="fc" id="L374">						super.setValue(instance);</span>
+<span class="fc" id="L375">					}</span>
+
+					@Override
+					public Runnable getNextUpdateCustomUndoJob(Object newValue) {
+<span class="fc" id="L379">						Object instance = optionToInstance(newValue);</span>
+<span class="fc" id="L380">						return super.getNextUpdateCustomUndoJob(instance);</span>
+					}
+
+					@Override
+					public Runnable getPreviousUpdateCustomRedoJob(Object newValue) {
+<span class="nc" id="L385">						Object instance = optionToInstance(newValue);</span>
+<span class="nc" id="L386">						return super.getPreviousUpdateCustomRedoJob(instance);</span>
+					}
+
+					@Override
+					public ITypeInfo getType() {
+<span class="nc" id="L391">						return swingRenderer.getReflectionUI()</span>
+<span class="nc" id="L392">								.getTypeInfo(typeOptionsFactory.getInstanceTypeInfoSource(null));</span>
+					}
+
+				};
+
+				@Override
+				public IFieldControlData getControlData() {
+<span class="fc" id="L399">					return fieldControlDataProxy;</span>
+				}
+			};
+<span class="fc" id="L402">			this.input = input;</span>
+<span class="fc" id="L403">			this.data = input.getControlData();</span>
+<span class="fc" id="L404">			this.typeOptionsFactory = typeOptionsFactory;</span>
+<span class="fc" id="L405">			this.dynamicControlUpdater = dynamicControlUpdater;</span>
+<span class="fc" id="L406">			this.subTypeInstanceCache = subTypeInstanceCache;</span>
+<span class="fc" id="L407">			this.instantiator = instantiator;</span>
+<span class="fc" id="L408">			this.commitExceptionHandler = commitExceptionHandler;</span>
+<span class="fc" id="L409">		}</span>
+
+		protected Object optionToInstance(Object optionValue) {
+			Object instance;
+<span class="pc bpc" id="L413" title="1 of 2 branches missed.">			ITypeInfo subType = (optionValue == null) ? null</span>
+<span class="fc" id="L414">					: (ITypeInfo) typeOptionsFactory.getInstanceItem(optionValue);</span>
+<span class="pc bpc" id="L415" title="1 of 2 branches missed.">			if (subType == null) {</span>
+<span class="nc" id="L416">				instance = null;</span>
+<span class="nc" id="L417">			} else {</span>
+<span class="fc" id="L418">				instance = subTypeInstanceCache.get(subType);</span>
+<span class="pc bpc" id="L419" title="1 of 2 branches missed.">				if (instance == null) {</span>
+<span class="fc" id="L420">					instance = instantiator.get(subType);</span>
+<span class="pc bpc" id="L421" title="1 of 2 branches missed.">					if (instance == null) {</span>
+<span class="nc" id="L422">						throw new CancelledModificationException();</span>
+					}
+				}
+			}
+<span class="fc" id="L426">			return instance;</span>
+		}
+
+		@Override
+		protected IContext getContext() {
+<span class="fc" id="L431">			return input.getContext();</span>
+		}
+
+		@Override
+		protected IContext getSubContext() {
+<span class="fc" id="L436">			return null;</span>
+		}
+
+		@Override
+		protected boolean isEncapsulatedFormEmbedded() {
+<span class="fc" id="L441">			return false;</span>
+		}
+
+		@Override
+		protected boolean isEncapsulatedisControlValueValiditionEnabled() {
+<span class="fc" id="L446">			return false;</span>
+		}
+
+		@Override
+		protected boolean isNullValueDistinct() {
+<span class="fc" id="L451">			return data.isNullValueDistinct();</span>
+		}
+
+		@Override
+		protected Object loadValue() {
+<span class="fc" id="L456">			return data.getValue();</span>
+		}
+
+		@Override
+		protected ITypeInfoSource getEncapsulatedFieldDeclaredTypeSource() {
+<span class="fc" id="L461">			return typeOptionsFactory.getInstanceTypeInfoSource(null);</span>
+		}
+
+		@Override
+		protected ValueReturnMode getReturnModeFromParent() {
+<span class="fc" id="L466">			return ValueReturnMode.CALCULATED;</span>
+		}
+
+		@Override
+		protected boolean canCommitToParent() {
+<span class="fc bfc" id="L471" title="All 2 branches covered.">			return !data.isGetOnly();</span>
+		}
+
+		@Override
+		protected boolean shouldIntegrateNewObjectValue(Object value) {
+<span class="fc" id="L476">			return true;</span>
+		}
+
+		@Override
+		protected IModification createCommittingModification(Object value) {
+<span class="fc" id="L481">			return new FieldControlDataModification(data, value);</span>
+		}
+
+		@Override
+		protected IModification createUndoModificationsReplacement() {
+<span class="fc" id="L486">			return ReflectionUIUtils.createUndoModificationsReplacement(data);</span>
+		}
+
+		/**
+		 * Should never be called since the {@link FieldControlInputProxy} above catches
+		 * the exceptions.
+		 */
+		@Override
+		protected void handleRealtimeLinkCommitException(Throwable t) {
+<span class="nc" id="L495">			commitExceptionHandler.handle(new ReflectionUIError(&quot;Unexpected: &quot; + t, t));</span>
+<span class="nc" id="L496">		}</span>
+
+		@Override
+		public SwingRenderer getSwingRenderer() {
+<span class="fc" id="L500">			return swingRenderer;</span>
+		}
+
+		@Override
+		protected String getParentModificationTitle() {
+<span class="fc" id="L505">			return FieldControlDataModification.getTitle(data.getCaption());</span>
+		}
+
+		@Override
+		protected boolean isParentModificationVolatile() {
+<span class="fc" id="L510">			return data.isTransient();</span>
+		}
+
+		@Override
+		protected IInfoFilter getEncapsulatedFormFilter() {
+<span class="fc" id="L515">			return IInfoFilter.DEFAULT;</span>
+		}
+
+		@Override
+		protected ModificationStack getParentModificationStack() {
+<span class="fc" id="L520">			return input.getModificationStack();</span>
+		}
+
+	}
+
+	protected static class DynamicControlBuilder extends AbstractEditorFormBuilder {
+
+		protected SwingRenderer swingRenderer;
+		protected PolymorphicControl ownerComponent;
+		protected IFieldControlInput input;
+		protected IFieldControlData data;
+		protected ITypeInfo instanceType;
+		protected Listener&lt;Throwable&gt; commitExceptionHandler;
+
+<span class="fc" id="L534">		public DynamicControlBuilder(SwingRenderer swingRenderer, PolymorphicControl ownerComponent,</span>
+				IFieldControlInput input, ITypeInfo instanceType, Listener&lt;Throwable&gt; commitExceptionHandler) {
+<span class="fc" id="L536">			this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L537">			this.ownerComponent = ownerComponent;</span>
+<span class="fc" id="L538">			this.input = input;</span>
+<span class="fc" id="L539">			this.data = input.getControlData();</span>
+<span class="fc" id="L540">			this.instanceType = instanceType;</span>
+<span class="fc" id="L541">			this.commitExceptionHandler = commitExceptionHandler;</span>
+<span class="fc" id="L542">		}</span>
+
+		@Override
+		protected IContext getContext() {
+<span class="fc" id="L546">			return input.getContext();</span>
+		}
+
+		@Override
+		protected IContext getSubContext() {
+<span class="fc" id="L551">			return new CustomContext(&quot;PolymorphicInstance&quot;);</span>
+		}
+
+		@Override
+		protected String getCapsuleTypeName() {
+			/*
+			 * Provide a unified type name (which will be the same regardless of the actual
+			 * instance subtype) to allow easy sharing of customizations between subtypes.
+			 */
+<span class="fc bfc" id="L560" title="All 2 branches covered.">			if (instanceType == ownerComponent.polymorphicType) {</span>
+<span class="fc" id="L561">				return super.getCapsuleTypeName();</span>
+			} else {
+<span class="fc" id="L563">				return new DynamicControlBuilder(swingRenderer, ownerComponent, input, ownerComponent.polymorphicType,</span>
+<span class="fc" id="L564">						commitExceptionHandler).getCapsuleTypeName();</span>
+			}
+		}
+
+		@Override
+		protected boolean isEncapsulatedFormEmbedded() {
+<span class="fc" id="L570">			return data.isFormControlEmbedded();</span>
+		}
+
+		@Override
+		protected boolean isEncapsulatedisControlValueValiditionEnabled() {
+<span class="fc" id="L575">			return data.isControlValueValiditionEnabled();</span>
+		}
+
+		@Override
+		protected boolean isNullValueDistinct() {
+<span class="fc" id="L580">			return false;</span>
+		}
+
+		@Override
+		protected boolean canCommitToParent() {
+<span class="fc bfc" id="L585" title="All 2 branches covered.">			return !data.isGetOnly();</span>
+		}
+
+		@Override
+		protected IModification createCommittingModification(Object newObjectValue) {
+<span class="fc" id="L590">			return new FieldControlDataModification(data, newObjectValue);</span>
+		}
+
+		@Override
+		protected IModification createUndoModificationsReplacement() {
+<span class="fc" id="L595">			return ReflectionUIUtils.createUndoModificationsReplacement(data);</span>
+		}
+
+		@Override
+		protected void handleRealtimeLinkCommitException(Throwable t) {
+<span class="nc" id="L600">			commitExceptionHandler.handle(t);</span>
+<span class="nc" id="L601">		}</span>
+
+		@Override
+		public SwingRenderer getSwingRenderer() {
+<span class="fc" id="L605">			return swingRenderer;</span>
+		}
+
+		@Override
+		protected ValueReturnMode getReturnModeFromParent() {
+<span class="fc" id="L610">			return data.getValueReturnMode();</span>
+		}
+
+		@Override
+		protected String getParentModificationTitle() {
+<span class="fc" id="L615">			return FieldControlDataModification.getTitle(data.getCaption());</span>
+		}
+
+		@Override
+		protected boolean isParentModificationVolatile() {
+<span class="fc" id="L620">			return data.isTransient();</span>
+		}
+
+		@Override
+		protected IInfoFilter getEncapsulatedFormFilter() {
+<span class="fc" id="L625">			IInfoFilter result = data.getFormControlFilter();</span>
+<span class="pc bpc" id="L626" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L627">				result = IInfoFilter.DEFAULT;</span>
+			}
+<span class="fc" id="L629">			return result;</span>
+		}
+
+		@Override
+		protected ITypeInfoSource getEncapsulatedFieldDeclaredTypeSource() {
+<span class="fc" id="L634">			return instanceType.getSource();</span>
+		}
+
+		@Override
+		protected ModificationStack getParentModificationStack() {
+<span class="fc" id="L639">			return input.getModificationStack();</span>
+		}
+
+		@Override
+		protected Object loadValue() {
+<span class="fc" id="L644">			return data.getValue();</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

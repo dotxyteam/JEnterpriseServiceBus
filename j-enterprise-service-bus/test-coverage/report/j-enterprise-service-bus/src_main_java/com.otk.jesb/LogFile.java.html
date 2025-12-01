@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>LogFile.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">LogFile.java</span></div><h1>LogFile.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+import java.io.File;
+import java.io.PrintStream;
+import java.util.function.Supplier;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.message.Message;
+
+import com.otk.jesb.util.MiscUtils;
+
+import org.apache.logging.log4j.core.appender.RollingFileAppender;
+import org.apache.logging.log4j.core.appender.rolling.*;
+import org.apache.logging.log4j.core.config.NullConfiguration;
+import org.apache.logging.log4j.core.impl.Log4jLogEvent;
+
+public class LogFile extends Log {
+
+	public static final String ERROR_LEVEL_NAME = &quot;ERROR&quot;;
+	public static final String WARNING_LEVEL_NAME = &quot;WARNING&quot;;
+	public static final String INFORMATION_LEVEL_NAME = &quot;INFORMATION&quot;;
+	public static final String VERBOSE_LEVEL_NAME = &quot;VERBOSE&quot;;
+
+<span class="nc" id="L26">	private static final int DEFAULT_LOGGING_HISTORY_DAYS = Integer</span>
+<span class="nc" id="L27">			.valueOf(System.getProperty(LogFile.class.getName() + &quot;.defaultHistoryDays&quot;, &quot;7&quot;));</span>
+<span class="nc" id="L28">	private static final int DEFAULT_MAX_LOG_FILE_SIZE_MB = Integer</span>
+<span class="nc" id="L29">			.valueOf(System.getProperty(LogFile.class.getName() + &quot;.defaultMaxLogFileSizeMB&quot;, &quot;10&quot;));</span>
+
+	private RollingFileAppender appender;
+
+	public LogFile(File file) {
+<span class="nc" id="L34">		this(file, DEFAULT_MAX_LOG_FILE_SIZE_MB, DEFAULT_LOGGING_HISTORY_DAYS);</span>
+<span class="nc" id="L35">	}</span>
+
+<span class="nc" id="L37">	public LogFile(File file, int maxLogFileSizeMB, int historyDays) {</span>
+<span class="nc" id="L38">		NullConfiguration config = new NullConfiguration();</span>
+<span class="nc" id="L39">		PatternLayout layout = PatternLayout.newBuilder().withPattern(&quot;%d [%t] %-5level %msg%n&quot;)</span>
+<span class="nc" id="L40">				.withConfiguration(config).build();</span>
+<span class="nc" id="L41">		SizeBasedTriggeringPolicy policy = SizeBasedTriggeringPolicy.createPolicy(maxLogFileSizeMB + &quot;MB&quot;);</span>
+<span class="nc" id="L42">		DefaultRolloverStrategy strategy = DefaultRolloverStrategy.newBuilder().withMax(Integer.toString(historyDays))</span>
+<span class="nc" id="L43">				.withConfig(config).build();</span>
+<span class="nc" id="L44">		appender = RollingFileAppender.newBuilder().setName(&quot;StandaloneRolling&quot;).withFileName(file.getPath())</span>
+<span class="nc" id="L45">				.withFilePattern(file.getPath() + &quot;-%d{yyyy-MM-dd}-%i.zip&quot;).withPolicy(policy).withStrategy(strategy)</span>
+<span class="nc" id="L46">				.setLayout(layout).setConfiguration(config).build();</span>
+<span class="nc" id="L47">		appender.start();</span>
+<span class="nc" id="L48">	}</span>
+
+	@Override
+	protected PrintStream createErrorStream() {
+<span class="nc" id="L52">		return getPrintStream(System.err, LogFile.ERROR_LEVEL_NAME, () -&gt; true);</span>
+	}
+
+	@Override
+	protected PrintStream createWarningStream() {
+<span class="nc" id="L57">		return getPrintStream(System.err, LogFile.WARNING_LEVEL_NAME, () -&gt; true);</span>
+	}
+
+	@Override
+	protected PrintStream createInformationStream() {
+<span class="nc" id="L62">		return getPrintStream(System.out, LogFile.INFORMATION_LEVEL_NAME, () -&gt; true);</span>
+	}
+
+	public PrintStream getPrintStream(PrintStream parallelPrintStream, String levelName,
+			Supplier&lt;Boolean&gt; enablementStatusSupplier) {
+<span class="nc" id="L67">		final StringBuilder fullLineBuffer = new StringBuilder();</span>
+<span class="nc" id="L68">		return MiscUtils.createBufferedPrintStream((line, lineTerminated) -&gt; {</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">			if (lineTerminated) {</span>
+<span class="nc" id="L70">				parallelPrintStream.println(line);</span>
+<span class="nc" id="L71">				fullLineBuffer.append(line);</span>
+<span class="nc" id="L72">				log(fullLineBuffer.toString(), levelName);</span>
+<span class="nc" id="L73">			} else {</span>
+<span class="nc" id="L74">				parallelPrintStream.print(line);</span>
+<span class="nc" id="L75">				fullLineBuffer.append(line);</span>
+			}
+<span class="nc" id="L77">		}, enablementStatusSupplier);</span>
+	};
+
+	protected void log(String message, String levelName) {
+		Level level;
+<span class="nc bnc" id="L82" title="All 2 branches missed.">		if (LogFile.INFORMATION_LEVEL_NAME.equals(levelName)) {</span>
+<span class="nc" id="L83">			level = Level.INFO;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">		} else if (LogFile.WARNING_LEVEL_NAME.equals(levelName)) {</span>
+<span class="nc" id="L85">			level = Level.WARN;</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">		} else if (LogFile.ERROR_LEVEL_NAME.equals(levelName)) {</span>
+<span class="nc" id="L87">			level = Level.ERROR;</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">		} else if (LogFile.VERBOSE_LEVEL_NAME.equals(levelName)) {</span>
+<span class="nc" id="L89">			level = Level.DEBUG;</span>
+<span class="nc" id="L90">		} else {</span>
+<span class="nc" id="L91">			throw new UnexpectedError();</span>
+		}
+<span class="nc" id="L93">		LogEvent event = Log4jLogEvent.newBuilder().setLoggerName(&quot;MyPrivateLogger&quot;).setLevel(level)</span>
+<span class="nc" id="L94">				.setMessage(new Message() {</span>
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public Throwable getThrowable() {
+<span class="nc" id="L100">						return null;</span>
+					}
+
+					@Override
+					public Object[] getParameters() {
+<span class="nc" id="L105">						return null;</span>
+					}
+
+					@Override
+					public String getFormattedMessage() {
+<span class="nc" id="L110">						return message;</span>
+					}
+<span class="nc" id="L112">				}).setTimeMillis(System.currentTimeMillis()).build();</span>
+
+<span class="nc" id="L114">		appender.append(event);</span>
+<span class="nc" id="L115">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DefaultMethodInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.method</a> &gt; <span class="el_source">DefaultMethodInfo.java</span></div><h1>DefaultMethodInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.method;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.field.GetterFieldInfo;
+import xy.reflect.ui.info.parameter.DefaultParameterInfo;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.ClassUtils;
+
+/**
+ * Method information extracted from the given Java method.
+ * 
+ * Note that a unique suffix may be added to the method name to avoid collisions
+ * when there are multiple methods with the same signature accessible from the
+ * same class.
+ * 
+ * @author olitank
+ *
+ */
+public class DefaultMethodInfo extends AbstractInfo implements IMethodInfo {
+
+	protected ReflectionUI reflectionUI;
+	protected Method javaMethod;
+	protected Class&lt;?&gt; objectJavaClass;
+	protected List&lt;IParameterInfo&gt; parameters;
+<span class="fc" id="L43">	protected int duplicateSignatureIndex = -1;</span>
+	protected String name;
+	protected String caption;
+<span class="fc" id="L46">	protected final Object mutex = new Object();</span>
+
+<span class="fc" id="L48">	public DefaultMethodInfo(ReflectionUI reflectionUI, Method javaMethod, Class&lt;?&gt; objectJavaClass) {</span>
+<span class="fc" id="L49">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L50">		this.javaMethod = javaMethod;</span>
+<span class="fc" id="L51">		this.objectJavaClass = objectJavaClass;</span>
+<span class="fc" id="L52">		resolveJavaReflectionModelAccessProblems();</span>
+<span class="fc" id="L53">	}</span>
+
+	public static boolean isCompatibleWith(Method javaMethod, Class&lt;?&gt; objectJavaClass) {
+<span class="fc bfc" id="L56" title="All 2 branches covered.">		if (GetterFieldInfo.isCompatibleWith(javaMethod, objectJavaClass)) {</span>
+<span class="fc" id="L57">			return false;</span>
+		}
+<span class="fc bfc" id="L59" title="All 2 branches covered.">		for (Method otherJavaMethod : objectJavaClass.getMethods()) {</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">			if (!otherJavaMethod.equals(javaMethod)) {</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">				if (GetterFieldInfo.isCompatibleWith(otherJavaMethod, objectJavaClass)) {</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">					if (javaMethod.equals(GetterFieldInfo.getValidSetterMethod(otherJavaMethod, objectJavaClass))) {</span>
+<span class="fc" id="L63">						return false;</span>
+					}
+				}
+			}
+		}
+<span class="fc bfc" id="L68" title="All 2 branches covered.">		for (Method commonMethod : Object.class.getMethods()) {</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">			if (ClassUtils.isOverriddenBy(commonMethod, javaMethod)) {</span>
+<span class="fc" id="L70">				return false;</span>
+			}
+		}
+<span class="fc" id="L73">		return true;</span>
+	}
+
+	public Method getJavaMethod() {
+<span class="nc" id="L77">		return javaMethod;</span>
+	}
+
+	protected void resolveJavaReflectionModelAccessProblems() {
+		try {
+<span class="fc" id="L82">			javaMethod.setAccessible(true);</span>
+<span class="pc" id="L83">		} catch (Throwable t) {</span>
+<span class="nc" id="L84">			reflectionUI.logDebug(t);</span>
+		}
+<span class="fc" id="L86">	}</span>
+
+	@Override
+	public String getName() {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">		if (name == null) {</span>
+<span class="fc" id="L91">			name = ReflectionUIUtils.formatMethodName(javaMethod.getName(), obtainDuplicateSignatureIndex());</span>
+		}
+<span class="fc" id="L93">		return name;</span>
+	}
+
+	protected int obtainDuplicateSignatureIndex() {
+<span class="fc bfc" id="L97" title="All 2 branches covered.">		if (duplicateSignatureIndex == -1) {</span>
+<span class="fc" id="L98">			duplicateSignatureIndex = 0;</span>
+<span class="fc" id="L99">			Method[] allJavaMethods = objectJavaClass.getMethods();</span>
+<span class="fc" id="L100">			ReflectionUIUtils.sortMethods(allJavaMethods);</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">			for (Method eachJavaMethod : allJavaMethods) {</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">				if (DefaultMethodInfo.isCompatibleWith(eachJavaMethod, objectJavaClass)) {</span>
+<span class="fc" id="L103">					if (ReflectionUIUtils.buildMethodSignature(eachJavaMethod)</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">							.equals(ReflectionUIUtils.buildMethodSignature(javaMethod))) {</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">						if (eachJavaMethod.equals(javaMethod)) {</span>
+<span class="fc" id="L106">							break;</span>
+						}
+<span class="nc" id="L108">						duplicateSignatureIndex++;</span>
+					}
+				}
+			}
+		}
+<span class="fc" id="L113">		return duplicateSignatureIndex;</span>
+	}
+
+	@Override
+	public String getSignature() {
+<span class="fc" id="L118">		return ReflectionUIUtils.buildMethodSignature(this);</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc bfc" id="L123" title="All 2 branches covered.">		if (caption == null) {</span>
+<span class="fc" id="L124">			caption = ReflectionUIUtils.formatMethodCaption(this, javaMethod.getName(),</span>
+<span class="fc" id="L125">					obtainDuplicateSignatureIndex());</span>
+		}
+<span class="fc" id="L127">		return caption;</span>
+	}
+
+	@Override
+	public IValidationJob getReturnValueAbstractFormValidationJob(Object object, Object returnValue) {
+<span class="nc" id="L132">		return null;</span>
+	}
+
+	@Override
+	public boolean isControlReturnValueValiditionEnabled() {
+<span class="fc" id="L137">		return false;</span>
+	}
+
+	@Override
+	public boolean isEnabled(Object object) {
+<span class="fc" id="L142">		return true;</span>
+	}
+
+	@Override
+	public String getConfirmationMessage(Object object, InvocationData invocationData) {
+<span class="fc" id="L147">		return null;</span>
+	}
+
+	@Override
+	public String getParametersValidationCustomCaption() {
+<span class="fc" id="L152">		return null;</span>
+	}
+
+	@Override
+	public String getExecutionSuccessMessage() {
+<span class="fc" id="L157">		return null;</span>
+	}
+
+	@Override
+	public ResourcePath getIconImagePath() {
+<span class="fc" id="L162">		return null;</span>
+	}
+
+	@Override
+	public boolean isNullReturnValueDistinct() {
+<span class="fc" id="L167">		return false;</span>
+	}
+
+	@Override
+	public boolean isReturnValueDetached() {
+<span class="fc" id="L172">		return false;</span>
+	}
+
+	@Override
+	public boolean isReturnValueIgnored() {
+<span class="fc" id="L177">		return false;</span>
+	}
+
+	@Override
+	public boolean isLastInvocationDataUsedByDefault() {
+<span class="fc" id="L182">		return true;</span>
+	}
+
+	@Override
+	public ITypeInfo getReturnValueType() {
+<span class="fc bfc" id="L187" title="All 2 branches covered.">		if (javaMethod.getReturnType() == void.class) {</span>
+<span class="fc" id="L188">			return null;</span>
+		} else {
+<span class="fc" id="L190">			return reflectionUI.getTypeInfo(new JavaTypeInfoSource(javaMethod.getReturnType(), javaMethod, -1, null));</span>
+		}
+	}
+
+	@Override
+	public List&lt;IParameterInfo&gt; getParameters() {
+<span class="fc" id="L196">		synchronized (mutex) {</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">			if (parameters == null) {</span>
+<span class="fc" id="L198">				parameters = new ArrayList&lt;IParameterInfo&gt;();</span>
+<span class="fc" id="L199">				Parameter[] javaParameters = javaMethod.getParameters();</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">				for (int i = 0; i &lt; javaParameters.length; i++) {</span>
+<span class="fc" id="L201">					Parameter javaParameter = javaParameters[i];</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">					if (!DefaultParameterInfo.isCompatibleWith(javaParameter)) {</span>
+<span class="nc" id="L203">						continue;</span>
+					}
+<span class="fc" id="L205">					parameters</span>
+<span class="fc" id="L206">							.add(new DefaultParameterInfo(reflectionUI, javaParameter, i, javaMethod, objectJavaClass));</span>
+				}
+			}
+<span class="fc" id="L209">			return parameters;</span>
+		}
+	}
+
+	@Override
+	public Object invoke(Object object, InvocationData invocationData) {
+<span class="fc" id="L215">		Object[] args = new Object[javaMethod.getParameterTypes().length];</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">		for (int i = 0; i &lt; args.length; i++) {</span>
+<span class="fc" id="L217">			args[i] = invocationData.getParameterValue(i);</span>
+		}
+		try {
+<span class="fc" id="L220">			return javaMethod.invoke(object, args);</span>
+<span class="fc" id="L221">		} catch (InvocationTargetException e) {</span>
+<span class="fc" id="L222">			throw new ReflectionUIError(e.getTargetException());</span>
+<span class="nc" id="L223">		} catch (Exception e) {</span>
+<span class="nc" id="L224">			throw new ReflectionUIError(e);</span>
+		}
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="fc bfc" id="L230" title="All 2 branches covered.">		if (ClassUtils.isJavaClassMainMethod(javaMethod)) {</span>
+<span class="fc" id="L231">			return true;</span>
+		}
+<span class="fc" id="L233">		return false;</span>
+	}
+
+	@Override
+	public boolean isRelevant(Object object) {
+<span class="fc" id="L238">		return true;</span>
+	}
+
+	@Override
+	public void onControlVisibilityChange(Object object, boolean b) {
+<span class="fc" id="L243">	}</span>
+
+	@Override
+	public boolean isReadOnly() {
+<span class="fc" id="L247">		return false;</span>
+	}
+
+	@Override
+	public String getNullReturnValueLabel() {
+<span class="nc" id="L252">		return null;</span>
+	}
+
+	@Override
+	public ValueReturnMode getValueReturnMode() {
+<span class="fc" id="L257">		return ValueReturnMode.INDETERMINATE;</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="fc" id="L262">		return null;</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="fc" id="L267">		return null;</span>
+	}
+
+	@Override
+	public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
+<span class="fc" id="L272">		return null;</span>
+	}
+
+	@Override
+	public Runnable getPreviousInvocationCustomRedoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L277">		return null;</span>
+	}
+
+	@Override
+	public void validateParameters(Object object, InvocationData invocationData) throws Exception {
+<span class="fc" id="L282">	}</span>
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L286">		return Collections.emptyMap();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L291">		final int prime = 31;</span>
+<span class="fc" id="L292">		int result = 1;</span>
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">		result = prime * result + ((javaMethod == null) ? 0 : javaMethod.hashCode());</span>
+<span class="pc bpc" id="L294" title="1 of 2 branches missed.">		result = prime * result + ((objectJavaClass == null) ? 0 : objectJavaClass.hashCode());</span>
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">		result = prime * result + ((reflectionUI == null) ? 0 : reflectionUI.hashCode());</span>
+<span class="fc" id="L296">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L301" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L302">			return true;</span>
+<span class="pc bpc" id="L303" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L304">			return false;</span>
+<span class="pc bpc" id="L305" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L306">			return false;</span>
+<span class="fc" id="L307">		DefaultMethodInfo other = (DefaultMethodInfo) obj;</span>
+<span class="pc bpc" id="L308" title="1 of 2 branches missed.">		if (javaMethod == null) {</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">			if (other.javaMethod != null)</span>
+<span class="nc" id="L310">				return false;</span>
+<span class="pc bpc" id="L311" title="1 of 2 branches missed.">		} else if (!javaMethod.equals(other.javaMethod))</span>
+<span class="fc" id="L312">			return false;</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">		if (objectJavaClass == null) {</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">			if (other.objectJavaClass != null)</span>
+<span class="nc" id="L315">				return false;</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">		} else if (!objectJavaClass.equals(other.objectJavaClass))</span>
+<span class="nc" id="L317">			return false;</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">		if (reflectionUI == null) {</span>
+<span class="nc bnc" id="L319" title="All 2 branches missed.">			if (other.reflectionUI != null)</span>
+<span class="nc" id="L320">				return false;</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">		} else if (!reflectionUI.equals(other.reflectionUI))</span>
+<span class="nc" id="L322">			return false;</span>
+<span class="nc" id="L323">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L328">		return &quot;DefaultMethodInfo [javaMethod=&quot; + javaMethod + &quot;, objectJavaClass=&quot; + objectJavaClass + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

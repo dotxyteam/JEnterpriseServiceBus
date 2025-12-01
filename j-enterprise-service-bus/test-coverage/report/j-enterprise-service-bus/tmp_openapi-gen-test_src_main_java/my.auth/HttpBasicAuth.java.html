@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>HttpBasicAuth.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">tmp/openapi-gen-test/src/main/java</a> &gt; <a href="index.source.html" class="el_package">my.auth</a> &gt; <span class="el_source">HttpBasicAuth.java</span></div><h1>HttpBasicAuth.java</h1><pre class="source lang-java linenums">package my.auth;
+
+import java.nio.charset.StandardCharsets;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.MultiValueMap;
+
+@javax.annotation.Generated(value = &quot;org.openapitools.codegen.languages.JavaClientCodegen&quot;, date = &quot;2025-08-01T19:38:38.903+02:00[Europe/Paris]&quot;)
+<span class="nc" id="L10">public class HttpBasicAuth implements Authentication {</span>
+    private String username;
+    private String password;
+
+    public String getUsername() {
+<span class="nc" id="L15">        return username;</span>
+    }
+
+    public void setUsername(String username) {
+<span class="nc" id="L19">        this.username = username;</span>
+<span class="nc" id="L20">    }</span>
+
+    public String getPassword() {
+<span class="nc" id="L23">        return password;</span>
+    }
+
+    public void setPassword(String password) {
+<span class="nc" id="L27">        this.password = password;</span>
+<span class="nc" id="L28">    }</span>
+
+    @Override
+    public void applyToParams(MultiValueMap&lt;String, String&gt; queryParams, HttpHeaders headerParams, MultiValueMap&lt;String, String&gt; cookieParams) {
+<span class="nc bnc" id="L32" title="All 4 branches missed.">        if (username == null &amp;&amp; password == null) {</span>
+<span class="nc" id="L33">            return;</span>
+        }
+<span class="nc bnc" id="L35" title="All 4 branches missed.">        String str = (username == null ? &quot;&quot; : username) + &quot;:&quot; + (password == null ? &quot;&quot; : password);</span>
+<span class="nc" id="L36">        headerParams.add(HttpHeaders.AUTHORIZATION, &quot;Basic &quot; + Base64Utils.encodeToString(str.getBytes(StandardCharsets.UTF_8)));</span>
+<span class="nc" id="L37">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FunctionEditorVariableTreeControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.ui</a> &gt; <span class="el_source">FunctionEditorVariableTreeControl.java</span></div><h1>FunctionEditorVariableTreeControl.java</h1><pre class="source lang-java linenums">package com.otk.jesb.ui;
+
+import java.awt.Component;
+import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.io.IOException;
+
+import javax.swing.JComponent;
+import javax.swing.ListSelectionModel;
+import javax.swing.TransferHandler;
+import javax.swing.text.JTextComponent;
+
+import org.jdesktop.swingx.JXTreeTable;
+
+import com.otk.jesb.FunctionEditor;
+import com.otk.jesb.PathExplorer;
+import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.util.TextTransferHandler;
+
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.ListControl;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
+
+public class FunctionEditorVariableTreeControl extends ListControl {
+
+	private static final long serialVersionUID = 1L;
+
+	public FunctionEditorVariableTreeControl(SwingRenderer swingRenderer, IFieldControlInput input) {
+<span class="fc" id="L36">		super(swingRenderer, input);</span>
+<span class="fc" id="L37">	}</span>
+
+	@Override
+	protected void initializeTreeTableModelAndControl() {
+<span class="fc" id="L41">		super.initializeTreeTableModelAndControl();</span>
+<span class="fc" id="L42">		treeTableComponent.putClientProperty(FunctionEditorVariableTreeControl.class, this);</span>
+<span class="fc" id="L43">		treeTableComponent.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);</span>
+<span class="fc" id="L44">		treeTableComponent.setDragEnabled(true);</span>
+<span class="fc" id="L45">		treeTableComponent.setTransferHandler(new PathExportTransferHandler());</span>
+<span class="fc" id="L46">	}</span>
+
+<span class="fc" id="L48">	public static class PathExportTransferHandler extends TransferHandler {</span>
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public int getSourceActions(JComponent c) {
+<span class="nc" id="L54">			return DnDConstants.ACTION_COPY_OR_MOVE;</span>
+		}
+
+		@Override
+		protected Transferable createTransferable(JComponent c) {
+<span class="nc" id="L59">			FunctionEditorVariableTreeControl listControl = (FunctionEditorVariableTreeControl) ((JXTreeTable) c)</span>
+<span class="nc" id="L60">					.getClientProperty(FunctionEditorVariableTreeControl.class);</span>
+<span class="nc" id="L61">			BufferedItemPosition selectedItemPosition = listControl.getSingleSelection();</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">			if (selectedItemPosition == null) {</span>
+<span class="nc" id="L63">				return null;</span>
+			}
+<span class="nc bnc" id="L65" title="All 2 branches missed.">			if (!(selectedItemPosition.getItem() instanceof PathExplorer.PathNode)) {</span>
+<span class="nc" id="L66">				return null;</span>
+			}
+<span class="nc" id="L68">			return new TransferablePath((PathExplorer.PathNode) selectedItemPosition.getItem());</span>
+		}
+
+	}
+
+	public static class PathImportTransferHandler extends TextTransferHandler {
+
+		private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L77">		public PathImportTransferHandler() {</span>
+<span class="fc" id="L78">		}</span>
+
+		@Override
+		public boolean canImport(TransferHandler.TransferSupport support) {
+<span class="nc bnc" id="L82" title="All 2 branches missed.">			if (support.isDataFlavorSupported(TransferablePath.DATA_FLAVOR)) {</span>
+<span class="nc" id="L83">				return true;</span>
+			}
+<span class="nc" id="L85">			return super.canImport(support);</span>
+		}
+
+		@Override
+		public boolean importData(TransferHandler.TransferSupport support) {
+<span class="nc" id="L90">			boolean accept = false;</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">			if (canImport(support)) {</span>
+				try {
+<span class="nc" id="L93">					Transferable t = support.getTransferable();</span>
+<span class="nc" id="L94">					Object data = t.getTransferData(TransferablePath.DATA_FLAVOR);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">					if (data instanceof PathNode) {</span>
+<span class="nc" id="L96">						Component component = support.getComponent();</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">						if (component instanceof JTextComponent) {</span>
+<span class="nc" id="L98">							JTextComponent textComponent = (JTextComponent) component;</span>
+<span class="nc" id="L99">							Form functionEditorForm = SwingRendererUtils.findAncestorFormOfType(textComponent,</span>
+<span class="nc" id="L100">									FunctionEditor.class.getName(), GUI.INSTANCE);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">							if (functionEditorForm != null) {</span>
+<span class="nc" id="L102">								Point dropPoint = support.getDropLocation().getDropPoint();</span>
+<span class="nc" id="L103">								int textInsertPosition = textComponent.viewToModel(dropPoint);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">								if (textInsertPosition != -1) {</span>
+<span class="nc" id="L105">									PathNode pathNode = (PathNode) data;</span>
+<span class="nc" id="L106">									String expression = pathNode.getTypicalExpression();</span>
+<span class="nc" id="L107">									textComponent.getDocument().insertString(textInsertPosition, expression, null);</span>
+<span class="nc" id="L108">									accept = true;</span>
+								}
+							}
+						}
+					}
+<span class="nc" id="L113">				} catch (UnsupportedFlavorException e) {</span>
+<span class="nc" id="L114">				} catch (Exception e) {</span>
+<span class="nc" id="L115">					throw new UnexpectedError(e);</span>
+				}
+			}
+<span class="nc bnc" id="L118" title="All 2 branches missed.">			if (accept) {</span>
+<span class="nc" id="L119">				return true;</span>
+			}
+<span class="nc" id="L121">			return super.importData(support);</span>
+		}
+	}
+
+	public static class TransferablePath implements Transferable {
+
+<span class="nc" id="L127">		public static DataFlavor DATA_FLAVOR = new DataFlavor(PathNode.class, PathNode.class.getSimpleName());</span>
+
+		private PathNode pathNode;
+
+<span class="nc" id="L131">		public TransferablePath(PathNode pathNode) {</span>
+<span class="nc" id="L132">			this.pathNode = pathNode;</span>
+<span class="nc" id="L133">		}</span>
+
+		@Override
+		public DataFlavor[] getTransferDataFlavors() {
+<span class="nc" id="L137">			return new DataFlavor[] { DATA_FLAVOR };</span>
+		}
+
+		@Override
+		public boolean isDataFlavorSupported(DataFlavor flavor) {
+<span class="nc" id="L142">			return flavor.equals(DATA_FLAVOR);</span>
+		}
+
+		@Override
+		public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+<span class="nc bnc" id="L147" title="All 2 branches missed.">			if (flavor.equals(DATA_FLAVOR))</span>
+<span class="nc" id="L148">				return pathNode;</span>
+			else
+<span class="nc" id="L150">				throw new UnsupportedFlavorException(flavor);</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

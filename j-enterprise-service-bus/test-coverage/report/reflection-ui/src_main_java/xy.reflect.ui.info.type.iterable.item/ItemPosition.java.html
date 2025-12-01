@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ItemPosition.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.item</a> &gt; <span class="el_source">ItemPosition.java</span></div><h1>ItemPosition.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.iterable.item;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.structure.IListStructuralInfo;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * This class describes the spatial position of an item in a list/tree.
+ * 
+ * It actually gives access to the successive objects and fields that were used
+ * in order to get a specific item value. Calling {@link #getItem()} will then
+ * re-access these objects and fields and return an up-to-date item value.
+ * 
+ * Every item position is then bound to a containing list that would hold its
+ * item. But it may not reference an actual item if its index (specifying its
+ * location in the containing list) is out of bounds.
+ * 
+ * @author olitank
+ *
+ */
+public class ItemPosition implements Cloneable, Comparable&lt;ItemPosition&gt; {
+
+	protected AbstractItemPositionFactory factory;
+	protected ItemPosition parentItemPosition;
+	protected int index;
+	protected IFieldInfo containingListFieldIfNotRoot;
+
+	/**
+	 * Default constructor. It does not properly initialize the fields. Should be
+	 * called only by this class, subclasses and factories.
+	 */
+<span class="fc" id="L41">	protected ItemPosition() {</span>
+<span class="fc" id="L42">	}</span>
+
+	/**
+	 * @return the factory that created directly or indirectly this object. The
+	 *         factory typically creates root item positions that may create sibling
+	 *         or children item positions.
+	 */
+	public AbstractItemPositionFactory getFactory() {
+<span class="fc" id="L50">		return factory;</span>
+	}
+
+	/**
+	 * @return the field that is used to get the containing list from the parent
+	 *         item or null if the item position is at the root.
+	 */
+	public IFieldInfo getContainingListFieldIfNotRoot() {
+<span class="nc" id="L58">		return containingListFieldIfNotRoot;</span>
+	}
+
+	/**
+	 * @return the size of the containing list.
+	 */
+	public int getContainingListSize() {
+<span class="fc" id="L65">		Object[] containingListRawValue = retrieveContainingListRawValue();</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">		if (containingListRawValue == null) {</span>
+<span class="nc" id="L67">			return 0;</span>
+		}
+<span class="fc" id="L69">		return containingListRawValue.length;</span>
+	}
+
+	/**
+	 * @return the parent of this item position or null (for a root item position).
+	 */
+	public ItemPosition getParentItemPosition() {
+<span class="fc" id="L76">		return parentItemPosition;</span>
+	}
+
+	/**
+	 * @return the current index in the containing list.
+	 */
+	public int getIndex() {
+<span class="fc" id="L83">		return index;</span>
+	}
+
+	/**
+	 * @param object The object that must be checked.
+	 * @return whether this given object could be an item at this position or not.
+	 */
+	public boolean supportsItem(Object object) {
+<span class="fc" id="L91">		IListTypeInfo listType = getContainingListType();</span>
+<span class="fc" id="L92">		ITypeInfo itemType = listType.getItemType();</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		if (itemType != null) {</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">			if (!itemType.supports(object)) {</span>
+<span class="nc" id="L95">				return false;</span>
+			}
+		}
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">		if (object == null) {</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">			if (!listType.isItemNullValueSupported()) {</span>
+<span class="nc" id="L100">				return false;</span>
+			}
+		}
+<span class="fc" id="L103">		return true;</span>
+	}
+
+	/**
+	 * @return the type information of the containing list.
+	 */
+	public IListTypeInfo getContainingListType() {
+<span class="fc bfc" id="L110" title="All 2 branches covered.">		if (isRoot()) {</span>
+<span class="fc" id="L111">			return factory.getRootListType();</span>
+		} else {
+<span class="fc" id="L113">			return (IListTypeInfo) containingListFieldIfNotRoot.getType();</span>
+		}
+	}
+
+	/**
+	 * @return the title to be given to the containing list.
+	 */
+	public String getContainingListTitle() {
+<span class="fc bfc" id="L121" title="All 2 branches covered.">		if (isRoot()) {</span>
+<span class="fc" id="L122">			return factory.getRootListTitle();</span>
+		} else {
+<span class="fc" id="L124">			return containingListFieldIfNotRoot.getCaption();</span>
+		}
+	}
+
+	/**
+	 * @return the item at this position.
+	 */
+	public Object getItem() {
+<span class="fc" id="L132">		Object[] containingListRawValue = retrieveContainingListRawValue();</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">		if (containingListRawValue == null) {</span>
+<span class="nc" id="L134">			return null;</span>
+		}
+<span class="pc bpc" id="L136" title="2 of 4 branches missed.">		if ((index &lt; 0) || (index &gt;= containingListRawValue.length)) {</span>
+<span class="nc" id="L137">			return null;</span>
+		}
+<span class="fc" id="L139">		return containingListRawValue[index];</span>
+	}
+
+	/**
+	 * @return whether an item can be actually retrieved from this position.
+	 */
+	public boolean isValid() {
+<span class="fc" id="L146">		Object[] containingListRawValue = retrieveContainingListRawValue();</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">		if (containingListRawValue == null) {</span>
+<span class="nc" id="L148">			return false;</span>
+		}
+<span class="pc bpc" id="L150" title="2 of 4 branches missed.">		if ((index &lt; 0) || (index &gt;= containingListRawValue.length)) {</span>
+<span class="nc" id="L151">			return false;</span>
+		}
+<span class="fc" id="L153">		return true;</span>
+	}
+
+	/**
+	 * @return the number of ancestors of this item position (0 for a root item
+	 *         position).
+	 */
+	public int getDepth() {
+<span class="fc" id="L161">		int result = 0;</span>
+<span class="fc" id="L162">		ItemPosition current = this;</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">		while (current.getParentItemPosition() != null) {</span>
+<span class="fc" id="L164">			current = current.getParentItemPosition();</span>
+<span class="fc" id="L165">			result++;</span>
+		}
+<span class="fc" id="L167">		return result;</span>
+	}
+
+	/**
+	 * @return all the previous item positions (their {@link #getIndex()} would
+	 *         return a value from 0 to the current {@link #getIndex()} - 1.
+	 */
+	public List&lt;? extends ItemPosition&gt; getPreviousSiblings() {
+<span class="nc" id="L175">		List&lt;ItemPosition&gt; result = new ArrayList&lt;ItemPosition&gt;();</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">		for (int i = 0; i &lt; getIndex(); i++) {</span>
+<span class="nc" id="L177">			result.add(getSibling(i));</span>
+		}
+<span class="nc" id="L179">		Collections.reverse(result);</span>
+<span class="nc" id="L180">		return result;</span>
+	}
+
+	/**
+	 * @return all the following item positions (their {@link #getIndex()} would
+	 *         return a value from {@link #getIndex()} + 1 to
+	 *         {@link #getContainingListSize()} - 1.
+	 */
+	public List&lt;? extends ItemPosition&gt; getFollowingSiblings() {
+<span class="nc" id="L189">		List&lt;ItemPosition&gt; result = new ArrayList&lt;ItemPosition&gt;();</span>
+<span class="nc" id="L190">		int containingListSize = getContainingListSize();</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		for (int i = getIndex() + 1; i &lt; containingListSize; i++) {</span>
+<span class="nc" id="L192">			result.add(getSibling(i));</span>
+		}
+<span class="nc" id="L194">		return result;</span>
+	}
+
+	/**
+	 * @return the list of ancestors of this item position (empty list for a root
+	 *         item position).
+	 */
+	public List&lt;ItemPosition&gt; getAncestors() {
+<span class="fc" id="L202">		List&lt;ItemPosition&gt; result = new ArrayList&lt;ItemPosition&gt;();</span>
+<span class="fc" id="L203">		ItemPosition ancestor = getParentItemPosition();</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">		while (ancestor != null) {</span>
+<span class="fc" id="L205">			result.add(ancestor);</span>
+<span class="fc" id="L206">			ancestor = ancestor.getParentItemPosition();</span>
+		}
+<span class="fc" id="L208">		return result;</span>
+	}
+
+	/**
+	 * @return a clone of this item positions with {@link #getIndex()} returning the
+	 *         given index.
+	 */
+	public ItemPosition getSibling(int index) {
+<span class="fc bfc" id="L216" title="All 2 branches covered.">		if (isRoot()) {</span>
+<span class="fc" id="L217">			return factory.getRootItemPosition(index);</span>
+		} else {
+<span class="fc" id="L219">			return parentItemPosition.getSubItemPosition(index);</span>
+		}
+	}
+
+	/**
+	 * @return the containing list.
+	 */
+	public Object retrieveContainingListValue() {
+<span class="fc bfc" id="L227" title="All 2 branches covered.">		if (isRoot()) {</span>
+<span class="fc" id="L228">			return factory.getRootListValue();</span>
+		} else {
+<span class="fc" id="L230">			return parentItemPosition.retrieveSubListValue();</span>
+		}
+	}
+
+	/**
+	 * @return all the containing list items packed in an array.
+	 */
+	public Object[] retrieveContainingListRawValue() {
+<span class="fc bfc" id="L238" title="All 2 branches covered.">		if (isRoot()) {</span>
+<span class="fc" id="L239">			return factory.getRootListRawValue();</span>
+		} else {
+<span class="fc" id="L241">			return parentItemPosition.retrieveSubListRawValue();</span>
+		}
+	}
+
+	/**
+	 * @return the sub-list items packed in an array (may be null if there is no
+	 *         sub-list or if the sub-list value is null).
+	 */
+	public Object[] retrieveSubListRawValue() {
+<span class="fc" id="L250">		Object subListValue = retrieveSubListValue();</span>
+<span class="fc bfc" id="L251" title="All 2 branches covered.">		if (subListValue == null) {</span>
+<span class="fc" id="L252">			return null;</span>
+		} else {
+<span class="fc" id="L254">			IListTypeInfo subListType = (IListTypeInfo) getSubListField().getType();</span>
+<span class="fc" id="L255">			return subListType.toArray(subListValue);</span>
+		}
+	}
+
+	/**
+	 * @return the sub-list (may be null if there is no sub-list or if the sub-list
+	 *         value is null).
+	 */
+	public Object retrieveSubListValue() {
+<span class="fc" id="L264">		IFieldInfo subListField = getSubListField();</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">		if (subListField == null) {</span>
+<span class="fc" id="L266">			return null;</span>
+		}
+<span class="fc" id="L268">		final Object item = getItem();</span>
+<span class="fc" id="L269">		return subListField.getValue(item);</span>
+	}
+
+	/**
+	 * @return the field that gets the sub-list from the current item or null if
+	 *         there is no sub-list.
+	 */
+	public IFieldInfo getSubListField() {
+<span class="fc" id="L277">		IListStructuralInfo treeInfo = getContainingListType().getStructuralInfo();</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">		if (treeInfo == null) {</span>
+<span class="nc" id="L279">			return null;</span>
+		}
+<span class="fc" id="L281">		return treeInfo.getItemSubListField(this);</span>
+	}
+
+	/**
+	 * @param index The value that the resulting sub-item position
+	 *              {@link #getIndex()} method would return.
+	 * @return a position referencing an item in the sub-list (may be null if there
+	 *         is no sub-list or if the sub-list value is null).
+	 */
+	public ItemPosition getSubItemPosition(int index) {
+<span class="fc" id="L291">		Object[] subListRawValue = retrieveSubListRawValue();</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">		if (subListRawValue == null) {</span>
+<span class="fc" id="L293">			return null;</span>
+		}
+<span class="fc" id="L295">		ItemPosition result = clone();</span>
+<span class="fc" id="L296">		result.parentItemPosition = this;</span>
+<span class="fc" id="L297">		result.containingListFieldIfNotRoot = getSubListField();</span>
+<span class="pc bpc" id="L298" title="1 of 2 branches missed.">		if (result.containingListFieldIfNotRoot == null) {</span>
+<span class="nc" id="L299">			return null;</span>
+		}
+<span class="fc" id="L301">		result.index = index;</span>
+<span class="fc" id="L302">		return result;</span>
+	}
+
+	/**
+	 * @return positions of items in the sub-list. An empty list is returned if
+	 *         there is no sub-list.
+	 */
+	public List&lt;? extends ItemPosition&gt; getSubItemPositions() {
+<span class="fc" id="L310">		Object[] subListRawValue = retrieveSubListRawValue();</span>
+<span class="fc bfc" id="L311" title="All 2 branches covered.">		if (subListRawValue == null) {</span>
+<span class="fc" id="L312">			return Collections.emptyList();</span>
+		}
+<span class="fc" id="L314">		List&lt;ItemPosition&gt; result = new ArrayList&lt;ItemPosition&gt;();</span>
+<span class="fc bfc" id="L315" title="All 2 branches covered.">		for (int index = 0; index &lt; subListRawValue.length; index++) {</span>
+<span class="fc" id="L316">			result.add(getSubItemPosition(index));</span>
+
+		}
+<span class="fc" id="L319">		return result;</span>
+	}
+
+	/**
+	 * @return whether the current item position is located at the root or not.
+	 */
+	public boolean isRoot() {
+<span class="fc bfc" id="L326" title="All 2 branches covered.">		return parentItemPosition == null;</span>
+	}
+
+	/**
+	 * @return the root item position that is an ancestor of this item position.
+	 */
+	public ItemPosition getRoot() {
+<span class="fc" id="L333">		ItemPosition current = this;</span>
+<span class="fc bfc" id="L334" title="All 2 branches covered.">		while (!current.isRoot()) {</span>
+<span class="fc" id="L335">			current = current.getParentItemPosition();</span>
+		}
+<span class="fc" id="L337">		return current;</span>
+	}
+
+	/**
+	 * @return return the value return mode of the item at this position.
+	 */
+	public ValueReturnMode getItemReturnMode() {
+<span class="fc" id="L344">		ValueReturnMode result = ValueReturnMode.combine(geContainingListReturnMode(),</span>
+<span class="fc" id="L345">				getContainingListType().getItemReturnMode());</span>
+<span class="fc bfc" id="L346" title="All 2 branches covered.">		if (parentItemPosition != null) {</span>
+<span class="fc" id="L347">			result = ValueReturnMode.combine(parentItemPosition.getItemReturnMode(), result);</span>
+		}
+<span class="fc" id="L349">		return result;</span>
+	}
+
+	/**
+	 * @return return the value return mode of the containing list.
+	 */
+	public ValueReturnMode geContainingListReturnMode() {
+<span class="fc bfc" id="L356" title="All 2 branches covered.">		if (isRoot()) {</span>
+<span class="fc" id="L357">			return factory.getRootListValueReturnMode();</span>
+		} else {
+<span class="fc" id="L359">			return containingListFieldIfNotRoot.getValueReturnMode();</span>
+		}
+	}
+
+	/**
+	 * @return false if and only if the containing list value can be set. Note that
+	 *         the containing list may be editable even if it cannot be set. See
+	 *         {@link #isContainingListEditable()} for more information.
+	 */
+	public boolean isContainingListGetOnly() {
+<span class="fc bfc" id="L369" title="All 2 branches covered.">		if (isRoot()) {</span>
+<span class="fc" id="L370">			return factory.isRootListGetOnly();</span>
+		} else {
+<span class="fc" id="L372">			return containingListFieldIfNotRoot.isGetOnly();</span>
+		}
+	}
+
+	/**
+	 * @return whether the containing list content can be durably changed (by using
+	 *         {@link #updateContainingList(Object[])}) or not. Note that it would
+	 *         imply that eventual changes made to the item at this position would
+	 *         be lost.
+	 */
+	public boolean isContainingListEditable() {
+<span class="fc bfc" id="L383" title="All 2 branches covered.">		if (!isRoot()) {</span>
+<span class="fc" id="L384">			ItemPosition parentItemPosition = getParentItemPosition();</span>
+<span class="fc bfc" id="L385" title="All 2 branches covered.">			if (!parentItemPosition.isContainingListEditable()) {</span>
+<span class="fc" id="L386">				return false;</span>
+			}
+		}
+<span class="fc" id="L389">		IListTypeInfo listType = getContainingListType();</span>
+<span class="fc bfc" id="L390" title="All 2 branches covered.">		if (listType.canReplaceContent()) {</span>
+<span class="fc" id="L391">			Object containingListValue = retrieveContainingListValue();</span>
+<span class="pc bpc" id="L392" title="1 of 2 branches missed.">			if (containingListValue != null) {</span>
+<span class="fc bfc" id="L393" title="All 2 branches covered.">				if (ValueReturnMode.isDirectOrProxy(geContainingListReturnMode())) {</span>
+<span class="fc" id="L394">					return true;</span>
+				}
+<span class="fc bfc" id="L396" title="All 2 branches covered.">				if (!isContainingListGetOnly()) {</span>
+<span class="fc" id="L397">					return true;</span>
+				}
+			}
+		}
+<span class="fc bfc" id="L401" title="All 2 branches covered.">		if (listType.canInstantiateFromArray()) {</span>
+<span class="fc bfc" id="L402" title="All 2 branches covered.">			if (!isContainingListGetOnly()) {</span>
+<span class="fc" id="L403">				return true;</span>
+			}
+		}
+<span class="fc" id="L406">		return false;</span>
+	}
+
+	/**
+	 * @return false if the underlying item or one of its ancestors is positioned
+	 *         automatically. Otherwise true is returned.
+	 */
+	public boolean isStable() {
+<span class="fc bfc" id="L414" title="All 2 branches covered.">		if (!isRoot()) {</span>
+<span class="fc" id="L415">			ItemPosition parentItemPosition = getParentItemPosition();</span>
+<span class="pc bpc" id="L416" title="1 of 2 branches missed.">			if (!parentItemPosition.isStable()) {</span>
+<span class="nc" id="L417">				return false;</span>
+			}
+		}
+<span class="fc" id="L420">		IListTypeInfo listType = getContainingListType();</span>
+<span class="pc bpc" id="L421" title="1 of 2 branches missed.">		return !listType.areItemsAutomaticallyPositioned();</span>
+	}
+
+	/**
+	 * Updates the containing list so that it will only contain the given items. If
+	 * the containing list has a parent item then the parent item field that hosts
+	 * the containing list value will be updated and the current method will be
+	 * called recursively on the parent item position with its new containing list.
+	 * Otherwise only the factory root list value is updated.
+	 * 
+	 * Note that this method must not be called if
+	 * {@link #isContainingListEditable()} returns false. Note also that the
+	 * containing list reference may be altered by this operation.
+	 * 
+	 * @param newContainingListRawValue The array that contains the items that
+	 *                                  should replace all the containing list
+	 *                                  items.
+	 * @return the containing list updated or new reference.
+	 */
+	public Object updateContainingList(Object[] newContainingListRawValue) {
+<span class="pc bpc" id="L441" title="1 of 2 branches missed.">		if (!isContainingListEditable()) {</span>
+<span class="nc" id="L442">			throw new ReflectionUIError();</span>
+		}
+
+<span class="fc" id="L445">		boolean done = false;</span>
+<span class="fc" id="L446">		Object containingListValue = null;</span>
+<span class="fc" id="L447">		ItemPosition parentItemPosition = getParentItemPosition();</span>
+<span class="pc bpc" id="L448" title="1 of 2 branches missed.">		Object parentItem = isRoot() ? null : parentItemPosition.getItem();</span>
+
+<span class="fc" id="L450">		checkContainingListRawValue(newContainingListRawValue);</span>
+<span class="fc" id="L451">		IListTypeInfo listType = getContainingListType();</span>
+<span class="pc bpc" id="L452" title="1 of 2 branches missed.">		if (listType.canReplaceContent()) {</span>
+<span class="fc" id="L453">			containingListValue = retrieveContainingListValue();</span>
+<span class="pc bpc" id="L454" title="1 of 2 branches missed.">			if (containingListValue != null) {</span>
+<span class="pc bpc" id="L455" title="1 of 2 branches missed.">				if (!done) {</span>
+<span class="fc bfc" id="L456" title="All 2 branches covered.">					if (ValueReturnMode.isDirectOrProxy(geContainingListReturnMode())) {</span>
+<span class="fc" id="L457">						listType.replaceContent(containingListValue, newContainingListRawValue);</span>
+<span class="fc" id="L458">						done = true;</span>
+					}
+				}
+<span class="fc bfc" id="L461" title="All 2 branches covered.">				if (!done) {</span>
+<span class="pc bpc" id="L462" title="1 of 2 branches missed.">					if (!isContainingListGetOnly()) {</span>
+<span class="fc" id="L463">						listType.replaceContent(containingListValue, newContainingListRawValue);</span>
+<span class="pc bpc" id="L464" title="1 of 2 branches missed.">						if (isRoot()) {</span>
+<span class="fc" id="L465">							getFactory().setRootListValue(containingListValue);</span>
+<span class="fc" id="L466">						} else {</span>
+<span class="nc" id="L467">							getContainingListFieldIfNotRoot().setValue(parentItem, containingListValue);</span>
+						}
+<span class="fc" id="L469">						done = true;</span>
+					}
+				}
+			}
+		}
+<span class="pc bpc" id="L474" title="1 of 2 branches missed.">		if (!done) {</span>
+<span class="nc bnc" id="L475" title="All 2 branches missed.">			if (listType.canInstantiateFromArray()) {</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">				if (!isContainingListGetOnly()) {</span>
+<span class="nc" id="L477">					containingListValue = listType.fromArray(newContainingListRawValue);</span>
+<span class="nc bnc" id="L478" title="All 2 branches missed.">					if (isRoot()) {</span>
+<span class="nc" id="L479">						getFactory().setRootListValue(containingListValue);</span>
+<span class="nc" id="L480">					} else {</span>
+<span class="nc" id="L481">						getContainingListFieldIfNotRoot().setValue(parentItem, containingListValue);</span>
+					}
+<span class="nc" id="L483">					done = true;</span>
+				}
+			}
+		}
+
+<span class="pc bpc" id="L488" title="1 of 2 branches missed.">		if (!done) {</span>
+<span class="nc" id="L489">			throw new ReflectionUIError();</span>
+		}
+
+<span class="pc bpc" id="L492" title="1 of 2 branches missed.">		if (!isRoot()) {</span>
+<span class="nc" id="L493">			Object[] parentItemContainingListRawValue = getParentItemPosition().retrieveContainingListRawValue();</span>
+<span class="nc bnc" id="L494" title="All 2 branches missed.">			if (parentItem != parentItemContainingListRawValue[parentItemPosition.getIndex()]) {</span>
+<span class="nc" id="L495">				parentItemContainingListRawValue[parentItemPosition.getIndex()] = parentItem;</span>
+			}
+<span class="nc" id="L497">			parentItemPosition.updateContainingList(parentItemContainingListRawValue);</span>
+		}
+
+<span class="fc" id="L500">		return containingListValue;</span>
+	}
+
+	/**
+	 * Validates that all the given items are supported by the containing list.
+	 * 
+	 * @param listRawValue An array containing the items to be checked.
+	 * @throws ReflectionUIError if at least one of the given items is not supported
+	 *                           by the containing list.
+	 */
+	public void checkContainingListRawValue(Object[] listRawValue) {
+<span class="fc" id="L511">		IListTypeInfo listType = getContainingListType();</span>
+<span class="fc" id="L512">		ITypeInfo itemType = listType.getItemType();</span>
+<span class="pc bpc" id="L513" title="1 of 2 branches missed.">		if (itemType != null) {</span>
+<span class="fc bfc" id="L514" title="All 2 branches covered.">			for (Object item : listRawValue) {</span>
+<span class="pc bpc" id="L515" title="1 of 2 branches missed.">				if (item != null) {</span>
+<span class="pc bpc" id="L516" title="1 of 2 branches missed.">					if (!supportsItem(item)) {</span>
+<span class="nc" id="L517">						throw new ReflectionUIError(&quot;Item not supported: '&quot; + item + &quot;'. Was expecting instance of '&quot;</span>
+<span class="nc" id="L518">								+ itemType.getName() + &quot;'&quot;);</span>
+
+					}
+				}
+			}
+		}
+<span class="fc" id="L524">	}</span>
+
+	/**
+	 * @return a string describing the hierarchical location of the current item
+	 *         position.
+	 */
+	public String getPath() {
+<span class="fc" id="L531">		StringBuilder result = new StringBuilder();</span>
+<span class="fc" id="L532">		ItemPosition current = this;</span>
+<span class="fc bfc" id="L533" title="All 2 branches covered.">		while (current != null) {</span>
+			String indexString;
+<span class="pc bpc" id="L535" title="1 of 2 branches missed.">			if (current.index == -1) {</span>
+<span class="nc" id="L536">				indexString = &quot;&quot;;</span>
+<span class="nc" id="L537">			} else {</span>
+<span class="fc" id="L538">				indexString = Integer.toString(current.index + 1);</span>
+			}
+<span class="fc bfc" id="L540" title="All 2 branches covered.">			if (current == this) {</span>
+<span class="fc" id="L541">				result.insert(0, &quot;Item&quot; + indexString);</span>
+<span class="fc" id="L542">			} else {</span>
+<span class="fc" id="L543">				result.insert(0, &quot;Item&quot; + indexString + &quot;-&gt;Sub&quot;);</span>
+			}
+<span class="fc" id="L545">			current = current.getParentItemPosition();</span>
+		}
+<span class="fc" id="L547">		return result.toString();</span>
+	}
+
+	@Override
+	public int compareTo(ItemPosition o2) {
+<span class="nc" id="L552">		ItemPosition o1 = this;</span>
+<span class="nc bnc" id="L553" title="All 2 branches missed.">		if (o1.getDepth() &lt; o2.getDepth()) {</span>
+<span class="nc" id="L554">			return o1.compareTo(o2.getParentItemPosition());</span>
+		}
+<span class="nc bnc" id="L556" title="All 2 branches missed.">		if (o1.getDepth() &gt; o2.getDepth()) {</span>
+<span class="nc" id="L557">			return o1.getParentItemPosition().compareTo(o2);</span>
+		}
+<span class="nc bnc" id="L559" title="All 2 branches missed.">		if (MiscUtils.equalsOrBothNull(o1.getParentItemPosition(), o2.getParentItemPosition())) {</span>
+<span class="nc" id="L560">			return new Integer(o1.getIndex()).compareTo(new Integer(o2.getIndex()));</span>
+		}
+<span class="nc" id="L562">		return o1.getParentItemPosition().compareTo(o2.getParentItemPosition());</span>
+	}
+
+	@Override
+	public ItemPosition clone() {
+		try {
+<span class="fc" id="L568">			return (ItemPosition) super.clone();</span>
+<span class="nc" id="L569">		} catch (CloneNotSupportedException e) {</span>
+<span class="nc" id="L570">			throw new ReflectionUIError(e);</span>
+		}
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L576">		final int prime = 31;</span>
+<span class="fc" id="L577">		int result = 1;</span>
+<span class="fc" id="L578">		result = prime * result</span>
+<span class="fc bfc" id="L579" title="All 2 branches covered.">				+ ((containingListFieldIfNotRoot == null) ? 0 : containingListFieldIfNotRoot.hashCode());</span>
+<span class="pc bpc" id="L580" title="1 of 2 branches missed.">		result = prime * result + ((factory == null) ? 0 : factory.hashCode());</span>
+<span class="fc" id="L581">		result = prime * result + index;</span>
+<span class="fc bfc" id="L582" title="All 2 branches covered.">		result = prime * result + ((parentItemPosition == null) ? 0 : parentItemPosition.hashCode());</span>
+<span class="fc" id="L583">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="pc bpc" id="L588" title="1 of 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L589">			return true;</span>
+<span class="fc bfc" id="L590" title="All 2 branches covered.">		if (obj == null)</span>
+<span class="fc" id="L591">			return false;</span>
+<span class="pc bpc" id="L592" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L593">			return false;</span>
+<span class="fc" id="L594">		ItemPosition other = (ItemPosition) obj;</span>
+<span class="fc bfc" id="L595" title="All 2 branches covered.">		if (containingListFieldIfNotRoot == null) {</span>
+<span class="fc bfc" id="L596" title="All 2 branches covered.">			if (other.containingListFieldIfNotRoot != null)</span>
+<span class="fc" id="L597">				return false;</span>
+<span class="fc bfc" id="L598" title="All 2 branches covered.">		} else if (!containingListFieldIfNotRoot.equals(other.containingListFieldIfNotRoot))</span>
+<span class="fc" id="L599">			return false;</span>
+<span class="pc bpc" id="L600" title="1 of 2 branches missed.">		if (factory == null) {</span>
+<span class="nc bnc" id="L601" title="All 2 branches missed.">			if (other.factory != null)</span>
+<span class="nc" id="L602">				return false;</span>
+<span class="pc bpc" id="L603" title="1 of 2 branches missed.">		} else if (!factory.equals(other.factory))</span>
+<span class="nc" id="L604">			return false;</span>
+<span class="fc bfc" id="L605" title="All 2 branches covered.">		if (index != other.index)</span>
+<span class="fc" id="L606">			return false;</span>
+<span class="pc bpc" id="L607" title="1 of 2 branches missed.">		if (parentItemPosition == null) {</span>
+<span class="nc bnc" id="L608" title="All 2 branches missed.">			if (other.parentItemPosition != null)</span>
+<span class="nc" id="L609">				return false;</span>
+<span class="pc bpc" id="L610" title="1 of 2 branches missed.">		} else if (!parentItemPosition.equals(other.parentItemPosition))</span>
+<span class="fc" id="L611">			return false;</span>
+<span class="nc" id="L612">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L617">		return &quot;ItemPosition [path=&quot; + getPath() + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

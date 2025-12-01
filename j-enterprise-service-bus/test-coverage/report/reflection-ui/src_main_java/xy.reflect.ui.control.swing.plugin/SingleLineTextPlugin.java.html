@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SingleLineTextPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">SingleLineTextPlugin.java</span></div><h1>SingleLineTextPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.awt.Dimension;
+import java.io.IOException;
+import java.io.Serializable;
+
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.JTextComponent;
+
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
+import xy.reflect.ui.control.swing.TextControl;
+import xy.reflect.ui.control.swing.plugin.MultipleLinesTextPlugin.MultipleLinesTextConfiguration.ControlSizeUnit;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Field control plugin that allows to display only single-line text.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L28">public class SingleLineTextPlugin extends AbstractSimpleCustomizableFieldControlPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L32">		return &quot;Single Line Text&quot;;</span>
+	}
+
+	@Override
+	protected boolean handles(Class&lt;?&gt; javaType) {
+<span class="fc" id="L37">		return String.class.equals(javaType);</span>
+	}
+
+	@Override
+	public boolean canDisplayDistinctNullValue() {
+<span class="nc" id="L42">		return false;</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="nc" id="L47">		return new SingleLineTextConfiguration();</span>
+	}
+
+	@Override
+	public SingleLineTextControl createControl(Object renderer, IFieldControlInput input) {
+<span class="fc" id="L52">		return new SingleLineTextControl((SwingRenderer) renderer, input);</span>
+	}
+
+<span class="nc" id="L55">	public static class SingleLineTextConfiguration extends AbstractConfiguration {</span>
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L58">		public char invalidCharacterReplacement = ' ';</span>
+<span class="nc" id="L59">		public ControlDimensionSpecification width = new ControlDimensionSpecification();</span>
+
+		public int getWidthInPixels() {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">			if (width == null) {</span>
+<span class="nc" id="L63">				return -1;</span>
+			}
+<span class="nc bnc" id="L65" title="All 2 branches missed.">			if (width.unit == ControlSizeUnit.PIXELS) {</span>
+<span class="nc" id="L66">				return width.value;</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">			} else if (width.unit == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L68">				Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L69">				return Math.round((width.value / 100f) * screenSize.width);</span>
+			} else {
+<span class="nc" id="L71">				throw new ReflectionUIError();</span>
+			}
+		}
+
+		private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L76">			in.defaultReadObject();</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">			if (invalidCharacterReplacement == 0) {</span>
+<span class="nc" id="L78">				invalidCharacterReplacement = ' ';</span>
+			}
+<span class="fc" id="L80">		}</span>
+
+	}
+
+<span class="nc" id="L84">	public static class ControlDimensionSpecification implements Serializable {</span>
+
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L88">		public int value = 400;</span>
+<span class="nc" id="L89">		public ControlSizeUnit unit = ControlSizeUnit.PIXELS;</span>
+
+	}
+
+	public class SingleLineTextControl extends TextControl {
+
+		private static final long serialVersionUID = 1L;
+
+		protected SingleLineTextConfiguration controlConfiguration;
+
+<span class="fc" id="L99">		public SingleLineTextControl(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L100">			super(swingRenderer, input);</span>
+<span class="fc" id="L101">		}</span>
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L105" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc" id="L106">				updateControlConfiguration();</span>
+			}
+<span class="fc" id="L108">			return super.refreshUI(refreshStructure);</span>
+		}
+
+		protected void updateControlConfiguration() {
+<span class="fc" id="L112">			controlConfiguration = (SingleLineTextConfiguration) loadControlCustomization(input);</span>
+<span class="fc" id="L113">		}</span>
+
+		@Override
+		protected JTextComponent createTextComponent() {
+<span class="fc" id="L117">			JTextComponent result = super.createTextComponent();</span>
+<span class="fc" id="L118">			((AbstractDocument) result.getDocument()).setDocumentFilter(new DocumentFilter() {</span>
+				@Override
+				public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+						throws BadLocationException {
+<span class="fc" id="L122">					text = text.replace(&quot;\r\n&quot;, Character.toString(controlConfiguration.invalidCharacterReplacement));</span>
+<span class="fc" id="L123">					text = text.replace(&quot;\n&quot;, Character.toString(controlConfiguration.invalidCharacterReplacement));</span>
+<span class="fc" id="L124">					text = text.replace(&quot;\r&quot;, Character.toString(controlConfiguration.invalidCharacterReplacement));</span>
+<span class="fc" id="L125">					super.replace(fb, offset, length, text, attrs);</span>
+<span class="fc" id="L126">				}</span>
+			});
+<span class="fc" id="L128">			return result;</span>
+		}
+
+		@Override
+		protected Dimension getScrollPanePreferredSize(Dimension defaultSize) {
+<span class="fc" id="L133">			Dimension result = new Dimension(defaultSize);</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">			if (controlConfiguration.width != null) {</span>
+<span class="nc" id="L135">				result.width = controlConfiguration.getWidthInPixels();</span>
+			}
+<span class="fc" id="L137">			return result;</span>
+		}
+
+		@Override
+		protected boolean areScrollBarsEnabled() {
+<span class="fc" id="L142">			return false;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

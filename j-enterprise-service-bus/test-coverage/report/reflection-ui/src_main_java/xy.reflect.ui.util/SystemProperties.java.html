@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SystemProperties.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">SystemProperties.java</span></div><h1>SystemProperties.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.util;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Field;
+
+import xy.reflect.ui.ReflectionUI;
+
+/**
+ * Contains the system properties exposed by the library.
+ * 
+ * @author olitank
+ *
+ */
+<span class="nc" id="L18">public class SystemProperties {</span>
+
+	public static void main(String[] args) {
+<span class="nc" id="L21">		System.out.println(describe());</span>
+<span class="nc" id="L22">	}</span>
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.FIELD })
+	public @interface Usage {
+		public String value();
+
+	}
+
+<span class="fc" id="L31">	protected static final String PREFIX = ReflectionUI.class.getPackage().getName();</span>
+
+	@Usage(&quot;If the value of this property is \&quot;true\&quot; then ReflectionUI objects will print debug messages to the console output by default.&quot;)
+<span class="fc" id="L34">	public static final String DEBUG = PREFIX + &quot;.debug&quot;;</span>
+
+	@Usage(&quot;The value of this property is used as the maximum size of various caches used to optimize the reflection process&quot;)
+<span class="fc" id="L37">	public static final String STANDARD_CACHE_SIZE = PREFIX + &quot;.standardCacheSize&quot;;</span>
+
+	@Usage(&quot;The value of this property is used as the maximum duration (in seconds) that the idle threads (from the thread pools of the framework) will wait before stopping&quot;)
+<span class="fc" id="L40">	public static final String EXECUTOR_IDLE_TIMEOUT_SECONDS = PREFIX + &quot;.executorIdleTimeoutSeconds&quot;;</span>
+
+	@Usage(&quot;The value of this property is used as the expiration delay (in seconds) of entries in the various caches used to optimize the reflection process&quot;)
+<span class="fc" id="L43">	public static final String STANDARD_CACHE_EXEPIRATION_DELAY_SECONDS = PREFIX</span>
+<span class="fc" id="L44">			+ &quot;.standardCacheExpirationDelaySeconds&quot;;</span>
+
+	@Usage(&quot;If the value of this property is \&quot;true\&quot; then the default customizations are active.&quot;)
+<span class="fc" id="L47">	public static final String DEFAULT_INFO_CUSTOMIZATIONS_ACTIVE = PREFIX + &quot;.defaultCustomizationsActive&quot;;</span>
+
+	@Usage(&quot;If the value of this property is set then the default customizations are loaded from and saved to the specified file instead of the default one.&quot;)
+<span class="fc" id="L50">	public static final String DEFAULT_INFO_CUSTOMIZATIONS_FILE_PATH = PREFIX + &quot;.defaultCustomizationsFilePath&quot;;</span>
+
+	@Usage(&quot;If the value of this property is \&quot;true\&quot; then customizations will be initialized if not found.&quot;)
+<span class="fc" id="L53">	public static final String CREATE_INFO_CUSTOMIZATIONS_IF_NOT_FOUND = PREFIX + &quot;.createCustomizationsIfNotFound&quot;;</span>
+
+	@Usage(&quot;If this property is set then SwingRenderer.getDefault() will return an object of the specified class.&quot;)
+<span class="fc" id="L56">	public static final String ALTERNATE_DEFAULT_SWING_RENDERER_CLASS_NAME = PREFIX</span>
+<span class="fc" id="L57">			+ &quot;.alternateDefaultSwingRendererClass&quot;;</span>
+
+	@Usage(&quot;If this property is set then CustomizedSwingRenderer.getDefault() will return an object of the specified class.&quot;)
+<span class="fc" id="L60">	public static final String ALTERNATE_DEFAULT_CUSTOMIZED_SWING_RENDERER_CLASS_NAME = PREFIX</span>
+<span class="fc" id="L61">			+ &quot;.alternateDefaultCustomizedSwingRendererClass&quot;;</span>
+
+	public static String describe() {
+<span class="nc" id="L64">		return describe(SystemProperties.class);</span>
+	}
+
+	public static String describe(Class&lt;? extends SystemProperties&gt; clazz) {
+<span class="nc" id="L68">		StringBuilder result = new StringBuilder();</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		for (Field field : clazz.getFields()) {</span>
+<span class="nc" id="L70">			Usage usage = field.getAnnotation(Usage.class);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">			if (usage == null) {</span>
+<span class="nc" id="L72">				continue;</span>
+			}
+<span class="nc bnc" id="L74" title="All 2 branches missed.">			if (result.length() &gt; 0) {</span>
+<span class="nc" id="L75">				result.append(&quot;\n&quot;);</span>
+			}
+			try {
+<span class="nc" id="L78">				result.append(&quot;-D&quot; + (String) field.get(null) + &quot;=...\n  =&gt; &quot; + usage.value());</span>
+<span class="nc" id="L79">			} catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L80">				throw new ReflectionUIError(e);</span>
+<span class="nc" id="L81">			} catch (IllegalAccessException e) {</span>
+<span class="nc" id="L82">				throw new ReflectionUIError(e);</span>
+			}
+		}
+<span class="nc" id="L85">		return result.toString();</span>
+	}
+
+	public static boolean isDebugModeActive() {
+<span class="fc" id="L89">		return System.getProperty(SystemProperties.DEBUG, &quot;false&quot;).equals(&quot;true&quot;);</span>
+	}
+
+	public static long getStandardCacheSize() {
+<span class="fc" id="L93">		return Long.valueOf(System.getProperty(SystemProperties.STANDARD_CACHE_SIZE, &quot;1000&quot;));</span>
+	}
+
+	public static long getExecutorIdleTimeoutSeconds() {
+<span class="fc" id="L97">		return Long.valueOf(System.getProperty(SystemProperties.EXECUTOR_IDLE_TIMEOUT_SECONDS, &quot;300&quot;));</span>
+	}
+
+	public static long getStandardCacheExpirationDelaySeconds() {
+<span class="fc" id="L101">		return Long.valueOf(System.getProperty(SystemProperties.STANDARD_CACHE_EXEPIRATION_DELAY_SECONDS, &quot;300&quot;));</span>
+	}
+
+	public static boolean areDefaultInfoCustomizationsActive() {
+<span class="nc" id="L105">		return System.getProperty(DEFAULT_INFO_CUSTOMIZATIONS_ACTIVE, &quot;true&quot;).equals(&quot;true&quot;);</span>
+	}
+
+	public static String getDefaultInfoCustomizationsFilePath() {
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		if (!areDefaultInfoCustomizationsActive()) {</span>
+<span class="nc" id="L110">			return null;</span>
+		}
+<span class="nc" id="L112">		return System.getProperty(DEFAULT_INFO_CUSTOMIZATIONS_FILE_PATH, &quot;default.icu&quot;);</span>
+	}
+
+	public static boolean areInfoCustomizationsCreatedIfNotFound() {
+<span class="fc" id="L116">		return System.getProperty(CREATE_INFO_CUSTOMIZATIONS_IF_NOT_FOUND, &quot;true&quot;).equals(&quot;true&quot;);</span>
+	}
+
+	public static Class&lt;?&gt; getAlternateDefaultSwingRendererClass() {
+<span class="nc" id="L120">		String className = System.getProperty(ALTERNATE_DEFAULT_SWING_RENDERER_CLASS_NAME);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">		if (className == null) {</span>
+<span class="nc" id="L122">			return null;</span>
+		} else {
+			try {
+<span class="nc" id="L125">				return Class.forName(className);</span>
+<span class="nc" id="L126">			} catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L127">				throw new ReflectionUIError(e);</span>
+			}
+		}
+	}
+
+	public static Class&lt;?&gt; getAlternateDefaultCustomizedSwingRendererClass() {
+<span class="nc" id="L133">		String className = System.getProperty(ALTERNATE_DEFAULT_CUSTOMIZED_SWING_RENDERER_CLASS_NAME);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">		if (className == null) {</span>
+<span class="nc" id="L135">			return null;</span>
+		} else {
+			try {
+<span class="nc" id="L138">				return Class.forName(className);</span>
+<span class="nc" id="L139">			} catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L140">				throw new ReflectionUIError(e);</span>
+			}
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

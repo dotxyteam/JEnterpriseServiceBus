@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MethodAction.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing</a> &gt; <span class="el_source">MethodAction.java</span></div><h1>MethodAction.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing;
+
+import java.awt.Component;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.AbstractAction;
+import javax.swing.SwingUtilities;
+
+import xy.reflect.ui.control.CustomContext;
+import xy.reflect.ui.control.IContext;
+import xy.reflect.ui.control.IMethodControlData;
+import xy.reflect.ui.control.IMethodControlInput;
+import xy.reflect.ui.control.MethodControlDataProxy;
+import xy.reflect.ui.control.swing.builder.AbstractEditorBuilder;
+import xy.reflect.ui.control.swing.builder.StandardEditorBuilder;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.undo.AbstractModification;
+import xy.reflect.ui.undo.IModification;
+import xy.reflect.ui.undo.MethodControlDataModification;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Action allowing orchestrate a method execution (retrieve parameter values,
+ * invoke the method and display the return value).
+ * 
+ * @author olitank
+ *
+ */
+public class MethodAction extends AbstractAction {
+
+	protected static final long serialVersionUID = 1L;
+	protected SwingRenderer swingRenderer;
+	protected IMethodControlInput input;
+	protected IMethodControlData data;
+	protected boolean shouldDisplayReturnValueIfAny;
+	protected ModificationStack modificationStack;
+
+	protected Object returnValue;
+<span class="fc" id="L50">	protected boolean returnValueObtained = false;</span>
+<span class="fc" id="L51">	protected boolean cancelled = false;</span>
+
+<span class="fc" id="L53">	public MethodAction(SwingRenderer swingRenderer, IMethodControlInput input) {</span>
+<span class="fc" id="L54">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L55">		this.input = input;</span>
+<span class="fc" id="L56">		this.data = input.getControlData();</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">		this.shouldDisplayReturnValueIfAny = !data.isReturnValueIgnored();</span>
+<span class="fc" id="L58">		this.modificationStack = input.getModificationStack();</span>
+<span class="fc" id="L59">	}</span>
+
+	public SwingRenderer getSwingRenderer() {
+<span class="nc" id="L62">		return swingRenderer;</span>
+	}
+
+	public Object getReturnValue() {
+<span class="fc" id="L66">		return returnValue;</span>
+	}
+
+	public boolean wasReturnValueObtained() {
+<span class="nc" id="L70">		return returnValueObtained;</span>
+	}
+
+	public boolean wasCancelled() {
+<span class="nc" id="L74">		return cancelled;</span>
+	}
+
+	public void setShouldDisplayReturnValueIfAny(boolean shouldDisplayReturnValueIfAny) {
+<span class="fc" id="L78">		this.shouldDisplayReturnValueIfAny = shouldDisplayReturnValueIfAny;</span>
+<span class="fc" id="L79">	}</span>
+
+	public boolean getShouldDisplayReturnValueIfAny() {
+<span class="nc" id="L82">		return shouldDisplayReturnValueIfAny;</span>
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+<span class="fc" id="L87">		Component activatorComponent = (Component) e.getSource();</span>
+		try {
+<span class="fc" id="L89">			onInvocationRequest(activatorComponent);</span>
+<span class="pc" id="L90">		} catch (Throwable t) {</span>
+<span class="nc" id="L91">			swingRenderer.handleException(activatorComponent, t);</span>
+		}
+
+<span class="fc" id="L94">	}</span>
+
+	public void onInvocationRequest(Component activatorComponent) {
+<span class="fc" id="L97">		InvocationData invocationData = prepare(activatorComponent);</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">		if (invocationData == null) {</span>
+<span class="nc" id="L99">			cancelled = true;</span>
+<span class="nc" id="L100">			return;</span>
+		}
+<span class="fc" id="L102">		invokeAndObtainReturnValue(invocationData, activatorComponent);</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">		if (data.getExecutionSuccessMessage() != null) {</span>
+<span class="nc" id="L104">			openExecutionSuccessMessageDialog(activatorComponent);</span>
+		}
+<span class="fc bfc" id="L106" title="All 2 branches covered.">		if (shouldDisplayReturnValue()) {</span>
+<span class="fc" id="L107">			openMethodReturnValueWindow(activatorComponent);</span>
+		}
+<span class="fc" id="L109">	}</span>
+
+	protected void openExecutionSuccessMessageDialog(Component activatorComponent) {
+<span class="nc" id="L112">		swingRenderer.openInformationDialog(activatorComponent, data.getExecutionSuccessMessage(),</span>
+<span class="nc" id="L113">				ReflectionUIUtils.composeMessage(getTitle(), &quot;Success&quot;));</span>
+<span class="nc" id="L114">	}</span>
+
+	public InvocationData prepare(Component activatorComponent) {
+<span class="fc" id="L117">		InvocationData result = null;</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		if (!ReflectionUIUtils.requiresParameterValue(data.getParameters())) {</span>
+<span class="fc" id="L119">			result = data.createInvocationData();</span>
+<span class="fc" id="L120">		} else {</span>
+<span class="fc" id="L121">			result = openMethoExecutionSettingsDialog(activatorComponent);</span>
+		}
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L124">			return null;</span>
+		}
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">		if (!askConfirmation(result, activatorComponent)) {</span>
+<span class="nc" id="L127">			return null;</span>
+		}
+<span class="fc" id="L129">		return result;</span>
+	}
+
+	public InvocationData openMethoExecutionSettingsDialog(final Component activatorComponent) {
+		final InvocationData invocationData;
+<span class="fc bfc" id="L134" title="All 2 branches covered.">		if (data.isLastInvocationDataUsedByDefault()</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">				&amp;&amp; swingRenderer.getLastInvocationDataByMethodContext().containsKey(input.getContext())) {</span>
+<span class="fc" id="L136">			invocationData = swingRenderer.getLastInvocationDataByMethodContext().get(input.getContext());</span>
+<span class="fc" id="L137">		} else {</span>
+<span class="fc" id="L138">			invocationData = data.createInvocationData();</span>
+		}
+<span class="fc" id="L140">		StandardEditorBuilder editorBuilder = new StandardEditorBuilder(swingRenderer, activatorComponent,</span>
+<span class="fc" id="L141">				data.createParametersObject(invocationData, input.getContext().getIdentifier())) {</span>
+			@Override
+			protected String getCapsuleTypeCaption() {
+<span class="fc" id="L144">				return MethodAction.this.getTitle();</span>
+			}
+
+			@Override
+			protected boolean isDialogCancellable() {
+<span class="fc" id="L149">				return true;</span>
+			}
+
+			@Override
+			protected String getOKCaption() {
+<span class="fc" id="L154">				String invokeButtonText = data.getParametersValidationCustomCaption();</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">				if (invokeButtonText == null) {</span>
+<span class="fc" id="L156">					invokeButtonText = getDefaultExecutionSettnigsVaidationCaption();</span>
+				}
+<span class="fc" id="L158">				return invokeButtonText;</span>
+			}
+		};
+<span class="fc" id="L161">		editorBuilder.createAndShowDialog();</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">		if (editorBuilder.isCancelled()) {</span>
+<span class="nc" id="L163">			return null;</span>
+		}
+<span class="fc" id="L165">		return invocationData;</span>
+	}
+
+	protected String getDefaultExecutionSettnigsVaidationCaption() {
+<span class="fc" id="L169">		return &quot;OK&quot;;</span>
+	}
+
+	public String getTitle() {
+<span class="fc" id="L173">		return ReflectionUIUtils.composeMessage(data.getCaption(), &quot;Execution&quot;);</span>
+	}
+
+	protected IMethodControlData makeMethodModificationsUndoable(final IMethodControlData data) {
+<span class="fc" id="L177">		return new MethodControlDataProxy(data) {</span>
+
+			@Override
+			public Object invoke(InvocationData invocationData) {
+<span class="fc" id="L181">				return ReflectionUIUtils.invokeMethodThroughModificationStack(data, invocationData, modificationStack,</span>
+<span class="fc" id="L182">						ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()));</span>
+			}
+
+		};
+	}
+
+	protected IMethodControlData indicateWhenBusy(final IMethodControlData data, final Component activatorComponent) {
+<span class="fc" id="L189">		return new MethodControlDataProxy(data) {</span>
+
+			/*
+			 * The initial activator component may not be displayed anymore typically when
+			 * the current control data is used to undo/redo modifications. If it happens
+			 * then the first displayed ancestor component will be used as the busy dialog
+			 * owner. This is why the list of ancestor components is saved here.
+			 */
+
+<span class="fc" id="L198">			List&lt;Component&gt; initialComponentHierachy = getComponentHierachy(activatorComponent);</span>
+
+			List&lt;Component&gt; getComponentHierachy(Component c) {
+<span class="fc" id="L201">				List&lt;Component&gt; result = new ArrayList&lt;Component&gt;();</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">				if (c != null) {</span>
+<span class="fc" id="L203">					result.add(c);</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">					if (c instanceof Window) {</span>
+<span class="fc" id="L205">						Window ownerWindow = ((Window) c).getOwner();</span>
+<span class="fc bfc" id="L206" title="All 2 branches covered.">						if (ownerWindow != null) {</span>
+<span class="fc" id="L207">							result.addAll(getComponentHierachy(ownerWindow));</span>
+						}
+<span class="fc" id="L209">					} else {</span>
+<span class="fc" id="L210">						Window window = SwingUtilities.getWindowAncestor(c);</span>
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">						if (window != null) {</span>
+<span class="fc" id="L212">							result.addAll(getComponentHierachy(window));</span>
+						}
+					}
+				}
+<span class="fc" id="L216">				return result;</span>
+			}
+
+			Component getDisplayedActivatorComponent() {
+<span class="fc" id="L220">				Component result = null;</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">				for (Component c : initialComponentHierachy) {</span>
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">					if (!c.isVisible()) {</span>
+<span class="nc" id="L223">						continue;</span>
+					}
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">					if (!c.isDisplayable()) {</span>
+<span class="nc" id="L226">						continue;</span>
+					}
+<span class="fc" id="L228">					result = c;</span>
+<span class="fc" id="L229">					break;</span>
+				}
+<span class="fc" id="L231">				return result;</span>
+			}
+
+			@Override
+			public Object invoke(final InvocationData invocationData) {
+<span class="fc" id="L236">				final Object[] result = new Object[1];</span>
+<span class="fc" id="L237">				swingRenderer.showBusyDialogWhile(getDisplayedActivatorComponent(), new Runnable() {</span>
+					public void run() {
+<span class="fc" id="L239">						result[0] = data.invoke(invocationData);</span>
+<span class="fc" id="L240">					}</span>
+<span class="fc" id="L241">				}, ReflectionUIUtils.composeMessage(data.getCaption(), &quot;Executing...&quot;));</span>
+<span class="fc" id="L242">				return result[0];</span>
+			}
+
+			@Override
+			public Runnable getNextInvocationUndoJob(InvocationData invocationData) {
+<span class="fc" id="L247">				Runnable result = super.getNextInvocationUndoJob(invocationData);</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">				if (result == null) {</span>
+<span class="fc" id="L249">					return null;</span>
+				}
+<span class="fc" id="L251">				return new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="nc" id="L254">						swingRenderer.showBusyDialogWhile(getDisplayedActivatorComponent(), new Runnable() {</span>
+							public void run() {
+<span class="nc" id="L256">								result.run();</span>
+<span class="nc" id="L257">							}</span>
+<span class="nc" id="L258">						}, ReflectionUIUtils.composeMessage(AbstractModification.getUndoTitle(data.getCaption()),</span>
+<span class="nc" id="L259">								&quot;Executing...&quot;));</span>
+<span class="nc" id="L260">					}</span>
+				};
+			}
+
+			@Override
+			public Runnable getPreviousInvocationCustomRedoJob(InvocationData invocationData) {
+<span class="nc" id="L266">				Runnable result = super.getPreviousInvocationCustomRedoJob(invocationData);</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">				if (result == null) {</span>
+<span class="nc" id="L268">					return null;</span>
+				}
+<span class="nc" id="L270">				return new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="nc" id="L273">						swingRenderer.showBusyDialogWhile(getDisplayedActivatorComponent(), new Runnable() {</span>
+							public void run() {
+<span class="nc" id="L275">								result.run();</span>
+<span class="nc" id="L276">							}</span>
+<span class="nc" id="L277">						}, ReflectionUIUtils.composeMessage(data.getCaption(), &quot;Executing...&quot;));</span>
+<span class="nc" id="L278">					}</span>
+				};
+			}
+
+		};
+	}
+
+	public void invokeAndObtainReturnValue(InvocationData invocationData, Component activatorComponent) {
+<span class="fc bfc" id="L286" title="All 2 branches covered.">		if (data.getParameters().size() &gt; 0) {</span>
+<span class="fc" id="L287">			swingRenderer.getLastInvocationDataByMethodContext().put(input.getContext(), invocationData);</span>
+		}
+<span class="fc" id="L289">		returnValueObtained = false;</span>
+<span class="fc" id="L290">		returnValue = makeMethodModificationsUndoable(indicateWhenBusy(data, activatorComponent))</span>
+<span class="fc" id="L291">				.invoke(invocationData);</span>
+<span class="fc" id="L292">		returnValueObtained = true;</span>
+<span class="fc" id="L293">	}</span>
+
+	public boolean askConfirmation(InvocationData invocationData, Component activatorComponent) {
+<span class="fc" id="L296">		String confirmationMessage = data.getConfirmationMessage(invocationData);</span>
+<span class="pc bpc" id="L297" title="1 of 2 branches missed.">		if (confirmationMessage != null) {</span>
+<span class="nc" id="L298">			if (!swingRenderer.openQuestionDialog(activatorComponent, confirmationMessage, getTitle(), &quot;OK&quot;,</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">					&quot;Cancel&quot;)) {</span>
+<span class="nc" id="L300">				return false;</span>
+			}
+		}
+<span class="fc" id="L303">		return true;</span>
+	}
+
+	protected boolean shouldDisplayReturnValue() {
+<span class="pc bpc" id="L307" title="1 of 6 branches missed.">		return returnValueObtained &amp;&amp; shouldDisplayReturnValueIfAny &amp;&amp; (data.getReturnValueType() != null);</span>
+	}
+
+	protected void openMethodReturnValueWindow(final Component activatorComponent) {
+<span class="fc" id="L311">		AbstractEditorBuilder editorBuilder = createReturnValueEditorBuilder(activatorComponent);</span>
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">		if (!data.isReturnValueDetached()) {</span>
+<span class="fc" id="L313">			editorBuilder.createAndShowDialog();</span>
+<span class="fc" id="L314">		} else {</span>
+<span class="nc" id="L315">			editorBuilder.createAndShowFrame();</span>
+		}
+<span class="fc" id="L317">	}</span>
+
+	protected AbstractEditorBuilder createReturnValueEditorBuilder(Component activatorComponent) {
+<span class="fc" id="L320">		return new ReturnValueEditorBuilder(swingRenderer, activatorComponent, input, returnValue);</span>
+	}
+
+	protected static class ReturnValueEditorBuilder extends AbstractEditorBuilder {
+
+		protected SwingRenderer swingRenderer;
+		protected Component ownerComponent;
+		protected IMethodControlInput input;
+		protected IMethodControlData data;
+		protected Object returnValue;
+
+<span class="fc" id="L331">		public ReturnValueEditorBuilder(SwingRenderer swingRenderer, Component ownerComponent,</span>
+				IMethodControlInput input, Object returnValue) {
+<span class="fc" id="L333">			this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L334">			this.ownerComponent = ownerComponent;</span>
+<span class="fc" id="L335">			this.input = input;</span>
+<span class="fc" id="L336">			this.data = input.getControlData();</span>
+<span class="fc" id="L337">			this.returnValue = returnValue;</span>
+<span class="fc" id="L338">		}</span>
+
+		@Override
+		protected String getCapsuleTypeCaption() {
+<span class="pc bpc" id="L342" title="1 of 2 branches missed.">			if (!data.isReturnValueDetached()) {</span>
+<span class="fc" id="L343">				return ReflectionUIUtils.composeMessage(data.getCaption(), &quot;Result&quot;);</span>
+			} else {
+<span class="nc" id="L345">				return super.getCapsuleTypeCaption();</span>
+			}
+		}
+
+		@Override
+		protected IValidationJob getValueAbstractFormValidationJob() {
+<span class="fc" id="L351">			return data.getReturnValueAbstractFormValidationJob(returnValue);</span>
+		}
+
+		@Override
+		protected IContext getContext() {
+<span class="fc" id="L356">			return input.getContext();</span>
+		}
+
+		@Override
+		protected IContext getSubContext() {
+<span class="fc" id="L361">			return new CustomContext(&quot;MethodResult&quot;);</span>
+		}
+
+		@Override
+		protected Object loadValue() {
+<span class="fc" id="L366">			return returnValue;</span>
+		}
+
+		@Override
+		protected boolean isNullValueDistinct() {
+<span class="fc" id="L371">			return data.isNullReturnValueDistinct();</span>
+		}
+
+		@Override
+		protected boolean isEncapsulatedFormEmbedded() {
+<span class="fc" id="L376">			return true;</span>
+		}
+
+		@Override
+		protected boolean isEncapsulatedisControlValueValiditionEnabled() {
+<span class="fc" id="L381">			return true;</span>
+		}
+
+		protected boolean canCommitToParent() {
+<span class="fc" id="L385">			return false;</span>
+		}
+
+		@Override
+		protected void handleRealtimeLinkCommitException(Throwable t) {
+<span class="nc" id="L390">			throw new ReflectionUIError();</span>
+		}
+
+		@Override
+		protected IModification createCommittingModification(Object newObjectValue) {
+<span class="nc" id="L395">			return null;</span>
+		}
+
+		@Override
+		protected IModification createUndoModificationsReplacement() {
+<span class="fc" id="L400">			return ReflectionUIUtils.createUndoModificationsReplacement(data);</span>
+		}
+
+		@Override
+		public SwingRenderer getSwingRenderer() {
+<span class="fc" id="L405">			return swingRenderer;</span>
+		}
+
+		@Override
+		protected ValueReturnMode getReturnModeFromParent() {
+<span class="fc" id="L410">			return data.getValueReturnMode();</span>
+		}
+
+		@Override
+		protected Component getOwnerComponent() {
+<span class="fc" id="L415">			return ownerComponent;</span>
+		}
+
+		@Override
+		protected String getParentModificationTitle() {
+<span class="fc" id="L420">			return MethodControlDataModification.getTitle(data.getCaption());</span>
+		}
+
+		@Override
+		protected boolean isParentModificationVolatile() {
+<span class="fc" id="L425">			return false;</span>
+		}
+
+		@Override
+		protected IInfoFilter getEncapsulatedFormFilter() {
+<span class="fc" id="L430">			return IInfoFilter.DEFAULT;</span>
+		}
+
+		@Override
+		protected ITypeInfoSource getEncapsulatedFieldDeclaredTypeSource() {
+<span class="fc" id="L435">			return data.getReturnValueType().getSource();</span>
+		}
+
+		@Override
+		protected ModificationStack getParentModificationStack() {
+<span class="pc bpc" id="L440" title="1 of 2 branches missed.">			if (data.isReturnValueDetached()) {</span>
+<span class="nc" id="L441">				return null;</span>
+			} else {
+<span class="fc" id="L443">				return input.getModificationStack();</span>
+			}
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

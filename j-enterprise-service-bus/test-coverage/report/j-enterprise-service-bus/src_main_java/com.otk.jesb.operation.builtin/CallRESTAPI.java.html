@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CallRESTAPI.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">CallRESTAPI.java</span></div><h1>CallRESTAPI.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.client.RestClientResponseException;
+
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.Reference;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variant;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.resource.builtin.OpenAPIDescription;
+import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.OperationInput;
+import com.otk.jesb.resource.builtin.OpenAPIDescription.ResponseException;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.util.Accessor;
+import xy.reflect.ui.info.ResourcePath;
+
+public class CallRESTAPI implements Operation {
+
+	private OpenAPIDescription openAPIDescription;
+	private Class&lt;?&gt; apiClientClass;
+	private Method operationMethod;
+	private OperationInput operationInput;
+	private String customBaseURL;
+	private Class&lt;?&gt; operationOutputClass;
+
+<span class="fc" id="L42">	public CallRESTAPI(OpenAPIDescription openAPIDescription, Class&lt;?&gt; apiClientClass, Method operationMethod,</span>
+			OperationInput operationInput, String customBaseURL, Class&lt;?&gt; operationOutputClass) {
+<span class="fc" id="L44">		this.openAPIDescription = openAPIDescription;</span>
+<span class="fc" id="L45">		this.apiClientClass = apiClientClass;</span>
+<span class="fc" id="L46">		this.operationMethod = operationMethod;</span>
+<span class="fc" id="L47">		this.operationInput = operationInput;</span>
+<span class="fc" id="L48">		this.customBaseURL = customBaseURL;</span>
+<span class="fc" id="L49">		this.operationOutputClass = operationOutputClass;</span>
+<span class="fc" id="L50">	}</span>
+
+	public OpenAPIDescription getOpenAPIDescription() {
+<span class="nc" id="L53">		return openAPIDescription;</span>
+	}
+
+	public Class&lt;?&gt; getApiClientClass() {
+<span class="nc" id="L57">		return apiClientClass;</span>
+	}
+
+	public Method getOperationMethod() {
+<span class="nc" id="L61">		return operationMethod;</span>
+	}
+
+	public OperationInput getOperationInput() {
+<span class="nc" id="L65">		return operationInput;</span>
+	}
+
+	public String getCustomBaseURL() {
+<span class="nc" id="L69">		return customBaseURL;</span>
+	}
+
+	public Class&lt;?&gt; getOperationOutputClass() {
+<span class="nc" id="L73">		return operationOutputClass;</span>
+	}
+
+	@Override
+	public Object execute() throws Exception {
+		try {
+<span class="fc" id="L79">			Object apiClient = apiClientClass.newInstance();</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">			if (customBaseURL != null) {</span>
+<span class="fc" id="L81">				Class&lt;?&gt; configurationClass = openAPIDescription.getAPIClientConfigurationClass();</span>
+<span class="fc" id="L82">				Object apiClientConfiguration = configurationClass.newInstance();</span>
+<span class="fc" id="L83">				Method basePathSetter = configurationClass.getMethod(&quot;setBasePath&quot;, String.class);</span>
+<span class="fc" id="L84">				basePathSetter.invoke(apiClientConfiguration, customBaseURL);</span>
+<span class="fc" id="L85">				Method configurationSetter = apiClientClass.getMethod(&quot;setApiClient&quot;, configurationClass);</span>
+<span class="fc" id="L86">				configurationSetter.invoke(apiClient, apiClientConfiguration);</span>
+			}
+<span class="fc" id="L88">			Object operationResult = operationMethod.invoke(apiClient,</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">					(operationInput == null) ? new Object[0] : operationInput.listParameterValues());</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">			if (operationOutputClass == null) {</span>
+<span class="fc" id="L91">				return null;</span>
+			}
+<span class="fc" id="L93">			return operationOutputClass.getConstructor(operationMethod.getReturnType()).newInstance(operationResult);</span>
+<span class="fc" id="L94">		} catch (InvocationTargetException e) {</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">			if (e.getTargetException() instanceof Exception) {</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">				if (e.getTargetException() instanceof RestClientResponseException) {</span>
+<span class="fc" id="L97">					RestClientResponseException clientException = (RestClientResponseException) e.getTargetException();</span>
+<span class="fc" id="L98">					ResponseException responseException = new OpenAPIDescription.ResponseException(</span>
+<span class="fc" id="L99">							clientException.getRawStatusCode());</span>
+<span class="fc" id="L100">					responseException</span>
+<span class="fc" id="L101">							.setContentType(clientException.getResponseHeaders().getFirst(HttpHeaders.CONTENT_TYPE));</span>
+<span class="fc" id="L102">					responseException.setBody(clientException.getResponseBodyAsString());</span>
+<span class="fc" id="L103">					throw responseException;</span>
+				} else {
+<span class="fc" id="L105">					throw (Exception) e.getTargetException();</span>
+				}
+			} else {
+<span class="nc" id="L108">				throw new PotentialError(e.getTargetException());</span>
+			}
+		}
+	}
+
+<span class="fc" id="L113">	public static class Metadata implements OperationMetadata&lt;CallRESTAPI&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L117">			return &quot;Call REST API&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L122">			return &quot;REST&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;CallRESTAPI&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L127">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L132">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L133">					.specifyClassPathResourceLocation(CallRESTAPI.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+<span class="fc" id="L137">	public static class Builder implements OperationBuilder&lt;CallRESTAPI&gt; {</span>
+
+<span class="fc" id="L139">		private Reference&lt;OpenAPIDescription&gt; openAPIDescriptionReference = new Reference&lt;OpenAPIDescription&gt;(</span>
+<span class="fc" id="L140">				OpenAPIDescription.class);</span>
+<span class="fc" id="L141">		private RootInstanceBuilder operationInputBuilder = new RootInstanceBuilder(</span>
+<span class="fc" id="L142">				OperationInput.class.getSimpleName(), new OperationInputClassNameAccessor());</span>
+		private String operationSignature;
+<span class="fc" id="L144">		private Variant&lt;String&gt; customBaseURLVariant = new Variant&lt;String&gt;(String.class);</span>
+
+		private OpenAPIDescription getOpenAPIDescription() {
+<span class="fc" id="L147">			return openAPIDescriptionReference.resolve();</span>
+		}
+
+		public Reference&lt;OpenAPIDescription&gt; getOpenAPIDescriptionReference() {
+<span class="nc" id="L151">			return openAPIDescriptionReference;</span>
+		}
+
+		public void setOpenAPIDescriptionReference(Reference&lt;OpenAPIDescription&gt; openAPIDescriptionReference) {
+<span class="fc" id="L155">			this.openAPIDescriptionReference = openAPIDescriptionReference;</span>
+<span class="fc" id="L156">			tryToSelectValuesAutomatically();</span>
+<span class="fc" id="L157">		}</span>
+
+		public RootInstanceBuilder getOperationInputBuilder() {
+<span class="nc" id="L160">			return operationInputBuilder;</span>
+		}
+
+		public void setOperationInputBuilder(RootInstanceBuilder operationInputBuilder) {
+<span class="fc" id="L164">			this.operationInputBuilder = operationInputBuilder;</span>
+<span class="fc" id="L165">		}</span>
+
+		public String getOperationSignature() {
+<span class="nc" id="L168">			return operationSignature;</span>
+		}
+
+		public void setOperationSignature(String operationSignature) {
+<span class="fc" id="L172">			this.operationSignature = operationSignature;</span>
+<span class="fc" id="L173">		}</span>
+
+		public Variant&lt;String&gt; getCustomBaseURLVariant() {
+<span class="nc" id="L176">			return customBaseURLVariant;</span>
+		}
+
+		public void setCustomBaseURLVariant(Variant&lt;String&gt; customBaseURLVariant) {
+<span class="fc" id="L180">			this.customBaseURLVariant = customBaseURLVariant;</span>
+<span class="fc" id="L181">		}</span>
+
+		private void tryToSelectValuesAutomatically() {
+<span class="fc" id="L184">			OpenAPIDescription openAPIDescription = getOpenAPIDescription();</span>
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">			if (openAPIDescription == null) {</span>
+<span class="fc" id="L186">				return;</span>
+			}
+			try {
+<span class="nc bnc" id="L189" title="All 2 branches missed.">				if (operationSignature == null) {</span>
+<span class="nc" id="L190">					List&lt;OpenAPIDescription.APIOperationDescriptor&gt; operations = openAPIDescription</span>
+<span class="nc" id="L191">							.getClientOperationDescriptors();</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">					if (operations.size() &gt; 0) {</span>
+<span class="nc" id="L193">						operationSignature = operations.get(0).getOperationSignature();</span>
+					}
+				}
+<span class="nc" id="L196">			} catch (Throwable t) {</span>
+			}
+<span class="nc" id="L198">		}</span>
+
+		public List&lt;String&gt; getOperationSignatureOptions() {
+<span class="nc" id="L201">			OpenAPIDescription openAPIDescription = getOpenAPIDescription();</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">			if (openAPIDescription == null) {</span>
+<span class="nc" id="L203">				return Collections.emptyList();</span>
+			}
+<span class="nc" id="L205">			return openAPIDescription.getClientOperationDescriptors().stream().map(o -&gt; o.getOperationSignature())</span>
+<span class="nc" id="L206">					.collect(Collectors.toList());</span>
+		}
+
+		@Override
+		public CallRESTAPI build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+<span class="fc" id="L211">			OpenAPIDescription openAPIDescription = getOpenAPIDescription();</span>
+<span class="fc" id="L212">			Class&lt;?&gt; apiClientClass = openAPIDescription.getAPIClientClass();</span>
+<span class="fc" id="L213">			Method operationMethod = retrieveOperationDescriptor().retrieveMethod();</span>
+<span class="fc" id="L214">			OperationInput operationInput = (OperationInput) operationInputBuilder.build(new InstantiationContext(</span>
+<span class="fc" id="L215">					context.getVariables(),</span>
+<span class="fc" id="L216">					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));</span>
+<span class="fc" id="L217">			Class&lt;?&gt; operationOutputClass = retrieveOperationDescriptor().getOperationOutputClass();</span>
+<span class="fc" id="L218">			return new CallRESTAPI(openAPIDescription, apiClientClass, operationMethod, operationInput,</span>
+<span class="fc" id="L219">					customBaseURLVariant.getValue(), operationOutputClass);</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="fc" id="L224">			OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();</span>
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">			if (operation == null) {</span>
+<span class="nc" id="L226">				return null;</span>
+			}
+<span class="fc" id="L228">			return operation.getOperationOutputClass();</span>
+		}
+
+		private OpenAPIDescription.APIOperationDescriptor retrieveOperationDescriptor() {
+<span class="fc" id="L232">			OpenAPIDescription openAPIDescription = getOpenAPIDescription();</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">			if (openAPIDescription == null) {</span>
+<span class="nc" id="L234">				return null;</span>
+			}
+<span class="fc" id="L236">			return openAPIDescription.getClientOperationDescriptor(operationSignature);</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">			if (getOpenAPIDescription() == null) {</span>
+<span class="nc" id="L242">				throw new ValidationError(&quot;Failed to resolve the OpenAPI Description reference&quot;);</span>
+			}
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">			if (retrieveOperationDescriptor() == null) {</span>
+<span class="nc" id="L245">				throw new ValidationError(&quot;Invalid operation signature '&quot; + operationSignature + &quot;'&quot;);</span>
+			}
+<span class="fc" id="L247">			String customBaseURL = customBaseURLVariant.getValue();</span>
+<span class="pc bpc" id="L248" title="1 of 2 branches missed.">			if (customBaseURL != null) {</span>
+				try {
+<span class="fc" id="L250">					new URL(customBaseURL);</span>
+<span class="pc" id="L251">				} catch (MalformedURLException e) {</span>
+<span class="nc" id="L252">					throw new ValidationError(&quot;Invalid custom base URL: '&quot; + customBaseURL + &quot;'&quot;, e);</span>
+				}
+			}
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="fc" id="L256">				operationInputBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L257">						plan.getValidationContext(step).getVariableDeclarations());</span>
+			}
+<span class="fc" id="L259">		}</span>
+
+<span class="fc" id="L261">		private class OperationInputClassNameAccessor extends Accessor&lt;String&gt; {</span>
+			@Override
+			public String get() {
+<span class="fc" id="L264">				OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();</span>
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">				if (operation == null) {</span>
+<span class="nc" id="L266">					return null;</span>
+				}
+<span class="fc" id="L268">				return operation.getOperationInputClass().getName();</span>
+			}
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

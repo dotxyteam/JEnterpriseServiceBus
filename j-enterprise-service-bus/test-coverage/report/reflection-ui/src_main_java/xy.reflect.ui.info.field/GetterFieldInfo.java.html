@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>GetterFieldInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.field</a> &gt; <span class="el_source">GetterFieldInfo.java</span></div><h1>GetterFieldInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.field;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.method.DefaultMethodInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * This class represents field information generated from a
+ * '(get|is|has)Something()' Java method. If the corresponding
+ * 'setSomething(...)' method is not found in the same containing class then
+ * this field will be &quot;read-only&quot; (may not be editable).
+ * 
+ * Note that the field name of underlying synthetic methods will have a special
+ * prefix. A unique suffix may also be added to avoid collisions when there are
+ * multiple fields with the same name accessible from the same containing type
+ * information.
+ * 
+ * @author olitank
+ *
+ */
+public class GetterFieldInfo extends AbstractInfo implements IFieldInfo {
+
+<span class="fc" id="L46">	public static final Pattern GETTER_PATTERN = Pattern.compile(&quot;^(?:get|is|has)([A-Z].*)?&quot;);</span>
+
+	protected ReflectionUI reflectionUI;
+	protected Method javaGetterMethod;
+	protected Class&lt;?&gt; objectJavaClass;
+	protected IMethodInfo setterMethodInfo;
+<span class="fc" id="L52">	protected int duplicateNameIndex = -1;</span>
+	protected String name;
+	protected String caption;
+
+<span class="fc" id="L56">	public GetterFieldInfo(ReflectionUI reflectionUI, Method javaGetterMethod, Class&lt;?&gt; objectJavaClass) {</span>
+<span class="fc" id="L57">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L58">		this.javaGetterMethod = javaGetterMethod;</span>
+<span class="fc" id="L59">		this.objectJavaClass = objectJavaClass;</span>
+<span class="fc" id="L60">		resolveJavaReflectionModelAccessProblems();</span>
+<span class="fc" id="L61">	}</span>
+
+	public Method getJavaGetterMethod() {
+<span class="fc" id="L64">		return javaGetterMethod;</span>
+	}
+
+	public static String getterToFieldName(String getterMethodName) {
+<span class="fc" id="L68">		Matcher m = GETTER_PATTERN.matcher(getterMethodName);</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">		if (!m.matches()) {</span>
+<span class="fc" id="L70">			return null;</span>
+		}
+<span class="fc" id="L72">		String result = m.group(1);</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L74">			return &quot;&quot;;</span>
+		}
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">		if (result.length() &gt; 0) {</span>
+<span class="fc" id="L77">			result = MiscUtils.changeCase(result, false, 0, 1);</span>
+		}
+<span class="fc" id="L79">		return result;</span>
+	}
+
+	public static String fieldToSetterName(String fieldName) {
+<span class="fc bfc" id="L83" title="All 2 branches covered.">		return &quot;set&quot; + ((fieldName.length() &gt; 0) ? MiscUtils.changeCase(fieldName, true, 0, 1) : &quot;&quot;);</span>
+	}
+
+	protected static String namePrefix(Method javaGetterMethod) {
+<span class="fc bfc" id="L87" title="All 2 branches covered.">		return javaGetterMethod.isSynthetic() ? &quot;_&quot; : &quot;&quot;;</span>
+	}
+
+	public static Method getValidSetterMethod(Method javaGetterMethod, Class&lt;?&gt; objectJavaClass) {
+<span class="fc" id="L91">		String fieldName = getterToFieldName(javaGetterMethod.getName());</span>
+<span class="fc" id="L92">		String setterMethodName = fieldToSetterName(fieldName);</span>
+		try {
+<span class="fc bfc" id="L94" title="All 2 branches covered.">			for (Method otherMethod : objectJavaClass.getMethods()) {</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">				if (otherMethod.getName().equals(setterMethodName)) {</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">					if (otherMethod.getParameterTypes().length == 1) {</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">						if (otherMethod.getParameterTypes()[0].equals(javaGetterMethod.getReturnType())) {</span>
+<span class="fc" id="L98">							if (Modifier.isStatic(otherMethod.getModifiers()) == Modifier</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">									.isStatic(javaGetterMethod.getModifiers())) {</span>
+<span class="fc" id="L100">								return otherMethod;</span>
+							}
+						}
+					}
+				}
+			}
+<span class="fc" id="L106">			return null;</span>
+<span class="nc" id="L107">		} catch (SecurityException e) {</span>
+<span class="nc" id="L108">			throw new ReflectionUIError(e);</span>
+		}
+	}
+
+	public static boolean isCompatibleWith(Method javaMethod, Class&lt;?&gt; objectJavaClass) {
+<span class="fc" id="L113">		String fieldName = GetterFieldInfo.getterToFieldName(javaMethod.getName());</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">		if (fieldName == null) {</span>
+<span class="fc" id="L115">			return false;</span>
+		}
+<span class="fc bfc" id="L117" title="All 2 branches covered.">		for (Field siblingField : objectJavaClass.getFields()) {</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">			if (PublicFieldInfo.isCompatibleWith(siblingField)) {</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">				if (siblingField.getName().equals(fieldName)) {</span>
+<span class="nc" id="L120">					return false;</span>
+				}
+			}
+		}
+<span class="fc bfc" id="L124" title="All 2 branches covered.">		if (javaMethod.getParameterTypes().length &gt; 0) {</span>
+<span class="fc" id="L125">			return false;</span>
+		}
+<span class="fc bfc" id="L127" title="All 2 branches covered.">		for (Method commonMethod : Object.class.getMethods()) {</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">			if (ClassUtils.isOverriddenBy(commonMethod, javaMethod)) {</span>
+<span class="fc" id="L129">				return false;</span>
+			}
+		}
+<span class="fc" id="L132">		return true;</span>
+	}
+
+	protected void resolveJavaReflectionModelAccessProblems() {
+		try {
+<span class="fc" id="L137">			javaGetterMethod.setAccessible(true);</span>
+<span class="pc" id="L138">		} catch (Throwable t) {</span>
+<span class="nc" id="L139">			reflectionUI.logDebug(t);</span>
+		}
+<span class="fc" id="L141">	}</span>
+
+	public DefaultMethodInfo getGetterMethodInfo() {
+<span class="fc" id="L144">		return new DefaultMethodInfo(reflectionUI, javaGetterMethod, objectJavaClass);</span>
+	}
+
+	protected IMethodInfo getSetterMethodInfo() {
+<span class="fc bfc" id="L148" title="All 2 branches covered.">		if (setterMethodInfo == null) {</span>
+<span class="fc" id="L149">			Method javaSetterMethod = GetterFieldInfo.getValidSetterMethod(javaGetterMethod, objectJavaClass);</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">			if (javaSetterMethod == null) {</span>
+<span class="fc" id="L151">				setterMethodInfo = IMethodInfo.NULL_METHOD_INFO;</span>
+<span class="fc" id="L152">			} else {</span>
+<span class="fc" id="L153">				setterMethodInfo = new DefaultMethodInfo(reflectionUI, javaSetterMethod, objectJavaClass);</span>
+			}
+		}
+<span class="fc bfc" id="L156" title="All 2 branches covered.">		if (setterMethodInfo == IMethodInfo.NULL_METHOD_INFO) {</span>
+<span class="fc" id="L157">			return null;</span>
+		}
+<span class="fc" id="L159">		return setterMethodInfo;</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc bfc" id="L164" title="All 2 branches covered.">		if (name == null) {</span>
+<span class="fc" id="L165">			name = namePrefix(javaGetterMethod) + GetterFieldInfo.getterToFieldName(javaGetterMethod.getName());</span>
+<span class="fc" id="L166">			int index = obtainDuplicateNameIndex();</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">			if (index &gt; 0) {</span>
+<span class="fc" id="L168">				name += &quot;.&quot; + Integer.toString(index);</span>
+			}
+		}
+<span class="fc" id="L171">		return name;</span>
+	}
+
+	protected int obtainDuplicateNameIndex() {
+<span class="fc bfc" id="L175" title="All 2 branches covered.">		if (duplicateNameIndex == -1) {</span>
+<span class="fc" id="L176">			duplicateNameIndex = 0;</span>
+<span class="fc" id="L177">			Method[] allJavaMethods = objectJavaClass.getMethods();</span>
+<span class="fc" id="L178">			ReflectionUIUtils.sortMethods(allJavaMethods);</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">			for (Method eachJavaMethod : allJavaMethods) {</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">				if (GetterFieldInfo.isCompatibleWith(eachJavaMethod, objectJavaClass)) {</span>
+<span class="fc" id="L181">					if ((namePrefix(eachJavaMethod) + GetterFieldInfo.getterToFieldName(eachJavaMethod.getName()))</span>
+<span class="fc" id="L182">							.equals(namePrefix(javaGetterMethod)</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">									+ GetterFieldInfo.getterToFieldName(javaGetterMethod.getName()))) {</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">						if (eachJavaMethod.equals(javaGetterMethod)) {</span>
+<span class="fc" id="L185">							break;</span>
+						}
+<span class="fc" id="L187">						duplicateNameIndex++;</span>
+					}
+				}
+			}
+		}
+<span class="fc" id="L192">		return duplicateNameIndex;</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc bfc" id="L197" title="All 2 branches covered.">		if (caption == null) {</span>
+<span class="fc" id="L198">			caption = ReflectionUIUtils</span>
+<span class="fc" id="L199">					.identifierToCaption(GetterFieldInfo.getterToFieldName(javaGetterMethod.getName()));</span>
+<span class="fc" id="L200">			int index = obtainDuplicateNameIndex();</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">			if (index &gt; 0) {</span>
+<span class="fc" id="L202">				caption += &quot; (&quot; + (index + 1) + &quot;)&quot;;</span>
+			}
+		}
+<span class="fc" id="L205">		return caption;</span>
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="fc" id="L210">		return false;</span>
+	}
+
+	@Override
+	public boolean isRelevant(Object object) {
+<span class="fc" id="L215">		return true;</span>
+	}
+
+	@Override
+	public double getDisplayAreaHorizontalWeight() {
+<span class="fc" id="L220">		return 1.0;</span>
+	}
+
+	@Override
+	public double getDisplayAreaVerticalWeight() {
+<span class="fc" id="L225">		return 0.0;</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaHorizontallyFilled() {
+<span class="fc" id="L230">		return true;</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaVerticallyFilled() {
+<span class="fc" id="L235">		return false;</span>
+	}
+
+	@Override
+	public ITypeInfo getType() {
+<span class="fc" id="L240">		return reflectionUI.getTypeInfo(new JavaTypeInfoSource(javaGetterMethod.getReturnType(), javaGetterMethod, -1,</span>
+<span class="fc" id="L241">				new SpecificitiesIdentifier(</span>
+<span class="fc" id="L242">						new JavaTypeInfoSource(objectJavaClass, null).buildTypeInfo(reflectionUI).getName(),</span>
+<span class="fc" id="L243">						GetterFieldInfo.this.getName())));</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L248">		return null;</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="fc" id="L253">		return null;</span>
+	}
+
+	@Override
+	public Object getValue(Object object) {
+<span class="fc" id="L258">		IMethodInfo getter = getGetterMethodInfo();</span>
+<span class="fc" id="L259">		return getter.invoke(object, new InvocationData(object, getter));</span>
+	}
+
+	@Override
+	public Runnable getNextUpdateCustomUndoJob(Object object, Object value) {
+<span class="fc" id="L264">		return null;</span>
+	}
+
+	@Override
+	public Runnable getPreviousUpdateCustomRedoJob(Object object, Object newValue) {
+<span class="nc" id="L269">		return null;</span>
+	}
+
+	@Override
+	public boolean hasValueOptions(Object object) {
+<span class="fc" id="L274">		return false;</span>
+	}
+
+	@Override
+	public Object[] getValueOptions(Object object) {
+<span class="nc" id="L279">		return null;</span>
+	}
+
+	@Override
+	public void setValue(Object object, Object value) {
+<span class="fc" id="L284">		IMethodInfo setter = getSetterMethodInfo();</span>
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">		if (setter == null) {</span>
+<span class="nc" id="L286">			throw new ReflectionUIError(&quot;Cannot set value: Setter not found for getter '&quot; + javaGetterMethod + &quot;'&quot;);</span>
+		}
+<span class="fc" id="L288">		setter.invoke(object, new InvocationData(object, setter, value));</span>
+<span class="fc" id="L289">	}</span>
+
+	@Override
+	public boolean isNullValueDistinct() {
+<span class="fc" id="L293">		return false;</span>
+	}
+
+	@Override
+	public String getNullValueLabel() {
+<span class="fc" id="L298">		return null;</span>
+	}
+
+	@Override
+	public boolean isGetOnly() {
+<span class="fc bfc" id="L303" title="All 2 branches covered.">		return getSetterMethodInfo() == null;</span>
+	}
+
+	@Override
+	public boolean isTransient() {
+<span class="fc" id="L308">		return false;</span>
+	}
+
+	@Override
+	public ValueReturnMode getValueReturnMode() {
+<span class="fc" id="L313">		return ValueReturnMode.INDETERMINATE;</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="fc" id="L318">		return null;</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="fc" id="L323">		return null;</span>
+	}
+
+	@Override
+	public boolean isFormControlMandatory() {
+<span class="fc" id="L328">		return false;</span>
+	}
+
+	@Override
+	public boolean isFormControlEmbedded() {
+<span class="fc" id="L333">		return false;</span>
+	}
+
+	@Override
+	public IInfoFilter getFormControlFilter() {
+<span class="fc" id="L338">		return IInfoFilter.DEFAULT;</span>
+	}
+
+	@Override
+	public boolean isControlValueValiditionEnabled() {
+<span class="fc" id="L343">		return false;</span>
+	}
+
+	@Override
+	public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L348">		return null;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L353">		return Collections.emptyMap();</span>
+	}
+
+	@Override
+	public long getAutoUpdatePeriodMilliseconds() {
+<span class="fc" id="L358">		return -1;</span>
+	}
+
+	@Override
+	public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L363">	}</span>
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L367">		final int prime = 31;</span>
+<span class="fc" id="L368">		int result = 1;</span>
+<span class="pc bpc" id="L369" title="1 of 2 branches missed.">		result = prime * result + ((javaGetterMethod == null) ? 0 : javaGetterMethod.hashCode());</span>
+<span class="pc bpc" id="L370" title="1 of 2 branches missed.">		result = prime * result + ((objectJavaClass == null) ? 0 : objectJavaClass.hashCode());</span>
+<span class="pc bpc" id="L371" title="1 of 2 branches missed.">		result = prime * result + ((reflectionUI == null) ? 0 : reflectionUI.hashCode());</span>
+<span class="fc" id="L372">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="pc bpc" id="L377" title="1 of 2 branches missed.">		if (this == obj)</span>
+<span class="fc" id="L378">			return true;</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L380">			return false;</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L382">			return false;</span>
+<span class="nc" id="L383">		GetterFieldInfo other = (GetterFieldInfo) obj;</span>
+<span class="nc bnc" id="L384" title="All 2 branches missed.">		if (javaGetterMethod == null) {</span>
+<span class="nc bnc" id="L385" title="All 2 branches missed.">			if (other.javaGetterMethod != null)</span>
+<span class="nc" id="L386">				return false;</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">		} else if (!javaGetterMethod.equals(other.javaGetterMethod))</span>
+<span class="nc" id="L388">			return false;</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">		if (objectJavaClass == null) {</span>
+<span class="nc bnc" id="L390" title="All 2 branches missed.">			if (other.objectJavaClass != null)</span>
+<span class="nc" id="L391">				return false;</span>
+<span class="nc bnc" id="L392" title="All 2 branches missed.">		} else if (!objectJavaClass.equals(other.objectJavaClass))</span>
+<span class="nc" id="L393">			return false;</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">		if (reflectionUI == null) {</span>
+<span class="nc bnc" id="L395" title="All 2 branches missed.">			if (other.reflectionUI != null)</span>
+<span class="nc" id="L396">				return false;</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">		} else if (!reflectionUI.equals(other.reflectionUI))</span>
+<span class="nc" id="L398">			return false;</span>
+<span class="nc" id="L399">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L404">		return &quot;GetterFieldInfo [javaGetterMethod=&quot; + javaGetterMethod + &quot;, objectJavaClass=&quot; + objectJavaClass + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

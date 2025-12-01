@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ErrorHandlingFieldControlData.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control</a> &gt; <span class="el_source">ErrorHandlingFieldControlData.java</span></div><h1>ErrorHandlingFieldControlData.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control;
+
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Field control data that handles value access errors by notifying them and
+ * returning the last valid value.
+ * 
+ * When an update of a field value fails, the error is caught and thrown when
+ * the the current control (normally) tries to refresh its state because of this
+ * update that it initiated itself. With most controls it allows the user to
+ * continue modifying the erroneous value until it becomes correct, while
+ * viewing the error message. Otherwise, control would likely revert to the
+ * state corresponding to the last valid value, preventing the user from
+ * completing its correction. Note that the update value error is only thrown
+ * once and discarded so that the current control updates its state and drops
+ * the error message if another control performs an action that triggers current
+ * form refreshment.
+ * 
+ * @author olitank
+ *
+ */
+public class ErrorHandlingFieldControlData extends FieldControlDataProxy {
+
+	protected SwingRenderer swingRenderer;
+	protected JComponent errorDialogOwner;
+
+	protected Object lastFieldValue;
+<span class="fc" id="L35">	protected boolean lastFieldValueInitialized = false;</span>
+	protected Throwable lastValueUpdateError;
+	protected Throwable currentlyDisplayedError;
+
+	public ErrorHandlingFieldControlData(IFieldControlData data, SwingRenderer swingRenderer,
+			JComponent errorDialogOwner) {
+<span class="fc" id="L41">		super(data);</span>
+<span class="fc" id="L42">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L43">		this.errorDialogOwner = errorDialogOwner;</span>
+<span class="fc" id="L44">	}</span>
+
+	@Override
+	public Object getValue() {
+		try {
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">			if (lastValueUpdateError != null) {</span>
+<span class="nc" id="L50">				Throwable toThrow = lastValueUpdateError;</span>
+<span class="nc" id="L51">				lastValueUpdateError = null;</span>
+<span class="nc" id="L52">				throw toThrow;</span>
+			}
+			try {
+<span class="fc" id="L55">				lastFieldValue = super.getValue();</span>
+<span class="fc" id="L56">				lastFieldValueInitialized = true;</span>
+<span class="fc" id="L57">				handleError(null);</span>
+<span class="pc" id="L58">			} catch (ErrorWithDefaultValue e) {</span>
+<span class="nc" id="L59">				lastFieldValue = e.getDefaultValue();</span>
+<span class="nc" id="L60">				lastFieldValueInitialized = true;</span>
+<span class="nc" id="L61">				throw e.getError();</span>
+			}
+<span class="nc" id="L63">		} catch (final Throwable t) {</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">			if (!lastFieldValueInitialized) {</span>
+<span class="nc" id="L65">				throw new ReflectionUIError(t);</span>
+			}
+<span class="nc" id="L67">			handleError(t);</span>
+		}
+<span class="fc" id="L69">		return lastFieldValue;</span>
+
+	}
+
+	@Override
+	public void setValue(Object newValue) {
+		try {
+<span class="fc" id="L76">			lastFieldValue = newValue;</span>
+<span class="fc" id="L77">			lastFieldValueInitialized = true;</span>
+<span class="fc" id="L78">			super.setValue(newValue);</span>
+<span class="fc" id="L79">			lastValueUpdateError = null;</span>
+<span class="pc" id="L80">		} catch (Throwable t) {</span>
+<span class="nc" id="L81">			lastValueUpdateError = t;</span>
+		}
+<span class="fc" id="L83">	}</span>
+
+	/**
+	 * Called to notify an error.
+	 * 
+	 * @param error The exception that was thrown or null if the error is no longer
+	 *              present.
+	 */
+	protected void handleError(final Throwable error) {
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">		if (isErrorAlreadyDisplayed(error)) {</span>
+<span class="fc" id="L93">			return;</span>
+		}
+<span class="nc" id="L95">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L98">				displayError(error);</span>
+<span class="nc" id="L99">				currentlyDisplayedError = error;</span>
+<span class="nc" id="L100">			}</span>
+		});
+<span class="nc" id="L102">	}</span>
+
+	protected boolean isErrorAlreadyDisplayed(Throwable error) {
+		try {
+<span class="fc" id="L106">			return MiscUtils.sameExceptionOrBothNull(error, currentlyDisplayedError, swingRenderer.getReflectionUI());</span>
+<span class="nc" id="L107">		} catch (Exception e) {</span>
+<span class="nc" id="L108">			swingRenderer.getReflectionUI().logDebug(&quot;WARNING: Failed to compare exceptions '&quot; + error + &quot;' and '&quot;</span>
+<span class="nc" id="L109">					+ currentlyDisplayedError + &quot;': &quot; + e);</span>
+<span class="nc" id="L110">			return false;</span>
+		}
+	}
+
+	protected void displayError(Throwable error) {
+<span class="nc bnc" id="L115" title="All 2 branches missed.">		if (currentlyDisplayedError != null) {</span>
+<span class="nc" id="L116">			SwingRendererUtils.unsetErrorBorder(errorDialogOwner, swingRenderer);</span>
+		}
+<span class="nc bnc" id="L118" title="All 2 branches missed.">		if (error != null) {</span>
+<span class="nc" id="L119">			SwingRendererUtils.setErrorBorder(errorDialogOwner, swingRenderer);</span>
+<span class="nc" id="L120">			showErrorDialog(error);</span>
+		}
+<span class="nc" id="L122">	}</span>
+
+	protected void showErrorDialog(Throwable t) {
+<span class="nc" id="L125">		swingRenderer.handleException(errorDialogOwner, new ReflectionUIError(</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">				((getCaption().length() &gt; 0) ? (&quot;'&quot; + getCaption() + &quot;' error: &quot;) : &quot;&quot;) + t.toString(), t));</span>
+<span class="nc" id="L127">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

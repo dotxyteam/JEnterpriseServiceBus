@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SharedStructureModel.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.resource.builtin</a> &gt; <span class="el_source">SharedStructureModel.java</span></div><h1>SharedStructureModel.java</h1><pre class="source lang-java linenums">package com.otk.jesb.resource.builtin;
+
+import com.otk.jesb.Structure;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.resource.Resource;
+import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.Reference;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public class SharedStructureModel extends Resource {
+
+<span class="fc" id="L22">	private static final String STRUCTURED_CLASS_NAME_PREFIX = SharedStructureModel.class.getPackage().getName()</span>
+<span class="fc" id="L23">			+ &quot;.SharedStructure&quot;;</span>
+
+	public static boolean isStructuredClass(Class&lt;?&gt; c) {
+<span class="fc" id="L26">		return c.getName().startsWith(STRUCTURED_CLASS_NAME_PREFIX);</span>
+	}
+
+	public static SharedStructureModel getFromStructuredClass(Class&lt;?&gt; c) {
+<span class="nc bnc" id="L30" title="All 2 branches missed.">		if (!isStructuredClass(c)) {</span>
+<span class="nc" id="L31">			throw new UnexpectedError();</span>
+		}
+<span class="nc" id="L33">		String digitalUniqueIdentifier = c.getName().substring(STRUCTURED_CLASS_NAME_PREFIX.length());</span>
+<span class="nc" id="L34">		Object object = MiscUtils.fromFromDigitalUniqueIdentifier(digitalUniqueIdentifier);</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">		if (!(object instanceof SharedStructureModel)) {</span>
+<span class="nc" id="L36">			throw new UnexpectedError();</span>
+		}
+<span class="nc" id="L38">		return (SharedStructureModel) object;</span>
+	}
+
+<span class="nc" id="L41">	private Structure structure = new ClassicStructure();</span>
+<span class="nc" id="L42">	private UpToDate&lt;Class&lt;?&gt;&gt; upToDateStructuredClass = new UpToDate&lt;Class&lt;?&gt;&gt;() {</span>
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+<span class="nc bnc" id="L45" title="All 2 branches missed.">			return (structure != null) ? MiscUtils.serialize(structure) : null;</span>
+		}
+
+		@Override
+		protected Class&lt;?&gt; obtainLatest(Object versionIdentifier) {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">			if (structure == null) {</span>
+<span class="nc" id="L51">				return null;</span>
+			} else {
+				try {
+<span class="nc" id="L54">					String className = STRUCTURED_CLASS_NAME_PREFIX + InstantiationUtils.toRelativeTypeNameVariablePart(</span>
+<span class="nc" id="L55">							MiscUtils.toDigitalUniqueIdentifier(SharedStructureModel.this));</span>
+<span class="nc" id="L56">					return (Class&lt;?&gt;) MiscUtils.IN_MEMORY_COMPILER.compile(className,</span>
+<span class="nc" id="L57">							structure.generateJavaTypeSourceCode(className));</span>
+<span class="nc" id="L58">				} catch (CompilationError e) {</span>
+<span class="nc" id="L59">					throw new PotentialError(e);</span>
+				}
+			}
+		}
+	};
+
+<span class="nc" id="L65">	public SharedStructureModel() {</span>
+<span class="nc" id="L66">	}</span>
+
+	public SharedStructureModel(String name) {
+<span class="nc" id="L69">		super(name);</span>
+<span class="nc" id="L70">	}</span>
+
+	public Structure getStructure() {
+<span class="nc" id="L73">		return structure;</span>
+	}
+
+	public void setStructure(Structure structure) {
+<span class="nc" id="L77">		this.structure = structure;</span>
+<span class="nc" id="L78">	}</span>
+
+	public Class&lt;?&gt; getStructuredClass() {
+		try {
+<span class="nc" id="L82">			return upToDateStructuredClass.get();</span>
+<span class="nc" id="L83">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L84">			throw new PotentialError(e);</span>
+		}
+	}
+
+	public Accessor&lt;String&gt; getStructuredClassNameAccessor() {
+<span class="nc" id="L89">		return new StructuredClassNameAccessor(Reference.get(this));</span>
+	}
+
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+<span class="nc" id="L94">		super.validate(recursively);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		if (recursively) {</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">			if (structure != null) {</span>
+				try {
+<span class="nc" id="L98">					structure.validate(recursively);</span>
+<span class="nc" id="L99">				} catch (ValidationError e) {</span>
+<span class="nc" id="L100">					throw new ValidationError(&quot;Failed to validate the structure&quot;, e);</span>
+				}
+			}
+		}
+<span class="nc" id="L104">	}</span>
+
+<span class="fc" id="L106">	public static class Metadata implements ResourceMetadata {</span>
+
+		@Override
+		public ResourcePath getResourceIconImagePath() {
+<span class="fc" id="L110">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L111">					.specifyClassPathResourceLocation(SharedStructureModel.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+		@Override
+		public Class&lt;? extends Resource&gt; getResourceClass() {
+<span class="fc" id="L116">			return SharedStructureModel.class;</span>
+		}
+
+		@Override
+		public String getResourceTypeName() {
+<span class="fc" id="L121">			return &quot;Shared Structure&quot;;</span>
+		}
+
+	}
+
+	private static class StructuredClassNameAccessor extends Accessor&lt;String&gt; {
+
+		private Reference&lt;SharedStructureModel&gt; modelReference;
+
+<span class="nc" id="L130">		public StructuredClassNameAccessor(Reference&lt;SharedStructureModel&gt; modelReference) {</span>
+<span class="nc" id="L131">			this.modelReference = modelReference;</span>
+<span class="nc" id="L132">		}</span>
+
+		@Override
+		public String get() {
+<span class="nc" id="L136">			SharedStructureModel model = modelReference.resolve();</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">			if (model == null) {</span>
+<span class="nc" id="L138">				return null;</span>
+			}
+<span class="nc" id="L140">			return model.getStructuredClass().getName();</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

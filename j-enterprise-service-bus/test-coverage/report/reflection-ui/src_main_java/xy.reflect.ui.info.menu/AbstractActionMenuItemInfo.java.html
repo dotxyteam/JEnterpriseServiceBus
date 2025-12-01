@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractActionMenuItemInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.menu</a> &gt; <span class="el_source">AbstractActionMenuItemInfo.java</span></div><h1>AbstractActionMenuItemInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.menu;
+
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.util.KeyboardShortcut;
+
+/**
+ * Base class of action menu item specifications.
+ * 
+ * @author olitank
+ *
+ */
+public abstract class AbstractActionMenuItemInfo extends AbstractMenuItemInfo {
+
+	protected ResourcePath iconImagePath;
+	protected KeyboardShortcut keyboardShortcut;
+
+	public AbstractActionMenuItemInfo(String name, ResourcePath iconImagePath) {
+<span class="fc" id="L19">		super(name);</span>
+<span class="fc" id="L20">		this.iconImagePath = iconImagePath;</span>
+<span class="fc" id="L21">	}</span>
+
+	public AbstractActionMenuItemInfo() {
+<span class="nc" id="L24">		super();</span>
+<span class="nc" id="L25">	}</span>
+
+	public ResourcePath getIconImagePath() {
+<span class="fc" id="L28">		return iconImagePath;</span>
+	}
+
+	public void setIconImagePath(ResourcePath iconImagePath) {
+<span class="nc" id="L32">		this.iconImagePath = iconImagePath;</span>
+<span class="nc" id="L33">	}</span>
+
+	public KeyboardShortcut getKeyboardShortcut() {
+<span class="fc" id="L36">		return keyboardShortcut;</span>
+	}
+
+	public void setKeyboardShortcut(KeyboardShortcut keyboardShortcut) {
+<span class="fc" id="L40">		this.keyboardShortcut = keyboardShortcut;</span>
+<span class="fc" id="L41">	}</span>
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L45">		final int prime = 31;</span>
+<span class="nc" id="L46">		int result = super.hashCode();</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">		result = prime * result + ((iconImagePath == null) ? 0 : iconImagePath.hashCode());</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		result = prime * result + ((keyboardShortcut == null) ? 0 : keyboardShortcut.hashCode());</span>
+<span class="nc" id="L49">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L55">			return true;</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="nc" id="L57">			return false;</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L59">			return false;</span>
+<span class="fc" id="L60">		AbstractActionMenuItemInfo other = (AbstractActionMenuItemInfo) obj;</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">		if (iconImagePath == null) {</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">			if (other.iconImagePath != null)</span>
+<span class="nc" id="L63">				return false;</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">		} else if (!iconImagePath.equals(other.iconImagePath))</span>
+<span class="nc" id="L65">			return false;</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">		if (keyboardShortcut == null) {</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">			if (other.keyboardShortcut != null)</span>
+<span class="nc" id="L68">				return false;</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">		} else if (!keyboardShortcut.equals(other.keyboardShortcut))</span>
+<span class="nc" id="L70">			return false;</span>
+<span class="fc" id="L71">		return true;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,1209 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>PlanDiagram.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.ui</a> &gt; <span class="el_source">PlanDiagram.java</span></div><h1>PlanDiagram.java</h1><pre class="source lang-java linenums">package com.otk.jesb.ui;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.Icon;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
+import javax.swing.SwingUtilities;
+
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.operation.Experiment;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.PlanElement;
+import com.otk.jesb.solution.CompositeStep;
+import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
+import com.otk.jesb.solution.LoopCompositeStep;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Transition;
+import com.otk.jesb.ui.diagram.DragIntent;
+import com.otk.jesb.ui.diagram.JConnection;
+import com.otk.jesb.ui.diagram.JDiagram;
+import com.otk.jesb.ui.diagram.JDiagramAction;
+import com.otk.jesb.ui.diagram.JDiagramActionCategory;
+import com.otk.jesb.ui.diagram.JDiagramActionScheme;
+import com.otk.jesb.ui.diagram.JDiagramListener;
+import com.otk.jesb.ui.diagram.JDiagramObject;
+import com.otk.jesb.ui.diagram.JNode;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.DefaultFieldControlData;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.ListControl;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.HyperlinkTooltip;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.menu.CustomActionMenuItemInfo;
+import xy.reflect.ui.info.menu.MenuInfo;
+import xy.reflect.ui.info.menu.MenuItemCategory;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
+import xy.reflect.ui.info.type.iterable.item.ItemPositionFactory;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.undo.AbstractSimpleModificationListener;
+import xy.reflect.ui.undo.IModification;
+import xy.reflect.ui.undo.ListModificationFactory;
+import xy.reflect.ui.undo.UndoOrder;
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.KeyboardShortcut;
+import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.ValidationErrorWrapper;
+
+public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
+
+	private static final long serialVersionUID = 1L;
+
+	private static final int STEP_ICON_WIDTH = 64;
+	private static final int STEP_ICON_HEIGHT = 64;
+<span class="fc" id="L96">	private static final Color OBJECTS_COLOR = new Color(95, 99, 104);</span>
+	private static final Image BACKGROUND_IMAGE;
+	static {
+		try {
+<span class="fc" id="L100">			BACKGROUND_IMAGE = ImageIO.read(PlanDiagram.class.getResourceAsStream(&quot;diagram-background.png&quot;));</span>
+<span class="pc" id="L101">		} catch (IOException e) {</span>
+<span class="nc" id="L102">			throw new UnexpectedError(e);</span>
+		}
+<span class="fc" id="L104">	}</span>
+
+	protected SwingRenderer swingRenderer;
+	protected IFieldControlInput input;
+<span class="fc" id="L108">	protected boolean selectionListeningEnabled = true;</span>
+<span class="fc" id="L109">	private Map&lt;ResourcePath, Image&gt; adaptedIconImageByPath = new HashMap&lt;ResourcePath, Image&gt;();</span>
+
+<span class="fc" id="L111">	public PlanDiagram(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L112">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L113">		this.input = input;</span>
+<span class="fc" id="L114">		setConnectionColor(OBJECTS_COLOR);</span>
+<span class="fc" id="L115">		setNodeColor(OBJECTS_COLOR);</span>
+<span class="fc" id="L116">		setActionSchemes(createActionSchemes());</span>
+<span class="fc" id="L117">		updateExternalComponentsOnInternalEvents();</span>
+<span class="fc" id="L118">		updateInternalComponentsOnExternalEvents();</span>
+<span class="fc" id="L119">		setImage(BACKGROUND_IMAGE);</span>
+<span class="fc" id="L120">		setPreservingRatio(true);</span>
+<span class="fc" id="L121">		setFillingAreaWhenPreservingRatio(true);</span>
+<span class="fc" id="L122">		setScalingQualitHigh(false);</span>
+<span class="fc" id="L123">		setFont(new Font(Font.SANS_SERIF, Font.PLAIN, getFont().getSize()));</span>
+<span class="fc" id="L124">		refreshUI(true);</span>
+<span class="fc" id="L125">	}</span>
+
+	public Plan getPlan() {
+<span class="fc" id="L128">		return (Plan) ((Source) input.getControlData().getValue()).getPlan();</span>
+	}
+
+	protected ListControl getFocusedPlanElementsControl() {
+<span class="fc" id="L132">		return (ListControl) SwingRendererUtils</span>
+<span class="fc" id="L133">				.findDescendantFieldControlPlaceHolder(getPlanEditor(), &quot;focusedElementSurroundings&quot;, swingRenderer)</span>
+<span class="fc" id="L134">				.getFieldControl();</span>
+	}
+
+	protected Form getPlanEditor() {
+<span class="fc" id="L138">		return SwingRendererUtils.findAncestorFormOfType(this, Plan.class.getName(), swingRenderer);</span>
+	}
+
+	protected void updateExternalComponentsOnInternalEvents() {
+<span class="fc" id="L142">		addListener(new JDiagramListener() {</span>
+
+			@Override
+			public void nodesMoved(Set&lt;JNode&gt; nodes) {
+<span class="nc" id="L146">				ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="nc" id="L147">				ITypeInfo stepType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Step.class, null));</span>
+<span class="nc" id="L148">				input.getModificationStack().insideComposite(&quot;Move Step(s)&quot;, UndoOrder.getNormal(),</span>
+<span class="nc" id="L149">						new xy.reflect.ui.util.Accessor&lt;Boolean&gt;() {</span>
+							@Override
+							public Boolean get() {
+<span class="nc bnc" id="L152" title="All 2 branches missed.">								for (JNode node : nodes) {</span>
+<span class="nc" id="L153">									Step step = (Step) node.getValue();</span>
+									ReflectionUIUtils
+<span class="nc" id="L155">											.setFieldValueThroughModificationStack(</span>
+<span class="nc" id="L156">													new DefaultFieldControlData(reflectionUI, step,</span>
+<span class="nc" id="L157">															ReflectionUIUtils.findInfoByName(stepType.getFields(),</span>
+<span class="nc" id="L158">																	&quot;diagramX&quot;)),</span>
+<span class="nc" id="L159">													node.getCenterX(), input.getModificationStack(),</span>
+<span class="nc" id="L160">													ReflectionUIUtils.getDebugLogListener(reflectionUI));</span>
+									ReflectionUIUtils
+<span class="nc" id="L162">											.setFieldValueThroughModificationStack(</span>
+<span class="nc" id="L163">													new DefaultFieldControlData(reflectionUI, step,</span>
+<span class="nc" id="L164">															ReflectionUIUtils.findInfoByName(stepType.getFields(),</span>
+<span class="nc" id="L165">																	&quot;diagramY&quot;)),</span>
+<span class="nc" id="L166">													node.getCenterY(), input.getModificationStack(),</span>
+<span class="nc" id="L167">													ReflectionUIUtils.getDebugLogListener(reflectionUI));</span>
+								}
+<span class="nc" id="L169">								return true;</span>
+							}
+<span class="nc" id="L171">						}, false);</span>
+<span class="nc" id="L172">			}</span>
+
+			@Override
+			public void selectionChanged() {
+<span class="fc bfc" id="L176" title="All 2 branches covered.">				if (selectionListeningEnabled) {</span>
+<span class="fc" id="L177">					selectionListeningEnabled = false;</span>
+					try {
+<span class="fc" id="L179">						Set&lt;JDiagramObject&gt; selection = PlanDiagram.this.getSelection();</span>
+<span class="fc" id="L180">						getPlan().setSelectedElements(</span>
+<span class="pc" id="L181">								selection.stream().map(diagramObject -&gt; (PlanElement) diagramObject.getValue())</span>
+<span class="fc" id="L182">										.collect(Collectors.toSet()));</span>
+<span class="fc" id="L183">						getPlan().setFocusedElementSelectedSurrounding(null);</span>
+<span class="fc" id="L184">						updateFocusedPlanElementsControl();</span>
+<span class="fc" id="L185">						SwingRendererUtils.updateWindowMenu(PlanDiagram.this, swingRenderer);</span>
+<span class="fc" id="L186">					} finally {</span>
+<span class="fc" id="L187">						selectionListeningEnabled = true;</span>
+					}
+				}
+<span class="fc" id="L190">			}</span>
+
+			@Override
+			public void connectionAdded(JConnection connection) {
+<span class="nc" id="L194">				Step startStep = (Step) connection.getStartNode().getValue();</span>
+<span class="nc" id="L195">				Step endStep = (Step) connection.getEndNode().getValue();</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">				if (startStep.getParent() == endStep.getParent()) {</span>
+<span class="nc" id="L197">					Transition newTransition = new Transition();</span>
+<span class="nc" id="L198">					newTransition.setStartStep((Step) connection.getStartNode().getValue());</span>
+<span class="nc" id="L199">					newTransition.setEndStep((Step) connection.getEndNode().getValue());</span>
+<span class="nc" id="L200">					onTransitionInsertionRequest(newTransition);</span>
+<span class="nc" id="L201">				} else {</span>
+<span class="nc" id="L202">					PlanDiagram.this.getConnections().remove(connection);</span>
+				}
+<span class="nc" id="L204">			}</span>
+		});
+<span class="fc" id="L206">	}</span>
+
+	protected void updateInternalComponentsOnExternalEvents() {
+<span class="fc" id="L209">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc bfc" id="L212" title="All 2 branches covered.">				if (!isShowing()) {</span>
+<span class="fc" id="L213">					return;</span>
+				}
+<span class="fc" id="L215">				getFocusedPlanElementsControl()</span>
+<span class="fc" id="L216">						.addListControlSelectionListener(new Listener&lt;List&lt;BufferedItemPosition&gt;&gt;() {</span>
+							@Override
+							public void handle(List&lt;BufferedItemPosition&gt; event) {
+<span class="fc" id="L219">								ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();</span>
+<span class="fc" id="L220">								BufferedItemPosition singleSelection = focusedPlanElementsControl.getSingleSelection();</span>
+<span class="fc" id="L221">								getPlan().setFocusedElementSelectedSurrounding(</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">										(singleSelection != null) ? (PlanElement) singleSelection.getItem() : null);</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">								if (selectionListeningEnabled) {</span>
+<span class="fc" id="L224">									selectionListeningEnabled = false;</span>
+									try {
+<span class="fc" id="L226">										updateSelection();</span>
+<span class="fc" id="L227">									} finally {</span>
+<span class="fc" id="L228">										selectionListeningEnabled = true;</span>
+									}
+								}
+<span class="fc" id="L231">							}</span>
+						});
+<span class="fc" id="L233">			}</span>
+		});
+<span class="fc" id="L235">	}</span>
+
+	protected void updateFocusedPlanElementsControl() {
+<span class="fc" id="L238">		ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();</span>
+<span class="fc" id="L239">		Set&lt;JDiagramObject&gt; selection = getSelection();</span>
+<span class="fc" id="L240">		focusedPlanElementsControl.refreshUI(false);</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">		focusedPlanElementsControl.setSelection((selection.size() == 1)</span>
+<span class="fc" id="L242">				? selection.stream()</span>
+<span class="fc" id="L243">						.map(diagramObject -&gt; focusedPlanElementsControl</span>
+<span class="fc" id="L244">								.findItemPositionByReference(diagramObject.getValue()))</span>
+<span class="fc" id="L245">						.collect(Collectors.toList())</span>
+<span class="fc" id="L246">				: Collections.emptyList());</span>
+<span class="fc" id="L247">	}</span>
+
+	protected void updateSelection() {
+<span class="fc" id="L250">		Plan plan = getPlan();</span>
+<span class="fc bfc" id="L251" title="All 2 branches covered.">		if (plan.getFocusedElementSelectedSurrounding() != null) {</span>
+<span class="fc" id="L252">			setSelection(Collections.singleton(findDiagramObject(plan.getFocusedElementSelectedSurrounding())), false);</span>
+<span class="fc" id="L253">		} else {</span>
+<span class="fc" id="L254">			setSelection(plan.getSelectedElements().stream().map(element -&gt; findDiagramObject(element))</span>
+<span class="fc" id="L255">					.collect(Collectors.toSet()), false);</span>
+		}
+<span class="fc bfc" id="L257" title="All 2 branches covered.">		if (getSelection().size() == 1) {</span>
+<span class="fc" id="L258">			scrollTo(getSelection().iterator().next());</span>
+		}
+<span class="fc" id="L260">	}</span>
+
+	protected void onStepInsertionRequest(Step newStep) {
+<span class="fc" id="L263">		Plan plan = getPlan();</span>
+<span class="fc" id="L264">		JDiagramObject pointedDiagramObject = getPointedDiagramObject(newStep.getDiagramX(), newStep.getDiagramY());</span>
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">		if (pointedDiagramObject instanceof JNode) {</span>
+<span class="nc" id="L266">			JNode pointedNode = (JNode) pointedDiagramObject;</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">			if (pointedNode.getValue() instanceof CompositeStep) {</span>
+<span class="nc" id="L268">				CompositeStep&lt;?&gt; parent = (CompositeStep&lt;?&gt;) pointedNode.getValue();</span>
+<span class="nc" id="L269">				Rectangle parentBounds = getCompositeStepBounds(parent, plan);</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">				if (parentBounds.contains(newStep.getDiagramX(), newStep.getDiagramY())) {</span>
+<span class="nc" id="L271">					newStep.setParent(parent);</span>
+				}
+			}
+		}
+<span class="fc" id="L275">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L276">		ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));</span>
+<span class="fc" id="L277">		DefaultFieldControlData stepsData = new DefaultFieldControlData(reflectionUI, plan,</span>
+<span class="fc" id="L278">				ReflectionUIUtils.findInfoByName(planType.getFields(), &quot;steps&quot;));</span>
+<span class="fc" id="L279">		IModification modification = new ListModificationFactory(</span>
+<span class="fc" id="L280">				new ItemPositionFactory(stepsData, this).getRootItemPosition(-1)).add(plan.getSteps().size(), newStep);</span>
+<span class="fc" id="L281">		input.getModificationStack().apply(modification);</span>
+<span class="fc" id="L282">	}</span>
+
+	protected void onTransitionInsertionRequest(Transition newTransition) {
+<span class="nc" id="L285">		Plan plan = getPlan();</span>
+<span class="nc" id="L286">		plan.getTransitions().add(newTransition);</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">		if (plan.isPreceding(newTransition.getEndStep(), newTransition.getStartStep())) {</span>
+<span class="nc" id="L288">			plan.getTransitions().remove(newTransition);</span>
+<span class="nc" id="L289">			refreshUI(false);</span>
+<span class="nc" id="L290">			swingRenderer.handleException(this, new Plan.PlanificationError(&quot;Cycle detected&quot;));</span>
+<span class="nc" id="L291">			return;</span>
+		} else {
+<span class="nc" id="L293">			plan.getTransitions().remove(newTransition);</span>
+		}
+<span class="nc" id="L295">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="nc" id="L296">		ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));</span>
+<span class="nc" id="L297">		DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, getPlan(),</span>
+<span class="nc" id="L298">				ReflectionUIUtils.findInfoByName(planType.getFields(), &quot;transitions&quot;));</span>
+<span class="nc" id="L299">		IModification modification = new ListModificationFactory(</span>
+<span class="nc" id="L300">				new ItemPositionFactory(transitionsData, this).getRootItemPosition(-1)).add(0, newTransition);</span>
+<span class="nc" id="L301">		input.getModificationStack().apply(modification);</span>
+<span class="nc" id="L302">	}</span>
+
+	protected void onDeletionRequest() {
+<span class="nc" id="L305">		Set&lt;Object&gt; selectedStepAndTransitions = getSelection().stream()</span>
+<span class="nc" id="L306">				.map(selectedObject -&gt; selectedObject.getValue()).collect(Collectors.toSet());</span>
+<span class="nc" id="L307">		Plan plan = getPlan();</span>
+<span class="nc" id="L308">		Set&lt;Step&gt; stepsToDelete = new HashSet&lt;Step&gt;();</span>
+<span class="nc" id="L309">		Set&lt;Transition&gt; transitionsToDelete = new HashSet&lt;Transition&gt;();</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">		for (Object object : selectedStepAndTransitions) {</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">			if (object instanceof Step) {</span>
+<span class="nc" id="L312">				stepsToDelete.add((Step) object);</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">				if (object instanceof CompositeStep) {</span>
+<span class="nc" id="L314">					stepsToDelete.addAll(MiscUtils.getDescendants((CompositeStep&lt;?&gt;) object, plan));</span>
+				}
+<span class="nc bnc" id="L316" title="All 2 branches missed.">			} else if (object instanceof Transition) {</span>
+<span class="nc" id="L317">				transitionsToDelete.add((Transition) object);</span>
+			}
+		}
+<span class="nc bnc" id="L320" title="All 2 branches missed.">		for (Transition transition : plan.getTransitions()) {</span>
+<span class="nc bnc" id="L321" title="All 4 branches missed.">			if (stepsToDelete.contains(transition.getStartStep()) || stepsToDelete.contains(transition.getEndStep())) {</span>
+<span class="nc" id="L322">				transitionsToDelete.add(transition);</span>
+			}
+		}
+<span class="nc" id="L325">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="nc" id="L326">		ITypeInfo planType = reflectionUI.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));</span>
+<span class="nc" id="L327">		DefaultFieldControlData stepsData = new DefaultFieldControlData(reflectionUI, plan,</span>
+<span class="nc" id="L328">				ReflectionUIUtils.findInfoByName(planType.getFields(), &quot;steps&quot;));</span>
+<span class="nc" id="L329">		DefaultFieldControlData transitionsData = new DefaultFieldControlData(reflectionUI, plan,</span>
+<span class="nc" id="L330">				ReflectionUIUtils.findInfoByName(planType.getFields(), &quot;transitions&quot;));</span>
+<span class="nc" id="L331">		ListModificationFactory stepsModificationFactory = new ListModificationFactory(</span>
+<span class="nc" id="L332">				new ItemPositionFactory(stepsData, this).getRootItemPosition(-1));</span>
+<span class="nc" id="L333">		ListModificationFactory transitionsModificationFactory = new ListModificationFactory(</span>
+<span class="nc" id="L334">				new ItemPositionFactory(transitionsData, this).getRootItemPosition(-1));</span>
+<span class="nc" id="L335">		input.getModificationStack().insideComposite(&quot;Delete&quot;, UndoOrder.getNormal(), new Accessor&lt;Boolean&gt;() {</span>
+			@Override
+			public Boolean get() {
+<span class="nc bnc" id="L338" title="All 2 branches missed.">				for (Step step : stepsToDelete) {</span>
+<span class="nc" id="L339">					IModification modification = stepsModificationFactory.remove(plan.getSteps().indexOf(step));</span>
+<span class="nc" id="L340">					input.getModificationStack().apply(modification);</span>
+				}
+<span class="nc bnc" id="L342" title="All 2 branches missed.">				for (Transition transition : transitionsToDelete) {</span>
+<span class="nc" id="L343">					IModification modification = transitionsModificationFactory</span>
+<span class="nc" id="L344">							.remove(plan.getTransitions().indexOf(transition));</span>
+<span class="nc" id="L345">					input.getModificationStack().apply(modification);</span>
+				}
+<span class="nc" id="L347">				return true;</span>
+			}
+<span class="nc" id="L349">		}, false);</span>
+<span class="nc" id="L350">	}</span>
+
+	protected List&lt;JDiagramActionScheme&gt; createActionSchemes() {
+<span class="fc" id="L353">		return Arrays.asList(new JDiagramActionScheme() {</span>
+
+			@Override
+			public String getTitle() {
+<span class="fc" id="L357">				return &quot;Add Operation&quot;;</span>
+			}
+
+			@Override
+			public List&lt;JDiagramActionCategory&gt; getActionCategories() {
+<span class="fc" id="L362">				List&lt;String&gt; operationCategoryNames = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L363" title="All 2 branches covered.">				for (OperationMetadata&lt;?&gt; metadata : MiscUtils.getAllOperationMetadatas()) {</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">					if (!operationCategoryNames.contains(metadata.getCategoryName())) {</span>
+<span class="fc" id="L365">						operationCategoryNames.add(metadata.getCategoryName());</span>
+					}
+				}
+<span class="fc" id="L368">				List&lt;JDiagramActionCategory&gt; result = new ArrayList&lt;JDiagramActionCategory&gt;();</span>
+<span class="fc bfc" id="L369" title="All 2 branches covered.">				for (String name : operationCategoryNames) {</span>
+<span class="fc" id="L370">					result.add(new JDiagramActionCategory() {</span>
+
+						@Override
+						public String getName() {
+<span class="fc" id="L374">							return name;</span>
+						}
+
+						@Override
+						public List&lt;JDiagramAction&gt; getActions() {
+<span class="fc" id="L379">							List&lt;JDiagramAction&gt; result = new ArrayList&lt;JDiagramAction&gt;();</span>
+<span class="fc bfc" id="L380" title="All 2 branches covered.">							for (OperationMetadata&lt;?&gt; metadata : MiscUtils.getAllOperationMetadatas()) {</span>
+<span class="fc bfc" id="L381" title="All 2 branches covered.">								if (name.equals(metadata.getCategoryName())) {</span>
+<span class="fc" id="L382">									result.add(createStepInsertionDiagramAction(new Supplier&lt;Step&gt;() {</span>
+										@Override
+										public Step get() {
+											try {
+<span class="fc" id="L386">												return new Step(metadata);</span>
+<span class="nc" id="L387">											} catch (InstantiationException | IllegalAccessException e) {</span>
+<span class="nc" id="L388">												throw new UnexpectedError(e);</span>
+											}
+										}
+<span class="fc" id="L391">									}, metadata.getOperationTypeName(), metadata.getOperationIconImagePath()));</span>
+								}
+							}
+<span class="fc" id="L394">							return result;</span>
+						}
+
+					});
+				}
+<span class="fc" id="L399">				return result;</span>
+			}
+<span class="fc" id="L401">		}, new JDiagramActionScheme() {</span>
+
+			@Override
+			public String getTitle() {
+<span class="fc" id="L405">				return &quot;Add Composite&quot;;</span>
+			}
+
+			@Override
+			public List&lt;JDiagramActionCategory&gt; getActionCategories() {
+<span class="fc" id="L410">				List&lt;JDiagramActionCategory&gt; result = new ArrayList&lt;JDiagramActionCategory&gt;();</span>
+<span class="fc" id="L411">				result.add(new JDiagramActionCategory() {</span>
+
+					@Override
+					public String getName() {
+<span class="fc" id="L415">						return &quot;Flow Control&quot;;</span>
+					}
+
+					@Override
+					public List&lt;JDiagramAction&gt; getActions() {
+<span class="fc" id="L420">						List&lt;JDiagramAction&gt; result = new ArrayList&lt;JDiagramAction&gt;();</span>
+<span class="fc bfc" id="L421" title="All 2 branches covered.">						for (CompositeStepMetadata metadata : MiscUtils.BUILTIN_COMPOSITE_STEP_METADATAS) {</span>
+<span class="fc" id="L422">							result.add(createStepInsertionDiagramAction(new Supplier&lt;Step&gt;() {</span>
+								@Override
+								public Step get() {
+<span class="nc" id="L425">									return new LoopCompositeStep();</span>
+								}
+<span class="fc" id="L427">							}, metadata.getCompositeStepTypeName(), metadata.getCompositeStepIconImagePath()));</span>
+						}
+<span class="fc" id="L429">						return result;</span>
+					}
+				});
+<span class="fc" id="L432">				return result;</span>
+			}
+		});
+	}
+
+	private JDiagramAction createStepInsertionDiagramAction(Supplier&lt;Step&gt; newStepSupplier, String label,
+			ResourcePath iconResourcePath) {
+<span class="fc" id="L439">		return new JDiagramAction() {</span>
+
+			@Override
+			public void perform(int x, int y) {
+<span class="fc" id="L443">				input.getModificationStack().insideComposite(&quot;Add '&quot; + label + &quot;'&quot;, UndoOrder.getNormal(),</span>
+<span class="fc" id="L444">						new Accessor&lt;Boolean&gt;() {</span>
+							@Override
+							public Boolean get() {
+<span class="fc" id="L447">								Step newStep = newStepSupplier.get();</span>
+<span class="fc" id="L448">								newStep.setDiagramX(x);</span>
+<span class="fc" id="L449">								newStep.setDiagramY(y);</span>
+<span class="fc" id="L450">								Plan plan = getPlan();</span>
+<span class="fc" id="L451">								while (plan.getSteps().stream()</span>
+<span class="pc bpc" id="L452" title="1 of 2 branches missed.">										.anyMatch(step -&gt; step.getName().equals(newStep.getName()))) {</span>
+<span class="nc" id="L453">									newStep.setName(MiscUtils.nextNumbreredName(newStep.getName()));</span>
+								}
+<span class="fc" id="L455">								newStep.setParent(getDestinationCompositeStep(x, y));</span>
+<span class="pc bpc" id="L456" title="1 of 2 branches missed.">								if (newStep instanceof CompositeStep) {</span>
+<span class="nc" id="L457">									Set&lt;Step&gt; selectedSteps = getSelection().stream()</span>
+<span class="nc" id="L458">											.filter(diagramObject -&gt; diagramObject.getValue() instanceof Step)</span>
+<span class="nc" id="L459">											.map(diagramObject -&gt; (Step) diagramObject.getValue())</span>
+<span class="nc" id="L460">											.collect(Collectors.toSet());</span>
+<span class="nc bnc" id="L461" title="All 2 branches missed.">									if (selectedSteps.size() &gt; 0) {</span>
+<span class="nc" id="L462">										CompositeStep&lt;?&gt; selectedStepsCommonParent = selectedSteps.iterator().next()</span>
+<span class="nc" id="L463">												.getParent();</span>
+<span class="nc" id="L464">										ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="nc" id="L465">										ITypeInfo stepType = reflectionUI</span>
+<span class="nc" id="L466">												.getTypeInfo(new JavaTypeInfoSource(Step.class, null));</span>
+<span class="nc bnc" id="L467" title="All 2 branches missed.">										for (Step selectedStep : selectedSteps) {</span>
+<span class="nc" id="L468">											ReflectionUIUtils.setFieldValueThroughModificationStack(</span>
+<span class="nc" id="L469">													new DefaultFieldControlData(reflectionUI, selectedStep,</span>
+<span class="nc" id="L470">															ReflectionUIUtils.findInfoByName(stepType.getFields(),</span>
+<span class="nc" id="L471">																	&quot;parent&quot;)),</span>
+<span class="nc" id="L472">													(CompositeStep&lt;?&gt;) newStep, input.getModificationStack(),</span>
+<span class="nc" id="L473">													ReflectionUIUtils.getDebugLogListener(reflectionUI));</span>
+<span class="nc bnc" id="L474" title="All 2 branches missed.">											if ((selectedStep.getParent() == null)</span>
+<span class="nc" id="L475">													|| MiscUtils.getDescendants(selectedStep.getParent(), plan)</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">															.contains(selectedStepsCommonParent)) {</span>
+<span class="nc" id="L477">												selectedStepsCommonParent = selectedStep.getParent();</span>
+											}
+										}
+<span class="nc" id="L480">										ITypeInfo transitionType = reflectionUI</span>
+<span class="nc" id="L481">												.getTypeInfo(new JavaTypeInfoSource(Transition.class, null));</span>
+<span class="nc" id="L482">										Set&lt;Transition&gt; transitionsToDelete = new HashSet&lt;Transition&gt;();</span>
+<span class="nc bnc" id="L483" title="All 2 branches missed.">										for (Transition transition : plan.getTransitions()) {</span>
+<span class="nc bnc" id="L484" title="All 2 branches missed.">											if (!selectedSteps.contains(transition.getStartStep())</span>
+<span class="nc bnc" id="L485" title="All 2 branches missed.">													&amp;&amp; selectedSteps.contains(transition.getEndStep())) {</span>
+<span class="nc" id="L486">												if (plan.getTransitions().stream()</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">														.anyMatch(otherTransition -&gt; (otherTransition != transition)</span>
+<span class="nc bnc" id="L488" title="All 2 branches missed.">																&amp;&amp; (otherTransition.getStartStep() == transition</span>
+<span class="nc" id="L489">																		.getStartStep())</span>
+<span class="nc bnc" id="L490" title="All 4 branches missed.">																&amp;&amp; (otherTransition.getEndStep() == newStep))) {</span>
+<span class="nc" id="L491">													transitionsToDelete.add(transition);</span>
+<span class="nc" id="L492">												} else {</span>
+<span class="nc" id="L493">													ReflectionUIUtils.setFieldValueThroughModificationStack(</span>
+<span class="nc" id="L494">															new DefaultFieldControlData(reflectionUI, transition,</span>
+<span class="nc" id="L495">																	ReflectionUIUtils.findInfoByName(</span>
+<span class="nc" id="L496">																			transitionType.getFields(), &quot;endStep&quot;)),</span>
+<span class="nc" id="L497">															(CompositeStep&lt;?&gt;) newStep, input.getModificationStack(),</span>
+<span class="nc" id="L498">															ReflectionUIUtils.getDebugLogListener(reflectionUI));</span>
+												}
+											}
+<span class="nc bnc" id="L501" title="All 2 branches missed.">											if (selectedSteps.contains(transition.getStartStep())</span>
+<span class="nc bnc" id="L502" title="All 2 branches missed.">													&amp;&amp; !selectedSteps.contains(transition.getEndStep())) {</span>
+<span class="nc" id="L503">												if (plan.getTransitions().stream()</span>
+<span class="nc bnc" id="L504" title="All 2 branches missed.">														.anyMatch(otherTransition -&gt; (otherTransition != transition)</span>
+<span class="nc bnc" id="L505" title="All 2 branches missed.">																&amp;&amp; (otherTransition.getStartStep() == newStep)</span>
+<span class="nc bnc" id="L506" title="All 2 branches missed.">																&amp;&amp; (otherTransition.getEndStep() == transition</span>
+<span class="nc bnc" id="L507" title="All 2 branches missed.">																		.getEndStep()))) {</span>
+<span class="nc" id="L508">													transitionsToDelete.add(transition);</span>
+<span class="nc" id="L509">												} else {</span>
+<span class="nc" id="L510">													ReflectionUIUtils.setFieldValueThroughModificationStack(</span>
+<span class="nc" id="L511">															new DefaultFieldControlData(reflectionUI, transition,</span>
+<span class="nc" id="L512">																	ReflectionUIUtils.findInfoByName(</span>
+<span class="nc" id="L513">																			transitionType.getFields(), &quot;startStep&quot;)),</span>
+<span class="nc" id="L514">															(CompositeStep&lt;?&gt;) newStep, input.getModificationStack(),</span>
+<span class="nc" id="L515">															ReflectionUIUtils.getDebugLogListener(reflectionUI));</span>
+												}
+											}
+										}
+<span class="nc" id="L519">										ITypeInfo planType = reflectionUI</span>
+<span class="nc" id="L520">												.getTypeInfo(new JavaTypeInfoSource(Plan.class, null));</span>
+<span class="nc bnc" id="L521" title="All 2 branches missed.">										for (Transition transition : transitionsToDelete) {</span>
+<span class="nc" id="L522">											DefaultFieldControlData transitionsData = new DefaultFieldControlData(</span>
+<span class="nc" id="L523">													reflectionUI, plan, ReflectionUIUtils</span>
+<span class="nc" id="L524">															.findInfoByName(planType.getFields(), &quot;transitions&quot;));</span>
+<span class="nc" id="L525">											ListModificationFactory transitionsModificationFactory = new ListModificationFactory(</span>
+<span class="nc" id="L526">													new ItemPositionFactory(transitionsData, this)</span>
+<span class="nc" id="L527">															.getRootItemPosition(-1));</span>
+<span class="nc" id="L528">											IModification modification = transitionsModificationFactory</span>
+<span class="nc" id="L529">													.remove(plan.getTransitions().indexOf(transition));</span>
+<span class="nc" id="L530">											input.getModificationStack().apply(modification);</span>
+										}
+<span class="nc" id="L532">										newStep.setParent(selectedStepsCommonParent);</span>
+									}
+								}
+<span class="fc" id="L535">								onStepInsertionRequest(newStep);</span>
+<span class="fc" id="L536">								plan.setSelectedElements(Collections.singleton(newStep));</span>
+<span class="fc" id="L537">								return true;</span>
+							}
+<span class="fc" id="L539">						}, false);</span>
+<span class="fc" id="L540">			}</span>
+
+			@Override
+			public String getLabel() {
+<span class="fc" id="L544">				return label;</span>
+			}
+
+			@Override
+			public Icon getIcon() {
+<span class="fc" id="L549">				return SwingRendererUtils</span>
+<span class="fc" id="L550">						.getIcon(</span>
+								SwingRendererUtils
+<span class="fc" id="L552">										.scalePreservingRatio(</span>
+<span class="fc" id="L553">												SwingRendererUtils.loadImageThroughCache(iconResourcePath,</span>
+<span class="fc" id="L554">														ReflectionUIUtils.getDebugLogListener(</span>
+<span class="fc" id="L555">																swingRenderer.getReflectionUI()),</span>
+<span class="fc" id="L556">														swingRenderer),</span>
+<span class="fc" id="L557">												32, 32, Image.SCALE_SMOOTH));</span>
+			}
+		};
+	}
+
+	@Override
+	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
+<span class="fc" id="L564">		JPopupMenu result = super.createContextMenu(mouseEvent);</span>
+		Component dragIntentControl;
+		{
+<span class="fc" id="L567">			Form tmpPlanEditor = swingRenderer.createForm(getPlan());</span>
+<span class="fc" id="L568">			dragIntentControl = SwingRendererUtils</span>
+<span class="fc" id="L569">					.findDescendantFieldControlPlaceHolder(tmpPlanEditor, &quot;diagramDragIntent&quot;, swingRenderer)</span>
+<span class="fc" id="L570">					.getFieldControl();</span>
+<span class="fc" id="L571">			tmpPlanEditor.getModificationStack().addListener(new AbstractSimpleModificationListener() {</span>
+				@Override
+				protected void handleAnyEvent(IModification modification) {
+<span class="nc" id="L574">					((IAdvancedFieldControl) dragIntentControl).refreshUI(false);</span>
+<span class="nc" id="L575">				}</span>
+			});
+		}
+<span class="fc" id="L578">		result.insert(dragIntentControl, 0);</span>
+<span class="fc" id="L579">		result.add(new JSeparator());</span>
+<span class="fc" id="L580">		result.add(createCopyAction());</span>
+<span class="fc" id="L581">		result.add(createCutAction());</span>
+<span class="fc" id="L582">		result.add(createPasteAction(mouseEvent.getX(), mouseEvent.getY()));</span>
+<span class="fc" id="L583">		result.add(createDeleteAction());</span>
+<span class="fc" id="L584">		result.add(new JSeparator());</span>
+<span class="fc" id="L585">		result.add(createSelectAllAction());</span>
+<span class="fc" id="L586">		result.add(new JSeparator());</span>
+<span class="fc" id="L587">		result.add(createExperimentAction());</span>
+
+<span class="fc" id="L589">		List&lt;AbstractAction&gt; dynamicActions = new ArrayList&lt;AbstractAction&gt;();</span>
+		{
+<span class="fc" id="L591">			Set&lt;JDiagramObject&gt; selection = getSelection();</span>
+<span class="pc bpc" id="L592" title="1 of 2 branches missed.">			if (selection.size() == 1) {</span>
+<span class="nc" id="L593">				ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();</span>
+<span class="nc" id="L594">				BufferedItemPosition itemPosition = focusedPlanElementsControl</span>
+<span class="nc" id="L595">						.findItemPositionByReference(selection.iterator().next().getValue());</span>
+<span class="nc" id="L596">				dynamicActions.addAll(</span>
+<span class="nc" id="L597">						focusedPlanElementsControl.getDynamicActionHooks(Collections.singletonList(itemPosition)));</span>
+<span class="nc" id="L598">				dynamicActions.addAll(</span>
+<span class="nc" id="L599">						focusedPlanElementsControl.getDynamicPropertyHooks(Collections.singletonList(itemPosition)));</span>
+			}
+		}
+<span class="pc bpc" id="L602" title="1 of 2 branches missed.">		if (dynamicActions.size() &gt; 0) {</span>
+<span class="nc" id="L603">			result.add(new JSeparator());</span>
+<span class="nc" id="L604">			dynamicActions.forEach(result::add);</span>
+		}
+
+<span class="fc" id="L607">		return result;</span>
+	}
+
+	private AbstractAction createCopyAction() {
+<span class="fc" id="L611">		return new AbstractAction(&quot;Copy&quot;) {</span>
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+<span class="fc" id="L616">				return Clipboard.canCopy(PlanDiagram.this);</span>
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L621">				Clipboard.copy(PlanDiagram.this);</span>
+<span class="nc" id="L622">				SwingRendererUtils.updateWindowMenu(PlanDiagram.this, swingRenderer);</span>
+<span class="nc" id="L623">			}</span>
+		};
+	}
+
+	private AbstractAction createCutAction() {
+<span class="fc" id="L628">		return new AbstractAction(&quot;Cut&quot;) {</span>
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+<span class="pc bpc" id="L633" title="1 of 4 branches missed.">				return (getSelection().size() &gt; 0) &amp;&amp; Clipboard.canCopy(PlanDiagram.this);</span>
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L638">				Clipboard.copy(PlanDiagram.this);</span>
+<span class="nc" id="L639">				onDeletionRequest();</span>
+<span class="nc" id="L640">			}</span>
+		};
+	}
+
+	private AbstractAction createPasteAction(int x, int y) {
+<span class="fc" id="L645">		return new AbstractAction(&quot;Paste&quot;) {</span>
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+<span class="fc" id="L650">				return Clipboard.canPaste(PlanDiagram.this);</span>
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L655">				Clipboard.paste(PlanDiagram.this, x, y);</span>
+<span class="nc" id="L656">			}</span>
+		};
+	}
+
+	private AbstractAction createDeleteAction() {
+<span class="fc" id="L661">		return new AbstractAction(&quot;Delete&quot;) {</span>
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+<span class="fc bfc" id="L666" title="All 2 branches covered.">				return getSelection().size() &gt; 0;</span>
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L671">				if (!swingRenderer.openQuestionDialog(PlanDiagram.this, &quot;Remove the selected element(s)?&quot;, null, &quot;OK&quot;,</span>
+<span class="nc bnc" id="L672" title="All 2 branches missed.">						&quot;Cancel&quot;)) {</span>
+<span class="nc" id="L673">					return;</span>
+				}
+<span class="nc" id="L675">				onDeletionRequest();</span>
+<span class="nc" id="L676">			}</span>
+		};
+	}
+
+	private AbstractAction createSelectAllAction() {
+<span class="fc" id="L681">		return new AbstractAction(&quot;Select All&quot;) {</span>
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+<span class="fc" id="L686">				return true;</span>
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L691">				Set&lt;JDiagramObject&gt; all = new HashSet&lt;JDiagramObject&gt;();</span>
+<span class="nc" id="L692">				all.addAll(getNodes());</span>
+<span class="nc" id="L693">				all.addAll(getConnections());</span>
+<span class="nc" id="L694">				setSelection(all);</span>
+<span class="nc" id="L695">			}</span>
+		};
+	}
+
+	private AbstractAction createExperimentAction() {
+<span class="fc" id="L700">		return new AbstractAction(&quot;Experiment...&quot;) {</span>
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isEnabled() {
+<span class="fc" id="L705">				Set&lt;JDiagramObject&gt; selection = getSelection();</span>
+<span class="pc bpc" id="L706" title="1 of 2 branches missed.">				if (selection.size() != 1) {</span>
+<span class="fc" id="L707">					return false;</span>
+				}
+<span class="nc" id="L709">				Object planElement = selection.iterator().next().getValue();</span>
+<span class="nc bnc" id="L710" title="All 2 branches missed.">				if (planElement.getClass() != Step.class) {</span>
+<span class="nc" id="L711">					return false;</span>
+				}
+<span class="nc" id="L713">				return true;</span>
+			}
+
+			@Override
+			public void actionPerformed(ActionEvent event) {
+<span class="nc" id="L718">				Step currentStep = (Step) getSelection().iterator().next().getValue();</span>
+<span class="nc" id="L719">				OperationBuilder&lt;?&gt; operationBuilder = MiscUtils.copy(currentStep.getOperationBuilder());</span>
+<span class="nc" id="L720">				try (Experiment experiment = new Experiment(operationBuilder)) {</span>
+<span class="nc" id="L721">					GUI.INSTANCE.openObjectDialog(PlanDiagram.this, experiment, null, null, false);</span>
+<span class="nc" id="L722">				} catch (Exception e) {</span>
+<span class="nc" id="L723">					throw new UnexpectedError(e);</span>
+				}
+<span class="nc" id="L725">			}</span>
+		};
+	}
+
+	private CompositeStep&lt;?&gt; getDestinationCompositeStep(int x, int y) {
+<span class="fc bfc" id="L730" title="All 2 branches covered.">		for (JNode node : MiscUtils.getReverse(getNodes())) {</span>
+<span class="pc bpc" id="L731" title="1 of 2 branches missed.">			if (node.getValue() instanceof CompositeStep) {</span>
+<span class="nc bnc" id="L732" title="All 2 branches missed.">				if (node.containsPoint(x, y, this)) {</span>
+<span class="nc" id="L733">					return (CompositeStep&lt;?&gt;) node.getValue();</span>
+				}
+			}
+		}
+<span class="fc" id="L737">		return null;</span>
+	}
+
+	@Override
+	public boolean showsCaption() {
+<span class="fc" id="L742">		return false;</span>
+	}
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L747" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="pc bpc" id="L748" title="1 of 2 branches missed.">			if (input.getControlData().getEditorBackgroundColor() != null) {</span>
+<span class="fc" id="L749">				setBackground(SwingRendererUtils.getColor(input.getControlData().getEditorBackgroundColor()));</span>
+<span class="fc" id="L750">			} else {</span>
+<span class="nc" id="L751">				setBackground(Color.WHITE);</span>
+			}
+		}
+<span class="fc" id="L754">		refreshElementObjects();</span>
+<span class="fc" id="L755">		return true;</span>
+	}
+
+	protected void refreshElementObjects() {
+<span class="fc" id="L759">		Plan plan = getPlan();</span>
+<span class="fc" id="L760">		setDragIntent(GUI.getDiagramDragIntentByPlan().getOrDefault(plan, DragIntent.MOVE));</span>
+<span class="fc" id="L761">		Set&lt;JDiagramObject&gt; selection = getSelection();</span>
+<span class="fc" id="L762">		List&lt;Object&gt; selectedStepAndTransitions = selection.stream().map(selectedObject -&gt; selectedObject.getValue())</span>
+<span class="fc" id="L763">				.collect(Collectors.toList());</span>
+<span class="fc" id="L764">		selectionListeningEnabled = false;</span>
+		try {
+<span class="fc" id="L766">			clear();</span>
+<span class="fc" id="L767">			List&lt;Step&gt; sortedSteps = new ArrayList&lt;Step&gt;(plan.getSteps());</span>
+<span class="fc" id="L768">			Collections.sort(sortedSteps, new Comparator&lt;Step&gt;() {</span>
+				@Override
+				public int compare(Step o1, Step o2) {
+<span class="pc bpc" id="L771" title="2 of 4 branches missed.">					if ((o1.getParent() == null) &amp;&amp; (o2.getParent() != null)) {</span>
+<span class="nc" id="L772">						return -1;</span>
+					}
+<span class="pc bpc" id="L774" title="3 of 4 branches missed.">					if ((o1.getParent() != null) &amp;&amp; (o2.getParent() == null)) {</span>
+<span class="nc" id="L775">						return 1;</span>
+					}
+<span class="pc bpc" id="L777" title="3 of 4 branches missed.">					if ((o1.getParent() != null) &amp;&amp; (o2.getParent() != null)) {</span>
+<span class="nc" id="L778">						return compare(o1.getParent(), o2.getParent());</span>
+					}
+<span class="fc" id="L780">					return 0;</span>
+				}
+			});
+<span class="fc bfc" id="L783" title="All 2 branches covered.">			for (Step step : sortedSteps) {</span>
+<span class="fc" id="L784">				JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());</span>
+<span class="fc" id="L785">				ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);</span>
+<span class="pc bpc" id="L786" title="1 of 2 branches missed.">				if (iconImagePath != null) {</span>
+<span class="fc" id="L787">					Image iconImage = adaptedIconImageByPath.get(iconImagePath);</span>
+<span class="fc bfc" id="L788" title="All 2 branches covered.">					if (iconImage == null) {</span>
+<span class="fc" id="L789">						iconImage = SwingRendererUtils.loadImageThroughCache(iconImagePath,</span>
+<span class="fc" id="L790">								ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()), swingRenderer);</span>
+<span class="fc" id="L791">						iconImage = SwingRendererUtils.scalePreservingRatio(iconImage, STEP_ICON_WIDTH,</span>
+<span class="fc" id="L792">								STEP_ICON_HEIGHT, Image.SCALE_SMOOTH);</span>
+<span class="fc" id="L793">						adaptedIconImageByPath.put(iconImagePath, iconImage);</span>
+					}
+<span class="fc" id="L795">					node.setImage(iconImage);</span>
+				}
+<span class="pc bpc" id="L797" title="1 of 2 branches missed.">				if (step instanceof CompositeStep) {</span>
+<span class="nc" id="L798">					Rectangle compositeBounds = getCompositeStepBounds((CompositeStep&lt;?&gt;) step, plan);</span>
+<span class="nc" id="L799">					BufferedImage compositeImage = new BufferedImage(compositeBounds.width, compositeBounds.height,</span>
+<span class="nc" id="L800">							BufferedImage.TYPE_INT_ARGB);</span>
+<span class="nc" id="L801">					Graphics2D g = compositeImage.createGraphics();</span>
+<span class="nc" id="L802">					g.setColor(getNodeColor());</span>
+<span class="nc" id="L803">					MiscUtils.improveRenderingQuality(g);</span>
+<span class="nc" id="L804">					int headerHeight = getCompositeStepHeaderHeight();</span>
+<span class="nc" id="L805">					g.drawRect(0, 0, compositeImage.getWidth() - 1, headerHeight);</span>
+<span class="nc" id="L806">					g.drawImage(node.getImage(), 0, 0, headerHeight, headerHeight, 0, 0, node.getImage().getWidth(null),</span>
+<span class="nc" id="L807">							node.getImage().getHeight(null), null);</span>
+<span class="nc" id="L808">					g.drawRect(0, headerHeight, compositeBounds.width - 1, compositeBounds.height - headerHeight - 1);</span>
+<span class="nc" id="L809">					g.dispose();</span>
+<span class="nc" id="L810">					node.setCenterX((int) Math.round(compositeBounds.getCenterX()));</span>
+<span class="nc" id="L811">					node.setCenterY((int) Math.round(compositeBounds.getCenterY()));</span>
+<span class="nc" id="L812">					node.setImage(compositeImage);</span>
+				}
+			}
+<span class="fc bfc" id="L815" title="All 2 branches covered.">			for (Transition t : plan.getTransitions()) {</span>
+<span class="fc" id="L816">				JNode node1 = findNode(t.getStartStep());</span>
+<span class="fc" id="L817">				JNode node2 = findNode(t.getEndStep());</span>
+<span class="pc bpc" id="L818" title="2 of 4 branches missed.">				if ((node1 != null) &amp;&amp; (node2 != null)) {</span>
+<span class="fc" id="L819">					addConnection(node1, node2, t);</span>
+				}
+			}
+<span class="fc" id="L822">			setSelection(selectedStepAndTransitions.stream().map(selectedStepOrTransition -&gt; {</span>
+<span class="pc bpc" id="L823" title="1 of 2 branches missed.">				if (selectedStepOrTransition instanceof Step) {</span>
+<span class="fc" id="L824">					return findNode(selectedStepOrTransition);</span>
+<span class="nc bnc" id="L825" title="All 2 branches missed.">				} else if (selectedStepOrTransition instanceof Transition) {</span>
+<span class="nc" id="L826">					return findConnection(selectedStepOrTransition);</span>
+				} else {
+<span class="nc" id="L828">					throw new UnexpectedError();</span>
+				}
+<span class="fc" id="L830">			}).collect(Collectors.toSet()), false);</span>
+<span class="fc" id="L831">		} finally {</span>
+<span class="fc" id="L832">			selectionListeningEnabled = true;</span>
+		}
+<span class="fc" id="L834">		SwingRendererUtils.handleComponentSizeChange(this);</span>
+<span class="fc" id="L835">		Runnable selectionUpdate = new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L838">				selectionListeningEnabled = false;</span>
+				try {
+<span class="fc" id="L840">					updateSelection();</span>
+<span class="fc" id="L841">					SwingUtilities.invokeLater(new Runnable() {</span>
+						@Override
+						public void run() {
+<span class="fc bfc" id="L844" title="All 2 branches covered.">							if (!isShowing()) {</span>
+<span class="fc" id="L845">								return;</span>
+							}
+<span class="fc" id="L847">							selectionListeningEnabled = false;</span>
+							try {
+<span class="fc" id="L849">								updateFocusedPlanElementsControl();</span>
+<span class="fc" id="L850">							} finally {</span>
+<span class="fc" id="L851">								selectionListeningEnabled = true;</span>
+							}
+<span class="fc" id="L853">						}</span>
+					});
+<span class="fc" id="L855">				} finally {</span>
+<span class="fc" id="L856">					selectionListeningEnabled = true;</span>
+				}
+<span class="fc" id="L858">			}</span>
+		};
+<span class="fc bfc" id="L860" title="All 2 branches covered.">		if (isShowing()) {</span>
+<span class="fc" id="L861">			selectionUpdate.run();</span>
+<span class="fc" id="L862">		} else {</span>
+<span class="fc" id="L863">			SwingUtilities.invokeLater(selectionUpdate);</span>
+		}
+<span class="fc" id="L865">	}</span>
+
+	private Rectangle getCompositeStepBounds(CompositeStep&lt;?&gt; step, Plan plan) {
+<span class="nc" id="L868">		int headerHeight = getCompositeStepHeaderHeight();</span>
+<span class="nc" id="L869">		int horizontalPadding = (int) (STEP_ICON_WIDTH * 0.75);</span>
+<span class="nc" id="L870">		int verticalPadding = (int) (STEP_ICON_HEIGHT * 0.75) - headerHeight;</span>
+<span class="nc" id="L871">		return ((CompositeStep&lt;?&gt;) step).getChildrenBounds(plan, STEP_ICON_WIDTH, STEP_ICON_HEIGHT,</span>
+<span class="nc" id="L872">				(horizontalPadding / 2), (verticalPadding / 2) + headerHeight);</span>
+	}
+
+	private int getCompositeStepHeaderHeight() {
+<span class="nc" id="L876">		return 16;</span>
+	}
+
+	@Override
+	protected void paintNode(Graphics g, JNode node) {
+<span class="fc" id="L881">		super.paintNode(g, node);</span>
+<span class="fc" id="L882">		paintErrorMarker(g, node);</span>
+<span class="fc" id="L883">	}</span>
+
+	@Override
+	protected void paintConnection(Graphics g, JConnection connection) {
+<span class="fc" id="L887">		super.paintConnection(g, connection);</span>
+<span class="fc" id="L888">		paintErrorMarker(g, connection);</span>
+<span class="fc" id="L889">	}</span>
+
+	protected void paintErrorMarker(Graphics g, JDiagramObject diagramObject) {
+		Throwable validationError;
+		try {
+<span class="fc" id="L894">			validationError = swingRenderer.getReflectionUI().getValidationErrorRegistry()</span>
+<span class="fc" id="L895">					.getValidationError(diagramObject.getValue(), null);</span>
+<span class="pc" id="L896">		} catch (Throwable t) {</span>
+<span class="nc" id="L897">			swingRenderer.getReflectionUI().logDebug(&quot;WARNING: Failed to retrieve validation error attributed to '&quot;</span>
+<span class="nc" id="L898">					+ diagramObject.getValue() + &quot;': &quot; + MiscUtils.getPrintedStackTrace(t));</span>
+<span class="nc" id="L899">			return;</span>
+		}
+<span class="fc bfc" id="L901" title="All 2 branches covered.">		if (validationError != null) {</span>
+<span class="fc" id="L902">			Point errorMarkerLocation = getErrorMarkerLocation(diagramObject);</span>
+<span class="pc bpc" id="L903" title="1 of 2 branches missed.">			if (errorMarkerLocation != null) {</span>
+<span class="fc" id="L904">				g.drawImage(getErrorMarker(), errorMarkerLocation.x, errorMarkerLocation.y, null);</span>
+			}
+		}
+<span class="fc" id="L907">	}</span>
+
+	private Image getErrorMarker() {
+<span class="fc" id="L910">		return SwingRendererUtils.ERROR_OVERLAY_ICON.getImage();</span>
+	}
+
+	private Point getErrorMarkerLocation(JDiagramObject diagramObject) {
+<span class="pc bpc" id="L914" title="1 of 2 branches missed.">		if (diagramObject instanceof JNode) {</span>
+<span class="fc" id="L915">			Rectangle nodeBounds = ((JNode) diagramObject).getImageBounds();</span>
+<span class="fc" id="L916">			return new Point(nodeBounds.x, nodeBounds.y);</span>
+		}
+<span class="nc bnc" id="L918" title="All 2 branches missed.">		if (diagramObject instanceof JConnection) {</span>
+<span class="nc" id="L919">			Pair&lt;Point, Point&gt; segment = ((JConnection) diagramObject).getLineSegment();</span>
+<span class="nc bnc" id="L920" title="All 2 branches missed.">			if (segment == null) {</span>
+<span class="nc" id="L921">				return null;</span>
+			}
+<span class="nc" id="L923">			return new Point((segment.getFirst().x + segment.getSecond().x) / 2,</span>
+<span class="nc" id="L924">					(segment.getFirst().y + segment.getSecond().y) / 2);</span>
+		}
+<span class="nc" id="L926">		throw new UnexpectedError();</span>
+	}
+
+	@Override
+	public void validateControlData(ValidationSession session) throws Exception {
+<span class="fc" id="L931">		Plan plan = getPlan();</span>
+<span class="fc" id="L932">		plan.validate(false);</span>
+<span class="fc" id="L933">		List&lt;Pair&lt;String, PlanElement&gt;&gt; titleAndElementPairs = new ArrayList&lt;Pair&lt;String, PlanElement&gt;&gt;();</span>
+<span class="fc" id="L934">		titleAndElementPairs.addAll(plan.getSteps().stream()</span>
+<span class="fc" id="L935">				.map(step -&gt; new Pair&lt;String, PlanElement&gt;(&quot;step '&quot; + step.getName() + &quot;'&quot;, step))</span>
+<span class="fc" id="L936">				.collect(Collectors.toList()));</span>
+<span class="fc" id="L937">		titleAndElementPairs.addAll(plan.getTransitions().stream().map(</span>
+<span class="fc" id="L938">				transition -&gt; new Pair&lt;String, PlanElement&gt;(&quot;transition '&quot; + transition.getSummary() + &quot;'&quot;, transition))</span>
+<span class="fc" id="L939">				.collect(Collectors.toList()));</span>
+<span class="fc" id="L940">		Map&lt;Pair&lt;String, PlanElement&gt;, Exception&gt; validitionErrorMap = new HashMap&lt;Pair&lt;String, PlanElement&gt;, Exception&gt;();</span>
+<span class="fc bfc" id="L941" title="All 2 branches covered.">		for (Pair&lt;String, PlanElement&gt; toValidate : titleAndElementPairs) {</span>
+<span class="pc bpc" id="L942" title="1 of 2 branches missed.">			if (Thread.currentThread().isInterrupted()) {</span>
+<span class="nc" id="L943">				return;</span>
+			}
+			try {
+<span class="fc" id="L946">				swingRenderer.getReflectionUI().getValidationErrorRegistry()</span>
+<span class="fc" id="L947">						.attributing(toValidate.getSecond(),</span>
+<span class="fc" id="L948">								(sessionArg) -&gt; toValidate.getSecond().validate(true, plan),</span>
+<span class="fc" id="L949">								validationError -&gt; swingRenderer.getReflectionUI().logDebug(validationError))</span>
+<span class="fc" id="L950">						.validate(session);</span>
+<span class="fc" id="L951">			} catch (Exception e) {</span>
+<span class="fc" id="L952">				validitionErrorMap.put(toValidate, e);</span>
+			}
+		}
+<span class="fc" id="L955">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L958">				repaint();</span>
+<span class="fc" id="L959">			}</span>
+		});
+<span class="pc bpc" id="L961" title="1 of 2 branches missed.">		if (Thread.currentThread().isInterrupted()) {</span>
+<span class="nc" id="L962">			return;</span>
+		}
+<span class="fc bfc" id="L964" title="All 2 branches covered.">		if (validitionErrorMap.size() &gt; 0) {</span>
+<span class="fc" id="L965">			Entry&lt;Pair&lt;String, PlanElement&gt;, Exception&gt; firstErrorEntry = validitionErrorMap.entrySet().iterator()</span>
+<span class="fc" id="L966">					.next();</span>
+<span class="fc" id="L967">			Pair&lt;String, PlanElement&gt; titleAndObjectPair = firstErrorEntry.getKey();</span>
+<span class="fc" id="L968">			Exception validationError = firstErrorEntry.getValue();</span>
+<span class="fc" id="L969">			throw new ValidationErrorWrapper(&quot;Failed to validate the &quot; + titleAndObjectPair.getFirst(),</span>
+<span class="fc" id="L970">					validationError);</span>
+		}
+<span class="fc" id="L972">	}</span>
+
+	@Override
+	public void mousePressed(MouseEvent mouseEvent) {
+<span class="fc" id="L976">		requestFocus();</span>
+<span class="fc" id="L977">		super.mousePressed(mouseEvent);</span>
+<span class="fc" id="L978">	}</span>
+
+	@Override
+	public void mouseMoved(MouseEvent mouseEvent) {
+<span class="nc" id="L982">		super.mouseMoved(mouseEvent);</span>
+<span class="nc" id="L983">		manageErrorTooltipOnMouseMove(mouseEvent);</span>
+<span class="nc" id="L984">	}</span>
+
+	protected void manageErrorTooltipOnMouseMove(MouseEvent mouseEvent) {
+<span class="nc" id="L987">		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());</span>
+<span class="nc bnc" id="L988" title="All 2 branches missed.">		Exception currentError = (pointedDiagramObject != null) ? swingRenderer.getReflectionUI()</span>
+<span class="nc" id="L989">				.getValidationErrorRegistry().getValidationError(pointedDiagramObject.getValue(), null) : null;</span>
+<span class="nc bnc" id="L990" title="All 2 branches missed.">		if (currentError != null) {</span>
+<span class="nc" id="L991">			Pair&lt;PlanElement, Exception&gt; newTooltipId = new Pair&lt;PlanElement, Exception&gt;(</span>
+<span class="nc" id="L992">					(PlanElement) pointedDiagramObject.getValue(), currentError);</span>
+			@SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc bnc" id="L994" title="All 2 branches missed.">			Pair&lt;PlanElement, Exception&gt; oldTooltipId = (HyperlinkTooltip.get(this) != null)</span>
+<span class="nc" id="L995">					? (Pair&lt;PlanElement, Exception&gt;) HyperlinkTooltip.get(this).getCustomValue()</span>
+<span class="nc" id="L996">					: null;</span>
+<span class="nc bnc" id="L997" title="All 2 branches missed.">			if (!newTooltipId.equals(oldTooltipId)) {</span>
+<span class="nc" id="L998">				HyperlinkTooltip.set(this, xy.reflect.ui.util.MiscUtils.getPrettyErrorMessage(currentError),</span>
+<span class="nc" id="L999">						new Runnable() {</span>
+							@Override
+							public void run() {
+<span class="nc" id="L1002">								swingRenderer.openErrorDetailsDialog(PlanDiagram.this, currentError);</span>
+<span class="nc" id="L1003">							}</span>
+						});
+<span class="nc" id="L1005">				HyperlinkTooltip.get(this).setCustomComponentResponsiveBoundsMapper(component -&gt; {</span>
+<span class="nc" id="L1006">					Image errorMarker = getErrorMarker();</span>
+<span class="nc" id="L1007">					Point location = getErrorMarkerLocation(pointedDiagramObject);</span>
+<span class="nc" id="L1008">					return new Rectangle(location.x, location.y, errorMarker.getWidth(null),</span>
+<span class="nc" id="L1009">							errorMarker.getHeight(null));</span>
+				});
+<span class="nc" id="L1011">				HyperlinkTooltip.get(this).setCustomValue(newTooltipId);</span>
+<span class="nc" id="L1012">				HyperlinkTooltip.get(this).getMouseMotionListener().mouseMoved(mouseEvent);</span>
+			}
+		}
+<span class="nc" id="L1015">	}</span>
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
+<span class="fc" id="L1019">		MenuInfo editMenu = menuModel.getMenus().stream().filter(menu -&gt; menu.getCaption().equals(&quot;Edit&quot;)).findFirst()</span>
+<span class="fc" id="L1020">				.orElse(null);</span>
+		{
+<span class="fc" id="L1022">			MenuItemCategory category = new MenuItemCategory();</span>
+			{
+<span class="fc" id="L1024">				editMenu.addItemCategory(category);</span>
+<span class="fc" id="L1025">				Pair&lt;AbstractAction, KeyboardShortcut&gt; SEPARATOR = null;</span>
+<span class="fc bfc" id="L1026" title="All 2 branches covered.">				for (Pair&lt;AbstractAction, KeyboardShortcut&gt; actionAndShortcut : Arrays.asList(</span>
+<span class="fc" id="L1027">						new Pair&lt;AbstractAction, KeyboardShortcut&gt;(createCopyAction(),</span>
+<span class="fc" id="L1028">								new KeyboardShortcut(KeyEvent.VK_C, false, true, false, false, false)),</span>
+<span class="fc" id="L1029">						new Pair&lt;AbstractAction, KeyboardShortcut&gt;(createCutAction(),</span>
+<span class="fc" id="L1030">								new KeyboardShortcut(KeyEvent.VK_X, false, true, false, false, false)),</span>
+<span class="fc" id="L1031">						new Pair&lt;AbstractAction, KeyboardShortcut&gt;(createPasteAction(getWidth() / 2, getHeight() / 2),</span>
+<span class="fc" id="L1032">								new KeyboardShortcut(KeyEvent.VK_V, false, true, false, false, false)),</span>
+<span class="fc" id="L1033">						new Pair&lt;AbstractAction, KeyboardShortcut&gt;(createDeleteAction(),</span>
+<span class="fc" id="L1034">								new KeyboardShortcut(KeyEvent.VK_DELETE, false, false, false, false, false)),</span>
+<span class="fc" id="L1035">						null, new Pair&lt;AbstractAction, KeyboardShortcut&gt;(createSelectAllAction(),</span>
+<span class="fc" id="L1036">								new KeyboardShortcut(KeyEvent.VK_A, false, true, false, false, false)))) {</span>
+<span class="fc bfc" id="L1037" title="All 2 branches covered.">					if (actionAndShortcut == SEPARATOR) {</span>
+<span class="fc" id="L1038">						category = new MenuItemCategory();</span>
+<span class="fc" id="L1039">						editMenu.addItemCategory(category);</span>
+<span class="fc" id="L1040">						continue;</span>
+					}
+<span class="fc" id="L1042">					CustomActionMenuItemInfo menuItem = new CustomActionMenuItemInfo(swingRenderer.getReflectionUI(),</span>
+<span class="fc" id="L1043">							(String) actionAndShortcut.getFirst().getValue(AbstractAction.NAME), null,</span>
+<span class="fc" id="L1044">							new Supplier&lt;Boolean&gt;() {</span>
+								@Override
+								public Boolean get() {
+<span class="fc" id="L1047">									return actionAndShortcut.getFirst().isEnabled();</span>
+								}
+<span class="fc" id="L1049">							}, new Runnable() {</span>
+								@Override
+								public void run() {
+<span class="nc" id="L1052">									actionAndShortcut.getFirst().actionPerformed(null);</span>
+<span class="nc" id="L1053">								}</span>
+							});
+<span class="fc" id="L1055">					menuItem.setKeyboardShortcut(actionAndShortcut.getSecond());</span>
+<span class="fc" id="L1056">					category.addItem(menuItem);</span>
+				}
+			}
+
+		}
+
+<span class="fc" id="L1062">	}</span>
+
+	@Override
+	public boolean requestCustomFocus() {
+<span class="nc" id="L1066">		return false;</span>
+	}
+
+	@Override
+	public boolean isModificationStackManaged() {
+<span class="nc" id="L1071">		return false;</span>
+	}
+
+	@Override
+	public boolean areValueAccessErrorsManaged() {
+<span class="fc" id="L1076">		return false;</span>
+	}
+
+	@Override
+	public boolean displayError(Throwable error) {
+<span class="nc" id="L1081">		return false;</span>
+	}
+
+	public static class Source {
+		private Plan plan;
+
+<span class="fc" id="L1087">		public Source(Plan plan) {</span>
+<span class="fc" id="L1088">			this.plan = plan;</span>
+<span class="fc" id="L1089">		}</span>
+
+		public Plan getPlan() {
+<span class="fc" id="L1092">			return plan;</span>
+		}
+	}
+
+<span class="nc" id="L1096">	private static class Clipboard {</span>
+
+		private static Clipboard current;
+
+<span class="nc" id="L1100">		private ByteArrayOutputStream planStore = new ByteArrayOutputStream();</span>
+<span class="nc" id="L1101">		private Set&lt;Integer&gt; selectedStepIndexes = new HashSet&lt;Integer&gt;();</span>
+<span class="nc" id="L1102">		private Set&lt;Integer&gt; selectedTransitionIndexes = new HashSet&lt;Integer&gt;();</span>
+
+		public static boolean canCopy(PlanDiagram planDiagram) {
+<span class="fc bfc" id="L1105" title="All 2 branches covered.">			return planDiagram.getSelection().size() &gt; 0;</span>
+		}
+
+		public static boolean canPaste(PlanDiagram planDiagram) {
+<span class="pc bpc" id="L1109" title="1 of 2 branches missed.">			return current != null;</span>
+		}
+
+		public static void copy(PlanDiagram planDiagram) {
+<span class="nc" id="L1113">			current = new Clipboard();</span>
+<span class="nc" id="L1114">			Plan plan = planDiagram.getPlan();</span>
+<span class="nc" id="L1115">			Set&lt;Object&gt; selectedStepAndTransitions = planDiagram.getSelection().stream()</span>
+<span class="nc" id="L1116">					.map(selectedObject -&gt; selectedObject.getValue()).collect(Collectors.toSet());</span>
+			try {
+<span class="nc" id="L1118">				MiscUtils.serialize(plan, current.planStore);</span>
+<span class="nc" id="L1119">			} catch (IOException e) {</span>
+<span class="nc" id="L1120">				throw new UnexpectedError(e);</span>
+			}
+<span class="nc bnc" id="L1122" title="All 2 branches missed.">			for (Object object : selectedStepAndTransitions) {</span>
+<span class="nc bnc" id="L1123" title="All 2 branches missed.">				if (object instanceof Step) {</span>
+<span class="nc" id="L1124">					current.selectedStepIndexes.add(plan.getSteps().indexOf(object));</span>
+<span class="nc bnc" id="L1125" title="All 2 branches missed.">				} else if (object instanceof Transition) {</span>
+<span class="nc" id="L1126">					current.selectedTransitionIndexes.add(plan.getTransitions().indexOf(object));</span>
+<span class="nc" id="L1127">				} else {</span>
+<span class="nc" id="L1128">					throw new UnexpectedError();</span>
+				}
+			}
+<span class="nc" id="L1131">		}</span>
+
+		public static void paste(PlanDiagram planDiagram, int x, int y) {
+			Plan planCopy;
+			try {
+<span class="nc" id="L1136">				planCopy = (Plan) MiscUtils.deserialize(new ByteArrayInputStream(current.planStore.toByteArray()));</span>
+<span class="nc" id="L1137">			} catch (IOException e) {</span>
+<span class="nc" id="L1138">				throw new UnexpectedError(e);</span>
+			}
+<span class="nc" id="L1140">			planDiagram.input.getModificationStack().insideComposite(&quot;Paste&quot;, UndoOrder.getNormal(),</span>
+<span class="nc" id="L1141">					new Accessor&lt;Boolean&gt;() {</span>
+						@Override
+						public Boolean get() {
+<span class="nc" id="L1144">							Set&lt;Step&gt; allStepsToPaste = new HashSet&lt;Step&gt;();</span>
+<span class="nc bnc" id="L1145" title="All 2 branches missed.">							for (int stepIndex : current.selectedStepIndexes) {</span>
+<span class="nc" id="L1146">								Step stepCopy = planCopy.getSteps().get(stepIndex);</span>
+<span class="nc" id="L1147">								allStepsToPaste.add(stepCopy);</span>
+<span class="nc bnc" id="L1148" title="All 2 branches missed.">								if (stepCopy instanceof CompositeStep) {</span>
+<span class="nc" id="L1149">									allStepsToPaste</span>
+<span class="nc" id="L1150">											.addAll(MiscUtils.getDescendants((CompositeStep&lt;?&gt;) stepCopy, planCopy));</span>
+								}
+							}
+<span class="nc" id="L1153">							CompositeStep&lt;?&gt; destinationCompositeStep = planDiagram.getDestinationCompositeStep(x, y);</span>
+<span class="nc" id="L1154">							Plan destinationPlan = planDiagram.getPlan();</span>
+<span class="nc" id="L1155">							Rectangle boundsOfAllStepsToPaste = null;</span>
+<span class="nc bnc" id="L1156" title="All 2 branches missed.">							for (Step stepCopy : allStepsToPaste) {</span>
+<span class="nc bnc" id="L1157" title="All 4 branches missed.">								if ((stepCopy.getParent() == null) || !allStepsToPaste.contains(stepCopy.getParent())) {</span>
+<span class="nc" id="L1158">									stepCopy.setParent(destinationCompositeStep);</span>
+								}
+<span class="nc" id="L1160">								while (destinationPlan.getSteps().stream().anyMatch(</span>
+<span class="nc bnc" id="L1161" title="All 2 branches missed.">										destinationStep -&gt; destinationStep.getName().equals(stepCopy.getName()))</span>
+<span class="nc" id="L1162">										|| allStepsToPaste.stream()</span>
+<span class="nc bnc" id="L1163" title="All 2 branches missed.">												.anyMatch(otherStepCopy -&gt; (otherStepCopy != stepCopy)</span>
+<span class="nc bnc" id="L1164" title="All 4 branches missed.">														&amp;&amp; otherStepCopy.getName().equals(stepCopy.getName()))) {</span>
+<span class="nc" id="L1165">									stepCopy.setName(MiscUtils.nextNumbreredName(stepCopy.getName()));</span>
+								}
+<span class="nc bnc" id="L1167" title="All 2 branches missed.">								Rectangle stepCopyBounds = (stepCopy instanceof CompositeStep)</span>
+<span class="nc" id="L1168">										? ((CompositeStep&lt;?&gt;) stepCopy).getChildrenBounds(planCopy, STEP_ICON_WIDTH,</span>
+<span class="nc" id="L1169">												STEP_ICON_HEIGHT, 0, 0)</span>
+<span class="nc" id="L1170">										: new Rectangle(stepCopy.getDiagramX() - (STEP_ICON_WIDTH / 2),</span>
+<span class="nc" id="L1171">												stepCopy.getDiagramY() - (STEP_ICON_HEIGHT / 2), STEP_ICON_WIDTH,</span>
+<span class="nc" id="L1172">												STEP_ICON_HEIGHT);</span>
+<span class="nc bnc" id="L1173" title="All 2 branches missed.">								if (boundsOfAllStepsToPaste == null) {</span>
+<span class="nc" id="L1174">									boundsOfAllStepsToPaste = stepCopyBounds;</span>
+<span class="nc" id="L1175">								} else {</span>
+<span class="nc" id="L1176">									boundsOfAllStepsToPaste.add(stepCopyBounds);</span>
+								}
+							}
+<span class="nc bnc" id="L1179" title="All 2 branches missed.">							if (boundsOfAllStepsToPaste == null) {</span>
+<span class="nc" id="L1180">								return false;</span>
+							}
+<span class="nc" id="L1182">							Point stepCopyMoveAtDestination = new Point(x - (int) boundsOfAllStepsToPaste.getCenterX(),</span>
+<span class="nc" id="L1183">									y - (int) boundsOfAllStepsToPaste.getCenterY());</span>
+<span class="nc bnc" id="L1184" title="All 2 branches missed.">							for (Step stepCopy : allStepsToPaste) {</span>
+<span class="nc" id="L1185">								stepCopy.setDiagramX(stepCopy.getDiagramX() + stepCopyMoveAtDestination.x);</span>
+<span class="nc" id="L1186">								stepCopy.setDiagramY(stepCopy.getDiagramY() + stepCopyMoveAtDestination.y);</span>
+<span class="nc" id="L1187">								planDiagram.onStepInsertionRequest(stepCopy);</span>
+							}
+<span class="nc bnc" id="L1189" title="All 2 branches missed.">							for (Transition transitionCopy : planCopy.getTransitions()) {</span>
+<span class="nc bnc" id="L1190" title="All 2 branches missed.">								if (allStepsToPaste.contains(transitionCopy.getStartStep())</span>
+<span class="nc bnc" id="L1191" title="All 2 branches missed.">										&amp;&amp; allStepsToPaste.contains(transitionCopy.getEndStep())) {</span>
+<span class="nc" id="L1192">									planDiagram.onTransitionInsertionRequest(transitionCopy);</span>
+								}
+							}
+<span class="nc" id="L1195">							planDiagram.refreshUI(false);</span>
+<span class="nc" id="L1196">							planDiagram.setSelection(new HashSet&lt;JDiagramObject&gt;(</span>
+<span class="nc" id="L1197">									allStepsToPaste.stream().map(step -&gt; (JDiagramObject) planDiagram.findNode(step))</span>
+<span class="nc" id="L1198">											.collect(Collectors.toSet())),</span>
+<span class="nc" id="L1199">									false);</span>
+<span class="nc" id="L1200">							planDiagram.getFocusedPlanElementsControl().refreshUI(false);</span>
+<span class="nc" id="L1201">							return true;</span>
+						}
+<span class="nc" id="L1203">					}, false);</span>
+<span class="nc" id="L1204">		}</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

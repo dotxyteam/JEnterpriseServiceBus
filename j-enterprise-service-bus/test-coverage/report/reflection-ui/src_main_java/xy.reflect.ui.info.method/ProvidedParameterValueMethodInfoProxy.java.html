@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ProvidedParameterValueMethodInfoProxy.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.method</a> &gt; <span class="el_source">ProvidedParameterValueMethodInfoProxy.java</span></div><h1>ProvidedParameterValueMethodInfoProxy.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.method;
+
+import java.util.ArrayList;
+import java.util.List;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Method proxy that allows to provide a specific parameter value and execute
+ * the base method without exposing this parameter and requiring its value.
+ * 
+ * @author olitank
+ *
+ */
+public class ProvidedParameterValueMethodInfoProxy extends MethodInfoProxy {
+
+	protected String newMethodName;
+	protected int providedParameterPosition;
+	protected Object providedParameterValue;
+
+	public ProvidedParameterValueMethodInfoProxy(IMethodInfo base, String newMethodName, int providedParameterPosition,
+			Object providedParameterValue) {
+<span class="nc" id="L26">		super(base);</span>
+<span class="nc" id="L27">		this.newMethodName = newMethodName;</span>
+<span class="nc" id="L28">		this.providedParameterPosition = providedParameterPosition;</span>
+<span class="nc" id="L29">		this.providedParameterValue = providedParameterValue;</span>
+<span class="nc" id="L30">	}</span>
+
+	@Override
+	public String getName() {
+<span class="nc" id="L34">		return newMethodName;</span>
+	}
+
+	@Override
+	public String getSignature() {
+<span class="nc" id="L39">		return ReflectionUIUtils.buildMethodSignature(this);</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="nc" id="L44">		String result = super.getCaption();</span>
+<span class="nc bnc" id="L45" title="All 6 branches missed.">		if ((super.getParameters().size() &gt; 0) &amp;&amp; (getParameters().size() == 0) &amp;&amp; result.endsWith(&quot;...&quot;)) {</span>
+<span class="nc" id="L46">			result = result.substring(0, result.length() - &quot;...&quot;.length());</span>
+		}
+<span class="nc" id="L48">		return result;</span>
+	}
+
+	@Override
+	public List&lt;IParameterInfo&gt; getParameters() {
+<span class="nc" id="L53">		List&lt;IParameterInfo&gt; result = super.getParameters();</span>
+<span class="nc" id="L54">		result = new ArrayList&lt;IParameterInfo&gt;(result);</span>
+<span class="nc bnc" id="L55" title="All 4 branches missed.">		if (!result.removeIf(parameter -&gt; parameter.getPosition() == providedParameterPosition)) {</span>
+<span class="nc" id="L56">			throw new ReflectionUIError();</span>
+		}
+<span class="nc" id="L58">		return result;</span>
+	}
+
+	@Override
+	public Object invoke(Object object, InvocationData invocationData) {
+<span class="nc" id="L63">		return super.invoke(object, buildFinalInvocationData(invocationData));</span>
+	}
+
+	protected InvocationData buildFinalInvocationData(InvocationData invocationData) {
+<span class="nc" id="L67">		InvocationData result = new InvocationData(invocationData);</span>
+<span class="nc" id="L68">		result.getProvidedParameterValues().put(providedParameterPosition, providedParameterValue);</span>
+<span class="nc" id="L69">		return result;</span>
+	}
+
+	@Override
+	public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L74">		return super.getNextInvocationUndoJob(object, buildFinalInvocationData(invocationData));</span>
+	}
+
+	@Override
+	public Runnable getPreviousInvocationCustomRedoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L79">		return super.getPreviousInvocationCustomRedoJob(object, buildFinalInvocationData(invocationData));</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="nc" id="L84">		return null;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L89">		final int prime = 31;</span>
+<span class="nc" id="L90">		int result = super.hashCode();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">		result = prime * result + ((newMethodName == null) ? 0 : newMethodName.hashCode());</span>
+<span class="nc" id="L92">		result = prime * result + providedParameterPosition;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		result = prime * result + ((providedParameterValue == null) ? 0 : providedParameterValue.hashCode());</span>
+<span class="nc" id="L94">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L99" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L100">			return true;</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="nc" id="L102">			return false;</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L104">			return false;</span>
+<span class="nc" id="L105">		ProvidedParameterValueMethodInfoProxy other = (ProvidedParameterValueMethodInfoProxy) obj;</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">		if (newMethodName == null) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">			if (other.newMethodName != null)</span>
+<span class="nc" id="L108">				return false;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		} else if (!newMethodName.equals(other.newMethodName))</span>
+<span class="nc" id="L110">			return false;</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		if (providedParameterPosition != other.providedParameterPosition)</span>
+<span class="nc" id="L112">			return false;</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">		if (providedParameterValue == null) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">			if (other.providedParameterValue != null)</span>
+<span class="nc" id="L115">				return false;</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">		} else if (!providedParameterValue.equals(other.providedParameterValue))</span>
+<span class="nc" id="L117">			return false;</span>
+<span class="nc" id="L118">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L123">		return &quot;ProvidedParameterValueMethodInfoProxy [newMethodName=&quot; + newMethodName + &quot;, providedParameterPosition=&quot;</span>
+<span class="nc" id="L124">				+ providedParameterPosition + &quot;, providedParameterValue=&quot; + providedParameterValue + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InstantiationFunctionCompilationContext.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">InstantiationFunctionCompilationContext.java</span></div><h1>InstantiationFunctionCompilationContext.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.ArrayList;
+import java.util.List;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.Function.Precompiler;
+import com.otk.jesb.util.InstantiationUtils;
+
+public class InstantiationFunctionCompilationContext {
+
+	private Facade parentFacade;
+<span class="fc" id="L12">	private List&lt;VariableDeclaration&gt; baseVariableDeclarations = new ArrayList&lt;VariableDeclaration&gt;();</span>
+
+<span class="fc" id="L14">	public InstantiationFunctionCompilationContext(List&lt;VariableDeclaration&gt; baseVariableDeclarations,</span>
+			Facade parentFacade) {
+<span class="fc" id="L16">		this.parentFacade = parentFacade;</span>
+<span class="fc" id="L17">		this.baseVariableDeclarations = baseVariableDeclarations;</span>
+<span class="fc" id="L18">	}</span>
+
+	public List&lt;VariableDeclaration&gt; getVariableDeclarations(InstantiationFunction function) {
+<span class="fc" id="L21">		List&lt;VariableDeclaration&gt; result = new ArrayList&lt;VariableDeclaration&gt;(baseVariableDeclarations);</span>
+<span class="fc" id="L22">		result.addAll(parentFacade.getAdditionalVariableDeclarations(function, baseVariableDeclarations));</span>
+<span class="fc" id="L23">		return result;</span>
+	}
+
+	public Facade getParentFacade() {
+<span class="fc" id="L27">		return parentFacade;</span>
+	}
+
+	public Class&lt;?&gt; getFunctionReturnType(InstantiationFunction function) {
+<span class="fc" id="L31">		return parentFacade.getFunctionReturnType(function, baseVariableDeclarations);</span>
+	}
+
+	public Precompiler getPrecompiler() {
+<span class="fc" id="L35">		return new Precompiler() {</span>
+			@Override
+			public String apply(String functionBody) {
+<span class="fc" id="L38">				return InstantiationUtils.makeTypeNamesAbsolute(functionBody,</span>
+<span class="fc" id="L39">						InstantiationUtils.getAncestorInstanceBuilders(parentFacade));</span>
+			}
+
+			@Override
+			public int unprecompileFunctionBodyPosition(int position, String precompiledFunctionBody) {
+<span class="nc" id="L44">				return InstantiationUtils.positionBeforeTypeNamesMadeAbsolute(position, precompiledFunctionBody,</span>
+<span class="nc" id="L45">						InstantiationUtils.getAncestorInstanceBuilders(parentFacade));</span>
+			}
+		};
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

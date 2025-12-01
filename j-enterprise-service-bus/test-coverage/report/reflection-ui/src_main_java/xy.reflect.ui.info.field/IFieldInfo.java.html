@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>IFieldInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.field</a> &gt; <span class="el_source">IFieldInfo.java</span></div><h1>IFieldInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.field;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.IInfo;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+
+/**
+ * This interface allows to specify UI-oriented field properties.
+ * 
+ * @author olitank
+ *
+ */
+public interface IFieldInfo extends IInfo {
+
+	/**
+	 * Dummy instance of this class made for utilitarian purposes.
+	 */
+<span class="fc" id="L31">	public IFieldInfo NULL_FIELD_INFO = new IFieldInfo() {</span>
+
+<span class="fc" id="L33">		ITypeInfo type = new DefaultTypeInfo(ReflectionUI.getDefault(), new JavaTypeInfoSource(Object.class, null));</span>
+
+		@Override
+		public String getName() {
+<span class="fc" id="L37">			return &quot;NULL_FIELD_INFO&quot;;</span>
+		}
+
+		@Override
+		public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L42">			return null;</span>
+		}
+
+		@Override
+		public boolean isControlValueValiditionEnabled() {
+<span class="fc" id="L47">			return false;</span>
+		}
+
+		@Override
+		public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L52">		}</span>
+
+		@Override
+		public double getDisplayAreaHorizontalWeight() {
+<span class="fc" id="L56">			return 1.0;</span>
+		}
+
+		@Override
+		public double getDisplayAreaVerticalWeight() {
+<span class="fc" id="L61">			return 0.0;</span>
+		}
+
+		@Override
+		public boolean isDisplayAreaHorizontallyFilled() {
+<span class="fc" id="L66">			return true;</span>
+		}
+
+		@Override
+		public boolean isDisplayAreaVerticallyFilled() {
+<span class="fc" id="L71">			return false;</span>
+		}
+
+		@Override
+		public boolean isHidden() {
+<span class="fc" id="L76">			return false;</span>
+		}
+
+		@Override
+		public boolean isRelevant(Object object) {
+<span class="fc" id="L81">			return true;</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="fc" id="L86">			return null;</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="nc" id="L91">			return &quot;&quot;;</span>
+		}
+
+		@Override
+		public void setValue(Object object, Object value) {
+<span class="nc" id="L96">		}</span>
+
+		@Override
+		public boolean isGetOnly() {
+<span class="fc" id="L100">			return true;</span>
+		}
+
+		@Override
+		public boolean isTransient() {
+<span class="fc" id="L105">			return false;</span>
+		}
+
+		@Override
+		public boolean isNullValueDistinct() {
+<span class="fc" id="L110">			return false;</span>
+		}
+
+		@Override
+		public String getNullValueLabel() {
+<span class="fc" id="L115">			return null;</span>
+		}
+
+		@Override
+		public ValueReturnMode getValueReturnMode() {
+<span class="fc" id="L120">			return ValueReturnMode.INDETERMINATE;</span>
+		}
+
+		@Override
+		public Object getValue(Object object) {
+<span class="nc" id="L125">			return null;</span>
+		}
+
+		@Override
+		public Runnable getNextUpdateCustomUndoJob(Object object, Object value) {
+<span class="fc" id="L130">			return null;</span>
+		}
+
+		@Override
+		public Runnable getPreviousUpdateCustomRedoJob(Object object, Object newValue) {
+<span class="nc" id="L135">			return null;</span>
+		}
+
+		@Override
+		public boolean hasValueOptions(Object object) {
+<span class="fc" id="L140">			return false;</span>
+		}
+
+		@Override
+		public Object[] getValueOptions(Object object) {
+<span class="nc" id="L145">			return null;</span>
+		}
+
+		@Override
+		public ITypeInfo getType() {
+<span class="fc" id="L150">			return type;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L155">			return null;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="fc" id="L160">			return null;</span>
+		}
+
+		@Override
+		public InfoCategory getCategory() {
+<span class="fc" id="L165">			return null;</span>
+		}
+
+		@Override
+		public boolean isFormControlMandatory() {
+<span class="fc" id="L170">			return false;</span>
+		}
+
+		@Override
+		public boolean isFormControlEmbedded() {
+<span class="fc" id="L175">			return false;</span>
+		}
+
+		@Override
+		public IInfoFilter getFormControlFilter() {
+<span class="fc" id="L180">			return IInfoFilter.DEFAULT;</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L185">			return Collections.emptyMap();</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L190">			return getName();</span>
+		}
+
+		@Override
+		public long getAutoUpdatePeriodMilliseconds() {
+<span class="fc" id="L195">			return -1;</span>
+		}
+
+<span class="fc" id="L198">	};</span>
+
+	/**
+	 * @return the type information of the current field.
+	 */
+	ITypeInfo getType();
+
+	/**
+	 * @param object The object hosting the field value or null if the field is
+	 *               static.
+	 * @return the value of this field extracted from the given object. Note that
+	 *         null may be returned (even if {@link #isNullValueDistinct()} returns
+	 *         false). All field controls must then support null (not crash). If
+	 *         null is returned and {@link #isNullValueDistinct()} returns true then
+	 *         the null value should be distinctly displayed (not like a default
+	 *         non-null value).
+	 */
+	Object getValue(Object object);
+
+	/**
+	 * @param object The object hosting the field value or null if the field is
+	 *               static.
+	 * @return whether this field value has options. If the return value is 'true'
+	 *         then the {@link #getValueOptions(Object)} method must not return
+	 *         null.
+	 */
+	boolean hasValueOptions(Object object);
+
+	/**
+	 * @param object The object hosting the field value or null if the field is
+	 *               static.
+	 * @return options for the value of this field. If the
+	 *         {@link #hasValueOptions(Object)} method return value is 'true' then
+	 *         this method must not return null.
+	 */
+	Object[] getValueOptions(Object object);
+
+	/**
+	 * Updates the current field of the given object with the given value.
+	 * 
+	 * @param object The object hosting the field value or null if the field is
+	 *               static.
+	 * @param value  The new field value.
+	 */
+	void setValue(Object object, Object value);
+
+	/**
+	 * @param object   The object hosting the field value or null if the field is
+	 *                 static.
+	 * @param newValue The new field value.
+	 * @return a job that can revert the next field value update or null if the
+	 *         default undo job should be used.
+	 */
+	Runnable getNextUpdateCustomUndoJob(Object object, Object newValue);
+
+	/**
+	 * @param object   The object hosting the field value or null if the field is
+	 *                 static.
+	 * @param newValue The new field value.
+	 * @return a job that can replay the previous field value update or null if the
+	 *         default redo job should be used.
+	 */
+	Runnable getPreviousUpdateCustomRedoJob(Object object, Object newValue);
+
+	/**
+	 * @param object The object hosting the field value or null if the field is
+	 *               static.
+	 * @return a list of constructors that must be used (if non-null) to create a
+	 *         new instance of the field value instead of those returned by the call
+	 *         of {@link #getType()} -&gt; {@linkplain ITypeInfo#getConstructors()}.
+	 */
+	List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object);
+
+	/**
+	 * @param object The object hosting the field value or null if the field is
+	 *               static.
+	 * @return a list of constructors that must be used (if non-null) to create a
+	 *         new item when the current field is a list field ({@link #getType()}
+	 *         instanceof {@link IListTypeInfo}) instead of those returned by the
+	 *         call of {@link #getType()} -&gt; {@link IListTypeInfo#getItemType()} -&gt;
+	 *         {@link ITypeInfo#getConstructors()} .
+	 */
+	List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object);
+
+	/**
+	 * @return true if and only if the current field control must distinctly display
+	 *         and allow to set/unset the null value. This is usually needed if a
+	 *         null value has a special meaning different from &quot;empty/default value&quot;
+	 *         for the developer. Note that the null value may be returned by
+	 *         {@link #getValue(Object)} even if it is not required to be distinctly
+	 *         displayed (false returned by the current method).
+	 */
+	boolean isNullValueDistinct();
+
+	/**
+	 * @return false if and only if this field value can be set. Otherwise
+	 *         {@link #setValue(Object, Object)} should not be called. Note that a
+	 *         get-only field does not prevent all modifications. The field value
+	 *         may be modified and these modifications may be volatile (for
+	 *         calculated values, copies, ..) or persistent even if the new field
+	 *         value is not set.
+	 */
+	boolean isGetOnly();
+
+	/**
+	 * @return true if and only if information about this field value updates should
+	 *         not be stored in a modification stack (in order to be reverted). Note
+	 *         that this has nothing to do with whether this field may affect the
+	 *         object hosting its value or not (unlike
+	 *         {@link IMethodInfo#isReadOnly()}).
+	 */
+	boolean isTransient();
+
+	/**
+	 * @return a text that should be displayed by the field control to describe the
+	 *         null value.
+	 */
+	String getNullValueLabel();
+
+	/**
+	 * @return the value return mode of this field. It may impact the behavior of
+	 *         the field control.
+	 */
+	ValueReturnMode getValueReturnMode();
+
+	/**
+	 * @return the category in which this field will be displayed.
+	 */
+	InfoCategory getCategory();
+
+	/**
+	 * @return true if this field value must be displayed as a generic form. If
+	 *         false is returned then a custom control may be displayed. Note that
+	 *         the form to display is either embedded in the current window or
+	 *         displayed in a child dialog according to the return value of
+	 *         {@link #isFormControlEmbedded()}.
+	 */
+	boolean isFormControlMandatory();
+
+	/**
+	 * @return whether this field value form is embedded in the current window or
+	 *         displayed in a child dialog. Note that this method has no impact if a
+	 *         custom control is displayed instead of a generic form.
+	 */
+	boolean isFormControlEmbedded();
+
+	/**
+	 * @return an object used to filter out some fields and methods from this field
+	 *         value form. Note that this method has no impact if a custom control
+	 *         is displayed instead of a generic form.
+	 */
+	IInfoFilter getFormControlFilter();
+
+	/**
+	 * @return the automatic update period (in milliseconds) that the field control
+	 *         will try to respect.-1 means that there is no automatic update and 0
+	 *         means that the update occurs as fast as possible.
+	 */
+	long getAutoUpdatePeriodMilliseconds();
+
+	/**
+	 * @return true if and only if the control of this field is filtered out from
+	 *         the display.
+	 */
+	boolean isHidden();
+
+	/**
+	 * @param object The object hosting the field value or null if the field is
+	 *               static.
+	 * @return whether the display of this field control makes sense given the state
+	 *         of the parent object.
+	 */
+	boolean isRelevant(Object object);
+
+	/**
+	 * @return a number that specifies how to distribute extra horizontal space
+	 *         between sibling field controls. If the resulting layout is smaller
+	 *         horizontally than the area it needs to fill, the extra space is
+	 *         distributed to each field in proportion to its horizontal weight. A
+	 *         field that has a weight of zero receives no extra space. If all the
+	 *         weights are zero, all the extra space appears between the grids of
+	 *         the cell and the left and right edges. It should be a non-negative
+	 *         value.
+	 */
+	double getDisplayAreaHorizontalWeight();
+
+	/**
+	 * @return a number that specifies how to distribute extra vertical space
+	 *         between sibling field controls. If the resulting layout is smaller
+	 *         vertically than the area it needs to fill, the extra space is
+	 *         distributed to each field in proportion to its vertical weight. A
+	 *         field that has a weight of zero receives no extra space. If all the
+	 *         weights are zero, all the extra space appears between the grids of
+	 *         the cell and the left and right edges. It should be a non-negative
+	 *         value.
+	 * 
+	 */
+	double getDisplayAreaVerticalWeight();
+
+	/**
+	 * @return whether this field component is made wide enough to fill its display
+	 *         area horizontally.
+	 */
+	boolean isDisplayAreaHorizontallyFilled();
+
+	/**
+	 * @return whether this field component is made wide enough to fill its display
+	 *         area vertically.
+	 */
+	boolean isDisplayAreaVerticallyFilled();
+
+	/**
+	 * This method is called by the renderer when the visibility of the field
+	 * control changes for the given object in the generated UI.
+	 * 
+	 * @param object  The object hosting the field value or null if the field is
+	 *                static.
+	 * @param visible true when the field becomes visible, false when it becomes
+	 *                invisible.
+	 */
+	void onControlVisibilityChange(Object object, boolean visible);
+
+	/**
+	 * @return whether control-based validation errors should be checked for the
+	 *         value of the field.
+	 */
+	boolean isControlValueValiditionEnabled();
+
+	/**
+	 * @param object The object hosting the field value or null if the field is
+	 *               static.
+	 * @return a validation task that can be used to fully validate the state of the
+	 *         field value extracted from the given object in the absence of a
+	 *         concrete form that would have orchestrated the object's validation.
+	 *         Note that this method was added for optimization purposes because,
+	 *         with the Swing toolkit, it was mandatory to create any form from the
+	 *         UI thread, which was therefore slowed down, just to have a form
+	 *         orchestrating the validation.
+	 */
+	IValidationJob getValueAbstractFormValidationJob(Object object);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

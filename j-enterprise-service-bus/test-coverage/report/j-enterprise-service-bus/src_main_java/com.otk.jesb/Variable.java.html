@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Variable.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">Variable.java</span></div><h1>Variable.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+/**
+ * Allows to associate an identifier (name) with a value.
+ * 
+ * @author olitank
+ *
+ */
+public interface Variable {
+
+<span class="fc" id="L11">	public static final Object UNDEFINED_VALUE = new Object() {</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L15">			return Variable.class.getName() + &quot;.UNDEFINED_VALUE&quot;;</span>
+		}
+<span class="fc" id="L17">	};</span>
+
+	Object getValue();
+
+	String getName();
+
+	public static class BasicVariable implements Variable {
+
+		private String name;
+		private Object value;
+
+<span class="fc" id="L28">		public BasicVariable(String name, Object value) {</span>
+<span class="fc" id="L29">			this.name = name;</span>
+<span class="fc" id="L30">			this.value = value;</span>
+<span class="fc" id="L31">		}</span>
+
+		@Override
+		public String getName() {
+<span class="fc" id="L35">			return name;</span>
+		}
+
+		@Override
+		public Object getValue() {
+<span class="fc" id="L40">			return value;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L45">			final int prime = 31;</span>
+<span class="nc" id="L46">			int result = 1;</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">			result = prime * result + ((name == null) ? 0 : name.hashCode());</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">			result = prime * result + ((value == null) ? 0 : value.hashCode());</span>
+<span class="nc" id="L49">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L54" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L55">				return true;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L57">				return false;</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L59">				return false;</span>
+<span class="nc" id="L60">			BasicVariable other = (BasicVariable) obj;</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">			if (name == null) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">				if (other.name != null)</span>
+<span class="nc" id="L63">					return false;</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">			} else if (!name.equals(other.name))</span>
+<span class="nc" id="L65">				return false;</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">			if (value == null) {</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">				if (other.value != null)</span>
+<span class="nc" id="L68">					return false;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">			} else if (!value.equals(other.value))</span>
+<span class="nc" id="L70">				return false;</span>
+<span class="nc" id="L71">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L76">			return &quot;BasicVariable [name=&quot; + name + &quot;, value=&quot; + value + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public static class Proxy implements Variable {
+
+		private Variable base;
+
+<span class="fc" id="L85">		public Proxy(Variable base) {</span>
+<span class="fc" id="L86">			this.base = base;</span>
+<span class="fc" id="L87">		}</span>
+
+		public Object getValue() {
+<span class="fc" id="L90">			return base.getValue();</span>
+		}
+
+		public String getName() {
+<span class="fc" id="L94">			return base.getName();</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L99">			final int prime = 31;</span>
+<span class="fc" id="L100">			int result = 1;</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">			result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="fc" id="L102">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L108">				return true;</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L110">				return false;</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L112">				return false;</span>
+<span class="fc" id="L113">			Proxy other = (Proxy) obj;</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">			if (base == null) {</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">				if (other.base != null)</span>
+<span class="nc" id="L116">					return false;</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">			} else if (!base.equals(other.base))</span>
+<span class="nc" id="L118">				return false;</span>
+<span class="fc" id="L119">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L124">			return &quot;VariableProxy [base=&quot; + base + &quot;]&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

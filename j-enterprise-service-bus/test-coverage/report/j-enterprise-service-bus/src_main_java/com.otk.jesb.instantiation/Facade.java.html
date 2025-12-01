@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Facade.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">Facade.java</span></div><h1>Facade.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.TreeVisitor;
+
+/**
+ * This is the base of the wrapper classes used to improve the usability of
+ * instantiation structures/nodes ({@link InstanceBuilder},
+ * {@link FieldInitializer}, {@link InitializationSwitch}, ...).
+ * 
+ * Note that these wrapper classes use reflection to provide validation,
+ * preview, etc.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L23">public abstract class Facade {</span>
+
+	/**
+	 * @return A text summarizing the specific behavior of the underlying
+	 *         instantiation structure/node.
+	 */
+	public abstract String express();
+
+	/**
+	 * @return The parent {@link Facade}.
+	 */
+	public abstract Facade getParent();
+
+	/**
+	 * @return The list of valid child {@link Facade} instances.
+	 */
+	public abstract List&lt;? extends Facade&gt; getChildren();
+
+	/**
+	 * @return Whether the underlying instantiation structure/node is connected to
+	 *         the root and therefore actually active. Otherwise, the current
+	 *         {@link Facade} is just a glimpse of the possibilities.
+	 */
+	public abstract boolean isConcrete();
+
+	/**
+	 * Updates whether the underlying instantiation structure/node is connected to
+	 * the root and therefore actually active. Otherwise, the current {@link Facade}
+	 * is just a glimpse of the possibilities.
+	 * 
+	 * @param b The new status.
+	 */
+	public abstract void setConcrete(boolean b);
+
+	/**
+	 * @return The underlying instantiation structure/node.
+	 */
+	public abstract Object getUnderlying();
+
+	/**
+	 * @param function                 This current {@link Facade} function whose
+	 *                                 evaluation context will be associated with
+	 *                                 the result of this method. If null is
+	 *                                 provided then the result of this method is
+	 *                                 not calculated for a function of the current
+	 *                                 {@link Facade}, but rather for the function
+	 *                                 of a descendant {@link Facade}.
+	 * @param baseVariableDeclarations The {@link VariableDeclaration} instances of
+	 *                                 the root evaluation context.
+	 * @return The additional {@link VariableDeclaration} instances generated (in
+	 *         addition to those in the the root evaluation context) by the
+	 *         ascending branch of the current instantiation {@link Facade}. These
+	 *         will be part of the evaluation context of the provided function (if
+	 *         non-null) or a descendant {@link Facade} function.
+	 */
+	public abstract List&lt;VariableDeclaration&gt; getAdditionalVariableDeclarations(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations);
+
+	/**
+	 * @param function                 A function of the current {@link Facade}.
+	 * @param baseVariableDeclarations The {@link VariableDeclaration} instances of
+	 *                                 the root evaluation context.
+	 * @return The return type associated with provided function.
+	 */
+	public abstract Class&lt;?&gt; getFunctionReturnType(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations);
+
+	/**
+	 * @param recursively          Whether the validation is recursively executed on
+	 *                             sub-objects or not.
+	 * @param variableDeclarations The {@link VariableDeclaration} instances of the
+	 *                             root evaluation context.
+	 * @throws ValidationError If the current object is considered as invalid.
+	 */
+	public abstract void validate(boolean recursively, List&lt;VariableDeclaration&gt; variableDeclarations)
+			throws ValidationError;
+
+	/**
+	 * @return Whether the current {@link Facade} may be validated or not.
+	 */
+	public boolean isValidable() {
+<span class="fc" id="L104">		return isConcrete();</span>
+	}
+
+	/**
+	 * @param visitor The visitor instance.
+	 * @return The status resulting from the current visit.
+	 */
+	public TreeVisitor.VisitStatus visit(TreeVisitor&lt;Facade&gt; visitor) {
+<span class="nc" id="L112">		return TreeVisitor.visitTreeFrom(this, visitor, Facade::getChildren);</span>
+	}
+
+	/**
+	 * @param facade The current {@link Facade}.
+	 * @return The list of ancestor {@link Facade} instances.
+	 */
+	public static List&lt;Facade&gt; getAncestors(Facade facade) {
+<span class="fc" id="L120">		List&lt;Facade&gt; result = new ArrayList&lt;Facade&gt;();</span>
+		Facade parentFacade;
+<span class="fc bfc" id="L122" title="All 2 branches covered.">		while ((parentFacade = facade.getParent()) != null) {</span>
+<span class="fc" id="L123">			result.add(parentFacade);</span>
+<span class="fc" id="L124">			facade = parentFacade;</span>
+		}
+<span class="fc" id="L126">		return result;</span>
+	}
+
+	/**
+	 * @param facade The current facade.
+	 * @return The root facade.
+	 */
+	public static Facade getRoot(Facade facade) {
+<span class="fc" id="L134">		List&lt;Facade&gt; ancestors = getAncestors(facade);</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">		if (ancestors.size() == 0) {</span>
+<span class="fc" id="L136">			return facade;</span>
+		}
+<span class="fc" id="L138">		return ancestors.get(ancestors.size() - 1);</span>
+	}
+
+	/**
+	 * @param node         The underlying instantiation structure/node.
+	 * @param parentFacade The parent facade.
+	 * @return The appropriate facade for the provided underlying instantiation
+	 *         structure.
+	 */
+	public static Facade get(Object node, Facade parentFacade) {
+<span class="fc bfc" id="L148" title="All 2 branches covered.">		if (node instanceof RootInstanceBuilder) {</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">			if (parentFacade != null) {</span>
+<span class="nc" id="L150">				throw new UnexpectedError();</span>
+			}
+<span class="fc" id="L152">			return new RootInstanceBuilderFacade((RootInstanceBuilder) node);</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">		} else if (node instanceof MapEntryBuilder) {</span>
+<span class="nc" id="L154">			return new MapEntryBuilderFacade(parentFacade, (MapEntryBuilder) node);</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">		} else if (node instanceof InstanceBuilder) {</span>
+<span class="fc" id="L156">			return new InstanceBuilderFacade(parentFacade, (InstanceBuilder) node);</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">		} else if (node instanceof FieldInitializer) {</span>
+<span class="nc" id="L158">			return new FieldInitializerFacade(parentFacade, ((FieldInitializer) node).getFieldName());</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">		} else if (node instanceof ParameterInitializer) {</span>
+<span class="nc" id="L160">			return new ParameterInitializerFacade(parentFacade, ((ParameterInitializer) node).getParameterPosition());</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">		} else if (node instanceof ListItemInitializer) {</span>
+<span class="nc" id="L162">			return new ListItemInitializerFacade(parentFacade, ((ListItemInitializer) node).getIndex());</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">		} else if (node instanceof InitializationSwitch) {</span>
+<span class="nc" id="L164">			return new InitializationSwitchFacade(parentFacade, (InitializationSwitch) node);</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">		} else if (node instanceof InitializationCase) {</span>
+<span class="nc" id="L166">			return new InitializationCaseFacade((InitializationSwitchFacade) parentFacade,</span>
+<span class="nc" id="L167">					((InitializationSwitchFacade) parentFacade).getUnderlying()</span>
+<span class="nc" id="L168">							.findCondition((InitializationCase) node),</span>
+<span class="nc" id="L169">					(InitializationCase) node);</span>
+		} else {
+<span class="nc" id="L171">			throw new UnexpectedError();</span>
+		}
+	}
+
+	/**
+	 * @param facade1 1st facade to compare.
+	 * @param facade2 2nd facade to compare.
+	 * @return whether the provided facades are equivalent (same kind and same
+	 *         identifier).
+	 */
+	public static boolean same(Facade facade1, Facade facade2) {
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">		if (facade1.getClass() != facade2.getClass()) {</span>
+<span class="nc" id="L183">			return false;</span>
+		}
+<span class="fc bfc" id="L185" title="All 2 branches covered.">		if (!facade1.toString().equals(facade2.toString())) {</span>
+<span class="fc" id="L186">			return false;</span>
+		}
+<span class="fc" id="L188">		return true;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L193">		final int prime = 31;</span>
+<span class="fc" id="L194">		int result = 1;</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">		result = prime * result + ((getParent() == null) ? 0 : getParent().hashCode());</span>
+<span class="fc" id="L196">		result = prime * result + getClass().hashCode();</span>
+<span class="fc" id="L197">		result = prime * result + toString().hashCode();</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">		result = prime * result + ((getUnderlying() == null) ? 0 : getUnderlying().hashCode());</span>
+<span class="fc" id="L199">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L204" title="All 2 branches covered.">		if (!(obj instanceof Facade)) {</span>
+<span class="fc" id="L205">			return false;</span>
+		}
+<span class="fc" id="L207">		Facade otherFacade = (Facade) obj;</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">		if (!MiscUtils.equalsOrBothNull(getParent(), otherFacade.getParent())) {</span>
+<span class="fc" id="L209">			return false;</span>
+		}
+<span class="fc bfc" id="L211" title="All 2 branches covered.">		if (!same(this, otherFacade)) {</span>
+<span class="fc" id="L212">			return false;</span>
+		}
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">		if (isConcrete() != otherFacade.isConcrete()) {</span>
+<span class="nc" id="L215">			return false;</span>
+		}
+<span class="fc bfc" id="L217" title="All 2 branches covered.">		if (isConcrete()) {</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">			if (!MiscUtils.equalsOrBothNull(getUnderlying(), otherFacade.getUnderlying())) {</span>
+<span class="nc" id="L219">				return false;</span>
+			}
+		}
+<span class="fc" id="L222">		return true;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

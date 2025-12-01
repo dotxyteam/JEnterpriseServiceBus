@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DefaultParameterInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.parameter</a> &gt; <span class="el_source">DefaultParameterInfo.java</span></div><h1>DefaultParameterInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.parameter;
+
+import java.lang.reflect.Executable;
+import java.lang.reflect.Parameter;
+import java.util.Collections;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Parameter information extracted from the given object representing a Java
+ * parameter.
+ * 
+ * @author olitank
+ *
+ */
+public class DefaultParameterInfo extends AbstractInfo implements IParameterInfo {
+
+	protected ReflectionUI reflectionUI;
+	protected Parameter javaParameter;
+	protected int position;
+	protected Executable javaExecutable;
+	protected Class&lt;?&gt; javaObjectType;
+	protected String name;
+
+<span class="fc" id="L33">	public DefaultParameterInfo(ReflectionUI reflectionUI, Parameter javaParameter, int position,</span>
+			Executable javaExecutable, Class&lt;?&gt; javaObjectType) {
+<span class="fc" id="L35">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L36">		this.javaParameter = javaParameter;</span>
+<span class="fc" id="L37">		this.position = position;</span>
+<span class="fc" id="L38">		this.javaExecutable = javaExecutable;</span>
+<span class="fc" id="L39">		this.javaObjectType = javaObjectType;</span>
+<span class="fc" id="L40">	}</span>
+
+	public Parameter getJavaParameter() {
+<span class="nc" id="L43">		return javaParameter;</span>
+	}
+
+	public static boolean isCompatibleWith(Parameter javaParameter) {
+<span class="fc" id="L47">		return true;</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc bfc" id="L52" title="All 2 branches covered.">		if (name == null) {</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">			if (javaParameter.isNamePresent()) {</span>
+<span class="fc" id="L54">				name = javaParameter.getName();</span>
+<span class="fc" id="L55">			} else {</span>
+<span class="fc" id="L56">				name = reflectionUI.getTypeInfo(new JavaTypeInfoSource(javaParameter.getType(), null)).getCaption();</span>
+<span class="fc" id="L57">				int sameNameCount = 0;</span>
+<span class="fc" id="L58">				int sameNamePosition = 0;</span>
+<span class="fc" id="L59">				int parameterPosition = 0;</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">				for (Class&lt;?&gt; c : javaExecutable.getParameterTypes()) {</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">					if (name.equals(new DefaultTypeInfo(reflectionUI, new JavaTypeInfoSource(c, null)).getCaption())) {</span>
+<span class="fc" id="L62">						sameNameCount++;</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">						if (parameterPosition &lt; position) {</span>
+<span class="fc" id="L64">							sameNamePosition++;</span>
+						}
+					}
+<span class="fc" id="L67">					parameterPosition++;</span>
+				}
+<span class="fc bfc" id="L69" title="All 2 branches covered.">				if (sameNameCount &gt; 1) {</span>
+<span class="fc" id="L70">					name += (sameNamePosition + 1);</span>
+				}
+<span class="fc" id="L72">				name = name.replace(&quot; &quot;, &quot;&quot;);</span>
+<span class="fc" id="L73">				name = name.substring(0, 1).toLowerCase() + name.substring(1);</span>
+			}
+		}
+<span class="fc" id="L76">		return name;</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc" id="L81">		return ReflectionUIUtils.identifierToCaption(getName());</span>
+	}
+
+	@Override
+	public ITypeInfo getType() {
+<span class="fc" id="L86">		return reflectionUI</span>
+<span class="fc" id="L87">				.getTypeInfo(new JavaTypeInfoSource(javaParameter.getType(), javaExecutable, position, null));</span>
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="fc" id="L92">		return false;</span>
+	}
+
+	@Override
+	public boolean isNullValueDistinct() {
+<span class="fc" id="L97">		return false;</span>
+	}
+
+	@Override
+	public Object getDefaultValue(Object object) {
+<span class="fc bfc" id="L102" title="All 2 branches covered.">		if (javaParameter.getType().isPrimitive()) {</span>
+<span class="fc" id="L103">			return ClassUtils.getDefaultPrimitiveValue(javaParameter.getType());</span>
+		} else {
+<span class="fc" id="L105">			return null;</span>
+		}
+	}
+
+	@Override
+	public boolean hasValueOptions(Object object) {
+<span class="fc" id="L111">		return false;</span>
+	}
+
+	@Override
+	public Object[] getValueOptions(Object object) {
+<span class="nc" id="L116">		return null;</span>
+	}
+
+	@Override
+	public int getPosition() {
+<span class="fc" id="L121">		return position;</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="fc" id="L126">		return null;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L131">		return Collections.emptyMap();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L136">		final int prime = 31;</span>
+<span class="fc" id="L137">		int result = 1;</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">		result = prime * result + ((javaExecutable == null) ? 0 : javaExecutable.hashCode());</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">		result = prime * result + ((javaObjectType == null) ? 0 : javaObjectType.hashCode());</span>
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">		result = prime * result + ((javaParameter == null) ? 0 : javaParameter.hashCode());</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">		result = prime * result + ((reflectionUI == null) ? 0 : reflectionUI.hashCode());</span>
+<span class="fc" id="L142">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L147" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L148">			return true;</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L150">			return false;</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L152">			return false;</span>
+<span class="nc" id="L153">		DefaultParameterInfo other = (DefaultParameterInfo) obj;</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">		if (javaExecutable == null) {</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">			if (other.javaExecutable != null)</span>
+<span class="nc" id="L156">				return false;</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">		} else if (!javaExecutable.equals(other.javaExecutable))</span>
+<span class="nc" id="L158">			return false;</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">		if (javaObjectType == null) {</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">			if (other.javaObjectType != null)</span>
+<span class="nc" id="L161">				return false;</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">		} else if (!javaObjectType.equals(other.javaObjectType))</span>
+<span class="nc" id="L163">			return false;</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">		if (javaParameter == null) {</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">			if (other.javaParameter != null)</span>
+<span class="nc" id="L166">				return false;</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		} else if (!javaParameter.equals(other.javaParameter))</span>
+<span class="nc" id="L168">			return false;</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">		if (reflectionUI == null) {</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">			if (other.reflectionUI != null)</span>
+<span class="nc" id="L171">				return false;</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">		} else if (!reflectionUI.equals(other.reflectionUI))</span>
+<span class="nc" id="L173">			return false;</span>
+<span class="nc" id="L174">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L179">		return &quot;DefaultParameterInfo [javaParameter=&quot; + javaParameter + &quot;, position=&quot; + position + &quot;, javaMethod=&quot;</span>
+<span class="nc" id="L180">				+ javaExecutable + &quot;, javaObjectType=&quot; + javaObjectType + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>JDBCQuery.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">JDBCQuery.java</span></div><h1>JDBCQuery.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Parameter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.Reference;
+import com.otk.jesb.Session;
+import com.otk.jesb.Structure;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variant;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public class JDBCQuery extends JDBCOperation {
+
+	protected Class&lt;?&gt; resultClass;
+
+	public JDBCQuery(Session session, JDBCConnection connection, Class&lt;?&gt; resultClass) {
+<span class="fc" id="L43">		super(session, connection);</span>
+<span class="fc" id="L44">		this.resultClass = resultClass;</span>
+<span class="fc" id="L45">	}</span>
+
+	@Override
+	public Object execute() throws Exception {
+<span class="fc" id="L49">		PreparedStatement preparedStatement = prepare();</span>
+<span class="fc" id="L50">		ResultSet resultSet = preparedStatement.executeQuery();</span>
+<span class="fc" id="L51">		List&lt;ColumnDefinition&gt; resultColumnDefinitions = retrieveResultColumnDefinitions(</span>
+<span class="fc" id="L52">				preparedStatement.getMetaData());</span>
+<span class="fc" id="L53">		Class&lt;?&gt; resultRowClass = resultClass.getComponentType();</span>
+<span class="fc" id="L54">		Constructor&lt;?&gt; resultRowConstructor = resultRowClass.getConstructors()[0];</span>
+<span class="fc" id="L55">		Parameter[] resultRowConstructorParameters = resultRowConstructor.getParameters();</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">		if (resultColumnDefinitions.size() != resultRowConstructorParameters.length) {</span>
+<span class="nc" id="L57">			throw new ValidationError(&quot;Unexpected result row column count: &quot; + resultColumnDefinitions.size()</span>
+<span class="nc" id="L58">					+ &quot;. Expected &quot; + resultRowConstructorParameters.length + &quot; column(s).&quot;);</span>
+		}
+<span class="fc" id="L60">		List&lt;Object&gt; resultRowStandardList = new ArrayList&lt;Object&gt;();</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">		while (resultSet.next()) {</span>
+<span class="fc" id="L62">			Object[] parameterValues = new Object[resultColumnDefinitions.size()];</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">			for (int iColumn = 1; iColumn &lt;= resultColumnDefinitions.size(); iColumn++) {</span>
+<span class="fc" id="L64">				Parameter parameter = resultRowConstructorParameters[iColumn - 1];</span>
+<span class="fc" id="L65">				ColumnDefinition resultColumnDefinition = resultColumnDefinitions.get(iColumn - 1);</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">				if (!parameter.getName().equals(resultColumnDefinition.getColumnName())) {</span>
+<span class="nc" id="L67">					throw new ValidationError(</span>
+<span class="nc" id="L68">							&quot;Unexpected result column name: '&quot; + resultColumnDefinition.getColumnName() + &quot;' at the &quot;</span>
+<span class="nc" id="L69">									+ iColumn + &quot;th position. Expected '&quot; + parameter.getName() + &quot;'&quot;);</span>
+				}
+<span class="fc" id="L71">				parameterValues[iColumn - 1] = resultSet.getObject(iColumn);</span>
+			}
+<span class="fc" id="L73">			Object row = resultRowConstructor.newInstance(parameterValues);</span>
+<span class="fc" id="L74">			resultRowStandardList.add(row);</span>
+		}
+<span class="fc" id="L76">		Object result = Array.newInstance(resultRowClass, resultRowStandardList.size());</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">		for (int i = 0; i &lt; resultRowStandardList.size(); i++) {</span>
+<span class="fc" id="L78">			Array.set(result, i, resultRowStandardList.get(i));</span>
+		}
+<span class="fc" id="L80">		return result;</span>
+	}
+
+	protected static List&lt;ColumnDefinition&gt; retrieveResultColumnDefinitions(ResultSetMetaData metaData)
+			throws SQLException {
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">		if (metaData == null) {</span>
+<span class="nc" id="L86">			throw new SQLException(&quot;No SQL statement meta data found&quot;);</span>
+		}
+<span class="fc" id="L88">		List&lt;ColumnDefinition&gt; result = new ArrayList&lt;ColumnDefinition&gt;();</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">		for (int i = 0; i &lt; metaData.getColumnCount(); i++) {</span>
+<span class="fc" id="L90">			String columnClassName = metaData.getColumnClassName(i + 1);</span>
+<span class="fc" id="L91">			String columnName = metaData.getColumnLabel(i + 1);</span>
+<span class="fc" id="L92">			result.add(new ColumnDefinition(columnName, columnClassName));</span>
+		}
+<span class="fc" id="L94">		MiscUtils.makeNumberedNamesUnique(result, ColumnDefinition::getColumnName, ColumnDefinition::setColumnName);</span>
+<span class="fc" id="L95">		return result;</span>
+	}
+
+<span class="fc" id="L98">	public static class Metadata implements OperationMetadata&lt;JDBCQuery&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L102">			return &quot;JDBC Query&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L107">			return &quot;JDBC&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;JDBCQuery&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L112">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L117">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L118">					.specifyClassPathResourceLocation(JDBCQuery.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+	}
+
+<span class="fc" id="L123">	public static class Builder extends JDBCOperation.Builder&lt;JDBCQuery&gt; {</span>
+
+<span class="fc" id="L125">		protected List&lt;ColumnDefinition&gt; resultColumnDefinitions = new ArrayList&lt;JDBCQuery.ColumnDefinition&gt;();</span>
+<span class="fc" id="L126">		protected boolean resultColumnDefinitionAutomatic = true;</span>
+
+<span class="fc" id="L128">		protected UpToDate&lt;Class&lt;?&gt;&gt; upToDateResultClass = new UpToDateResultClass();</span>
+<span class="fc" id="L129">		protected UpToDateMetaResultColumnDefinitions upToDateMetaResultColumnDefinitions = new UpToDateMetaResultColumnDefinitions();</span>
+
+		public boolean isResultColumnDefinitionAutomatic() {
+<span class="nc" id="L132">			return resultColumnDefinitionAutomatic;</span>
+		}
+
+		public void setResultColumnDefinitionAutomatic(boolean resultColumnDefinitionAutomatic) {
+<span class="fc" id="L136">			this.resultColumnDefinitionAutomatic = resultColumnDefinitionAutomatic;</span>
+<span class="fc" id="L137">		}</span>
+
+		protected List&lt;ColumnDefinition&gt; computeResultColumnDefinitions() {
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">			if (resultColumnDefinitionAutomatic) {</span>
+				try {
+<span class="fc" id="L142">					return upToDateMetaResultColumnDefinitions.get();</span>
+<span class="nc" id="L143">				} catch (VersionAccessException e) {</span>
+<span class="nc" id="L144">					throw new PotentialError(e);</span>
+				}
+			} else {
+<span class="nc" id="L147">				return resultColumnDefinitions;</span>
+			}
+		}
+
+		public List&lt;ColumnDefinition&gt; getResultColumnDefinitions() {
+<span class="nc bnc" id="L152" title="All 2 branches missed.">			return (resultColumnDefinitions != null) ? Collections.unmodifiableList(resultColumnDefinitions) : null;</span>
+		}
+
+		@Override
+		public void setStatementVariant(Variant&lt;String&gt; statementVariant) {
+<span class="fc" id="L157">			super.setStatementVariant(statementVariant);</span>
+<span class="fc" id="L158">		}</span>
+
+		@Override
+		public void setConnectionReference(Reference&lt;JDBCConnection&gt; connectionReference) {
+<span class="fc" id="L162">			super.setConnectionReference(connectionReference);</span>
+<span class="fc" id="L163">		}</span>
+
+		protected Class&lt;?&gt; createResultClass() {
+<span class="fc" id="L166">			Structure resultRowStructure = createResultRowStructure();</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">			if (resultRowStructure == null) {</span>
+<span class="nc" id="L168">				return null;</span>
+			}
+<span class="fc" id="L170">			String resultRowClassName = JDBCQuery.class.getName() + &quot;ResultRow&quot;</span>
+<span class="fc" id="L171">					+ MiscUtils.toDigitalUniqueIdentifier(this);</span>
+			Class&lt;?&gt; resultRowClass;
+			try {
+<span class="fc" id="L174">				resultRowClass = MiscUtils.IN_MEMORY_COMPILER.compile(resultRowClassName,</span>
+<span class="fc" id="L175">						resultRowStructure.generateJavaTypeSourceCode(resultRowClassName));</span>
+<span class="pc" id="L176">			} catch (CompilationError e) {</span>
+<span class="nc" id="L177">				throw new PotentialError(e);</span>
+			}
+<span class="fc" id="L179">			return MiscUtils.getArrayType(resultRowClass);</span>
+		}
+
+		protected Structure createResultRowStructure() {
+<span class="fc" id="L183">			List&lt;ColumnDefinition&gt; resultColumnDefinitions = computeResultColumnDefinitions();</span>
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">			if (resultColumnDefinitions == null) {</span>
+<span class="nc" id="L185">				return null;</span>
+			}
+<span class="fc" id="L187">			ClassicStructure rowStructure = new ClassicStructure();</span>
+			{
+<span class="fc bfc" id="L189" title="All 2 branches covered.">				for (int i = 0; i &lt; resultColumnDefinitions.size(); i++) {</span>
+<span class="fc" id="L190">					ColumnDefinition columnDefinition = resultColumnDefinitions.get(i);</span>
+<span class="fc" id="L191">					SimpleElement columnElement = new SimpleElement();</span>
+<span class="fc" id="L192">					rowStructure.getElements().add(columnElement);</span>
+<span class="fc" id="L193">					columnElement.setName(columnDefinition.getColumnName());</span>
+<span class="fc" id="L194">					columnElement.setTypeNameOrAlias(columnDefinition.getColumnTypeName());</span>
+				}
+			}
+<span class="fc" id="L197">			return rowStructure;</span>
+		}
+
+		public void retrieveResultColumnDefinitions() throws SQLException, ClassNotFoundException {
+			try {
+<span class="nc" id="L202">				this.resultColumnDefinitions = upToDateMetaResultColumnDefinitions.get();</span>
+<span class="nc" id="L203">			} catch (VersionAccessException e) {</span>
+<span class="nc" id="L204">				throw new PotentialError(e);</span>
+			}
+<span class="nc" id="L206">		}</span>
+
+		@Override
+		public JDBCQuery build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+<span class="fc" id="L210">			JDBCQuery result = new JDBCQuery(context.getSession(), getConnection(), upToDateResultClass.get());</span>
+<span class="fc" id="L211">			result.setStatement(getStatementVariant().getValue());</span>
+<span class="fc" id="L212">			result.setParameterValues(buildParameterValues(context));</span>
+<span class="fc" id="L213">			return result;</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+			try {
+<span class="fc" id="L219">				return upToDateResultClass.get();</span>
+<span class="nc" id="L220">			} catch (VersionAccessException e) {</span>
+<span class="nc" id="L221">				return null;</span>
+			}
+		}
+
+		protected List&lt;ColumnDefinition&gt; obtainMetaResultColumnDefinitions() throws Exception {
+<span class="fc" id="L226">			JDBCConnection connection = getConnection();</span>
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">			if (connection == null) {</span>
+<span class="nc" id="L228">				return null;</span>
+			}
+<span class="fc" id="L230">			return connection.during(new Function&lt;Connection, List&lt;ColumnDefinition&gt;&gt;() {</span>
+				@Override
+				public List&lt;ColumnDefinition&gt; apply(Connection connectionInstance) {
+<span class="fc" id="L233">					String statement = getStatementVariant().getValue();</span>
+<span class="pc bpc" id="L234" title="2 of 4 branches missed.">					if ((statement == null) || statement.trim().isEmpty()) {</span>
+<span class="nc" id="L235">						return null;</span>
+					}
+					try {
+<span class="fc" id="L238">						PreparedStatement preparedStatement = connectionInstance.prepareStatement(statement);</span>
+<span class="fc" id="L239">						return JDBCQuery.retrieveResultColumnDefinitions(preparedStatement.getMetaData());</span>
+<span class="nc" id="L240">					} catch (SQLException e) {</span>
+<span class="nc" id="L241">						throw new PotentialError(e);</span>
+					}
+				}
+			});
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="fc" id="L249">			super.validate(recursively, plan, step);</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="fc" id="L251">				validateResultColumnDefinitions();</span>
+			}
+<span class="fc" id="L253">		}</span>
+
+		public void validateResultColumnDefinitions() throws ValidationError {
+			List&lt;ColumnDefinition&gt; resultColumnDefinitions;
+			try {
+<span class="fc" id="L258">				resultColumnDefinitions = computeResultColumnDefinitions();</span>
+<span class="pc" id="L259">			} catch (Throwable t) {</span>
+<span class="nc" id="L260">				throw new PotentialError(t.getMessage(), t);</span>
+			}
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">			if (!resultColumnDefinitionAutomatic) {</span>
+				List&lt;ColumnDefinition&gt; metaResultColumnDefinitions;
+				try {
+<span class="nc" id="L265">					metaResultColumnDefinitions = upToDateMetaResultColumnDefinitions.get();</span>
+<span class="nc" id="L266">				} catch (VersionAccessException e) {</span>
+<span class="nc" id="L267">					metaResultColumnDefinitions = null;</span>
+				}
+<span class="nc bnc" id="L269" title="All 2 branches missed.">				if (metaResultColumnDefinitions != null) {</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">					if (!metaResultColumnDefinitions.equals(resultColumnDefinitions)) {</span>
+<span class="nc" id="L271">						throw new ValidationError(&quot;Result column definitions are not up to date. Unexpected: &quot;</span>
+<span class="nc" id="L272">								+ resultColumnDefinitions + &quot;. Expected: &quot; + metaResultColumnDefinitions);</span>
+					}
+				}
+			}
+<span class="fc" id="L276">		}</span>
+
+<span class="fc" id="L278">		private class UpToDateResultClass extends UpToDate&lt;Class&lt;?&gt;&gt; {</span>
+			@Override
+			protected Object retrieveLastVersionIdentifier() {
+<span class="fc" id="L281">				return computeResultColumnDefinitions();</span>
+			}
+
+			@Override
+			protected Class&lt;?&gt; obtainLatest(Object versionIdentifier) {
+<span class="fc" id="L286">				return createResultClass();</span>
+			}
+		}
+
+<span class="fc" id="L290">		private class UpToDateMetaResultColumnDefinitions extends UpToDate&lt;List&lt;ColumnDefinition&gt;&gt; {</span>
+
+			@Override
+			protected Object retrieveLastVersionIdentifier() {
+<span class="fc" id="L294">				JDBCConnection connection = getConnection();</span>
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">				return new Pair&lt;String, String&gt;((connection != null) ? MiscUtils.serialize(connection) : null,</span>
+<span class="fc" id="L296">						getStatementVariant().getValue());</span>
+			}
+
+			@Override
+			protected List&lt;ColumnDefinition&gt; obtainLatest(Object versionIdentifier) throws VersionAccessException {
+				try {
+<span class="fc" id="L302">					return obtainMetaResultColumnDefinitions();</span>
+<span class="nc" id="L303">				} catch (Exception e) {</span>
+<span class="nc" id="L304">					throw new VersionAccessException(e);</span>
+				}
+			}
+
+		}
+
+	}
+
+	public static class ColumnDefinition {
+
+		private String columnName;
+		private String columnTypeName;
+
+<span class="fc" id="L317">		public ColumnDefinition(String columnName, String columnTypeName) {</span>
+<span class="fc" id="L318">			this.columnName = columnName;</span>
+<span class="fc" id="L319">			this.columnTypeName = columnTypeName;</span>
+<span class="fc" id="L320">		}</span>
+
+		public String getColumnName() {
+<span class="fc" id="L323">			return columnName;</span>
+		}
+
+		public void setColumnName(String columnName) {
+<span class="fc" id="L327">			this.columnName = columnName;</span>
+<span class="fc" id="L328">		}</span>
+
+		public String getColumnTypeName() {
+<span class="fc" id="L331">			return columnTypeName;</span>
+		}
+
+		public void setColumnTypeName(String columnTypeName) {
+<span class="nc" id="L335">			this.columnTypeName = columnTypeName;</span>
+<span class="nc" id="L336">		}</span>
+
+		public void validate() throws ValidationError {
+<span class="nc bnc" id="L339" title="All 2 branches missed.">			if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(columnName).matches()) {</span>
+<span class="nc" id="L340">				throw new ValidationError(</span>
+<span class="nc" id="L341">						&quot;Invalid column name: '&quot; + columnTypeName + &quot;' (should match the following regular expression: &quot;</span>
+<span class="nc" id="L342">								+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + &quot;)&quot;);</span>
+			}
+			try {
+<span class="nc" id="L345">				MiscUtils.getJESBClass(columnTypeName);</span>
+<span class="nc" id="L346">			} catch (Throwable t) {</span>
+<span class="nc" id="L347">				throw new ValidationError(&quot;Invalid column type name: '&quot; + columnTypeName + &quot;'&quot;);</span>
+			}
+<span class="nc" id="L349">		}</span>
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L353">			final int prime = 31;</span>
+<span class="nc" id="L354">			int result = 1;</span>
+<span class="nc bnc" id="L355" title="All 2 branches missed.">			result = prime * result + ((columnName == null) ? 0 : columnName.hashCode());</span>
+<span class="nc bnc" id="L356" title="All 2 branches missed.">			result = prime * result + ((columnTypeName == null) ? 0 : columnTypeName.hashCode());</span>
+<span class="nc" id="L357">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L362" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L363">				return true;</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L365">				return false;</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L367">				return false;</span>
+<span class="nc" id="L368">			ColumnDefinition other = (ColumnDefinition) obj;</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">			if (columnName == null) {</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">				if (other.columnName != null)</span>
+<span class="nc" id="L371">					return false;</span>
+<span class="nc bnc" id="L372" title="All 2 branches missed.">			} else if (!columnName.equals(other.columnName))</span>
+<span class="nc" id="L373">				return false;</span>
+<span class="nc bnc" id="L374" title="All 2 branches missed.">			if (columnTypeName == null) {</span>
+<span class="nc bnc" id="L375" title="All 2 branches missed.">				if (other.columnTypeName != null)</span>
+<span class="nc" id="L376">					return false;</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">			} else if (!columnTypeName.equals(other.columnTypeName))</span>
+<span class="nc" id="L378">				return false;</span>
+<span class="nc" id="L379">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L384">			return &quot;ColumnDefinition [columnName=&quot; + columnName + &quot;, columnTypeName=&quot; + columnTypeName + &quot;]&quot;;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

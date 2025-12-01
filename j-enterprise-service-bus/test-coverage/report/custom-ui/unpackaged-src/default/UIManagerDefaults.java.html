@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UIManagerDefaults.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">custom-ui</a> &gt; <a href="../index.html" class="el_bundle">unpackaged-src</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">UIManagerDefaults.java</span></div><h1>UIManagerDefaults.java</h1><pre class="source lang-java linenums">
+
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
+import java.util.*;
+import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.plaf.*;
+import javax.swing.table.*;
+
+import org.jdesktop.swingx.painter.Painter;
+
+@SuppressWarnings(&quot;all&quot;)
+public class UIManagerDefaults implements ActionListener, ItemListener
+{
+<span class="nc" id="L17">	private final static String[] COLUMN_NAMES = {&quot;Key&quot;, &quot;Value&quot;, &quot;Sample&quot;};</span>
+<span class="nc" id="L18">	private static String selectedItem;</span>
+
+	private JComponent contentPane;
+	private JMenuBar menuBar;
+	private JComboBox comboBox;
+	private JRadioButton byComponent;
+	private JTable table;
+	private TreeMap&lt;String, TreeMap&lt;String, Object&gt;&gt; items;
+	private HashMap&lt;String, DefaultTableModel&gt; models;
+
+	/*
+	 *  Constructor
+	 */
+<span class="nc" id="L31">	public UIManagerDefaults()</span>
+	{
+<span class="nc" id="L33">		items = new TreeMap&lt;String, TreeMap&lt;String, Object&gt;&gt;();</span>
+<span class="nc" id="L34">		models = new HashMap&lt;String, DefaultTableModel&gt;();</span>
+
+<span class="nc" id="L36">		contentPane = new JPanel( new BorderLayout() );</span>
+<span class="nc" id="L37">		contentPane.add(buildNorthComponent(), BorderLayout.NORTH);</span>
+<span class="nc" id="L38">		contentPane.add(buildCenterComponent(), BorderLayout.CENTER);</span>
+
+<span class="nc" id="L40">		resetComponents();</span>
+<span class="nc" id="L41">	}</span>
+
+	/*
+	 *  The content pane should be added to a high level container
+	 */
+	public JComponent getContentPane()
+	{
+<span class="nc" id="L48">		return contentPane;</span>
+	}
+
+	/*
+	 *  A menu can also be added which provides the ability to switch
+	 *  between different LAF's.
+	 */
+	public JMenuBar getMenuBar()
+	{
+<span class="nc bnc" id="L57" title="All 2 branches missed.">		if (menuBar == null)</span>
+<span class="nc" id="L58">			menuBar = createMenuBar();</span>
+
+<span class="nc" id="L60">		return menuBar;</span>
+	}
+
+	/*
+	 *  This panel is added to the North of the content pane
+	 */
+	private JComponent buildNorthComponent()
+	{
+<span class="nc" id="L68">		comboBox = new JComboBox();</span>
+
+<span class="nc" id="L70">		JLabel label = new JLabel(&quot;Select Item:&quot;);</span>
+<span class="nc" id="L71">		label.setDisplayedMnemonic('S');</span>
+<span class="nc" id="L72">		label.setLabelFor( comboBox );</span>
+
+<span class="nc" id="L74">		byComponent = new JRadioButton(&quot;By Component&quot;, true);</span>
+<span class="nc" id="L75">		byComponent.setMnemonic('C');</span>
+<span class="nc" id="L76">		byComponent.addActionListener( this );</span>
+
+<span class="nc" id="L78">		JRadioButton byValueType = new JRadioButton(&quot;By Value Type&quot;);</span>
+<span class="nc" id="L79">		byValueType.setMnemonic('V');</span>
+<span class="nc" id="L80">		byValueType.addActionListener( this );</span>
+
+<span class="nc" id="L82">		ButtonGroup group = new ButtonGroup();</span>
+<span class="nc" id="L83">		group.add(byComponent);</span>
+<span class="nc" id="L84">		group.add(byValueType);</span>
+
+<span class="nc" id="L86">		JPanel panel = new JPanel();</span>
+<span class="nc" id="L87">		panel.setBorder( new EmptyBorder(15, 0, 15, 0) );</span>
+<span class="nc" id="L88">		panel.add( label );</span>
+<span class="nc" id="L89">		panel.add( comboBox );</span>
+<span class="nc" id="L90">		panel.add( byComponent );</span>
+<span class="nc" id="L91">		panel.add( byValueType );</span>
+<span class="nc" id="L92">		return panel;</span>
+	}
+
+	/*
+	 *  This panel is added to the Center of the content pane
+	 */
+	private JComponent buildCenterComponent()
+	{
+<span class="nc" id="L100">		DefaultTableModel model = new DefaultTableModel(COLUMN_NAMES, 0);</span>
+<span class="nc" id="L101">		table = new JTable(model);</span>
+<span class="nc" id="L102">		table.setAutoCreateColumnsFromModel( false );</span>
+<span class="nc" id="L103">		table.getColumnModel().getColumn(0).setPreferredWidth(250);</span>
+<span class="nc" id="L104">		table.getColumnModel().getColumn(1).setPreferredWidth(500);</span>
+<span class="nc" id="L105">		table.getColumnModel().getColumn(2).setPreferredWidth(100);</span>
+<span class="nc" id="L106">		table.getColumnModel().getColumn(2).setCellRenderer( new SampleRenderer() );</span>
+<span class="nc" id="L107">		Dimension d = table.getPreferredSize();</span>
+<span class="nc" id="L108">		d.height = 350;</span>
+<span class="nc" id="L109">		table.setPreferredScrollableViewportSize( d );</span>
+
+<span class="nc" id="L111">		return new JScrollPane( table );</span>
+	}
+
+	/*
+	 *  When the LAF is changed we need to reset the content pane
+	 */
+	public void resetComponents()
+	{
+<span class="nc" id="L119">		items.clear();</span>
+<span class="nc" id="L120">		models.clear();</span>
+<span class="nc" id="L121">		((DefaultTableModel)table.getModel()).setRowCount(0);</span>
+
+<span class="nc" id="L123">		buildItemsMap();</span>
+
+<span class="nc" id="L125">		Vector&lt;String&gt; comboBoxItems = new Vector&lt;String&gt;(50);</span>
+<span class="nc" id="L126">		Iterator keys = items.keySet().iterator();</span>
+
+<span class="nc bnc" id="L128" title="All 2 branches missed.">		while (keys.hasNext())</span>
+		{
+<span class="nc" id="L130">			Object key = keys.next();</span>
+<span class="nc" id="L131">			comboBoxItems.add( (String)key );</span>
+		}
+
+<span class="nc" id="L134">		comboBox.removeItemListener( this );</span>
+<span class="nc" id="L135">		comboBox.setModel( new DefaultComboBoxModel( comboBoxItems ) );</span>
+<span class="nc" id="L136">		comboBox.setSelectedIndex(-1);</span>
+<span class="nc" id="L137">		comboBox.addItemListener( this );</span>
+<span class="nc" id="L138">		comboBox.requestFocusInWindow();</span>
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">		if (selectedItem != null)</span>
+<span class="nc" id="L141">			comboBox.setSelectedItem(selectedItem);</span>
+<span class="nc" id="L142">	}</span>
+
+	/*
+	 *	The item map will contain items for each component or
+	 *  items for each attribute type.
+	 */
+	private TreeMap buildItemsMap()
+	{
+<span class="nc" id="L150">		UIDefaults defaults = UIManager.getLookAndFeelDefaults();</span>
+
+		//  Build of Map of items and a Map of attributes for each item
+
+<span class="nc bnc" id="L154" title="All 2 branches missed.">		for ( Enumeration enumm = defaults.keys(); enumm.hasMoreElements(); )</span>
+		{
+<span class="nc" id="L156">			Object key = enumm.nextElement();</span>
+<span class="nc" id="L157">			Object value = defaults.get( key );</span>
+
+<span class="nc" id="L159">			String itemName = getItemName(key.toString(), value);</span>
+
+<span class="nc bnc" id="L161" title="All 2 branches missed.">			if (itemName == null) continue;</span>
+
+			//  Get the attribute map for this componenent, or
+			//  create a map when one is not found
+
+<span class="nc" id="L166">			TreeMap&lt;String, Object&gt; attributeMap = items.get( itemName );</span>
+
+<span class="nc bnc" id="L168" title="All 2 branches missed.">			if (attributeMap == null)</span>
+			{
+<span class="nc" id="L170">				attributeMap = new TreeMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L171">				items.put(itemName, attributeMap);</span>
+			}
+
+			//  Add the attribute to the map for this componenent
+
+<span class="nc" id="L176">			attributeMap.put(key.toString(), value );</span>
+		}
+
+<span class="nc" id="L179">		return items;</span>
+	}
+
+	/*
+	 *  Parse the key to determine the item name to use
+	 */
+	private String getItemName(String key, Object value)
+	{
+		//  Seems like this is an old check required for JDK1.4.2
+
+<span class="nc bnc" id="L189" title="All 4 branches missed.">		if (key.startsWith(&quot;class&quot;) || key.startsWith(&quot;javax&quot;))</span>
+<span class="nc" id="L190">			return null;</span>
+
+<span class="nc bnc" id="L192" title="All 2 branches missed.">		if (byComponent.isSelected())</span>
+<span class="nc" id="L193">			return getComponentName(key, value);</span>
+		else
+<span class="nc" id="L195">			return getValueName(key, value);</span>
+	}
+
+	private String getComponentName(String key, Object value)
+	{
+		//  The key is of the form:
+		//  &quot;componentName.componentProperty&quot;, or
+		//  &quot;componentNameUI&quot;, or
+		//  &quot;someOtherString&quot;
+
+		String componentName;
+
+<span class="nc" id="L207">		int pos = componentNameEndOffset( key );</span>
+
+<span class="nc bnc" id="L209" title="All 2 branches missed.">		if (pos != -1)</span>
+		{
+<span class="nc" id="L211">			componentName = key.substring( 0, pos );</span>
+<span class="nc" id="L212">		}</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">		else if (key.endsWith( &quot;UI&quot; ) )</span>
+		{
+<span class="nc" id="L215">			componentName = key.substring( 0, key.length() - 2 );</span>
+<span class="nc" id="L216">		}</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">		else if (value instanceof ColorUIResource)</span>
+		{
+<span class="nc" id="L219">			componentName = &quot;System Colors&quot;;</span>
+<span class="nc" id="L220">		}</span>
+		else
+		{
+<span class="nc" id="L223">			componentName = &quot;Miscellaneous&quot;;</span>
+		}
+
+		//  Fix inconsistency
+
+<span class="nc bnc" id="L228" title="All 2 branches missed.">		if (componentName.equals(&quot;Checkbox&quot;))</span>
+		{
+<span class="nc" id="L230">			componentName = &quot;CheckBox&quot;;</span>
+		}
+
+<span class="nc" id="L233">		return componentName;</span>
+	}
+
+	private int componentNameEndOffset(String key)
+	{
+		//  Handle Nimbus properties first
+
+		//  &quot;ComboBox.scrollPane&quot;, &quot;Table.editor&quot; and &quot;Tree.cellEditor&quot;
+		//  have different format even within the Nimbus properties.
+		//  (the component name is specified in quotes)
+
+<span class="nc bnc" id="L244" title="All 2 branches missed.">		if (key.startsWith(&quot;\&quot;&quot;))</span>
+<span class="nc" id="L245">			return key.indexOf(&quot;\&quot;&quot;, 1) + 1;</span>
+
+<span class="nc" id="L247">		int pos = key.indexOf( &quot;:&quot; );</span>
+
+<span class="nc bnc" id="L249" title="All 2 branches missed.">		if (pos != -1)</span>
+<span class="nc" id="L250">			return pos;</span>
+
+<span class="nc" id="L252">		pos = key.indexOf( &quot;[&quot; );</span>
+
+<span class="nc bnc" id="L254" title="All 2 branches missed.">		if (pos != -1)</span>
+<span class="nc" id="L255">			return pos;</span>
+
+		//  Handle normal properties
+
+<span class="nc" id="L259">		return key.indexOf( &quot;.&quot; );</span>
+	}
+
+	private String getValueName(String key, Object value)
+	{
+<span class="nc bnc" id="L264" title="All 2 branches missed.">		if (value instanceof Icon)</span>
+<span class="nc" id="L265">			return &quot;Icon&quot;;</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">		else if (value instanceof Font)</span>
+<span class="nc" id="L267">			return &quot;Font&quot;;</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">		else if (value instanceof Border)</span>
+<span class="nc" id="L269">			return &quot;Border&quot;;</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">		else if (value instanceof Color)</span>
+<span class="nc" id="L271">			return &quot;Color&quot;;</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">		else if (value instanceof Insets)</span>
+<span class="nc" id="L273">			return &quot;Insets&quot;;</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">		else if (value instanceof Boolean)</span>
+<span class="nc" id="L275">			return &quot;Boolean&quot;;</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">		else if (value instanceof Dimension)</span>
+<span class="nc" id="L277">			return &quot;Dimension&quot;;</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">		else if (value instanceof Number)</span>
+<span class="nc" id="L279">			return &quot;Number&quot;;</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">		else if (value instanceof Painter&lt;?&gt;)</span>
+<span class="nc" id="L281">			return &quot;Painter&quot;;</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">		else if (key.endsWith(&quot;UI&quot;))</span>
+<span class="nc" id="L283">			return &quot;UI&quot;;</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">		else if (key.endsWith(&quot;InputMap&quot;))</span>
+<span class="nc" id="L285">			return &quot;InputMap&quot;;</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">		else if (key.endsWith(&quot;RightToLeft&quot;))</span>
+<span class="nc" id="L287">			return &quot;InputMap&quot;;</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">		else if (key.endsWith(&quot;radient&quot;))</span>
+<span class="nc" id="L289">			return &quot;Gradient&quot;;</span>
+		else
+		{
+<span class="nc" id="L292">			return &quot;The Rest&quot;;</span>
+		}
+	}
+
+	/**
+	 *  Create menu bar
+	 */
+	private JMenuBar createMenuBar()
+	{
+<span class="nc" id="L301">		JMenuBar menuBar = new JMenuBar();</span>
+
+<span class="nc" id="L303">		menuBar.add( createFileMenu() );</span>
+<span class="nc" id="L304">		menuBar.add( createLAFMenu() );</span>
+
+<span class="nc" id="L306">		return menuBar;</span>
+	}
+
+	/**
+	 *  Create menu items for the Application menu
+	 */
+	private JMenu createFileMenu()
+	{
+<span class="nc" id="L314">		JMenu menu = new JMenu(&quot;Application&quot;);</span>
+<span class="nc" id="L315">		menu.setMnemonic('A');</span>
+
+<span class="nc" id="L317">		menu.addSeparator();</span>
+<span class="nc" id="L318">		menu.add( new ExitAction() );</span>
+
+<span class="nc" id="L320">		return menu;</span>
+	}
+
+	/**
+	 *  Create menu items for the Look &amp; Feel menu
+	 */
+	private JMenu createLAFMenu()
+	{
+<span class="nc" id="L328">		ButtonGroup bg = new ButtonGroup();</span>
+
+<span class="nc" id="L330">		JMenu menu = new JMenu(&quot;Look &amp; Feel&quot;);</span>
+<span class="nc" id="L331">		menu.setMnemonic('L');</span>
+
+<span class="nc" id="L333">		String lafId = UIManager.getLookAndFeel().getID();</span>
+<span class="nc" id="L334">		UIManager.LookAndFeelInfo[] lafInfo = UIManager.getInstalledLookAndFeels();</span>
+
+<span class="nc bnc" id="L336" title="All 2 branches missed.">		for (int i = 0; i &lt; lafInfo.length; i++)</span>
+		{
+<span class="nc" id="L338">			String laf = lafInfo[i].getClassName();</span>
+<span class="nc" id="L339">			String name= lafInfo[i].getName();</span>
+
+<span class="nc" id="L341">			Action action = new ChangeLookAndFeelAction(this, laf, name);</span>
+<span class="nc" id="L342">			JRadioButtonMenuItem mi = new JRadioButtonMenuItem( action );</span>
+<span class="nc" id="L343">			menu.add( mi );</span>
+<span class="nc" id="L344">			bg.add( mi );</span>
+
+<span class="nc bnc" id="L346" title="All 2 branches missed.">			if (name.equals(lafId))</span>
+			{
+<span class="nc" id="L348">				mi.setSelected(true);</span>
+			}
+		}
+
+<span class="nc" id="L352">		return menu;</span>
+	}
+
+	/*
+	 *  Implement the ActionListener interface
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+<span class="nc" id="L360">		selectedItem = null;</span>
+<span class="nc" id="L361">		resetComponents();</span>
+<span class="nc" id="L362">		comboBox.requestFocusInWindow();</span>
+<span class="nc" id="L363">	}</span>
+
+	/*
+	 *  Implement the ItemListener interface
+	 */
+	public void itemStateChanged(ItemEvent e)
+	{
+<span class="nc" id="L370">		String itemName = (String)e.getItem();</span>
+<span class="nc" id="L371">		changeTableModel( itemName );</span>
+<span class="nc" id="L372">		updateRowHeights();</span>
+<span class="nc" id="L373">		selectedItem = itemName;</span>
+<span class="nc" id="L374">	}</span>
+
+	/*
+	 *  Change the TabelModel in the table for the selected item
+	 */
+	private void changeTableModel(String itemName)
+	{
+		//  The model has been created previously so just use it
+
+<span class="nc" id="L383">		DefaultTableModel model = models.get( itemName );</span>
+
+<span class="nc bnc" id="L385" title="All 2 branches missed.">		if (model != null)</span>
+		{
+<span class="nc" id="L387">			table.setModel( model );</span>
+<span class="nc" id="L388">			return;</span>
+		}
+
+		//  Create a new model for the requested item
+		//  and add the attributes of the item to the model
+
+<span class="nc" id="L394">		model = new DefaultTableModel(COLUMN_NAMES, 0);</span>
+<span class="nc" id="L395">		Map attributes = (Map)items.get( itemName );</span>
+
+<span class="nc" id="L397">		Iterator ai = attributes.keySet().iterator();</span>
+
+<span class="nc bnc" id="L399" title="All 2 branches missed.">		while (ai.hasNext())</span>
+		{
+<span class="nc" id="L401">			String attribute = (String)ai.next();</span>
+<span class="nc" id="L402">			Object value = attributes.get(attribute);</span>
+
+<span class="nc" id="L404">			Vector&lt;Object&gt; row = new Vector&lt;Object&gt;(3);</span>
+<span class="nc" id="L405">			row.add(attribute);</span>
+
+<span class="nc bnc" id="L407" title="All 2 branches missed.">			if (value != null)</span>
+			{
+<span class="nc" id="L409">				row.add( value.toString() );</span>
+
+<span class="nc bnc" id="L411" title="All 2 branches missed.">				if (value instanceof Icon)</span>
+<span class="nc" id="L412">					value = new SafeIcon( (Icon)value );</span>
+
+<span class="nc" id="L414">				row.add( value );</span>
+<span class="nc" id="L415">			}</span>
+			else
+			{
+<span class="nc" id="L418">				row.add( &quot;null&quot; );</span>
+<span class="nc" id="L419">				row.add( &quot;&quot; );</span>
+			}
+
+<span class="nc" id="L422">			model.addRow( row );</span>
+		}
+
+<span class="nc" id="L425">		table.setModel( model );</span>
+<span class="nc" id="L426">		models.put(itemName, model);</span>
+<span class="nc" id="L427">	}</span>
+
+	/*
+	 *  Some rows containing icons, may need to be sized taller to fully
+	 *  display the icon.
+	 */
+	private void updateRowHeights()
+	{
+		try
+		{
+<span class="nc bnc" id="L437" title="All 2 branches missed.">			for (int row = 0; row &lt; table.getRowCount(); row++)</span>
+			{
+<span class="nc" id="L439">				int rowHeight = table.getRowHeight();</span>
+
+<span class="nc bnc" id="L441" title="All 2 branches missed.">				for (int column = 0; column &lt; table.getColumnCount(); column++)</span>
+				{
+<span class="nc" id="L443">					Component comp = table.prepareRenderer(table.getCellRenderer(row, column), row, column);</span>
+<span class="nc" id="L444">					rowHeight = Math.max(rowHeight, comp.getPreferredSize().height);</span>
+				}
+
+<span class="nc" id="L447">				table.setRowHeight(row, rowHeight);</span>
+			}
+<span class="nc" id="L449">		}</span>
+<span class="nc" id="L450">		catch(ClassCastException e) {}</span>
+<span class="nc" id="L451">	}</span>
+
+	/**
+	 * Thanks to Jeanette for the use of this code found at:
+	 *
+	 * https://jdnc-incubator.dev.java.net/source/browse/jdnc-incubator/src/kleopatra/java/org/jdesktop/swingx/renderer/UIPropertiesViewer.java?rev=1.2&amp;view=markup
+	 *
+	 * Some ui-icons misbehave in that they unconditionally class-cast to the
+	 * component type they are mostly painted on. Consequently they blow up if
+	 * we are trying to paint them anywhere else (f.i. in a renderer).
+	 *
+	 * This Icon is an adaption of a cool trick by Darryl Burke found at
+	 * http://tips4java.wordpress.com/2008/12/18/icon-table-cell-renderer
+	 *
+	 * The base idea is to instantiate a component of the type expected by the icon,
+	 * let it paint into the graphics of a bufferedImage and create an ImageIcon from it.
+	 * In subsequent calls the ImageIcon is used.
+	 *
+	 */
+	public static class SafeIcon implements Icon
+	{
+		private Icon wrappee;
+		private Icon standIn;
+
+<span class="nc" id="L475">		public SafeIcon(Icon wrappee)</span>
+		{
+<span class="nc" id="L477">			this.wrappee = wrappee;</span>
+<span class="nc" id="L478">		}</span>
+
+		@Override
+		public int getIconHeight()
+		{
+<span class="nc" id="L483">			return wrappee.getIconHeight();</span>
+		}
+
+		@Override
+		public int getIconWidth()
+		{
+<span class="nc" id="L489">			return wrappee.getIconWidth();</span>
+		}
+
+		@Override
+		public void paintIcon(Component c, Graphics g, int x, int y)
+		{
+<span class="nc bnc" id="L495" title="All 2 branches missed.">			if (standIn == this)</span>
+			{
+<span class="nc" id="L497">				paintFallback(c, g, x, y);</span>
+<span class="nc" id="L498">			}</span>
+<span class="nc bnc" id="L499" title="All 2 branches missed.">			else if (standIn != null)</span>
+			{
+<span class="nc" id="L501">				standIn.paintIcon(c, g, x, y);</span>
+<span class="nc" id="L502">			}</span>
+			else
+			{
+				try
+				{
+<span class="nc" id="L507">				   wrappee.paintIcon(c, g, x, y);</span>
+<span class="nc" id="L508">				}</span>
+<span class="nc" id="L509">				catch (ClassCastException e)</span>
+				{
+<span class="nc" id="L511">					createStandIn(e, x, y);</span>
+<span class="nc" id="L512">					standIn.paintIcon(c, g, x, y);</span>
+				}
+			}
+<span class="nc" id="L515">		}</span>
+
+		/**
+		 * @param e
+		 */
+		private void createStandIn(ClassCastException e, int x, int y)
+		{
+			try
+			{
+<span class="nc" id="L524">				Class&lt;?&gt; clazz = getClass(e);</span>
+<span class="nc" id="L525">				JComponent standInComponent = getSubstitute(clazz);</span>
+<span class="nc" id="L526">				standIn = createImageIcon(standInComponent, x, y);</span>
+<span class="nc" id="L527">			}</span>
+<span class="nc" id="L528">			catch (Exception e1)</span>
+			{
+				// something went wrong - fallback to this painting
+<span class="nc" id="L531">				standIn = this;</span>
+			}
+<span class="nc" id="L533">		}</span>
+
+		private Icon createImageIcon(JComponent standInComponent, int x, int y)
+		{
+<span class="nc" id="L537">			BufferedImage image = new BufferedImage(getIconWidth(), getIconHeight(), BufferedImage.TYPE_INT_ARGB);</span>
+<span class="nc" id="L538">			Graphics g = image.createGraphics();</span>
+			try
+			{
+<span class="nc" id="L541">				wrappee.paintIcon(standInComponent, g, 0, 0);</span>
+<span class="nc" id="L542">				return new ImageIcon(image);</span>
+			}
+			finally
+			{
+<span class="nc" id="L546">				g.dispose();</span>
+			}
+		}
+
+		/**
+		 * @param clazz
+		 * @throws IllegalAccessException
+		 */
+		private JComponent getSubstitute(Class&lt;?&gt; clazz) throws IllegalAccessException
+		{
+			JComponent standInComponent;
+
+			try
+			{
+<span class="nc" id="L560">				standInComponent = (JComponent) clazz.newInstance();</span>
+<span class="nc" id="L561">			}</span>
+<span class="nc" id="L562">			catch (InstantiationException e)</span>
+			{
+<span class="nc" id="L564">				standInComponent = new AbstractButton() {};</span>
+<span class="nc" id="L565">				((AbstractButton) standInComponent).setModel(new DefaultButtonModel());</span>
+			}
+<span class="nc" id="L567">			return standInComponent;</span>
+		}
+
+		private Class&lt;?&gt; getClass(ClassCastException e) throws ClassNotFoundException
+		{
+<span class="nc" id="L572">			String className = e.getMessage();</span>
+<span class="nc" id="L573">			className = className.substring(className.lastIndexOf(&quot; &quot;) + 1);</span>
+<span class="nc" id="L574">			return Class.forName(className);</span>
+
+		}
+
+		private void paintFallback(Component c, Graphics g, int x, int y)
+		{
+<span class="nc" id="L580">			g.drawRect(x, y, getIconWidth(), getIconHeight());</span>
+<span class="nc" id="L581">			g.drawLine(x, y, x + getIconWidth(), y + getIconHeight());</span>
+<span class="nc" id="L582">			g.drawLine(x + getIconWidth(), y, x, y + getIconHeight());</span>
+<span class="nc" id="L583">		}</span>
+
+	}
+
+
+	/*
+	 *  Render the value based on its class.
+	 */
+	class SampleRenderer extends JLabel implements TableCellRenderer
+	{
+		public SampleRenderer()
+<span class="nc" id="L594">		{</span>
+<span class="nc" id="L595">			super();</span>
+<span class="nc" id="L596">			setHorizontalAlignment( SwingConstants.CENTER );</span>
+<span class="nc" id="L597">			setOpaque(true);</span>
+<span class="nc" id="L598">		}</span>
+
+		public Component getTableCellRendererComponent(
+			JTable table, Object sample, boolean isSelected, boolean hasFocus, int row, int column)
+		{
+<span class="nc" id="L603">			setBackground( null );</span>
+<span class="nc" id="L604">			setBorder( null );</span>
+<span class="nc" id="L605">			setIcon( null );</span>
+<span class="nc" id="L606">			setText( &quot;&quot; );</span>
+
+<span class="nc bnc" id="L608" title="All 2 branches missed.">			if ( sample instanceof Color )</span>
+			{
+<span class="nc" id="L610">				setBackground( (Color)sample );</span>
+<span class="nc" id="L611">			}</span>
+<span class="nc bnc" id="L612" title="All 2 branches missed.">			else if ( sample instanceof Border )</span>
+			{
+<span class="nc" id="L614">				setBorder( (Border)sample );</span>
+<span class="nc" id="L615">			}</span>
+<span class="nc bnc" id="L616" title="All 2 branches missed.">			else if ( sample instanceof Font )</span>
+			{
+<span class="nc" id="L618">				setText( &quot;Sample&quot; );</span>
+<span class="nc" id="L619">				setFont( (Font)sample );</span>
+<span class="nc" id="L620">			}</span>
+<span class="nc bnc" id="L621" title="All 2 branches missed.">			else if ( sample instanceof Icon )</span>
+			{
+<span class="nc" id="L623">				setIcon( (Icon)sample );</span>
+			}
+
+<span class="nc" id="L626">			return this;</span>
+		}
+
+		/*
+		 *  Some icons are painted using inner classes and are not meant to be
+		 *  shared by other items. This code will catch the
+		 *  ClassCastException that is thrown.
+		 */
+		public void paint(Graphics g)
+		{
+			try
+			{
+<span class="nc" id="L638">				super.paint(g);</span>
+<span class="nc" id="L639">			}</span>
+<span class="nc" id="L640">			catch(Exception e)</span>
+			{
+//				System.out.println(e);
+//				System.out.println(e.getStackTrace()[0]);
+			}
+<span class="nc" id="L645">		}</span>
+	}
+
+	/*
+	 *  Change the LAF and recreate the UIManagerDefaults so that the properties
+	 *  of the new LAF are correctly displayed.
+	 */
+	class ChangeLookAndFeelAction extends AbstractAction
+	{
+		private UIManagerDefaults defaults;
+		private String laf;
+
+<span class="nc" id="L657">		protected ChangeLookAndFeelAction(UIManagerDefaults defaults, String laf, String name)</span>
+<span class="nc" id="L658">		{</span>
+<span class="nc" id="L659">			this.defaults = defaults;</span>
+<span class="nc" id="L660">			this.laf = laf;</span>
+<span class="nc" id="L661">			putValue(Action.NAME, name);</span>
+<span class="nc" id="L662">			putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));</span>
+<span class="nc" id="L663">		}</span>
+
+		public void actionPerformed(ActionEvent e)
+		{
+			try
+			{
+<span class="nc" id="L669">				UIManager.setLookAndFeel( laf );</span>
+<span class="nc" id="L670">				defaults.resetComponents();</span>
+
+<span class="nc" id="L672">				JMenuItem mi = (JMenuItem) e.getSource();</span>
+<span class="nc" id="L673">				JPopupMenu popup = (JPopupMenu) mi.getParent();</span>
+<span class="nc" id="L674">				JRootPane rootPane = SwingUtilities.getRootPane( popup.getInvoker() );</span>
+<span class="nc" id="L675">				SwingUtilities.updateComponentTreeUI( rootPane );</span>
+
+				//  Use custom decorations when supported by the LAF
+
+<span class="nc" id="L679">				JFrame frame = (JFrame)SwingUtilities.windowForComponent(rootPane);</span>
+<span class="nc" id="L680">				frame.dispose();</span>
+
+<span class="nc bnc" id="L682" title="All 2 branches missed.">				if (UIManager.getLookAndFeel().getSupportsWindowDecorations())</span>
+				{
+<span class="nc" id="L684">					frame.setUndecorated(true);</span>
+<span class="nc" id="L685">				    frame.getRootPane().setWindowDecorationStyle(JRootPane.FRAME);</span>
+<span class="nc" id="L686">				}</span>
+				else
+				{
+<span class="nc" id="L689">					frame.setUndecorated(false);</span>
+				}
+
+<span class="nc" id="L692">				frame.setVisible(true);</span>
+<span class="nc" id="L693">			}</span>
+<span class="nc" id="L694">			catch (Exception ex)</span>
+			{
+<span class="nc" id="L696">				System.out.println(&quot;Failed loading L&amp;F: &quot; + laf);</span>
+<span class="nc" id="L697">				System.out.println(ex);</span>
+			}
+<span class="nc" id="L699">		}</span>
+	}
+
+	/*
+	 *	Close the frame
+	 */
+	class ExitAction extends AbstractAction
+	{
+<span class="nc" id="L707">		public ExitAction()</span>
+<span class="nc" id="L708">		{</span>
+<span class="nc" id="L709">			putValue(Action.NAME, &quot;Exit&quot;);</span>
+<span class="nc" id="L710">			putValue(Action.SHORT_DESCRIPTION, getValue(Action.NAME));</span>
+<span class="nc" id="L711">			putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_X));</span>
+<span class="nc" id="L712">		}</span>
+
+		public void actionPerformed(ActionEvent e)
+		{
+<span class="nc" id="L716">			System.exit(0);</span>
+<span class="nc" id="L717">		}</span>
+	}
+
+	/*
+	 *  Build a GUI using the content pane and menu bar of UIManagerDefaults
+	 */
+	private static void createAndShowGUI()
+	{
+<span class="nc" id="L725">		UIManagerDefaults application = new UIManagerDefaults();</span>
+
+<span class="nc" id="L727">		JFrame.setDefaultLookAndFeelDecorated(true);</span>
+<span class="nc" id="L728">   		JFrame frame = new JFrame(&quot;UIManager Defaults&quot;);</span>
+<span class="nc" id="L729">		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span>
+<span class="nc" id="L730">		frame.setJMenuBar( application.getMenuBar() );</span>
+<span class="nc" id="L731">  		frame.getContentPane().add(application.getContentPane());</span>
+<span class="nc" id="L732">		frame.pack();</span>
+<span class="nc" id="L733">		frame.setLocationRelativeTo( null );</span>
+<span class="nc" id="L734">		frame.setVisible( true );</span>
+<span class="nc" id="L735">	}</span>
+
+	/*
+	 *  UIManagerDefaults Main. Called only if we're an application.
+	 */
+	public static void main(String[] args)
+	{
+<span class="nc" id="L742">		SwingUtilities.invokeLater(new Runnable()</span>
+		{
+			public void run()
+			{
+<span class="nc" id="L746">				createAndShowGUI();</span>
+<span class="nc" id="L747">			}</span>
+		});
+<span class="nc" id="L749">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

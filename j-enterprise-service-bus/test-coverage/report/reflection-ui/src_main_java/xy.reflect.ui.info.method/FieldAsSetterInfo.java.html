@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FieldAsSetterInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.method</a> &gt; <span class="el_source">FieldAsSetterInfo.java</span></div><h1>FieldAsSetterInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.method;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.parameter.ParameterInfoProxy;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.info.type.source.TypeInfoSourceProxy;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Virtual method that just updates the underlying field value.
+ * 
+ * @author olitank
+ *
+ */
+public class FieldAsSetterInfo extends AbstractInfo implements IMethodInfo {
+
+	protected ReflectionUI reflectionUI;
+	protected ITypeInfo objectType;
+	protected IFieldInfo field;
+	protected IParameterInfo parameter;
+
+<span class="fc" id="L35">	public FieldAsSetterInfo(ReflectionUI reflectionUI, IFieldInfo field, ITypeInfo objectType) {</span>
+<span class="fc" id="L36">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L37">		this.field = field;</span>
+<span class="fc" id="L38">		this.objectType = objectType;</span>
+<span class="fc" id="L39">		this.parameter = createParameter();</span>
+<span class="fc" id="L40">	}</span>
+
+	@Override
+	public IValidationJob getReturnValueAbstractFormValidationJob(Object object, Object returnValue) {
+<span class="nc" id="L44">		return null;</span>
+	}
+
+	@Override
+	public boolean isControlReturnValueValiditionEnabled() {
+<span class="fc" id="L49">		return false;</span>
+	}
+
+	@Override
+	public boolean isLastInvocationDataUsedByDefault() {
+<span class="fc" id="L54">		return false;</span>
+	}
+
+	@Override
+	public String getConfirmationMessage(Object object, InvocationData invocationData) {
+<span class="fc" id="L59">		return null;</span>
+	}
+
+	@Override
+	public String getExecutionSuccessMessage() {
+<span class="fc" id="L64">		return null;</span>
+	}
+
+	@Override
+	public String getParametersValidationCustomCaption() {
+<span class="nc" id="L69">		return null;</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc" id="L74">		return field.getName() + &quot;.set&quot;;</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="nc" id="L79">		return &quot;Set &quot; + field.getCaption() + &quot;...&quot;;</span>
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="nc" id="L84">		return false;</span>
+	}
+
+	@Override
+	public boolean isRelevant(Object object) {
+<span class="fc" id="L89">		return true;</span>
+	}
+
+	@Override
+	public boolean isEnabled(Object object) {
+<span class="fc" id="L94">		return true;</span>
+	}
+
+	@Override
+	public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L99">	}</span>
+
+	@Override
+	public String getSignature() {
+<span class="fc" id="L103">		return ReflectionUIUtils.buildMethodSignature(this);</span>
+	}
+
+	@Override
+	public ResourcePath getIconImagePath() {
+<span class="fc" id="L108">		return null;</span>
+	}
+
+	@Override
+	public boolean isNullReturnValueDistinct() {
+<span class="nc" id="L113">		return false;</span>
+	}
+
+	@Override
+	public boolean isReturnValueDetached() {
+<span class="nc" id="L118">		return false;</span>
+	}
+
+	@Override
+	public boolean isReturnValueIgnored() {
+<span class="fc" id="L123">		return false;</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="fc" id="L128">		return null;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L133">		return field.getSpecificProperties();</span>
+	}
+
+	@Override
+	public ITypeInfo getReturnValueType() {
+<span class="fc" id="L138">		return null;</span>
+	}
+
+	@Override
+	public List&lt;IParameterInfo&gt; getParameters() {
+<span class="fc" id="L143">		return Collections.&lt;IParameterInfo&gt;singletonList(parameter);</span>
+	}
+
+	@Override
+	public Object invoke(Object object, InvocationData invocationData) {
+<span class="fc" id="L148">		Object value = invocationData.getParameterValue(parameter.getPosition());</span>
+<span class="fc" id="L149">		field.setValue(object, value);</span>
+<span class="fc" id="L150">		return null;</span>
+	}
+
+	@Override
+	public Runnable getNextInvocationUndoJob(final Object object, InvocationData invocationData) {
+<span class="fc" id="L155">		Object value = invocationData.getParameterValue(parameter.getPosition());</span>
+<span class="fc" id="L156">		return ReflectionUIUtils.getNextUpdateCustomOrDefaultUndoJob(object, field, value);</span>
+	}
+
+	@Override
+	public Runnable getPreviousInvocationCustomRedoJob(final Object object, InvocationData invocationData) {
+<span class="nc" id="L161">		Object value = invocationData.getParameterValue(parameter.getPosition());</span>
+<span class="nc" id="L162">		return ReflectionUIUtils.getPreviousUpdateCustomOrDefaultRedoJob(object, field, value);</span>
+	}
+
+	@Override
+	public boolean isReadOnly() {
+<span class="fc" id="L167">		return false;</span>
+	}
+
+	@Override
+	public String getNullReturnValueLabel() {
+<span class="nc" id="L172">		return null;</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="fc" id="L177">		return null;</span>
+	}
+
+	@Override
+	public void validateParameters(Object object, InvocationData invocationData) throws Exception {
+<span class="fc" id="L182">	}</span>
+
+	@Override
+	public ValueReturnMode getValueReturnMode() {
+<span class="nc" id="L186">		return null;</span>
+	}
+
+	protected IParameterInfo createParameter() {
+<span class="fc" id="L190">		return new ParameterInfoProxy(IParameterInfo.NULL_PARAMETER_INFO) {</span>
+
+			ITypeInfo type;
+
+			@Override
+			public String getName() {
+<span class="fc" id="L196">				return field.getName();</span>
+			}
+
+			@Override
+			public ITypeInfo getType() {
+<span class="fc bfc" id="L201" title="All 2 branches covered.">				if (type == null) {</span>
+<span class="fc" id="L202">					type = reflectionUI.getTypeInfo(new TypeInfoSourceProxy(field.getType().getSource()) {</span>
+						@Override
+						public SpecificitiesIdentifier getSpecificitiesIdentifier() {
+<span class="fc" id="L205">							return null;</span>
+						}
+
+						@Override
+						protected String getTypeInfoProxyFactoryIdentifier() {
+<span class="fc" id="L210">							return &quot;MethodReturnValueTypeInfoProxyFactory [of=&quot; + getClass().getName() + &quot;, objectType=&quot;</span>
+<span class="fc" id="L211">									+ objectType.getName() + &quot;, baseField=&quot; + field.getName() + &quot;]&quot;;</span>
+						}
+					});
+				}
+<span class="fc" id="L215">				return type;</span>
+			}
+
+			@Override
+			public boolean isNullValueDistinct() {
+<span class="fc" id="L220">				return field.isNullValueDistinct();</span>
+			}
+
+			@Override
+			public int getPosition() {
+<span class="fc" id="L225">				return 0;</span>
+			}
+
+			@Override
+			public Object getDefaultValue(Object object) {
+<span class="fc" id="L230">				return field.getValue(object);</span>
+			}
+
+			@Override
+			public String toString() {
+<span class="nc" id="L235">				return &quot;Parameter [of=&quot; + FieldAsSetterInfo.this.toString() + &quot;]&quot;;</span>
+			}
+
+		};
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L243">		final int prime = 31;</span>
+<span class="fc" id="L244">		int result = 1;</span>
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">		result = prime * result + ((field == null) ? 0 : field.hashCode());</span>
+<span class="pc bpc" id="L246" title="1 of 2 branches missed.">		result = prime * result + ((parameter == null) ? 0 : parameter.hashCode());</span>
+<span class="fc" id="L247">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L253">			return true;</span>
+<span class="pc bpc" id="L254" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L255">			return false;</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L257">			return false;</span>
+<span class="fc" id="L258">		FieldAsSetterInfo other = (FieldAsSetterInfo) obj;</span>
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">		if (field == null) {</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">			if (other.field != null)</span>
+<span class="nc" id="L261">				return false;</span>
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">		} else if (!field.equals(other.field))</span>
+<span class="nc" id="L263">			return false;</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">		if (parameter == null) {</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">			if (other.parameter != null)</span>
+<span class="nc" id="L266">				return false;</span>
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">		} else if (!parameter.equals(other.parameter))</span>
+<span class="nc" id="L268">			return false;</span>
+<span class="fc" id="L269">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L274">		return &quot;FieldAsSetter [field=&quot; + field + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

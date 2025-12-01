@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>PrecomputedTypeInstanceWrapper.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">PrecomputedTypeInstanceWrapper.java</span></div><h1>PrecomputedTypeInstanceWrapper.java</h1><pre class="source lang-java linenums">/*
+ * 
+ */
+package xy.reflect.ui.util;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.ITransaction;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.method.MethodInfoProxy;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.enumeration.IEnumerationItemInfo;
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.factory.InfoProxyFactory;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+
+/**
+ * Wrapper allowing to associate an object with a predefined {@link ITypeInfo}.
+ * 
+ * @author olitank
+ *
+ */
+public class PrecomputedTypeInstanceWrapper implements Comparable&lt;PrecomputedTypeInstanceWrapper&gt; {
+
+	protected Object instance;
+	protected ITypeInfo precomputedType;
+
+	/**
+	 * @param instance        The wrapped object.
+	 * @param precomputedType The predefined {@link ITypeInfo}.
+	 */
+<span class="fc" id="L44">	public PrecomputedTypeInstanceWrapper(Object instance, ITypeInfo precomputedType) {</span>
+<span class="fc" id="L45">		this.instance = instance;</span>
+<span class="fc" id="L46">		this.precomputedType = precomputedType;</span>
+<span class="fc" id="L47">	}</span>
+
+	/**
+	 * @return the wrapped object.
+	 */
+	public Object getInstance() {
+<span class="fc" id="L53">		return instance;</span>
+	}
+
+	/**
+	 * @return the predefined {@link ITypeInfo}.
+	 */
+	public ITypeInfo getPrecomputedType() {
+<span class="fc" id="L60">		return precomputedType;</span>
+	}
+
+	/**
+	 * @return the source of type information that must be used to process this
+	 *         wrapper.
+	 */
+	public ITypeInfoSource getTypeInfoSource() {
+<span class="fc" id="L68">		return new TypeInfoSource(precomputedType);</span>
+	}
+
+	@SuppressWarnings({ &quot;rawtypes&quot;, &quot;unchecked&quot; })
+	@Override
+	public int compareTo(PrecomputedTypeInstanceWrapper that) {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		if (this.instance == null) {</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">			if (that.instance == null) {</span>
+<span class="nc" id="L76">				return 0; // equal</span>
+			} else {
+<span class="nc" id="L78">				return -1; // null is before other values</span>
+			}
+		} else {// this.member != null
+<span class="nc bnc" id="L81" title="All 2 branches missed.">			if (that.instance == null) {</span>
+<span class="nc" id="L82">				return 1; // all other values are after null</span>
+			} else {
+<span class="nc" id="L84">				return ((Comparable) this.instance).compareTo((Comparable) that.instance);</span>
+			}
+		}
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L91">		final int prime = 31;</span>
+<span class="fc" id="L92">		int result = 1;</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		result = prime * result + ((instance == null) ? 0 : instance.hashCode());</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">		result = prime * result + ((precomputedType == null) ? 0 : precomputedType.hashCode());</span>
+<span class="fc" id="L95">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L100" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L101">			return true;</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">		if (obj == null)</span>
+<span class="fc" id="L103">			return false;</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L105">			return false;</span>
+<span class="fc" id="L106">		PrecomputedTypeInstanceWrapper other = (PrecomputedTypeInstanceWrapper) obj;</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">		if (instance == null) {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">			if (other.instance != null)</span>
+<span class="nc" id="L109">				return false;</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">		} else if (!instance.equals(other.instance))</span>
+<span class="fc" id="L111">			return false;</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">		if (precomputedType == null) {</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">			if (other.precomputedType != null)</span>
+<span class="nc" id="L114">				return false;</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">		} else if (!precomputedType.equals(other.precomputedType))</span>
+<span class="nc" id="L116">			return false;</span>
+<span class="fc" id="L117">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L122">		return &quot;PrecomputedTypeInstanceWrapper [instance=&quot; + instance + &quot;, precomputedType=&quot; + precomputedType + &quot;]&quot;;</span>
+	}
+
+	public static class TypeInfoSource implements ITypeInfoSource {
+
+		protected ITypeInfo precomputedType;
+
+<span class="fc" id="L129">		public TypeInfoSource(ITypeInfo precomputedType) {</span>
+<span class="fc" id="L130">			this.precomputedType = precomputedType;</span>
+<span class="fc" id="L131">		}</span>
+
+		@Override
+		public ITypeInfo buildTypeInfo(ReflectionUI reflectionUI) {
+<span class="fc" id="L135">			return new InfoFactory(this).wrapTypeInfo(precomputedType);</span>
+		}
+
+		@Override
+		public SpecificitiesIdentifier getSpecificitiesIdentifier() {
+<span class="fc" id="L140">			return precomputedType.getSource().getSpecificitiesIdentifier();</span>
+		}
+
+		public ITypeInfo getPrecomputedType() {
+<span class="fc" id="L144">			return precomputedType;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L149">			final int prime = 31;</span>
+<span class="nc" id="L150">			int result = 1;</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">			result = prime * result + ((precomputedType == null) ? 0 : precomputedType.hashCode());</span>
+<span class="nc" id="L152">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">			if (this == obj)</span>
+<span class="fc" id="L158">				return true;</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L160">				return false;</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L162">				return false;</span>
+<span class="nc" id="L163">			TypeInfoSource other = (TypeInfoSource) obj;</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">			if (precomputedType == null) {</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">				if (other.precomputedType != null)</span>
+<span class="nc" id="L166">					return false;</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">			} else if (!precomputedType.equals(other.precomputedType))</span>
+<span class="nc" id="L168">				return false;</span>
+<span class="nc" id="L169">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L174">			return &quot;PrecomputedTypeInstanceWrapper.TypeInfoSource [type=&quot; + precomputedType + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public static class InfoFactory extends InfoProxyFactory {
+
+		protected TypeInfoSource typeInfoSource;
+
+<span class="fc" id="L183">		public InfoFactory(TypeInfoSource typeInfoSource) {</span>
+<span class="fc" id="L184">			this.typeInfoSource = typeInfoSource;</span>
+<span class="fc" id="L185">		}</span>
+
+		@Override
+		public String getIdentifier() {
+<span class="fc" id="L189">			return &quot;PrecomputedTypeInstanceWrapping [type=&quot; + typeInfoSource.getPrecomputedType().getName()</span>
+<span class="fc" id="L190">					+ &quot;, sourceSpecificitiesIdentifier=&quot; + typeInfoSource.getSpecificitiesIdentifier() + &quot;]&quot;;</span>
+		}
+
+		@Override
+		protected void onFormCreation(ITypeInfo type, Object object, boolean beforeOrAfter) {
+<span class="fc" id="L195">			super.onFormCreation(type, ((PrecomputedTypeInstanceWrapper) object).getInstance(), beforeOrAfter);</span>
+<span class="fc" id="L196">		}</span>
+
+		@Override
+		protected IValidationJob getReturnValueAbstractFormValidationJob(IMethodInfo method, Object object,
+				Object returnValue, ITypeInfo objectType) {
+<span class="nc" id="L201">			return super.getReturnValueAbstractFormValidationJob(method,</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">					ReflectionUIUtils.isConstructor(method) ? object</span>
+<span class="nc" id="L203">							: ((PrecomputedTypeInstanceWrapper) object).getInstance(),</span>
+<span class="nc" id="L204">					returnValue, objectType);</span>
+		}
+
+		@Override
+		protected Object getDefaultValue(IParameterInfo param, Object object, IMethodInfo method,
+				ITypeInfo objectType) {
+<span class="nc bnc" id="L210" title="All 2 branches missed.">			return super.getDefaultValue(param, ReflectionUIUtils.isConstructor(method) ? object</span>
+<span class="nc" id="L211">					: ((PrecomputedTypeInstanceWrapper) object).getInstance(), method, objectType);</span>
+		}
+
+		@Override
+		protected boolean hasValueOptions(IParameterInfo param, Object object, IMethodInfo method,
+				ITypeInfo objectType) {
+<span class="nc bnc" id="L217" title="All 2 branches missed.">			return super.hasValueOptions(param, ReflectionUIUtils.isConstructor(method) ? object</span>
+<span class="nc" id="L218">					: ((PrecomputedTypeInstanceWrapper) object).getInstance(), method, objectType);</span>
+		}
+
+		@Override
+		protected Object[] getValueOptions(IParameterInfo param, Object object, IMethodInfo method,
+				ITypeInfo objectType) {
+<span class="nc bnc" id="L224" title="All 2 branches missed.">			return super.getValueOptions(param, ReflectionUIUtils.isConstructor(method) ? object</span>
+<span class="nc" id="L225">					: ((PrecomputedTypeInstanceWrapper) object).getInstance(), method, objectType);</span>
+		}
+
+		@Override
+		protected Object getValue(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="fc" id="L230">			return super.getValue(field, ((PrecomputedTypeInstanceWrapper) object).getInstance(), objectType);</span>
+		}
+
+		@Override
+		protected boolean hasValueOptions(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="fc" id="L235">			return super.hasValueOptions(field, ((PrecomputedTypeInstanceWrapper) object).getInstance(), objectType);</span>
+		}
+
+		@Override
+		protected Object[] getValueOptions(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="fc" id="L240">			return super.getValueOptions(field, ((PrecomputedTypeInstanceWrapper) object).getInstance(), objectType);</span>
+		}
+
+		@Override
+		protected IValidationJob getValueAbstractFormValidationJob(IFieldInfo field, Object object,
+				ITypeInfo objectType) {
+<span class="nc" id="L246">			return super.getValueAbstractFormValidationJob(field,</span>
+<span class="nc" id="L247">					((PrecomputedTypeInstanceWrapper) object).getInstance(), objectType);</span>
+		}
+
+		@Override
+		protected void setValue(IFieldInfo field, Object object, Object value, ITypeInfo objectType) {
+<span class="fc" id="L252">			super.setValue(field, ((PrecomputedTypeInstanceWrapper) object).getInstance(), value, objectType);</span>
+<span class="fc" id="L253">		}</span>
+
+		@Override
+		protected ResourcePath getIconImagePath(ITypeInfo type, Object object) {
+<span class="fc" id="L257">			return super.getIconImagePath(type,</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">					(object == null) ? null : ((PrecomputedTypeInstanceWrapper) object).getInstance());</span>
+		}
+
+		@Override
+		protected boolean isRelevant(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="fc" id="L263">			return super.isRelevant(field, ((PrecomputedTypeInstanceWrapper) object).getInstance(), objectType);</span>
+		}
+
+		@Override
+		protected boolean isRelevant(IMethodInfo method, Object object, ITypeInfo objectType) {
+<span class="fc" id="L268">			return super.isRelevant(method, ((PrecomputedTypeInstanceWrapper) object).getInstance(), objectType);</span>
+		}
+
+		@Override
+		protected boolean isEnabled(IMethodInfo method, Object object, ITypeInfo objectType) {
+<span class="fc" id="L273">			return super.isEnabled(method, ((PrecomputedTypeInstanceWrapper) object).getInstance(), objectType);</span>
+		}
+
+		@Override
+		protected ITransaction createTransaction(ITypeInfo type, Object object) {
+<span class="fc" id="L278">			return super.createTransaction(type, ((PrecomputedTypeInstanceWrapper) object).getInstance());</span>
+		}
+
+		@Override
+		protected void onFormRefresh(ITypeInfo type, Object object) {
+<span class="fc" id="L283">			super.onFormRefresh(type, ((PrecomputedTypeInstanceWrapper) object).getInstance());</span>
+<span class="fc" id="L284">		}</span>
+
+		@Override
+		protected Runnable getLastFormRefreshStateRestorationJob(ITypeInfo type, Object object) {
+<span class="fc" id="L288">			return super.getLastFormRefreshStateRestorationJob(type,</span>
+<span class="fc" id="L289">					((PrecomputedTypeInstanceWrapper) object).getInstance());</span>
+		}
+
+		@Override
+		protected Runnable getNextUpdateCustomUndoJob(IFieldInfo field, Object object, Object value,
+				ITypeInfo objectType) {
+<span class="fc" id="L295">			return super.getNextUpdateCustomUndoJob(field, ((PrecomputedTypeInstanceWrapper) object).getInstance(),</span>
+<span class="fc" id="L296">					value, objectType);</span>
+		}
+
+		@Override
+		protected Runnable getPreviousUpdateCustomRedoJob(IFieldInfo field, Object object, Object value,
+				ITypeInfo objectType) {
+<span class="nc" id="L302">			return super.getPreviousUpdateCustomRedoJob(field, ((PrecomputedTypeInstanceWrapper) object).getInstance(),</span>
+<span class="nc" id="L303">					value, objectType);</span>
+		}
+
+		@Override
+		protected String toString(ITypeInfo type, Object object) {
+<span class="fc" id="L308">			return super.toString(type, ((PrecomputedTypeInstanceWrapper) object).getInstance());</span>
+		}
+
+		@Override
+		protected boolean canCopy(ITypeInfo type, Object object) {
+<span class="nc" id="L313">			return super.canCopy(type, ((PrecomputedTypeInstanceWrapper) object).getInstance());</span>
+		}
+
+		@Override
+		protected Object copy(ITypeInfo type, Object object) {
+<span class="nc" id="L318">			Object result = super.copy(type, ((PrecomputedTypeInstanceWrapper) object).getInstance());</span>
+<span class="nc bnc" id="L319" title="All 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L320">				return null;</span>
+			}
+<span class="nc" id="L322">			result = new PrecomputedTypeInstanceWrapper(result, typeInfoSource.getPrecomputedType());</span>
+<span class="nc" id="L323">			return result;</span>
+		}
+
+		@Override
+		protected boolean isPrimitive(ITypeInfo type) {
+<span class="fc" id="L328">			return false;</span>
+		}
+
+		@Override
+		protected List&lt;IMethodInfo&gt; getConstructors(ITypeInfo type) {
+<span class="fc" id="L333">			List&lt;IMethodInfo&gt; result = new ArrayList&lt;IMethodInfo&gt;();</span>
+<span class="fc bfc" id="L334" title="All 2 branches covered.">			for (IMethodInfo ctor : super.getConstructors(type)) {</span>
+<span class="fc" id="L335">				result.add(new MethodInfoProxy(ctor) {</span>
+					@Override
+					public Object invoke(Object object, InvocationData invocationData) {
+<span class="nc" id="L338">						Object newInstance = super.invoke(object, invocationData);</span>
+<span class="nc" id="L339">						newInstance = new PrecomputedTypeInstanceWrapper(newInstance,</span>
+<span class="nc" id="L340">								typeInfoSource.getPrecomputedType());</span>
+<span class="nc" id="L341">						return newInstance;</span>
+					}
+				});
+			}
+<span class="fc" id="L345">			return result;</span>
+		}
+
+		@Override
+		protected List&lt;IMethodInfo&gt; getAlternativeConstructors(IFieldInfo field, Object object, ITypeInfo objectType) {
+<span class="fc" id="L350">			return super.getAlternativeConstructors(field, ((PrecomputedTypeInstanceWrapper) object).getInstance(),</span>
+<span class="fc" id="L351">					objectType);</span>
+		}
+
+		@Override
+		protected List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(IFieldInfo field, Object object,
+				ITypeInfo objectType) {
+<span class="fc" id="L357">			return super.getAlternativeListItemConstructors(field,</span>
+<span class="fc" id="L358">					((PrecomputedTypeInstanceWrapper) object).getInstance(), objectType);</span>
+		}
+
+		/**
+		 * This method has not been correctly implemented yet. It should be overridden
+		 * if required.
+		 * 
+		 * @return an empty list.
+		 */
+		@Override
+		protected List&lt;ITypeInfo&gt; getPolymorphicInstanceSubTypes(ITypeInfo type) {
+<span class="fc" id="L369">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		protected Object invoke(IMethodInfo method, Object object, InvocationData invocationData,
+				ITypeInfo objectType) {
+<span class="pc bpc" id="L375" title="1 of 2 branches missed.">			return super.invoke(method, ReflectionUIUtils.isConstructor(method) ? object</span>
+<span class="fc" id="L376">					: ((PrecomputedTypeInstanceWrapper) object).getInstance(), invocationData, objectType);</span>
+		}
+
+		@Override
+		protected String getConfirmationMessage(IMethodInfo method, Object object, InvocationData invocationData,
+				ITypeInfo objectType) {
+<span class="pc bpc" id="L382" title="1 of 2 branches missed.">			return super.getConfirmationMessage(method, ReflectionUIUtils.isConstructor(method) ? object</span>
+<span class="fc" id="L383">					: ((PrecomputedTypeInstanceWrapper) object).getInstance(), invocationData, objectType);</span>
+		}
+
+		@Override
+		protected void onControlVisibilityChange(IMethodInfo method, Object object, boolean visible,
+				ITypeInfo objectType) {
+<span class="pc bpc" id="L389" title="1 of 2 branches missed.">			super.onControlVisibilityChange(method, ReflectionUIUtils.isConstructor(method) ? object</span>
+<span class="fc" id="L390">					: ((PrecomputedTypeInstanceWrapper) object).getInstance(), visible, objectType);</span>
+<span class="fc" id="L391">		}</span>
+
+		@Override
+		protected void onControlVisibilityChange(IFieldInfo field, Object object, boolean visible,
+				ITypeInfo objectType) {
+<span class="fc" id="L396">			super.onControlVisibilityChange(field, ((PrecomputedTypeInstanceWrapper) object).getInstance(), visible,</span>
+<span class="fc" id="L397">					objectType);</span>
+<span class="fc" id="L398">		}</span>
+
+		@Override
+		protected void replaceContent(IListTypeInfo type, Object listValue, Object[] array) {
+<span class="nc" id="L402">			super.replaceContent(type, ((PrecomputedTypeInstanceWrapper) listValue).getInstance(), array);</span>
+<span class="nc" id="L403">		}</span>
+
+		@Override
+		protected Object fromArray(IListTypeInfo type, Object[] array) {
+<span class="nc" id="L407">			return new PrecomputedTypeInstanceWrapper(super.fromArray(type, array), type);</span>
+		}
+
+		@Override
+		protected Object[] toArray(IListTypeInfo type, Object listValue) {
+<span class="fc" id="L412">			return super.toArray(type, ((PrecomputedTypeInstanceWrapper) listValue).getInstance());</span>
+		}
+
+		@Override
+		protected void save(ITypeInfo type, Object object, File outputFile) {
+<span class="nc" id="L417">			super.save(type, ((PrecomputedTypeInstanceWrapper) object).getInstance(), outputFile);</span>
+<span class="nc" id="L418">		}</span>
+
+		@Override
+		protected void load(ITypeInfo type, Object object, File inputFile) {
+<span class="nc" id="L422">			super.load(type, ((PrecomputedTypeInstanceWrapper) object).getInstance(), inputFile);</span>
+<span class="nc" id="L423">		}</span>
+
+		@Override
+		protected boolean supports(ITypeInfo type, Object object) {
+<span class="pc bpc" id="L427" title="1 of 2 branches missed.">			if (object == null) {</span>
+<span class="nc" id="L428">				return super.supports(type, null);</span>
+			}
+<span class="pc bpc" id="L430" title="1 of 2 branches missed.">			if (!(object instanceof PrecomputedTypeInstanceWrapper)) {</span>
+<span class="nc" id="L431">				return false;</span>
+			}
+<span class="fc" id="L433">			return super.supports(type, ((PrecomputedTypeInstanceWrapper) object).getInstance());</span>
+		}
+
+		@Override
+		protected void onFormVisibilityChange(ITypeInfo type, Object object, boolean visible) {
+<span class="fc" id="L438">			super.onFormVisibilityChange(type, ((PrecomputedTypeInstanceWrapper) object).getInstance(), visible);</span>
+<span class="fc" id="L439">		}</span>
+
+		@Override
+		protected ITypeInfoSource getSource(ITypeInfo type) {
+<span class="fc" id="L443">			return typeInfoSource;</span>
+		}
+
+		@Override
+		protected void validate(ITypeInfo type, Object object, ValidationSession session) throws Exception {
+<span class="fc" id="L448">			super.validate(type, ((PrecomputedTypeInstanceWrapper) object).getInstance(), session);</span>
+<span class="fc" id="L449">		}</span>
+
+		@Override
+		protected void validateParameters(IMethodInfo method, ITypeInfo objectType, Object object,
+				InvocationData invocationData) throws Exception {
+<span class="nc bnc" id="L454" title="All 2 branches missed.">			super.validateParameters(method, objectType, ReflectionUIUtils.isConstructor(method) ? object</span>
+<span class="nc" id="L455">					: ((PrecomputedTypeInstanceWrapper) object).getInstance(), invocationData);</span>
+<span class="nc" id="L456">		}</span>
+
+		@Override
+		protected Runnable getNextInvocationUndoJob(IMethodInfo method, ITypeInfo objectType, Object object,
+				InvocationData invocationData) {
+<span class="pc bpc" id="L461" title="1 of 2 branches missed.">			return super.getNextInvocationUndoJob(method, objectType, ReflectionUIUtils.isConstructor(method) ? object</span>
+<span class="fc" id="L462">					: ((PrecomputedTypeInstanceWrapper) object).getInstance(), invocationData);</span>
+		}
+
+		@Override
+		protected Runnable getPreviousInvocationCustomRedoJob(IMethodInfo method, ITypeInfo objectType, Object object,
+				InvocationData invocationData) {
+<span class="nc" id="L468">			return super.getPreviousInvocationCustomRedoJob(method, objectType,</span>
+<span class="nc bnc" id="L469" title="All 2 branches missed.">					ReflectionUIUtils.isConstructor(method) ? object</span>
+<span class="nc" id="L470">							: ((PrecomputedTypeInstanceWrapper) object).getInstance(),</span>
+<span class="nc" id="L471">					invocationData);</span>
+		}
+
+		@Override
+		protected Object[] getValues(IEnumerationTypeInfo type) {
+<span class="fc" id="L476">			Object[] result = super.getValues(type);</span>
+<span class="fc" id="L477">			Object[] newResult = new Object[result.length];</span>
+<span class="fc bfc" id="L478" title="All 2 branches covered.">			for (int i = 0; i &lt; result.length; i++) {</span>
+<span class="fc" id="L479">				newResult[i] = new PrecomputedTypeInstanceWrapper(result[i], type);</span>
+			}
+<span class="fc" id="L481">			return newResult;</span>
+		}
+
+		@Override
+		protected Object getValue(IEnumerationItemInfo info, IEnumerationTypeInfo parentEnumType) {
+<span class="nc" id="L486">			return new PrecomputedTypeInstanceWrapper(super.getValue(info, parentEnumType), parentEnumType);</span>
+		}
+
+		@Override
+		protected IEnumerationItemInfo getValueInfo(IEnumerationTypeInfo type, Object object) {
+<span class="fc" id="L491">			return super.getValueInfo(type, ((PrecomputedTypeInstanceWrapper) object).getInstance());</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

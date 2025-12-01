@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FieldColumnInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.structure.column</a> &gt; <span class="el_source">FieldColumnInfo.java</span></div><h1>FieldColumnInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.iterable.structure.column;
+
+import java.util.Collections;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Column that displays the value of the specified item field.
+ * 
+ * @author olitank
+ *
+ */
+public class FieldColumnInfo extends AbstractInfo implements IColumnInfo {
+
+	protected ReflectionUI reflectionUI;
+	protected IFieldInfo field;
+	protected ITypeInfo ownerType;
+
+<span class="fc" id="L26">	public FieldColumnInfo(ReflectionUI reflectionUI, ITypeInfo ownerType, IFieldInfo field) {</span>
+<span class="fc" id="L27">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L28">		this.ownerType = ownerType;</span>
+<span class="fc" id="L29">		this.field = field;</span>
+<span class="fc" id="L30">	}</span>
+
+	@Override
+	public String getCellValue(ItemPosition itemPosition) {
+<span class="fc" id="L34">		Object item = itemPosition.getItem();</span>
+<span class="fc" id="L35">		Object value = field.getValue(item);</span>
+<span class="fc" id="L36">		return ReflectionUIUtils.toString(reflectionUI, value);</span>
+	}
+
+	@Override
+	public boolean hasCellValue(ItemPosition itemPosition) {
+<span class="fc" id="L41">		Object item = itemPosition.getItem();</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">		if (item == null) {</span>
+<span class="nc" id="L43">			return false;</span>
+		}
+<span class="fc" id="L45">		return ownerType.supports(item);</span>
+	}
+
+	@Override
+	public int getMinimalCharacterCount() {
+<span class="fc" id="L50">		return 20;</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc" id="L55">		return field.getCaption();</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc" id="L60">		return field.getName();</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="nc" id="L65">		return field.getOnlineHelp();</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L70">		return Collections.emptyMap();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L75">		final int prime = 31;</span>
+<span class="nc" id="L76">		int result = 1;</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">		result = prime * result + ((field == null) ? 0 : field.hashCode());</span>
+<span class="nc" id="L78">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L83" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L84">			return true;</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L86">			return false;</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">		if (getClass() != obj.getClass())</span>
+<span class="fc" id="L88">			return false;</span>
+<span class="fc" id="L89">		FieldColumnInfo other = (FieldColumnInfo) obj;</span>
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">		if (field == null) {</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">			if (other.field != null)</span>
+<span class="nc" id="L92">				return false;</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		} else if (!field.equals(other.field))</span>
+<span class="fc" id="L94">			return false;</span>
+<span class="nc" id="L95">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L100">		return &quot;FieldColumnInfo [field=&quot; + field + &quot;, ownerType=&quot; + ownerType + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

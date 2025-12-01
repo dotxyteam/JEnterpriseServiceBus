@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TableLastColumnAutoResizer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.util</a> &gt; <span class="el_source">TableLastColumnAutoResizer.java</span></div><h1>TableLastColumnAutoResizer.java</h1><pre class="source lang-java linenums">/*
+ * 
+ */
+package xy.reflect.ui.control.swing.util;
+
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+
+/**
+ * Allows to resize only the last column when the table size changes. Was
+ * created because {@link JTable#AUTO_RESIZE_LAST_COLUMN} works only for manual
+ * column size changes, not for the whole table size changes.
+ * 
+ * WARNING: Under undetermined circumstances it causes column dragging to not
+ * work anymore.
+ * 
+ * @author olitank
+ *
+ */
+<span class="nc" id="L36">public class TableLastColumnAutoResizer implements ComponentListener, MouseListener {</span>
+
+<span class="nc" id="L38">	protected Map&lt;Object, Integer&gt; widthByColumnIdForRestorationAfterWholeTableResizing = new LinkedHashMap&lt;Object, Integer&gt;();</span>
+<span class="nc" id="L39">	protected Map&lt;Object, Integer&gt; widthByColumnIdForManualColumnResizingDetection = new LinkedHashMap&lt;Object, Integer&gt;();</span>
+	protected JTable table;
+<span class="nc" id="L41">	protected boolean componentResizedListenerDisabled = false;</span>
+
+<span class="nc" id="L43">	protected static ScheduledExecutorService delayedColumnWidthRestorationExecutor = Executors</span>
+<span class="nc" id="L44">			.newSingleThreadScheduledExecutor(new DelayedColumnWidthRestorationThreadFactory());</span>
+
+	public void installOn(JTable table) {
+<span class="nc" id="L47">		this.table = table;</span>
+<span class="nc" id="L48">		table.addComponentListener(this);</span>
+<span class="nc" id="L49">		table.getTableHeader().addMouseListener(this);</span>
+<span class="nc" id="L50">	}</span>
+
+	@Override
+	public void componentResized(ComponentEvent e) {
+<span class="nc bnc" id="L54" title="All 6 branches missed.">		if (!table.isDisplayable() || !table.isVisible() || componentResizedListenerDisabled) {</span>
+<span class="nc" id="L55">			return;</span>
+		}
+<span class="nc bnc" id="L57" title="All 2 branches missed.">		if (columnListChangeDetected(widthByColumnIdForRestorationAfterWholeTableResizing.keySet())) {</span>
+<span class="nc" id="L58">			saveColumnWidths(widthByColumnIdForRestorationAfterWholeTableResizing);</span>
+<span class="nc" id="L59">		} else {</span>
+<span class="nc" id="L60">			delayedColumnWidthRestorationExecutor.schedule(new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="nc" id="L63">					SwingUtilities.invokeLater(new Runnable() {</span>
+						@Override
+						public void run() {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">							if (componentResizedListenerDisabled) {</span>
+<span class="nc" id="L67">								return;</span>
+							}
+<span class="nc" id="L69">							if (columnListChangeDetected(</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">									widthByColumnIdForRestorationAfterWholeTableResizing.keySet())) {</span>
+<span class="nc" id="L71">								return;</span>
+							}
+<span class="nc" id="L73">							restoreColumnWidths(widthByColumnIdForRestorationAfterWholeTableResizing);</span>
+<span class="nc" id="L74">						}</span>
+					});
+<span class="nc" id="L76">				}</span>
+<span class="nc" id="L77">			}, 500, TimeUnit.MILLISECONDS);</span>
+		}
+<span class="nc" id="L79">	}</span>
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+<span class="nc" id="L83">		componentResizedListenerDisabled = true;</span>
+<span class="nc" id="L84">		saveColumnWidths(widthByColumnIdForManualColumnResizingDetection);</span>
+<span class="nc" id="L85">	}</span>
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+<span class="nc" id="L89">		Map&lt;Object, Integer&gt; newWidthByColumnId = new LinkedHashMap&lt;Object, Integer&gt;();</span>
+<span class="nc" id="L90">		saveColumnWidths(newWidthByColumnId);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">		if (!newWidthByColumnId.equals(widthByColumnIdForManualColumnResizingDetection)) {</span>
+<span class="nc" id="L92">			saveColumnWidths(widthByColumnIdForRestorationAfterWholeTableResizing);</span>
+		}
+<span class="nc" id="L94">		componentResizedListenerDisabled = false;</span>
+<span class="nc" id="L95">	}</span>
+
+	protected boolean columnListChangeDetected(Collection&lt;?&gt; initialColumnIdList) {
+<span class="nc" id="L98">		Object[] currentColumnIds = Collections.list(table.getColumnModel().getColumns()).stream()</span>
+<span class="nc" id="L99">				.map(column -&gt; getColumnId(column)).toArray();</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">		return !Arrays.equals(initialColumnIdList.toArray(), currentColumnIds);</span>
+	}
+
+	protected Object getColumnId(TableColumn column) {
+<span class="nc" id="L104">		return column;</span>
+	}
+
+	protected void restoreColumnWidths(Map&lt;Object, Integer&gt; widthByColumnId) {
+<span class="nc" id="L108">		TableColumnModel columnModel = table.getColumnModel();</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		for (int i = 0; i &lt; table.getColumnCount(); i++) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">			boolean lastColumn = (i == (table.getColumnCount() - 1));</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">			if (lastColumn) {</span>
+<span class="nc" id="L112">				break;</span>
+			}
+<span class="nc" id="L114">			final TableColumn column = columnModel.getColumn(i);</span>
+<span class="nc" id="L115">			final int initialMaxWidth = column.getMaxWidth();</span>
+<span class="nc" id="L116">			final int initialMinWidth = column.getMinWidth();</span>
+<span class="nc" id="L117">			column.setMaxWidth(widthByColumnId.get(getColumnId(column)));</span>
+<span class="nc" id="L118">			column.setMinWidth(widthByColumnId.get(getColumnId(column)));</span>
+<span class="nc" id="L119">			SwingUtilities.invokeLater(new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="nc" id="L122">					column.setMaxWidth(initialMaxWidth);</span>
+<span class="nc" id="L123">					column.setMinWidth(initialMinWidth);</span>
+<span class="nc" id="L124">				}</span>
+			});
+		}
+<span class="nc" id="L127">	}</span>
+
+	protected void saveColumnWidths(Map&lt;Object, Integer&gt; widthByColumnId) {
+<span class="nc" id="L130">		widthByColumnId.clear();</span>
+<span class="nc" id="L131">		TableColumnModel columnModel = table.getColumnModel();</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">		for (int i = 0; i &lt; columnModel.getColumnCount(); i++) {</span>
+<span class="nc" id="L133">			TableColumn column = columnModel.getColumn(i);</span>
+<span class="nc" id="L134">			widthByColumnId.put(getColumnId(column), column.getWidth());</span>
+		}
+<span class="nc" id="L136">	}</span>
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+<span class="nc" id="L140">	}</span>
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+<span class="nc" id="L144">	}</span>
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+<span class="nc" id="L148">	}</span>
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+<span class="nc" id="L152">	}</span>
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+<span class="nc" id="L156">	}</span>
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+<span class="nc" id="L160">	}</span>
+
+<span class="nc" id="L162">	protected static class DelayedColumnWidthRestorationThreadFactory implements ThreadFactory {</span>
+
+		@Override
+		public Thread newThread(Runnable r) {
+<span class="nc" id="L166">			Thread result = new Thread(r,</span>
+<span class="nc" id="L167">					TableLastColumnAutoResizer.class.getName() + &quot;.delayedColumnWidthRestorationExecutor&quot;);</span>
+<span class="nc" id="L168">			result.setDaemon(true);</span>
+<span class="nc" id="L169">			return result;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

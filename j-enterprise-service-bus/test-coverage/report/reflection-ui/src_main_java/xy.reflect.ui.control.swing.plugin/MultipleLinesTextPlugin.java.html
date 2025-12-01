@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MultipleLinesTextPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">MultipleLinesTextPlugin.java</span></div><h1>MultipleLinesTextPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.awt.Dimension;
+import java.io.Serializable;
+
+import javax.swing.BorderFactory;
+import javax.swing.JTextArea;
+import javax.swing.border.TitledBorder;
+
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
+import xy.reflect.ui.control.swing.TextControl;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Field control plugin that allows to display multiline text. The height of the
+ * control is fixed.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L26">public class MultipleLinesTextPlugin extends AbstractSimpleCustomizableFieldControlPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L30">		return &quot;Multiple Lines Text&quot;;</span>
+	}
+
+	@Override
+	protected boolean handles(Class&lt;?&gt; javaType) {
+<span class="fc" id="L35">		return String.class.equals(javaType);</span>
+	}
+
+	@Override
+	public boolean canDisplayDistinctNullValue() {
+<span class="nc" id="L40">		return false;</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="nc" id="L45">		return new MultipleLinesTextConfiguration();</span>
+	}
+
+	@Override
+	public MultipleLinesTextControl createControl(Object renderer, IFieldControlInput input) {
+<span class="fc" id="L50">		return new MultipleLinesTextControl((SwingRenderer) renderer, input);</span>
+	}
+
+<span class="nc" id="L53">	public static class MultipleLinesTextConfiguration extends AbstractConfiguration {</span>
+
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L57">		public ControlDimensionSpecification width = new ControlDimensionSpecification();</span>
+<span class="nc" id="L58">		public ControlDimensionSpecification height = new ControlDimensionSpecification();</span>
+<span class="nc" id="L59">		public boolean lineWrappingEnabled = false;</span>
+
+		public int getWidthInPixels() {
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">			if (width == null) {</span>
+<span class="nc" id="L63">				return -1;</span>
+			}
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">			if (width.unit == ControlSizeUnit.PIXELS) {</span>
+<span class="fc" id="L66">				return width.value;</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">			} else if (width.unit == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L68">				Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L69">				return Math.round((width.value / 100f) * screenSize.width);</span>
+			} else {
+<span class="nc" id="L71">				throw new ReflectionUIError();</span>
+			}
+		}
+
+		public int getHeightInPixels() {
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">			if (height == null) {</span>
+<span class="nc" id="L77">				return -1;</span>
+			}
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">			if (height.unit == ControlSizeUnit.PIXELS) {</span>
+<span class="fc" id="L80">				return height.value;</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">			} else if (height.unit == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L82">				Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L83">				return Math.round((height.value / 100f) * screenSize.height);</span>
+			} else {
+<span class="nc" id="L85">				throw new ReflectionUIError();</span>
+			}
+		}
+
+<span class="fc" id="L89">		public enum ControlSizeUnit {</span>
+<span class="fc" id="L90">			PIXELS, SCREEN_PERCENT</span>
+		}
+
+<span class="nc" id="L93">		public static class ControlDimensionSpecification implements Serializable {</span>
+
+			private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L97">			public int value = 400;</span>
+<span class="nc" id="L98">			public ControlSizeUnit unit = ControlSizeUnit.PIXELS;</span>
+
+		}
+
+	}
+
+	public class MultipleLinesTextControl extends TextControl {
+
+		private static final long serialVersionUID = 1L;
+
+		protected MultipleLinesTextConfiguration controlConfiguration;
+
+<span class="fc" id="L110">		public MultipleLinesTextControl(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L111">			super(swingRenderer, input);</span>
+<span class="fc" id="L112">		}</span>
+
+		@Override
+		protected Dimension getScrollPanePreferredSize(Dimension defaultSize) {
+<span class="fc" id="L116">			Dimension result = new Dimension(defaultSize);</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">			if (controlConfiguration.width != null) {</span>
+<span class="fc" id="L118">				result.width = controlConfiguration.getWidthInPixels();</span>
+			}
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">			if (controlConfiguration.height != null) {</span>
+<span class="fc" id="L121">				result.height = controlConfiguration.getHeightInPixels();</span>
+			}
+<span class="fc" id="L123">			return result;</span>
+		}
+
+		@Override
+		public boolean showsCaption() {
+<span class="fc" id="L128">			return true;</span>
+		}
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L133" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc" id="L134">				updateControlConfiguration();</span>
+			}
+<span class="fc" id="L136">			super.refreshUI(refreshStructure);</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">				if (data.getCaption().length() &gt; 0) {</span>
+<span class="nc" id="L139">					setBorder(</span>
+<span class="nc" id="L140">							BorderFactory.createTitledBorder(swingRenderer.prepareMessageToDisplay(data.getCaption())));</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">					if (data.getLabelForegroundColor() != null) {</span>
+<span class="nc" id="L142">						((TitledBorder) getBorder())</span>
+<span class="nc" id="L143">								.setTitleColor(SwingRendererUtils.getColor(data.getLabelForegroundColor()));</span>
+					}
+<span class="nc bnc" id="L145" title="All 2 branches missed.">					if (data.getBorderColor() != null) {</span>
+<span class="nc" id="L146">						((TitledBorder) getBorder()).setBorder(</span>
+<span class="nc" id="L147">								BorderFactory.createLineBorder(SwingRendererUtils.getColor(data.getBorderColor())));</span>
+					}
+<span class="nc" id="L149">				} else {</span>
+<span class="fc" id="L150">					setBorder(BorderFactory.createEmptyBorder());</span>
+				}
+<span class="fc" id="L152">				textComponent.setBorder(BorderFactory.createEmptyBorder());</span>
+<span class="fc" id="L153">				((JTextArea) textComponent).setLineWrap(controlConfiguration.lineWrappingEnabled);</span>
+			}
+<span class="fc" id="L155">			return true;</span>
+		}
+
+		protected void updateControlConfiguration() {
+<span class="fc" id="L159">			controlConfiguration = (MultipleLinesTextConfiguration) loadControlCustomization(input);</span>
+<span class="fc" id="L160">		}</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

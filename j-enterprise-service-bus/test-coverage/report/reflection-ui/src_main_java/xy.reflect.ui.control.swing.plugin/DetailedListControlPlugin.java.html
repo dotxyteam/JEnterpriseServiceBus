@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DetailedListControlPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">DetailedListControlPlugin.java</span></div><h1>DetailedListControlPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
+import xy.reflect.ui.control.swing.ListControl;
+import xy.reflect.ui.control.swing.builder.AbstractEditorBuilder;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
+import xy.reflect.ui.info.type.iterable.item.IListItemDetailsAccessMode;
+import xy.reflect.ui.info.type.iterable.item.ItemDetailsAreaPosition;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.info.type.iterable.structure.IListStructuralInfo;
+import xy.reflect.ui.info.type.iterable.structure.ListStructuralInfoProxy;
+import xy.reflect.ui.info.type.iterable.structure.column.IColumnInfo;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ValidationErrorWrapper;
+
+/**
+ * Field control that displays a list of values in a grid. Each cell contains a
+ * sub-control allowing to edit each item.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L57">public class DetailedListControlPlugin extends AbstractSimpleCustomizableFieldControlPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L61">		return &quot;Detailed List Control&quot;;</span>
+	}
+
+	@Override
+	protected boolean handles(Class&lt;?&gt; javaType) {
+<span class="nc" id="L66">		throw new ReflectionUIError();</span>
+	}
+
+	@Override
+	public boolean handles(ReflectionUI reflectionUI, IFieldControlInput input) {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">		if (!(input.getControlData().getType() instanceof IListTypeInfo)) {</span>
+<span class="fc" id="L72">			return false;</span>
+		}
+<span class="fc" id="L74">		return true;</span>
+	}
+
+	@Override
+	public boolean canDisplayDistinctNullValue() {
+<span class="nc" id="L79">		return false;</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="nc" id="L84">		return new DetailedListConfiguration();</span>
+	}
+
+	@Override
+	public DetailedListControl createControl(Object renderer, IFieldControlInput input) {
+<span class="fc" id="L89">		return new DetailedListControl((SwingRenderer) renderer, input);</span>
+	}
+
+<span class="nc" id="L92">	public static class DetailedListConfiguration extends AbstractConfiguration {</span>
+
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L96">		public DetailedListLayout layout = DetailedListLayout.VERTICAL_FLOW;</span>
+<span class="nc" id="L97">		public int gridDimension = 0;</span>
+<span class="nc" id="L98">		public boolean stretchCellsVertically = true;</span>
+<span class="nc" id="L99">		public boolean stretchCellsHorizontally = true;</span>
+<span class="nc" id="L100">		public boolean selectionForbidden = false;</span>
+
+		private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="fc" id="L103">			stretchCellsVertically = true;</span>
+<span class="fc" id="L104">			stretchCellsHorizontally = true;</span>
+<span class="fc" id="L105">			in.defaultReadObject();</span>
+<span class="fc" id="L106">		}</span>
+
+	}
+
+<span class="fc" id="L110">	public enum DetailedListLayout {</span>
+<span class="fc" id="L111">		HORIZONTAL_FLOW, VERTICAL_FLOW</span>
+	}
+
+	public class DetailedListControl extends ListControl {
+		private static final long serialVersionUID = 1L;
+
+		protected JPanel scrolledContentPane;
+		protected JPanel detailedCellsContainer;
+		protected List&lt;DetailedCellControl&gt; detailedCellControlList;
+
+		protected DetailedListConfiguration controlConfiguration;
+
+<span class="fc" id="L123">		public DetailedListControl(SwingRenderer swingRenderer, final IFieldControlInput input) {</span>
+<span class="fc" id="L124">			super(swingRenderer, input);</span>
+<span class="fc" id="L125">		}</span>
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">			if (refreshStructure) {</span>
+<span class="fc" id="L130">				updateControlConfiguration();</span>
+			}
+<span class="fc" id="L132">			return super.refreshUI(refreshStructure);</span>
+		}
+
+		protected void updateControlConfiguration() {
+<span class="fc" id="L136">			controlConfiguration = (DetailedListConfiguration) loadControlCustomization(input);</span>
+<span class="fc" id="L137">		}</span>
+
+		@Override
+		protected void initializeTreeTableModelAndControl() {
+<span class="fc" id="L141">			itemPositionFactory = createItemPositionfactory();</span>
+<span class="fc" id="L142">			scrolledContentPane = new ControlPanel();</span>
+<span class="fc" id="L143">			treeTableComponentScrollPane = createTreeTableScrollPane(scrolledContentPane);</span>
+<span class="fc" id="L144">			detailedCellsContainer = new ControlPanel();</span>
+<span class="fc" id="L145">			clearSelectionWhenContainerClicked();</span>
+<span class="fc" id="L146">			setupContexteMenu(detailedCellsContainer);</span>
+<span class="fc" id="L147">		}</span>
+
+		protected void clearSelectionWhenContainerClicked() {
+<span class="fc" id="L150">			detailedCellsContainer.addMouseListener(new MouseAdapter() {</span>
+
+				@Override
+				public void mousePressed(MouseEvent e) {
+<span class="nc bnc" id="L154" title="All 2 branches missed.">					if (e.getComponent() != detailedCellsContainer) {</span>
+<span class="nc" id="L155">						return;</span>
+					}
+<span class="nc" id="L157">					setSelection(Collections.emptyList());</span>
+<span class="nc" id="L158">				}</span>
+
+				@Override
+				public void mouseReleased(MouseEvent e) {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">					if (e.getComponent() != detailedCellsContainer) {</span>
+<span class="nc" id="L163">						return;</span>
+					}
+<span class="nc" id="L165">					setSelection(Collections.emptyList());</span>
+<span class="nc" id="L166">				}</span>
+
+			});
+<span class="fc" id="L169">		}</span>
+
+		@Override
+		protected void layoutControls() {
+<span class="fc" id="L173">			setLayout(new BorderLayout());</span>
+<span class="fc" id="L174">			add(treeTableComponentScrollPane, BorderLayout.CENTER);</span>
+<span class="fc" id="L175">			String toolbarConstraint = getToolbarBorderLayoutConstraint();</span>
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">			if (toolbarConstraint != null) {</span>
+<span class="fc" id="L177">				add(toolbar, toolbarConstraint);</span>
+			}
+<span class="fc" id="L179">			scrolledContentPane.setLayout(new GridBagLayout());</span>
+			{
+<span class="fc" id="L181">				GridBagConstraints cellsContainerConstraint = new GridBagConstraints();</span>
+<span class="fc" id="L182">				cellsContainerConstraint.gridx = 0;</span>
+<span class="fc" id="L183">				cellsContainerConstraint.gridy = 0;</span>
+<span class="pc bpc" id="L184" title="3 of 4 branches missed.">				if (controlConfiguration.stretchCellsHorizontally &amp;&amp; controlConfiguration.stretchCellsVertically) {</span>
+<span class="nc" id="L185">					cellsContainerConstraint.fill = GridBagConstraints.BOTH;</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">				} else if (controlConfiguration.stretchCellsHorizontally) {</span>
+<span class="nc" id="L187">					cellsContainerConstraint.fill = GridBagConstraints.HORIZONTAL;</span>
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">				} else if (controlConfiguration.stretchCellsVertically) {</span>
+<span class="nc" id="L189">					cellsContainerConstraint.fill = GridBagConstraints.VERTICAL;</span>
+<span class="nc" id="L190">				} else {</span>
+<span class="fc" id="L191">					cellsContainerConstraint.fill = GridBagConstraints.NONE;</span>
+				}
+<span class="fc" id="L193">				cellsContainerConstraint.weightx = 1.0;</span>
+<span class="fc" id="L194">				cellsContainerConstraint.weighty = 1.0;</span>
+<span class="fc" id="L195">				cellsContainerConstraint.anchor = GridBagConstraints.NORTH;</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">				if (Arrays.asList(scrolledContentPane.getComponents()).contains(detailedCellsContainer)) {</span>
+<span class="fc" id="L197">					scrolledContentPane.remove(detailedCellsContainer);</span>
+				}
+<span class="fc" id="L199">				scrolledContentPane.add(detailedCellsContainer, cellsContainerConstraint);</span>
+			}
+<span class="fc" id="L201">			detailedCellsContainer.setLayout(new GridBagLayout());</span>
+<span class="fc" id="L202">		}</span>
+
+		@Override
+		public void refreshTreeTableModelAndControl(boolean refreshStructure) {
+<span class="fc" id="L206">			int newItemCount = itemPositionFactory.getRootItemPosition(-1).getContainingListSize();</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">			if (detailedCellControlList == null) {</span>
+<span class="fc" id="L208">				detailedCellControlList = new ArrayList&lt;DetailedCellControl&gt;();</span>
+			}
+<span class="fc" id="L210">			int initialItemCount = detailedCellControlList.size();</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">			for (int i = (initialItemCount - 1); i &gt;= newItemCount; i--) {</span>
+<span class="fc" id="L212">				detailedCellsContainer.remove(detailedCellControlList.get(i));</span>
+<span class="fc" id="L213">				detailedCellControlList.remove(i);</span>
+			}
+<span class="fc bfc" id="L215" title="All 2 branches covered.">			for (int i = 0; i &lt; detailedCellControlList.size(); i++) {</span>
+<span class="fc" id="L216">				DetailedCellControl detailedCellControl = detailedCellControlList.get(i);</span>
+<span class="fc" id="L217">				detailedCellControl.refreshUI(refreshStructure);</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">				if (refreshStructure) {</span>
+<span class="fc" id="L219">					((GridBagLayout) detailedCellsContainer.getLayout()).setConstraints(detailedCellControl,</span>
+<span class="fc" id="L220">							getDetailedCellLayoutConstraints(i));</span>
+				}
+			}
+<span class="fc bfc" id="L223" title="All 2 branches covered.">			for (int i = detailedCellControlList.size(); i &lt; newItemCount; i++) {</span>
+<span class="fc" id="L224">				BufferedItemPosition itemPosition = itemPositionFactory.getRootItemPosition(i);</span>
+<span class="fc" id="L225">				DetailedCellControl detailedCellControl = new DetailedCellControl(itemPosition);</span>
+				{
+<span class="fc" id="L227">					detailedCellControlList.add(detailedCellControl);</span>
+<span class="fc" id="L228">					detailedCellsContainer.add(detailedCellControl, getDetailedCellLayoutConstraints(i));</span>
+				}
+			}
+<span class="pc bpc" id="L231" title="3 of 4 branches missed.">			if (refreshStructure || (newItemCount != initialItemCount)) {</span>
+<span class="fc" id="L232">				SwingRendererUtils.handleComponentSizeChange(detailedCellsContainer);</span>
+			}
+<span class="fc" id="L234">		}</span>
+
+		protected GridBagConstraints getDetailedCellLayoutConstraints(int i) {
+<span class="fc" id="L237">			GridBagConstraints result = new GridBagConstraints();</span>
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">			if (controlConfiguration.layout == DetailedListLayout.VERTICAL_FLOW) {</span>
+<span class="nc" id="L239">				result.gridx = 0;</span>
+<span class="nc" id="L240">				result.gridy = i;</span>
+<span class="nc bnc" id="L241" title="All 2 branches missed.">				if (controlConfiguration.gridDimension &gt; 0) {</span>
+<span class="nc" id="L242">					result.gridx = result.gridy / controlConfiguration.gridDimension;</span>
+<span class="nc" id="L243">					result.gridy = result.gridy % controlConfiguration.gridDimension;</span>
+				}
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">			} else if (controlConfiguration.layout == DetailedListLayout.HORIZONTAL_FLOW) {</span>
+<span class="fc" id="L246">				result.gridy = 0;</span>
+<span class="fc" id="L247">				result.gridx = i;</span>
+<span class="pc bpc" id="L248" title="1 of 2 branches missed.">				if (controlConfiguration.gridDimension &gt; 0) {</span>
+<span class="fc" id="L249">					result.gridy = result.gridx / controlConfiguration.gridDimension;</span>
+<span class="fc" id="L250">					result.gridx = result.gridx % controlConfiguration.gridDimension;</span>
+				}
+<span class="fc" id="L252">			} else {</span>
+<span class="nc" id="L253">				throw new ReflectionUIError();</span>
+			}
+<span class="fc" id="L255">			result.fill = GridBagConstraints.HORIZONTAL;</span>
+<span class="fc" id="L256">			result.weightx = 1.0;</span>
+<span class="fc" id="L257">			result.weighty = 1.0;</span>
+<span class="fc" id="L258">			return result;</span>
+		}
+
+		@Override
+		public List&lt;BufferedItemPosition&gt; getSelection() {
+<span class="fc" id="L263">			List&lt;BufferedItemPosition&gt; result = new ArrayList&lt;BufferedItemPosition&gt;();</span>
+<span class="pc bpc" id="L264" title="1 of 2 branches missed.">			if (detailedCellsContainer != null) {</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">				for (Component c : detailedCellsContainer.getComponents()) {</span>
+<span class="fc" id="L266">					DetailedCellControl detailedCellControl = (DetailedCellControl) c;</span>
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">					if (detailedCellControl.isSelected()) {</span>
+<span class="nc" id="L268">						result.add(detailedCellControl.getItemPosition());</span>
+					}
+				}
+			}
+<span class="fc" id="L272">			return result;</span>
+		}
+
+		@Override
+		public void setSelection(List&lt;BufferedItemPosition&gt; toSelect) {
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">			if (controlConfiguration.selectionForbidden) {</span>
+<span class="fc" id="L278">				toSelect = Collections.emptyList();</span>
+			}
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">			if (getSelection().equals(toSelect)) {</span>
+<span class="fc" id="L281">				return;</span>
+			}
+<span class="nc bnc" id="L283" title="All 2 branches missed.">			if (detailedCellsContainer != null) {</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">				for (Component c : detailedCellsContainer.getComponents()) {</span>
+<span class="nc" id="L285">					DetailedCellControl detailedCellControl = (DetailedCellControl) c;</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">					if (toSelect.contains(detailedCellControl.getItemPosition())) {</span>
+<span class="nc" id="L287">						detailedCellControl.setSelected(true);</span>
+<span class="nc" id="L288">					} else {</span>
+<span class="nc" id="L289">						detailedCellControl.setSelected(false);</span>
+					}
+				}
+<span class="nc" id="L292">				fireSelectionEvent();</span>
+			}
+<span class="nc" id="L294">		}</span>
+
+		@Override
+		public void validateControlData(ValidationSession session) throws Exception {
+<span class="nc" id="L298">			final Map&lt;BufferedItemPosition, Exception&gt; validitionErrorByItemPosition = new HashMap&lt;BufferedItemPosition, Exception&gt;();</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">			for (DetailedCellControl cell : detailedCellControlList) {</span>
+<span class="nc" id="L300">				BufferedItemPosition itemPosition = cell.getItemPosition();</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">				if (!itemPosition.getContainingListType().isItemNodeValidityDetectionEnabled(itemPosition)) {</span>
+<span class="nc" id="L302">					continue;</span>
+				}
+				try {
+<span class="nc" id="L305">					cell.getForm().validateForm(session);</span>
+<span class="nc" id="L306">				} catch (Exception e) {</span>
+<span class="nc" id="L307">					validitionErrorByItemPosition.put(itemPosition, e);</span>
+				}
+			}
+<span class="nc bnc" id="L310" title="All 2 branches missed.">			if (validitionErrorByItemPosition.size() &gt; 0) {</span>
+<span class="nc" id="L311">				throw new ValidationErrorWrapper(null, new ListValidationError(validitionErrorByItemPosition));</span>
+			}
+<span class="nc" id="L313">		}</span>
+
+		@Override
+		public void expandItemPosition(BufferedItemPosition itemPosition) {
+<span class="nc" id="L317">		}</span>
+
+		@Override
+		public void collapseItemPosition(BufferedItemPosition itemPosition) {
+<span class="nc" id="L321">		}</span>
+
+		@Override
+		public void collapseAllItemPositions() {
+<span class="nc" id="L325">		}</span>
+
+		@Override
+		public List&lt;BufferedItemPosition&gt; getExpandedItemPositions(BufferedItemPosition parentItemPosition) {
+<span class="nc" id="L329">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		protected void handleMouseRightButton() {
+<span class="fc" id="L334">		}</span>
+
+		@Override
+		protected void initializeSelectionListening() {
+<span class="fc" id="L338">		}</span>
+
+		@Override
+		protected void updateDetailsArea(boolean refreshStructure) {
+<span class="nc" id="L342">		}</span>
+
+		@Override
+		protected void displayDetailsOnItemDoubleClick() {
+<span class="fc" id="L346">		}</span>
+
+		@Override
+		protected void refreshTreeTableComponentStyle() {
+<span class="fc" id="L350">		}</span>
+
+		@Override
+		protected void refreshRendrers() {
+<span class="fc" id="L354">		}</span>
+
+		@Override
+		protected void refreshTreeTableComponentHeader() {
+<span class="fc" id="L358">		}</span>
+
+		@Override
+		public boolean requestCustomFocus() {
+<span class="nc bnc" id="L362" title="All 4 branches missed.">			if (getSelection().isEmpty() &amp;&amp; (getRootListSize() &gt; 0)) {</span>
+<span class="nc" id="L363">				setSingleSelection(getRootListItemPosition(0));</span>
+			}
+<span class="nc bnc" id="L365" title="All 2 branches missed.">			if (SwingRendererUtils.requestAnyComponentFocus(detailedCellsContainer, swingRenderer)) {</span>
+<span class="nc" id="L366">				return true;</span>
+			}
+<span class="nc" id="L368">			return false;</span>
+		}
+
+		@Override
+		protected void restoringExpandedPathsDespiteDataAlteration(Runnable runnable) {
+<span class="fc" id="L373">			runnable.run();</span>
+<span class="fc" id="L374">		}</span>
+
+		@Override
+		protected void restoringColumnWidthsAsMuchAsPossible(Runnable runnable) {
+<span class="nc" id="L378">			throw new ReflectionUIError();</span>
+		}
+
+		@Override
+		public IListItemDetailsAccessMode getDetailsAccessMode() {
+<span class="fc" id="L383">			return new IListItemDetailsAccessMode() {</span>
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public boolean hasDetachedDetailsDisplayOption() {
+<span class="fc" id="L389">					return false;</span>
+				}
+
+				@Override
+				public boolean hasEmbeddedDetailsDisplayArea() {
+<span class="fc" id="L394">					return false;</span>
+				}
+
+				@Override
+				public ItemDetailsAreaPosition getEmbeddedDetailsAreaPosition() {
+<span class="nc" id="L399">					throw new ReflectionUIError();</span>
+				}
+
+				@Override
+				public double getDefaultEmbeddedDetailsAreaOccupationRatio() {
+<span class="nc" id="L404">					throw new ReflectionUIError();</span>
+				}
+			};
+		}
+
+		@Override
+		public void scrollTo(BufferedItemPosition itemPosition) {
+<span class="nc" id="L411">			DetailedCellControl targetDetailedCellControl = null;</span>
+<span class="nc bnc" id="L412" title="All 2 branches missed.">			for (Component c : detailedCellsContainer.getComponents()) {</span>
+<span class="nc" id="L413">				DetailedCellControl detailedCellControl = (DetailedCellControl) c;</span>
+<span class="nc bnc" id="L414" title="All 2 branches missed.">				if (itemPosition.equals(detailedCellControl.getItemPosition())) {</span>
+<span class="nc" id="L415">					targetDetailedCellControl = detailedCellControl;</span>
+<span class="nc" id="L416">					break;</span>
+				}
+			}
+<span class="nc bnc" id="L419" title="All 2 branches missed.">			if (targetDetailedCellControl == null) {</span>
+<span class="nc" id="L420">				return;</span>
+			}
+<span class="nc" id="L422">			detailedCellsContainer.scrollRectToVisible(targetDetailedCellControl.getBounds());</span>
+<span class="nc" id="L423">		}</span>
+
+		@Override
+		public IListStructuralInfo getStructuralInfo(BufferedItemPosition itemPosition) {
+<span class="fc" id="L427">			return new ListStructuralInfoProxy(super.getStructuralInfo(itemPosition)) {</span>
+
+				@Override
+				public List&lt;IColumnInfo&gt; getColumns() {
+<span class="nc" id="L431">					return Collections.emptyList();</span>
+				}
+
+				@Override
+				public IFieldInfo getItemSubListField(ItemPosition itemPosition) {
+<span class="nc" id="L436">					return null;</span>
+				}
+
+			};
+		}
+
+		protected void setupContexteMenu(JPanel panel) {
+<span class="fc" id="L443">			panel.addMouseListener(new MouseAdapter() {</span>
+
+				@Override
+				public void mouseReleased(MouseEvent e) {
+<span class="nc bnc" id="L447" title="All 2 branches missed.">					if (e.getButton() != MouseEvent.BUTTON3) {</span>
+<span class="nc" id="L448">						return;</span>
+					}
+<span class="nc bnc" id="L450" title="All 2 branches missed.">					if (e.getComponent() == panel) {</span>
+<span class="nc" id="L451">						JPopupMenu popup = createPopupMenu();</span>
+<span class="nc" id="L452">						popup.show(e.getComponent(), e.getX(), e.getY());</span>
+					}
+<span class="nc" id="L454">				}</span>
+
+			});
+<span class="fc" id="L457">		}</span>
+
+		public class DetailedCellControl extends ControlPanel {
+
+			private static final long serialVersionUID = 1L;
+
+			protected BufferedItemPosition itemPosition;
+<span class="fc" id="L464">			protected boolean selected = false;</span>
+			protected Form form;
+			protected AbstractEditorBuilder formBuilder;
+
+<span class="fc" id="L468">			public DetailedCellControl(BufferedItemPosition itemPosition) {</span>
+<span class="fc" id="L469">				this.itemPosition = itemPosition;</span>
+<span class="fc" id="L470">				setLayout(new BorderLayout());</span>
+<span class="fc" id="L471">				formBuilder = createItemUIBuilder(itemPosition);</span>
+<span class="fc" id="L472">				form = formBuilder.createEditorForm(true, false);</span>
+				{
+<span class="fc" id="L474">					add(form, BorderLayout.CENTER);</span>
+				}
+<span class="fc" id="L476">				enableSelection();</span>
+<span class="fc" id="L477">				setupContexteMenu(this);</span>
+<span class="fc" id="L478">			}</span>
+
+			public Form getForm() {
+<span class="nc" id="L481">				return form;</span>
+			}
+
+			public AbstractEditorBuilder getFormBuilder() {
+<span class="nc" id="L485">				return formBuilder;</span>
+			}
+
+			protected void enableSelection() {
+<span class="fc" id="L489">				addMouseListener(new MouseAdapter() {</span>
+
+					@Override
+					public void mouseClicked(MouseEvent e) {
+<span class="nc" id="L493">						setSingleSelection(DetailedCellControl.this.itemPosition);</span>
+<span class="nc" id="L494">					}</span>
+
+					@Override
+					public void mousePressed(MouseEvent e) {
+<span class="nc" id="L498">						setSingleSelection(DetailedCellControl.this.itemPosition);</span>
+<span class="nc" id="L499">					}</span>
+				});
+<span class="fc" id="L501">				final AWTEventListener selectionListener = new AWTEventListener() {</span>
+					@Override
+					public void eventDispatched(AWTEvent event) {
+<span class="nc bnc" id="L504" title="All 2 branches missed.">						if (!(event instanceof MouseEvent)) {</span>
+<span class="nc" id="L505">							return;</span>
+						}
+<span class="nc" id="L507">						MouseEvent moueseEvent = (MouseEvent) event;</span>
+<span class="nc bnc" id="L508" title="All 2 branches missed.">						if ((moueseEvent.getID() != MouseEvent.MOUSE_PRESSED)</span>
+<span class="nc bnc" id="L509" title="All 2 branches missed.">								&amp;&amp; (moueseEvent.getID() != MouseEvent.MOUSE_CLICKED)) {</span>
+<span class="nc" id="L510">							return;</span>
+						}
+<span class="nc" id="L512">						Component c = moueseEvent.getComponent();</span>
+<span class="nc bnc" id="L513" title="All 2 branches missed.">						if (c == null) {</span>
+<span class="nc" id="L514">							return;</span>
+						}
+<span class="nc bnc" id="L516" title="All 2 branches missed.">						if (SwingUtilities.getAncestorOfClass(DetailedCellControl.class,</span>
+<span class="nc" id="L517">								c) != DetailedCellControl.this) {</span>
+<span class="nc" id="L518">							return;</span>
+						}
+<span class="nc" id="L520">						setSingleSelection(DetailedCellControl.this.itemPosition);</span>
+<span class="nc" id="L521">					}</span>
+				};
+<span class="fc" id="L523">				addAncestorListener(new AncestorListener() {</span>
+
+					@Override
+					public void ancestorAdded(AncestorEvent event) {
+<span class="nc" id="L527">						Toolkit.getDefaultToolkit().addAWTEventListener(selectionListener, AWTEvent.MOUSE_EVENT_MASK);</span>
+<span class="nc" id="L528">					}</span>
+
+					@Override
+					public void ancestorRemoved(AncestorEvent event) {
+<span class="nc" id="L532">						Toolkit.getDefaultToolkit().removeAWTEventListener(selectionListener);</span>
+<span class="nc" id="L533">					}</span>
+
+					@Override
+					public void ancestorMoved(AncestorEvent event) {
+<span class="fc" id="L537">					}</span>
+
+				});
+<span class="fc" id="L540">				updateSelectionState();</span>
+<span class="fc" id="L541">			}</span>
+
+			protected void updateSelectionState() {
+<span class="fc" id="L544">				int borderThickness = 5;</span>
+<span class="pc bpc" id="L545" title="1 of 2 branches missed.">				if (selected) {</span>
+<span class="nc" id="L546">					setBorder(BorderFactory.createLineBorder(SwingRendererUtils.getListSelectionBackgroundColor(),</span>
+<span class="nc" id="L547">							borderThickness));</span>
+<span class="nc" id="L548">				} else {</span>
+<span class="fc" id="L549">					setBorder(BorderFactory.createEmptyBorder(borderThickness, borderThickness, borderThickness,</span>
+<span class="fc" id="L550">							borderThickness));</span>
+				}
+<span class="fc" id="L552">			}</span>
+
+			public BufferedItemPosition getItemPosition() {
+<span class="nc" id="L555">				return itemPosition;</span>
+			}
+
+			public boolean isSelected() {
+<span class="fc" id="L559">				return selected;</span>
+			}
+
+			public void setSelected(boolean b) {
+<span class="nc" id="L563">				selected = b;</span>
+<span class="nc" id="L564">				updateSelectionState();</span>
+<span class="nc" id="L565">			}</span>
+
+			public void refreshUI(boolean refreshStructure) {
+<span class="fc" id="L568">				formBuilder.reloadValue(form, refreshStructure);</span>
+<span class="fc" id="L569">			}</span>
+
+			@Override
+			public String toString() {
+<span class="nc" id="L573">				return &quot;DetailedCellControl [itemPosition=&quot; + itemPosition + &quot;]&quot;;</span>
+			}
+
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

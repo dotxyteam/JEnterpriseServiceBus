@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SquigglePainter.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.util</a> &gt; <span class="el_source">SquigglePainter.java</span></div><h1>SquigglePainter.java</h1><pre class="source lang-java linenums">package com.otk.jesb.util;
+
+import java.awt.*;
+import javax.swing.text.*;
+
+/*
+ *  Implements a simple highlight painter that renders squiggles under the
+ *  area to be highlighted.
+ *
+ */
+public class SquigglePainter extends DefaultHighlighter.DefaultHighlightPainter {
+	public SquigglePainter(Color color) {
+<span class="fc" id="L13">		super(color);</span>
+<span class="fc" id="L14">	}</span>
+
+	/**
+	 * Paints a portion of a highlight.
+	 *
+	 * @param g      the graphics context
+	 * @param offs0  the starting model offset (greater than 0)
+	 * @param offs1  the ending model offset (greater than offs1)
+	 * @param bounds the bounding box of the view, which is not necessarily the
+	 *               region to paint.
+	 * @param c      the editor
+	 * @param view   View painting for
+	 * @return region drawing occured in
+	 */
+	public Shape paintLayer(Graphics g, int offs0, int offs1, Shape bounds, JTextComponent c, View view) {
+<span class="fc" id="L29">		Rectangle r = getDrawingArea(offs0, offs1, bounds, view);</span>
+
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">		if (r == null)</span>
+<span class="nc" id="L32">			return null;</span>
+
+		// Do your custom painting
+
+<span class="fc" id="L36">		Color color = getColor();</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">		g.setColor(color == null ? c.getSelectionColor() : color);</span>
+
+		// Draw the squiggles
+
+<span class="fc" id="L41">		int squiggle = 2;</span>
+<span class="fc" id="L42">		int twoSquiggles = squiggle * 2;		</span>
+		// if drawing area width is too small but not null, then extend it a little
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">		if (r.width &gt; 0) {</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">			if (r.width &lt; twoSquiggles) {</span>
+<span class="nc" id="L46">				r.width = twoSquiggles;</span>
+			}
+		}
+<span class="fc" id="L49">		int y = r.y + r.height - squiggle;</span>
+
+<span class="fc bfc" id="L51" title="All 2 branches covered.">		for (int x = r.x; x &lt;= r.x + r.width - twoSquiggles; x += twoSquiggles) {</span>
+<span class="fc" id="L52">			g.drawArc(x, y, squiggle, squiggle, 0, 180);</span>
+<span class="fc" id="L53">			g.drawArc(x + squiggle, y, squiggle, squiggle, 180, 181);</span>
+		}
+
+		// Return the drawing area
+
+<span class="fc" id="L58">		return r;</span>
+	}
+
+	private Rectangle getDrawingArea(int offs0, int offs1, Shape bounds, View view) {
+		// Contained in view, can just use bounds.
+
+<span class="pc bpc" id="L64" title="3 of 4 branches missed.">		if (offs0 == view.getStartOffset() &amp;&amp; offs1 == view.getEndOffset()) {</span>
+			Rectangle alloc;
+
+<span class="nc bnc" id="L67" title="All 2 branches missed.">			if (bounds instanceof Rectangle) {</span>
+<span class="nc" id="L68">				alloc = (Rectangle) bounds;</span>
+<span class="nc" id="L69">			} else {</span>
+<span class="nc" id="L70">				alloc = bounds.getBounds();</span>
+			}
+
+<span class="nc" id="L73">			return alloc;</span>
+		} else {
+			// Should only render part of View.
+			try {
+				// --- determine locations ---
+<span class="fc" id="L78">				Shape shape = view.modelToView(offs0, Position.Bias.Forward, offs1, Position.Bias.Backward, bounds);</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">				Rectangle r = (shape instanceof Rectangle) ? (Rectangle) shape : shape.getBounds();</span>
+
+<span class="fc" id="L81">				return r;</span>
+<span class="nc" id="L82">			} catch (BadLocationException e) {</span>
+				// can't render
+			}
+		}
+
+		// Can't render
+
+<span class="nc" id="L89">		return null;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

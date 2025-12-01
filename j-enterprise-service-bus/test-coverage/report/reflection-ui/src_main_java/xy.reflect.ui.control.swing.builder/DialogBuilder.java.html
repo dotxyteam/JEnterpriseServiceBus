@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DialogBuilder.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.builder</a> &gt; <span class="el_source">DialogBuilder.java</span></div><h1>DialogBuilder.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.builder;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.AbstractControlButton;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.control.swing.util.WindowManager;
+
+/**
+ * Dialog factory.
+ * 
+ * @author olitank
+ *
+ */
+public class DialogBuilder {
+
+	protected SwingRenderer swingRenderer;
+
+	protected String title;
+	protected Image iconImage;
+	protected Component ownerComponent;
+	protected Component contentComponent;
+	protected List&lt;Component&gt; buttonBarControls;
+	protected RenderedDialog dialog;
+	protected Image closingButtonBackgroundImage;
+	protected Font closingButtonCustomFont;
+	protected Color closingButtonBackgroundColor;
+	protected Color closingButtonForegroundColor;
+	protected Color closingButtonBorderColor;
+	protected JButton standardOKButton;
+	protected JButton standardCancelButton;
+
+<span class="fc" id="L46">	public DialogBuilder(SwingRenderer swingRenderer, Component ownerComponent) {</span>
+<span class="fc" id="L47">		this.ownerComponent = ownerComponent;</span>
+<span class="fc" id="L48">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L49">	}</span>
+
+	public SwingRenderer getSwingRenderer() {
+<span class="fc" id="L52">		return swingRenderer;</span>
+	}
+
+	public Image getClosingButtonBackgroundImage() {
+<span class="fc" id="L56">		return closingButtonBackgroundImage;</span>
+	}
+
+	public void setClosingButtonBackgroundImage(Image buttonBackgroundImage) {
+<span class="nc" id="L60">		this.closingButtonBackgroundImage = buttonBackgroundImage;</span>
+<span class="nc" id="L61">	}</span>
+
+	public Font getClosingButtonCustomFont() {
+<span class="fc" id="L64">		return closingButtonCustomFont;</span>
+	}
+
+	public void setClosingButtonCustomFont(Font closingButtonCustomFont) {
+<span class="nc" id="L68">		this.closingButtonCustomFont = closingButtonCustomFont;</span>
+<span class="nc" id="L69">	}</span>
+
+	public Color getClosingButtonBackgroundColor() {
+<span class="fc" id="L72">		return closingButtonBackgroundColor;</span>
+	}
+
+	public void setClosingButtonBackgroundColor(Color mainButtonBackgroundColor) {
+<span class="nc" id="L76">		this.closingButtonBackgroundColor = mainButtonBackgroundColor;</span>
+<span class="nc" id="L77">	}</span>
+
+	public Color getClosingButtonForegroundColor() {
+<span class="fc" id="L80">		return closingButtonForegroundColor;</span>
+	}
+
+	public void setClosingButtonForegroundColor(Color mainButtonForegroundColor) {
+<span class="nc" id="L84">		this.closingButtonForegroundColor = mainButtonForegroundColor;</span>
+<span class="nc" id="L85">	}</span>
+
+	public Color getClosingButtonBorderColor() {
+<span class="fc" id="L88">		return closingButtonBorderColor;</span>
+	}
+
+	public void setClosingButtonBorderColor(Color mainButtonBorderColor) {
+<span class="nc" id="L92">		this.closingButtonBorderColor = mainButtonBorderColor;</span>
+<span class="nc" id="L93">	}</span>
+
+	public RenderedDialog getCreatedDialog() {
+<span class="fc" id="L96">		return dialog;</span>
+	}
+
+	public Component getOwnerComponent() {
+<span class="nc" id="L100">		return ownerComponent;</span>
+	}
+
+	public Component getContentComponent() {
+<span class="fc" id="L104">		return contentComponent;</span>
+	}
+
+	public void setContentComponent(Component contentComponent) {
+<span class="fc" id="L108">		this.contentComponent = contentComponent;</span>
+<span class="fc" id="L109">	}</span>
+
+	public String getTitle() {
+<span class="fc" id="L112">		return title;</span>
+	}
+
+	public void setTitle(String title) {
+<span class="fc" id="L116">		this.title = title;</span>
+<span class="fc" id="L117">	}</span>
+
+	public Image getIconImage() {
+<span class="fc" id="L120">		return iconImage;</span>
+	}
+
+	public void setIconImage(Image iconImage) {
+<span class="nc" id="L124">		this.iconImage = iconImage;</span>
+<span class="nc" id="L125">	}</span>
+
+	public List&lt;Component&gt; getButtonBarControls() {
+<span class="fc" id="L128">		return buttonBarControls;</span>
+	}
+
+	public void setButtonBarControls(List&lt;Component&gt; buttonBarControls) {
+<span class="fc" id="L132">		this.buttonBarControls = buttonBarControls;</span>
+<span class="fc" id="L133">	}</span>
+
+	public JButton getStandardOKButton() {
+<span class="fc" id="L136">		return standardOKButton;</span>
+	}
+
+	public JButton getStandardCancelButton() {
+<span class="nc" id="L140">		return standardCancelButton;</span>
+	}
+
+	public JButton createDialogClosingButton(final String caption, final Runnable beforeClosingAction) {
+<span class="fc" id="L144">		final JButton result = new AbstractControlButton() {</span>
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Image retrieveBackgroundImage() {
+<span class="fc" id="L150">				return DialogBuilder.this.getClosingButtonBackgroundImage();</span>
+			}
+
+			@Override
+			public Font retrieveCustomFont() {
+<span class="fc" id="L155">				return DialogBuilder.this.getClosingButtonCustomFont();</span>
+			}
+
+			@Override
+			public Color retrieveBackgroundColor() {
+<span class="fc" id="L160">				return DialogBuilder.this.getClosingButtonBackgroundColor();</span>
+			}
+
+			@Override
+			public Color retrieveForegroundColor() {
+<span class="fc" id="L165">				return DialogBuilder.this.getClosingButtonForegroundColor();</span>
+			}
+
+			@Override
+			public Color retrieveBorderColor() {
+<span class="fc" id="L170">				return DialogBuilder.this.getClosingButtonBorderColor();</span>
+			}
+
+			@Override
+			public String retrieveText() {
+<span class="fc" id="L175">				return swingRenderer.prepareMessageToDisplay(caption);</span>
+			}
+
+		};
+<span class="fc" id="L179">		result.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+<span class="fc bfc" id="L183" title="All 2 branches covered.">					if (beforeClosingAction != null) {</span>
+<span class="fc" id="L184">						beforeClosingAction.run();</span>
+					}
+<span class="pc" id="L186">				} catch (Throwable t) {</span>
+<span class="nc" id="L187">					swingRenderer.handleException(result, t);</span>
+				} finally {
+<span class="fc" id="L189">					dialog.dispose();</span>
+				}
+<span class="fc" id="L191">			}</span>
+		});
+<span class="fc" id="L193">		return result;</span>
+	}
+
+	public List&lt;JButton&gt; createStandardOKCancelDialogButtons(String customOKCaption, String customCancelCaption) {
+<span class="fc" id="L197">		List&lt;JButton&gt; result = new ArrayList&lt;JButton&gt;();</span>
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">		result.add(standardOKButton = createDialogClosingButton((customOKCaption == null) ? &quot;OK&quot; : customOKCaption, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L201">				dialog.setOkPressed();</span>
+<span class="fc" id="L202">			}</span>
+		}));
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">		result.add(standardCancelButton = createDialogClosingButton((customCancelCaption == null) ? &quot;Cancel&quot; : customCancelCaption, null));</span>
+<span class="fc" id="L205">		return result;</span>
+	}
+
+	public RenderedDialog createDialog() {
+<span class="fc" id="L209">		Window owner = SwingRendererUtils.getWindowAncestorOrSelf(ownerComponent);</span>
+<span class="fc" id="L210">		dialog = new RenderedDialog(owner, this);</span>
+<span class="fc" id="L211">		dialog.setResizable(true);</span>
+<span class="fc" id="L212">		return dialog;</span>
+	}
+
+	/**
+	 * Dialog created using {@link DialogBuilder}.
+	 * 
+	 * @author olitank
+	 *
+	 */
+	public static class RenderedDialog extends JDialog {
+
+		protected static final long serialVersionUID = 1L;
+
+		protected DialogBuilder dialogBuilder;
+		protected WindowManager windowManager;
+<span class="fc" id="L227">		protected boolean disposed = false;</span>
+<span class="fc" id="L228">		protected boolean okPressed = false;</span>
+
+		public RenderedDialog(Window owner, DialogBuilder dialogBuilder) {
+<span class="fc" id="L231">			super(owner);</span>
+<span class="fc" id="L232">			this.dialogBuilder = dialogBuilder;</span>
+<span class="fc" id="L233">			this.windowManager = dialogBuilder.getSwingRenderer().createWindowManager(this);</span>
+<span class="fc" id="L234">			installComponents();</span>
+<span class="fc" id="L235">		}</span>
+
+		@Override
+		public void dispose() {
+<span class="fc bfc" id="L239" title="All 2 branches covered.">			if (disposed) {</span>
+<span class="fc" id="L240">				return;</span>
+			}
+<span class="fc" id="L242">			disposed = true;</span>
+<span class="fc" id="L243">			uninstallComponents();</span>
+<span class="fc" id="L244">			this.windowManager = null;</span>
+<span class="fc" id="L245">			this.dialogBuilder = null;</span>
+<span class="fc" id="L246">			super.dispose();</span>
+<span class="fc" id="L247">		}</span>
+
+		public DialogBuilder getDialogBuilder() {
+<span class="fc" id="L250">			return dialogBuilder;</span>
+		}
+
+		public boolean isDisposed() {
+<span class="fc" id="L254">			return disposed;</span>
+		}
+
+		public boolean wasOkPressed() {
+<span class="fc" id="L258">			return okPressed;</span>
+		}
+
+		public void setOkPressed() {
+<span class="fc" id="L262">			this.okPressed = true;</span>
+<span class="fc" id="L263">		}</span>
+
+		protected void installComponents() {
+<span class="fc" id="L266">			windowManager.install(dialogBuilder.getContentComponent(), dialogBuilder.getButtonBarControls(),</span>
+<span class="fc" id="L267">					dialogBuilder.getTitle(), dialogBuilder.getIconImage());</span>
+<span class="fc" id="L268">		}</span>
+
+		protected void uninstallComponents() {
+<span class="fc" id="L271">			windowManager.uninstall();</span>
+<span class="fc" id="L272">		}</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

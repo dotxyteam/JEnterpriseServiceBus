@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>IOUtils.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">IOUtils.java</span></div><h1>IOUtils.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.util;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
+import java.io.OutputStream;
+import java.io.Serializable;
+
+import javax.xml.bind.DatatypeConverter;
+
+/**
+ * Utilities for dealing with files and streams.
+ * 
+ * @author olitank
+ *
+ */
+<span class="nc" id="L26">public class IOUtils {</span>
+
+	public static File createTempDirectory() throws Exception {
+<span class="nc" id="L29">		File baseDir = new File(System.getProperty(&quot;java.io.tmpdir&quot;));</span>
+<span class="nc" id="L30">		String baseName = System.currentTimeMillis() + &quot;-&quot;;</span>
+<span class="nc" id="L31">		int TEMP_DIR_ATTEMPTS = 10000;</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">		for (int counter = 0; counter &lt; TEMP_DIR_ATTEMPTS; counter++) {</span>
+<span class="nc" id="L33">			File tempDir = new File(baseDir, baseName + counter);</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">			if (tempDir.mkdir()) {</span>
+<span class="nc" id="L35">				return tempDir;</span>
+			}
+		}
+<span class="nc" id="L38">		throw new Exception(&quot;Failed to create directory within &quot; + TEMP_DIR_ATTEMPTS + &quot; attempts (tried &quot; + baseName</span>
+<span class="nc" id="L39">				+ &quot;0 to &quot; + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');</span>
+	}
+
+	public static String read(File file) throws Exception {
+<span class="nc" id="L43">		return new String(readBinary(file));</span>
+	}
+
+	public static String read(InputStream in) throws Exception {
+<span class="nc" id="L47">		return new String(readBinary(in));</span>
+	}
+
+	public static byte[] readBinary(InputStream in) throws Exception {
+		try {
+<span class="nc" id="L52">			ByteArrayOutputStream buffer = new ByteArrayOutputStream();</span>
+			int nRead;
+<span class="nc" id="L54">			byte[] data = new byte[16384];</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">			while ((nRead = in.read(data, 0, data.length)) != -1) {</span>
+<span class="nc" id="L56">				buffer.write(data, 0, nRead);</span>
+			}
+<span class="nc" id="L58">			buffer.flush();</span>
+<span class="nc" id="L59">			return buffer.toByteArray();</span>
+<span class="nc" id="L60">		} catch (IOException e) {</span>
+<span class="nc" id="L61">			throw new Exception(&quot;Error while reading input stream: &quot; + e.getMessage(), e);</span>
+		}
+	}
+
+	public static byte[] readBinary(File file) throws Exception {
+<span class="nc" id="L66">		FileInputStream in = null;</span>
+		try {
+<span class="nc" id="L68">			in = new FileInputStream(file);</span>
+<span class="nc" id="L69">			return readBinary(in);</span>
+<span class="nc" id="L70">		} catch (IOException e) {</span>
+<span class="nc" id="L71">			throw new Exception(&quot;Unable to read file : '&quot; + file.getAbsolutePath() + &quot;': &quot; + e.getMessage(), e);</span>
+		} finally {
+<span class="nc bnc" id="L73" title="All 2 branches missed.">			if (in != null) {</span>
+				try {
+<span class="nc" id="L75">					in.close();</span>
+<span class="nc" id="L76">				} catch (IOException e) {</span>
+				}
+			}
+		}
+	}
+
+	public static void write(File file, String text, boolean append) throws Exception {
+<span class="nc" id="L83">		writeBinary(file, text.getBytes(), append);</span>
+<span class="nc" id="L84">	}</span>
+
+	public static void writeBinary(File file, byte[] bytes, boolean append) throws Exception {
+<span class="nc" id="L87">		FileOutputStream out = null;</span>
+		try {
+<span class="nc" id="L89">			out = new FileOutputStream(file, append);</span>
+<span class="nc" id="L90">			out.write(bytes);</span>
+<span class="nc" id="L91">			out.flush();</span>
+<span class="nc" id="L92">			out.close();</span>
+<span class="nc" id="L93">		} catch (IOException e) {</span>
+<span class="nc" id="L94">			throw new Exception(&quot;Unable to write file : '&quot; + file.getAbsolutePath() + &quot;': &quot; + e.getMessage(), e);</span>
+		} finally {
+<span class="nc bnc" id="L96" title="All 2 branches missed.">			if (out != null) {</span>
+				try {
+<span class="nc" id="L98">					out.close();</span>
+<span class="nc" id="L99">				} catch (IOException e) {</span>
+				}
+			}
+		}
+
+<span class="nc" id="L104">	}</span>
+
+	public static void historizeFile(String filePath, int historySize) throws Exception {
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		for (int i = (historySize - 1); i &gt;= 0; i--) {</span>
+			File file;
+<span class="nc bnc" id="L109" title="All 2 branches missed.">			if (i == 0) {</span>
+<span class="nc" id="L110">				file = new File(filePath);</span>
+<span class="nc" id="L111">			} else {</span>
+<span class="nc" id="L112">				file = new File(getRotatedFilePath(filePath, i));</span>
+			}
+<span class="nc bnc" id="L114" title="All 2 branches missed.">			if (file.exists()) {</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">				if (i == (historySize - 1)) {</span>
+<span class="nc" id="L116">					delete(file);</span>
+<span class="nc" id="L117">				} else {</span>
+<span class="nc" id="L118">					File nextRotatedFile = new File(getRotatedFilePath(filePath, i + 1));</span>
+					try {
+<span class="nc" id="L120">						rename(file, nextRotatedFile.getName());</span>
+<span class="nc" id="L121">					} catch (Exception e) {</span>
+<span class="nc" id="L122">						copy(file, nextRotatedFile);</span>
+<span class="nc" id="L123">						delete(file);</span>
+					}
+				}
+			}
+		}
+<span class="nc" id="L128">	}</span>
+
+	public static String getRotatedFilePath(String filePath, int i) {
+<span class="nc" id="L131">		String fileNameExtension = getFileNameExtension(filePath);</span>
+<span class="nc bnc" id="L132" title="All 4 branches missed.">		if ((fileNameExtension != null) &amp;&amp; (fileNameExtension.length() &gt; 0)) {</span>
+<span class="nc" id="L133">			String fileNameWithoutExtension = removeFileNameExtension(filePath);</span>
+<span class="nc" id="L134">			return fileNameWithoutExtension + &quot;-&quot; + i + &quot;.&quot; + fileNameExtension;</span>
+		} else {
+<span class="nc" id="L136">			return filePath + &quot;-&quot; + i;</span>
+		}
+	}
+
+	public static String removeFileNameExtension(String fileName) {
+<span class="nc" id="L141">		String extension = getFileNameExtension(fileName);</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">		if (extension.length() &gt; 0) {</span>
+<span class="nc" id="L143">			return fileName.substring(0, fileName.length() - (&quot;.&quot; + extension).length());</span>
+		} else {
+<span class="nc" id="L145">			return fileName;</span>
+		}
+	}
+
+	public static String getFileNameExtension(String fileName) {
+<span class="nc" id="L150">		int lastDotIndex = fileName.lastIndexOf(&quot;.&quot;);</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">		if (lastDotIndex == -1) {</span>
+<span class="nc" id="L152">			return &quot;&quot;;</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">		} else if (lastDotIndex == 0) {</span>
+<span class="nc" id="L154">			return &quot;&quot;;</span>
+		} else {
+<span class="nc" id="L156">			return fileName.substring(lastDotIndex + 1);</span>
+		}
+	}
+
+	public static void copy(File src, File dst) throws Exception {
+<span class="nc" id="L161">		copy(src, dst, true);</span>
+<span class="nc" id="L162">	}</span>
+
+	public static void copy(File src, File dst, boolean recusrsively) throws Exception {
+<span class="nc" id="L165">		copy(src, dst, recusrsively, null, null);</span>
+<span class="nc" id="L166">	}</span>
+
+	public static void copy(File src, File dst, boolean recusrsively, FilenameFilter filenameFilter,
+			Listener&lt;Pair&lt;File, Exception&gt;&gt; errorHandler) throws Exception {
+		try {
+<span class="nc bnc" id="L171" title="All 2 branches missed.">			if (src.isDirectory()) {</span>
+				try {
+<span class="nc" id="L173">					createDirectory(dst);</span>
+<span class="nc" id="L174">				} catch (Exception e) {</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">					if (errorHandler != null) {</span>
+<span class="nc" id="L176">						errorHandler.handle(new Pair&lt;File, Exception&gt;(src, e));</span>
+<span class="nc" id="L177">					} else {</span>
+<span class="nc" id="L178">						throw e;</span>
+					}
+				}
+<span class="nc bnc" id="L181" title="All 2 branches missed.">				if (recusrsively) {</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">					for (File srcChild : src.listFiles(filenameFilter)) {</span>
+<span class="nc" id="L183">						copy(srcChild, new File(dst, srcChild.getName()), recusrsively, filenameFilter, errorHandler);</span>
+					}
+				}
+<span class="nc bnc" id="L186" title="All 2 branches missed.">			} else if (src.isFile()) {</span>
+				try {
+<span class="nc" id="L188">					writeBinary(dst, readBinary(src), false);</span>
+<span class="nc" id="L189">				} catch (Exception e) {</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">					if (errorHandler != null) {</span>
+<span class="nc" id="L191">						errorHandler.handle(new Pair&lt;File, Exception&gt;(src, e));</span>
+<span class="nc" id="L192">					} else {</span>
+<span class="nc" id="L193">						throw e;</span>
+					}
+				}
+			} else {
+<span class="nc" id="L197">				throw new Exception(&quot;File not found: '&quot; + src + &quot;'&quot;, null);</span>
+			}
+<span class="nc" id="L199">		} catch (Exception e) {</span>
+<span class="nc" id="L200">			throw new Exception(&quot;Unable to copy resource: '&quot; + src.getAbsolutePath() + &quot;' &gt; '&quot; + dst.getAbsolutePath()</span>
+<span class="nc" id="L201">					+ &quot;': &quot; + e.getMessage(), e);</span>
+		}
+<span class="nc" id="L203">	}</span>
+
+	public static void createDirectory(File dir) throws Exception {
+<span class="nc bnc" id="L206" title="All 2 branches missed.">		if (dir.isDirectory()) {</span>
+<span class="nc" id="L207">			return;</span>
+		}
+		final boolean success;
+		try {
+<span class="nc" id="L211">			success = dir.mkdir();</span>
+<span class="nc" id="L212">		} catch (Exception e) {</span>
+<span class="nc" id="L213">			throw new Exception(&quot;Failed to create directory: '&quot; + dir.getAbsolutePath() + &quot;': &quot; + e.getMessage(), e);</span>
+		}
+<span class="nc bnc" id="L215" title="All 2 branches missed.">		if (!success) {</span>
+<span class="nc" id="L216">			throw new Exception(&quot;Unable to create directory: '&quot; + dir.getAbsolutePath() + &quot;'&quot;, null);</span>
+		}
+<span class="nc" id="L218">	}</span>
+
+	public static String getRelativePath(File child, File ancestor) {
+<span class="nc" id="L221">		File relativeFile = relativizeFile(ancestor, child);</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">		if (relativeFile == null) {</span>
+<span class="nc" id="L223">			return null;</span>
+		}
+<span class="nc" id="L225">		return relativeFile.getPath();</span>
+	}
+
+	public static boolean canonicallyEquals(File file1, File file2) {
+		try {
+<span class="fc" id="L230">			return file1.getCanonicalFile().equals(file2.getCanonicalFile());</span>
+<span class="nc" id="L231">		} catch (IOException e) {</span>
+<span class="nc" id="L232">			throw new RuntimeException(e.toString(), e);</span>
+		}
+	}
+
+	public static void delete(File file) throws Exception {
+<span class="fc" id="L237">		delete(file, null, null);</span>
+<span class="fc" id="L238">	}</span>
+
+	public static void delete(File file, FilenameFilter filter, Listener&lt;Pair&lt;File, Exception&gt;&gt; errorHandler)
+			throws Exception {
+<span class="fc bfc" id="L242" title="All 2 branches covered.">		if (file.isDirectory()) {</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">			for (File childFile : file.listFiles(filter)) {</span>
+<span class="fc" id="L244">				delete(childFile, filter, errorHandler);</span>
+			}
+<span class="pc bpc" id="L246" title="1 of 2 branches missed.">			if (file.listFiles().length &gt; 0) {</span>
+<span class="nc" id="L247">				return;</span>
+			}
+		}
+		boolean success;
+		try {
+<span class="fc" id="L252">			success = file.delete();</span>
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">			if (!success) {</span>
+<span class="nc" id="L254">				throw new Exception(&quot;System error&quot;);</span>
+			}
+<span class="nc" id="L256">		} catch (Exception e) {</span>
+<span class="nc" id="L257">			e = new Exception(&quot;Failed to delete resource: '&quot; + file.getAbsolutePath() + &quot;': &quot; + e.getMessage(), e);</span>
+<span class="nc bnc" id="L258" title="All 2 branches missed.">			if (errorHandler != null) {</span>
+<span class="nc" id="L259">				errorHandler.handle(new Pair&lt;File, Exception&gt;(file, e));</span>
+<span class="nc" id="L260">			} else {</span>
+<span class="nc" id="L261">				throw e;</span>
+			}
+		}
+<span class="fc" id="L264">	}</span>
+
+	public static void rename(File file, String destFileName) throws Exception {
+		try {
+<span class="nc bnc" id="L268" title="All 2 branches missed.">			if (new File(destFileName).getParent() != null) {</span>
+<span class="nc" id="L269">				throw new Exception(&quot;Destination file name is not is not a local name: '&quot; + destFileName + &quot;'&quot;);</span>
+			}
+<span class="nc" id="L271">			File destFile = new File(file.getParent(), destFileName);</span>
+<span class="nc" id="L272">			boolean success = file.renameTo(destFile);</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">			if (!success) {</span>
+<span class="nc" id="L274">				throw new Exception(&quot;System error&quot;);</span>
+			}
+<span class="nc" id="L276">		} catch (Exception e) {</span>
+<span class="nc" id="L277">			throw new Exception(&quot;Failed to rename resource: '&quot; + file.getAbsolutePath() + &quot;' to '&quot; + destFileName</span>
+<span class="nc" id="L278">					+ &quot;': &quot; + e.getMessage(), e);</span>
+		}
+<span class="nc" id="L280">	}</span>
+
+	public static boolean isAncestor(File ancestor, File file) {
+<span class="fc" id="L283">		File mayBeAncestor = file.getAbsoluteFile().getParentFile();</span>
+<span class="fc" id="L284">		while (true) {</span>
+<span class="fc bfc" id="L285" title="All 2 branches covered.">			if (mayBeAncestor == null) {</span>
+<span class="fc" id="L286">				return false;</span>
+			}
+<span class="fc bfc" id="L288" title="All 2 branches covered.">			if (canonicallyEquals(mayBeAncestor, ancestor)) {</span>
+<span class="fc" id="L289">				return true;</span>
+			}
+<span class="fc" id="L291">			mayBeAncestor = mayBeAncestor.getParentFile();</span>
+		}
+	}
+
+	public static void createFile(File file) throws Exception {
+		try {
+<span class="nc bnc" id="L297" title="All 2 branches missed.">			if (!file.isFile()) {</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">				if (!file.createNewFile()) {</span>
+<span class="nc" id="L299">					throw new Exception(&quot;System error&quot;);</span>
+				}
+			}
+<span class="nc" id="L302">		} catch (IOException e) {</span>
+<span class="nc" id="L303">			throw new Exception(&quot;Failed to create the file '&quot; + file + &quot;': &quot; + e.toString(), e);</span>
+		}
+
+<span class="nc" id="L306">	}</span>
+
+	public static File createTemporaryFile() throws Exception {
+		try {
+<span class="nc" id="L310">			File tmpFile = File.createTempFile(&quot;tmp&quot;, null);</span>
+<span class="nc" id="L311">			tmpFile.deleteOnExit();</span>
+<span class="nc" id="L312">			return tmpFile;</span>
+<span class="nc" id="L313">		} catch (IOException e) {</span>
+<span class="nc" id="L314">			throw new Exception(&quot;Failed to create temporary file: &quot; + e.getMessage(), e);</span>
+		}
+	}
+
+	public static File relativizeFile(File ancestor, File file) {
+		try {
+<span class="fc" id="L320">			ancestor = ancestor.getCanonicalFile();</span>
+<span class="fc" id="L321">			file = file.getCanonicalFile();</span>
+<span class="pc" id="L322">		} catch (IOException e) {</span>
+<span class="nc" id="L323">			throw new RuntimeException(e);</span>
+		}
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">		if (!IOUtils.isAncestor(ancestor, file)) {</span>
+<span class="nc" id="L326">			return null;</span>
+		}
+<span class="fc" id="L328">		String relativePath = file.getPath().substring(ancestor.getPath().length(), file.getPath().length());</span>
+<span class="pc bpc" id="L329" title="1 of 4 branches missed.">		if (relativePath.startsWith(&quot;/&quot;) || relativePath.startsWith(&quot;\\&quot;)) {</span>
+<span class="fc" id="L330">			relativePath = relativePath.substring(1);</span>
+		}
+<span class="fc" id="L332">		return new File(relativePath);</span>
+	}
+
+	public static File getStreamAsFile(InputStream in) throws IOException {
+<span class="nc" id="L336">		File tempFile = File.createTempFile(String.valueOf(in.hashCode()), &quot;.tmp&quot;);</span>
+<span class="nc" id="L337">		tempFile.deleteOnExit();</span>
+<span class="nc" id="L338">		FileOutputStream out = new FileOutputStream(tempFile);</span>
+		try {
+<span class="nc" id="L340">			byte[] buffer = new byte[1024];</span>
+			int bytesRead;
+<span class="nc bnc" id="L342" title="All 2 branches missed.">			while ((bytesRead = in.read(buffer)) != -1) {</span>
+<span class="nc" id="L343">				out.write(buffer, 0, bytesRead);</span>
+			}
+<span class="nc" id="L345">		} finally {</span>
+<span class="nc" id="L346">			out.close();</span>
+		}
+<span class="nc" id="L348">		return tempFile;</span>
+	}
+
+	public static void transferStream(InputStream inputStream, OutputStream outputStream) throws IOException {
+<span class="nc" id="L352">		int read = 0;</span>
+<span class="nc" id="L353">		byte[] bytes = new byte[1024];</span>
+<span class="nc bnc" id="L354" title="All 2 branches missed.">		while ((read = inputStream.read(bytes)) != -1) {</span>
+<span class="nc" id="L355">			outputStream.write(bytes, 0, read);</span>
+		}
+<span class="nc" id="L357">	}</span>
+
+	public static Object copyThroughSerialization(Serializable object) {
+		try {
+<span class="fc" id="L361">			ByteArrayOutputStream baos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L362">			serialize(object, baos);</span>
+<span class="fc" id="L363">			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());</span>
+<span class="fc" id="L364">			Object copy = deserialize(bais);</span>
+<span class="fc" id="L365">			return copy;</span>
+<span class="nc" id="L366">		} catch (Throwable t) {</span>
+<span class="nc" id="L367">			throw new ReflectionUIError(&quot;Could not copy object through serialization: &quot; + t.toString());</span>
+		}
+	}
+
+	public static void serialize(Object object, OutputStream out) {
+		try {
+<span class="fc" id="L373">			ObjectOutputStream oos = new ObjectOutputStream(out);</span>
+<span class="fc" id="L374">			oos.writeObject(object);</span>
+<span class="fc" id="L375">			oos.flush();</span>
+<span class="pc" id="L376">		} catch (Throwable t) {</span>
+<span class="nc" id="L377">			throw new ReflectionUIError(&quot;Failed to serialize object: &quot; + t.toString());</span>
+		}
+<span class="fc" id="L379">	}</span>
+
+	public static Object deserialize(InputStream in) {
+		try {
+<span class="fc" id="L383">			ObjectInputStream ois = new ObjectInputStream(in);</span>
+<span class="fc" id="L384">			return ois.readObject();</span>
+<span class="nc" id="L385">		} catch (Throwable t) {</span>
+<span class="nc" id="L386">			throw new ReflectionUIError(&quot;Failed to deserialize object: &quot; + t.toString());</span>
+		}
+	}
+
+	public static byte[] serializeToBinary(Object object) {
+<span class="fc" id="L391">		ByteArrayOutputStream baos = new ByteArrayOutputStream();</span>
+<span class="fc" id="L392">		serialize(object, baos);</span>
+<span class="fc" id="L393">		return baos.toByteArray();</span>
+	}
+
+	public static Object deserializeFromBinary(byte[] binary) {
+<span class="fc" id="L397">		ByteArrayInputStream bais = new ByteArrayInputStream(binary);</span>
+<span class="fc" id="L398">		return deserialize(bais);</span>
+	}
+
+	public static String serializeToHexaText(Object object) {
+<span class="fc" id="L402">		return DatatypeConverter.printBase64Binary(serializeToBinary(object));</span>
+	}
+
+	public static Object deserializeFromHexaText(String text) {
+<span class="fc" id="L406">		return deserializeFromBinary(DatatypeConverter.parseBase64Binary(text));</span>
+	}
+
+	public static ObjectInputStream getClassSwappingObjectInputStream(InputStream in, String fromClass,
+			final String toClass) throws IOException, ClassNotFoundException {
+<span class="nc" id="L411">		final String from = &quot;^&quot; + fromClass, fromArray = &quot;^\\[L&quot; + fromClass, toArray = &quot;[L&quot; + toClass;</span>
+<span class="nc" id="L412">		return new ObjectInputStream(in) {</span>
+			protected Class&lt;?&gt; resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+<span class="nc" id="L414">				String name = desc.getName().replaceFirst(from, toClass);</span>
+<span class="nc" id="L415">				name = name.replaceFirst(fromArray, toArray);</span>
+<span class="nc" id="L416">				return Class.forName(name);</span>
+			}
+
+			protected ObjectStreamClass readClassDescriptor() throws IOException, ClassNotFoundException {
+<span class="nc" id="L420">				ObjectStreamClass cd = super.readClassDescriptor();</span>
+<span class="nc" id="L421">				String name = cd.getName().replaceFirst(from, toClass);</span>
+<span class="nc" id="L422">				name = name.replaceFirst(fromArray, toArray);</span>
+<span class="nc bnc" id="L423" title="All 2 branches missed.">				if (!name.equals(cd.getName())) {</span>
+<span class="nc" id="L424">					cd = ObjectStreamClass.lookup(Class.forName(name));</span>
+				}
+<span class="nc" id="L426">				return cd;</span>
+			}
+		};
+	}
+
+	public static boolean hasFileNameExtension(String fileName, String[] extensions) {
+<span class="nc bnc" id="L432" title="All 2 branches missed.">		for (String ext : extensions) {</span>
+<span class="nc bnc" id="L433" title="All 2 branches missed.">			if (ext.toLowerCase().equals(getFileNameExtension(fileName).toLowerCase())) {</span>
+<span class="nc" id="L434">				return true;</span>
+			}
+		}
+<span class="nc" id="L437">		return false;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

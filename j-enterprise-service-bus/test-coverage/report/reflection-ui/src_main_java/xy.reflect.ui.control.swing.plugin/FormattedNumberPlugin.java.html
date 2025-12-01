@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FormattedNumberPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">FormattedNumberPlugin.java</span></div><h1>FormattedNumberPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.text.DecimalFormat;
+import java.text.ParseException;
+
+import javax.swing.text.NumberFormatter;
+
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
+import xy.reflect.ui.control.swing.PrimitiveValueControl;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Field control plugin that allows to display formatted numbers.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L23">public class FormattedNumberPlugin extends AbstractSimpleCustomizableFieldControlPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L27">		return &quot;Formatted Number&quot;;</span>
+	}
+
+	@Override
+	protected boolean handles(Class&lt;?&gt; javaType) {
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">		if (javaType.isPrimitive()) {</span>
+<span class="fc" id="L33">			javaType = ClassUtils.primitiveToWrapperClass(javaType);</span>
+		}
+<span class="fc" id="L35">		return Number.class.isAssignableFrom(javaType);</span>
+	}
+
+	@Override
+	public boolean canDisplayDistinctNullValue() {
+<span class="nc" id="L40">		return false;</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="nc" id="L45">		return new FormattedNumberConfiguration();</span>
+	}
+
+	@Override
+	public FormattedNumberControl createControl(Object renderer, IFieldControlInput input) {
+<span class="nc" id="L50">		return new FormattedNumberControl((SwingRenderer) renderer, input);</span>
+	}
+
+<span class="nc" id="L53">	public static class FormattedNumberConfiguration extends AbstractConfiguration {</span>
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L56">		public String pattern = new DecimalFormat().toPattern();</span>
+
+	}
+
+	public class FormattedNumberControl extends PrimitiveValueControl {
+
+		private static final long serialVersionUID = 1L;
+
+		protected IFieldControlInput numberInput;
+
+		private FormattedNumberConfiguration controlConfiguration;
+
+<span class="nc" id="L68">		public FormattedNumberControl(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="nc" id="L69">			super(swingRenderer, input);</span>
+<span class="nc" id="L70">		}</span>
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">			if (refreshStructure) {</span>
+<span class="nc" id="L75">				updateControlConfiguration();</span>
+			}
+<span class="nc" id="L77">			return super.refreshUI(refreshStructure);</span>
+		}
+
+		protected void updateControlConfiguration() {
+<span class="nc" id="L81">			controlConfiguration = (FormattedNumberConfiguration) loadControlCustomization(input);</span>
+<span class="nc" id="L82">		}</span>
+
+		@Override
+		protected IFieldControlInput adaptTextInput(IFieldControlInput input) {
+<span class="nc" id="L86">			numberInput = input;</span>
+<span class="nc" id="L87">			return super.adaptTextInput(input);</span>
+		}
+
+		@Override
+		protected String toText(Object object) {
+<span class="nc" id="L92">			Class&lt;?&gt; javaType = object.getClass();</span>
+			try {
+<span class="nc" id="L94">				return getNumberFormatter(javaType).valueToString(object);</span>
+<span class="nc" id="L95">			} catch (ParseException e) {</span>
+<span class="nc" id="L96">				throw new RuntimeException(e);</span>
+			}
+		}
+
+		protected NumberFormatter getNumberFormatter(Class&lt;?&gt; javaType) {
+<span class="nc" id="L101">			return ReflectionUIUtils.getNumberFormatter(javaType, new DecimalFormat(controlConfiguration.pattern));</span>
+		}
+
+		@Override
+		protected Object fromText(String text, Class&lt;?&gt; dataClass) {
+			try {
+<span class="nc" id="L107">				return getNumberFormatter(dataClass).stringToValue(text);</span>
+<span class="nc" id="L108">			} catch (ParseException e) {</span>
+<span class="nc" id="L109">				throw new ReflectionUIError(dataClass.getSimpleName() + &quot; Inupt Error: &quot; + e.toString(), e);</span>
+			}
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

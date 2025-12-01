@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BufferedItemPosition.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.item</a> &gt; <span class="el_source">BufferedItemPosition.java</span></div><h1>BufferedItemPosition.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.iterable.item;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.WeakHashMap;
+
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.util.MiscUtils;
+
+/**
+ * This class is a sub-class of {@link ItemPosition} that uses buffers to
+ * optimize the access to the list/tree item. The main buffer is actually a copy
+ * of the containing list stored either in the parent
+ * {@link BufferedItemPosition} or in the associated factory
+ * ({@link AbstractBufferedItemPositionFactory}) (when the current item position
+ * is root). Additionally a fake item value that overrides the actual item value
+ * can be set.
+ * 
+ * Note that there cannot be 2 similar instances (created from the same factory,
+ * at the same depth and the same index).
+ * 
+ * Note also that calling {@link #updateContainingList(Object[])} will replace
+ * the buffered items by those passed as parameter (they may differ from the
+ * actual new items that would be retrieved from the underlying object(s)).
+ * 
+ * @author olitank
+ *
+ */
+public class BufferedItemPosition extends ItemPosition {
+
+<span class="fc" id="L33">	public static final Object NULL_FAKE_ITEM = new Object() {</span>
+		@Override
+		public String toString() {
+<span class="nc" id="L36">			return &quot;NULL_BUFFERED_ITEM_REMEMBERED&quot;;</span>
+		}
+
+<span class="fc" id="L39">	};</span>
+	protected Object fakeItem;
+	protected Object bufferedSubListValue;
+	protected Object[] bufferedSubListRawValue;
+	protected IFieldInfo bufferedSubListField;
+<span class="fc" id="L44">	protected WeakHashMap&lt;BufferedItemPosition, Integer&gt; indexByBufferedSubItemPosition = new WeakHashMap&lt;BufferedItemPosition, Integer&gt;();</span>
+
+	protected BufferedItemPosition() {
+<span class="fc" id="L47">		super();</span>
+<span class="fc" id="L48">	}</span>
+
+	@Override
+	public Object getItem() {
+<span class="fc bfc" id="L52" title="All 2 branches covered.">		if (fakeItem != null) {</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">			if (fakeItem == NULL_FAKE_ITEM) {</span>
+<span class="fc" id="L54">				return null;</span>
+			} else {
+<span class="fc" id="L56">				return fakeItem;</span>
+			}
+		}
+<span class="fc" id="L59">		return super.getItem();</span>
+	}
+
+	/**
+	 * Sets the fake item value that overrides the actual item value. Note that null
+	 * is a valid value, not the absence of value. In order to remove the fake item
+	 * value {@link #unsetFakeItem()} must be used.
+	 * 
+	 * @param item The new fake item value. Can be null.
+	 */
+	public void setFakeItem(Object item) {
+<span class="fc bfc" id="L70" title="All 2 branches covered.">		if (item == null) {</span>
+<span class="fc" id="L71">			fakeItem = NULL_FAKE_ITEM;</span>
+<span class="fc" id="L72">		} else {</span>
+<span class="fc" id="L73">			fakeItem = item;</span>
+		}
+<span class="fc" id="L75">	}</span>
+
+	/**
+	 * Removes the fake item value that overrides the actual item value.
+	 */
+	public void unsetFakeItem() {
+<span class="nc" id="L81">		fakeItem = null;</span>
+<span class="nc" id="L82">	}</span>
+
+	/**
+	 * Updates the containing list buffer. Note that the containing list (including
+	 * the current item) may not contain up-to-date values after this operation if
+	 * the parent item itself has an old obsolete buffered value.
+	 */
+	public void refreshContainingList() {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">		if (isRoot()) {</span>
+<span class="nc" id="L91">			((AbstractBufferedItemPositionFactory) factory).refresh();</span>
+<span class="nc" id="L92">		} else {</span>
+<span class="nc" id="L93">			((BufferedItemPosition) parentItemPosition).bufferedSubListValue = null;</span>
+<span class="nc" id="L94">			((BufferedItemPosition) parentItemPosition).bufferedSubListRawValue = null;</span>
+<span class="nc" id="L95">			((BufferedItemPosition) parentItemPosition).bufferedSubListField = null;</span>
+		}
+<span class="nc" id="L97">	}</span>
+
+	/**
+	 * Updates the ancestor lists buffers recursively (from the root to the current
+	 * containing list). It ensures that the next call to {@link #getItem()} or
+	 * {@link #retrieveContainingListRawValue()} or
+	 * {@link #retrieveContainingListValue()} returns up-to-date values (not old
+	 * buffered values).
+	 */
+	public void refreshContainingListsRecursively() {
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		if (!isRoot()) {</span>
+<span class="nc" id="L108">			getParentItemPosition().refreshContainingListsRecursively();</span>
+		}
+<span class="nc" id="L110">		refreshContainingList();</span>
+<span class="nc" id="L111">	}</span>
+
+	/**
+	 * Updates the descendant lists buffers recursively. All existing descendant
+	 * item positions will be up-to-date after this operation.
+	 */
+	public void refreshDescendants() {
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		for (int index : indexByBufferedSubItemPosition.values()) {</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">			for (BufferedItemPosition bufferedSubItemPosition : MiscUtils</span>
+<span class="fc" id="L120">					.getKeysFromValue(indexByBufferedSubItemPosition, index)) {</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">				if (bufferedSubItemPosition != null) {</span>
+<span class="fc" id="L122">					bufferedSubItemPosition.refreshDescendants();</span>
+				}
+			}
+		}
+<span class="fc" id="L126">		bufferedSubListValue = null;</span>
+<span class="fc" id="L127">		bufferedSubListRawValue = null;</span>
+<span class="fc" id="L128">		bufferedSubListField = null;</span>
+<span class="fc" id="L129">	}</span>
+
+	@Override
+	public AbstractBufferedItemPositionFactory getFactory() {
+<span class="fc" id="L133">		return (AbstractBufferedItemPositionFactory) super.getFactory();</span>
+	}
+
+	@Override
+	public BufferedItemPosition getParentItemPosition() {
+<span class="fc" id="L138">		return (BufferedItemPosition) parentItemPosition;</span>
+	}
+
+	@Override
+	public BufferedItemPosition getRoot() {
+<span class="fc" id="L143">		return (BufferedItemPosition) super.getRoot();</span>
+	}
+
+	@Override
+	public BufferedItemPosition getSibling(int index2) {
+<span class="fc" id="L148">		BufferedItemPosition result = (BufferedItemPosition) super.getSibling(index2);</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L150">			return null;</span>
+		}
+<span class="fc" id="L152">		result.fakeItem = null;</span>
+<span class="fc" id="L153">		return result;</span>
+	}
+
+	@Override
+	public List&lt;BufferedItemPosition&gt; getPreviousSiblings() {
+<span class="nc" id="L158">		List&lt;BufferedItemPosition&gt; result = new ArrayList&lt;BufferedItemPosition&gt;();</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">		for (ItemPosition i : super.getPreviousSiblings()) {</span>
+<span class="nc" id="L160">			result.add((BufferedItemPosition) i);</span>
+		}
+<span class="nc" id="L162">		return result;</span>
+	}
+
+	@Override
+	public List&lt;BufferedItemPosition&gt; getFollowingSiblings() {
+<span class="nc" id="L167">		List&lt;BufferedItemPosition&gt; result = new ArrayList&lt;BufferedItemPosition&gt;();</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">		for (ItemPosition i : super.getFollowingSiblings()) {</span>
+<span class="nc" id="L169">			result.add((BufferedItemPosition) i);</span>
+		}
+<span class="nc" id="L171">		return result;</span>
+	}
+
+	@Override
+	public IFieldInfo getSubListField() {
+<span class="fc bfc" id="L176" title="All 2 branches covered.">		if (bufferedSubListField == null) {</span>
+<span class="fc" id="L177">			bufferedSubListField = super.getSubListField();</span>
+		}
+<span class="fc" id="L179">		return bufferedSubListField;</span>
+	}
+
+	@Override
+	public Object retrieveSubListValue() {
+<span class="fc bfc" id="L184" title="All 2 branches covered.">		if (bufferedSubListValue == null) {</span>
+<span class="fc" id="L185">			bufferedSubListValue = super.retrieveSubListValue();</span>
+		}
+<span class="fc" id="L187">		return bufferedSubListValue;</span>
+	}
+
+	@Override
+	public Object[] retrieveSubListRawValue() {
+<span class="fc bfc" id="L192" title="All 2 branches covered.">		if (bufferedSubListRawValue == null) {</span>
+<span class="fc" id="L193">			bufferedSubListRawValue = super.retrieveSubListRawValue();</span>
+		}
+<span class="fc" id="L195">		return bufferedSubListRawValue;</span>
+	}
+
+	@Override
+	public Object updateContainingList(Object[] newContainingListRawValue) {
+<span class="fc" id="L200">		Object newContainingListValue = super.updateContainingList(newContainingListRawValue);</span>
+<span class="fc" id="L201">		changeContainingListBuffer(newContainingListValue, newContainingListRawValue);</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">		for (int i = 0; i &lt; newContainingListRawValue.length; i++) {</span>
+<span class="fc" id="L203">			getSibling(i).refreshDescendants();</span>
+		}
+<span class="fc" id="L205">		return newContainingListValue;</span>
+	}
+
+	/**
+	 * Updates the buffer of the containing list (or the factory if the current item
+	 * position is root). Note that this method is not recursive.
+	 * 
+	 * @param newContainingListValue    The object that should replace the buffered
+	 *                                  containing list.
+	 * @param newContainingListRawValue The array that contains the items that
+	 *                                  should replace all the buffered containing
+	 *                                  list items.
+	 */
+	public void changeContainingListBuffer(Object newContainingListValue, Object[] newContainingListRawValue) {
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">		if (isRoot()) {</span>
+<span class="fc" id="L220">			getFactory().bufferedRootListValue = newContainingListValue;</span>
+<span class="fc" id="L221">			getFactory().bufferedRootListRawValue = Arrays.copyOf(newContainingListRawValue,</span>
+<span class="fc" id="L222">					newContainingListRawValue.length);</span>
+<span class="fc" id="L223">		} else {</span>
+<span class="nc" id="L224">			getParentItemPosition().bufferedSubListValue = newContainingListValue;</span>
+<span class="nc" id="L225">			getParentItemPosition().bufferedSubListRawValue = Arrays.copyOf(newContainingListRawValue,</span>
+<span class="nc" id="L226">					newContainingListRawValue.length);</span>
+		}
+<span class="fc" id="L228">	}</span>
+
+	@Override
+	public synchronized BufferedItemPosition getSubItemPosition(int index) {
+<span class="fc bfc" id="L232" title="All 2 branches covered.">		if (indexByBufferedSubItemPosition.containsValue(index)) {</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">			for (BufferedItemPosition itemPosition : MiscUtils.getKeysFromValue(indexByBufferedSubItemPosition,</span>
+<span class="fc" id="L234">					index)) {</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">				if (itemPosition != null) {</span>
+<span class="fc" id="L236">					itemPosition.containingListFieldIfNotRoot = getSubListField();</span>
+<span class="pc bpc" id="L237" title="1 of 2 branches missed.">					if (itemPosition.containingListFieldIfNotRoot == null) {</span>
+<span class="nc" id="L238">						return null;</span>
+					}
+<span class="fc" id="L240">					return itemPosition;</span>
+				}
+			}
+		}
+<span class="fc" id="L244">		BufferedItemPosition result = (BufferedItemPosition) super.getSubItemPosition(index);</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">		if (result != null) {</span>
+<span class="fc" id="L246">			result.bufferedSubListField = null;</span>
+<span class="fc" id="L247">			result.bufferedSubListValue = null;</span>
+<span class="fc" id="L248">			result.bufferedSubListRawValue = null;</span>
+<span class="fc" id="L249">			result.indexByBufferedSubItemPosition = new WeakHashMap&lt;BufferedItemPosition, Integer&gt;();</span>
+		}
+<span class="fc" id="L251">		indexByBufferedSubItemPosition.put(result, index);</span>
+<span class="fc" id="L252">		return result;</span>
+	}
+
+	@Override
+	public List&lt;BufferedItemPosition&gt; getSubItemPositions() {
+<span class="fc" id="L257">		List&lt;BufferedItemPosition&gt; result = new ArrayList&lt;BufferedItemPosition&gt;();</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">		for (ItemPosition i : super.getSubItemPositions()) {</span>
+<span class="fc" id="L259">			result.add((BufferedItemPosition) i);</span>
+		}
+<span class="fc" id="L261">		return result;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L266">		final int prime = 31;</span>
+<span class="fc" id="L267">		int result = super.hashCode();</span>
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">		result = prime * result + ((fakeItem == null) ? 0 : fakeItem.hashCode());</span>
+<span class="fc" id="L269">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L274" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L275">			return true;</span>
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="fc" id="L277">			return false;</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L279">			return false;</span>
+<span class="nc" id="L280">		BufferedItemPosition other = (BufferedItemPosition) obj;</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">		if (fakeItem == null) {</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">			if (other.fakeItem != null)</span>
+<span class="nc" id="L283">				return false;</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">		} else if (!fakeItem.equals(other.fakeItem))</span>
+<span class="nc" id="L285">			return false;</span>
+<span class="nc" id="L286">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L291">		return &quot;Buffered&quot; + super.toString();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>VariableDeclaration.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">VariableDeclaration.java</span></div><h1>VariableDeclaration.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+/**
+ * Allows to anticipate the existence of a value of a certain type associated
+ * with a specific identifier (name).
+ * 
+ * @author olitank
+ *
+ */
+public interface VariableDeclaration {
+
+	Class&lt;?&gt; getVariableType();
+
+	String getVariableName();
+
+	public static class BasicVariableDeclaration implements VariableDeclaration {
+
+		private String variableName;
+		private Class&lt;?&gt; variableType;
+
+<span class="fc" id="L21">		public BasicVariableDeclaration(String variableName, Class&lt;?&gt; variableType) {</span>
+<span class="fc" id="L22">			this.variableName = variableName;</span>
+<span class="fc" id="L23">			this.variableType = variableType;</span>
+<span class="fc" id="L24">		}</span>
+
+		@Override
+		public String getVariableName() {
+<span class="fc" id="L28">			return variableName;</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getVariableType() {
+<span class="fc" id="L33">			return variableType;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L38">			final int prime = 31;</span>
+<span class="nc" id="L39">			int result = 1;</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">			result = prime * result + ((variableName == null) ? 0 : variableName.hashCode());</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">			result = prime * result + ((variableType == null) ? 0 : variableType.hashCode());</span>
+<span class="nc" id="L42">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L48">				return true;</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L50">				return false;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L52">				return false;</span>
+<span class="nc" id="L53">			BasicVariableDeclaration other = (BasicVariableDeclaration) obj;</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">			if (variableName == null) {</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">				if (other.variableName != null)</span>
+<span class="nc" id="L56">					return false;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">			} else if (!variableName.equals(other.variableName))</span>
+<span class="nc" id="L58">				return false;</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">			if (variableType == null) {</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">				if (other.variableType != null)</span>
+<span class="nc" id="L61">					return false;</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">			} else if (!variableType.equals(other.variableType))</span>
+<span class="nc" id="L63">				return false;</span>
+<span class="nc" id="L64">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L69">			return &quot;BasicVariableDeclaration [variableName=&quot; + variableName + &quot;, variableType=&quot; + variableType + &quot;]&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

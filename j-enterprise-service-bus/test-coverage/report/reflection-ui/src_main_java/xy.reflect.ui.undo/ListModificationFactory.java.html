@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ListModificationFactory.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.undo</a> &gt; <span class="el_source">ListModificationFactory.java</span></div><h1>ListModificationFactory.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.undo;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+
+/**
+ * Factory that creates {@link IModification} instances for lists. An
+ * {@link ItemPosition} is used to find the containing list that will be updated
+ * by the created modifications.
+ * 
+ * @author olitank
+ *
+ */
+public class ListModificationFactory {
+
+	protected ItemPosition anyItemPosition;
+
+	/**
+	 * Builds instances that can create modifications for the list containing the
+	 * item referenced by the given {@link ItemPosition}.
+	 * 
+	 * @param anyListItemPosition An item position in the targeted containing list.
+	 *                            Note that the index of the item position may not
+	 *                            be valid.
+	 */
+<span class="fc" id="L31">	public ListModificationFactory(ItemPosition anyListItemPosition) {</span>
+<span class="fc" id="L32">		this.anyItemPosition = anyListItemPosition;</span>
+<span class="fc" id="L33">	}</span>
+
+	/**
+	 * @param newListRawValue
+	 * @return a modification that replaces the content of the containing list with
+	 *         the specified array items
+	 */
+	public IModification createListModification(Object[] newListRawValue) {
+<span class="fc" id="L41">		return new ListModification(anyItemPosition, newListRawValue, anyItemPosition.retrieveContainingListRawValue());</span>
+	}
+
+	/**
+	 * @param index The future zero-based position of the new item in the containing
+	 *              list.
+	 * @return whether an item can be inserted in the containing list at the
+	 *         specified zero-based position or not.
+	 */
+	public boolean canAdd(int index) {
+<span class="pc bpc" id="L51" title="2 of 4 branches missed.">		if ((index &lt; 0) || (index &gt; anyItemPosition.getContainingListSize())) {</span>
+<span class="nc" id="L52">			return false;</span>
+		}
+<span class="fc" id="L54">		return anyItemPosition.isContainingListEditable();</span>
+	}
+
+	/**
+	 * @param index The future zero-based position of the first item to be inserted
+	 *              in the containing list.
+	 * @param items The items that need to be inserted.
+	 * @return whether the given items can be inserted in the containing list at the
+	 *         specified zero-based position or not.
+	 */
+	public boolean canAddAll(int index, List&lt;Object&gt; items) {
+<span class="nc bnc" id="L65" title="All 2 branches missed.">		if (!canAdd(index)) {</span>
+<span class="nc" id="L66">			return false;</span>
+		}
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		for (Object item : items) {</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">			if (!anyItemPosition.supportsItem(item)) {</span>
+<span class="nc" id="L70">				return false;</span>
+			}
+		}
+<span class="nc" id="L73">		return true;</span>
+	}
+
+	/**
+	 * @param index   The future zero-based position of the new item in the
+	 *                containing list.
+	 * @param newItem The item that needs to be inserted.
+	 * @return a modification that updates the content of the containing list by
+	 *         inserting the specified item at the specified zero-based position.
+	 */
+	public IModification add(int index, Object newItem) {
+<span class="fc" id="L84">		List&lt;Object&gt; tmpList = new ArrayList&lt;Object&gt;(Arrays.asList(anyItemPosition.retrieveContainingListRawValue()));</span>
+<span class="fc" id="L85">		tmpList.add(index, newItem);</span>
+<span class="fc" id="L86">		Object[] newListRawValue = tmpList.toArray();</span>
+<span class="fc" id="L87">		return createListModification(newListRawValue);</span>
+	}
+
+	/**
+	 * @param index The zero-based position of the item that needs to be removed
+	 *              from the containing list.
+	 * @return whether an item can be removed from the containing list at the
+	 *         specified zero-based position or not.
+	 */
+	public boolean canRemove(int index) {
+<span class="pc bpc" id="L97" title="2 of 4 branches missed.">		if ((index &lt; 0) || (index &gt;= anyItemPosition.getContainingListSize())) {</span>
+<span class="nc" id="L98">			return false;</span>
+		}
+<span class="fc" id="L100">		return anyItemPosition.isContainingListEditable();</span>
+	}
+
+	/**
+	 * @param index The zero-based position of the item that needs to be removed
+	 *              from the containing list.
+	 * @return a modification that updates the content of the containing list by
+	 *         removing the item at the specified zero-based position.
+	 */
+	public IModification remove(int index) {
+<span class="nc" id="L110">		List&lt;Object&gt; tmpList = new ArrayList&lt;Object&gt;(Arrays.asList(anyItemPosition.retrieveContainingListRawValue()));</span>
+<span class="nc" id="L111">		tmpList.remove(index);</span>
+<span class="nc" id="L112">		Object[] newListRawValue = tmpList.toArray();</span>
+<span class="nc" id="L113">		return createListModification(newListRawValue);</span>
+	}
+
+	/**
+	 * @param index The zero-based position in containing list of the item that
+	 *              needs to be replaced.
+	 * @return whether the item at the specified zero-based position in the
+	 *         containing list can be replaced or not.
+	 */
+	public boolean canSet(int index) {
+<span class="fc bfc" id="L123" title="All 4 branches covered.">		if ((index &lt; 0) || (index &gt;= anyItemPosition.getContainingListSize())) {</span>
+<span class="fc" id="L124">			return false;</span>
+		}
+<span class="fc" id="L126">		return anyItemPosition.isContainingListEditable();</span>
+	}
+
+	/**
+	 * @param index The zero-based position in containing list of the item that
+	 *              needs to be replaced.
+	 * @param item  The new item that must be set.
+	 * @return whether the item at the specified zero-based position in the
+	 *         containing list can be replaced with the specified item (its type is
+	 *         checked) or not.
+	 */
+	public boolean canSet(int index, Object item) {
+<span class="nc bnc" id="L138" title="All 2 branches missed.">		if (!canSet(index)) {</span>
+<span class="nc" id="L139">			return false;</span>
+		}
+<span class="nc bnc" id="L141" title="All 2 branches missed.">		if (!anyItemPosition.supportsItem(item)) {</span>
+<span class="nc" id="L142">			return false;</span>
+		}
+<span class="nc" id="L144">		return true;</span>
+	}
+
+	/**
+	 * @param index   The zero-based position in containing list of the item that
+	 *                needs to be replaced.
+	 * @param newItem The new item that must be set.
+	 * @return a modification that updates the content of the containing list by
+	 *         replacing the item at the specified zero-based position with the
+	 *         given item.
+	 */
+	public IModification set(int index, Object newItem) {
+<span class="fc" id="L156">		List&lt;Object&gt; tmpList = new ArrayList&lt;Object&gt;(Arrays.asList(anyItemPosition.retrieveContainingListRawValue()));</span>
+<span class="fc" id="L157">		tmpList.set(index, newItem);</span>
+<span class="fc" id="L158">		Object[] newListRawValue = tmpList.toArray();</span>
+<span class="fc" id="L159">		return createListModification(newListRawValue);</span>
+	}
+
+	/**
+	 * @param index  The zero-based position in containing list of the item that
+	 *               needs to be moved.
+	 * @param offset The number of positions of the offset (may be negative).
+	 * @return whether the item at the specified zero-based position in the
+	 *         containing list can be shifted by the specified number of positions
+	 *         or not.
+	 */
+	public boolean canMove(int index, int offset) {
+<span class="fc" id="L171">		IListTypeInfo listType = anyItemPosition.getContainingListType();</span>
+<span class="pc bpc" id="L172" title="1 of 4 branches missed.">		if (listType.areItemsAutomaticallyPositioned() || !listType.isMoveAllowed()) {</span>
+<span class="fc" id="L173">			return false;</span>
+		}
+<span class="pc bpc" id="L175" title="2 of 4 branches missed.">		if ((index &lt; 0) || (index &gt;= anyItemPosition.getContainingListSize())) {</span>
+<span class="nc" id="L176">			return false;</span>
+		}
+<span class="fc" id="L178">		int index2 = index + offset;</span>
+<span class="fc bfc" id="L179" title="All 4 branches covered.">		if ((index2 &lt; 0) || (index2 &gt;= anyItemPosition.getContainingListSize())) {</span>
+<span class="fc" id="L180">			return false;</span>
+		}
+<span class="fc" id="L182">		return anyItemPosition.isContainingListEditable();</span>
+	}
+
+	/**
+	 * @param index  The zero-based position in containing list of the item that
+	 *               needs to be moved.
+	 * @param offset The number of positions of the offset (may be negative).
+	 * @return a modification that updates the content of the containing list by
+	 *         shifting the item at the specified zero-based position by the
+	 *         specified number of positions.
+	 */
+	public IModification move(int index, int offset) {
+<span class="nc" id="L194">		List&lt;Object&gt; tmpList = new ArrayList&lt;Object&gt;(Arrays.asList(anyItemPosition.retrieveContainingListRawValue()));</span>
+<span class="nc" id="L195">		tmpList.add(index + offset, tmpList.remove(index));</span>
+<span class="nc" id="L196">		Object[] newListRawValue = tmpList.toArray();</span>
+<span class="nc" id="L197">		return createListModification(newListRawValue);</span>
+	}
+
+	/**
+	 * @return whether all the containing list items can be removed or not.
+	 */
+	public boolean canClear() {
+<span class="fc" id="L204">		return anyItemPosition.isContainingListEditable();</span>
+	}
+
+	/**
+	 * @return a modification that updates the content of the containing list by
+	 *         removing all the items.
+	 */
+	public IModification clear() {
+<span class="fc" id="L212">		return createListModification(new Object[0]);</span>
+	}
+
+	/**
+	 * Class of modifications that update lists.
+	 * 
+	 * @author olitank
+	 *
+	 */
+	protected static class ListModification extends AbstractModification {
+
+		protected ItemPosition itemPosition;
+		protected Object[] newListRawValue;
+		protected Object[] oldListRawValue;
+
+<span class="fc" id="L227">		public ListModification(ItemPosition itemPosition, Object[] newListRawValue, Object[] oldListRawValue) {</span>
+<span class="fc" id="L228">			this.itemPosition = itemPosition;</span>
+<span class="fc" id="L229">			this.newListRawValue = newListRawValue;</span>
+<span class="fc" id="L230">			this.oldListRawValue = oldListRawValue;</span>
+<span class="fc" id="L231">		}</span>
+
+		@Override
+		public String getTitle() {
+<span class="fc" id="L235">			return FieldControlDataModification.getTitle(itemPosition.getContainingListTitle());</span>
+		}
+
+		@Override
+		protected Runnable createDoJob() {
+<span class="fc" id="L240">			return new Runnable() {				</span>
+				@Override
+				public void run() {
+<span class="fc" id="L243">					itemPosition.updateContainingList(newListRawValue);			</span>
+<span class="fc" id="L244">				}</span>
+			};
+		}
+
+		@Override
+		protected Runnable createUndoJob() {
+<span class="fc" id="L250">			Runnable result = itemPosition.getFactory().getLastFormRefreshStateRestorationJob();</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">			if(result != null) {</span>
+<span class="nc" id="L252">				return result;</span>
+			}
+<span class="fc" id="L254">			return new Runnable() {				</span>
+				@Override
+				public void run() {
+<span class="nc" id="L257">					itemPosition.updateContainingList(oldListRawValue);			</span>
+<span class="nc" id="L258">				}</span>
+			};
+		}
+
+		@Override
+		protected Runnable createRedoJob() {
+<span class="nc" id="L264">			Runnable result = itemPosition.getFactory().getLastFormRefreshStateRestorationJob();</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">			if(result != null) {</span>
+<span class="nc" id="L266">				return result;</span>
+			}
+<span class="nc" id="L268">			return createDoJob();</span>
+		}
+
+		@Override
+		public boolean isNull() {
+<span class="fc" id="L273">			return false;</span>
+		}
+
+		@Override
+		public boolean isVolatile() {
+<span class="fc" id="L278">			return false;</span>
+		}
+
+		@Override
+		public boolean isComposite() {
+<span class="nc" id="L283">			return false;</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

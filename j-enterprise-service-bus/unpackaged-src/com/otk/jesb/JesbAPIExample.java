@@ -128,7 +128,6 @@ public class JesbAPIExample {
 	private static void runSolution(Solution solution) throws Exception {
 		System.out.println("Starting solution...");
 		try (Runner runner = new Runner(solution)) {
-			runner.open();
 			Thread.sleep(10000);
 		}
 		System.out.println("Stopping solution...");

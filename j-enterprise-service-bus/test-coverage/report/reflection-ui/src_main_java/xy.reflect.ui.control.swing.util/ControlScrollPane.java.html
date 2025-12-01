@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ControlScrollPane.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.util</a> &gt; <span class="el_source">ControlScrollPane.java</span></div><h1>ControlScrollPane.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.util;
+
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
+
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+
+/**
+ * Base class of most scroll panes used by the {@link SwingRenderer}.
+ * 
+ * @author olitank
+ *
+ */
+public class ControlScrollPane extends JScrollPane {
+
+	private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L26">	protected int additionalWidth = 0;</span>
+<span class="fc" id="L27">	protected int additionalHeight = 0;</span>
+
+	protected JScrollBar hSBar;
+	protected JScrollBar vSBar;
+
+	public ControlScrollPane() {
+<span class="fc" id="L33">		this(null);</span>
+<span class="fc" id="L34">	}</span>
+
+	public ControlScrollPane(Component view) {
+<span class="fc" id="L37">		super(view);</span>
+<span class="fc" id="L38">		setOpaque(false);</span>
+<span class="fc" id="L39">		getViewport().setOpaque(false);</span>
+<span class="fc" id="L40">		hSBar = getHorizontalScrollBar();</span>
+<span class="fc" id="L41">		vSBar = getVerticalScrollBar();</span>
+<span class="fc" id="L42">		preventScrollBarsFromHidingContent();</span>
+<span class="fc" id="L43">	}</span>
+
+	@Override
+	public Dimension getPreferredSize() {
+<span class="fc" id="L47">		Dimension result = super.getPreferredSize();</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L49">			return null;</span>
+		}
+<span class="fc" id="L51">		result = getExtendedSize(result);</span>
+<span class="fc" id="L52">		return result;</span>
+	}
+
+	@Override
+	public Dimension getMinimumSize() {
+<span class="fc" id="L57">		Dimension result = super.getMinimumSize();</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L59">			return null;</span>
+		}
+<span class="fc" id="L61">		result = getExtendedSize(result);</span>
+<span class="fc" id="L62">		return result;</span>
+	}
+
+	@Override
+	public Dimension getMaximumSize() {
+<span class="nc" id="L67">		Dimension result = super.getMaximumSize();</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L69">			return null;</span>
+		}
+<span class="nc" id="L71">		result = getExtendedSize(result);</span>
+<span class="nc" id="L72">		return result;</span>
+	}
+
+	protected Dimension getExtendedSize(Dimension baseSize) {
+<span class="fc" id="L76">		return new Dimension(baseSize.width + additionalWidth, baseSize.height + additionalHeight);</span>
+	}
+
+	protected int getDefaultScrollBarThickness() {
+<span class="fc" id="L80">		Integer result = ((Integer) UIManager.get(&quot;ScrollBar.width&quot;));</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L82">			result = 10;</span>
+		}
+<span class="fc" id="L84">		return result;</span>
+	}
+
+	protected void preventScrollBarsFromHidingContent() {
+<span class="fc" id="L88">		vSBar.addHierarchyListener(new HierarchyListener() {</span>
+			@Override
+			public void hierarchyChanged(HierarchyEvent e) {
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">				if (e.getID() == HierarchyEvent.HIERARCHY_CHANGED</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">						&amp;&amp; (e.getChangeFlags() &amp; HierarchyEvent.SHOWING_CHANGED) != 0) {</span>
+<span class="fc" id="L93">					SwingUtilities.invokeLater(new Runnable() {</span>
+						@Override
+						public void run() {
+<span class="fc" id="L96">							updateAdditionalHeight();</span>
+<span class="fc" id="L97">							SwingRendererUtils.handleComponentSizeChange(ControlScrollPane.this);</span>
+<span class="fc" id="L98">						}</span>
+
+					});
+				}
+<span class="fc" id="L102">			}</span>
+		});
+<span class="fc" id="L104">		hSBar.addHierarchyListener(new HierarchyListener() {</span>
+			@Override
+			public void hierarchyChanged(HierarchyEvent e) {
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">				if (e.getID() == HierarchyEvent.HIERARCHY_CHANGED</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">						&amp;&amp; (e.getChangeFlags() &amp; HierarchyEvent.SHOWING_CHANGED) != 0) {</span>
+<span class="fc" id="L109">					SwingUtilities.invokeLater(new Runnable() {</span>
+						@Override
+						public void run() {
+<span class="fc" id="L112">							updateAdditionalWidth();</span>
+<span class="fc" id="L113">							SwingRendererUtils.handleComponentSizeChange(ControlScrollPane.this);</span>
+<span class="fc" id="L114">						}</span>
+
+					});
+				}
+<span class="fc" id="L118">			}</span>
+		});
+<span class="fc" id="L120">	}</span>
+
+	protected void updateAdditionalHeight() {
+<span class="fc" id="L123">		additionalHeight = 0;</span>
+		{
+<span class="pc bpc" id="L125" title="1 of 4 branches missed.">			if ((hSBar != null) &amp;&amp; hSBar.isVisible()) {</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">				additionalHeight = (hSBar.getHeight() &gt; 0) ? hSBar.getHeight() : getDefaultScrollBarThickness();</span>
+			}
+		}
+<span class="fc" id="L129">	}</span>
+
+	protected void updateAdditionalWidth() {
+<span class="fc" id="L132">		additionalWidth = 0;</span>
+		{
+<span class="pc bpc" id="L134" title="1 of 4 branches missed.">			if ((vSBar != null) &amp;&amp; vSBar.isVisible()) {</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">				additionalWidth = (vSBar.getWidth() &gt; 0) ? vSBar.getWidth() : getDefaultScrollBarThickness();</span>
+			}
+		}
+<span class="fc" id="L138">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

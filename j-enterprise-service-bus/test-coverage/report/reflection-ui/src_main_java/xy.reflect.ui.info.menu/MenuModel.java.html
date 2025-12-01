@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MenuModel.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.menu</a> &gt; <span class="el_source">MenuModel.java</span></div><h1>MenuModel.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.menu;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import xy.reflect.ui.util.Filter;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.Visitor;
+
+/**
+ * This class allows to specify menu elements that will be available in the
+ * generated UIs. It also allows to process these elements (merge multiple
+ * instances, ...) in order to provide to the UI renderer a structure that is
+ * ready for display.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L23">public class MenuModel implements Serializable {</span>
+
+	private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L27">	protected List&lt;MenuInfo&gt; menus = new ArrayList&lt;MenuInfo&gt;();</span>
+
+	public List&lt;MenuInfo&gt; getMenus() {
+<span class="fc" id="L30">		return menus;</span>
+	}
+
+	public void setMenus(List&lt;MenuInfo&gt; menus) {
+<span class="nc" id="L34">		this.menus = menus;</span>
+<span class="nc" id="L35">	}</span>
+
+	public void importContribution(IMenuElementPosition containerPosition, IMenuElementInfo element,
+			Filter&lt;IMenuElementInfo&gt; addedElementFilter) {
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">		if (containerPosition == null) {</span>
+<span class="nc" id="L40">			importContributionIn(element, null, addedElementFilter);</span>
+<span class="nc" id="L41">		} else {</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">			if ((containerPosition.getElementKind() != MenuElementKind.ITEM_CATEGORY)</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">					&amp;&amp; (containerPosition.getElementKind() != MenuElementKind.MENU)) {</span>
+<span class="nc" id="L44">				throw new ReflectionUIError(&quot;Failed to add menu contribution '&quot; + element + &quot;' in '&quot; + containerPosition</span>
+<span class="nc" id="L45">						+ &quot;': Invalid container&quot;);</span>
+			}
+<span class="fc" id="L47">			IMenuItemContainerInfo container = (IMenuItemContainerInfo) findElement(containerPosition);</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">			if (container == null) {</span>
+<span class="nc" id="L49">				throw new ReflectionUIError(&quot;Failed to add menu contribution '&quot; + element + &quot;' in '&quot; + containerPosition</span>
+<span class="nc" id="L50">						+ &quot;': Container not found: '&quot; + containerPosition + &quot;'&quot;);</span>
+			}
+<span class="fc" id="L52">			importContributionIn(element, container, addedElementFilter);</span>
+		}
+<span class="fc" id="L54">	}</span>
+
+	public void importContribution(IMenuElementPosition containerPosition, IMenuElementInfo element) {
+<span class="fc" id="L57">		importContribution(containerPosition, element, Filter.nullFilter());</span>
+<span class="fc" id="L58">	}</span>
+
+	public void importContributions(MenuModel model, Filter&lt;IMenuElementInfo&gt; addedElementFilter) {
+<span class="fc bfc" id="L61" title="All 2 branches covered.">		for (MenuInfo menu : model.getMenus()) {</span>
+<span class="fc" id="L62">			importContributionIn(menu, null, addedElementFilter);</span>
+		}
+<span class="fc" id="L64">	}</span>
+
+	public void importContributions(MenuModel model) {
+<span class="fc" id="L67">		importContributions(model, Filter.nullFilter());</span>
+<span class="fc" id="L68">	}</span>
+
+	public void visit(Visitor&lt;IMenuElementInfo&gt; visitor) {
+<span class="nc" id="L71">		visitChildren(visitor, null);</span>
+<span class="nc" id="L72">	}</span>
+
+	protected boolean visitChildren(Visitor&lt;IMenuElementInfo&gt; visitor, IMenuElementInfo element) {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">		for (IMenuElementInfo child : getChildren(element)) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">			if (!visitor.visit(child)) {</span>
+<span class="nc" id="L77">				return false;</span>
+			}
+<span class="nc bnc" id="L79" title="All 2 branches missed.">			if (!visitChildren(visitor, child)) {</span>
+<span class="nc" id="L80">				return false;</span>
+			}
+		}
+<span class="nc" id="L83">		return true;</span>
+	}
+
+	protected void importChildrenContributions(IMenuItemContainerInfo sourceContainer,
+			IMenuItemContainerInfo targetContainer, Filter&lt;IMenuElementInfo&gt; addedElementFilter) {
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">		if (!same(sourceContainer, targetContainer)) {</span>
+<span class="nc" id="L89">			throw new ReflectionUIError();</span>
+		}
+<span class="fc bfc" id="L91" title="All 2 branches covered.">		for (IMenuElementInfo sourceElementChild : getChildren(sourceContainer)) {</span>
+<span class="fc" id="L92">			importContributionIn(sourceElementChild, (IMenuItemContainerInfo) targetContainer, addedElementFilter);</span>
+		}
+<span class="fc" id="L94">	}</span>
+
+	protected IMenuElementInfo findElement(IMenuElementPosition elementPosition) {
+<span class="fc bfc" id="L97" title="All 2 branches covered.">		if (elementPosition.getParent() == null) {</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">			if (elementPosition.getElementKind() != MenuElementKind.MENU) {</span>
+<span class="nc" id="L99">				throw new ReflectionUIError(&quot;Illegal root elemnt '&quot; + elementPosition + &quot;'. Root element kind must be '&quot;</span>
+<span class="nc" id="L100">						+ MenuElementKind.MENU + &quot;'&quot;);</span>
+			}
+		}
+<span class="fc" id="L103">		List&lt;IMenuElementPosition&gt; ancestorPositions = ReflectionUIUtils.getAncestors(elementPosition);</span>
+<span class="fc" id="L104">		ancestorPositions = new ArrayList&lt;IMenuElementPosition&gt;(ancestorPositions);</span>
+<span class="fc" id="L105">		Collections.reverse(ancestorPositions);</span>
+<span class="fc" id="L106">		IMenuItemContainerInfo container = null;</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">		for (IMenuElementPosition ancestorPosition : ancestorPositions) {</span>
+<span class="fc" id="L108">			container = (IMenuItemContainerInfo) findChildElement(container, ancestorPosition.getElementKind(),</span>
+<span class="fc" id="L109">					ancestorPosition.getElementName());</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">			if (container == null) {</span>
+<span class="nc" id="L111">				return null;</span>
+			}
+		}
+<span class="fc" id="L114">		IMenuElementInfo result = findChildElement(container, elementPosition.getElementKind(),</span>
+<span class="fc" id="L115">				elementPosition.getElementName());</span>
+<span class="fc" id="L116">		return result;</span>
+	}
+
+	protected IMenuElementInfo findChildElement(IMenuItemContainerInfo container, MenuElementKind childElementKind,
+			String childElementName) {
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">		for (IMenuElementInfo childElement : getChildren(container)) {</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">			if (ReflectionUIUtils.getMenuElementKind(childElement) == childElementKind) {</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">				if (childElement.getCaption().equals(childElementName)) {</span>
+<span class="fc" id="L124">					return childElement;</span>
+				}
+			}
+		}
+<span class="nc" id="L128">		return null;</span>
+	}
+
+	protected List&lt;IMenuElementInfo&gt; getChildren(IMenuElementInfo element) {
+<span class="fc" id="L132">		List&lt;IMenuElementInfo&gt; result = new ArrayList&lt;IMenuElementInfo&gt;();</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">		if (element == null) {</span>
+<span class="fc" id="L134">			result.addAll(menus);</span>
+		}
+<span class="fc bfc" id="L136" title="All 2 branches covered.">		if (element instanceof IMenuItemContainerInfo) {</span>
+<span class="fc" id="L137">			result.addAll(((IMenuItemContainerInfo) element).getItems());</span>
+		}
+<span class="fc bfc" id="L139" title="All 2 branches covered.">		if (element instanceof MenuInfo) {</span>
+<span class="fc" id="L140">			result.addAll(((MenuInfo) element).getItemCategories());</span>
+		}
+<span class="fc" id="L142">		return result;</span>
+	}
+
+	protected void importContributionIn(IMenuElementInfo element, IMenuItemContainerInfo container,
+			Filter&lt;IMenuElementInfo&gt; addedElementFilter) {
+<span class="fc bfc" id="L147" title="All 2 branches covered.">		for (IMenuElementInfo containerChild : getChildren(container)) {</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">			if (same(element, containerChild)) {</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">				if (!(containerChild instanceof IMenuItemContainerInfo)) {</span>
+					// only menu containers can be merged
+<span class="nc" id="L151">					final String errorMenuName = &quot;&lt;MENU ERROR&gt; Duplicate menu detected: &quot; + element.getCaption()</span>
+<span class="nc" id="L152">							+ &quot; (id=&quot; + element.hashCode() + &quot;)&quot;;</span>
+<span class="nc" id="L153">					element = new AbstractActionMenuItemInfo(errorMenuName, null) {</span>
+
+					};
+<span class="nc" id="L156">					importContributionIn(element, container, addedElementFilter);</span>
+<span class="nc" id="L157">					return;</span>
+				}
+<span class="fc" id="L159">				importChildrenContributions((IMenuItemContainerInfo) element, (IMenuItemContainerInfo) containerChild,</span>
+<span class="fc" id="L160">						addedElementFilter);</span>
+<span class="fc" id="L161">				return;</span>
+			}
+		}
+<span class="fc bfc" id="L164" title="All 2 branches covered.">		if (element instanceof IMenuItemContainerInfo) {</span>
+<span class="fc" id="L165">			IMenuItemContainerInfo sameElement = createSameContainer((IMenuItemContainerInfo) element);</span>
+<span class="fc" id="L166">			importChildrenContributions((IMenuItemContainerInfo) element, sameElement, addedElementFilter);</span>
+<span class="fc" id="L167">			element = sameElement;</span>
+		}
+<span class="fc bfc" id="L169" title="All 2 branches covered.">		if (container == null) {</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">			if (!(element instanceof MenuInfo)) {</span>
+<span class="nc" id="L171">				throw new ReflectionUIError(&quot;Unexpected element at root position: &quot; + element + &quot;. Only &quot;</span>
+<span class="nc" id="L172">						+ MenuInfo.class.getSimpleName() + &quot;s are expected at this position&quot;);</span>
+			}
+<span class="fc" id="L174">			menus.add((MenuInfo) addedElementFilter.get(element));</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">		} else if (container instanceof MenuInfo) {</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">			if (element instanceof AbstractMenuItemInfo) {</span>
+<span class="fc" id="L177">				((MenuInfo) container).addItem((AbstractMenuItemInfo) addedElementFilter.get(element));</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">			} else if (element instanceof MenuItemCategory) {</span>
+<span class="fc" id="L179">				((MenuInfo) container).addItemCategory((MenuItemCategory) addedElementFilter.get(element));</span>
+<span class="fc" id="L180">			} else {</span>
+<span class="nc" id="L181">				throw new ReflectionUIError();</span>
+			}
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">		} else if (container instanceof MenuItemCategory) {</span>
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">			if (element instanceof AbstractMenuItemInfo) {</span>
+<span class="fc" id="L185">				((MenuItemCategory) container).addItem((AbstractMenuItemInfo) addedElementFilter.get(element));</span>
+<span class="fc" id="L186">			} else {</span>
+<span class="nc" id="L187">				throw new ReflectionUIError();</span>
+			}
+		} else {
+<span class="nc" id="L190">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L192">	}</span>
+
+	protected IMenuItemContainerInfo createSameContainer(IMenuItemContainerInfo element) {
+<span class="fc bfc" id="L195" title="All 2 branches covered.">		if (element instanceof MenuInfo) {</span>
+<span class="fc" id="L196">			MenuInfo result = new MenuInfo();</span>
+<span class="fc" id="L197">			result.setCaption(((MenuInfo) element).getCaption());</span>
+<span class="fc" id="L198">			result.setMnemonicKey(((MenuInfo) element).getMnemonicKey());</span>
+<span class="fc" id="L199">			return result;</span>
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">		} else if (element instanceof MenuItemCategory) {</span>
+<span class="fc" id="L201">			MenuItemCategory result = new MenuItemCategory(((MenuItemCategory) element).getCaption());</span>
+<span class="fc" id="L202">			result.setCaption(((MenuItemCategory) element).getCaption());</span>
+<span class="fc" id="L203">			return result;</span>
+		} else {
+<span class="nc" id="L205">			throw new ReflectionUIError();</span>
+		}
+	}
+
+	protected boolean same(IMenuElementInfo menuElement1, IMenuElementInfo menuElement2) {
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">		if (ReflectionUIUtils.getMenuElementKind(menuElement1) == ReflectionUIUtils.getMenuElementKind(menuElement2)) {</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">			if (menuElement1.getCaption().equals(menuElement2.getCaption())) {</span>
+<span class="fc" id="L212">				return true;</span>
+			}
+		}
+<span class="fc" id="L215">		return false;</span>
+	}
+
+	protected IMenuItemContainerInfo createContainer(IMenuElementPosition containerPosition) {
+<span class="nc bnc" id="L219" title="All 2 branches missed.">		if (containerPosition.getElementKind() == MenuElementKind.MENU) {</span>
+<span class="nc" id="L220">			return new MenuInfo(containerPosition.getElementName());</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">		} else if (containerPosition.getElementKind() == MenuElementKind.ITEM_CATEGORY) {</span>
+<span class="nc" id="L222">			return new MenuItemCategory(containerPosition.getElementName());</span>
+		} else {
+<span class="nc" id="L224">			throw new ReflectionUIError();</span>
+		}
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L230">		final int prime = 31;</span>
+<span class="nc" id="L231">		int result = 1;</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">		result = prime * result + ((menus == null) ? 0 : menus.hashCode());</span>
+<span class="nc" id="L233">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L238" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L239">			return true;</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L241">			return false;</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L243">			return false;</span>
+<span class="nc" id="L244">		MenuModel other = (MenuModel) obj;</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">		if (menus == null) {</span>
+<span class="nc bnc" id="L246" title="All 2 branches missed.">			if (other.menus != null)</span>
+<span class="nc" id="L247">				return false;</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">		} else if (!menus.equals(other.menus))</span>
+<span class="nc" id="L249">			return false;</span>
+<span class="nc" id="L250">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L255">		return &quot;MenuModel [menus=&quot; + menus + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

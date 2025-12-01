@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>StyledTextPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">StyledTextPlugin.java</span></div><h1>StyledTextPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.image.BufferedImage;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.JTextPane;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
+import xy.reflect.ui.control.swing.TextControl;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Field control plugin that allows to display/update styled text.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L36">public class StyledTextPlugin extends AbstractSimpleCustomizableFieldControlPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L40">		return &quot;Styled Text&quot;;</span>
+	}
+
+	@Override
+	protected boolean handles(Class&lt;?&gt; javaType) {
+<span class="fc" id="L45">		return String.class.equals(javaType);</span>
+	}
+
+	@Override
+	public boolean canDisplayDistinctNullValue() {
+<span class="nc" id="L50">		return false;</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="nc" id="L55">		return new StyledTextConfiguration();</span>
+	}
+
+	@Override
+	public StyledTextControl createControl(Object renderer, IFieldControlInput input) {
+<span class="fc" id="L60">		return new StyledTextControl((SwingRenderer) renderer, input);</span>
+	}
+
+<span class="fc" id="L63">	public static class StyledTextConfiguration extends AbstractConfiguration {</span>
+		private static final long serialVersionUID = 1L;
+
+		private static final int DEFAULT_FONT_SIZE = 20;
+
+<span class="fc" id="L68">		public String fontName = Font.SERIF;</span>
+<span class="fc" id="L69">		public boolean fontBold = true;</span>
+<span class="fc" id="L70">		public boolean fontItalic = true;</span>
+<span class="fc" id="L71">		public int fontSize = DEFAULT_FONT_SIZE;</span>
+<span class="fc" id="L72">		public HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;</span>
+<span class="fc" id="L73">		public boolean underlined = false;</span>
+<span class="fc" id="L74">		public boolean struckThrough = false;</span>
+<span class="fc" id="L75">		public ControlDimensionSpecification width = new ControlDimensionSpecification();</span>
+		public ControlDimensionSpecification height;
+<span class="fc" id="L77">		public ColorSpecification color = new ColorSpecification();</span>
+
+		public boolean isFontSizeCustom() {
+<span class="fc bfc" id="L80" title="All 2 branches covered.">			return fontSize &gt; 0;</span>
+		}
+
+		public void setFontSizeCustom(boolean b) {
+<span class="nc bnc" id="L84" title="All 2 branches missed.">			fontSize = b ? DEFAULT_FONT_SIZE : -1;</span>
+<span class="nc" id="L85">		}</span>
+
+		public BufferedImage getSampleTextImage() {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">			if (fontName == null) {</span>
+<span class="nc" id="L89">				return null;</span>
+			}
+<span class="nc bnc" id="L91" title="All 2 branches missed.">			if (!isFontSizeCustom()) {</span>
+<span class="nc" id="L92">				return null;</span>
+			}
+<span class="nc bnc" id="L94" title="All 2 branches missed.">			if (color == null) {</span>
+<span class="nc" id="L95">				return null;</span>
+			}
+<span class="nc" id="L97">			String text = fontName;</span>
+<span class="nc" id="L98">			int style = getFontStyle();</span>
+<span class="nc" id="L99">			Font font = new Font(fontName, style, fontSize);</span>
+<span class="nc" id="L100">			Graphics2D g2d = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB).createGraphics();</span>
+<span class="nc" id="L101">			g2d.setFont(font);</span>
+<span class="nc" id="L102">			FontMetrics fontMetrics = g2d.getFontMetrics();</span>
+<span class="nc" id="L103">			int spacing = fontMetrics.stringWidth(&quot; &quot;);</span>
+<span class="nc" id="L104">			int spacingAboveLine = spacing;</span>
+<span class="nc" id="L105">			int spacingUnderLine = spacing;</span>
+<span class="nc" id="L106">			int width = fontMetrics.stringWidth(text) + (spacing * 2);</span>
+<span class="nc" id="L107">			int height = fontMetrics.getHeight() + spacingAboveLine + spacingUnderLine;</span>
+<span class="nc" id="L108">			g2d.dispose();</span>
+<span class="nc" id="L109">			BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);</span>
+<span class="nc" id="L110">			g2d = result.createGraphics();</span>
+<span class="nc" id="L111">			g2d.setFont(font);</span>
+<span class="nc" id="L112">			g2d.setColor(SwingRendererUtils.getColor(color));</span>
+<span class="nc" id="L113">			fontMetrics = g2d.getFontMetrics();</span>
+<span class="nc" id="L114">			g2d.drawString(text, spacing, spacingAboveLine + fontMetrics.getAscent());</span>
+<span class="nc" id="L115">			g2d.dispose();</span>
+<span class="nc" id="L116">			return result;</span>
+		}
+
+		public String[] getFontNames() {
+<span class="nc" id="L120">			List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L121">			result.addAll(</span>
+<span class="nc" id="L122">					Arrays.asList(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()));</span>
+<span class="nc" id="L123">			return result.toArray(new String[result.size()]);</span>
+		}
+
+		public int getFontStyle() {
+<span class="nc" id="L127">			int result = 0;</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">			if (fontBold) {</span>
+<span class="nc" id="L129">				result |= Font.BOLD;</span>
+			}
+<span class="nc bnc" id="L131" title="All 2 branches missed.">			if (fontItalic) {</span>
+<span class="nc" id="L132">				result |= Font.ITALIC;</span>
+			}
+<span class="nc" id="L134">			return result;</span>
+		}
+
+		public int getWidthInPixels() {
+<span class="fc bfc" id="L138" title="All 2 branches covered.">			if (width == null) {</span>
+<span class="fc" id="L139">				return -1;</span>
+			}
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">			if (width.unit == ControlSizeUnit.PIXELS) {</span>
+<span class="fc" id="L142">				return width.value;</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">			} else if (width.unit == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L144">				Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L145">				return Math.round((width.value / 100f) * screenSize.width);</span>
+			} else {
+<span class="nc" id="L147">				throw new ReflectionUIError();</span>
+			}
+		}
+
+		public int getHeightInPixels() {
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">			if (height == null) {</span>
+<span class="fc" id="L153">				return -1;</span>
+			}
+<span class="nc bnc" id="L155" title="All 2 branches missed.">			if (height.unit == ControlSizeUnit.PIXELS) {</span>
+<span class="nc" id="L156">				return height.value;</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">			} else if (height.unit == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L158">				Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L159">				return Math.round((height.value / 100f) * screenSize.height);</span>
+			} else {
+<span class="nc" id="L161">				throw new ReflectionUIError();</span>
+			}
+		}
+
+<span class="fc" id="L165">		public enum HorizontalAlignment {</span>
+<span class="fc" id="L166">			LEFT, CENTER, RIGHT</span>
+		};
+
+<span class="fc" id="L169">		public enum ControlSizeUnit {</span>
+<span class="fc" id="L170">			PIXELS, SCREEN_PERCENT</span>
+		}
+
+<span class="fc" id="L173">		public static class ControlDimensionSpecification implements Serializable {</span>
+
+			private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L177">			public int value = 400;</span>
+<span class="fc" id="L178">			public ControlSizeUnit unit = ControlSizeUnit.PIXELS;</span>
+
+		}
+	}
+
+	public class StyledTextControl extends TextControl {
+
+		private static final long serialVersionUID = 1L;
+
+		protected StyledTextConfiguration controlConfiguration;
+
+<span class="fc" id="L189">		public StyledTextControl(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L190">			super(swingRenderer, input);</span>
+<span class="fc" id="L191">		}</span>
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L195" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc" id="L196">				updateControlConfiguration();</span>
+			}
+<span class="fc" id="L198">			return super.refreshUI(refreshStructure);</span>
+		}
+
+		protected void updateControlConfiguration() {
+<span class="fc" id="L202">			controlConfiguration = (StyledTextConfiguration) loadControlCustomization(input);</span>
+<span class="fc" id="L203">		}</span>
+
+		@Override
+		protected JTextComponent createTextComponent() {
+<span class="fc" id="L207">			return new JTextPane() {</span>
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void replaceSelection(String content) {
+<span class="nc" id="L213">					boolean listenerWasDisabled = listenerDisabled;</span>
+<span class="nc" id="L214">					listenerDisabled = true;</span>
+					try {
+<span class="nc" id="L216">						super.replaceSelection(content);</span>
+<span class="nc" id="L217">					} finally {</span>
+<span class="nc" id="L218">						listenerDisabled = listenerWasDisabled;</span>
+					}
+					try {
+<span class="nc" id="L221">						StyledTextControl.this.textComponentEditHappened();</span>
+<span class="nc" id="L222">					} catch (Throwable t) {</span>
+<span class="nc" id="L223">						swingRenderer.handleException(StyledTextControl.this, t);</span>
+					}
+<span class="nc" id="L225">				}</span>
+
+			};
+		}
+
+		@Override
+		protected void refreshTextComponent(boolean refreshStructure) {
+<span class="fc" id="L232">			super.refreshTextComponent(refreshStructure);</span>
+<span class="fc" id="L233">			updateTextComponentStyle(refreshStructure);</span>
+
+<span class="fc" id="L235">		}</span>
+
+		protected void updateTextComponentStyle(boolean refreshStructure) {
+<span class="fc" id="L238">			StyledDocument document = (StyledDocument) textComponent.getDocument();</span>
+<span class="fc" id="L239">			SimpleAttributeSet attributes = new SimpleAttributeSet();</span>
+<span class="fc" id="L240">			StyleConstants.setBold(attributes, controlConfiguration.fontBold);</span>
+<span class="fc" id="L241">			StyleConstants.setItalic(attributes, controlConfiguration.fontItalic);</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">			if (controlConfiguration.fontName != null) {</span>
+<span class="fc" id="L243">				StyleConstants.setFontFamily(attributes, controlConfiguration.fontName);</span>
+			}
+<span class="fc bfc" id="L245" title="All 2 branches covered.">			if (controlConfiguration.isFontSizeCustom()) {</span>
+<span class="fc" id="L246">				StyleConstants.setFontSize(attributes, controlConfiguration.fontSize);</span>
+			}
+<span class="fc" id="L248">			StyleConstants.setUnderline(attributes, controlConfiguration.underlined);</span>
+<span class="fc" id="L249">			StyleConstants.setStrikeThrough(attributes, controlConfiguration.struckThrough);</span>
+<span class="fc bfc" id="L250" title="All 2 branches covered.">			if (controlConfiguration.horizontalAlignment == StyledTextConfiguration.HorizontalAlignment.LEFT) {</span>
+<span class="fc" id="L251">				StyleConstants.setAlignment(attributes, StyleConstants.ALIGN_LEFT);</span>
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">			} else if (controlConfiguration.horizontalAlignment == StyledTextConfiguration.HorizontalAlignment.CENTER) {</span>
+<span class="fc" id="L253">				StyleConstants.setAlignment(attributes, StyleConstants.ALIGN_CENTER);</span>
+<span class="pc bnc" id="L254" title="All 2 branches missed.">			} else if (controlConfiguration.horizontalAlignment == StyledTextConfiguration.HorizontalAlignment.RIGHT) {</span>
+<span class="nc" id="L255">				StyleConstants.setAlignment(attributes, StyleConstants.ALIGN_RIGHT);</span>
+<span class="nc" id="L256">			} else {</span>
+<span class="nc" id="L257">				throw new ReflectionUIError();</span>
+			}
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">			if (controlConfiguration.color != null) {</span>
+<span class="nc" id="L260">				textComponent.setForeground(SwingRendererUtils.getColor(controlConfiguration.color));</span>
+			}
+<span class="fc" id="L262">			listenerDisabled = true;</span>
+			try {
+<span class="fc" id="L264">				document.setParagraphAttributes(0, document.getLength(), attributes, false);</span>
+<span class="fc" id="L265">			} finally {</span>
+<span class="fc" id="L266">				listenerDisabled = false;</span>
+			}
+<span class="fc" id="L268">		}</span>
+
+		@Override
+		protected Dimension getScrollPanePreferredSize(Dimension defaultSize) {
+<span class="fc" id="L272">			Dimension result = new Dimension(defaultSize);</span>
+<span class="fc" id="L273">			int configuredWidth = getConfiguredScrollPaneWidth();</span>
+<span class="fc bfc" id="L274" title="All 2 branches covered.">			if (configuredWidth != -1) {</span>
+<span class="fc" id="L275">				result.width = configuredWidth;</span>
+			}
+<span class="fc" id="L277">			int configuredHeight = getConfiguredScrollPaneHeight();</span>
+<span class="fc bfc" id="L278" title="All 2 branches covered.">			if (configuredHeight != -1) {</span>
+<span class="fc" id="L279">				result.height = configuredHeight;</span>
+			}
+<span class="fc" id="L281">			return result;</span>
+		}
+
+		protected int getConfiguredScrollPaneWidth() {
+<span class="fc" id="L285">			return controlConfiguration.getWidthInPixels();</span>
+		}
+
+		protected int getConfiguredScrollPaneHeight() {
+<span class="fc" id="L289">			return controlConfiguration.getHeightInPixels();</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -103,7 +103,7 @@ public class Solution {
 	}
 
 	public Debugger createDebugger() {
-		return new Debugger(this);
+		return new Debugger(this, false);
 	}
 
 	public void loadFromArchiveFile(File archiveFile) throws IOException {

@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ReflectionUI.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui</a> &gt; <span class="el_source">ReflectionUI.java</span></div><h1>ReflectionUI.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui;
+
+import java.awt.Color;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.app.ApplicationInfoProxy;
+import xy.reflect.ui.info.app.DefaultApplicationInfo;
+import xy.reflect.ui.info.app.IApplicationInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.map.StandardMapEntry;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.ClassUtils;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.SystemProperties;
+import xy.reflect.ui.util.ValidationErrorRegistry;
+
+/**
+ * This class reads and interprets the metadata (usually the class) of objects
+ * in order to propose an abstract UI model (ITypeInfo) that a renderer can use
+ * to generate a working UI.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L34">public class ReflectionUI {</span>
+
+	protected static ReflectionUI defaultInstance;
+
+<span class="fc" id="L38">	protected static final Class&lt;?&gt; CACHED_CLASS_NOT_FOUND = (new Object() {</span>
+		@Override
+		public String toString() {
+<span class="nc" id="L41">			return &quot;CACHED_CLASS_NOT_FOUND&quot;;</span>
+		}
+<span class="fc" id="L43">	}).getClass();</span>
+
+<span class="fc" id="L45">	protected Map&lt;ITypeInfoSource, ITypeInfo&gt; typeInfoCache = createTypeInfoCache();</span>
+<span class="fc" id="L46">	protected final Object typeInfoCacheMutex = new Object();</span>
+<span class="fc" id="L47">	protected Map&lt;String, Class&lt;?&gt;&gt; classCache = createClassCache();</span>
+<span class="fc" id="L48">	protected final Object classCacheMutex = new Object();</span>
+
+<span class="fc" id="L50">	protected ValidationErrorRegistry validationErrorRegistry = createValidationErrorRegistry();</span>
+
+	/**
+	 * @return the default instance of this class.
+	 */
+	public static ReflectionUI getDefault() {
+<span class="fc bfc" id="L56" title="All 2 branches covered.">		if (defaultInstance == null) {</span>
+<span class="fc" id="L57">			defaultInstance = new ReflectionUI() {</span>
+
+				@Override
+				public IApplicationInfo getApplicationInfo() {
+<span class="nc" id="L61">					return new ApplicationInfoProxy(super.getApplicationInfo()) {</span>
+
+						@Override
+						public boolean isSystemIntegrationCrossPlatform() {
+<span class="nc" id="L65">							return true;</span>
+						}
+
+						@Override
+						public ColorSpecification getTitleBackgroundColor() {
+<span class="nc" id="L70">							return SwingRendererUtils.getColorSpecification(Color.LIGHT_GRAY);</span>
+						}
+
+						@Override
+						public ColorSpecification getTitleForegroundColor() {
+<span class="nc" id="L75">							return SwingRendererUtils.getColorSpecification(Color.DARK_GRAY);</span>
+						}
+
+					};
+				}
+
+			};
+		}
+<span class="fc" id="L83">		return defaultInstance;</span>
+	}
+
+	protected ValidationErrorRegistry createValidationErrorRegistry() {
+<span class="fc" id="L87">		return new ValidationErrorRegistry();</span>
+	}
+
+	protected Map&lt;ITypeInfoSource, ITypeInfo&gt; createTypeInfoCache() {
+<span class="fc" id="L91">		return MiscUtils.newStandardCache(true);</span>
+	}
+
+	protected Map&lt;String, Class&lt;?&gt;&gt; createClassCache() {
+<span class="fc" id="L95">		return new HashMap&lt;String, Class&lt;?&gt;&gt;() {</span>
+			private static final long serialVersionUID = 1L;
+
+			{
+<span class="fc bfc" id="L99" title="All 2 branches covered.">				for (Class&lt;?&gt; c : new Class[] { void.class, boolean.class, byte.class, char.class, short.class,</span>
+<span class="fc" id="L100">						int.class, float.class, double.class, long.class })</span>
+<span class="fc" id="L101">					put(c.getName(), c);</span>
+			}
+		};
+	}
+
+	/**
+	 * @param name
+	 * @return The class corresponding to the given name. The result is loaded and
+	 *         cached for subsequent calls
+	 * @throws ClassNotFoundException If the target class is not found.
+	 */
+	public Class&lt;?&gt; getReflectedClass(String name) throws ClassNotFoundException {
+<span class="fc" id="L113">		synchronized (classCacheMutex) {</span>
+<span class="fc" id="L114">			Class&lt;?&gt; c = classCache.get(name);</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">			if (c == null) {</span>
+				try {
+<span class="fc" id="L117">					c = ClassUtils.forNameEvenIfPrimitive(name);</span>
+<span class="fc" id="L118">				} catch (ClassNotFoundException e) {</span>
+<span class="fc" id="L119">					c = CACHED_CLASS_NOT_FOUND;</span>
+				}
+<span class="fc" id="L121">				classCache.put(name, c);</span>
+			}
+<span class="fc bfc" id="L123" title="All 2 branches covered.">			if (c == CACHED_CLASS_NOT_FOUND) {</span>
+<span class="fc" id="L124">				throw new ClassNotFoundException(name);</span>
+			}
+<span class="fc" id="L126">			return c;</span>
+		}
+	}
+
+	/**
+	 * @return the cache that stores {@link ITypeInfo} instances obtained from this
+	 *         {@link ReflectionUI} instance. Its access should be synchronized on
+	 *         the monitor returned by {@link #getTypeCacheMutex()}. Developers that
+	 *         implement new {@link ITypeInfo} classes are encouraged to use this
+	 *         map to store their instances in order to improve performances.
+	 */
+	public Map&lt;ITypeInfoSource, ITypeInfo&gt; getTypeInfoCache() {
+<span class="fc" id="L138">		return typeInfoCache;</span>
+	}
+
+	/**
+	 * @return the {@link ValidationErrorRegistry} used by this {@link ReflectionUI}
+	 *         instance.
+	 */
+	public ValidationErrorRegistry getValidationErrorRegistry() {
+<span class="fc" id="L146">		return validationErrorRegistry;</span>
+	}
+
+	/**
+	 * @return the mutual-exclusion object (also called monitor) that should be used
+	 *         to synchronize accesses and updates of the cache returned by
+	 *         {@link #getTypeInfoCache()}. Note that using alternate monitors may
+	 *         lead to dead-lock situations.
+	 */
+	public Object getTypeCacheMutex() {
+<span class="fc" id="L156">		return typeInfoCacheMutex;</span>
+	}
+
+	/**
+	 * @param object Any object from which a UI needs to be generated.
+	 * @return a source from which the UI-oriented type information of the given
+	 *         object will be extracted.
+	 */
+	public ITypeInfoSource getTypeInfoSource(Object object) {
+<span class="fc bfc" id="L165" title="All 2 branches covered.">		if (object instanceof PrecomputedTypeInstanceWrapper) {</span>
+<span class="fc" id="L166">			return ((PrecomputedTypeInstanceWrapper) object).getTypeInfoSource();</span>
+		}
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">		if (object instanceof StandardMapEntry) {</span>
+<span class="nc" id="L169">			return new JavaTypeInfoSource(object.getClass(), ((StandardMapEntry) object).getGenericTypeParameters(),</span>
+<span class="nc" id="L170">					null);</span>
+		}
+<span class="fc" id="L172">		return new JavaTypeInfoSource(object.getClass(), null);</span>
+	}
+
+	/**
+	 * @param typeInfoSource The source object needed to generate the UI-oriented
+	 *                       type information.
+	 * @return an object containing the UI-oriented type information extracted from
+	 *         the given source and maybe customized. Note that calling
+	 *         {@link ITypeInfo#getSource()} on the result returns an object equals
+	 *         to the given typeInfoSource parameter.
+	 */
+	public ITypeInfo getTypeInfo(ITypeInfoSource typeInfoSource) {
+<span class="fc" id="L184">		ITypeInfo result = typeInfoSource.buildTypeInfo(this);</span>
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">		if (!result.getSource().equals(typeInfoSource)) {</span>
+<span class="nc" id="L186">			throw new ReflectionUIError(&quot;Calling &quot; + ITypeInfo.class.getSimpleName()</span>
+<span class="nc" id="L187">					+ &quot;#getSource() on the following instance does not return an object equals to the source object: &quot;</span>
+<span class="nc" id="L188">					+ result);</span>
+		}
+<span class="fc" id="L190">		return result;</span>
+	}
+
+	/**
+	 * @return the UI-oriented application (global) information.
+	 */
+	public IApplicationInfo getApplicationInfo() {
+<span class="fc" id="L197">		return new DefaultApplicationInfo();</span>
+	}
+
+	/**
+	 * Formats the given message (used for logging).
+	 * 
+	 * @param msg The message to format.
+	 * @return A formatted message.
+	 */
+	protected String formatLogMessage(String msg) {
+<span class="nc" id="L207">		msg = MiscUtils.truncateNicely(msg, 20000);</span>
+<span class="nc" id="L208">		return SimpleDateFormat.getDateTimeInstance().format(new Date()) + &quot; [&quot; + ReflectionUI.class.getSimpleName()</span>
+<span class="nc" id="L209">				+ &quot;] &quot; + msg;</span>
+	}
+
+	/**
+	 * Logs the given message (to the console output stream by default) if the debug
+	 * mode is active (see {@link SystemProperties#isDebugModeActive()}).
+	 * 
+	 * @param msg The message.
+	 */
+	public void logDebug(String msg) {
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">		if (!SystemProperties.isDebugModeActive()) {</span>
+<span class="fc" id="L220">			return;</span>
+		}
+<span class="nc" id="L222">		System.out.println(formatLogMessage(&quot;DEBUG - &quot; + msg));</span>
+<span class="nc" id="L223">	}</span>
+
+	/**
+	 * Logs the given exception (to the console output stream by default) if the
+	 * debug mode is active (see {@link SystemProperties#isDebugModeActive()}).
+	 * 
+	 * @param t The exception.
+	 */
+	public void logDebug(Throwable t) {
+<span class="fc" id="L232">		logDebug(MiscUtils.getPrintedStackTrace(t));</span>
+<span class="fc" id="L233">	}</span>
+
+	/**
+	 * Logs the given error message (to the console error stream by default). If the
+	 * error is already displayed on the screen then {@link #logDebug(String)}
+	 * should be used instead.
+	 * 
+	 * @param msg The message.
+	 */
+	public void logError(String msg) {
+<span class="nc" id="L243">		System.err.println(formatLogMessage(&quot;ERROR - &quot; + msg));</span>
+<span class="nc" id="L244">	}</span>
+
+	/**
+	 * Logs the given exception (to the console error stream by default). If the
+	 * error is already displayed on the screen then {@link #logDebug(Throwable)}
+	 * should be used instead.
+	 * 
+	 * @param t The exception.
+	 */
+	public void logError(Throwable t) {
+<span class="nc" id="L254">		logError(MiscUtils.getPrintedStackTrace(t));</span>
+<span class="nc" id="L255">	}</span>
+
+	@Override
+	public String toString() {
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">		if (this == defaultInstance) {</span>
+<span class="nc" id="L260">			return &quot;ReflectionUI.DEFAULT&quot;;</span>
+		} else {
+<span class="fc" id="L262">			return super.toString();</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

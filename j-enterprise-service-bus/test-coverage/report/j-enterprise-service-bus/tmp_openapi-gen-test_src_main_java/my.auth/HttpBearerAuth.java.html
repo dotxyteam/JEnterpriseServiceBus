@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>HttpBearerAuth.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">tmp/openapi-gen-test/src/main/java</a> &gt; <a href="index.source.html" class="el_package">my.auth</a> &gt; <span class="el_source">HttpBearerAuth.java</span></div><h1>HttpBearerAuth.java</h1><pre class="source lang-java linenums">package my.auth;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.util.MultiValueMap;
+
+@javax.annotation.Generated(value = &quot;org.openapitools.codegen.languages.JavaClientCodegen&quot;, date = &quot;2025-08-01T19:38:38.903+02:00[Europe/Paris]&quot;)
+public class HttpBearerAuth implements Authentication {
+    private final String scheme;
+    private String bearerToken;
+
+<span class="nc" id="L11">    public HttpBearerAuth(String scheme) {</span>
+<span class="nc" id="L12">        this.scheme = scheme;</span>
+<span class="nc" id="L13">    }</span>
+
+    public String getBearerToken() {
+<span class="nc" id="L16">        return bearerToken;</span>
+    }
+
+    public void setBearerToken(String bearerToken) {
+<span class="nc" id="L20">        this.bearerToken = bearerToken;</span>
+<span class="nc" id="L21">    }</span>
+
+    @Override
+    public void applyToParams(MultiValueMap&lt;String, String&gt; queryParams, HttpHeaders headerParams, MultiValueMap&lt;String, String&gt; cookieParams) {
+<span class="nc bnc" id="L25" title="All 2 branches missed.">        if (bearerToken == null) {</span>
+<span class="nc" id="L26">            return;</span>
+        }
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        headerParams.add(HttpHeaders.AUTHORIZATION, (scheme != null ? upperCaseBearer(scheme) + &quot; &quot; : &quot;&quot;) + bearerToken);</span>
+<span class="nc" id="L29">    }</span>
+
+    private static String upperCaseBearer(String scheme) {
+<span class="nc bnc" id="L32" title="All 2 branches missed.">        return (&quot;bearer&quot;.equalsIgnoreCase(scheme)) ? &quot;Bearer&quot; : scheme;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

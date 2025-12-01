@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DoNothing.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">DoNothing.java</span></div><h1>DoNothing.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.io.IOException;
+
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+
+import xy.reflect.ui.info.ResourcePath;
+
+<span class="fc" id="L16">public class DoNothing implements Operation {</span>
+
+	@Override
+	public Object execute() throws IOException {
+<span class="fc" id="L20">		return null;</span>
+	}
+
+<span class="fc" id="L23">	public static class Metadata implements OperationMetadata&lt;DoNothing&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L27">			return &quot;Do Nothing&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L32">			return &quot;General&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;DoNothing&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L37">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L42">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L43">					.specifyClassPathResourceLocation(DoNothing.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+<span class="fc" id="L47">	public static class Builder implements OperationBuilder&lt;DoNothing&gt; {</span>
+
+		@Override
+		public DoNothing build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+<span class="fc" id="L51">			return new DoNothing();</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="fc" id="L56">			return null;</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="fc" id="L61">		}</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ArrayStream.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.util</a> &gt; <span class="el_source">ArrayStream.java</span></div><h1>ArrayStream.java</h1><pre class="source lang-java linenums">package com.otk.jesb.util;
+
+import java.util.Arrays;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+<span class="nc" id="L7">public class ArrayStream {</span>
+
+	public static &lt;T&gt; Stream&lt;T&gt; get(T[] array) {
+<span class="fc" id="L10">		return Arrays.stream(array);</span>
+	}
+
+	public static Stream&lt;Byte&gt; get(byte[] array) {
+<span class="nc" id="L14">		return IntStream.range(0, array.length).mapToObj(i -&gt; array[i]);</span>
+	}
+
+	public static Stream&lt;Short&gt; get(short[] array) {
+<span class="nc" id="L18">		return IntStream.range(0, array.length).mapToObj(i -&gt; array[i]);</span>
+	}
+
+	public static Stream&lt;Integer&gt; get(int[] array) {
+<span class="nc" id="L22">		return IntStream.range(0, array.length).mapToObj(i -&gt; array[i]);</span>
+	}
+
+	public static Stream&lt;Long&gt; get(long[] array) {
+<span class="nc" id="L26">		return IntStream.range(0, array.length).mapToObj(i -&gt; array[i]);</span>
+	}
+
+	public static Stream&lt;Float&gt; get(float[] array) {
+<span class="nc" id="L30">		return IntStream.range(0, array.length).mapToObj(i -&gt; array[i]);</span>
+	}
+
+	public static Stream&lt;Double&gt; get(double[] array) {
+<span class="nc" id="L34">		return IntStream.range(0, array.length).mapToObj(i -&gt; array[i]);</span>
+	}
+
+	public static Stream&lt;Character&gt; get(char[] array) {
+<span class="nc" id="L38">		return IntStream.range(0, array.length).mapToObj(i -&gt; array[i]);</span>
+	}
+
+	public static Stream&lt;Boolean&gt; get(boolean[] array) {
+<span class="nc" id="L42">		return IntStream.range(0, array.length).mapToObj(i -&gt; array[i]);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

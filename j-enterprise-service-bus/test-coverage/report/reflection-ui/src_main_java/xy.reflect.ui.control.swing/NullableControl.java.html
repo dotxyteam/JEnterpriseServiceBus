@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>NullableControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing</a> &gt; <span class="el_source">NullableControl.java</span></div><h1>NullableControl.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Arrays;
+
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+
+import xy.reflect.ui.control.BufferedFieldControlData;
+import xy.reflect.ui.control.CustomContext;
+import xy.reflect.ui.control.ErrorHandlingFieldControlData;
+import xy.reflect.ui.control.ErrorOccurrence;
+import xy.reflect.ui.control.ErrorWithDefaultValue;
+import xy.reflect.ui.control.FieldControlDataProxy;
+import xy.reflect.ui.control.FieldControlInputProxy;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IContext;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.builder.AbstractEditorFormBuilder;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.undo.FieldControlDataModification;
+import xy.reflect.ui.undo.IModification;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Field control that allows to display/set/unset the null value. A sub-form is
+ * used to display the non-null values.
+ * 
+ * @author olitank
+ *
+ */
+public class NullableControl extends ControlPanel implements IAdvancedFieldControl {
+
+	protected SwingRenderer swingRenderer;
+	protected static final long serialVersionUID = 1L;
+	protected BufferedFieldControlData data;
+	protected JCheckBox nullStatusControl;
+	protected Component currentSubControl;
+	protected NullControl nullControl;
+	protected Form subForm;
+	protected AbstractEditorFormBuilder subFormBuilder;
+	protected IFieldControlInput input;
+	protected Throwable currentError;
+
+<span class="fc" id="L66">	public NullableControl(final SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L67">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L68">		input = new FieldControlInputProxy(input) {</span>
+
+<span class="fc" id="L70">			IFieldControlData errorHandlingFieldControlData = new ErrorHandlingFieldControlData(super.getControlData(),</span>
+<span class="fc" id="L71">					swingRenderer, null) {</span>
+
+				@Override
+				protected void handleError(Throwable t) {
+<span class="fc" id="L75">					currentError = t;</span>
+<span class="fc" id="L76">				}</span>
+			};
+
+<span class="fc" id="L79">			BufferedFieldControlData bufferedFieldControlData = new BufferedFieldControlData(</span>
+<span class="fc" id="L80">					errorHandlingFieldControlData);</span>
+
+			@Override
+			public IFieldControlData getControlData() {
+<span class="fc" id="L84">				return bufferedFieldControlData;</span>
+			}
+		};
+<span class="fc" id="L87">		this.input = input;</span>
+<span class="fc" id="L88">		this.data = (BufferedFieldControlData) input.getControlData();</span>
+<span class="fc" id="L89">		initialize();</span>
+<span class="fc" id="L90">	}</span>
+
+	protected void initialize() {
+<span class="fc" id="L93">		setLayout(new BorderLayout());</span>
+<span class="fc" id="L94">		nullStatusControl = createNullStatusControl();</span>
+<span class="fc" id="L95">		refreshUI(true);</span>
+<span class="fc" id="L96">	}</span>
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+<span class="fc" id="L100">		Object value = data.getValue();</span>
+<span class="fc" id="L101">		data.returningValue(value, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L104">				refreshNullStatusControl(refreshStructure);</span>
+<span class="fc" id="L105">			}</span>
+		});
+<span class="fc" id="L107">		data.returningValue(value, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L110">				refreshSubControl(refreshStructure);</span>
+<span class="fc" id="L111">			}</span>
+		});
+<span class="fc bfc" id="L113" title="All 4 branches covered.">		if (!Arrays.asList(getComponents()).contains(currentSubControl) || refreshStructure) {</span>
+<span class="fc" id="L114">			removeAll();</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">			if (!shouldCaptionBeDisplayedOnNullStatusControl()) {</span>
+<span class="fc" id="L116">				add(SwingRendererUtils.flowInLayout(nullStatusControl, GridBagConstraints.CENTER), BorderLayout.WEST);</span>
+<span class="fc" id="L117">				add(currentSubControl, BorderLayout.CENTER);</span>
+<span class="fc" id="L118">				nullStatusControl.setText(&quot;&quot;);</span>
+<span class="fc" id="L119">				SwingRendererUtils.showFieldCaptionOnBorder(data, (JComponent) currentSubControl,</span>
+<span class="fc" id="L120">						new Accessor&lt;Border&gt;() {</span>
+							@Override
+							public Border get() {
+<span class="fc" id="L123">								return new ControlPanel().getBorder();</span>
+							}
+<span class="fc" id="L125">						}, swingRenderer);</span>
+<span class="fc" id="L126">			} else {</span>
+<span class="fc" id="L127">				add(SwingRendererUtils.flowInLayout(nullStatusControl, GridBagConstraints.WEST), BorderLayout.NORTH);</span>
+<span class="fc" id="L128">				add(currentSubControl, BorderLayout.CENTER);</span>
+<span class="fc" id="L129">				nullStatusControl.setText(swingRenderer.prepareMessageToDisplay(data.getCaption()));</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">				if (data.getBorderColor() != null) {</span>
+<span class="fc" id="L131">					((JComponent) currentSubControl).setBorder(</span>
+<span class="fc" id="L132">							BorderFactory.createLineBorder(SwingRendererUtils.getColor(data.getBorderColor())));</span>
+<span class="fc" id="L133">				} else {</span>
+<span class="fc" id="L134">					((JComponent) currentSubControl).setBorder(BorderFactory.createTitledBorder(&quot;&quot;));</span>
+				}
+			}
+<span class="fc" id="L137">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+		}
+<span class="fc" id="L139">		return true;</span>
+	}
+
+	protected boolean shouldCaptionBeDisplayedOnNullStatusControl() {
+<span class="pc bpc" id="L143" title="1 of 4 branches missed.">		return !(currentSubControl instanceof NullControl) || !shouldSubControlBeDisplayed();</span>
+	}
+
+	protected boolean shouldSubControlBeDisplayed() {
+<span class="pc bpc" id="L147" title="1 of 4 branches missed.">		return !((currentSubControl instanceof NullControl) &amp;&amp; (data.getNullValueLabel() == null));</span>
+	}
+
+	public Component getSubControl() {
+<span class="nc" id="L151">		return currentSubControl;</span>
+	}
+
+	protected void setNullStatusControlState(boolean b) {
+<span class="fc bfc" id="L155" title="All 2 branches covered.">		((JCheckBox) nullStatusControl).setSelected(!b);</span>
+<span class="fc" id="L156">	}</span>
+
+	protected boolean getNullStatusControlState() {
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">		return !((JCheckBox) nullStatusControl).isSelected();</span>
+	}
+
+	protected void onNullingControlStateChange() {
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">		if (getNullStatusControlState()) {</span>
+<span class="nc" id="L164">			ReflectionUIUtils.setFieldValueThroughModificationStack(data, null, input.getModificationStack(),</span>
+<span class="nc" id="L165">					ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()));</span>
+<span class="nc" id="L166">		} else {</span>
+			Object newValue;
+			try {
+<span class="fc" id="L169">				newValue = getNewValue();</span>
+<span class="pc" id="L170">			} catch (Throwable t) {</span>
+<span class="nc" id="L171">				refreshUI(false);</span>
+<span class="nc" id="L172">				throw new ReflectionUIError(t);</span>
+			}
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">			if (newValue == null) {</span>
+<span class="nc" id="L175">				refreshUI(false);</span>
+<span class="nc" id="L176">				return;</span>
+			}
+<span class="fc" id="L178">			ReflectionUIUtils.setFieldValueThroughModificationStack(data, newValue, input.getModificationStack(),</span>
+<span class="fc" id="L179">					ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()));</span>
+<span class="fc" id="L180">			SwingUtilities.invokeLater(new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="fc" id="L183">					requestCustomFocus();</span>
+<span class="fc" id="L184">				}</span>
+			});
+		}
+<span class="fc" id="L187">	}</span>
+
+	protected Object getNewValue() {
+<span class="fc" id="L190">		return swingRenderer.onTypeInstantiationRequest(NullableControl.this, data.getType());</span>
+	}
+
+	@Override
+	public boolean requestCustomFocus() {
+<span class="fc" id="L195">		return SwingRendererUtils.requestAnyComponentFocus(currentSubControl, swingRenderer);</span>
+	}
+
+	protected void refreshNullStatusControl(boolean refreshStructure) {
+<span class="fc bfc" id="L199" title="All 2 branches covered.">		setNullStatusControlState(data.getValue() == null);</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc" id="L201">			nullStatusControl.setForeground(SwingRendererUtils.getColor(data.getLabelForegroundColor()));</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">			if (data.getLabelCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L203">				nullStatusControl.setFont(SwingRendererUtils</span>
+<span class="nc" id="L204">						.loadFontThroughCache(data.getLabelCustomFontResourcePath(),</span>
+<span class="nc" id="L205">								ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()), swingRenderer)</span>
+<span class="nc" id="L206">						.deriveFont(nullStatusControl.getFont().getStyle(), nullStatusControl.getFont().getSize()));</span>
+<span class="nc" id="L207">			} else {</span>
+<span class="fc" id="L208">				nullStatusControl.setFont(new JCheckBox().getFont());</span>
+			}
+<span class="fc bfc" id="L210" title="All 2 branches covered.">			nullStatusControl.setEnabled(!data.isGetOnly());</span>
+		}
+<span class="fc" id="L212">	}</span>
+
+	public void refreshSubControl(boolean refreshStructure) {
+<span class="fc bfc" id="L215" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc" id="L216">			nullControl = null;</span>
+<span class="fc" id="L217">			subForm = null;</span>
+		}
+<span class="fc" id="L219">		Object value = data.getValue();</span>
+		// refresh the currently displayed sub-form if possible
+<span class="fc bfc" id="L221" title="All 2 branches covered.">		if (value != null) {</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">			if (currentSubControl instanceof Form) {</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">				if (currentError != null) {</span>
+					// display the current error (over the last valid value)
+<span class="nc" id="L225">					value = new ErrorOccurrence(new ErrorWithDefaultValue(currentError, value));</span>
+				}
+<span class="fc" id="L227">				data.returningValue(value, new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="fc" id="L230">						subFormBuilder.reloadValue((Form) currentSubControl, refreshStructure);</span>
+<span class="fc" id="L231">					}</span>
+				});
+<span class="fc" id="L233">				return;</span>
+			}
+		}
+		// change the displayed sub-control
+<span class="pc bpc" id="L237" title="1 of 4 branches missed.">		if ((value == null) &amp;&amp; (currentError == null)) {</span>
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">			if (currentSubControl instanceof Form) {</span>
+				// clear the sub-form before hiding it
+<span class="nc" id="L240">				data.returningValue(null, new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="nc" id="L243">						subFormBuilder.reloadValue((Form) currentSubControl, refreshStructure);</span>
+<span class="nc" id="L244">					}</span>
+				});
+			}
+<span class="fc bfc" id="L247" title="All 2 branches covered.">			if (nullControl == null) {</span>
+<span class="fc" id="L248">				nullControl = createNullControl();</span>
+			}
+<span class="fc" id="L250">			currentSubControl = nullControl;</span>
+<span class="fc" id="L251">		} else {</span>
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">			if (subForm == null) {</span>
+<span class="fc" id="L253">				data.returningValue(value, new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="fc" id="L256">						subForm = createSubForm();</span>
+<span class="fc" id="L257">					}</span>
+				});
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">				if (currentError != null) {</span>
+					// display the current error (over the last valid value)
+<span class="nc" id="L261">					data.returningValue(new ErrorOccurrence(currentError), new Runnable() {</span>
+						@Override
+						public void run() {
+<span class="nc" id="L264">							subFormBuilder.reloadValue(subForm, refreshStructure);</span>
+<span class="nc" id="L265">						}</span>
+					});
+				}
+<span class="nc" id="L268">			} else {</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">				if (currentError != null) {</span>
+					// display the current error (over the last valid value)
+<span class="nc" id="L271">					value = new ErrorOccurrence(new ErrorWithDefaultValue(currentError, value));</span>
+				}
+<span class="nc" id="L273">				data.returningValue(value, new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="nc" id="L276">						subFormBuilder.reloadValue(subForm, refreshStructure);</span>
+<span class="nc" id="L277">					}</span>
+				});
+			}
+<span class="fc" id="L280">			currentSubControl = subForm;</span>
+		}
+<span class="fc bfc" id="L282" title="All 2 branches covered.">		if (currentSubControl.isVisible() != shouldSubControlBeDisplayed()) {</span>
+<span class="fc" id="L283">			currentSubControl.setVisible(shouldSubControlBeDisplayed());</span>
+<span class="fc" id="L284">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+		}
+<span class="fc" id="L286">	}</span>
+
+	protected JCheckBox createNullStatusControl() {
+<span class="fc" id="L289">		JCheckBox result = new JCheckBox();</span>
+<span class="fc" id="L290">		result.setOpaque(false);</span>
+<span class="fc" id="L291">		result.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+<span class="fc" id="L295">					onNullingControlStateChange();</span>
+<span class="pc" id="L296">				} catch (Throwable t) {</span>
+<span class="nc" id="L297">					swingRenderer.handleException(NullableControl.this, t);</span>
+				}
+<span class="fc" id="L299">			}</span>
+		});
+<span class="fc" id="L301">		return result;</span>
+	}
+
+	protected NullControl createNullControl() {
+<span class="fc" id="L305">		NullControl result = new NullControl(swingRenderer, new FieldControlInputProxy(input) {</span>
+			@Override
+			public IFieldControlData getControlData() {
+<span class="fc" id="L308">				return new FieldControlDataProxy(super.getControlData()) {</span>
+
+					@Override
+					public String getCaption() {
+<span class="fc" id="L312">						return &quot;&quot;;</span>
+					}
+
+					@Override
+					public void setValue(Object value) {
+<span class="nc" id="L317">						ReflectionUIUtils.setFieldValueThroughModificationStack(base, value,</span>
+<span class="nc" id="L318">								input.getModificationStack(),</span>
+<span class="nc" id="L319">								ReflectionUIUtils.getDebugLogListener(swingRenderer.getReflectionUI()));</span>
+<span class="nc" id="L320">					}</span>
+
+				};
+			}
+		});
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">		if (!data.isGetOnly()) {</span>
+<span class="fc" id="L326">			result.setActivationAction(new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="nc" id="L329">					setNullStatusControlState(false);</span>
+<span class="nc" id="L330">					onNullingControlStateChange();</span>
+<span class="nc" id="L331">				}</span>
+			});
+		}
+<span class="fc" id="L334">		return result;</span>
+	}
+
+	protected Form createSubForm() {
+<span class="fc" id="L338">		subFormBuilder = createSubFormBuilder(swingRenderer, input, getSubContext(), new Listener&lt;Throwable&gt;() {</span>
+			@Override
+			public void handle(Throwable t) {
+<span class="nc" id="L341">				throw new ReflectionUIError(t);</span>
+			}
+		});
+<span class="fc" id="L344">		Form result = subFormBuilder.createEditorForm(true, false);</span>
+<span class="fc" id="L345">		return result;</span>
+	}
+
+	protected AbstractEditorFormBuilder createSubFormBuilder(SwingRenderer swingRenderer, IFieldControlInput input,
+			IContext subContext, Listener&lt;Throwable&gt; commitExceptionHandler) {
+<span class="fc" id="L350">		return new SubFormBuilder(swingRenderer, this, input, subContext, commitExceptionHandler);</span>
+	}
+
+	protected IContext getSubContext() {
+<span class="fc" id="L354">		return new CustomContext(&quot;NullableInstance&quot;);</span>
+	}
+
+	@Override
+	public boolean showsCaption() {
+<span class="fc" id="L359">		return true;</span>
+	}
+
+	@Override
+	public boolean displayError(Throwable error) {
+<span class="nc" id="L364">		return false;</span>
+	}
+
+	@Override
+	public boolean isModificationStackManaged() {
+<span class="fc" id="L369">		return true;</span>
+	}
+
+	@Override
+	public boolean areValueAccessErrorsManaged() {
+<span class="fc" id="L374">		return true;</span>
+	}
+
+	@Override
+	public void validateControlData(ValidationSession session) throws Exception {
+<span class="pc bpc" id="L379" title="1 of 2 branches missed.">		if (currentSubControl instanceof Form) {</span>
+<span class="fc" id="L380">			((Form) currentSubControl).validateForm(session);</span>
+		}
+<span class="fc" id="L382">	}</span>
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
+<span class="fc bfc" id="L386" title="All 2 branches covered.">		if (currentSubControl instanceof Form) {</span>
+<span class="fc" id="L387">			((Form) currentSubControl).addMenuContributionTo(menuModel);</span>
+		}
+<span class="fc" id="L389">	}</span>
+
+	protected static class SubFormBuilder extends AbstractEditorFormBuilder {
+
+		protected SwingRenderer swingRenderer;
+		protected NullableControl ownerComponent;
+		protected IFieldControlInput input;
+		protected IFieldControlData data;
+		protected IContext subContext;
+		protected Listener&lt;Throwable&gt; commitExceptionHandler;
+
+<span class="fc" id="L400">		public SubFormBuilder(SwingRenderer swingRenderer, NullableControl ownerComponent, IFieldControlInput input,</span>
+				IContext subContext, Listener&lt;Throwable&gt; commitExceptionHandler) {
+<span class="fc" id="L402">			this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L403">			this.ownerComponent = ownerComponent;</span>
+<span class="fc" id="L404">			this.input = input;</span>
+<span class="fc" id="L405">			this.data = input.getControlData();</span>
+<span class="fc" id="L406">			this.subContext = subContext;</span>
+<span class="fc" id="L407">			this.commitExceptionHandler = commitExceptionHandler;</span>
+<span class="fc" id="L408">		}</span>
+
+		@Override
+		protected IContext getContext() {
+<span class="fc" id="L412">			return input.getContext();</span>
+		}
+
+		@Override
+		protected IContext getSubContext() {
+<span class="fc" id="L417">			return subContext;</span>
+		}
+
+		@Override
+		protected boolean isEncapsulatedFormEmbedded() {
+<span class="fc" id="L422">			return data.isFormControlEmbedded();</span>
+		}
+
+		@Override
+		protected boolean isEncapsulatedisControlValueValiditionEnabled() {
+<span class="fc" id="L427">			return data.isControlValueValiditionEnabled();</span>
+		}
+
+		@Override
+		protected boolean isNullValueDistinct() {
+<span class="fc" id="L432">			return false;</span>
+		}
+
+		@Override
+		protected boolean canCommitToParent() {
+<span class="fc bfc" id="L437" title="All 2 branches covered.">			return !data.isGetOnly();</span>
+		}
+
+		@Override
+		protected IModification createCommittingModification(Object newObjectValue) {
+<span class="fc" id="L442">			return new FieldControlDataModification(data, newObjectValue);</span>
+		}
+
+		@Override
+		protected IModification createUndoModificationsReplacement() {
+<span class="fc" id="L447">			return ReflectionUIUtils.createUndoModificationsReplacement(data);</span>
+		}
+
+		@Override
+		protected void handleRealtimeLinkCommitException(Throwable t) {
+<span class="nc" id="L452">			commitExceptionHandler.handle(t);</span>
+<span class="nc" id="L453">		}</span>
+
+		@Override
+		public SwingRenderer getSwingRenderer() {
+<span class="fc" id="L457">			return swingRenderer;</span>
+		}
+
+		@Override
+		protected ValueReturnMode getReturnModeFromParent() {
+<span class="fc" id="L462">			return data.getValueReturnMode();</span>
+		}
+
+		@Override
+		protected String getParentModificationTitle() {
+<span class="fc" id="L467">			return FieldControlDataModification.getTitle(data.getCaption());</span>
+		}
+
+		@Override
+		protected boolean isParentModificationVolatile() {
+<span class="fc" id="L472">			return data.isTransient();</span>
+		}
+
+		@Override
+		protected IInfoFilter getEncapsulatedFormFilter() {
+<span class="fc" id="L477">			IInfoFilter result = data.getFormControlFilter();</span>
+<span class="pc bpc" id="L478" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L479">				result = IInfoFilter.DEFAULT;</span>
+			}
+<span class="fc" id="L481">			return result;</span>
+		}
+
+		@Override
+		protected ITypeInfoSource getEncapsulatedFieldDeclaredTypeSource() {
+<span class="fc" id="L486">			return data.getType().getSource();</span>
+		}
+
+		@Override
+		protected ModificationStack getParentModificationStack() {
+<span class="fc" id="L491">			return input.getModificationStack();</span>
+		}
+
+		@Override
+		protected Object loadValue() {
+<span class="fc" id="L496">			return data.getValue();</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

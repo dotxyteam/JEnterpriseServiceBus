@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TextTransferHandler.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.util</a> &gt; <span class="el_source">TextTransferHandler.java</span></div><h1>TextTransferHandler.java</h1><pre class="source lang-java linenums">package com.otk.jesb.util;
+
+import java.util.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.datatransfer.*;
+import java.awt.im.InputContext;
+import java.beans.*;
+import java.io.*;
+import javax.swing.*;
+import javax.swing.plaf.*;
+import javax.swing.text.*;
+
+import org.jdesktop.swingx.plaf.basic.core.BasicTransferable;
+
+import javax.swing.event.*;
+import javax.swing.border.Border;
+import javax.swing.plaf.UIResource;
+import javax.swing.plaf.synth.SynthUI;
+
+/**
+ * This class is a just a copy allowing to sublass the original class
+ * javax.swing.plaf.basic.BasicTextUI.TextTransferHandler that is not visible.
+ * 
+ * @author olitank
+ *
+ */
+@SuppressWarnings(&quot;all&quot;)
+<span class="fc" id="L29">public class TextTransferHandler extends TransferHandler implements UIResource {</span>
+
+	private JTextComponent exportComp;
+	private boolean shouldRemove;
+	private int p0;
+	private int p1;
+
+	/**
+	 * Whether or not this is a drop using &lt;code&gt;DropMode.INSERT&lt;/code&gt;.
+	 */
+<span class="fc" id="L39">	private boolean modeBetween = false;</span>
+
+	/**
+	 * Whether or not this is a drop.
+	 */
+<span class="fc" id="L44">	private boolean isDrop = false;</span>
+
+	/**
+	 * The drop action.
+	 */
+<span class="fc" id="L49">	private int dropAction = MOVE;</span>
+
+	/**
+	 * The drop bias.
+	 */
+	private Position.Bias dropBias;
+
+	protected DataFlavor getImportFlavor(DataFlavor[] flavors, JTextComponent c) {
+		/**
+		 * Try to find a flavor that can be used to import a Transferable. The set of
+		 * usable flavors are tried in the following order:
+		 * &lt;ol&gt;
+		 * &lt;li&gt;First, an attempt is made to find a flavor matching the content type of
+		 * the EditorKit for the component.
+		 * &lt;li&gt;Second, an attempt to find a text/plain flavor is made.
+		 * &lt;li&gt;Third, an attempt to find a flavor representing a String reference in the
+		 * same VM is made.
+		 * &lt;li&gt;Lastly, DataFlavor.stringFlavor is searched for.
+		 * &lt;/ol&gt;
+		 */
+<span class="nc" id="L69">		DataFlavor plainFlavor = null;</span>
+<span class="nc" id="L70">		DataFlavor refFlavor = null;</span>
+<span class="nc" id="L71">		DataFlavor stringFlavor = null;</span>
+
+<span class="nc bnc" id="L73" title="All 2 branches missed.">		if (c instanceof JEditorPane) {</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">			for (int i = 0; i &lt; flavors.length; i++) {</span>
+<span class="nc" id="L75">				String mime = flavors[i].getMimeType();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">				if (mime.startsWith(((JEditorPane) c).getEditorKit().getContentType())) {</span>
+<span class="nc" id="L77">					return flavors[i];</span>
+<span class="nc bnc" id="L78" title="All 4 branches missed.">				} else if (plainFlavor == null &amp;&amp; mime.startsWith(&quot;text/plain&quot;)) {</span>
+<span class="nc" id="L79">					plainFlavor = flavors[i];</span>
+<span class="nc bnc" id="L80" title="All 4 branches missed.">				} else if (refFlavor == null &amp;&amp; mime.startsWith(&quot;application/x-java-jvm-local-objectref&quot;)</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">						&amp;&amp; flavors[i].getRepresentationClass() == java.lang.String.class) {</span>
+<span class="nc" id="L82">					refFlavor = flavors[i];</span>
+<span class="nc bnc" id="L83" title="All 4 branches missed.">				} else if (stringFlavor == null &amp;&amp; flavors[i].equals(DataFlavor.stringFlavor)) {</span>
+<span class="nc" id="L84">					stringFlavor = flavors[i];</span>
+				}
+			}
+<span class="nc bnc" id="L87" title="All 2 branches missed.">			if (plainFlavor != null) {</span>
+<span class="nc" id="L88">				return plainFlavor;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">			} else if (refFlavor != null) {</span>
+<span class="nc" id="L90">				return refFlavor;</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">			} else if (stringFlavor != null) {</span>
+<span class="nc" id="L92">				return stringFlavor;</span>
+			}
+<span class="nc" id="L94">			return null;</span>
+		}
+
+<span class="nc bnc" id="L97" title="All 2 branches missed.">		for (int i = 0; i &lt; flavors.length; i++) {</span>
+<span class="nc" id="L98">			String mime = flavors[i].getMimeType();</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">			if (mime.startsWith(&quot;text/plain&quot;)) {</span>
+<span class="nc" id="L100">				return flavors[i];</span>
+<span class="nc bnc" id="L101" title="All 4 branches missed.">			} else if (refFlavor == null &amp;&amp; mime.startsWith(&quot;application/x-java-jvm-local-objectref&quot;)</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">					&amp;&amp; flavors[i].getRepresentationClass() == java.lang.String.class) {</span>
+<span class="nc" id="L103">				refFlavor = flavors[i];</span>
+<span class="nc bnc" id="L104" title="All 4 branches missed.">			} else if (stringFlavor == null &amp;&amp; flavors[i].equals(DataFlavor.stringFlavor)) {</span>
+<span class="nc" id="L105">				stringFlavor = flavors[i];</span>
+			}
+		}
+<span class="nc bnc" id="L108" title="All 2 branches missed.">		if (refFlavor != null) {</span>
+<span class="nc" id="L109">			return refFlavor;</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">		} else if (stringFlavor != null) {</span>
+<span class="nc" id="L111">			return stringFlavor;</span>
+		}
+<span class="nc" id="L113">		return null;</span>
+	}
+
+	protected void handleReaderImport(Reader in, JTextComponent c, boolean useRead)
+			throws BadLocationException, IOException {
+		/**
+		 * Import the given stream data into the text component.
+		 */
+<span class="nc bnc" id="L121" title="All 2 branches missed.">		if (useRead) {</span>
+<span class="nc" id="L122">			int startPosition = c.getSelectionStart();</span>
+<span class="nc" id="L123">			int endPosition = c.getSelectionEnd();</span>
+<span class="nc" id="L124">			int length = endPosition - startPosition;</span>
+<span class="nc" id="L125">			EditorKit kit = c.getUI().getEditorKit(c);</span>
+<span class="nc" id="L126">			Document doc = c.getDocument();</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">			if (length &gt; 0) {</span>
+<span class="nc" id="L128">				doc.remove(startPosition, length);</span>
+			}
+<span class="nc" id="L130">			kit.read(in, doc, startPosition);</span>
+<span class="nc" id="L131">		} else {</span>
+<span class="nc" id="L132">			char[] buff = new char[1024];</span>
+			int nch;
+<span class="nc" id="L134">			boolean lastWasCR = false;</span>
+			int last;
+<span class="nc" id="L136">			StringBuffer sbuff = null;</span>
+
+			// Read in a block at a time, mapping \r\n to \n, as well as single
+			// \r to \n.
+<span class="nc bnc" id="L140" title="All 2 branches missed.">			while ((nch = in.read(buff, 0, buff.length)) != -1) {</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">				if (sbuff == null) {</span>
+<span class="nc" id="L142">					sbuff = new StringBuffer(nch);</span>
+				}
+<span class="nc" id="L144">				last = 0;</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">				for (int counter = 0; counter &lt; nch; counter++) {</span>
+<span class="nc bnc" id="L146" title="All 3 branches missed.">					switch (buff[counter]) {</span>
+					case '\r':
+<span class="nc bnc" id="L148" title="All 2 branches missed.">						if (lastWasCR) {</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">							if (counter == 0) {</span>
+<span class="nc" id="L150">								sbuff.append('\n');</span>
+<span class="nc" id="L151">							} else {</span>
+<span class="nc" id="L152">								buff[counter - 1] = '\n';</span>
+							}
+<span class="nc" id="L154">						} else {</span>
+<span class="nc" id="L155">							lastWasCR = true;</span>
+						}
+<span class="nc" id="L157">						break;</span>
+					case '\n':
+<span class="nc bnc" id="L159" title="All 2 branches missed.">						if (lastWasCR) {</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">							if (counter &gt; (last + 1)) {</span>
+<span class="nc" id="L161">								sbuff.append(buff, last, counter - last - 1);</span>
+							}
+							// else nothing to do, can skip \r, next write will
+							// write \n
+<span class="nc" id="L165">							lastWasCR = false;</span>
+<span class="nc" id="L166">							last = counter;</span>
+						}
+<span class="nc" id="L168">						break;</span>
+					default:
+<span class="nc bnc" id="L170" title="All 2 branches missed.">						if (lastWasCR) {</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">							if (counter == 0) {</span>
+<span class="nc" id="L172">								sbuff.append('\n');</span>
+<span class="nc" id="L173">							} else {</span>
+<span class="nc" id="L174">								buff[counter - 1] = '\n';</span>
+							}
+<span class="nc" id="L176">							lastWasCR = false;</span>
+						}
+						break;
+					}
+				}
+<span class="nc bnc" id="L181" title="All 2 branches missed.">				if (last &lt; nch) {</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">					if (lastWasCR) {</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">						if (last &lt; (nch - 1)) {</span>
+<span class="nc" id="L184">							sbuff.append(buff, last, nch - last - 1);</span>
+						}
+<span class="nc" id="L186">					} else {</span>
+<span class="nc" id="L187">						sbuff.append(buff, last, nch - last);</span>
+					}
+				}
+			}
+<span class="nc bnc" id="L191" title="All 2 branches missed.">			if (lastWasCR) {</span>
+<span class="nc" id="L192">				sbuff.append('\n');</span>
+			}
+<span class="nc bnc" id="L194" title="All 2 branches missed.">			c.replaceSelection(sbuff != null ? sbuff.toString() : &quot;&quot;);</span>
+		}
+<span class="nc" id="L196">	}</span>
+
+	// --- TransferHandler methods ------------------------------------
+
+	/**
+	 * This is the type of transfer actions supported by the source. Some models are
+	 * not mutable, so a transfer operation of COPY only should be advertised in
+	 * that case.
+	 *
+	 * @param c The component holding the data to be transfered. This argument is
+	 *          provided to enable sharing of TransferHandlers by multiple
+	 *          components.
+	 * @return This is implemented to return NONE if the component is a
+	 *         JPasswordField since exporting data via user gestures is not allowed.
+	 *         If the text component is editable, COPY_OR_MOVE is returned,
+	 *         otherwise just COPY is allowed.
+	 */
+	public int getSourceActions(JComponent c) {
+<span class="nc bnc" id="L214" title="All 4 branches missed.">		if (c instanceof JPasswordField &amp;&amp; c.getClientProperty(&quot;JPasswordField.cutCopyAllowed&quot;) != Boolean.TRUE) {</span>
+<span class="nc" id="L215">			return NONE;</span>
+		}
+
+<span class="nc bnc" id="L218" title="All 2 branches missed.">		return ((JTextComponent) c).isEditable() ? COPY_OR_MOVE : COPY;</span>
+	}
+
+	/**
+	 * Create a Transferable to use as the source for a data transfer.
+	 *
+	 * @param comp The component holding the data to be transfered. This argument is
+	 *             provided to enable sharing of TransferHandlers by multiple
+	 *             components.
+	 * @return The representation of the data to be transfered.
+	 *
+	 */
+	protected Transferable createTransferable(JComponent comp) {
+<span class="nc" id="L231">		exportComp = (JTextComponent) comp;</span>
+<span class="nc" id="L232">		shouldRemove = true;</span>
+<span class="nc" id="L233">		p0 = exportComp.getSelectionStart();</span>
+<span class="nc" id="L234">		p1 = exportComp.getSelectionEnd();</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">		return (p0 != p1) ? (new TextTransferable(exportComp, p0, p1)) : null;</span>
+	}
+
+	/**
+	 * This method is called after data has been exported. This method should remove
+	 * the data that was transfered if the action was MOVE.
+	 *
+	 * @param source The component that was the source of the data.
+	 * @param data   The data that was transferred or possibly null if the action is
+	 *               &lt;code&gt;NONE&lt;/code&gt;.
+	 * @param action The actual action that was performed.
+	 */
+	protected void exportDone(JComponent source, Transferable data, int action) {
+		// only remove the text if shouldRemove has not been set to
+		// false by importData and only if the action is a move
+<span class="nc bnc" id="L250" title="All 4 branches missed.">		if (shouldRemove &amp;&amp; action == MOVE) {</span>
+<span class="nc" id="L251">			TextTransferable t = (TextTransferable) data;</span>
+<span class="nc" id="L252">			t.removeText();</span>
+		}
+
+<span class="nc" id="L255">		exportComp = null;</span>
+<span class="nc" id="L256">	}</span>
+
+	public boolean importData(TransferSupport support) {
+<span class="nc" id="L259">		isDrop = support.isDrop();</span>
+
+<span class="nc bnc" id="L261" title="All 2 branches missed.">		if (isDrop) {</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">			modeBetween = ((JTextComponent) support.getComponent()).getDropMode() == DropMode.INSERT;</span>
+
+<span class="nc" id="L264">			dropBias = ((JTextComponent.DropLocation) support.getDropLocation()).getBias();</span>
+
+<span class="nc" id="L266">			dropAction = support.getDropAction();</span>
+		}
+
+		try {
+<span class="nc" id="L270">			return super.importData(support);</span>
+		} finally {
+<span class="nc" id="L272">			isDrop = false;</span>
+<span class="nc" id="L273">			modeBetween = false;</span>
+<span class="nc" id="L274">			dropBias = null;</span>
+<span class="nc" id="L275">			dropAction = MOVE;</span>
+		}
+	}
+
+	/**
+	 * This method causes a transfer to a component from a clipboard or a DND drop
+	 * operation. The Transferable represents the data to be imported into the
+	 * component.
+	 *
+	 * @param comp The component to receive the transfer. This argument is provided
+	 *             to enable sharing of TransferHandlers by multiple components.
+	 * @param t    The data to import
+	 * @return true if the data was inserted into the component, false otherwise.
+	 */
+	public boolean importData(JComponent comp, Transferable t) {
+<span class="nc" id="L290">		JTextComponent c = (JTextComponent) comp;</span>
+
+<span class="nc bnc" id="L292" title="All 2 branches missed.">		int pos = modeBetween ? c.getDropLocation().getIndex() : c.getCaretPosition();</span>
+
+		// if we are importing to the same component that we exported from
+		// then don't actually do anything if the drop location is inside
+		// the drag location and set shouldRemove to false so that exportDone
+		// knows not to remove any data
+<span class="nc bnc" id="L298" title="All 8 branches missed.">		if (dropAction == MOVE &amp;&amp; c == exportComp &amp;&amp; pos &gt;= p0 &amp;&amp; pos &lt;= p1) {</span>
+<span class="nc" id="L299">			shouldRemove = false;</span>
+<span class="nc" id="L300">			return true;</span>
+		}
+
+<span class="nc" id="L303">		boolean imported = false;</span>
+<span class="nc" id="L304">		DataFlavor importFlavor = getImportFlavor(t.getTransferDataFlavors(), c);</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">		if (importFlavor != null) {</span>
+			try {
+<span class="nc" id="L307">				boolean useRead = false;</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">				if (comp instanceof JEditorPane) {</span>
+<span class="nc" id="L309">					JEditorPane ep = (JEditorPane) comp;</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">					if (!ep.getContentType().startsWith(&quot;text/plain&quot;)</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">							&amp;&amp; importFlavor.getMimeType().startsWith(ep.getContentType())) {</span>
+<span class="nc" id="L312">						useRead = true;</span>
+					}
+				}
+<span class="nc" id="L315">				InputContext ic = c.getInputContext();</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">				if (ic != null) {</span>
+<span class="nc" id="L317">					ic.endComposition();</span>
+				}
+<span class="nc" id="L319">				Reader r = importFlavor.getReaderForText(t);</span>
+
+<span class="nc bnc" id="L321" title="All 2 branches missed.">				if (modeBetween) {</span>
+<span class="nc" id="L322">					Caret caret = c.getCaret();</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">					if (caret instanceof DefaultCaret) {</span>
+<span class="nc" id="L324">						((DefaultCaret) caret).setDot(pos, dropBias);</span>
+<span class="nc" id="L325">					} else {</span>
+<span class="nc" id="L326">						c.setCaretPosition(pos);</span>
+					}
+				}
+
+<span class="nc" id="L330">				handleReaderImport(r, c, useRead);</span>
+
+<span class="nc bnc" id="L332" title="All 2 branches missed.">				if (isDrop) {</span>
+<span class="nc" id="L333">					c.requestFocus();</span>
+<span class="nc" id="L334">					Caret caret = c.getCaret();</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">					if (caret instanceof DefaultCaret) {</span>
+<span class="nc" id="L336">						int newPos = caret.getDot();</span>
+<span class="nc" id="L337">						Position.Bias newBias = ((DefaultCaret) caret).getDotBias();</span>
+
+<span class="nc" id="L339">						((DefaultCaret) caret).setDot(pos, dropBias);</span>
+<span class="nc" id="L340">						((DefaultCaret) caret).moveDot(newPos, newBias);</span>
+<span class="nc" id="L341">					} else {</span>
+<span class="nc" id="L342">						c.select(pos, c.getCaretPosition());</span>
+					}
+				}
+
+<span class="nc" id="L346">				imported = true;</span>
+<span class="nc" id="L347">			} catch (UnsupportedFlavorException ufe) {</span>
+<span class="nc" id="L348">			} catch (BadLocationException ble) {</span>
+<span class="nc" id="L349">			} catch (IOException ioe) {</span>
+			}
+		}
+<span class="nc" id="L352">		return imported;</span>
+	}
+
+	/**
+	 * This method indicates if a component would accept an import of the given set
+	 * of data flavors prior to actually attempting to import it.
+	 *
+	 * @param comp    The component to receive the transfer. This argument is
+	 *                provided to enable sharing of TransferHandlers by multiple
+	 *                components.
+	 * @param flavors The data formats available
+	 * @return true if the data can be inserted into the component, false otherwise.
+	 */
+	public boolean canImport(JComponent comp, DataFlavor[] flavors) {
+<span class="nc" id="L366">		JTextComponent c = (JTextComponent) comp;</span>
+<span class="nc bnc" id="L367" title="All 4 branches missed.">		if (!(c.isEditable() &amp;&amp; c.isEnabled())) {</span>
+<span class="nc" id="L368">			return false;</span>
+		}
+<span class="nc bnc" id="L370" title="All 2 branches missed.">		return (getImportFlavor(flavors, c) != null);</span>
+	}
+
+	/**
+	 * A possible implementation of the Transferable interface for text components.
+	 * For a JEditorPane with a rich set of EditorKit implementations, conversions
+	 * could be made giving a wider set of formats. This is implemented to offer up
+	 * only the active content type and text/plain (if that is not the active
+	 * format) since that can be extracted from other formats.
+	 */
+	static class TextTransferable extends BasicTransferable {
+
+		TextTransferable(JTextComponent c, int start, int end) {
+<span class="nc" id="L383">			super(null, null);</span>
+
+<span class="nc" id="L385">			this.c = c;</span>
+
+<span class="nc" id="L387">			Document doc = c.getDocument();</span>
+
+			try {
+<span class="nc" id="L390">				p0 = doc.createPosition(start);</span>
+<span class="nc" id="L391">				p1 = doc.createPosition(end);</span>
+
+<span class="nc" id="L393">				plainData = c.getSelectedText();</span>
+
+<span class="nc bnc" id="L395" title="All 2 branches missed.">				if (c instanceof JEditorPane) {</span>
+<span class="nc" id="L396">					JEditorPane ep = (JEditorPane) c;</span>
+
+<span class="nc" id="L398">					mimeType = ep.getContentType();</span>
+
+<span class="nc bnc" id="L400" title="All 2 branches missed.">					if (mimeType.startsWith(&quot;text/plain&quot;)) {</span>
+<span class="nc" id="L401">						return;</span>
+					}
+
+<span class="nc" id="L404">					StringWriter sw = new StringWriter(p1.getOffset() - p0.getOffset());</span>
+<span class="nc" id="L405">					ep.getEditorKit().write(sw, doc, p0.getOffset(), p1.getOffset() - p0.getOffset());</span>
+
+<span class="nc bnc" id="L407" title="All 2 branches missed.">					if (mimeType.startsWith(&quot;text/html&quot;)) {</span>
+<span class="nc" id="L408">						htmlData = sw.toString();</span>
+<span class="nc" id="L409">					} else {</span>
+<span class="nc" id="L410">						richText = sw.toString();</span>
+					}
+				}
+<span class="nc" id="L413">			} catch (BadLocationException ble) {</span>
+<span class="nc" id="L414">			} catch (IOException ioe) {</span>
+			}
+<span class="nc" id="L416">		}</span>
+
+		void removeText() {
+<span class="nc bnc" id="L419" title="All 6 branches missed.">			if ((p0 != null) &amp;&amp; (p1 != null) &amp;&amp; (p0.getOffset() != p1.getOffset())) {</span>
+				try {
+<span class="nc" id="L421">					Document doc = c.getDocument();</span>
+<span class="nc" id="L422">					doc.remove(p0.getOffset(), p1.getOffset() - p0.getOffset());</span>
+<span class="nc" id="L423">				} catch (BadLocationException e) {</span>
+				}
+			}
+<span class="nc" id="L426">		}</span>
+
+		// ---- EditorKit other than plain or HTML text -----------------------
+
+		/**
+		 * If the EditorKit is not for text/plain or text/html, that format is supported
+		 * through the &quot;richer flavors&quot; part of BasicTransferable.
+		 */
+		protected DataFlavor[] getRicherFlavors() {
+<span class="nc bnc" id="L435" title="All 2 branches missed.">			if (richText == null) {</span>
+<span class="nc" id="L436">				return null;</span>
+			}
+
+			try {
+<span class="nc" id="L440">				DataFlavor[] flavors = new DataFlavor[3];</span>
+<span class="nc" id="L441">				flavors[0] = new DataFlavor(mimeType + &quot;;class=java.lang.String&quot;);</span>
+<span class="nc" id="L442">				flavors[1] = new DataFlavor(mimeType + &quot;;class=java.io.Reader&quot;);</span>
+<span class="nc" id="L443">				flavors[2] = new DataFlavor(mimeType + &quot;;class=java.io.InputStream;charset=unicode&quot;);</span>
+<span class="nc" id="L444">				return flavors;</span>
+<span class="nc" id="L445">			} catch (ClassNotFoundException cle) {</span>
+				// fall through to unsupported (should not happen)
+			}
+
+<span class="nc" id="L449">			return null;</span>
+		}
+
+		/**
+		 * The only richer format supported is the file list flavor
+		 */
+		protected Object getRicherData(DataFlavor flavor) throws UnsupportedFlavorException {
+<span class="nc bnc" id="L456" title="All 2 branches missed.">			if (richText == null) {</span>
+<span class="nc" id="L457">				return null;</span>
+			}
+
+<span class="nc bnc" id="L460" title="All 2 branches missed.">			if (String.class.equals(flavor.getRepresentationClass())) {</span>
+<span class="nc" id="L461">				return richText;</span>
+<span class="nc bnc" id="L462" title="All 2 branches missed.">			} else if (Reader.class.equals(flavor.getRepresentationClass())) {</span>
+<span class="nc" id="L463">				return new StringReader(richText);</span>
+<span class="nc bnc" id="L464" title="All 2 branches missed.">			} else if (InputStream.class.equals(flavor.getRepresentationClass())) {</span>
+<span class="nc" id="L465">				return new StringBufferInputStream(richText);</span>
+			}
+<span class="nc" id="L467">			throw new UnsupportedFlavorException(flavor);</span>
+		}
+
+		Position p0;
+		Position p1;
+		String mimeType;
+		String richText;
+		JTextComponent c;
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

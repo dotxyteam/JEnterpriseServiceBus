@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Sleep.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">Sleep.java</span></div><h1>Sleep.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.io.IOException;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public class Sleep implements Operation {
+
+	private long milliseconds;
+
+<span class="fc" id="L22">	public Sleep(long milliseconds) {</span>
+<span class="fc" id="L23">		this.milliseconds = milliseconds;</span>
+<span class="fc" id="L24">	}</span>
+
+	public long getMilliseconds() {
+<span class="nc" id="L27">		return milliseconds;</span>
+	}
+
+	@Override
+	public Object execute() throws IOException {
+<span class="fc" id="L32">		MiscUtils.sleepSafely(milliseconds);</span>
+<span class="fc" id="L33">		return null;</span>
+	}
+
+<span class="fc" id="L36">	public static class Metadata implements OperationMetadata&lt;Sleep&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L40">			return &quot;Sleep&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L45">			return &quot;General&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;Sleep&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L50">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L55">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L56">					.specifyClassPathResourceLocation(Sleep.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+<span class="fc" id="L60">	public static class Builder implements OperationBuilder&lt;Sleep&gt; {</span>
+
+<span class="fc" id="L62">		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(</span>
+<span class="fc" id="L63">				Sleep.class.getSimpleName() + &quot;Input&quot;, Sleep.class.getName());</span>
+
+		public RootInstanceBuilder getInstanceBuilder() {
+<span class="nc" id="L66">			return instanceBuilder;</span>
+		}
+
+		public void setInstanceBuilder(RootInstanceBuilder instanceBuilder) {
+<span class="fc" id="L70">			this.instanceBuilder = instanceBuilder;</span>
+<span class="fc" id="L71">		}</span>
+
+		@Override
+		public Sleep build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+<span class="fc" id="L75">			return (Sleep) instanceBuilder.build(new InstantiationContext(context.getVariables(),</span>
+<span class="fc" id="L76">					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="fc" id="L81">			return null;</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">				if (instanceBuilder != null) {</span>
+					try {
+<span class="fc" id="L89">						instanceBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L90">								plan.getValidationContext(step).getVariableDeclarations());</span>
+<span class="pc" id="L91">					} catch (ValidationError e) {</span>
+<span class="nc" id="L92">						throw new ValidationError(&quot;Failed to validate the input builder&quot;, e);</span>
+					}
+				}
+			}
+<span class="fc" id="L96">		}</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

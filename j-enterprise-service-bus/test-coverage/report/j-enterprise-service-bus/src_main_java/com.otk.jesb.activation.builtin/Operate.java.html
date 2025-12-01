@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Operate.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.activation.builtin</a> &gt; <span class="el_source">Operate.java</span></div><h1>Operate.java</h1><pre class="source lang-java linenums">package com.otk.jesb.activation.builtin;
+
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.operation.builtin.ExecutePlan;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.activation.ActivationHandler;
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.activation.ActivatorMetadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+
+import xy.reflect.ui.info.ResourcePath;
+
+<span class="fc" id="L19">public class Operate extends Activator {</span>
+
+	private ClassicStructure inputStructure;
+	private ClassicStructure outputStructure;
+
+<span class="fc" id="L24">	private UpToDate&lt;Class&lt;?&gt;&gt; upToDateInputClass = new UpToDateInputClass();</span>
+<span class="fc" id="L25">	private UpToDate&lt;Class&lt;?&gt;&gt; upToDateOutputClass = new UpToDateOutputClass();</span>
+
+	public ClassicStructure getInputStructure() {
+<span class="nc" id="L28">		return inputStructure;</span>
+	}
+
+	public void setInputStructure(ClassicStructure inputStructure) {
+<span class="fc" id="L32">		this.inputStructure = inputStructure;</span>
+<span class="fc" id="L33">	}</span>
+
+	public ClassicStructure getOutputStructure() {
+<span class="nc" id="L36">		return outputStructure;</span>
+	}
+
+	public void setOutputStructure(ClassicStructure outputStructure) {
+<span class="fc" id="L40">		this.outputStructure = outputStructure;</span>
+<span class="fc" id="L41">	}</span>
+
+	@Override
+	public Class&lt;?&gt; getInputClass() {
+		try {
+<span class="fc" id="L46">			return upToDateInputClass.get();</span>
+<span class="nc" id="L47">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L48">			throw new PotentialError(e);</span>
+		}
+	}
+
+	@Override
+	public Class&lt;?&gt; getOutputClass() {
+		try {
+<span class="fc" id="L55">			return upToDateOutputClass.get();</span>
+<span class="nc" id="L56">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L57">			throw new PotentialError(e);</span>
+		}
+	}
+
+	@Override
+	public boolean isAutomaticallyTriggerable() {
+<span class="fc" id="L63">		return false;</span>
+	}
+
+	@Override
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler) {
+<span class="nc" id="L68">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public void finalizeAutomaticTrigger() throws Exception {
+<span class="nc" id="L73">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public boolean isAutomaticTriggerReady() {
+<span class="nc" id="L78">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public void validate(boolean recursively, Plan plan) throws ValidationError {
+<span class="fc" id="L83">		super.validate(recursively, plan);</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">		if (inputStructure != null) {</span>
+			try {
+<span class="fc" id="L86">				inputStructure.validate(recursively);</span>
+<span class="pc" id="L87">			} catch (ValidationError e) {</span>
+<span class="nc" id="L88">				throw new ValidationError(&quot;Failed to validate the input structure&quot;, e);</span>
+			}
+		}
+<span class="fc bfc" id="L91" title="All 2 branches covered.">		if (outputStructure != null) {</span>
+			try {
+<span class="fc" id="L93">				outputStructure.validate(recursively);</span>
+<span class="pc" id="L94">			} catch (ValidationError e) {</span>
+<span class="nc" id="L95">				throw new ValidationError(&quot;Failed to validate the output structure&quot;, e);</span>
+			}
+		}
+<span class="fc" id="L98">	}</span>
+
+<span class="fc" id="L100">	private class UpToDateInputClass extends UpToDate&lt;Class&lt;?&gt;&gt; {</span>
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+<span class="fc bfc" id="L103" title="All 2 branches covered.">			return (inputStructure != null) ? MiscUtils.serialize(inputStructure) : null;</span>
+		}
+
+		@Override
+		protected Class&lt;?&gt; obtainLatest(Object versionIdentifier) {
+<span class="fc bfc" id="L108" title="All 2 branches covered.">			if (inputStructure == null) {</span>
+<span class="fc" id="L109">				return null;</span>
+			} else {
+				try {
+<span class="fc" id="L112">					String className = Plan.class.getPackage().getName() + &quot;.&quot; + Plan.class.getSimpleName() + &quot;Input&quot;</span>
+<span class="fc" id="L113">							+ InstantiationUtils</span>
+<span class="fc" id="L114">									.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(Operate.this));</span>
+<span class="fc" id="L115">					return MiscUtils.IN_MEMORY_COMPILER.compile(className,</span>
+<span class="fc" id="L116">							inputStructure.generateJavaTypeSourceCode(className));</span>
+<span class="nc" id="L117">				} catch (CompilationError e) {</span>
+<span class="nc" id="L118">					throw new PotentialError(e);</span>
+				}
+			}
+		}
+	}
+
+<span class="fc" id="L124">	private class UpToDateOutputClass extends UpToDate&lt;Class&lt;?&gt;&gt; {</span>
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+<span class="fc bfc" id="L127" title="All 2 branches covered.">			return (outputStructure != null) ? MiscUtils.serialize(outputStructure) : null;</span>
+		}
+
+		@Override
+		protected Class&lt;?&gt; obtainLatest(Object versionIdentifier) {
+<span class="fc bfc" id="L132" title="All 2 branches covered.">			if (outputStructure == null) {</span>
+<span class="fc" id="L133">				return null;</span>
+			} else {
+				try {
+<span class="fc" id="L136">					String className = Plan.class.getPackage().getName() + &quot;.&quot; + Plan.class.getSimpleName() + &quot;Output&quot;</span>
+<span class="fc" id="L137">							+ InstantiationUtils</span>
+<span class="fc" id="L138">									.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(Operate.this));</span>
+<span class="fc" id="L139">					return MiscUtils.IN_MEMORY_COMPILER.compile(className,</span>
+<span class="fc" id="L140">							outputStructure.generateJavaTypeSourceCode(className));</span>
+<span class="nc" id="L141">				} catch (CompilationError e) {</span>
+<span class="nc" id="L142">					throw new PotentialError(e);</span>
+				}
+			}
+		}
+	}
+
+<span class="fc" id="L148">	public static class Metadata implements ActivatorMetadata {</span>
+
+		@Override
+		public ResourcePath getActivatorIconImagePath() {
+<span class="fc" id="L152">			return new ResourcePath(</span>
+<span class="fc" id="L153">					ResourcePath.specifyClassPathResourceLocation(Operate.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+		@Override
+		public Class&lt;? extends Activator&gt; getActivatorClass() {
+<span class="fc" id="L158">			return Operate.class;</span>
+		}
+
+		@Override
+		public String getActivatorName() {
+<span class="fc" id="L163">			return &quot;(Sub-Plan) Handle &lt;&quot; + new ExecutePlan.Metadata().getOperationTypeName() + &quot;&gt; Operation&quot;;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

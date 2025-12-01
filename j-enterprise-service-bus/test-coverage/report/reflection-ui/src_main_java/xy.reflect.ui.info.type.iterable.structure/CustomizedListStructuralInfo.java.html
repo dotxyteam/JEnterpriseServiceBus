@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CustomizedListStructuralInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.structure</a> &gt; <span class="el_source">CustomizedListStructuralInfo.java</span></div><h1>CustomizedListStructuralInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.iterable.structure;
+
+import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.custom.InfoCustomizations;
+import xy.reflect.ui.info.custom.InfoCustomizations.ColumnCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.InfoPattern;
+import xy.reflect.ui.info.custom.InfoCustomizations.ListCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.ControlSizeUnit;
+import xy.reflect.ui.info.custom.InfoCustomizations.TreeStructureDiscoverySettings;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.field.MultipleFieldsAsListFieldInfo;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.filter.InfoFilterProxy;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.info.type.iterable.item.ItemPositionProxy;
+import xy.reflect.ui.info.type.iterable.structure.CustomizedListStructuralInfo.SubListGroupField.SubListGroupItemTypeInfo;
+import xy.reflect.ui.info.type.iterable.structure.column.ColumnInfoProxy;
+import xy.reflect.ui.info.type.iterable.structure.column.FieldColumnInfo;
+import xy.reflect.ui.info.type.iterable.structure.column.IColumnInfo;
+import xy.reflect.ui.info.type.iterable.structure.column.PositionColumnInfo;
+import xy.reflect.ui.info.type.iterable.structure.column.StringValueColumnInfo;
+import xy.reflect.ui.info.type.iterable.structure.column.TypeNameColumnInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.info.type.source.TypeInfoSourceProxy;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Structural information proxy that conforms the base structural information to
+ * the specified {@link ListCustomization}.
+ * 
+ * @author olitank
+ *
+ */
+public class CustomizedListStructuralInfo extends ListStructuralInfoProxy {
+
+	protected List&lt;IFieldInfo&gt; columnFields;
+	protected ReflectionUI reflectionUI;
+	protected ListCustomization listCustomization;
+	protected List&lt;IColumnInfo&gt; columns;
+	protected IListTypeInfo listType;
+	protected ITypeInfo rootItemType;
+
+	public CustomizedListStructuralInfo(ReflectionUI reflectionUI, IListStructuralInfo base, IListTypeInfo listType,
+			ListCustomization listCustomization) {
+<span class="fc" id="L59">		super(base);</span>
+<span class="fc" id="L60">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L61">		this.listType = listType;</span>
+<span class="fc" id="L62">		this.listCustomization = listCustomization;</span>
+<span class="fc" id="L63">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L64">		this.rootItemType = findRootItemType();</span>
+<span class="fc" id="L65">		this.columnFields = collectColumnFields();</span>
+<span class="fc" id="L66">		this.columns = getColumns();</span>
+<span class="fc" id="L67">	}</span>
+
+	@Override
+	public int getWidth() {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">		if (listCustomization.getWidth() != null) {</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">			if (listCustomization.getWidth().getUnit() == ControlSizeUnit.PIXELS) {</span>
+<span class="fc" id="L73">				return listCustomization.getWidth().getValue();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">			} else if (listCustomization.getWidth().getUnit() == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L75">				Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L76">				return Math.round((listCustomization.getWidth().getValue() / 100f) * screenSize.width);</span>
+			} else {
+<span class="nc" id="L78">				throw new ReflectionUIError();</span>
+			}
+		}
+<span class="fc" id="L81">		return super.getWidth();</span>
+	}
+
+	@Override
+	public int getHeight() {
+<span class="fc bfc" id="L86" title="All 2 branches covered.">		if (listCustomization.getHeight() != null) {</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">			if (listCustomization.getHeight().getUnit() == ControlSizeUnit.PIXELS) {</span>
+<span class="fc" id="L88">				return listCustomization.getHeight().getValue();</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">			} else if (listCustomization.getHeight().getUnit() == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L90">				Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L91">				return Math.round((listCustomization.getHeight().getValue() / 100f) * screenSize.height);</span>
+			} else {
+<span class="nc" id="L93">				throw new ReflectionUIError();</span>
+			}
+		}
+<span class="fc" id="L96">		return super.getHeight();</span>
+	}
+
+	protected ITypeInfo findRootItemType() {
+<span class="fc" id="L100">		TreeStructureDiscoverySettings treeStructure = listCustomization.getTreeStructureDiscoverySettings();</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">		if (treeStructure != null) {</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">			if (treeStructure.getCustomBaseNodeTypeFinder() != null) {</span>
+<span class="fc" id="L103">				return treeStructure.getCustomBaseNodeTypeFinder().find(reflectionUI, null);</span>
+			}
+		}
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">		if (listCustomization.getCustomItemTypeFinder() != null) {</span>
+<span class="nc" id="L107">			return listCustomization.getCustomItemTypeFinder().find(reflectionUI, null);</span>
+		}
+<span class="fc" id="L109">		return listType.getItemType();</span>
+	}
+
+	@Override
+	public IFieldInfo getItemSubListField(ItemPosition itemPosition) {
+<span class="fc" id="L114">		final Object item = itemPosition.getItem();</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">		if (item == null) {</span>
+<span class="nc" id="L116">			return null;</span>
+		}
+<span class="fc" id="L118">		itemPosition = new ItemPositionProxy(itemPosition) {</span>
+			// optimization to not retrieve multiple times the same item.
+			@Override
+			public Object getItem() {
+<span class="fc" id="L122">				return item;</span>
+			}
+		};
+<span class="fc bfc" id="L125" title="All 2 branches covered.">		if (listCustomization.getTreeStructureDiscoverySettings() == null) {</span>
+<span class="fc" id="L126">			return super.getItemSubListField(itemPosition);</span>
+		}
+<span class="fc" id="L128">		List&lt;IFieldInfo&gt; candidateFields = getItemSubListCandidateFields(itemPosition);</span>
+<span class="fc" id="L129">		ITypeInfo actualItemType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(item));</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">		if (candidateFields.size() == 0) {</span>
+<span class="fc" id="L131">			return null;</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">		} else if (candidateFields.size() == 1) {</span>
+<span class="fc" id="L133">			IFieldInfo candidateField = candidateFields.get(0);</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">			if (isSubListFieldNameDisplayedAsTreeNode(candidateField, itemPosition)) {</span>
+<span class="nc" id="L135">				return getSubListsGroupingField(Collections.singletonList(candidateField), actualItemType);</span>
+			} else {
+<span class="fc" id="L137">				return candidateField;</span>
+			}
+		} else {
+<span class="nc" id="L140">			return getSubListsGroupingField(candidateFields, actualItemType);</span>
+		}
+	}
+
+	protected IFieldInfo getSubListsGroupingField(List&lt;IFieldInfo&gt; subListFields, ITypeInfo actualItemType) {
+<span class="nc" id="L145">		return new SubListGroupField(reflectionUI, subListFields, actualItemType);</span>
+	}
+
+	protected List&lt;IFieldInfo&gt; getItemSubListCandidateFields(ItemPosition itemPosition) {
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">		if (listCustomization.getTreeStructureDiscoverySettings() == null) {</span>
+<span class="nc" id="L150">			return Collections.emptyList();</span>
+		}
+<span class="fc" id="L152">		List&lt;IFieldInfo&gt; result = new ArrayList&lt;IFieldInfo&gt;();</span>
+<span class="fc" id="L153">		final Object item = itemPosition.getItem();</span>
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">		if (item != null) {</span>
+<span class="fc" id="L155">			ITypeInfo actualItemType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(item));</span>
+<span class="fc" id="L156">			List&lt;IFieldInfo&gt; itemFields = actualItemType.getFields();</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">			for (final IFieldInfo field : itemFields) {</span>
+<span class="fc" id="L158">				boolean excluded = false;</span>
+<span class="fc bfc" id="L159" title="All 2 branches covered.">				for (InfoPattern excludedField : listCustomization.getTreeStructureDiscoverySettings()</span>
+<span class="fc" id="L160">						.getExcludedSubListFields()) {</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">					if (excludedField.matches(field.getName())) {</span>
+<span class="fc" id="L162">						excluded = true;</span>
+<span class="fc" id="L163">						break;</span>
+					}
+				}
+<span class="fc bfc" id="L166" title="All 2 branches covered.">				if (excluded) {</span>
+<span class="fc" id="L167">					continue;</span>
+				}
+<span class="fc" id="L169">				ITypeInfo fieldType = field.getType();</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">				if (fieldType instanceof IListTypeInfo) {</span>
+<span class="fc" id="L171">					ITypeInfo subListItemType = ((IListTypeInfo) fieldType).getItemType();</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">					if (isValidSubListItemType(subListItemType)) {</span>
+<span class="fc" id="L173">						result.add(field);</span>
+					}
+				}
+			}
+		}
+<span class="fc" id="L178">		return result;</span>
+	}
+
+	protected boolean isValidSubListItemType(ITypeInfo itemType) {
+<span class="fc bfc" id="L182" title="All 2 branches covered.">		if (listCustomization.getTreeStructureDiscoverySettings().isHeterogeneousTree()) {</span>
+<span class="fc" id="L183">			return true;</span>
+		}
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">		if (itemType == null) {</span>
+<span class="nc" id="L186">			return false;</span>
+		}
+<span class="fc bfc" id="L188" title="All 2 branches covered.">		if (rootItemType.getName().equals(itemType.getName())) {</span>
+<span class="fc" id="L189">			return true;</span>
+		}
+<span class="fc bfc" id="L191" title="All 2 branches covered.">		for (ITypeInfo rootTypeDescendant : ReflectionUIUtils.listDescendantTypes(rootItemType)) {</span>
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">			if (rootTypeDescendant.getName().equals(itemType.getName())) {</span>
+<span class="nc" id="L193">				return true;</span>
+			}
+		}
+<span class="fc" id="L196">		return false;</span>
+	}
+
+	@Override
+	public IInfoFilter getItemDetailsInfoFilter(final ItemPosition itemPosition) {
+<span class="fc" id="L201">		IInfoFilter result = super.getItemDetailsInfoFilter(itemPosition);</span>
+<span class="fc" id="L202">		CustomizedItemDetailsInfoFilterProxy proxy = new CustomizedItemDetailsInfoFilterProxy(</span>
+<span class="fc" id="L203">				super.getItemDetailsInfoFilter(itemPosition), listCustomization);</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">		if (proxy.isRelevant()) {</span>
+<span class="fc" id="L205">			result = proxy;</span>
+		}
+<span class="fc" id="L207">		return result;</span>
+	}
+
+	protected List&lt;IFieldInfo&gt; collectColumnFields() {
+<span class="pc bpc" id="L211" title="1 of 2 branches missed.">		if (rootItemType == null) {</span>
+<span class="nc" id="L212">			return Collections.emptyList();</span>
+		}
+<span class="fc" id="L214">		return rootItemType.getFields();</span>
+	}
+
+	@Override
+	public List&lt;IColumnInfo&gt; getColumns() {
+<span class="fc" id="L219">		final List&lt;IColumnInfo&gt; result = new ArrayList&lt;IColumnInfo&gt;();</span>
+<span class="fc" id="L220">		result.addAll(super.getColumns());</span>
+
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">		if (listCustomization.isStringValueColumnAdded()) {</span>
+<span class="nc" id="L223">			result.add(0, new StringValueColumnInfo(reflectionUI));</span>
+		}
+<span class="fc bfc" id="L225" title="All 2 branches covered.">		if (listCustomization.isFieldColumnsAdded()) {</span>
+<span class="fc" id="L226">			int insertindex = 0;</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">			for (final IFieldInfo field : columnFields) {</span>
+<span class="fc" id="L228">				result.add(insertindex, new FieldColumnInfo(reflectionUI, rootItemType, field));</span>
+<span class="fc" id="L229">				insertindex++;</span>
+			}
+		}
+<span class="fc bfc" id="L232" title="All 2 branches covered.">		if (listCustomization.isItemTypeColumnAdded()) {</span>
+<span class="fc" id="L233">			result.add(0, new TypeNameColumnInfo(reflectionUI));</span>
+		}
+<span class="fc bfc" id="L235" title="All 2 branches covered.">		if (listCustomization.isPositionColumnAdded()) {</span>
+<span class="fc" id="L236">			result.add(0, new PositionColumnInfo(reflectionUI));</span>
+		}
+
+<span class="fc" id="L239">		final List&lt;IColumnInfo&gt; filteredResult = new ArrayList&lt;IColumnInfo&gt;();</span>
+
+<span class="fc bfc" id="L241" title="All 2 branches covered.">		for (IColumnInfo column : result) {</span>
+<span class="fc" id="L242">			final ColumnCustomization c = InfoCustomizations.getColumnCustomization(listCustomization,</span>
+<span class="fc" id="L243">					column.getName());</span>
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">			if (c != null) {</span>
+<span class="fc bfc" id="L245" title="All 2 branches covered.">				if (c.isHidden()) {</span>
+<span class="fc" id="L246">					continue;</span>
+				}
+<span class="fc bfc" id="L248" title="All 2 branches covered.">				if (c.getCustomCaption() != null) {</span>
+<span class="fc" id="L249">					column = new ColumnInfoProxy(column) {</span>
+						@Override
+						public String getCaption() {
+<span class="fc" id="L252">							return c.getCustomCaption();</span>
+						}
+					};
+				}
+<span class="fc bfc" id="L256" title="All 2 branches covered.">				if (c.getMinimalCharacterCount() != null) {</span>
+<span class="fc" id="L257">					column = new ColumnInfoProxy(column) {</span>
+
+						@Override
+						public int getMinimalCharacterCount() {
+<span class="fc" id="L261">							return c.getMinimalCharacterCount();</span>
+						}
+					};
+				}
+			}
+<span class="fc" id="L266">			filteredResult.add(column);</span>
+		}
+
+<span class="fc" id="L269">		List&lt;String&gt; customOrder = listCustomization.getColumnsCustomOrder();</span>
+<span class="fc bfc" id="L270" title="All 2 branches covered.">		if (customOrder != null) {</span>
+<span class="fc" id="L271">			Collections.sort(filteredResult, ReflectionUIUtils.getInfosComparator(customOrder, filteredResult));</span>
+		}
+
+<span class="fc" id="L274">		return filteredResult;</span>
+	}
+
+	protected boolean isSubListFieldNameDisplayedAsTreeNode(IFieldInfo subListField, ItemPosition itemPosition) {
+<span class="fc" id="L278">		ITypeInfo itemType = itemPosition.getContainingListType().getItemType();</span>
+<span class="pc bpc" id="L279" title="1 of 2 branches missed.">		if (itemPosition.getItem() instanceof SubListGroupField.ListItem) {</span>
+<span class="nc" id="L280">			return false;</span>
+		}
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">		if (itemType instanceof SubListGroupItemTypeInfo) {</span>
+<span class="nc" id="L283">			return false;</span>
+		}
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">		if (listCustomization.getTreeStructureDiscoverySettings().isSingleSubListFieldNameNeverDisplayedAsTreeNode()) {</span>
+<span class="fc" id="L286">			return false;</span>
+		}
+<span class="nc" id="L288">		return true;</span>
+	}
+
+	@Override
+	public boolean isSlave(Object subFormObject, IFieldInfo subFormField, BufferedItemPosition itemPosition) {
+<span class="fc bfc" id="L293" title="All 2 branches covered.">		if (listCustomization.getTreeStructureDiscoverySettings() == null) {</span>
+<span class="fc" id="L294">			return false;</span>
+		}
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">		if (!listCustomization.getTreeStructureDiscoverySettings().isSubListFieldControlSlave()) {</span>
+<span class="nc" id="L297">			return false;</span>
+		}
+<span class="fc" id="L299">		IFieldInfo subListField = getItemSubListField(itemPosition);</span>
+<span class="pc bpc" id="L300" title="1 of 2 branches missed.">		if (subListField == null) {</span>
+<span class="nc" id="L301">			return false;</span>
+		}
+<span class="pc bpc" id="L303" title="1 of 2 branches missed.">		if (!subListField.getName().equals(subFormField.getName())) {</span>
+<span class="nc" id="L304">			return false;</span>
+		}
+<span class="fc" id="L306">		return true;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L311">		final int prime = 31;</span>
+<span class="nc" id="L312">		int result = super.hashCode();</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">		result = prime * result + ((listCustomization == null) ? 0 : listCustomization.hashCode());</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">		result = prime * result + ((listType == null) ? 0 : listType.hashCode());</span>
+<span class="nc" id="L315">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L320" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L321">			return true;</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="nc" id="L323">			return false;</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L325">			return false;</span>
+<span class="nc" id="L326">		CustomizedListStructuralInfo other = (CustomizedListStructuralInfo) obj;</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">		if (listCustomization == null) {</span>
+<span class="nc bnc" id="L328" title="All 2 branches missed.">			if (other.listCustomization != null)</span>
+<span class="nc" id="L329">				return false;</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">		} else if (!listCustomization.equals(other.listCustomization))</span>
+<span class="nc" id="L331">			return false;</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">		if (listType == null) {</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">			if (other.listType != null)</span>
+<span class="nc" id="L334">				return false;</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">		} else if (!listType.equals(other.listType))</span>
+<span class="nc" id="L336">			return false;</span>
+<span class="nc" id="L337">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L342">		return &quot;CustomizedStructuralInfo [customization=&quot; + listCustomization + &quot;, listType=&quot; + listType + &quot;, base=&quot;</span>
+<span class="nc" id="L343">				+ base + &quot;]&quot;;</span>
+	}
+
+	/**
+	 * Version of {@link MultipleFieldsAsListFieldInfo} used for list structure
+	 * customization only.
+	 * 
+	 * @author olitank
+	 *
+	 */
+	public static class SubListGroupField extends MultipleFieldsAsListFieldInfo {
+
+		public SubListGroupField(ReflectionUI reflectionUI, List&lt;IFieldInfo&gt; fields, ITypeInfo containingItemType) {
+<span class="nc" id="L356">			super(reflectionUI, fields, containingItemType);</span>
+<span class="nc" id="L357">		}</span>
+
+		@Override
+		public String getName() {
+<span class="nc" id="L361">			return &quot;subListGroup [containingItemType=&quot; + getContainingItemType().getName() + &quot;]&quot;;</span>
+		}
+
+		@Override
+		public boolean isGetOnly() {
+<span class="nc" id="L366">			return false;</span>
+		}
+
+		@Override
+		public void setValue(Object object, Object value) {
+<span class="nc" id="L371">		}</span>
+
+		@Override
+		protected ListItem getListItem(Object object, IFieldInfo listFieldInfo) {
+<span class="nc" id="L375">			return new SubListGroupItem(object, listFieldInfo);</span>
+		}
+
+		@Override
+		protected ITypeInfo getListItemTypeInfo(IFieldInfo field) {
+<span class="nc" id="L380">			return new SubListGroupItemTypeInfo(field);</span>
+		}
+
+		@Override
+		public ITypeInfo getType() {
+<span class="nc" id="L385">			return reflectionUI</span>
+<span class="nc" id="L386">					.getTypeInfo(new PrecomputedTypeInstanceWrapper.TypeInfoSource(new SubListGroupTypeInfo()));</span>
+		}
+
+		public ITypeInfo getContainingItemType() {
+<span class="nc" id="L390">			return objectType;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L395">			return &quot;SubListGroupField [containingItemType=&quot; + getContainingItemType() + &quot;]&quot;;</span>
+		}
+
+		public class SubListGroupTypeInfo extends ListTypeInfo {
+
+<span class="nc" id="L400">			public SubListGroupTypeInfo() {</span>
+<span class="nc" id="L401">				this.itemType = reflectionUI.getTypeInfo(new PrecomputedTypeInstanceWrapper.TypeInfoSource(</span>
+<span class="nc" id="L402">						new DefaultTypeInfo(reflectionUI, new JavaTypeInfoSource(SubListGroupItem.class, null))));</span>
+<span class="nc" id="L403">			}</span>
+
+			@Override
+			public IListStructuralInfo getStructuralInfo() {
+<span class="nc" id="L407">				return new ListStructuralInfoProxy(super.getStructuralInfo()) {</span>
+
+					@Override
+					public IFieldInfo getItemSubListField(ItemPosition itemPosition) {
+<span class="nc" id="L411">						PrecomputedTypeInstanceWrapper item = (PrecomputedTypeInstanceWrapper) itemPosition.getItem();</span>
+<span class="nc" id="L412">						SubListGroupItem subListGroupItem = (SubListGroupItem) (item).getInstance();</span>
+<span class="nc" id="L413">						return new PrecomputedTypeInstanceWrapper.TypeInfoSource(</span>
+<span class="nc" id="L414">								getListItemTypeInfo(subListGroupItem.getField())).buildTypeInfo(reflectionUI)</span>
+<span class="nc" id="L415">										.getFields().get(0);</span>
+					}
+
+				};
+			}
+
+			@Override
+			public String toString() {
+<span class="nc" id="L423">				return &quot;SubListGroupTypeInfo [containingItemType=&quot; + getContainingItemType() + &quot;]&quot;;</span>
+			}
+
+		}
+
+		public class SubListGroupItemTypeInfo extends ListItemTypeInfo {
+
+<span class="nc" id="L430">			public SubListGroupItemTypeInfo(IFieldInfo field) {</span>
+<span class="nc" id="L431">				super(field);</span>
+<span class="nc" id="L432">			}</span>
+
+			@Override
+			public String getName() {
+<span class="nc" id="L436">				return &quot;SubListGroupItemTypeInfo [of=&quot; + SubListGroupField.this.getName() + &quot;, itemField=&quot;</span>
+<span class="nc" id="L437">						+ field.getName() + &quot;]&quot;;</span>
+			}
+
+			@Override
+			public IFieldInfo getDetailsField() {
+<span class="nc" id="L442">				return new SubListGroupItemDetailsFieldInfo(field);</span>
+			}
+
+			@Override
+			public String toString() {
+<span class="nc" id="L447">				return &quot;SubListGroupItemTypeInfo [of=&quot; + SubListGroupField.this + &quot;, itemField=&quot; + field + &quot;]&quot;;</span>
+			}
+
+		}
+
+		public class SubListGroupItem extends ListItem {
+
+<span class="nc" id="L454">			public SubListGroupItem(Object object, IFieldInfo field) {</span>
+<span class="nc" id="L455">				super(object, field);</span>
+<span class="nc" id="L456">			}</span>
+
+		}
+
+		public class SubListGroupItemDetailsFieldInfo extends ListItemDetailsFieldInfo {
+
+<span class="nc" id="L462">			public SubListGroupItemDetailsFieldInfo(IFieldInfo field) {</span>
+<span class="nc" id="L463">				super(field);</span>
+<span class="nc" id="L464">			}</span>
+
+			public SubListGroupItemTypeInfo getSubListGroupItemTypeInfo() {
+<span class="nc" id="L467">				return (SubListGroupItemTypeInfo) getListItemTypeInfo(base);</span>
+			}
+
+			@Override
+			public ITypeInfo getType() {
+<span class="nc" id="L472">				return reflectionUI.getTypeInfo(new TypeInfoSourceProxy(base.getType().getSource()) {</span>
+					@Override
+					public SpecificitiesIdentifier getSpecificitiesIdentifier() {
+<span class="nc" id="L475">						return new SpecificitiesIdentifier(</span>
+<span class="nc" id="L476">								getListItemTypeInfo(SubListGroupItemDetailsFieldInfo.this.base).getName(),</span>
+<span class="nc" id="L477">								SubListGroupItemDetailsFieldInfo.this.getName());</span>
+					}
+
+					@Override
+					protected String getTypeInfoProxyFactoryIdentifier() {
+<span class="nc" id="L482">						return &quot;FieldValueTypeInfoProxyFactory [of=&quot; + getClass().getName() + &quot;, parent=&quot;</span>
+<span class="nc" id="L483">								+ SubListGroupField.this.getName() + &quot;]&quot;;</span>
+					}
+				});
+			}
+
+			@Override
+			public String toString() {
+<span class="nc" id="L490">				return &quot;SubListGroupItemDetailsFieldInfo [of=&quot; + SubListGroupField.this + &quot;, itemField=&quot; + base + &quot;]&quot;;</span>
+			}
+		}
+
+	}
+
+	protected static class CustomizedItemDetailsInfoFilterProxy extends InfoFilterProxy {
+
+		protected ListCustomization listCustomization;
+
+		public CustomizedItemDetailsInfoFilterProxy(IInfoFilter base, ListCustomization listCustomization) {
+<span class="fc" id="L501">			super(base);</span>
+<span class="fc" id="L502">			this.listCustomization = listCustomization;</span>
+<span class="fc" id="L503">		}</span>
+
+		public boolean isRelevant() {
+<span class="fc bfc" id="L506" title="All 2 branches covered.">			if (listCustomization.getFieldsExcludedFromItemDetails().size() &gt; 0) {</span>
+<span class="fc" id="L507">				return true;</span>
+			}
+<span class="pc bpc" id="L509" title="1 of 2 branches missed.">			if (listCustomization.getMethodsExcludedFromItemDetails().size() &gt; 0) {</span>
+<span class="nc" id="L510">				return true;</span>
+			}
+<span class="fc" id="L512">			return false;</span>
+		}
+
+		@Override
+		public IMethodInfo apply(IMethodInfo method) {
+<span class="fc" id="L517">			String methodSignature = method.getSignature();</span>
+<span class="pc bpc" id="L518" title="1 of 2 branches missed.">			for (InfoPattern pattern : listCustomization.getMethodsExcludedFromItemDetails()) {</span>
+<span class="nc bnc" id="L519" title="All 2 branches missed.">				if (pattern.matches(methodSignature)) {</span>
+<span class="nc" id="L520">					return null;</span>
+				}
+			}
+<span class="fc" id="L523">			return super.apply(method);</span>
+		}
+
+		@Override
+		public IFieldInfo apply(IFieldInfo field) {
+<span class="fc bfc" id="L528" title="All 2 branches covered.">			for (InfoPattern pattern : listCustomization.getFieldsExcludedFromItemDetails()) {</span>
+<span class="fc bfc" id="L529" title="All 2 branches covered.">				if (pattern.matches(field.getName())) {</span>
+<span class="fc" id="L530">					return null;</span>
+				}
+			}
+<span class="fc" id="L533">			return super.apply(field);</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L538">			final int prime = 31;</span>
+<span class="fc" id="L539">			int result = super.hashCode();</span>
+<span class="pc bpc" id="L540" title="1 of 2 branches missed.">			result = prime * result + ((listCustomization == null) ? 0 : listCustomization.hashCode());</span>
+<span class="fc" id="L541">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="fc bfc" id="L546" title="All 2 branches covered.">			if (this == obj)</span>
+<span class="fc" id="L547">				return true;</span>
+<span class="pc bpc" id="L548" title="1 of 2 branches missed.">			if (!super.equals(obj))</span>
+<span class="nc" id="L549">				return false;</span>
+<span class="pc bpc" id="L550" title="1 of 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L551">				return false;</span>
+<span class="fc" id="L552">			CustomizedItemDetailsInfoFilterProxy other = (CustomizedItemDetailsInfoFilterProxy) obj;</span>
+<span class="pc bpc" id="L553" title="1 of 2 branches missed.">			if (listCustomization == null) {</span>
+<span class="nc bnc" id="L554" title="All 2 branches missed.">				if (other.listCustomization != null)</span>
+<span class="nc" id="L555">					return false;</span>
+<span class="pc bpc" id="L556" title="1 of 2 branches missed.">			} else if (!listCustomization.equals(other.listCustomization))</span>
+<span class="nc" id="L557">				return false;</span>
+<span class="fc" id="L558">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L563">			return &quot;CustomizedItemDetailsInfoFilter [base=&quot; + base + &quot;, listCustomization=&quot; + listCustomization + &quot;]&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

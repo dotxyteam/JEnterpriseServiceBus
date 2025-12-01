@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CommonUIDefaultsKeys.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">custom-ui</a> &gt; <a href="../index.html" class="el_bundle">unpackaged-src</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">CommonUIDefaultsKeys.java</span></div><h1>CommonUIDefaultsKeys.java</h1><pre class="source lang-java linenums">
+import java.util.Enumeration;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
+
+<span class="nc" id="L9">public class CommonUIDefaultsKeys {</span>
+	public static void main(String args[]) throws Exception {
+<span class="nc" id="L11">		UIManager.LookAndFeelInfo looks[] = UIManager.getInstalledLookAndFeels();</span>
+
+<span class="nc" id="L13">		SortedSet&lt;String&gt; allDefaultUIKeys = new TreeSet&lt;String&gt;();</span>
+
+<span class="nc bnc" id="L15" title="All 2 branches missed.">		for (UIManager.LookAndFeelInfo info : looks) {</span>
+<span class="nc" id="L16">			System.out.println(&quot;Including L&amp;F &quot; + info.getName());</span>
+<span class="nc" id="L17">			UIManager.setLookAndFeel(info.getClassName());</span>
+<span class="nc" id="L18">			UIDefaults defaults = UIManager.getDefaults();</span>
+<span class="nc" id="L19">			Enumeration&lt;Object&gt; newKeyObjects = defaults.keys();</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">			while (newKeyObjects.hasMoreElements()) {</span>
+<span class="nc" id="L21">				String key = newKeyObjects.nextElement().toString();</span>
+<span class="nc" id="L22">				allDefaultUIKeys.add(key);</span>
+			}
+		}
+
+<span class="nc" id="L26">		SortedSet&lt;String&gt; commonDefaultUIKeys = new TreeSet&lt;String&gt;(allDefaultUIKeys);</span>
+<span class="nc bnc" id="L27" title="All 2 branches missed.">		for (String key : allDefaultUIKeys) {</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">			for (UIManager.LookAndFeelInfo info : looks) {</span>
+<span class="nc" id="L29">				UIManager.setLookAndFeel(info.getClassName());</span>
+<span class="nc" id="L30">				UIDefaults defaults = UIManager.getDefaults();</span>
+<span class="nc" id="L31">				boolean currentLafCntainsKey = false;</span>
+<span class="nc" id="L32">				Enumeration&lt;Object&gt; newKeyObjects = defaults.keys();</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">				while (newKeyObjects.hasMoreElements()) {</span>
+<span class="nc" id="L34">					String currentLafKey = newKeyObjects.nextElement().toString();</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">					if (currentLafKey.equals(key)) {</span>
+<span class="nc" id="L36">						currentLafCntainsKey = true;</span>
+<span class="nc" id="L37">						break;</span>
+					}
+				}
+<span class="nc bnc" id="L40" title="All 2 branches missed.">				if (!currentLafCntainsKey) {</span>
+<span class="nc" id="L41">					commonDefaultUIKeys.remove(key);</span>
+<span class="nc" id="L42">					break;</span>
+				}
+			}
+		}
+
+<span class="nc" id="L47">		System.out.println();</span>
+<span class="nc" id="L48">		System.out.println(&quot;================== Common UIDefaults Keys ==================&quot;);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		for (String key : commonDefaultUIKeys) {</span>
+<span class="nc" id="L50">			System.out.println(&quot;(Common) &quot; + key);</span>
+		}
+
+<span class="nc" id="L53">		System.out.println();</span>
+<span class="nc" id="L54">		System.out.println(&quot;================== All UIDefaults Keys ==================&quot;);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		for (String key : allDefaultUIKeys) {</span>
+<span class="nc" id="L56">			System.out.println(key);</span>
+		}
+<span class="nc" id="L58">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

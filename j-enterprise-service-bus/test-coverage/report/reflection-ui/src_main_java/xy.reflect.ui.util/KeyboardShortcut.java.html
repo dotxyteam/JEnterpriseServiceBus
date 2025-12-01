@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>KeyboardShortcut.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">KeyboardShortcut.java</span></div><h1>KeyboardShortcut.java</h1><pre class="source lang-java linenums">package xy.reflect.ui.util;
+
+import java.awt.event.InputEvent;
+
+public class KeyboardShortcut extends KeyboardKey {
+
+	private static final long serialVersionUID = 1L;
+
+	protected boolean shiftDown;
+	protected boolean ctrlDown;
+	protected boolean metaDown;
+	protected boolean altDown;
+	protected boolean altGrDown;
+
+	public KeyboardShortcut(String keyName, boolean shiftDown, boolean ctrlDown, boolean metaDown, boolean altDown,
+			boolean altGrDown) {
+<span class="fc" id="L17">		super(keyName);</span>
+<span class="fc" id="L18">		this.shiftDown = shiftDown;</span>
+<span class="fc" id="L19">		this.ctrlDown = ctrlDown;</span>
+<span class="fc" id="L20">		this.metaDown = metaDown;</span>
+<span class="fc" id="L21">		this.altDown = altDown;</span>
+<span class="fc" id="L22">		this.altGrDown = altGrDown;</span>
+<span class="fc" id="L23">	}</span>
+
+	public KeyboardShortcut(int keyCode, boolean shiftDown, boolean ctrlDown, boolean metaDown, boolean altDown,
+			boolean altGrDown) {
+<span class="fc" id="L27">		super(keyCode);</span>
+<span class="fc" id="L28">		this.shiftDown = shiftDown;</span>
+<span class="fc" id="L29">		this.ctrlDown = ctrlDown;</span>
+<span class="fc" id="L30">		this.metaDown = metaDown;</span>
+<span class="fc" id="L31">		this.altDown = altDown;</span>
+<span class="fc" id="L32">		this.altGrDown = altGrDown;</span>
+<span class="fc" id="L33">	}</span>
+
+	public KeyboardShortcut() {
+<span class="fc" id="L36">		this(getKeyNameOptions().get(0), false, false, false, false, false);</span>
+<span class="fc" id="L37">	}</span>
+
+	public boolean isShiftDown() {
+<span class="fc" id="L40">		return shiftDown;</span>
+	}
+
+	public void setShiftDown(boolean shiftDown) {
+<span class="fc" id="L44">		this.shiftDown = shiftDown;</span>
+<span class="fc" id="L45">	}</span>
+
+	public boolean isCtrlDown() {
+<span class="fc" id="L48">		return ctrlDown;</span>
+	}
+
+	public void setCtrlDown(boolean ctrlDown) {
+<span class="fc" id="L52">		this.ctrlDown = ctrlDown;</span>
+<span class="fc" id="L53">	}</span>
+
+	public boolean isMetaDown() {
+<span class="fc" id="L56">		return metaDown;</span>
+	}
+
+	public void setMetaDown(boolean metaDown) {
+<span class="fc" id="L60">		this.metaDown = metaDown;</span>
+<span class="fc" id="L61">	}</span>
+
+	public boolean isAltDown() {
+<span class="fc" id="L64">		return altDown;</span>
+	}
+
+	public void setAltDown(boolean altDown) {
+<span class="fc" id="L68">		this.altDown = altDown;</span>
+<span class="fc" id="L69">	}</span>
+
+	public boolean isAltGrDown() {
+<span class="fc" id="L72">		return altGrDown;</span>
+	}
+
+	public void setAltGrDown(boolean altGrDown) {
+<span class="fc" id="L76">		this.altGrDown = altGrDown;</span>
+<span class="fc" id="L77">	}</span>
+
+	public int getModifiers() {
+<span class="fc" id="L80">		int result = 0;</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">		if (isShiftDown()) {</span>
+<span class="nc" id="L82">			result |= InputEvent.SHIFT_DOWN_MASK;</span>
+		}
+<span class="fc bfc" id="L84" title="All 2 branches covered.">		if (isCtrlDown()) {</span>
+<span class="fc" id="L85">			result |= InputEvent.CTRL_DOWN_MASK;</span>
+		}
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">		if (isMetaDown()) {</span>
+<span class="nc" id="L88">			result |= InputEvent.META_DOWN_MASK;</span>
+		}
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">		if (isAltDown()) {</span>
+<span class="nc" id="L91">			result |= InputEvent.ALT_DOWN_MASK;</span>
+		}
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		if (isAltGrDown()) {</span>
+<span class="nc" id="L94">			result |= InputEvent.ALT_GRAPH_DOWN_MASK;</span>
+		}
+<span class="fc" id="L96">		return result;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L101">		final int prime = 31;</span>
+<span class="nc" id="L102">		int result = super.hashCode();</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		result = prime * result + (altDown ? 1231 : 1237);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		result = prime * result + (altGrDown ? 1231 : 1237);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">		result = prime * result + (ctrlDown ? 1231 : 1237);</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">		result = prime * result + (metaDown ? 1231 : 1237);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		result = prime * result + (shiftDown ? 1231 : 1237);</span>
+<span class="nc" id="L108">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L113" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L114">			return true;</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="nc" id="L116">			return false;</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L118">			return false;</span>
+<span class="fc" id="L119">		KeyboardShortcut other = (KeyboardShortcut) obj;</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">		if (altDown != other.altDown)</span>
+<span class="nc" id="L121">			return false;</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">		if (altGrDown != other.altGrDown)</span>
+<span class="nc" id="L123">			return false;</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">		if (ctrlDown != other.ctrlDown)</span>
+<span class="nc" id="L125">			return false;</span>
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">		if (metaDown != other.metaDown)</span>
+<span class="nc" id="L127">			return false;</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">		if (shiftDown != other.shiftDown)</span>
+<span class="nc" id="L129">			return false;</span>
+<span class="fc" id="L130">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L135">		String result = keyName;</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">		if (metaDown) {</span>
+<span class="nc" id="L137">			result = &quot;Meta+&quot; + result;</span>
+		}
+<span class="nc bnc" id="L139" title="All 2 branches missed.">		if (shiftDown) {</span>
+<span class="nc" id="L140">			result = &quot;Shift+&quot; + result;</span>
+		}
+<span class="nc bnc" id="L142" title="All 2 branches missed.">		if (altGrDown) {</span>
+<span class="nc" id="L143">			result = &quot;AltGr+&quot; + result;</span>
+		}
+<span class="nc bnc" id="L145" title="All 2 branches missed.">		if (altDown) {</span>
+<span class="nc" id="L146">			result = &quot;Alt+&quot; + result;</span>
+		}
+<span class="nc bnc" id="L148" title="All 2 branches missed.">		if (ctrlDown) {</span>
+<span class="nc" id="L149">			result = &quot;Ctrl+&quot; + result;</span>
+		}
+<span class="nc" id="L151">		return result;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

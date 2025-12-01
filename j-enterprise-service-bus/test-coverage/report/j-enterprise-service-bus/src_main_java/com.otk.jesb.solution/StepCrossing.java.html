@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>StepCrossing.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.solution</a> &gt; <span class="el_source">StepCrossing.java</span></div><h1>StepCrossing.java</h1><pre class="source lang-java linenums">package com.otk.jesb.solution;
+
+import java.util.List;
+
+import com.otk.jesb.Variable;
+import com.otk.jesb.operation.Operation;
+
+public class StepCrossing extends StepOccurrence {
+
+	private Operation operation;
+	private Object operationResult;
+	private Throwable operationError;
+	private List&lt;Transition&gt; validTransitions;
+
+	public StepCrossing(Step step, Plan plan) {
+<span class="fc" id="L16">		super(step, plan);</span>
+<span class="fc" id="L17">	}</span>
+
+	public Object getOperationResult() {
+<span class="fc" id="L20">		return operationResult;</span>
+	}
+
+	public void setOperationResult(Object operationResult) {
+<span class="fc" id="L24">		this.operationResult = operationResult;</span>
+<span class="fc" id="L25">	}</span>
+
+	public Operation getOperation() {
+<span class="fc" id="L28">		return operation;</span>
+	}
+
+	public void setOperation(Operation operation) {
+<span class="fc" id="L32">		this.operation = operation;</span>
+<span class="fc" id="L33">	}</span>
+
+	public Throwable getOperationError() {
+<span class="fc" id="L36">		return operationError;</span>
+	}
+
+	public void setOperationError(Throwable operationError) {
+<span class="fc" id="L40">		this.operationError = operationError;</span>
+<span class="fc" id="L41">	}</span>
+
+	public List&lt;Transition&gt; getValidTransitions() {
+<span class="fc" id="L44">		return validTransitions;</span>
+	}
+
+	public void setValidTransitions(List&lt;Transition&gt; validTransitions) {
+<span class="fc" id="L48">		this.validTransitions = validTransitions;</span>
+<span class="fc" id="L49">	}</span>
+
+	@Override
+	public Object getValue() {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">		return (getPlan().getResultVariableDeclaration(getStep()) != null) ? operationResult : Variable.UNDEFINED_VALUE;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc bnc" id="L58" title="All 2 branches missed.">		return &quot;[&quot; + ((operationError == null) ? &quot;OK&quot; : &quot;KO&quot;) + &quot;] &quot; + getStep().getName();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

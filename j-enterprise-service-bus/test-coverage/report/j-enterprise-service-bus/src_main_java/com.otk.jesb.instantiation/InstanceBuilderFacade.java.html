@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InstanceBuilderFacade.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">InstanceBuilderFacade.java</span></div><h1>InstanceBuilderFacade.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.method.AbstractConstructorInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.map.IMapEntryTypeInfo;
+import xy.reflect.ui.info.type.iterable.map.StandardMapEntryTypeInfo;
+
+public class InstanceBuilderFacade extends Facade {
+
+	private static InstanceBuilder underlyingClipboard;
+
+	private Facade parent;
+	private InstanceBuilder underlying;
+
+	private InitializationCaseFacade util;
+
+<span class="fc" id="L35">	public InstanceBuilderFacade(Facade parent, InstanceBuilder underlying) {</span>
+<span class="fc" id="L36">		this.parent = parent;</span>
+<span class="fc" id="L37">		this.underlying = underlying;</span>
+<span class="fc" id="L38">		util = new InitializationCaseFacade(null, null, underlying) {</span>
+
+			@Override
+			public boolean isConcrete() {
+<span class="fc" id="L42">				return true;</span>
+			}
+
+			@Override
+			protected boolean mustHaveParameterFacadeLocally(IParameterInfo parameterInfo) {
+<span class="fc bfc" id="L47" title="All 2 branches covered.">				if (isParameterInitializedInChildSwitch(parameterInfo)) {</span>
+<span class="fc" id="L48">					return false;</span>
+				}
+<span class="fc" id="L50">				return true;</span>
+			}
+
+			@Override
+			protected boolean mustHaveFieldFacadeLocally(IFieldInfo fieldInfo) {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">				if (isFieldInitializedInChildSwitch(fieldInfo)) {</span>
+<span class="nc" id="L56">					return false;</span>
+				}
+<span class="fc" id="L58">				return true;</span>
+			}
+
+			@Override
+			protected boolean mustHaveListItemFacadesLocally() {
+<span class="fc" id="L63">				return true;</span>
+			}
+
+			@Override
+			protected FieldInitializerFacade createFieldInitializerFacade(String fieldName) {
+<span class="fc" id="L68">				return new FieldInitializerFacade(InstanceBuilderFacade.this, fieldName);</span>
+			}
+
+			@Override
+			protected ListItemInitializerFacade createListItemInitializerFacade(int index) {
+<span class="fc" id="L73">				return new ListItemInitializerFacade(InstanceBuilderFacade.this, index);</span>
+			}
+
+			@Override
+			protected ParameterInitializerFacade createParameterInitializerFacade(int parameterPosition) {
+<span class="fc" id="L78">				return new ParameterInitializerFacade(InstanceBuilderFacade.this, parameterPosition);</span>
+			}
+
+			@Override
+			protected InitializationSwitchFacade createInitializationSwitchFacade(
+					InitializationSwitch initializationSwitch) {
+<span class="fc" id="L84">				return new InitializationSwitchFacade(InstanceBuilderFacade.this, initializationSwitch);</span>
+			}
+
+			@Override
+			public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
+<span class="fc" id="L89">				return InstanceBuilderFacade.this;</span>
+			}
+
+			@Override
+			protected InstantiationContext createInstantiationContextForChildren(InstantiationContext context) {
+<span class="fc" id="L94">				return new InstantiationContext(context, InstanceBuilderFacade.this);</span>
+			}
+
+			@Override
+			public void validate(boolean recursively, List&lt;VariableDeclaration&gt; variableDeclarations)
+					throws ValidationError {
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">				if (!isConcrete()) {</span>
+<span class="nc" id="L101">					return;</span>
+				}
+<span class="fc bfc" id="L103" title="All 2 branches covered.">				if (recursively) {</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">					for (Facade facade : getChildren()) {</span>
+						try {
+<span class="fc" id="L106">							facade.validate(recursively, variableDeclarations);</span>
+<span class="fc" id="L107">						} catch (ValidationError e) {</span>
+<span class="fc" id="L108">							throw new ValidationError(&quot;Failed to validate '&quot; + facade.toString() + &quot;'&quot;, e);</span>
+						}
+					}
+				}
+<span class="fc" id="L112">			}</span>
+
+		};
+<span class="fc" id="L115">	}</span>
+
+	@Override
+	public List&lt;VariableDeclaration&gt; getAdditionalVariableDeclarations(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations) {
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">		if (function != null) {</span>
+<span class="nc" id="L121">			throw new UnexpectedError();</span>
+		}
+<span class="fc bfc" id="L123" title="All 2 branches covered.">		if (parent != null) {</span>
+<span class="fc" id="L124">			return parent.getAdditionalVariableDeclarations(null, baseVariableDeclarations);</span>
+		}
+<span class="fc" id="L126">		return Collections.emptyList();</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getFunctionReturnType(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations) {
+<span class="nc" id="L132">		throw new UnsupportedOperationException();</span>
+	}
+
+	public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
+<span class="fc" id="L136">		return util.findInstantiationFunctionParentFacade(function);</span>
+	}
+
+	@Override
+	public String express() {
+<span class="nc" id="L141">		return null;</span>
+	}
+
+	@Override
+	public Facade getParent() {
+<span class="fc" id="L146">		return parent;</span>
+	}
+
+	@Override
+	public boolean isConcrete() {
+<span class="fc bfc" id="L151" title="All 2 branches covered.">		if (parent != null) {</span>
+<span class="fc" id="L152">			return parent.isConcrete();</span>
+		}
+<span class="fc" id="L154">		return true;</span>
+	}
+
+	@Override
+	public void setConcrete(boolean b) {
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">		if (parent != null) {</span>
+<span class="nc" id="L160">			parent.setConcrete(b);</span>
+		}
+<span class="fc" id="L162">	}</span>
+
+	public String getTypeName() {
+<span class="fc" id="L165">		return underlying.getTypeName();</span>
+	}
+
+	public void setTypeName(String typeName) {
+<span class="nc" id="L169">		underlying.setTypeName(typeName);</span>
+<span class="nc" id="L170">	}</span>
+
+	public String getSelectedConstructorSignature() {
+<span class="fc" id="L173">		return underlying.getSelectedConstructorSignature();</span>
+	}
+
+	public void setSelectedConstructorSignature(String selectedConstructorSignature) {
+<span class="nc" id="L177">		underlying.setSelectedConstructorSignature(selectedConstructorSignature);</span>
+<span class="nc" id="L178">		setConcrete(true);</span>
+<span class="nc" id="L179">	}</span>
+
+	public List&lt;String&gt; getConstructorSignatureOptions() {
+<span class="fc" id="L182">		List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L183">		ITypeInfo typeInfo = getTypeInfo();</span>
+<span class="fc bfc" id="L184" title="All 2 branches covered.">		for (IMethodInfo constructor : InstantiationUtils.listSortedConstructors(typeInfo)) {</span>
+<span class="fc" id="L185">			result.add(constructor.getSignature());</span>
+		}
+<span class="fc" id="L187">		return result;</span>
+	}
+
+	@Override
+	public InstanceBuilder getUnderlying() {
+<span class="fc" id="L192">		return underlying;</span>
+	}
+
+	public ITypeInfo getTypeInfo() {
+<span class="fc" id="L196">		String actualTypeName = underlying</span>
+<span class="fc" id="L197">				.computeActualTypeName(InstantiationUtils.getAncestorInstanceBuilders(parent));</span>
+<span class="fc" id="L198">		ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName);</span>
+<span class="fc bfc" id="L199" title="All 2 branches covered.">		if (result instanceof IListTypeInfo) {</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">			if (parent instanceof FieldInitializerFacade) {</span>
+<span class="fc" id="L201">				FieldInitializerFacade listFieldInitializerFacade = (FieldInitializerFacade) parent;</span>
+<span class="fc" id="L202">				IFieldInfo listFieldInfo = listFieldInitializerFacade.getFieldInfo();</span>
+<span class="fc" id="L203">				result = TypeInfoProvider.getTypeInfo(actualTypeName, listFieldInfo);</span>
+			}
+<span class="fc bfc" id="L205" title="All 2 branches covered.">			if (parent instanceof ParameterInitializerFacade) {</span>
+<span class="fc" id="L206">				ParameterInitializerFacade listParameterInitializerFacade = (ParameterInitializerFacade) parent;</span>
+<span class="fc" id="L207">				InstanceBuilderFacade parentInstanceBuilderFacade = listParameterInitializerFacade</span>
+<span class="fc" id="L208">						.getCurrentInstanceBuilderFacade();</span>
+<span class="fc" id="L209">				AbstractConstructorInfo parentInstanceConstructor = InstantiationUtils.getConstructorInfo(</span>
+<span class="fc" id="L210">						parentInstanceBuilderFacade.getTypeInfo(),</span>
+<span class="fc" id="L211">						parentInstanceBuilderFacade.getSelectedConstructorSignature());</span>
+<span class="fc" id="L212">				result = TypeInfoProvider.getTypeInfo(actualTypeName, parentInstanceConstructor,</span>
+<span class="fc" id="L213">						listParameterInitializerFacade.getParameterPosition());</span>
+			}
+		}
+<span class="pc bpc" id="L216" title="1 of 2 branches missed.">		if (result instanceof IMapEntryTypeInfo) {</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">			if (parent instanceof ListItemInitializerFacade) {</span>
+<span class="nc" id="L218">				ListItemInitializerFacade listItemInitializerFacade = (ListItemInitializerFacade) parent;</span>
+<span class="nc" id="L219">				result = (StandardMapEntryTypeInfo) listItemInitializerFacade.getItemTypeInfo();</span>
+			}
+		}
+<span class="fc" id="L222">		return result;</span>
+	}
+
+	@Override
+	public List&lt;Facade&gt; getChildren() {
+<span class="fc" id="L227">		return util.getChildren();</span>
+	}
+
+	public List&lt;Facade&gt; collectLiveInitializerFacades(InstantiationContext context) {
+<span class="fc" id="L231">		return util.collectLiveInitializerFacades(context);</span>
+	}
+
+	public void copyUnderlying() {
+<span class="nc bnc" id="L235" title="All 2 branches missed.">		if (!canCopyUnderlying()) {</span>
+<span class="nc" id="L236">			throw new UnexpectedError();</span>
+		}
+<span class="nc" id="L238">		InstanceBuilderFacade.underlyingClipboard = MiscUtils.copy(underlying);</span>
+<span class="nc" id="L239">	}</span>
+
+	public void pasteUnderlying() {
+<span class="nc bnc" id="L242" title="All 2 branches missed.">		if (!canPasteUnderlying()) {</span>
+<span class="nc" id="L243">			throw new UnexpectedError();</span>
+		}
+<span class="nc" id="L245">		parent.setConcrete(true);</span>
+<span class="nc" id="L246">		transferValuesToUnderlying(InstanceBuilderFacade.underlyingClipboard);</span>
+<span class="nc" id="L247">		InstanceBuilderFacade.underlyingClipboard = null;</span>
+<span class="nc" id="L248">	}</span>
+
+	public boolean canCopyUnderlying() {
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">		if (getUnderlying().getDynamicTypeNameAccessor() != null) {</span>
+<span class="nc" id="L252">			return false;</span>
+		}
+<span class="fc" id="L254">		return true;</span>
+	}
+
+	public boolean canPasteUnderlying() {
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">		if (InstanceBuilderFacade.underlyingClipboard == null) {</span>
+<span class="fc" id="L259">			return false;</span>
+		}
+<span class="nc bnc" id="L261" title="All 2 branches missed.">		if (getUnderlying().getDynamicTypeNameAccessor() != null) {</span>
+<span class="nc" id="L262">			return false;</span>
+		}
+<span class="nc" id="L264">		return true;</span>
+	}
+
+	public boolean canAccessSource() {
+<span class="pc bpc" id="L268" title="1 of 2 branches missed.">		if (canCopyUnderlying()) {</span>
+<span class="fc" id="L269">			return true;</span>
+		}
+<span class="nc bnc" id="L271" title="All 2 branches missed.">		if (canPasteUnderlying()) {</span>
+<span class="nc" id="L272">			return true;</span>
+		}
+<span class="nc" id="L274">		return false;</span>
+	}
+
+	public String getSource() {
+<span class="nc bnc" id="L278" title="All 2 branches missed.">		if (!canAccessSource()) {</span>
+<span class="nc" id="L279">			throw new UnexpectedError();</span>
+		}
+<span class="nc" id="L281">		ByteArrayOutputStream output = new ByteArrayOutputStream();</span>
+		try {
+<span class="nc" id="L283">			MiscUtils.serialize(underlying, output);</span>
+<span class="nc" id="L284">		} catch (IOException e) {</span>
+<span class="nc" id="L285">			throw new UnexpectedError(e);</span>
+		}
+<span class="nc" id="L287">		return output.toString();</span>
+	}
+
+	public void setSource(String source) {
+<span class="nc bnc" id="L291" title="All 2 branches missed.">		if (!canAccessSource()) {</span>
+<span class="nc" id="L292">			throw new UnexpectedError();</span>
+		}
+<span class="nc" id="L294">		ByteArrayInputStream input = new ByteArrayInputStream(source.getBytes());</span>
+		InstanceBuilder deserialized;
+		try {
+<span class="nc" id="L297">			deserialized = (InstanceBuilder) MiscUtils.deserialize(input);</span>
+<span class="nc" id="L298">		} catch (IOException e) {</span>
+<span class="nc" id="L299">			throw new UnexpectedError(e);</span>
+		}
+<span class="nc" id="L301">		transferValuesToUnderlying(deserialized);</span>
+<span class="nc" id="L302">	}</span>
+
+	private void transferValuesToUnderlying(InstanceBuilder source) {
+<span class="nc" id="L305">		underlying.setDynamicTypeNameAccessor(source.getDynamicTypeNameAccessor());</span>
+<span class="nc" id="L306">		underlying.setTypeName(source.getTypeName());</span>
+<span class="nc" id="L307">		underlying.setSelectedConstructorSignature(source.getSelectedConstructorSignature());</span>
+<span class="nc" id="L308">		underlying.setParameterInitializers(source.getParameterInitializers());</span>
+<span class="nc" id="L309">		underlying.setFieldInitializers(source.getFieldInitializers());</span>
+<span class="nc" id="L310">		underlying.setListItemInitializers(source.getListItemInitializers());</span>
+<span class="nc" id="L311">		underlying.setInitializationSwitches(source.getInitializationSwitches());</span>
+<span class="nc" id="L312">	}</span>
+
+	@Override
+	public void validate(boolean recursively, List&lt;VariableDeclaration&gt; variableDeclarations) throws ValidationError {
+<span class="pc bpc" id="L316" title="1 of 2 branches missed.">		if (!isConcrete()) {</span>
+<span class="nc" id="L317">			return;</span>
+		}
+		ITypeInfo typeInfo;
+		try {
+<span class="fc" id="L321">			typeInfo = getTypeInfo();</span>
+<span class="pc" id="L322">		} catch (Throwable t) {</span>
+<span class="nc" id="L323">			throw new ValidationError(&quot;Failed to load '&quot; + getTypeName() + &quot;' type&quot;, t);</span>
+		}
+<span class="fc" id="L325">		String selectedConstructorSignature = getSelectedConstructorSignature();</span>
+<span class="fc" id="L326">		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);</span>
+<span class="pc bpc" id="L327" title="1 of 2 branches missed.">		if (constructor == null) {</span>
+<span class="nc bnc" id="L328" title="All 2 branches missed.">			if (selectedConstructorSignature == null) {</span>
+<span class="nc" id="L329">				throw new ValidationError(</span>
+<span class="nc" id="L330">						&quot;Cannot create '&quot; + typeInfo.getName() + &quot;' instance: No constructor available&quot;);</span>
+			} else {
+<span class="nc" id="L332">				throw new ValidationError(&quot;Cannot create '&quot; + typeInfo.getName()</span>
+<span class="nc" id="L333">						+ &quot;' instance: Constructor not found: '&quot; + selectedConstructorSignature + &quot;'&quot;);</span>
+			}
+		}
+<span class="fc" id="L336">		util.validate(recursively, variableDeclarations);</span>
+<span class="fc" id="L337">	}</span>
+
+	@Override
+	public String toString() {
+<span class="fc" id="L341">		return underlying.toString();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

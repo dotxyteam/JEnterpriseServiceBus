@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ItemPositionFactory.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.item</a> &gt; <span class="el_source">ItemPositionFactory.java</span></div><h1>ItemPositionFactory.java</h1><pre class="source lang-java linenums">package xy.reflect.ui.info.type.iterable.item;
+
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * This the class of factories that create directly or indirectly
+ * {@link ItemPosition} instances. Actually these factories only create root
+ * item positions that will generate children or sibling item positions.
+ * 
+ * @author olitank
+ *
+ */
+public class ItemPositionFactory extends AbstractItemPositionFactory {
+
+	protected IFieldControlData listData;
+	protected Object source;
+
+	/**
+	 * Instantiates this class.
+	 * 
+	 * @param listData The field control data that will be used to obtain the list
+	 *                 value or update it.
+	 */
+<span class="fc" id="L27">	public ItemPositionFactory(IFieldControlData listData, Object source) {</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">		if (!(listData.getType() instanceof IListTypeInfo)) {</span>
+<span class="nc" id="L29">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L31">		this.listData = listData;</span>
+<span class="fc" id="L32">		this.source = source;</span>
+<span class="fc" id="L33">	}</span>
+
+	@Override
+	public Object getSource() {
+<span class="nc" id="L37">		return source;</span>
+	}
+
+	@Override
+	public Object getRootListValue() {
+<span class="fc" id="L42">		return listData.getValue();</span>
+	}
+
+	@Override
+	public void setRootListValue(Object rootListValue) {
+<span class="fc" id="L47">		listData.setValue(rootListValue);</span>
+<span class="fc" id="L48">	}</span>
+
+	@Override
+	public IListTypeInfo getRootListType() {
+<span class="fc" id="L52">		return (IListTypeInfo) listData.getType();</span>
+	}
+
+	@Override
+	public ValueReturnMode getRootListValueReturnMode() {
+<span class="fc" id="L57">		return listData.getValueReturnMode();</span>
+	}
+
+	@Override
+	public boolean isRootListGetOnly() {
+<span class="fc" id="L62">		return listData.isGetOnly();</span>
+	}
+
+	@Override
+	public String getRootListTitle() {
+<span class="nc" id="L67">		return listData.getCaption();</span>
+	}
+
+	@Override
+	public Runnable getLastFormRefreshStateRestorationJob() {
+<span class="fc" id="L72">		return listData.getLastFormRefreshStateRestorationJob();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L77">		final int prime = 31;</span>
+<span class="nc" id="L78">		int result = 1;</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		result = prime * result + ((listData == null) ? 0 : listData.hashCode());</span>
+<span class="nc" id="L80">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L85" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L86">			return true;</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L88">			return false;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L90">			return false;</span>
+<span class="nc" id="L91">		ItemPositionFactory other = (ItemPositionFactory) obj;</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if (listData == null) {</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">			if (other.listData != null)</span>
+<span class="nc" id="L94">				return false;</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		} else if (!listData.equals(other.listData))</span>
+<span class="nc" id="L96">			return false;</span>
+<span class="nc" id="L97">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L102">		return &quot;ItemPositionfactory [listData=&quot; + listData + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>WindowManager.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.util</a> &gt; <span class="el_source">WindowManager.java</span></div><h1>WindowManager.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.util;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.List;
+import java.util.concurrent.Callable;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+
+import org.jdesktop.swingx.StackLayout;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.swing.menu.SaveMenuItem;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.Form.IFormListener;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.app.IApplicationInfo;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.Visitor;
+
+/**
+ * Helper class allowing to configure windows adequately.
+ * 
+ * @author olitank
+ *
+ */
+public class WindowManager extends WindowAdapter {
+
+<span class="fc" id="L48">	protected static final Color DEFAULT_TITLE_BAR_FOREROUND_COLOR = Color.BLACK;</span>
+
+	protected SwingRenderer swingRenderer;
+	protected Window window;
+	protected AlternativeWindowDecorationsPanel alternativeDecorationsPanel;
+	protected JPanel rootPane;
+	protected ImagePanel backgroundPane;
+	protected JPanel contentPane;
+	protected JPanel topBarsContainer;
+	protected JPanel bottomBarsContainer;
+	protected JScrollPane scrollPane;
+	protected JPanel buttonBar;
+	protected Form form;
+
+<span class="fc" id="L62">	protected IFormListener formRefreshListener = new Form.IFormListener() {</span>
+		@Override
+		public void onRefresh(boolean refreshStructure) {
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">			if (refreshStructure) {</span>
+<span class="nc" id="L66">				WindowManager.this.refreshWindowStructureAsMuchAsPossible();</span>
+			}
+<span class="fc" id="L68">		}</span>
+
+		@Override
+		public void afterValidation(Exception validationError) {
+<span class="fc" id="L72">		}</span>
+	};
+
+<span class="fc" id="L75">	public WindowManager(SwingRenderer swingRenderer, Window window) {</span>
+<span class="fc" id="L76">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L77">		this.window = window;</span>
+<span class="fc" id="L78">	}</span>
+
+	protected JPanel createRootPane() {
+<span class="fc" id="L81">		ControlPanel result = new ControlPanel();</span>
+<span class="fc" id="L82">		result.setLayout(new StackLayout());</span>
+<span class="fc" id="L83">		return result;</span>
+	}
+
+	protected ImagePanel createBackgroundPane() {
+<span class="fc" id="L87">		ImagePanel result = new ImagePanel();</span>
+<span class="fc" id="L88">		result.setPreservingRatio(true);</span>
+<span class="fc" id="L89">		result.setFillingAreaWhenPreservingRatio(true);</span>
+<span class="fc" id="L90">		return result;</span>
+	}
+
+	protected AlternativeWindowDecorationsPanel createAlternativeWindowDecorationsPanel(Window window,
+			Component windowContent) {
+<span class="nc" id="L95">		String title = SwingRendererUtils.getWindowTitle(window);</span>
+<span class="nc" id="L96">		Image iconImage = window.getIconImages().get(0);</span>
+		ImageIcon icon;
+<span class="nc bnc" id="L98" title="All 2 branches missed.">		if (SwingRendererUtils.isNullImage(iconImage)) {</span>
+<span class="nc" id="L99">			icon = null;</span>
+<span class="nc" id="L100">		} else {</span>
+<span class="nc" id="L101">			icon = SwingRendererUtils.getSmallIcon(new ImageIcon(iconImage));</span>
+		}
+<span class="nc" id="L103">		return new CustomWindowDecorationsPanel(title, icon, window, windowContent);</span>
+	}
+
+	protected Color getAlternativeDecorationsBorderColor() {
+<span class="fc" id="L107">		Color mainBackgroundColor = getMainBackgroundColor();</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">		if (mainBackgroundColor == null) {</span>
+<span class="nc" id="L109">			mainBackgroundColor = new JPanel().getBackground();</span>
+		}
+<span class="fc" id="L111">		Color titleBackgroundColor = getAlternativeDecorationsTitleBarBackgroundColor();</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">		if (titleBackgroundColor == null) {</span>
+<span class="nc" id="L113">			titleBackgroundColor = new JPanel().getBackground();</span>
+		}
+<span class="fc" id="L115">		Color averageBackgroundColor = new Color((mainBackgroundColor.getRed() + titleBackgroundColor.getRed()) / 2,</span>
+<span class="fc" id="L116">				(mainBackgroundColor.getGreen() + titleBackgroundColor.getGreen()) / 2,</span>
+<span class="fc" id="L117">				(mainBackgroundColor.getBlue() + titleBackgroundColor.getBlue()) / 2);</span>
+<span class="fc" id="L118">		return averageBackgroundColor;</span>
+	}
+
+	protected JScrollPane createScrollPane(Component content) {
+<span class="fc" id="L122">		ControlScrollPane result = new ControlScrollPane(content);</span>
+<span class="fc" id="L123">		SwingRendererUtils.removeScrollPaneBorder(result);</span>
+<span class="fc" id="L124">		return result;</span>
+	}
+
+	protected JPanel createContentPane() {
+<span class="fc" id="L128">		ControlPanel result = new ControlPanel();</span>
+<span class="fc" id="L129">		result.setLayout(new BorderLayout());</span>
+<span class="fc" id="L130">		topBarsContainer = new ControlPanel();</span>
+		{
+<span class="fc" id="L132">			topBarsContainer.setLayout(new BorderLayout());</span>
+<span class="fc" id="L133">			result.add(topBarsContainer, BorderLayout.NORTH);</span>
+		}
+<span class="fc" id="L135">		bottomBarsContainer = new ControlPanel();</span>
+		{
+<span class="fc" id="L137">			bottomBarsContainer.setLayout(new BorderLayout());</span>
+<span class="fc" id="L138">			result.add(bottomBarsContainer, BorderLayout.SOUTH);</span>
+		}
+<span class="fc" id="L140">		return result;</span>
+	}
+
+	protected JPanel createButtonBar(List&lt;Component&gt; buttonBarControls) {
+<span class="fc" id="L144">		JPanel result = new ControlPanel();</span>
+<span class="fc" id="L145">		result.setLayout(new FlowLayout(FlowLayout.CENTER));</span>
+<span class="fc bfc" id="L146" title="All 4 branches covered.">		if ((buttonBarControls != null) &amp;&amp; (buttonBarControls.size() &gt; 0)) {</span>
+<span class="fc" id="L147">			result.setVisible(true);</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">			for (Component tool : buttonBarControls) {</span>
+<span class="fc" id="L149">				result.add(tool);</span>
+			}
+<span class="fc" id="L151">		} else {</span>
+<span class="fc" id="L152">			result.setVisible(false);</span>
+		}
+<span class="fc" id="L154">		return result;</span>
+	}
+
+	protected void layoutRootPane(JPanel rootPane) {
+<span class="fc" id="L158">		SwingRendererUtils.setContentPane(window, rootPane);</span>
+<span class="fc" id="L159">	}</span>
+
+	protected void layoutBackgroundPane(ImagePanel backgroundPane) {
+<span class="fc" id="L162">		rootPane.add(backgroundPane, StackLayout.BOTTOM);</span>
+<span class="fc" id="L163">	}</span>
+
+	protected void layoutContentPane(Container contentPane) {
+<span class="fc" id="L166">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L167">		IApplicationInfo appInfo = reflectionUI.getApplicationInfo();</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">		if (!appInfo.isSystemIntegrationCrossPlatform()) {</span>
+<span class="fc" id="L169">			alternativeDecorationsPanel = null;</span>
+<span class="fc" id="L170">			SwingRendererUtils.setUndecorated(window, false);</span>
+<span class="fc" id="L171">			rootPane.add(contentPane, StackLayout.TOP);</span>
+<span class="fc" id="L172">		} else {</span>
+<span class="fc" id="L173">			alternativeDecorationsPanel = createAlternativeWindowDecorationsPanel(window, contentPane);</span>
+<span class="fc" id="L174">			rootPane.add(alternativeDecorationsPanel, StackLayout.TOP);</span>
+		}
+<span class="fc" id="L176">	}</span>
+
+	protected void layoutMenuBar(JMenuBar menuBar) {
+<span class="fc" id="L179">		topBarsContainer.add(menuBar, BorderLayout.NORTH);</span>
+<span class="fc" id="L180">	}</span>
+
+	protected void layoutContent(Component content) {
+<span class="fc" id="L183">		contentPane.add(content, BorderLayout.CENTER);</span>
+<span class="fc" id="L184">	}</span>
+
+	protected void layoutStatusBar(Component statusBar) {
+<span class="fc" id="L187">		bottomBarsContainer.add(statusBar, BorderLayout.NORTH);</span>
+<span class="fc" id="L188">	}</span>
+
+	protected void layoutButtonBar(JPanel buttonBar) {
+<span class="fc" id="L191">		bottomBarsContainer.add(buttonBar, BorderLayout.SOUTH);</span>
+<span class="fc" id="L192">	}</span>
+
+	protected void adjustBounds() {
+<span class="fc" id="L195">		SwingRendererUtils.adjustWindowInitialBounds(window);</span>
+<span class="fc" id="L196">		SwingRendererUtils.handleComponentSizeChange(window);</span>
+<span class="fc" id="L197">	}</span>
+
+	public void install(final Component content, List&lt;Component&gt; buttonBarControls, String title, Image iconImage) {
+<span class="fc" id="L200">		setTitle(title);</span>
+<span class="fc" id="L201">		setIconImage(iconImage);</span>
+<span class="fc" id="L202">		install(content, buttonBarControls);</span>
+<span class="fc" id="L203">	}</span>
+
+	public void install(Component content, List&lt;Component&gt; buttonBarControls) {
+<span class="fc" id="L206">		rootPane = createRootPane();</span>
+<span class="fc" id="L207">		layoutRootPane(rootPane);</span>
+<span class="fc" id="L208">		backgroundPane = createBackgroundPane();</span>
+<span class="fc" id="L209">		layoutBackgroundPane(backgroundPane);</span>
+<span class="fc" id="L210">		contentPane = createContentPane();</span>
+<span class="fc" id="L211">		layoutContentPane(contentPane);</span>
+<span class="fc" id="L212">		form = null;</span>
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">		if (content != null) {</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">			if (swingRenderer.isRenderedForm(content)) {</span>
+<span class="fc" id="L215">				form = (Form) content;</span>
+<span class="fc" id="L216">				layoutMenuBar(form.getMenuBar());</span>
+<span class="fc" id="L217">				form.updateMenuBar();</span>
+<span class="fc" id="L218">				layoutStatusBar(form.getStatusBar());</span>
+<span class="fc" id="L219">				form.getListeners().add(formRefreshListener);</span>
+			}
+<span class="fc" id="L221">			scrollPane = createScrollPane(content);</span>
+<span class="fc" id="L222">			layoutContent(scrollPane);</span>
+		}
+<span class="fc" id="L224">		buttonBar = createButtonBar(buttonBarControls);</span>
+<span class="fc" id="L225">		layoutButtonBar(buttonBar);</span>
+<span class="fc" id="L226">		refreshWindowStructureAsMuchAsPossible();</span>
+<span class="fc" id="L227">		adjustBounds();</span>
+<span class="fc" id="L228">		window.addWindowListener(this);</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">		if (window instanceof JFrame) {</span>
+<span class="fc" id="L230">			((JFrame) window).setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);</span>
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">		} else if (window instanceof JDialog) {</span>
+<span class="fc" id="L232">			((JDialog) window).setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);</span>
+<span class="fc" id="L233">		} else {</span>
+<span class="nc" id="L234">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L236">	}</span>
+
+	public void uninstall() {
+<span class="fc" id="L239">		window.removeWindowListener(this);</span>
+<span class="fc" id="L240">		SwingRendererUtils.setContentPane(window, new ControlPanel());</span>
+		{
+<span class="fc" id="L242">			alternativeDecorationsPanel = null;</span>
+<span class="fc" id="L243">			scrollPane = null;</span>
+<span class="fc" id="L244">			rootPane = null;</span>
+<span class="fc" id="L245">			backgroundPane = null;</span>
+<span class="fc" id="L246">			contentPane = null;</span>
+<span class="fc" id="L247">			topBarsContainer = null;</span>
+<span class="fc" id="L248">			buttonBar = null;</span>
+		}
+<span class="fc bfc" id="L250" title="All 2 branches covered.">		if (form != null) {</span>
+<span class="fc" id="L251">			form.getListeners().remove(formRefreshListener);</span>
+<span class="fc" id="L252">			form = null;</span>
+		}
+<span class="fc" id="L254">	}</span>
+
+	public void refreshWindowStructureAsMuchAsPossible() {
+<span class="fc" id="L257">		Color backgroundColor = getMainBackgroundColor();</span>
+<span class="fc" id="L258">		Image backgroundImage = getMainBackgroundImage();</span>
+<span class="fc" id="L259">		backgroundPane.setBackground(backgroundColor);</span>
+<span class="fc" id="L260">		backgroundPane.setImage(backgroundImage);</span>
+<span class="pc bpc" id="L261" title="2 of 4 branches missed.">		backgroundPane.setOpaque((backgroundColor != null) &amp;&amp; (backgroundImage == null));</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">		if (alternativeDecorationsPanel != null) {</span>
+<span class="fc" id="L263">			alternativeDecorationsPanel.repaint();</span>
+		}
+<span class="fc" id="L265">		SwingRendererUtils.handleComponentSizeChange(window);</span>
+<span class="fc" id="L266">	}</span>
+
+	protected Image getMainBackgroundImage() {
+<span class="fc" id="L269">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L270">		IApplicationInfo appInfo = reflectionUI.getApplicationInfo();</span>
+<span class="pc bpc" id="L271" title="1 of 2 branches missed.">		if (appInfo.getMainBackgroundImagePath() != null) {</span>
+<span class="nc" id="L272">			return SwingRendererUtils.loadImageThroughCache(appInfo.getMainBackgroundImagePath(),</span>
+<span class="nc" id="L273">					ReflectionUIUtils.getErrorLogListener(reflectionUI), swingRenderer);</span>
+		} else {
+<span class="fc" id="L275">			return null;</span>
+		}
+	}
+
+	protected Color getMainBackgroundColor() {
+<span class="fc" id="L280">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L281">		IApplicationInfo appInfo = reflectionUI.getApplicationInfo();</span>
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">		if (appInfo.getMainBackgroundColor() != null) {</span>
+<span class="fc" id="L283">			return SwingRendererUtils.getColor(appInfo.getMainBackgroundColor());</span>
+		} else {
+<span class="nc" id="L285">			return new JPanel().getBackground();</span>
+		}
+	}
+
+	protected Color getMainForegroundColor() {
+<span class="nc" id="L290">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="nc" id="L291">		IApplicationInfo appInfo = reflectionUI.getApplicationInfo();</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">		if (appInfo.getMainForegroundColor() != null) {</span>
+<span class="nc" id="L293">			return SwingRendererUtils.getColor(appInfo.getMainForegroundColor());</span>
+		} else {
+<span class="nc" id="L295">			return null;</span>
+		}
+	}
+
+	protected Color getMainBorderColor() {
+<span class="nc" id="L300">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="nc" id="L301">		IApplicationInfo appInfo = reflectionUI.getApplicationInfo();</span>
+<span class="nc bnc" id="L302" title="All 2 branches missed.">		if (appInfo.getMainBorderColor() != null) {</span>
+<span class="nc" id="L303">			return SwingRendererUtils.getColor(appInfo.getMainBorderColor());</span>
+		} else {
+<span class="nc" id="L305">			return null;</span>
+		}
+	}
+
+	protected Color getAlternativeDecorationsTitleBarBackgroundColor() {
+<span class="fc" id="L310">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L311">		IApplicationInfo appInfo = reflectionUI.getApplicationInfo();</span>
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">		if (appInfo.getTitleBackgroundColor() != null) {</span>
+<span class="fc" id="L313">			return SwingRendererUtils.getColor(appInfo.getTitleBackgroundColor());</span>
+		} else {
+<span class="nc" id="L315">			return null;</span>
+		}
+	}
+
+	protected Color getAlternativeDecorationsTitleBarForegroundColor() {
+<span class="fc" id="L320">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L321">		IApplicationInfo appInfo = reflectionUI.getApplicationInfo();</span>
+<span class="pc bpc" id="L322" title="1 of 2 branches missed.">		if (appInfo.getTitleForegroundColor() != null) {</span>
+<span class="fc" id="L323">			return SwingRendererUtils.getColor(appInfo.getTitleForegroundColor());</span>
+		} else {
+<span class="nc" id="L325">			return null;</span>
+		}
+	}
+
+	protected Font getAlternativeDecorationsTitleBarCustomFont() {
+<span class="fc" id="L330">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L331">		IApplicationInfo appInfo = reflectionUI.getApplicationInfo();</span>
+<span class="pc bpc" id="L332" title="1 of 2 branches missed.">		if (appInfo.getTitleCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L333">			return SwingRendererUtils.loadFontThroughCache(appInfo.getTitleCustomFontResourcePath(),</span>
+<span class="nc" id="L334">					ReflectionUIUtils.getErrorLogListener(reflectionUI), swingRenderer);</span>
+		} else {
+<span class="fc" id="L336">			return null;</span>
+		}
+	}
+
+	public void setIconImage(Image iconImage) {
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">		if (iconImage == null) {</span>
+<span class="nc" id="L342">			window.setIconImage(SwingRendererUtils.NULL_IMAGE);</span>
+<span class="nc" id="L343">		} else {</span>
+<span class="fc" id="L344">			window.setIconImage(iconImage);</span>
+		}
+<span class="fc" id="L346">	}</span>
+
+	public void setTitle(String title) {
+<span class="fc" id="L349">		SwingRendererUtils.setTitle(window, swingRenderer.prepareMessageToDisplay(title));</span>
+<span class="fc" id="L350">	}</span>
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+<span class="fc bfc" id="L354" title="All 2 branches covered.">		if (form == null) {</span>
+<span class="fc" id="L355">			return;</span>
+		}
+<span class="fc" id="L357">		workAroundOpeningWindowFocusRequestBug(new Callable&lt;Boolean&gt;() {</span>
+			@Override
+			public Boolean call() throws Exception {
+<span class="fc" id="L360">				return SwingRendererUtils.requestAnyComponentFocus(form, swingRenderer);</span>
+			}
+		});
+<span class="fc" id="L363">	}</span>
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+<span class="fc" id="L367">		boolean[] cancelled = new boolean[] { false };</span>
+<span class="pc bpc" id="L368" title="1 of 2 branches missed.">		if (form != null) {</span>
+<span class="fc" id="L369">			JMenuBar menuBar = form.getMenuBar();</span>
+<span class="fc" id="L370">			SwingRendererUtils.visitMenubar(menuBar, new Visitor&lt;JMenuItem&gt;() {</span>
+				@Override
+				public boolean visit(JMenuItem item) {
+<span class="fc bfc" id="L373" title="All 2 branches covered.">					if (item instanceof SaveMenuItem) {</span>
+<span class="fc" id="L374">						SaveMenuItem saveMenuItem = (SaveMenuItem) item;</span>
+<span class="fc bfc" id="L375" title="All 2 branches covered.">						if (!saveMenuItem.isFileSynchronized()) {</span>
+<span class="fc" id="L376">							if (!swingRenderer.openQuestionDialog(form,</span>
+<span class="fc" id="L377">									&quot;Changes were not saved and will be lost.\nContinue?&quot;,</span>
+<span class="fc" id="L378">									swingRenderer.getObjectTitle(saveMenuItem.getContextForm().getObject()), &quot;OK&quot;,</span>
+<span class="fc bfc" id="L379" title="All 2 branches covered.">									&quot;Cancel&quot;)) {</span>
+<span class="fc" id="L380">								cancelled[0] = true;</span>
+							}
+						}
+					}
+<span class="fc" id="L384">					return true;</span>
+				}
+			});
+		}
+<span class="fc bfc" id="L388" title="All 2 branches covered.">		if (cancelled[0]) {</span>
+<span class="fc" id="L389">			return;</span>
+		}
+<span class="fc" id="L391">		window.dispose();</span>
+<span class="fc" id="L392">	}</span>
+
+	protected void workAroundOpeningWindowFocusRequestBug(Callable&lt;Boolean&gt; callable) {
+<span class="fc" id="L395">		new Thread(WindowManager.class.getName() + &quot;.workerAroundOpeningWindowFocusRequestBug&quot;) {</span>
+<span class="fc" id="L396">			long MAXIMUM_RETRY_DURATION_MILLISECONDS = 1000;</span>
+
+			@Override
+			public void run() {
+<span class="fc" id="L400">				boolean[] retry = new boolean[] { true };</span>
+<span class="fc" id="L401">				final long startTime = System.currentTimeMillis();</span>
+<span class="fc bfc" id="L402" title="All 4 branches covered.">				while (retry[0] &amp;&amp; ((System.currentTimeMillis() - startTime &lt;= MAXIMUM_RETRY_DURATION_MILLISECONDS))) {</span>
+					try {
+<span class="fc" id="L404">						SwingUtilities.invokeAndWait(new Runnable() {</span>
+							@Override
+							public void run() {
+<span class="pc bpc" id="L407" title="1 of 2 branches missed.">								if (form == null) {</span>
+<span class="nc" id="L408">									retry[0] = false;</span>
+<span class="nc" id="L409">								} else {</span>
+									try {
+<span class="fc bfc" id="L411" title="All 2 branches covered.">										retry[0] = !callable.call();</span>
+<span class="pc" id="L412">									} catch (Exception e) {</span>
+<span class="nc" id="L413">										throw new ReflectionUIError(e);</span>
+									}
+								}
+<span class="fc" id="L416">							}</span>
+						});
+<span class="pc" id="L418">					} catch (Exception e) {</span>
+<span class="nc" id="L419">						throw new ReflectionUIError(e);</span>
+					}
+				}
+<span class="fc" id="L422">			}</span>
+<span class="fc" id="L423">		}.start();</span>
+<span class="fc" id="L424">	}</span>
+
+	@Override
+	public String toString() {
+<span class="nc" id="L428">		return &quot;WindowManager [window=&quot; + window + &quot;]&quot;;</span>
+	}
+
+	protected class CustomWindowDecorationsPanel extends AlternativeWindowDecorationsPanel {
+
+		public CustomWindowDecorationsPanel(String windowTitle, Icon windowIcon, Window window,
+<span class="fc" id="L434">				Component windowContent) {</span>
+<span class="fc" id="L435">			super(windowTitle, windowIcon, window, windowContent);</span>
+<span class="fc" id="L436">		}</span>
+
+		private static final long serialVersionUID = 1L;
+
+		{
+<span class="fc" id="L441">			getTitleLabel().setHorizontalAlignment(JLabel.LEFT);</span>
+<span class="fc" id="L442">			Font font = getTitleLabel().getFont();</span>
+			{
+<span class="fc" id="L444">				Font titleCustomFont = WindowManager.this.getAlternativeDecorationsTitleBarCustomFont();</span>
+<span class="pc bpc" id="L445" title="1 of 2 branches missed.">				if (titleCustomFont != null) {</span>
+<span class="nc" id="L446">					font = titleCustomFont.deriveFont(font.getStyle(), font.getSize());</span>
+<span class="nc" id="L447">				} else {</span>
+<span class="fc" id="L448">					font = new Font(font.getName(), Font.BOLD, font.getSize());</span>
+				}
+<span class="fc" id="L450">				getTitleLabel().setFont(font);</span>
+			}
+		}
+
+		@Override
+		protected boolean isTitleBarBackgroundPainted() {
+<span class="pc bpc" id="L456" title="1 of 2 branches missed.">			return WindowManager.this.getAlternativeDecorationsTitleBarBackgroundColor() != null;</span>
+		}
+
+		@Override
+		public Color getTitleBarBackgroundColor() {
+<span class="fc" id="L461">			return WindowManager.this.getAlternativeDecorationsTitleBarBackgroundColor();</span>
+		}
+
+		@Override
+		public Color getTitleBarForegroundColor() {
+<span class="fc" id="L466">			Color result = null;</span>
+<span class="pc bpc" id="L467" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="fc" id="L468">				result = WindowManager.this.getAlternativeDecorationsTitleBarForegroundColor();</span>
+			}
+<span class="pc bpc" id="L470" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L471">				result = DEFAULT_TITLE_BAR_FOREROUND_COLOR;</span>
+			}
+<span class="fc" id="L473">			return result;</span>
+		}
+
+		@Override
+		protected boolean isBorderPainted() {
+<span class="fc" id="L478">			return true;</span>
+		}
+
+		@Override
+		protected Color getBorderColor() {
+<span class="fc" id="L483">			return WindowManager.this.getAlternativeDecorationsBorderColor();</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

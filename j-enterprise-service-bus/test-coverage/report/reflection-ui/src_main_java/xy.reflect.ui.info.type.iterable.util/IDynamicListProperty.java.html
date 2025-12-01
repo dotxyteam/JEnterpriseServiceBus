@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>IDynamicListProperty.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.type.iterable.util</a> &gt; <span class="el_source">IDynamicListProperty.java</span></div><h1>IDynamicListProperty.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.type.iterable.util;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+
+/**
+ * This interface allows to specify a list instance property that can be
+ * accessed according to the current selection of items. Such a property will
+ * typically be available on the list control tool bar.
+ * 
+ * The current selection is provided as the 1st parameter of
+ * {@link IListTypeInfo#getDynamicProperties(List, xy.reflect.ui.util.Mapper)}.
+ * 
+ * Note that the owner object passed to {@link #setValue(Object, Object)} and
+ * {@link #getValue(Object)} is {@link IDynamicListProperty#NO_OWNER}.
+ * 
+ * @author olitank
+ *
+ */
+public interface IDynamicListProperty extends IDynamicListFeauture, IFieldInfo {
+
+<span class="nc" id="L37">	public static final Object NO_OWNER = new Object() {</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L41">			return IDynamicListProperty.class.getName() + &quot;.NO_OWNER&quot;;</span>
+		}
+
+	};
+
+<span class="nc" id="L46">	public static final IDynamicListProperty NULL_DYNAMIC_LIST_PROPERTY = new IDynamicListProperty() {</span>
+
+<span class="nc" id="L48">		ITypeInfo type = new DefaultTypeInfo(ReflectionUI.getDefault(), new JavaTypeInfoSource(Object.class, null));</span>
+
+		@Override
+		public String getName() {
+<span class="nc" id="L52">			return &quot;NULL_FIELD_INFO&quot;;</span>
+		}
+
+		@Override
+		public boolean isEnabled() {
+<span class="nc" id="L57">			return true;</span>
+		}
+
+		@Override
+		public DisplayMode getDisplayMode() {
+<span class="nc" id="L62">			return DisplayMode.TOOLBAR_AND_CONTEXT_MENU;</span>
+		}
+
+		@Override
+		public List&lt;ItemPosition&gt; getPostSelection() {
+<span class="nc" id="L67">			return null;</span>
+		}
+
+		@Override
+		public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L72">			return null;</span>
+		}
+
+		@Override
+		public boolean isControlValueValiditionEnabled() {
+<span class="nc" id="L77">			return false;</span>
+		}
+
+		@Override
+		public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="nc" id="L82">		}</span>
+
+		@Override
+		public double getDisplayAreaHorizontalWeight() {
+<span class="nc" id="L86">			return 1.0;</span>
+		}
+
+		@Override
+		public double getDisplayAreaVerticalWeight() {
+<span class="nc" id="L91">			return 0.0;</span>
+		}
+
+		@Override
+		public boolean isDisplayAreaHorizontallyFilled() {
+<span class="nc" id="L96">			return true;</span>
+		}
+
+		@Override
+		public boolean isDisplayAreaVerticallyFilled() {
+<span class="nc" id="L101">			return false;</span>
+		}
+
+		@Override
+		public boolean isHidden() {
+<span class="nc" id="L106">			return false;</span>
+		}
+
+		@Override
+		public boolean isRelevant(Object object) {
+<span class="nc" id="L111">			return true;</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="nc" id="L116">			return null;</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="nc" id="L121">			return &quot;&quot;;</span>
+		}
+
+		@Override
+		public void setValue(Object object, Object value) {
+<span class="nc" id="L126">		}</span>
+
+		@Override
+		public boolean isGetOnly() {
+<span class="nc" id="L130">			return true;</span>
+		}
+
+		@Override
+		public boolean isTransient() {
+<span class="nc" id="L135">			return false;</span>
+		}
+
+		@Override
+		public boolean isNullValueDistinct() {
+<span class="nc" id="L140">			return false;</span>
+		}
+
+		@Override
+		public String getNullValueLabel() {
+<span class="nc" id="L145">			return null;</span>
+		}
+
+		@Override
+		public ValueReturnMode getValueReturnMode() {
+<span class="nc" id="L150">			return ValueReturnMode.INDETERMINATE;</span>
+		}
+
+		@Override
+		public Object getValue(Object object) {
+<span class="nc" id="L155">			return null;</span>
+		}
+
+		@Override
+		public Runnable getNextUpdateCustomUndoJob(Object object, Object value) {
+<span class="nc" id="L160">			return null;</span>
+		}
+
+		@Override
+		public Runnable getPreviousUpdateCustomRedoJob(Object object, Object newValue) {
+<span class="nc" id="L165">			return null;</span>
+		}
+
+		@Override
+		public boolean hasValueOptions(Object object) {
+<span class="nc" id="L170">			return false;</span>
+		}
+
+		@Override
+		public Object[] getValueOptions(Object object) {
+<span class="nc" id="L175">			return null;</span>
+		}
+
+		@Override
+		public ITypeInfo getType() {
+<span class="nc" id="L180">			return type;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="nc" id="L185">			return null;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="nc" id="L190">			return null;</span>
+		}
+
+		@Override
+		public InfoCategory getCategory() {
+<span class="nc" id="L195">			return null;</span>
+		}
+
+		@Override
+		public boolean isFormControlMandatory() {
+<span class="nc" id="L200">			return false;</span>
+		}
+
+		@Override
+		public boolean isFormControlEmbedded() {
+<span class="nc" id="L205">			return false;</span>
+		}
+
+		@Override
+		public IInfoFilter getFormControlFilter() {
+<span class="nc" id="L210">			return IInfoFilter.DEFAULT;</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L215">			return Collections.emptyMap();</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L220">			return getName();</span>
+		}
+
+		@Override
+		public long getAutoUpdatePeriodMilliseconds() {
+<span class="nc" id="L225">			return -1;</span>
+		}
+
+<span class="nc" id="L228">	};</span>
+
+	/**
+	 * @return the list of item positions that should be selected after the display
+	 *         of the current property or null if the selection should not be
+	 *         updated.
+	 */
+	List&lt;ItemPosition&gt; getPostSelection();
+
+	/**
+	 * @return whether the list property can be displayed or not.
+	 */
+	boolean isEnabled();
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

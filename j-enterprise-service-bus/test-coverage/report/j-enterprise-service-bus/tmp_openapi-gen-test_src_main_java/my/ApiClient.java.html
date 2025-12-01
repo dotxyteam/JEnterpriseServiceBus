@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ApiClient.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">tmp/openapi-gen-test/src/main/java</a> &gt; <a href="index.source.html" class="el_package">my</a> &gt; <span class="el_source">ApiClient.java</span></div><h1>ApiClient.java</h1><pre class="source lang-java linenums">package my;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.InvalidMediaTypeException;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.RequestEntity.BodyBuilder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpRequestExecution;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TimeZone;
+import java.time.OffsetDateTime;
+
+import my.auth.Authentication;
+
+@javax.annotation.Generated(value = &quot;org.openapitools.codegen.languages.JavaClientCodegen&quot;, date = &quot;2025-08-01T19:38:38.903+02:00[Europe/Paris]&quot;)
+@Component(&quot;my.ApiClient&quot;)
+public class ApiClient extends JavaTimeFormatter {
+<span class="nc" id="L58">    public enum CollectionFormat {</span>
+<span class="nc" id="L59">        CSV(&quot;,&quot;), TSV(&quot;\t&quot;), SSV(&quot; &quot;), PIPES(&quot;|&quot;), MULTI(null);</span>
+
+        private final String separator;
+
+<span class="nc" id="L63">        private CollectionFormat(String separator) {</span>
+<span class="nc" id="L64">            this.separator = separator;</span>
+<span class="nc" id="L65">        }</span>
+
+        private String collectionToString(Collection&lt;?&gt; collection) {
+<span class="nc" id="L68">            return StringUtils.collectionToDelimitedString(collection, separator);</span>
+        }
+    }
+
+<span class="nc" id="L72">    private boolean debugging = false;</span>
+
+<span class="nc" id="L74">    private HttpHeaders defaultHeaders = new HttpHeaders();</span>
+<span class="nc" id="L75">    private MultiValueMap&lt;String, String&gt; defaultCookies = new LinkedMultiValueMap&lt;String, String&gt;();</span>
+
+<span class="nc" id="L77">    private String basePath = &quot;http://petstore.swagger.io/v1&quot;;</span>
+
+    private RestTemplate restTemplate;
+
+    private Map&lt;String, Authentication&gt; authentications;
+
+    private DateFormat dateFormat;
+
+<span class="nc" id="L85">    public ApiClient() {</span>
+<span class="nc" id="L86">        this.restTemplate = buildRestTemplate();</span>
+<span class="nc" id="L87">        init();</span>
+<span class="nc" id="L88">    }</span>
+
+    @Autowired
+<span class="nc" id="L91">    public ApiClient(RestTemplate restTemplate) {</span>
+<span class="nc" id="L92">        this.restTemplate = restTemplate;</span>
+<span class="nc" id="L93">        init();</span>
+<span class="nc" id="L94">    }</span>
+
+    protected void init() {
+        // Use RFC3339 format for date and datetime.
+        // See http://xml2rfc.ietf.org/public/rfc/html/rfc3339.html#anchor14
+<span class="nc" id="L99">        this.dateFormat = new RFC3339DateFormat();</span>
+
+        // Use UTC as the default time zone.
+<span class="nc" id="L102">        this.dateFormat.setTimeZone(TimeZone.getTimeZone(&quot;UTC&quot;));</span>
+
+        // Set default User-Agent.
+<span class="nc" id="L105">        setUserAgent(&quot;Java-SDK&quot;);</span>
+
+        // Setup authentications (key: authentication name, value: authentication).
+<span class="nc" id="L108">        authentications = new HashMap&lt;String, Authentication&gt;();</span>
+        // Prevent the authentications from being modified.
+<span class="nc" id="L110">        authentications = Collections.unmodifiableMap(authentications);</span>
+<span class="nc" id="L111">    }</span>
+
+    /**
+     * Get the current base path
+     *
+     * @return String the base path
+     */
+    public String getBasePath() {
+<span class="nc" id="L119">        return basePath;</span>
+    }
+
+    /**
+     * Set the base path, which should include the host
+     *
+     * @param basePath the base path
+     * @return ApiClient this client
+     */
+    public ApiClient setBasePath(String basePath) {
+<span class="nc" id="L129">        this.basePath = basePath;</span>
+<span class="nc" id="L130">        return this;</span>
+    }
+
+    /**
+     * Get authentications (key: authentication name, value: authentication).
+     *
+     * @return Map the currently configured authentication types
+     */
+    public Map&lt;String, Authentication&gt; getAuthentications() {
+<span class="nc" id="L139">        return authentications;</span>
+    }
+
+    /**
+     * Get authentication for the given name.
+     *
+     * @param authName The authentication name
+     * @return The authentication, null if not found
+     */
+    public Authentication getAuthentication(String authName) {
+<span class="nc" id="L149">        return authentications.get(authName);</span>
+    }
+
+
+
+
+
+    /**
+     * Set the User-Agent header's value (by adding to the default header map).
+     *
+     * @param userAgent the user agent string
+     * @return ApiClient this client
+     */
+    public ApiClient setUserAgent(String userAgent) {
+<span class="nc" id="L163">        addDefaultHeader(&quot;User-Agent&quot;, userAgent);</span>
+<span class="nc" id="L164">        return this;</span>
+    }
+
+    /**
+     * Add a default header.
+     *
+     * @param name  The header's name
+     * @param value The header's value
+     * @return ApiClient this client
+     */
+    public ApiClient addDefaultHeader(String name, String value) {
+<span class="nc bnc" id="L175" title="All 2 branches missed.">        if (defaultHeaders.containsKey(name)) {</span>
+<span class="nc" id="L176">            defaultHeaders.remove(name);</span>
+        }
+<span class="nc" id="L178">        defaultHeaders.add(name, value);</span>
+<span class="nc" id="L179">        return this;</span>
+    }
+
+    /**
+     * Add a default cookie.
+     *
+     * @param name  The cookie's name
+     * @param value The cookie's value
+     * @return ApiClient this client
+     */
+    public ApiClient addDefaultCookie(String name, String value) {
+<span class="nc bnc" id="L190" title="All 2 branches missed.">        if (defaultCookies.containsKey(name)) {</span>
+<span class="nc" id="L191">            defaultCookies.remove(name);</span>
+        }
+<span class="nc" id="L193">        defaultCookies.add(name, value);</span>
+<span class="nc" id="L194">        return this;</span>
+    }
+
+    public void setDebugging(boolean debugging) {
+<span class="nc" id="L198">        List&lt;ClientHttpRequestInterceptor&gt; currentInterceptors = this.restTemplate.getInterceptors();</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">        if (debugging) {</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">            if (currentInterceptors == null) {</span>
+<span class="nc" id="L201">                currentInterceptors = new ArrayList&lt;ClientHttpRequestInterceptor&gt;();</span>
+            }
+<span class="nc" id="L203">            ClientHttpRequestInterceptor interceptor = new ApiClientHttpRequestInterceptor();</span>
+<span class="nc" id="L204">            currentInterceptors.add(interceptor);</span>
+<span class="nc" id="L205">            this.restTemplate.setInterceptors(currentInterceptors);</span>
+<span class="nc" id="L206">        } else {</span>
+<span class="nc bnc" id="L207" title="All 4 branches missed.">            if (currentInterceptors != null &amp;&amp; !currentInterceptors.isEmpty()) {</span>
+<span class="nc" id="L208">                Iterator&lt;ClientHttpRequestInterceptor&gt; iter = currentInterceptors.iterator();</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">                while (iter.hasNext()) {</span>
+<span class="nc" id="L210">                    ClientHttpRequestInterceptor interceptor = iter.next();</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">                    if (interceptor instanceof ApiClientHttpRequestInterceptor) {</span>
+<span class="nc" id="L212">                        iter.remove();</span>
+                    }
+                }
+<span class="nc" id="L215">                this.restTemplate.setInterceptors(currentInterceptors);</span>
+            }
+        }
+<span class="nc" id="L218">        this.debugging = debugging;</span>
+<span class="nc" id="L219">    }</span>
+
+    /**
+     * Check that whether debugging is enabled for this API client.
+     * @return boolean true if this client is enabled for debugging, false otherwise
+     */
+    public boolean isDebugging() {
+<span class="nc" id="L226">        return debugging;</span>
+    }
+
+    /**
+     * Get the date format used to parse/format date parameters.
+     * @return DateFormat format
+     */
+    public DateFormat getDateFormat() {
+<span class="nc" id="L234">        return dateFormat;</span>
+    }
+
+    /**
+     * Set the date format used to parse/format date parameters.
+     * @param dateFormat Date format
+     * @return API client
+     */
+    public ApiClient setDateFormat(DateFormat dateFormat) {
+<span class="nc" id="L243">        this.dateFormat = dateFormat;</span>
+<span class="nc" id="L244">        return this;</span>
+    }
+
+    /**
+     * Parse the given string into Date object.
+     *
+     * @param str the string to parse
+     * @return the Date parsed from the string
+     */
+    public Date parseDate(String str) {
+        try {
+<span class="nc" id="L255">            return dateFormat.parse(str);</span>
+<span class="nc" id="L256">        } catch (ParseException e) {</span>
+<span class="nc" id="L257">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    /**
+     * Format the given Date object into string.
+     *
+     * @param date the date to format
+     * @return the formatted date as string
+     */
+    public String formatDate(Date date) {
+<span class="nc" id="L268">        return dateFormat.format(date);</span>
+    }
+
+    /**
+     * Format the given parameter object into string.
+     *
+     * @param param the object to convert
+     * @return String the parameter represented as a String
+     */
+    public String parameterToString(Object param) {
+<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (param == null) {</span>
+<span class="nc" id="L279">            return &quot;&quot;;</span>
+<span class="nc bnc" id="L280" title="All 2 branches missed.">        } else if (param instanceof Date) {</span>
+<span class="nc" id="L281">            return formatDate( (Date) param);</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">        } else if (param instanceof OffsetDateTime) {</span>
+<span class="nc" id="L283">            return formatOffsetDateTime((OffsetDateTime) param);</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">        } else if (param instanceof Collection) {</span>
+<span class="nc" id="L285">            StringBuilder b = new StringBuilder();</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">            for (Object o : (Collection&lt;?&gt;) param) {</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">                if (b.length() &gt; 0) {</span>
+<span class="nc" id="L288">                    b.append(&quot;,&quot;);</span>
+                }
+<span class="nc" id="L290">                b.append(String.valueOf(o));</span>
+            }
+<span class="nc" id="L292">            return b.toString();</span>
+        } else {
+<span class="nc" id="L294">            return String.valueOf(param);</span>
+        }
+    }
+
+    /**
+    * Formats the specified collection path parameter to a string value.
+    *
+    * @param collectionFormat The collection format of the parameter.
+    * @param values The values of the parameter.
+    * @return String representation of the parameter
+    */
+    public String collectionPathParameterToString(CollectionFormat collectionFormat, Collection&lt;?&gt; values) {
+        // create the value based on the collection format
+<span class="nc bnc" id="L307" title="All 2 branches missed.">        if (CollectionFormat.MULTI.equals(collectionFormat)) {</span>
+            // not valid for path params
+<span class="nc" id="L309">            return parameterToString(values);</span>
+        }
+
+        // collectionFormat is assumed to be &quot;csv&quot; by default
+<span class="nc bnc" id="L313" title="All 2 branches missed.">        if (collectionFormat == null) {</span>
+<span class="nc" id="L314">            collectionFormat = CollectionFormat.CSV;</span>
+        }
+
+<span class="nc" id="L317">        return collectionFormat.collectionToString(values);</span>
+    }
+
+    /**
+     * Converts a parameter to a {@link MultiValueMap} for use in REST requests
+     *
+     * @param collectionFormat The format to convert to
+     * @param name The name of the parameter
+     * @param value The parameter's value
+     * @return a Map containing the String value(s) of the input parameter
+     */
+    public MultiValueMap&lt;String, String&gt; parameterToMultiValueMap(CollectionFormat collectionFormat, String name, Object value) {
+<span class="nc" id="L329">        final MultiValueMap&lt;String, String&gt; params = new LinkedMultiValueMap&lt;String, String&gt;();</span>
+
+<span class="nc bnc" id="L331" title="All 6 branches missed.">        if (name == null || name.isEmpty() || value == null) {</span>
+<span class="nc" id="L332">            return params;</span>
+        }
+
+<span class="nc bnc" id="L335" title="All 2 branches missed.">        if (collectionFormat == null) {</span>
+<span class="nc" id="L336">            collectionFormat = CollectionFormat.CSV;</span>
+        }
+
+<span class="nc bnc" id="L339" title="All 2 branches missed.">        if (value instanceof Map) {</span>
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L341">            final Map&lt;String, Object&gt; valuesMap = (Map&lt;String, Object&gt;) value;</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">            for (final Entry&lt;String, Object&gt; entry : valuesMap.entrySet()) {</span>
+<span class="nc" id="L343">                params.add(entry.getKey(), parameterToString(entry.getValue()));</span>
+            }
+<span class="nc" id="L345">            return params;</span>
+        }
+
+<span class="nc" id="L348">        Collection&lt;?&gt; valueCollection = null;</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">        if (value instanceof Collection) {</span>
+<span class="nc" id="L350">            valueCollection = (Collection&lt;?&gt;) value;</span>
+<span class="nc" id="L351">        } else {</span>
+<span class="nc" id="L352">            params.add(name, parameterToString(value));</span>
+<span class="nc" id="L353">            return params;</span>
+        }
+
+<span class="nc bnc" id="L356" title="All 2 branches missed.">        if (valueCollection.isEmpty()) {</span>
+<span class="nc" id="L357">            return params;</span>
+        }
+
+<span class="nc bnc" id="L360" title="All 2 branches missed.">        if (collectionFormat.equals(CollectionFormat.MULTI)) {</span>
+<span class="nc bnc" id="L361" title="All 2 branches missed.">            for (Object item : valueCollection) {</span>
+<span class="nc" id="L362">                params.add(name, parameterToString(item));</span>
+            }
+<span class="nc" id="L364">            return params;</span>
+        }
+
+<span class="nc" id="L367">        List&lt;String&gt; values = new ArrayList&lt;String&gt;();</span>
+<span class="nc bnc" id="L368" title="All 2 branches missed.">        for (Object o : valueCollection) {</span>
+<span class="nc" id="L369">            values.add(parameterToString(o));</span>
+        }
+<span class="nc" id="L371">        params.add(name, collectionFormat.collectionToString(values));</span>
+
+<span class="nc" id="L373">        return params;</span>
+    }
+
+   /**
+    * Check if the given {@code String} is a JSON MIME.
+    *
+    * @param mediaType the input MediaType
+    * @return boolean true if the MediaType represents JSON, false otherwise
+    */
+    public boolean isJsonMime(String mediaType) {
+        // &quot;* / *&quot; is default to JSON
+<span class="nc bnc" id="L384" title="All 2 branches missed.">        if (&quot;*/*&quot;.equals(mediaType)) {</span>
+<span class="nc" id="L385">            return true;</span>
+        }
+
+        try {
+<span class="nc" id="L389">            return isJsonMime(MediaType.parseMediaType(mediaType));</span>
+<span class="nc" id="L390">        } catch (InvalidMediaTypeException e) {</span>
+        }
+<span class="nc" id="L392">        return false;</span>
+    }
+
+    /**
+     * Check if the given MIME is a JSON MIME.
+     * JSON MIME examples:
+     *     application/json
+     *     application/json; charset=UTF8
+     *     APPLICATION/JSON
+     *
+     * @param mediaType the input MediaType
+     * @return boolean true if the MediaType represents JSON, false otherwise
+     */
+    public boolean isJsonMime(MediaType mediaType) {
+<span class="nc bnc" id="L406" title="All 6 branches missed.">        return mediaType != null &amp;&amp; (MediaType.APPLICATION_JSON.isCompatibleWith(mediaType) || mediaType.getSubtype().matches(&quot;^.*\\+json[;]?\\s*$&quot;));</span>
+    }
+
+   /**
+    * Check if the given {@code String} is a Problem JSON MIME (RFC-7807).
+    *
+    * @param mediaType the input MediaType
+    * @return boolean true if the MediaType represents Problem JSON, false otherwise
+    */
+    public boolean isProblemJsonMime(String mediaType) {
+<span class="nc" id="L416">        return &quot;application/problem+json&quot;.equalsIgnoreCase(mediaType);</span>
+    }
+
+    /**
+     * Select the Accept header's value from the given accepts array:
+     *     if JSON exists in the given array, use it;
+     *     otherwise use all of them (joining into a string)
+     *
+     * @param accepts The accepts array to select from
+     * @return List The list of MediaTypes to use for the Accept header
+     */
+    public List&lt;MediaType&gt; selectHeaderAccept(String[] accepts) {
+<span class="nc bnc" id="L428" title="All 2 branches missed.">        if (accepts.length == 0) {</span>
+<span class="nc" id="L429">            return null;</span>
+        }
+<span class="nc bnc" id="L431" title="All 2 branches missed.">        for (String accept : accepts) {</span>
+<span class="nc" id="L432">            MediaType mediaType = MediaType.parseMediaType(accept);</span>
+<span class="nc bnc" id="L433" title="All 4 branches missed.">            if (isJsonMime(mediaType) &amp;&amp; !isProblemJsonMime(accept)) {</span>
+<span class="nc" id="L434">                return Collections.singletonList(mediaType);</span>
+            }
+        }
+<span class="nc" id="L437">        return MediaType.parseMediaTypes(StringUtils.arrayToCommaDelimitedString(accepts));</span>
+    }
+
+    /**
+     * Select the Content-Type header's value from the given array:
+     *     if JSON exists in the given array, use it;
+     *     otherwise use the first one of the array.
+     *
+     * @param contentTypes The Content-Type array to select from
+     * @return MediaType The Content-Type header to use. If the given array is empty, JSON will be used.
+     */
+    public MediaType selectHeaderContentType(String[] contentTypes) {
+<span class="nc bnc" id="L449" title="All 2 branches missed.">        if (contentTypes.length == 0) {</span>
+<span class="nc" id="L450">            return MediaType.APPLICATION_JSON;</span>
+        }
+<span class="nc bnc" id="L452" title="All 2 branches missed.">        for (String contentType : contentTypes) {</span>
+<span class="nc" id="L453">            MediaType mediaType = MediaType.parseMediaType(contentType);</span>
+<span class="nc bnc" id="L454" title="All 2 branches missed.">            if (isJsonMime(mediaType)) {</span>
+<span class="nc" id="L455">                return mediaType;</span>
+            }
+        }
+<span class="nc" id="L458">        return MediaType.parseMediaType(contentTypes[0]);</span>
+    }
+
+    /**
+     * Select the body to use for the request
+     *
+     * @param obj the body object
+     * @param formParams the form parameters
+     * @param contentType the content type of the request
+     * @return Object the selected body
+     */
+    protected Object selectBody(Object obj, MultiValueMap&lt;String, Object&gt; formParams, MediaType contentType) {
+<span class="nc bnc" id="L470" title="All 4 branches missed.">        boolean isForm = MediaType.MULTIPART_FORM_DATA.isCompatibleWith(contentType) || MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(contentType);</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">        return isForm ? formParams : obj;</span>
+    }
+
+    /**
+     * Expand path template with variables
+     *
+     * @param pathTemplate path template with placeholders
+     * @param variables variables to replace
+     * @return path with placeholders replaced by variables
+     */
+    public String expandPath(String pathTemplate, Map&lt;String, Object&gt; variables) {
+<span class="nc" id="L482">        return restTemplate.getUriTemplateHandler().expand(pathTemplate, variables).toString();</span>
+    }
+
+    /**
+     * Include queryParams in uriParams taking into account the paramName
+     *
+     * @param queryParams The query parameters
+     * @param uriParams The path parameters
+     * return templatized query string
+     */
+    public String generateQueryUri(MultiValueMap&lt;String, String&gt; queryParams, Map&lt;String, Object&gt; uriParams) {
+<span class="nc" id="L493">        StringBuilder queryBuilder = new StringBuilder();</span>
+<span class="nc" id="L494">        queryParams.forEach((name, values) -&gt; {</span>
+            try {
+<span class="nc" id="L496">                final String encodedName = URLEncoder.encode(name.toString(), &quot;UTF-8&quot;);</span>
+<span class="nc bnc" id="L497" title="All 2 branches missed.">                if (CollectionUtils.isEmpty(values)) {</span>
+<span class="nc bnc" id="L498" title="All 2 branches missed.">                    if (queryBuilder.length() != 0) {</span>
+<span class="nc" id="L499">                        queryBuilder.append('&amp;');</span>
+                    }
+<span class="nc" id="L501">                    queryBuilder.append(encodedName);</span>
+<span class="nc" id="L502">                } else {</span>
+<span class="nc" id="L503">                    int valueItemCounter = 0;</span>
+<span class="nc bnc" id="L504" title="All 2 branches missed.">                    for (Object value : values) {</span>
+<span class="nc bnc" id="L505" title="All 2 branches missed.">                        if (queryBuilder.length() != 0) {</span>
+<span class="nc" id="L506">                            queryBuilder.append('&amp;');</span>
+                        }
+<span class="nc" id="L508">                        queryBuilder.append(encodedName);</span>
+<span class="nc bnc" id="L509" title="All 2 branches missed.">                        if (value != null) {</span>
+<span class="nc" id="L510">                            String templatizedKey = encodedName + valueItemCounter++;</span>
+<span class="nc" id="L511">                            uriParams.put(templatizedKey, value.toString());</span>
+<span class="nc" id="L512">                            queryBuilder.append('=').append(&quot;{&quot;).append(templatizedKey).append(&quot;}&quot;);</span>
+                        }
+                    }
+                }
+<span class="nc" id="L516">            } catch (UnsupportedEncodingException e) {</span>
+
+            }
+<span class="nc" id="L519">        });</span>
+<span class="nc" id="L520">        return queryBuilder.toString();</span>
+
+    }
+
+    /**
+     * Invoke API by sending HTTP request with the given options.
+     *
+     * @param &lt;T&gt; the return type to use
+     * @param path The sub-path of the HTTP URL
+     * @param method The request method
+     * @param pathParams The path parameters
+     * @param queryParams The query parameters
+     * @param body The request body object
+     * @param headerParams The header parameters
+     * @param cookieParams The cookie parameters
+     * @param formParams The form parameters
+     * @param accept The request's Accept header
+     * @param contentType The request's Content-Type header
+     * @param authNames The authentications to apply
+     * @param returnType The return type into which to deserialize the response
+     * @return ResponseEntity&amp;lt;T&amp;gt; The response of the chosen type
+     */
+    public &lt;T&gt; ResponseEntity&lt;T&gt; invokeAPI(String path, HttpMethod method, Map&lt;String, Object&gt; pathParams, MultiValueMap&lt;String, String&gt; queryParams, Object body, HttpHeaders headerParams, MultiValueMap&lt;String, String&gt; cookieParams, MultiValueMap&lt;String, Object&gt; formParams, List&lt;MediaType&gt; accept, MediaType contentType, String[] authNames, ParameterizedTypeReference&lt;T&gt; returnType) throws RestClientException {
+<span class="nc" id="L543">        updateParamsForAuth(authNames, queryParams, headerParams, cookieParams);</span>
+
+<span class="nc" id="L545">        Map&lt;String,Object&gt; uriParams = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L546">        uriParams.putAll(pathParams);</span>
+
+<span class="nc" id="L548">        String finalUri = path;</span>
+
+<span class="nc bnc" id="L550" title="All 4 branches missed.">        if (queryParams != null &amp;&amp; !queryParams.isEmpty()) {</span>
+            //Include queryParams in uriParams taking into account the paramName
+<span class="nc" id="L552">            String queryUri = generateQueryUri(queryParams, uriParams);</span>
+            //Append to finalUri the templatized query string like &quot;?param1={param1Value}&amp;.......
+<span class="nc" id="L554">            finalUri += &quot;?&quot; + queryUri;</span>
+        }
+<span class="nc" id="L556">        String expandedPath = this.expandPath(finalUri, uriParams);</span>
+<span class="nc" id="L557">        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(basePath).path(expandedPath);</span>
+
+        URI uri;
+        try {
+<span class="nc" id="L561">            uri = new URI(builder.build().toUriString());</span>
+<span class="nc" id="L562">        } catch (URISyntaxException ex)  {</span>
+<span class="nc" id="L563">            throw new RestClientException(&quot;Could not build URL: &quot; + builder.toUriString(), ex);</span>
+        }
+
+<span class="nc" id="L566">        final BodyBuilder requestBuilder = RequestEntity.method(method, uri);</span>
+<span class="nc bnc" id="L567" title="All 2 branches missed.">        if (accept != null) {</span>
+<span class="nc" id="L568">            requestBuilder.accept(accept.toArray(new MediaType[accept.size()]));</span>
+        }
+<span class="nc bnc" id="L570" title="All 2 branches missed.">        if (contentType != null) {</span>
+<span class="nc" id="L571">            requestBuilder.contentType(contentType);</span>
+        }
+
+<span class="nc" id="L574">        addHeadersToRequest(headerParams, requestBuilder);</span>
+<span class="nc" id="L575">        addHeadersToRequest(defaultHeaders, requestBuilder);</span>
+<span class="nc" id="L576">        addCookiesToRequest(cookieParams, requestBuilder);</span>
+<span class="nc" id="L577">        addCookiesToRequest(defaultCookies, requestBuilder);</span>
+
+<span class="nc" id="L579">        RequestEntity&lt;Object&gt; requestEntity = requestBuilder.body(selectBody(body, formParams, contentType));</span>
+
+<span class="nc" id="L581">        ResponseEntity&lt;T&gt; responseEntity = restTemplate.exchange(requestEntity, returnType);</span>
+
+<span class="nc bnc" id="L583" title="All 2 branches missed.">        if (responseEntity.getStatusCode().is2xxSuccessful()) {</span>
+<span class="nc" id="L584">            return responseEntity;</span>
+        } else {
+            // The error handler built into the RestTemplate should handle 400 and 500 series errors.
+<span class="nc" id="L587">            throw new RestClientException(&quot;API returned &quot; + responseEntity.getStatusCode() + &quot; and it wasn't handled by the RestTemplate error handler&quot;);</span>
+        }
+    }
+
+    /**
+     * Add headers to the request that is being built
+     * @param headers The headers to add
+     * @param requestBuilder The current request
+     */
+    protected void addHeadersToRequest(HttpHeaders headers, BodyBuilder requestBuilder) {
+<span class="nc bnc" id="L597" title="All 2 branches missed.">        for (Entry&lt;String, List&lt;String&gt;&gt; entry : headers.entrySet()) {</span>
+<span class="nc" id="L598">            List&lt;String&gt; values = entry.getValue();</span>
+<span class="nc bnc" id="L599" title="All 2 branches missed.">            for (String value : values) {</span>
+<span class="nc bnc" id="L600" title="All 2 branches missed.">                if (value != null) {</span>
+<span class="nc" id="L601">                    requestBuilder.header(entry.getKey(), value);</span>
+                }
+            }
+        }
+<span class="nc" id="L605">    }</span>
+
+    /**
+     * Add cookies to the request that is being built
+     *
+     * @param cookies        The cookies to add
+     * @param requestBuilder The current request
+     */
+    protected void addCookiesToRequest(MultiValueMap&lt;String, String&gt; cookies, BodyBuilder requestBuilder) {
+<span class="nc bnc" id="L614" title="All 2 branches missed.">        if (!cookies.isEmpty()) {</span>
+<span class="nc" id="L615">            requestBuilder.header(&quot;Cookie&quot;, buildCookieHeader(cookies));</span>
+        }
+<span class="nc" id="L617">    }</span>
+
+    /**
+     * Build cookie header. Keeps a single value per cookie (as per &lt;a href=&quot;https://tools.ietf.org/html/rfc6265#section-5.3&quot;&gt;
+     * RFC6265 section 5.3&lt;/a&gt;).
+     *
+     * @param cookies map all cookies
+     * @return header string for cookies.
+     */
+    private String buildCookieHeader(MultiValueMap&lt;String, String&gt; cookies) {
+<span class="nc" id="L627">        final StringBuilder cookieValue = new StringBuilder();</span>
+<span class="nc" id="L628">        String delimiter = &quot;&quot;;</span>
+<span class="nc bnc" id="L629" title="All 2 branches missed.">        for (final Map.Entry&lt;String, List&lt;String&gt;&gt; entry : cookies.entrySet()) {</span>
+<span class="nc" id="L630">            final String value = entry.getValue().get(entry.getValue().size() - 1);</span>
+<span class="nc" id="L631">            cookieValue.append(String.format(&quot;%s%s=%s&quot;, delimiter, entry.getKey(), value));</span>
+<span class="nc" id="L632">            delimiter = &quot;; &quot;;</span>
+        }
+<span class="nc" id="L634">        return cookieValue.toString();</span>
+    }
+
+    /**
+     * Build the RestTemplate used to make HTTP requests.
+     * @return RestTemplate
+     */
+    protected RestTemplate buildRestTemplate() {
+<span class="nc" id="L642">        RestTemplate restTemplate = new RestTemplate();</span>
+        // This allows us to read the response more than once - Necessary for debugging.
+<span class="nc" id="L644">        restTemplate.setRequestFactory(new BufferingClientHttpRequestFactory(restTemplate.getRequestFactory()));</span>
+
+        // disable default URL encoding
+<span class="nc" id="L647">        DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();</span>
+<span class="nc" id="L648">        uriBuilderFactory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.VALUES_ONLY);</span>
+<span class="nc" id="L649">        restTemplate.setUriTemplateHandler(uriBuilderFactory);</span>
+<span class="nc" id="L650">        return restTemplate;</span>
+    }
+
+    /**
+     * Update query and header parameters based on authentication settings.
+     *
+     * @param authNames The authentications to apply
+     * @param queryParams The query parameters
+     * @param headerParams The header parameters
+     */
+    protected void updateParamsForAuth(String[] authNames, MultiValueMap&lt;String, String&gt; queryParams, HttpHeaders headerParams, MultiValueMap&lt;String, String&gt; cookieParams) {
+<span class="nc bnc" id="L661" title="All 2 branches missed.">        for (String authName : authNames) {</span>
+<span class="nc" id="L662">            Authentication auth = authentications.get(authName);</span>
+<span class="nc bnc" id="L663" title="All 2 branches missed.">            if (auth == null) {</span>
+<span class="nc" id="L664">                throw new RestClientException(&quot;Authentication undefined: &quot; + authName);</span>
+            }
+<span class="nc" id="L666">            auth.applyToParams(queryParams, headerParams, cookieParams);</span>
+        }
+<span class="nc" id="L668">    }</span>
+
+<span class="nc" id="L670">    private class ApiClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {</span>
+<span class="nc" id="L671">        private final Log log = LogFactory.getLog(ApiClientHttpRequestInterceptor.class);</span>
+
+        @Override
+        public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+<span class="nc" id="L675">            logRequest(request, body);</span>
+<span class="nc" id="L676">            ClientHttpResponse response = execution.execute(request, body);</span>
+<span class="nc" id="L677">            logResponse(response);</span>
+<span class="nc" id="L678">            return response;</span>
+        }
+
+        private void logRequest(HttpRequest request, byte[] body) throws UnsupportedEncodingException {
+<span class="nc" id="L682">            log.info(&quot;URI: &quot; + request.getURI());</span>
+<span class="nc" id="L683">            log.info(&quot;HTTP Method: &quot; + request.getMethod());</span>
+<span class="nc" id="L684">            log.info(&quot;HTTP Headers: &quot; + headersToString(request.getHeaders()));</span>
+<span class="nc" id="L685">            log.info(&quot;Request Body: &quot; + new String(body, StandardCharsets.UTF_8));</span>
+<span class="nc" id="L686">        }</span>
+
+        private void logResponse(ClientHttpResponse response) throws IOException {
+<span class="nc" id="L689">            log.info(&quot;HTTP Status Code: &quot; + response.getRawStatusCode());</span>
+<span class="nc" id="L690">            log.info(&quot;Status Text: &quot; + response.getStatusText());</span>
+<span class="nc" id="L691">            log.info(&quot;HTTP Headers: &quot; + headersToString(response.getHeaders()));</span>
+<span class="nc" id="L692">            log.info(&quot;Response Body: &quot; + bodyToString(response.getBody()));</span>
+<span class="nc" id="L693">        }</span>
+
+        private String headersToString(HttpHeaders headers) {
+<span class="nc bnc" id="L696" title="All 4 branches missed.">            if(headers == null || headers.isEmpty()) {</span>
+<span class="nc" id="L697">                return &quot;&quot;;</span>
+            }
+<span class="nc" id="L699">            StringBuilder builder = new StringBuilder();</span>
+<span class="nc bnc" id="L700" title="All 2 branches missed.">            for (Entry&lt;String, List&lt;String&gt;&gt; entry : headers.entrySet()) {</span>
+<span class="nc" id="L701">                builder.append(entry.getKey()).append(&quot;=[&quot;);</span>
+<span class="nc bnc" id="L702" title="All 2 branches missed.">                for (String value : entry.getValue()) {</span>
+<span class="nc" id="L703">                    builder.append(value).append(&quot;,&quot;);</span>
+                }
+<span class="nc" id="L705">                builder.setLength(builder.length() - 1); // Get rid of trailing comma</span>
+<span class="nc" id="L706">                builder.append(&quot;],&quot;);</span>
+            }
+<span class="nc" id="L708">            builder.setLength(builder.length() - 1); // Get rid of trailing comma</span>
+<span class="nc" id="L709">            return builder.toString();</span>
+        }
+
+        private String bodyToString(InputStream body) throws IOException {
+<span class="nc" id="L713">            StringBuilder builder = new StringBuilder();</span>
+<span class="nc" id="L714">            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(body, StandardCharsets.UTF_8));</span>
+<span class="nc" id="L715">            String line = bufferedReader.readLine();</span>
+<span class="nc bnc" id="L716" title="All 2 branches missed.">            while (line != null) {</span>
+<span class="nc" id="L717">                builder.append(line).append(System.lineSeparator());</span>
+<span class="nc" id="L718">                line = bufferedReader.readLine();</span>
+            }
+<span class="nc" id="L720">            bufferedReader.close();</span>
+<span class="nc" id="L721">            return builder.toString();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>IMethodInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.method</a> &gt; <span class="el_source">IMethodInfo.java</span></div><h1>IMethodInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.method;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.info.IInfo;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * This interface allows to specify UI-oriented method (or constructor)
+ * properties.
+ * 
+ * @author olitank
+ *
+ */
+public interface IMethodInfo extends IInfo {
+
+	/**
+	 * Dummy instance of this class made for utilitarian purposes.
+	 */
+<span class="fc" id="L30">	public IMethodInfo NULL_METHOD_INFO = new IMethodInfo() {</span>
+
+		@Override
+		public String getName() {
+<span class="nc" id="L34">			return &quot;NULL_METHOD_INFO&quot;;</span>
+		}
+
+		@Override
+		public boolean isHidden() {
+<span class="fc" id="L39">			return false;</span>
+		}
+
+		@Override
+		public boolean isRelevant(Object object) {
+<span class="fc" id="L44">			return true;</span>
+		}
+
+		@Override
+		public boolean isEnabled(Object object) {
+<span class="fc" id="L49">			return true;</span>
+		}
+
+		@Override
+		public IValidationJob getReturnValueAbstractFormValidationJob(Object object, Object returnValue) {
+<span class="nc" id="L54">			return null;</span>
+		}
+
+		@Override
+		public boolean isControlReturnValueValiditionEnabled() {
+<span class="fc" id="L59">			return false;</span>
+		}
+
+		@Override
+		public boolean isLastInvocationDataUsedByDefault() {
+<span class="nc" id="L64">			return true;</span>
+		}
+
+		@Override
+		public void onControlVisibilityChange(Object object, boolean b) {
+<span class="fc" id="L69">		}</span>
+
+		@Override
+		public String getSignature() {
+<span class="nc" id="L73">			return ReflectionUIUtils.buildMethodSignature(this);</span>
+		}
+
+		@Override
+		public String getParametersValidationCustomCaption() {
+<span class="nc" id="L78">			return null;</span>
+		}
+
+		@Override
+		public String getConfirmationMessage(Object object, InvocationData invocationData) {
+<span class="fc" id="L83">			return null;</span>
+		}
+
+		@Override
+		public String getExecutionSuccessMessage() {
+<span class="fc" id="L88">			return null;</span>
+		}
+
+		@Override
+		public ResourcePath getIconImagePath() {
+<span class="fc" id="L93">			return null;</span>
+		}
+
+		@Override
+		public boolean isNullReturnValueDistinct() {
+<span class="fc" id="L98">			return false;</span>
+		}
+
+		@Override
+		public boolean isReturnValueDetached() {
+<span class="fc" id="L103">			return false;</span>
+		}
+
+		@Override
+		public boolean isReturnValueIgnored() {
+<span class="fc" id="L108">			return false;</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="fc" id="L113">			return null;</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="nc" id="L118">			return &quot;&quot;;</span>
+		}
+
+		@Override
+		public boolean isReadOnly() {
+<span class="nc" id="L123">			return false;</span>
+		}
+
+		@Override
+		public ValueReturnMode getValueReturnMode() {
+<span class="fc" id="L128">			return ValueReturnMode.INDETERMINATE;</span>
+		}
+
+		@Override
+		public InfoCategory getCategory() {
+<span class="fc" id="L133">			return null;</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L138">			return Collections.emptyMap();</span>
+		}
+
+		@Override
+		public ITypeInfo getReturnValueType() {
+<span class="fc" id="L143">			return null;</span>
+		}
+
+		@Override
+		public List&lt;IParameterInfo&gt; getParameters() {
+<span class="fc" id="L148">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public Object invoke(Object object, InvocationData invocationData) {
+<span class="nc" id="L153">			return null;</span>
+		}
+
+		@Override
+		public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L158">			return null;</span>
+		}
+
+		@Override
+		public Runnable getPreviousInvocationCustomRedoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L163">			return null;</span>
+		}
+
+		@Override
+		public void validateParameters(Object object, InvocationData invocationData) throws Exception {
+<span class="nc" id="L168">		}</span>
+
+		@Override
+		public String getNullReturnValueLabel() {
+<span class="nc" id="L172">			return null;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L177">			return getName();</span>
+		}
+<span class="fc" id="L179">	};</span>
+
+	/**
+	 * 
+	 * @return the name of this method. An empty string is returned if this method
+	 *         is a actually constructor.
+	 */
+	@Override
+	String getName();
+
+	/**
+	 * @return the signature of this method.
+	 */
+	String getSignature();
+
+	/**
+	 * @return the type information of the return value of the current method.
+	 */
+	ITypeInfo getReturnValueType();
+
+	/**
+	 * @return the parameters of this method.
+	 */
+	List&lt;IParameterInfo&gt; getParameters();
+
+	/**
+	 * 
+	 * @param object         The object offering this method or null (if the method
+	 *                       is static or is a constructor).
+	 * @param invocationData The parameter values.
+	 * @return the result of this method execution.
+	 */
+	Object invoke(Object object, InvocationData invocationData);
+
+	/**
+	 * @return true if and only if the execution of this method does not affect the
+	 *         object on which it is executed. Note that it means that information
+	 *         about this method executions should not be stored in a modification
+	 *         stack (in order to be reverted), but this is more of a side effect
+	 *         than a choice (unlike the effect of
+	 *         {@link IFieldInfo#isTransient()}).
+	 */
+	boolean isReadOnly();
+
+	/**
+	 * @param object The object offering this method or null (if the method is
+	 *               static or is a constructor).
+	 * @return whether the method execution is allowed or not.
+	 */
+	boolean isEnabled(Object object);
+
+	/**
+	 * @return a text that should be displayed by the method control to describe the
+	 *         null return value.
+	 */
+	String getNullReturnValueLabel();
+
+	/**
+	 * @return the category in which this method will be displayed.
+	 */
+	InfoCategory getCategory();
+
+	/**
+	 * @param object         The object offering this method or null (if the method
+	 *                       is static or is a constructor)
+	 * @param invocationData The parameter values.
+	 * @return a job that can revert the next invocation of this method or null if
+	 *         the method execution cannot be reverted.
+	 */
+	Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData);
+
+	/**
+	 * @param object         The object offering this method or null (if the method
+	 *                       is static or is a constructor)
+	 * @param invocationData The parameter values.
+	 * @return a job that can replay the previous invocation of this method or null
+	 *         if the default redo job should be used.
+	 */
+	Runnable getPreviousInvocationCustomRedoJob(Object object, InvocationData invocationData);
+
+	/**
+	 * Validates the values of the parameters. An exception is thrown if the
+	 * parameter values are not valid. Otherwise the values are considered as valid.
+	 * 
+	 * @param object         The object offering this method or null (if the method
+	 *                       is static or is a constructor)
+	 * @param invocationData The parameter values.
+	 * @throws Exception If the parameter values are not valid.
+	 */
+	void validateParameters(Object object, InvocationData invocationData) throws Exception;
+
+	/**
+	 * @return the value return mode of this method. It may impact the behavior of
+	 *         the control used to display the return value.
+	 */
+	ValueReturnMode getValueReturnMode();
+
+	/**
+	 * @return the resource location of an image displayed on the method control or
+	 *         null.
+	 */
+	ResourcePath getIconImagePath();
+
+	/**
+	 * @return true if and only if the return value of this method should be
+	 *         displayed in a separate independent view, typically a stand-alone
+	 *         window.
+	 */
+	boolean isReturnValueDetached();
+
+	/**
+	 * @return true if and only if the control displaying the return value of this
+	 *         method must distinctly display the null value. This is usually needed
+	 *         if a null return value has a special meaning different from
+	 *         &quot;empty/default value&quot; for the developer.
+	 */
+	boolean isNullReturnValueDistinct();
+
+	/**
+	 * @return true if and only if this method return value should be ignored.
+	 */
+	boolean isReturnValueIgnored();
+
+	/**
+	 * @return true if and only if this last invocation data (parameter values) of
+	 *         this method should be proposed before each execution.
+	 */
+	boolean isLastInvocationDataUsedByDefault();
+
+	/**
+	 * @param object         The object offering this method or null (if the method
+	 *                       is static or is a constructor)
+	 * @param invocationData The parameter values.
+	 * @return a confirmation message to be displayed just before invoking this
+	 *         method so that the user will be able to cancel the execution or null
+	 *         if the execution should not be confirmed.
+	 */
+	String getConfirmationMessage(Object object, InvocationData invocationData);
+
+	/**
+	 * @return true if and only if the method control should be filtered out from
+	 *         the display.
+	 */
+	boolean isHidden();
+
+	/**
+	 * @param object The object offering this method or null (if the method is
+	 *               static or is a constructor)
+	 * @return whether the display of this method control makes sense given the
+	 *         state of the parent object.
+	 */
+	boolean isRelevant(Object object);
+
+	/**
+	 * @return the text displayed on the validation control (typically a 'validate'
+	 *         button) of the parameters settings dialog or null if the default text
+	 *         should be used.
+	 */
+	String getParametersValidationCustomCaption();
+
+	/**
+	 * This method is called by the renderer when the visibility of this method
+	 * control changes for the given object in the generated UI.
+	 * 
+	 * @param object  The object offering this method or null (if the method is
+	 *                static or is a constructor)
+	 * @param visible true when the method becomes visible, false when it becomes
+	 *                invisible.
+	 */
+	void onControlVisibilityChange(Object object, boolean visible);
+
+	/**
+	 * @return the text displayed when the method execution was successful (no
+	 *         exception thrown).
+	 */
+	String getExecutionSuccessMessage();
+
+	/**
+	 * @return whether control-based validation errors should be checked for the
+	 *         return value of the method.
+	 */
+	boolean isControlReturnValueValiditionEnabled();
+
+	/**
+	 * @param object      The object offering this method or null (if the method is
+	 *                    static or is a constructor)
+	 * @param returnValue The method return value.
+	 * @return a validation task that can be used to fully validate the state of the
+	 *         given return value in the absence of a concrete form that would have
+	 *         orchestrated the return value's validation. Note that this method was
+	 *         added for optimization purposes because, with the Swing toolkit, it
+	 *         was mandatory to create any form from the UI thread, which was
+	 *         therefore slowed down, just to have a form orchestrating the
+	 *         validation.
+	 */
+	IValidationJob getReturnValueAbstractFormValidationJob(Object object, Object returnValue);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InitializationCaseFacade.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">InitializationCaseFacade.java</span></div><h1>InitializationCaseFacade.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.Log;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+
+public class InitializationCaseFacade extends Facade {
+
+	private InitializationSwitchFacade parent;
+	private InstantiationFunction condition;
+	private InitializationCase underlying;
+
+<span class="fc" id="L30">	public InitializationCaseFacade(InitializationSwitchFacade parent, InstantiationFunction condition,</span>
+			InitializationCase underlying) {
+<span class="fc" id="L32">		this.parent = parent;</span>
+<span class="fc" id="L33">		this.condition = condition;</span>
+<span class="fc" id="L34">		this.underlying = underlying;</span>
+<span class="fc" id="L35">	}</span>
+
+	@Override
+	public List&lt;VariableDeclaration&gt; getAdditionalVariableDeclarations(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations) {
+<span class="pc bpc" id="L40" title="1 of 4 branches missed.">		if ((function != null) &amp;&amp; (function != condition)) {</span>
+<span class="nc" id="L41">			throw new UnexpectedError();</span>
+		}
+<span class="fc" id="L43">		return parent.getAdditionalVariableDeclarations(null, baseVariableDeclarations);</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getFunctionReturnType(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations) {
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">		if (getCondition() == function) {</span>
+<span class="fc" id="L50">			return boolean.class;</span>
+		}
+<span class="nc" id="L52">		throw new UnexpectedError();</span>
+	}
+
+	public Facade findInstantiationFunctionParentFacade(InstantiationFunction function) {
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">		for (Facade facade : getChildren()) {</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">			if (!facade.isConcrete()) {</span>
+<span class="nc" id="L58">				continue;</span>
+			}
+<span class="fc bfc" id="L60" title="All 2 branches covered.">			if (facade instanceof ParameterInitializerFacade) {</span>
+<span class="fc" id="L61">				ParameterInitializerFacade currentFacade = (ParameterInitializerFacade) facade;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">				if (currentFacade.getParameterValue() == function) {</span>
+<span class="fc" id="L63">					return currentFacade;</span>
+				}
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">				if (currentFacade.getParameterValue() instanceof InstanceBuilderFacade) {</span>
+<span class="fc" id="L66">					Facade result = ((InstanceBuilderFacade) currentFacade.getParameterValue())</span>
+<span class="fc" id="L67">							.findInstantiationFunctionParentFacade(function);</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">					if (result != null) {</span>
+<span class="fc" id="L69">						return result;</span>
+					}
+				}
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">			} else if (facade instanceof FieldInitializerFacade) {</span>
+<span class="fc" id="L73">				FieldInitializerFacade currentFacade = (FieldInitializerFacade) facade;</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">				if (currentFacade.getCondition() == function) {</span>
+<span class="nc" id="L75">					return currentFacade;</span>
+				}
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">				if (currentFacade.getFieldValue() == function) {</span>
+<span class="fc" id="L78">					return currentFacade;</span>
+				}
+<span class="nc bnc" id="L80" title="All 2 branches missed.">				if (currentFacade.getFieldValue() instanceof InstanceBuilderFacade) {</span>
+<span class="nc" id="L81">					Facade result = ((InstanceBuilderFacade) currentFacade.getFieldValue())</span>
+<span class="nc" id="L82">							.findInstantiationFunctionParentFacade(function);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">					if (result != null) {</span>
+<span class="nc" id="L84">						return result;</span>
+					}
+				}
+<span class="nc bnc" id="L87" title="All 2 branches missed.">			} else if (facade instanceof ListItemInitializerFacade) {</span>
+<span class="nc" id="L88">				ListItemInitializerFacade currentFacade = (ListItemInitializerFacade) facade;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">				if (currentFacade.getCondition() == function) {</span>
+<span class="nc" id="L90">					return currentFacade;</span>
+				}
+<span class="nc bnc" id="L92" title="All 2 branches missed.">				if (currentFacade.getItemReplicationFacade() != null) {</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">					if (currentFacade.getItemReplicationFacade().getIterationListValue() == function) {</span>
+<span class="nc" id="L94">						return currentFacade;</span>
+					}
+<span class="nc" id="L96">					if (currentFacade.getItemReplicationFacade()</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">							.getIterationListValue() instanceof InstanceBuilderFacade) {</span>
+<span class="nc" id="L98">						Facade result = ((InstanceBuilderFacade) currentFacade.getItemReplicationFacade()</span>
+<span class="nc" id="L99">								.getIterationListValue()).findInstantiationFunctionParentFacade(function);</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">						if (result != null) {</span>
+<span class="nc" id="L101">							return result;</span>
+						}
+					}
+				}
+<span class="nc bnc" id="L105" title="All 2 branches missed.">				if (currentFacade.getItemValue() == function) {</span>
+<span class="nc" id="L106">					return currentFacade;</span>
+				}
+<span class="nc bnc" id="L108" title="All 2 branches missed.">				if (currentFacade.getItemValue() instanceof InstanceBuilderFacade) {</span>
+<span class="nc" id="L109">					Facade result = ((InstanceBuilderFacade) currentFacade.getItemValue())</span>
+<span class="nc" id="L110">							.findInstantiationFunctionParentFacade(function);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">					if (result != null) {</span>
+<span class="nc" id="L112">						return result;</span>
+					}
+				}
+<span class="nc bnc" id="L115" title="All 2 branches missed.">			} else if (facade instanceof InitializationSwitchFacade) {</span>
+<span class="nc" id="L116">				InitializationSwitchFacade currentFacade = (InitializationSwitchFacade) facade;</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">				for (Facade childFacade : currentFacade.getChildren()) {</span>
+<span class="nc" id="L118">					InitializationCaseFacade caseFacade = (InitializationCaseFacade) childFacade;</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">					if (caseFacade.getCondition() == function) {</span>
+<span class="nc" id="L120">						return childFacade;</span>
+					}
+<span class="nc" id="L122">					Facade result = caseFacade.findInstantiationFunctionParentFacade(function);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">					if (result != null) {</span>
+<span class="nc" id="L124">						return result;</span>
+					}
+				}
+			}
+		}
+<span class="nc" id="L129">		return null;</span>
+	}
+
+	@Override
+	public void validate(boolean recursively, List&lt;VariableDeclaration&gt; variableDeclarations) throws ValidationError {
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">		if (!isConcrete()) {</span>
+<span class="nc" id="L135">			return;</span>
+		}
+<span class="fc bfc" id="L137" title="All 2 branches covered.">		for (InitializationCaseFacade caseFacade : parent.getChildren()) {</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">			if (caseFacade.getUnderlying() != underlying) {</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">				if (MiscUtils.equalsOrBothNull(caseFacade.getCondition(), condition)) {</span>
+<span class="nc" id="L140">					throw new ValidationError(&quot;Duplicate case condition detected!&quot;);</span>
+				}
+			}
+		}
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">		if (recursively) {</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">			for (Facade facade : getChildren()) {</span>
+				try {
+<span class="fc" id="L147">					facade.validate(recursively, variableDeclarations);</span>
+<span class="pc" id="L148">				} catch (ValidationError e) {</span>
+<span class="nc" id="L149">					throw new ValidationError(&quot;Failed to validate '&quot; + facade.toString() + &quot;'&quot;, e);</span>
+				}
+			}
+		}
+<span class="fc" id="L153">	}</span>
+
+	@Override
+	public String express() {
+<span class="nc" id="L157">		return InstantiationUtils.express(getCondition());</span>
+	}
+
+	public InstantiationFunction getCondition() {
+<span class="fc" id="L161">		return condition;</span>
+	}
+
+	private int getIndex() {
+<span class="nc" id="L165">		return parent.getChildren().stream().map(facade -&gt; facade.getUnderlying()).collect(Collectors.toList())</span>
+<span class="nc" id="L166">				.indexOf(underlying);</span>
+	}
+
+	public void duplicate() {
+		InstantiationFunction conditionCopy;
+<span class="nc bnc" id="L171" title="All 2 branches missed.">		if (isDefault()) {</span>
+<span class="nc" id="L172">			conditionCopy = InitializationCase.createDefaultCondition();</span>
+<span class="nc" id="L173">		} else {</span>
+<span class="nc" id="L174">			conditionCopy = MiscUtils.copy(condition);</span>
+		}
+<span class="nc" id="L176">		InitializationCase underlyingCopy = MiscUtils.copy(getUnderlying());</span>
+<span class="nc" id="L177">		parent.getUnderlying().insertCase(getIndex(), conditionCopy, underlyingCopy);</span>
+<span class="nc" id="L178">	}</span>
+
+	public void insertNewSibling() {
+<span class="nc" id="L181">		InstantiationFunction newSiblingCondition = InitializationCase.createDefaultCondition();</span>
+<span class="nc" id="L182">		InitializationCase newSiblingUnderlying = new InitializationCase();</span>
+<span class="nc" id="L183">		parent.getUnderlying().insertCase(getIndex(), newSiblingCondition, newSiblingUnderlying);</span>
+<span class="nc" id="L184">	}</span>
+
+	public boolean canMoveUp() {
+<span class="nc bnc" id="L187" title="All 2 branches missed.">		if (isDefault()) {</span>
+<span class="nc" id="L188">			return false;</span>
+		}
+<span class="nc bnc" id="L190" title="All 2 branches missed.">		return getIndex() &gt; 0;</span>
+	}
+
+	public boolean canMoveDown() {
+<span class="nc bnc" id="L194" title="All 2 branches missed.">		if (isDefault()) {</span>
+<span class="nc" id="L195">			return false;</span>
+		}
+<span class="nc bnc" id="L197" title="All 2 branches missed.">		return getIndex() &lt; (parent.getUnderlying().getCaseEntries().size() - 1);</span>
+	}
+
+	public void moveUp() {
+<span class="nc bnc" id="L201" title="All 2 branches missed.">		if (!canMoveUp()) {</span>
+<span class="nc" id="L202">			return;</span>
+		}
+<span class="nc" id="L204">		int index = getIndex();</span>
+<span class="nc bnc" id="L205" title="All 4 branches missed.">		if (!parent.getUnderlying().getCaseEntries().removeIf(entry -&gt; entry.getCondition() == condition)) {</span>
+<span class="nc" id="L206">			throw new UnexpectedError();</span>
+		}
+<span class="nc" id="L208">		parent.getUnderlying().insertCase(index - 1, condition, underlying);</span>
+<span class="nc" id="L209">	}</span>
+
+	public void moveDown() {
+<span class="nc bnc" id="L212" title="All 2 branches missed.">		if (!canMoveDown()) {</span>
+<span class="nc" id="L213">			return;</span>
+		}
+<span class="nc" id="L215">		int index = getIndex();</span>
+<span class="nc bnc" id="L216" title="All 4 branches missed.">		if (!parent.getUnderlying().getCaseEntries().removeIf(entry -&gt; entry.getCondition() == condition)) {</span>
+<span class="nc" id="L217">			throw new UnexpectedError();</span>
+		}
+<span class="nc" id="L219">		parent.getUnderlying().insertCase(index + 1, condition, underlying);</span>
+<span class="nc" id="L220">	}</span>
+
+	@Override
+	public List&lt;Facade&gt; getChildren() {
+<span class="fc" id="L224">		List&lt;Facade&gt; result = new ArrayList&lt;Facade&gt;();</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {</span>
+<span class="fc" id="L226">			result.add(createInitializationSwitchFacade(initializationSwitch));</span>
+		}
+<span class="fc" id="L228">		InstanceBuilderFacade instanceBuilderFacade = getCurrentInstanceBuilderFacade();</span>
+		ITypeInfo typeInfo;
+		try {
+<span class="fc" id="L231">			typeInfo = instanceBuilderFacade.getTypeInfo();</span>
+<span class="pc" id="L232">		} catch (Throwable t) {</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">			if (Log.isVerbose()) {</span>
+<span class="nc" id="L234">				Log.get().error(t);</span>
+			}
+<span class="nc" id="L236">			return Collections.emptyList();</span>
+		}
+<span class="fc" id="L238">		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo,</span>
+<span class="fc" id="L239">				instanceBuilderFacade.getSelectedConstructorSignature());</span>
+<span class="pc bpc" id="L240" title="1 of 2 branches missed.">		if (constructor != null) {</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">			for (IParameterInfo parameterInfo : constructor.getParameters()) {</span>
+<span class="fc bfc" id="L242" title="All 2 branches covered.">				if (!mustHaveParameterFacadeLocally(parameterInfo)) {</span>
+<span class="fc" id="L243">					continue;</span>
+				}
+<span class="pc bpc" id="L245" title="1 of 2 branches missed.">				if (!shouldParameterBeUsedForInstantiation(typeInfo, parameterInfo)) {</span>
+<span class="nc" id="L246">					continue;</span>
+				}
+<span class="fc" id="L248">				result.add(createParameterInitializerFacade(parameterInfo.getPosition()));</span>
+			}
+		}
+<span class="fc bfc" id="L251" title="All 2 branches covered.">		if (typeInfo instanceof IListTypeInfo) {</span>
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">			if (mustHaveListItemFacadesLocally()) {</span>
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">				if (shouldListItemBeUsedForInstantiation((IListTypeInfo) typeInfo)) {</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">					for (ListItemInitializer initializer : underlying.getListItemInitializers()) {</span>
+<span class="fc" id="L255">						result.add(createListItemInitializerFacade(initializer.getIndex()));</span>
+					}
+<span class="fc" id="L257">					result.add(createListItemInitializerFacade(getGreatestListItemInitializerIndex() + 1));</span>
+				}
+			}
+<span class="fc" id="L260">		} else {</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">			for (IFieldInfo fieldInfo : typeInfo.getFields()) {</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">				if (fieldInfo.isGetOnly()) {</span>
+<span class="fc" id="L263">					continue;</span>
+				}
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">				if (Log.isVerbose()) {</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">					if (result.stream().anyMatch(facade -&gt; (facade instanceof ParameterInitializerFacade)</span>
+<span class="nc bnc" id="L267" title="All 4 branches missed.">							&amp;&amp; ((ParameterInitializerFacade) facade).getParameterName().equals(fieldInfo.getName()))) {</span>
+<span class="nc" id="L268">						Log.get().information(&quot;Name conflict detected between parameter '&quot; + fieldInfo.getName()</span>
+<span class="nc" id="L269">								+ &quot;' and editable field '&quot; + fieldInfo.getName() + &quot;'&quot;);</span>
+					}
+				}
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">				if (!mustHaveFieldFacadeLocally(fieldInfo)) {</span>
+<span class="nc" id="L273">					continue;</span>
+				}
+<span class="fc bfc" id="L275" title="All 2 branches covered.">				if (!shouldFieldBeUsedForInstantiation(typeInfo, fieldInfo)) {</span>
+<span class="fc" id="L276">					continue;</span>
+				}
+<span class="fc" id="L278">				result.add(createFieldInitializerFacade(fieldInfo.getName()));</span>
+			}
+		}
+<span class="fc" id="L281">		Collections.sort(result, new Comparator&lt;Facade&gt;() {</span>
+<span class="fc" id="L282">			List&lt;Class&lt;?&gt;&gt; CLASSES_ORDER = Arrays.asList(ParameterInitializerFacade.class, FieldInitializerFacade.class,</span>
+<span class="fc" id="L283">					ListItemInitializerFacade.class, InitializationSwitchFacade.class);</span>
+
+			@Override
+			public int compare(Facade o1, Facade o2) {
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">				if (o1 instanceof InitializationSwitchFacade) {</span>
+<span class="nc" id="L288">					List&lt;Facade&gt; managedFacades = ((InitializationSwitchFacade) o1).getManagedInitializerFacades();</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">					if (managedFacades.size() &gt; 0) {</span>
+<span class="nc" id="L290">						o1 = managedFacades.get(0);</span>
+					}
+				}
+<span class="fc bfc" id="L293" title="All 2 branches covered.">				if (o2 instanceof InitializationSwitchFacade) {</span>
+<span class="fc" id="L294">					List&lt;Facade&gt; managedFacades = ((InitializationSwitchFacade) o2).getManagedInitializerFacades();</span>
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">					if (managedFacades.size() &gt; 0) {</span>
+<span class="fc" id="L296">						o2 = managedFacades.get(0);</span>
+					}
+				}
+<span class="fc bfc" id="L299" title="All 2 branches covered.">				if (!o1.getClass().equals(o2.getClass())) {</span>
+<span class="fc" id="L300">					return Integer.valueOf(CLASSES_ORDER.indexOf(o1.getClass()))</span>
+<span class="fc" id="L301">							.compareTo(Integer.valueOf(CLASSES_ORDER.indexOf(o2.getClass())));</span>
+				}
+<span class="pc bpc" id="L303" title="1 of 4 branches missed.">				if ((o1 instanceof ParameterInitializerFacade) &amp;&amp; (o2 instanceof ParameterInitializerFacade)) {</span>
+<span class="fc" id="L304">					ParameterInitializerFacade pif1 = (ParameterInitializerFacade) o1;</span>
+<span class="fc" id="L305">					ParameterInitializerFacade pif2 = (ParameterInitializerFacade) o2;</span>
+<span class="fc" id="L306">					return Integer.valueOf(pif1.getParameterPosition())</span>
+<span class="fc" id="L307">							.compareTo(Integer.valueOf(pif2.getParameterPosition()));</span>
+<span class="pc bpc" id="L308" title="1 of 4 branches missed.">				} else if ((o1 instanceof FieldInitializerFacade) &amp;&amp; (o2 instanceof FieldInitializerFacade)) {</span>
+<span class="fc" id="L309">					FieldInitializerFacade fif1 = (FieldInitializerFacade) o1;</span>
+<span class="fc" id="L310">					FieldInitializerFacade fif2 = (FieldInitializerFacade) o2;</span>
+<span class="fc" id="L311">					return fif1.getFieldInfo().getName().compareTo(fif2.getFieldInfo().getName());</span>
+<span class="pc bpc" id="L312" title="2 of 4 branches missed.">				} else if ((o1 instanceof ListItemInitializerFacade) &amp;&amp; (o2 instanceof ListItemInitializerFacade)) {</span>
+<span class="fc" id="L313">					ListItemInitializerFacade liif1 = (ListItemInitializerFacade) o1;</span>
+<span class="fc" id="L314">					ListItemInitializerFacade liif2 = (ListItemInitializerFacade) o2;</span>
+<span class="fc" id="L315">					return Integer.valueOf(liif1.getIndex()).compareTo(Integer.valueOf(liif2.getIndex()));</span>
+<span class="nc bnc" id="L316" title="All 4 branches missed.">				} else if ((o1 instanceof InitializationSwitchFacade) &amp;&amp; (o2 instanceof InitializationSwitchFacade)) {</span>
+<span class="nc" id="L317">					return 0;</span>
+				} else {
+<span class="nc" id="L319">					throw new UnexpectedError();</span>
+				}
+
+			}
+		});
+<span class="fc" id="L324">		return result;</span>
+	}
+
+	private boolean shouldParameterBeUsedForInstantiation(ITypeInfo typeInfo, IParameterInfo parameterInfo) {
+<span class="fc" id="L328">		return true;</span>
+	}
+
+	private boolean shouldFieldBeUsedForInstantiation(ITypeInfo typeInfo, IFieldInfo fieldInfo) {
+<span class="fc bfc" id="L332" title="All 2 branches covered.">		if (Throwable.class.isAssignableFrom(MiscUtils.getJESBClass(typeInfo.getName()))) {</span>
+<span class="fc" id="L333">			if (TypeInfoProvider.getTypeInfo(Throwable.class).getFields().stream()</span>
+<span class="fc bfc" id="L334" title="All 2 branches covered.">					.anyMatch(throwableFieldInfo -&gt; throwableFieldInfo.getName().equals(fieldInfo.getName()))) {</span>
+<span class="fc" id="L335">				return false;</span>
+			}
+		}
+<span class="fc" id="L338">		return true;</span>
+	}
+
+	private boolean shouldListItemBeUsedForInstantiation(IListTypeInfo listTypeInfo) {
+<span class="fc" id="L342">		return true;</span>
+	}
+
+	protected int getGreatestListItemInitializerIndex() {
+<span class="fc" id="L346">		int result = -1;</span>
+<span class="fc bfc" id="L347" title="All 2 branches covered.">		for (ListItemInitializer listItemInitializer : underlying.getListItemInitializers()) {</span>
+<span class="fc" id="L348">			result = Math.max(result, listItemInitializer.getIndex());</span>
+		}
+<span class="fc bfc" id="L350" title="All 2 branches covered.">		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {</span>
+<span class="fc" id="L351">			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch);</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">			for (InitializationCaseFacade caseFacade : switchFacade.getChildren()) {</span>
+<span class="fc" id="L353">				result = Math.max(result, caseFacade.getGreatestListItemInitializerIndex());</span>
+			}
+		}
+<span class="fc" id="L356">		return result;</span>
+	}
+
+	protected InitializationSwitchFacade createInitializationSwitchFacade(InitializationSwitch initializationSwitch) {
+<span class="nc" id="L360">		return new InitializationSwitchFacade(this, initializationSwitch);</span>
+	}
+
+	protected FieldInitializerFacade createFieldInitializerFacade(String fieldName) {
+<span class="nc" id="L364">		return new FieldInitializerFacade(this, fieldName);</span>
+	}
+
+	protected ListItemInitializerFacade createListItemInitializerFacade(int index) {
+<span class="fc" id="L368">		return new ListItemInitializerFacade(this, index);</span>
+	}
+
+	protected ParameterInitializerFacade createParameterInitializerFacade(int parameterPosition) {
+<span class="fc" id="L372">		return new ParameterInitializerFacade(this, parameterPosition);</span>
+	}
+
+	protected boolean isFieldInitializedInChildSwitch(IFieldInfo fieldInfo) {
+<span class="pc bpc" id="L376" title="1 of 2 branches missed.">		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {</span>
+<span class="nc" id="L377">			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch);</span>
+<span class="nc" id="L378">			InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(switchFacade, null,</span>
+<span class="nc" id="L379">					switchFacade.getUnderlying().getDefaultInitializationCase());</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">			if (defaultCaseFacade.getUnderlying().getFieldInitializer(fieldInfo.getName()) != null) {</span>
+<span class="nc" id="L381">				return true;</span>
+			}
+<span class="nc bnc" id="L383" title="All 2 branches missed.">			if (defaultCaseFacade.isFieldInitializedInChildSwitch(fieldInfo)) {</span>
+<span class="nc" id="L384">				return true;</span>
+			}
+		}
+<span class="fc" id="L387">		return false;</span>
+	}
+
+	protected boolean isParameterInitializedInChildSwitch(IParameterInfo parameterInfo) {
+<span class="fc bfc" id="L391" title="All 2 branches covered.">		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {</span>
+<span class="fc" id="L392">			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch);</span>
+<span class="fc" id="L393">			InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(switchFacade, null,</span>
+<span class="fc" id="L394">					switchFacade.getUnderlying().getDefaultInitializationCase());</span>
+<span class="pc bpc" id="L395" title="1 of 2 branches missed.">			if (defaultCaseFacade.getUnderlying().getParameterInitializer(parameterInfo.getPosition()) != null) {</span>
+<span class="fc" id="L396">				return true;</span>
+			}
+<span class="nc bnc" id="L398" title="All 2 branches missed.">			if (defaultCaseFacade.isParameterInitializedInChildSwitch(parameterInfo)) {</span>
+<span class="nc" id="L399">				return true;</span>
+			}
+		}
+<span class="fc" id="L402">		return false;</span>
+	}
+
+	protected boolean areListItemsInitializedInChildSwitch() {
+<span class="pc bpc" id="L406" title="1 of 2 branches missed.">		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {</span>
+<span class="nc" id="L407">			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch);</span>
+<span class="nc" id="L408">			InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(switchFacade, null,</span>
+<span class="nc" id="L409">					switchFacade.getUnderlying().getDefaultInitializationCase());</span>
+<span class="nc bnc" id="L410" title="All 2 branches missed.">			if (defaultCaseFacade.getUnderlying().getListItemInitializers().size() &gt; 0) {</span>
+<span class="nc" id="L411">				return true;</span>
+			}
+<span class="nc bnc" id="L413" title="All 2 branches missed.">			if (defaultCaseFacade.areListItemsInitializedInChildSwitch()) {</span>
+<span class="nc" id="L414">				return true;</span>
+			}
+		}
+<span class="fc" id="L417">		return false;</span>
+	}
+
+	protected boolean mustHaveParameterFacadeLocally(IParameterInfo parameterInfo) {
+<span class="pc bpc" id="L421" title="1 of 2 branches missed.">		if (isParameterInitializedInChildSwitch(parameterInfo)) {</span>
+<span class="nc" id="L422">			return false;</span>
+		}
+<span class="pc bpc" id="L424" title="1 of 2 branches missed.">		if (underlying.getParameterInitializer(parameterInfo.getPosition()) != null) {</span>
+<span class="fc" id="L425">			return true;</span>
+		}
+<span class="nc bnc" id="L427" title="All 2 branches missed.">		for (InitializationCaseFacade siblingCaseFacade : parent.getChildren()) {</span>
+<span class="nc bnc" id="L428" title="All 2 branches missed.">			if (underlying != siblingCaseFacade.getUnderlying()) {</span>
+<span class="nc bnc" id="L429" title="All 2 branches missed.">				if (siblingCaseFacade.isParameterInitializedInChildSwitch(parameterInfo)) {</span>
+<span class="nc" id="L430">					return true;</span>
+				}
+<span class="nc bnc" id="L432" title="All 2 branches missed.">				if (siblingCaseFacade.getUnderlying().getParameterInitializer(parameterInfo.getPosition()) != null) {</span>
+<span class="nc" id="L433">					return true;</span>
+				}
+			}
+		}
+<span class="nc" id="L437">		return false;</span>
+	}
+
+	protected boolean mustHaveFieldFacadeLocally(IFieldInfo fieldInfo) {
+<span class="nc bnc" id="L441" title="All 2 branches missed.">		if (isFieldInitializedInChildSwitch(fieldInfo)) {</span>
+<span class="nc" id="L442">			return false;</span>
+		}
+<span class="nc bnc" id="L444" title="All 2 branches missed.">		if (underlying.getFieldInitializer(fieldInfo.getName()) != null) {</span>
+<span class="nc" id="L445">			return true;</span>
+		}
+<span class="nc bnc" id="L447" title="All 2 branches missed.">		for (InitializationCaseFacade siblingCaseFacade : parent.getChildren()) {</span>
+<span class="nc bnc" id="L448" title="All 2 branches missed.">			if (underlying != siblingCaseFacade.getUnderlying()) {</span>
+<span class="nc bnc" id="L449" title="All 2 branches missed.">				if (siblingCaseFacade.isFieldInitializedInChildSwitch(fieldInfo)) {</span>
+<span class="nc" id="L450">					return true;</span>
+				}
+<span class="nc bnc" id="L452" title="All 2 branches missed.">				if (siblingCaseFacade.getUnderlying().getFieldInitializer(fieldInfo.getName()) != null) {</span>
+<span class="nc" id="L453">					return true;</span>
+				}
+			}
+		}
+<span class="nc" id="L457">		return false;</span>
+	}
+
+	protected boolean mustHaveListItemFacadesLocally() {
+<span class="pc bpc" id="L461" title="1 of 2 branches missed.">		if (areListItemsInitializedInChildSwitch()) {</span>
+<span class="nc" id="L462">			return true;</span>
+		}
+<span class="pc bpc" id="L464" title="1 of 2 branches missed.">		if (underlying.getListItemInitializers().size() &gt; 0) {</span>
+<span class="fc" id="L465">			return true;</span>
+		}
+<span class="nc bnc" id="L467" title="All 2 branches missed.">		for (InitializationCaseFacade siblingCaseFacade : parent.getChildren()) {</span>
+<span class="nc bnc" id="L468" title="All 2 branches missed.">			if (underlying != siblingCaseFacade.getUnderlying()) {</span>
+<span class="nc bnc" id="L469" title="All 2 branches missed.">				if (siblingCaseFacade.getUnderlying().getListItemInitializers().size() &gt; 0) {</span>
+<span class="nc" id="L470">					return true;</span>
+				}
+<span class="nc bnc" id="L472" title="All 2 branches missed.">				if (siblingCaseFacade.areListItemsInitializedInChildSwitch()) {</span>
+<span class="nc" id="L473">					return true;</span>
+				}
+			}
+		}
+<span class="nc" id="L477">		return false;</span>
+	}
+
+	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
+<span class="fc" id="L481">		return (InstanceBuilderFacade) Facade.getAncestors(this).stream()</span>
+<span class="fc" id="L482">				.filter(f -&gt; (f instanceof InstanceBuilderFacade)).findFirst().orElse(null);</span>
+	}
+
+	public boolean isDefault() {
+<span class="fc bfc" id="L486" title="All 2 branches covered.">		return condition == null;</span>
+	}
+
+	@Override
+	public boolean isConcrete() {
+<span class="pc bpc" id="L491" title="1 of 2 branches missed.">		if (!parent.isConcrete()) {</span>
+<span class="nc" id="L492">			return false;</span>
+		}
+<span class="fc bfc" id="L494" title="All 2 branches covered.">		if (isDefault()) {</span>
+<span class="pc bpc" id="L495" title="1 of 2 branches missed.">			return parent.getUnderlying().getDefaultInitializationCase() == underlying;</span>
+		} else {
+<span class="pc bpc" id="L497" title="1 of 2 branches missed.">			return parent.getUnderlying().findCase(condition) == underlying;</span>
+		}
+	}
+
+	@Override
+	public void setConcrete(boolean b) {
+<span class="nc bnc" id="L503" title="All 2 branches missed.">		if (b == isConcrete()) {</span>
+<span class="nc" id="L504">			return;</span>
+		}
+<span class="nc bnc" id="L506" title="All 2 branches missed.">		if (b) {</span>
+<span class="nc bnc" id="L507" title="All 2 branches missed.">			if (!parent.isConcrete()) {</span>
+<span class="nc" id="L508">				parent.setConcrete(true);</span>
+			}
+<span class="nc bnc" id="L510" title="All 2 branches missed.">			if (isDefault()) {</span>
+<span class="nc bnc" id="L511" title="All 2 branches missed.">				if (parent.getUnderlying().getDefaultInitializationCase() != underlying) {</span>
+<span class="nc" id="L512">					parent.getUnderlying().setDefaultInitializationCase(underlying);</span>
+				}
+<span class="nc" id="L514">			} else {</span>
+<span class="nc" id="L515">				if (!parent.getUnderlying().getCaseEntries().stream()</span>
+<span class="nc bnc" id="L516" title="All 4 branches missed.">						.anyMatch(entry -&gt; (entry.getCondition() == condition))) {</span>
+<span class="nc" id="L517">					parent.getUnderlying().addCase(condition, underlying);</span>
+				}
+			}
+<span class="nc" id="L520">		} else {</span>
+<span class="nc bnc" id="L521" title="All 2 branches missed.">			if (isDefault()) {</span>
+<span class="nc bnc" id="L522" title="All 2 branches missed.">				if (parent.getUnderlying().getDefaultInitializationCase() == underlying) {</span>
+<span class="nc bnc" id="L523" title="All 2 branches missed.">					for (Object childUnderlying : getChildren().stream().map(facade -&gt; facade.getUnderlying())</span>
+<span class="nc" id="L524">							.filter(Objects::nonNull).toArray()) {</span>
+<span class="nc" id="L525">						Facade.get(childUnderlying, this).setConcrete(false);</span>
+					}
+				}
+<span class="nc" id="L528">			} else {</span>
+<span class="nc bnc" id="L529" title="All 2 branches missed.">				if (parent.getUnderlying().findCase(condition) != null) {</span>
+<span class="nc bnc" id="L530" title="All 2 branches missed.">					for (Object childUnderlying : getChildren().stream().map(facade -&gt; facade.getUnderlying())</span>
+<span class="nc" id="L531">							.filter(Objects::nonNull).toArray()) {</span>
+<span class="nc" id="L532">						Facade.get(childUnderlying, this).setConcrete(false);</span>
+					}
+<span class="nc" id="L534">					parent.getUnderlying().removeCase(condition);</span>
+				}
+			}
+		}
+<span class="nc" id="L538">	}</span>
+
+	@Override
+	public InitializationCase getUnderlying() {
+<span class="fc" id="L542">		return underlying;</span>
+	}
+
+	@Override
+	public InitializationSwitchFacade getParent() {
+<span class="fc" id="L547">		return parent;</span>
+	}
+
+	public List&lt;Facade&gt; collectLiveInitializerFacades(InstantiationContext context) {
+<span class="fc" id="L551">		List&lt;Facade&gt; result = new ArrayList&lt;Facade&gt;();</span>
+<span class="fc bfc" id="L552" title="All 2 branches covered.">		for (Facade facade : getChildren()) {</span>
+<span class="fc bfc" id="L553" title="All 2 branches covered.">			if (!facade.isConcrete()) {</span>
+<span class="fc" id="L554">				continue;</span>
+			}
+<span class="fc bfc" id="L556" title="All 2 branches covered.">			if (facade instanceof ParameterInitializerFacade) {</span>
+<span class="fc" id="L557">				result.add(facade);</span>
+<span class="fc bfc" id="L558" title="All 2 branches covered.">			} else if (facade instanceof FieldInitializerFacade) {</span>
+<span class="fc" id="L559">				result.add(facade);</span>
+<span class="fc bfc" id="L560" title="All 2 branches covered.">			} else if (facade instanceof ListItemInitializerFacade) {</span>
+<span class="fc" id="L561">				result.add(facade);</span>
+<span class="pc bpc" id="L562" title="1 of 2 branches missed.">			} else if (facade instanceof InitializationSwitchFacade) {</span>
+<span class="fc" id="L563">				result.addAll(((InitializationSwitchFacade) facade)</span>
+<span class="fc" id="L564">						.collectLiveInitializerFacades(createInstantiationContextForChildren(context)));</span>
+			}
+		}
+<span class="fc" id="L567">		return result;</span>
+	}
+
+	protected InstantiationContext createInstantiationContextForChildren(InstantiationContext context) {
+<span class="nc" id="L571">		return new InstantiationContext(context, this);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc bfc" id="L576" title="All 2 branches covered.">		if (isDefault()) {</span>
+<span class="fc" id="L577">			return &quot;[Default]&quot;;</span>
+		} else {
+<span class="fc" id="L579">			return &quot;[Case]&quot;;</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ListItemInitializerFacade.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">ListItemInitializerFacade.java</span></div><h1>ListItemInitializerFacade.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+
+public class ListItemInitializerFacade extends InitializerFacade {
+
+	private int index;
+	private ITypeInfo itemTypeInfo;
+
+	public ListItemInitializerFacade(Facade parent, int index) {
+<span class="fc" id="L24">		super(parent);</span>
+<span class="fc" id="L25">		this.index = index;</span>
+<span class="fc" id="L26">	}</span>
+
+	@Override
+	public List&lt;VariableDeclaration&gt; getAdditionalVariableDeclarations(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations) {
+<span class="fc" id="L31">		List&lt;VariableDeclaration&gt; baseResult = getParent().getAdditionalVariableDeclarations(null,</span>
+<span class="fc" id="L32">				baseVariableDeclarations);</span>
+		List&lt;VariableDeclaration&gt; result;
+<span class="fc bfc" id="L34" title="All 2 branches covered.">		if (getItemReplicationFacade() == null) {</span>
+<span class="fc" id="L35">			result = baseResult;</span>
+<span class="fc" id="L36">		} else {</span>
+<span class="fc" id="L37">			result = new ArrayList&lt;VariableDeclaration&gt;(baseResult);</span>
+<span class="fc" id="L38">			result.add(new VariableDeclaration() {</span>
+
+				@Override
+				public String getVariableName() {
+<span class="fc" id="L42">					return getItemReplicationFacade().getIterationVariableName();</span>
+				}
+
+				@Override
+				public Class&lt;?&gt; getVariableType() {
+<span class="fc" id="L47">					ListItemReplicationFacade itemReplicationFacade = getItemReplicationFacade();</span>
+<span class="fc" id="L48">					ITypeInfo declaredIterationVariableType = itemReplicationFacade</span>
+<span class="fc" id="L49">							.getDeclaredIterationVariableTypeInfo();</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">					if (declaredIterationVariableType != null) {</span>
+<span class="nc" id="L51">						return ((DefaultTypeInfo) declaredIterationVariableType).getJavaType();</span>
+					}
+<span class="fc" id="L53">					ITypeInfo guessedIterationVariableType = itemReplicationFacade</span>
+<span class="fc" id="L54">							.guessIterationVariableTypeInfo(baseVariableDeclarations);</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">					if (guessedIterationVariableType != null) {</span>
+<span class="fc" id="L56">						return ((DefaultTypeInfo) guessedIterationVariableType).getJavaType();</span>
+					}
+<span class="nc" id="L58">					return Object.class;</span>
+				}
+			});
+		}
+<span class="fc bfc" id="L62" title="All 2 branches covered.">		if (function == null) {</span>
+<span class="fc" id="L63">			return result;</span>
+		}
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">		if (getCondition() == function) {</span>
+<span class="nc" id="L66">			return baseResult;</span>
+		}
+<span class="fc bfc" id="L68" title="All 2 branches covered.">		if (getItemReplicationFacade() != null) {</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">			if (getItemReplicationFacade().getIterationListValue() == function) {</span>
+<span class="fc" id="L70">				return baseResult;</span>
+			}
+		}
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">		if (getItemValue() == function) {</span>
+<span class="fc" id="L74">			return result;</span>
+		}
+<span class="nc" id="L76">		throw new UnexpectedError();</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getFunctionReturnType(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations) {
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">		if (getCondition() == function) {</span>
+<span class="nc" id="L83">			return boolean.class;</span>
+		}
+<span class="fc bfc" id="L85" title="All 2 branches covered.">		if (getItemReplicationFacade() != null) {</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">			if (getItemReplicationFacade().getIterationListValue() == function) {</span>
+<span class="fc" id="L87">				return Object.class;</span>
+			}
+		}
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">		if (getItemValue() == function) {</span>
+<span class="fc" id="L91">			return ((DefaultTypeInfo) getItemTypeInfo()).getJavaType();</span>
+		}
+<span class="nc" id="L93">		throw new UnexpectedError();</span>
+	}
+
+	@Override
+	public void validate(boolean recursively, List&lt;VariableDeclaration&gt; variableDeclarations) throws ValidationError {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">		if (!isConcrete()) {</span>
+<span class="fc" id="L99">			return;</span>
+		}
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">		if (getCondition() != null) {</span>
+<span class="nc" id="L102">			InstantiationUtils.validateValue(getCondition(), TypeInfoProvider.getTypeInfo(boolean.class), this,</span>
+<span class="nc" id="L103">					&quot;condition&quot;, true, variableDeclarations);</span>
+		}
+<span class="fc bfc" id="L105" title="All 2 branches covered.">		if (getItemReplicationFacade() != null) {</span>
+<span class="fc" id="L106">			getItemReplicationFacade().validate(variableDeclarations);</span>
+		}
+<span class="fc" id="L108">		InstantiationUtils.validateValue(getUnderlying().getItemValue(), getItemTypeInfo(), this, &quot;item value&quot;,</span>
+<span class="fc" id="L109">				recursively, variableDeclarations);</span>
+<span class="fc" id="L110">	}</span>
+
+	@Override
+	public String express() {
+<span class="nc" id="L114">		Object value = getItemValue();</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">		if (value instanceof InstanceBuilderFacade) {</span>
+<span class="nc" id="L116">			value = ((InstanceBuilderFacade) value).getUnderlying();</span>
+		}
+<span class="nc" id="L118">		String result = InstantiationUtils.express(value);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">		if (getItemReplicationFacade() != null) {</span>
+<span class="nc" id="L120">			result = getItemReplicationFacade().preprendExpression(result);</span>
+		}
+<span class="nc bnc" id="L122" title="All 2 branches missed.">		if (getCondition() != null) {</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">			result = &quot;IF &quot; + InstantiationUtils.express(getCondition()) + ((result != null) ? (&quot; THEN &quot; + result) : &quot;&quot;);</span>
+		}
+<span class="nc" id="L125">		return result;</span>
+	}
+
+	public int getIndex() {
+<span class="fc" id="L129">		return index;</span>
+	}
+
+	public ListItemReplicationFacade getItemReplicationFacade() {
+<span class="fc" id="L133">		ListItemInitializer listItemInitializer = getUnderlying();</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">		if (listItemInitializer == null) {</span>
+<span class="nc" id="L135">			return null;</span>
+		}
+<span class="fc bfc" id="L137" title="All 2 branches covered.">		return (listItemInitializer.getItemReplication() == null) ? null</span>
+<span class="fc" id="L138">				: new ListItemReplicationFacade(this, listItemInitializer.getItemReplication());</span>
+	}
+
+	public void setItemReplicationFacade(ListItemReplicationFacade itemReplicationFacade) {
+<span class="nc" id="L142">		setConcrete(true);</span>
+<span class="nc" id="L143">		ListItemInitializer listItemInitializer = getUnderlying();</span>
+<span class="nc" id="L144">		listItemInitializer</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">				.setItemReplication((itemReplicationFacade == null) ? null : itemReplicationFacade.getUnderlying());</span>
+<span class="nc" id="L146">	}</span>
+
+	public InstantiationFunction getCondition() {
+<span class="fc" id="L149">		ListItemInitializer listItemInitializer = getUnderlying();</span>
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">		if (listItemInitializer == null) {</span>
+<span class="nc" id="L151">			return null;</span>
+		}
+<span class="fc" id="L153">		return listItemInitializer.getCondition();</span>
+	}
+
+	public void setCondition(InstantiationFunction condition) {
+<span class="nc" id="L157">		setConcrete(true);</span>
+<span class="nc" id="L158">		ListItemInitializer listItemInitializer = getUnderlying();</span>
+<span class="nc bnc" id="L159" title="All 4 branches missed.">		if ((condition != null) &amp;&amp; (condition.getFunctionBody() == null)) {</span>
+<span class="nc" id="L160">			condition = new InstantiationFunction(&quot;return true;&quot;);</span>
+		}
+<span class="nc" id="L162">		listItemInitializer.setCondition(condition);</span>
+<span class="nc" id="L163">	}</span>
+
+	public Object getItemValue() {
+<span class="fc" id="L166">		return super.getValue();</span>
+	}
+
+	public void setItemValue(Object value) {
+<span class="nc" id="L170">		super.setValue(value);</span>
+<span class="nc" id="L171">	}</span>
+
+	public ValueMode getItemValueMode() {
+<span class="nc" id="L174">		return super.getValueMode();</span>
+	}
+
+	public void setItemValueMode(ValueMode valueMode) {
+<span class="nc" id="L178">		super.setValueMode(valueMode);</span>
+<span class="nc" id="L179">	}</span>
+
+	public Object createDefaultItemValue() {
+<span class="nc" id="L182">		return super.createDefaultValue();</span>
+	}
+
+	public ITypeInfo getItemTypeInfo() {
+<span class="fc bfc" id="L186" title="All 2 branches covered.">		if (itemTypeInfo == null) {</span>
+<span class="fc" id="L187">			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();</span>
+<span class="fc" id="L188">			ITypeInfo result = ((IListTypeInfo) parentTypeInfo).getItemType();</span>
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">			if (result == null) {</span>
+<span class="nc" id="L190">				result = TypeInfoProvider.getTypeInfo(Object.class.getName());</span>
+			}
+<span class="fc" id="L192">			itemTypeInfo = result;</span>
+		}
+<span class="fc" id="L194">		return itemTypeInfo;</span>
+	}
+
+	public String getItemTypeName() {
+<span class="nc" id="L198">		return super.getValueTypeName();</span>
+	}
+
+	@Override
+	public ListItemInitializer getUnderlying() {
+<span class="fc" id="L203">		return ((InitializationCase) getParent().getUnderlying()).getListItemInitializer(index);</span>
+	}
+
+	@Override
+	protected Object retrieveInitializerValue(Object initializer) {
+<span class="fc" id="L208">		return ((ListItemInitializer) initializer).getItemValue();</span>
+	}
+
+	@Override
+	protected void updateInitializerValue(Object initializer, Object newValue) {
+<span class="nc" id="L213">		((ListItemInitializer) initializer).setItemValue(newValue);</span>
+<span class="nc" id="L214">	}</span>
+
+	@Override
+	protected ITypeInfo getValueType() {
+<span class="fc" id="L218">		return getItemTypeInfo();</span>
+	}
+
+	@Override
+	protected void createUnderlying(Object value) {
+<span class="nc" id="L223">		((InitializationCase) getParent().getUnderlying()).getListItemInitializers()</span>
+<span class="nc" id="L224">				.add(new ListItemInitializer(index, value));</span>
+<span class="nc" id="L225">	}</span>
+
+	@Override
+	protected void deleteUnderlying() {
+<span class="nc" id="L229">		((InitializationCase) getParent().getUnderlying()).removeListItemInitializer(index);</span>
+<span class="nc" id="L230">	}</span>
+
+	@Override
+	public void setConcrete(boolean b) {
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		if (b) {</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">			if (getUnderlying() == null) {</span>
+<span class="nc" id="L236">				makeIndexAvailable(index);</span>
+			}
+<span class="nc" id="L238">		} else {</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">			if (getUnderlying() != null) {</span>
+<span class="nc" id="L240">				makeIndexUnavailable(index);</span>
+			}
+		}
+<span class="nc" id="L243">		super.setConcrete(b);</span>
+<span class="nc" id="L244">	}</span>
+
+	protected void makeIndexAvailable(int index) {
+<span class="nc bnc" id="L247" title="All 2 branches missed.">		if (isIndexAvailable(index)) {</span>
+<span class="nc" id="L248">			return;</span>
+		}
+<span class="nc bnc" id="L250" title="All 2 branches missed.">		for (ListItemInitializer listItemInitializer : collectAllListItemInitializers()) {</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">			if (listItemInitializer.getIndex() &gt;= index) {</span>
+<span class="nc" id="L252">				listItemInitializer.setIndex(listItemInitializer.getIndex() + 1);</span>
+			}
+		}
+<span class="nc" id="L255">	}</span>
+
+	protected void makeIndexUnavailable(int index) {
+<span class="nc bnc" id="L258" title="All 2 branches missed.">		if (!isIndexAvailable(index)) {</span>
+<span class="nc" id="L259">			return;</span>
+		}
+<span class="nc bnc" id="L261" title="All 2 branches missed.">		for (ListItemInitializer listItemInitializer : collectAllListItemInitializers()) {</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">			if (listItemInitializer.getIndex() &gt;= index) {</span>
+<span class="nc" id="L263">				listItemInitializer.setIndex(listItemInitializer.getIndex() - 1);</span>
+			}
+		}
+<span class="nc" id="L266">	}</span>
+
+	protected boolean isIndexAvailable(int index) {
+<span class="nc bnc" id="L269" title="All 2 branches missed.">		for (ListItemInitializer listItemInitializer : collectAllListItemInitializers()) {</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">			if (listItemInitializer.getIndex() == index) {</span>
+<span class="nc" id="L271">				return false;</span>
+			}
+		}
+<span class="nc" id="L274">		return true;</span>
+	}
+
+	protected List&lt;ListItemInitializer&gt; collectAllListItemInitializers() {
+<span class="nc" id="L278">		return collectAllConcreteListItemInitializerFacades(getCurrentInstanceBuilderFacade().getChildren()).stream()</span>
+<span class="nc" id="L279">				.map(facade -&gt; facade.getUnderlying()).collect(Collectors.toList());</span>
+	}
+
+	protected List&lt;ListItemInitializerFacade&gt; collectAllConcreteListItemInitializerFacades(List&lt;Facade&gt; facades) {
+<span class="nc" id="L283">		List&lt;ListItemInitializerFacade&gt; result = new ArrayList&lt;ListItemInitializerFacade&gt;();</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">		for (Facade facade : facades) {</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">			if (!facade.isConcrete()) {</span>
+<span class="nc" id="L286">				continue;</span>
+			}
+<span class="nc bnc" id="L288" title="All 2 branches missed.">			if (facade instanceof ListItemInitializerFacade) {</span>
+<span class="nc" id="L289">				result.add((ListItemInitializerFacade) facade);</span>
+			}
+<span class="nc bnc" id="L291" title="All 2 branches missed.">			if (facade instanceof InitializationSwitchFacade) {</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">				for (InitializationCaseFacade caseFacade : ((InitializationSwitchFacade) facade).getChildren()) {</span>
+<span class="nc" id="L293">					result.addAll(collectAllConcreteListItemInitializerFacades(caseFacade.getChildren()));</span>
+				}
+			}
+		}
+<span class="nc" id="L297">		return result;</span>
+	}
+
+	public void duplicate() {
+<span class="nc" id="L301">		setConcrete(true);</span>
+<span class="nc" id="L302">		ListItemInitializer underlyingCopy = MiscUtils.copy(getUnderlying());</span>
+<span class="nc" id="L303">		int underlyingCopyIndex = getUnderlying().getIndex() + 1;</span>
+<span class="nc" id="L304">		makeIndexAvailable(underlyingCopyIndex);</span>
+<span class="nc" id="L305">		underlyingCopy.setIndex(underlyingCopyIndex);</span>
+<span class="nc" id="L306">		((InitializationCase) getParent().getUnderlying()).getListItemInitializers().add(underlyingCopy);</span>
+<span class="nc" id="L307">	}</span>
+
+	@Override
+	public String toString() {
+<span class="fc bfc" id="L311" title="All 2 branches covered.">		return &quot;[&quot; + index + &quot;]&quot; + ((getItemReplicationFacade() != null) ? &quot;*&quot; : &quot;&quot;)</span>
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">				+ ((getCondition() != null) ? &quot;?&quot; : &quot;&quot;);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MultiSwingCustomizer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">custom-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.customizer</a> &gt; <span class="el_source">MultiSwingCustomizer.java</span></div><h1>MultiSwingCustomizer.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.customizer;
+
+import java.awt.Component;
+import java.io.File;
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import xy.reflect.ui.CustomizedUI;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.custom.InfoCustomizations;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.type.factory.IInfoProxyFactory;
+import xy.reflect.ui.info.type.factory.InfoCustomizationsFactory;
+import xy.reflect.ui.info.type.factory.InfoProxyFactoryChain;
+
+/**
+ * This class is a subclass of {@link SwingRenderer} that manages and delegates
+ * its essential functions (mainly {@link SwingRenderer#createForm(Object)}) to
+ * multiple internal instances of {@link SwingCustomizer} (actually
+ * {@link SubSwingCustomizer}). It allows to distribute
+ * {@link InfoCustomizations} into separate files that can be edited
+ * independently.
+ * 
+ * During the rendering process, global {@link InfoCustomizations} are applied
+ * before eventual specific {@link InfoCustomizations} provided by a
+ * {@link SubSwingCustomizer} gets applied.
+ * 
+ * A distribution function ({@link #customizationsIdentifierSelector}) must
+ * therefore be provided. This function is used to identify from each rendered
+ * object and sub-object, a switch that selects the {@link SubSwingCustomizer}
+ * (and its associated customizations) to use in order to generate the UI
+ * components. This {@link SubSwingCustomizer} is then used to recursively
+ * render the object hierarchy until a new switch associated with a different
+ * {@link SubSwingCustomizer} is returned by the distribution function.
+ * 
+ * Note that the renderer associated with the
+ * {@link #GLOBAL_EXCLUSIVE_CUSTOMIZATIONS} identifier is used by default, and
+ * that as long as the distribution function returns null, the renderer used
+ * remains the same.
+ * 
+ * @author olitank
+ *
+ */
+public class MultiSwingCustomizer extends SwingRenderer {
+
+	/**
+	 * Identifier that can be returned by the
+	 * {@link #customizationsIdentifierSelector} function in order to apply
+	 * exclusively the global {@link InfoCustomizations} during the rendering
+	 * process.
+	 */
+<span class="fc" id="L57">	public static final String GLOBAL_EXCLUSIVE_CUSTOMIZATIONS = MultiSwingCustomizer.class.getName()</span>
+<span class="fc" id="L58">			+ &quot;.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS&quot;;</span>
+
+	protected String globalInfoCustomizationsOutputFilePath;
+	protected Function&lt;Object, String&gt; customizationsIdentifierSelector;
+
+<span class="fc" id="L63">	protected Map&lt;SubSwingCustomizer, String&gt; identifierBySubCustomizer = new WeakHashMap&lt;SubSwingCustomizer, String&gt;();</span>
+
+	/**
+	 * The constructor.
+	 * 
+	 * @param globalInfoCustomizationsOutputFilePath The path to the main global
+	 *                                               {@link SubSwingCustomizer}
+	 *                                               {@link InfoCustomizations}
+	 *                                               file.
+	 * @param customizationsIdentifierSelector       The object -&amp;gt;
+	 *                                               {@link SubSwingCustomizer}
+	 *                                               distribution function.
+	 */
+	public MultiSwingCustomizer(String globalInfoCustomizationsOutputFilePath,
+			Function&lt;Object, String&gt; customizationsIdentifierSelector) {
+<span class="fc" id="L78">		super(null);</span>
+<span class="fc" id="L79">		reflectionUI = createSubCustomizedUI(null);</span>
+<span class="fc" id="L80">		this.globalInfoCustomizationsOutputFilePath = globalInfoCustomizationsOutputFilePath;</span>
+<span class="fc" id="L81">		this.customizationsIdentifierSelector = customizationsIdentifierSelector;</span>
+<span class="fc" id="L82">	}</span>
+
+	/**
+	 * @param customizationsIdentifier A customizations identifier.
+	 * @return The path to the {@link SubSwingCustomizer} {@link InfoCustomizations}
+	 *         file associated with the given customizations identifier.
+	 */
+	public String getInfoCustomizationsOutputFilePath(String customizationsIdentifier) {
+<span class="nc" id="L90">		File mainInfoCustomizationsOutputFile = new File(globalInfoCustomizationsOutputFilePath);</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">		String fileNamePrefix = (customizationsIdentifier == GLOBAL_EXCLUSIVE_CUSTOMIZATIONS) ? &quot;&quot;</span>
+<span class="nc" id="L92">				: (customizationsIdentifier + &quot;-&quot;);</span>
+<span class="nc" id="L93">		return new File(mainInfoCustomizationsOutputFile.getParentFile(),</span>
+<span class="nc" id="L94">				fileNamePrefix + mainInfoCustomizationsOutputFile.getName()).getPath();</span>
+	}
+
+	@Override
+	public SubCustomizedUI getReflectionUI() {
+<span class="fc" id="L99">		return (SubCustomizedUI) super.getReflectionUI();</span>
+	}
+
+	/**
+	 * @return The current map of customizations identifiers (returned by
+	 *         {@link #customizationsIdentifierSelector}) and their associated
+	 *         {@link SubSwingCustomizer}. Note that the available entries depend on
+	 *         the previously rendered objects. Unused entries may get
+	 *         garbage-collected and then removed over time.
+	 */
+	public Map&lt;String, SubSwingCustomizer&gt; getSubCustomizerByIdentifier() {
+<span class="fc" id="L110">		return Collections.unmodifiableMap(identifierBySubCustomizer.entrySet().stream()</span>
+<span class="pc" id="L111">				.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey, (value1, value2) -&gt; value1)));</span>
+	}
+
+	protected SubSwingCustomizer switchSubCustomizer(SubSwingCustomizer current, Object object) {
+<span class="fc" id="L115">		String customizationsIdentifier = customizationsIdentifierSelector.apply(object);</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">		if (customizationsIdentifier == null) {</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">			if (current != null) {</span>
+<span class="fc" id="L118">				return current;</span>
+			} else {
+<span class="fc" id="L120">				customizationsIdentifier = GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;</span>
+			}
+		}
+<span class="fc" id="L123">		return obtainSubCustomizer(customizationsIdentifier);</span>
+	}
+
+	/**
+	 * @param customizationsIdentifier A customizations identifier.
+	 * @return The {@link SubSwingCustomizer} instance associated with the given
+	 *         customizations identifier. Note that if this instance does not
+	 *         exists, it will then be created.
+	 */
+	public SubSwingCustomizer obtainSubCustomizer(String customizationsIdentifier) {
+<span class="fc" id="L133">		SubSwingCustomizer result = getSubCustomizerByIdentifier().get(customizationsIdentifier);</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L135">			result = createSubCustomizer(customizationsIdentifier);</span>
+<span class="fc" id="L136">			identifierBySubCustomizer.put(result, customizationsIdentifier);</span>
+		}
+<span class="fc" id="L138">		return result;</span>
+	}
+
+	protected SubSwingCustomizer createSubCustomizer(String customizationsIdentifier) {
+<span class="nc" id="L142">		return new SubSwingCustomizer(customizationsIdentifier);</span>
+	}
+
+	protected SubCustomizedUI createSubCustomizedUI(String customizationsIdentifier) {
+<span class="nc" id="L146">		return new SubCustomizedUI(customizationsIdentifier);</span>
+	}
+
+	@Override
+	public Form createForm(Object object, IInfoFilter infoFilter) {
+<span class="fc" id="L151">		return switchSubCustomizer(null, object).createForm(object, infoFilter);</span>
+	}
+
+	@Override
+	public boolean isRenderedForm(Component c) {
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">		if (super.isRenderedForm(c)) {</span>
+<span class="nc" id="L157">			return true;</span>
+		}
+<span class="fc bfc" id="L159" title="All 2 branches covered.">		for (SubSwingCustomizer subCustomizer : identifierBySubCustomizer.keySet()) {</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">			if (subCustomizer.isSubRenderedForm(c)) {</span>
+<span class="fc" id="L161">				return true;</span>
+			}
+		}
+<span class="fc" id="L164">		return false;</span>
+	}
+
+	/**
+	 * This is a subclass of {@link CustomizedUI} that holds (for its parent
+	 * {@link MultiSwingCustomizer}) the {@link InfoCustomizations} associated with
+	 * a specific customizations identifier.
+	 * 
+	 * @author olitank
+	 *
+	 */
+	public class SubCustomizedUI extends CustomizedUI {
+
+		protected String customizationsIdentifier;
+
+<span class="fc" id="L179">		public SubCustomizedUI(String customizationsIdentifier) {</span>
+<span class="fc" id="L180">			this.customizationsIdentifier = customizationsIdentifier;</span>
+<span class="fc" id="L181">		}</span>
+
+		public MultiSwingCustomizer getParent() {
+<span class="fc" id="L184">			return MultiSwingCustomizer.this;</span>
+		}
+
+		public String getCustomizationsIdentifier() {
+<span class="fc" id="L188">			return customizationsIdentifier;</span>
+		}
+
+		protected SubCustomizedUI getGlobalSubCustomizedUI() {
+<span class="fc" id="L192">			return getParent().getReflectionUI();</span>
+		}
+
+		@Override
+		public InfoProxyFactoryChain createInfoCustomizationsFactory() {
+<span class="fc" id="L197">			return new InfoProxyFactoryChain(getMainInfoCustomizationsFactory(), getSubInfoCustomizationsFactory());</span>
+
+		}
+
+		protected IInfoProxyFactory getMainInfoCustomizationsFactory() {
+<span class="fc bfc" id="L202" title="All 2 branches covered.">			if (getGlobalSubCustomizedUI() == this) {</span>
+<span class="fc" id="L203">				return IInfoProxyFactory.NULL_INFO_PROXY_FACTORY;</span>
+			}
+<span class="fc" id="L205">			return new InfoCustomizationsFactory(this) {</span>
+
+				@Override
+				public String getIdentifier() {
+<span class="fc" id="L209">					return &quot;MainCustomizationsFactory [of=&quot; + customizationsIdentifier + &quot;]&quot;;</span>
+				}
+
+				@Override
+				protected IInfoProxyFactory getInfoCustomizationsSetupFactory() {
+<span class="fc" id="L214">					return getGlobalSubCustomizedUI().getInfoCustomizationsSetupFactory();</span>
+				}
+
+				@Override
+				protected InfoCustomizations accessInfoCustomizations() {
+<span class="fc" id="L219">					return getGlobalSubCustomizedUI().getInfoCustomizations();</span>
+				}
+			};
+		}
+
+		protected IInfoProxyFactory getSubInfoCustomizationsFactory() {
+<span class="fc" id="L225">			return new InfoCustomizationsFactory(this) {</span>
+
+				@Override
+				public String getIdentifier() {
+<span class="fc" id="L229">					return &quot;SubInfoCustomizationsFactory [of=&quot; + SubCustomizedUI.this.toString() + &quot;]&quot;;</span>
+				}
+
+				@Override
+				protected IInfoProxyFactory getInfoCustomizationsSetupFactory() {
+<span class="fc" id="L234">					return SubCustomizedUI.this.getInfoCustomizationsSetupFactory();</span>
+				}
+
+				@Override
+				protected InfoCustomizations accessInfoCustomizations() {
+<span class="fc" id="L239">					return SubCustomizedUI.this.getInfoCustomizations();</span>
+				}
+
+			};
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L247">			return &quot;SubCustomizedUI [of=&quot; + getParent() + &quot;, customizationsIdentifier=&quot; + customizationsIdentifier</span>
+<span class="fc" id="L248">					+ &quot;]&quot;;</span>
+		}
+
+	}
+
+	/**
+	 * This class is a subclass of {@link SwingCustomizer} that manages (for its
+	 * parent {@link MultiSwingCustomizer}) the {@link InfoCustomizations}
+	 * associated with a specific switch identifier returned by the
+	 * {@link MultiSwingCustomizer#customizationsIdentifierSelector} function.
+	 * 
+	 * @author olitank
+	 *
+	 */
+	public class SubSwingCustomizer extends SwingCustomizer {
+
+<span class="fc" id="L264">		public SubSwingCustomizer(String customizationsIdentifier) {</span>
+<span class="fc bfc" id="L265" title="All 2 branches covered.">			super((customizationsIdentifier == GLOBAL_EXCLUSIVE_CUSTOMIZATIONS)</span>
+<span class="fc" id="L266">					? MultiSwingCustomizer.this.getReflectionUI()</span>
+<span class="fc" id="L267">					: createSubCustomizedUI(customizationsIdentifier),</span>
+<span class="fc" id="L268">					MultiSwingCustomizer.this.getInfoCustomizationsOutputFilePath(customizationsIdentifier));</span>
+<span class="fc" id="L269">		}</span>
+
+		@Override
+		public SubCustomizedUI getCustomizedUI() {
+<span class="fc" id="L273">			return (SubCustomizedUI) super.getCustomizedUI();</span>
+		}
+
+		protected CustomizingForm subCreateForm(Object object, IInfoFilter infoFilter) {
+<span class="nc" id="L277">			return super.createForm(object, infoFilter);</span>
+		}
+
+		@Override
+		public final CustomizingForm createForm(Object object, IInfoFilter infoFilter) {
+<span class="fc" id="L282">			return switchSubCustomizer(this, object).subCreateForm(object, infoFilter);</span>
+		}
+
+		public boolean isSubRenderedForm(Component c) {
+<span class="fc" id="L286">			return super.isRenderedForm(c);</span>
+		}
+
+		@Override
+		public boolean isRenderedForm(Component c) {
+<span class="fc" id="L291">			return MultiSwingCustomizer.this.isRenderedForm(c);</span>
+		}
+
+		@Override
+		protected void synchronizeInfoCustomizationsWithFile(String filePath) {
+<span class="nc" id="L296">			File file = new File(filePath);</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">			if (!file.exists()) {</span>
+<span class="nc" id="L298">				getReflectionUI().logDebug(</span>
+<span class="nc" id="L299">						&quot;WARNING: &quot; + InfoCustomizations.class.getSimpleName() + &quot; file not found: &quot; + filePath);</span>
+<span class="nc" id="L300">				return;</span>
+			}
+<span class="nc" id="L302">			super.synchronizeInfoCustomizationsWithFile(filePath);</span>
+<span class="nc" id="L303">		}</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

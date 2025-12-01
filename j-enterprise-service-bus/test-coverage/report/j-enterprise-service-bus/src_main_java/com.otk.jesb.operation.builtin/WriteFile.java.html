@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>WriteFile.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">WriteFile.java</span></div><h1>WriteFile.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+
+import xy.reflect.ui.info.ResourcePath;
+import com.otk.jesb.util.Accessor;
+
+public class WriteFile implements Operation {
+
+	private SpecificWriteFileOperation specificOperation;
+
+<span class="fc" id="L31">	public WriteFile(SpecificWriteFileOperation specificOperation) {</span>
+<span class="fc" id="L32">		this.specificOperation = specificOperation;</span>
+<span class="fc" id="L33">	}</span>
+
+	public SpecificWriteFileOperation getAction() {
+<span class="nc" id="L36">		return specificOperation;</span>
+	}
+
+	@Override
+	public Object execute() throws Throwable {
+<span class="fc" id="L41">		return specificOperation.execute();</span>
+	}
+
+	private static abstract class SpecificWriteFileOperation {
+		protected abstract Object execute() throws Throwable;
+	}
+
+	public static class WriteTextFileOperation extends SpecificWriteFileOperation {
+
+		private String filePath;
+		private String text;
+<span class="fc" id="L52">		private boolean append = false;</span>
+		private String charsetName;
+
+<span class="fc" id="L55">		public WriteTextFileOperation(String filePath, String text, boolean append) {</span>
+<span class="fc" id="L56">			this.filePath = filePath;</span>
+<span class="fc" id="L57">			this.text = text;</span>
+<span class="fc" id="L58">			this.append = append;</span>
+<span class="fc" id="L59">		}</span>
+
+		public String getFilePath() {
+<span class="nc" id="L62">			return filePath;</span>
+		}
+
+		public String getText() {
+<span class="nc" id="L66">			return text;</span>
+		}
+
+		public boolean isAppend() {
+<span class="nc" id="L70">			return append;</span>
+		}
+
+		public String getCharsetName() {
+<span class="nc" id="L74">			return charsetName;</span>
+		}
+
+		public void setCharsetName(String charsetName) {
+<span class="nc" id="L78">			this.charsetName = charsetName;</span>
+<span class="nc" id="L79">		}</span>
+
+		@Override
+		protected Object execute() throws IOException {
+<span class="fc" id="L83">			Set&lt;StandardOpenOption&gt; options = new HashSet&lt;StandardOpenOption&gt;();</span>
+<span class="fc" id="L84">			options.add(StandardOpenOption.WRITE);</span>
+<span class="fc" id="L85">			options.add(StandardOpenOption.CREATE);</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">			if (append) {</span>
+<span class="nc" id="L87">				options.add(StandardOpenOption.APPEND);</span>
+<span class="nc" id="L88">			} else {</span>
+<span class="fc" id="L89">				options.add(StandardOpenOption.TRUNCATE_EXISTING);</span>
+			}
+<span class="fc" id="L91">			Files.write(Paths.get(filePath),</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">					text.getBytes((charsetName != null) ? charsetName : Charset.defaultCharset().name()),</span>
+<span class="fc" id="L93">					options.toArray(new StandardOpenOption[options.size()]));</span>
+<span class="fc" id="L94">			return null;</span>
+		}
+	}
+
+	public static class WriteBinaryFileOperation extends SpecificWriteFileOperation {
+
+		private String filePath;
+		private byte[] data;
+<span class="nc" id="L102">		private boolean append = false;</span>
+
+<span class="nc" id="L104">		public WriteBinaryFileOperation(String filePath, byte[] data, boolean append) {</span>
+<span class="nc" id="L105">			this.filePath = filePath;</span>
+<span class="nc" id="L106">			this.data = data;</span>
+<span class="nc" id="L107">			this.append = append;</span>
+<span class="nc" id="L108">		}</span>
+
+		public String getFilePath() {
+<span class="nc" id="L111">			return filePath;</span>
+		}
+
+		public byte[] getData() {
+<span class="nc" id="L115">			return data;</span>
+		}
+
+		public boolean isAppend() {
+<span class="nc" id="L119">			return append;</span>
+		}
+
+		@Override
+		protected Object execute() throws IOException {
+<span class="nc" id="L124">			Set&lt;StandardOpenOption&gt; options = new HashSet&lt;StandardOpenOption&gt;();</span>
+<span class="nc" id="L125">			options.add(StandardOpenOption.WRITE);</span>
+<span class="nc" id="L126">			options.add(StandardOpenOption.CREATE);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">			if (append) {</span>
+<span class="nc" id="L128">				options.add(StandardOpenOption.APPEND);</span>
+<span class="nc" id="L129">			} else {</span>
+<span class="nc" id="L130">				options.add(StandardOpenOption.TRUNCATE_EXISTING);</span>
+			}
+<span class="nc" id="L132">			Files.write(Paths.get(filePath), data, options.toArray(new StandardOpenOption[options.size()]));</span>
+<span class="nc" id="L133">			return null;</span>
+		}
+	}
+
+<span class="fc" id="L137">	public static class Metadata implements OperationMetadata&lt;WriteFile&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L141">			return &quot;Write File&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L146">			return &quot;File System&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;WriteFile&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L151">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L156">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L157">					.specifyClassPathResourceLocation(WriteFile.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+<span class="fc" id="L161">	public static class Builder implements OperationBuilder&lt;WriteFile&gt; {</span>
+
+<span class="fc" id="L163">		public enum Mode {</span>
+<span class="fc" id="L164">			TEXT, BINARY</span>
+		};
+
+<span class="fc" id="L167">		private Mode mode = Mode.TEXT;</span>
+<span class="fc" id="L168">		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(WriteFile.class.getSimpleName() + &quot;Input&quot;,</span>
+<span class="fc" id="L169">				new SpecificOperationClassNameAccessor());</span>
+
+		public Mode getMode() {
+<span class="nc" id="L172">			return mode;</span>
+		}
+
+		public void setMode(Mode mode) {
+<span class="fc" id="L176">			this.mode = mode;</span>
+<span class="fc" id="L177">		}</span>
+
+		public RootInstanceBuilder getInstanceBuilder() {
+<span class="nc" id="L180">			return instanceBuilder;</span>
+		}
+
+		public void setInstanceBuilder(RootInstanceBuilder instanceBuilder) {
+<span class="fc" id="L184">			this.instanceBuilder = instanceBuilder;</span>
+<span class="fc" id="L185">		}</span>
+
+		@Override
+		public WriteFile build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+<span class="fc" id="L189">			return new WriteFile((SpecificWriteFileOperation) instanceBuilder.build(new InstantiationContext(</span>
+<span class="fc" id="L190">					context.getVariables(),</span>
+<span class="fc" id="L191">					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="fc" id="L196">			return null;</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">			if (mode == null) {</span>
+<span class="nc" id="L202">				throw new ValidationError(&quot;Mode not specified: Expected one of &quot; + Arrays.toString(Mode.values()));</span>
+			}
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">				if (instanceBuilder != null) {</span>
+					try {
+<span class="fc" id="L207">						instanceBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L208">								plan.getValidationContext(step).getVariableDeclarations());</span>
+<span class="pc" id="L209">					} catch (ValidationError e) {</span>
+<span class="nc" id="L210">						throw new ValidationError(&quot;Failed to validate the input builder&quot;, e);</span>
+					}
+				}
+			}
+<span class="fc" id="L214">		}</span>
+
+<span class="fc" id="L216">		private class SpecificOperationClassNameAccessor extends Accessor&lt;String&gt; {</span>
+			@Override
+			public String get() {
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">				if (mode == Mode.TEXT) {</span>
+<span class="fc" id="L220">					return WriteTextFileOperation.class.getName();</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">				} else if (mode == Mode.BINARY) {</span>
+<span class="nc" id="L222">					return WriteBinaryFileOperation.class.getName();</span>
+				} else {
+<span class="nc" id="L224">					throw new UnexpectedError();</span>
+				}
+			}
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

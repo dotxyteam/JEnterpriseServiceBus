@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DefaultConstructorInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.method</a> &gt; <span class="el_source">DefaultConstructorInfo.java</span></div><h1>DefaultConstructorInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.method;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.List;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.parameter.DefaultParameterInfo;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Constructor information extracted from the given Java constructor.
+ * 
+ * @author olitank
+ *
+ */
+public class DefaultConstructorInfo extends AbstractConstructorInfo {
+
+	protected Constructor&lt;?&gt; javaConstructor;
+	protected Class&lt;?&gt; objectJavaClass;
+	protected ReflectionUI reflectionUI;
+	protected ArrayList&lt;IParameterInfo&gt; parameters;
+<span class="fc" id="L29">	protected final Object mutex = new Object();</span>
+
+<span class="fc" id="L31">	public DefaultConstructorInfo(ReflectionUI reflectionUI, Constructor&lt;?&gt; javaConstructor, Class&lt;?&gt; objectJavaClass) {</span>
+<span class="fc" id="L32">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L33">		this.javaConstructor = javaConstructor;</span>
+<span class="fc" id="L34">		this.objectJavaClass = objectJavaClass;</span>
+<span class="fc" id="L35">		resolveJavaReflectionModelAccessProblems();</span>
+<span class="fc" id="L36">	}</span>
+
+	public Constructor&lt;?&gt; getJavaConstructor() {
+<span class="fc" id="L39">		return javaConstructor;</span>
+	}
+
+	public static boolean isCompatibleWith(Constructor&lt;?&gt; constructor, Class&lt;?&gt; objectJavaClass) {
+<span class="fc" id="L43">		return true;</span>
+	}
+
+	protected void resolveJavaReflectionModelAccessProblems() {
+		try {
+<span class="fc" id="L48">			javaConstructor.setAccessible(true);</span>
+<span class="pc" id="L49">		} catch (Throwable t) {</span>
+<span class="nc" id="L50">			reflectionUI.logDebug(t);</span>
+		}
+<span class="fc" id="L52">	}</span>
+
+	@Override
+	public ITypeInfo getReturnValueType() {
+<span class="fc" id="L56">		return reflectionUI.getTypeInfo(new JavaTypeInfoSource(objectJavaClass, null));</span>
+	}
+
+	@Override
+	public List&lt;IParameterInfo&gt; getParameters() {
+<span class="fc" id="L61">		synchronized (mutex) {</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">			if (parameters == null) {</span>
+<span class="fc" id="L63">				parameters = new ArrayList&lt;IParameterInfo&gt;();</span>
+<span class="fc" id="L64">				Parameter[] javaParameters = javaConstructor.getParameters();</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">				for (int i = 0; i &lt; javaParameters.length; i++) {</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">					if (!DefaultParameterInfo.isCompatibleWith(javaParameters[i])) {</span>
+<span class="nc" id="L67">						continue;</span>
+					}
+<span class="fc" id="L69">					parameters.add(new DefaultParameterInfo(reflectionUI, javaParameters[i], i, javaConstructor,</span>
+<span class="fc" id="L70">							objectJavaClass));</span>
+				}
+			}
+<span class="fc" id="L73">			return parameters;</span>
+		}
+	}
+
+	@Override
+	public Object invoke(Object ignore, InvocationData invocationData) {
+<span class="fc" id="L79">		Object[] args = new Object[javaConstructor.getParameterTypes().length];</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">		for (int i = 0; i &lt; args.length; i++) {</span>
+<span class="fc" id="L81">			args[i] = invocationData.getParameterValue(i);</span>
+		}
+		try {
+<span class="fc" id="L84">			return javaConstructor.newInstance(args);</span>
+<span class="nc" id="L85">		} catch (IllegalAccessException e) {</span>
+<span class="nc" id="L86">			throw new ReflectionUIError(e);</span>
+<span class="nc" id="L87">		} catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L88">			throw new ReflectionUIError(e);</span>
+<span class="nc" id="L89">		} catch (InvocationTargetException e) {</span>
+<span class="nc" id="L90">			throw new ReflectionUIError(e.getTargetException());</span>
+<span class="nc" id="L91">		} catch (InstantiationException e) {</span>
+<span class="nc" id="L92">			throw new ReflectionUIError(e);</span>
+		}
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L98">		final int prime = 31;</span>
+<span class="fc" id="L99">		int result = super.hashCode();</span>
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">		result = prime * result + ((javaConstructor == null) ? 0 : javaConstructor.hashCode());</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">		result = prime * result + ((objectJavaClass == null) ? 0 : objectJavaClass.hashCode());</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">		result = prime * result + ((reflectionUI == null) ? 0 : reflectionUI.hashCode());</span>
+<span class="fc" id="L103">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L108" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L109">			return true;</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="nc" id="L111">			return false;</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L113">			return false;</span>
+<span class="nc" id="L114">		DefaultConstructorInfo other = (DefaultConstructorInfo) obj;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">		if (javaConstructor == null) {</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">			if (other.javaConstructor != null)</span>
+<span class="nc" id="L117">				return false;</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">		} else if (!javaConstructor.equals(other.javaConstructor))</span>
+<span class="nc" id="L119">			return false;</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">		if (objectJavaClass == null) {</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">			if (other.objectJavaClass != null)</span>
+<span class="nc" id="L122">				return false;</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">		} else if (!objectJavaClass.equals(other.objectJavaClass))</span>
+<span class="nc" id="L124">			return false;</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		if (reflectionUI == null) {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">			if (other.reflectionUI != null)</span>
+<span class="nc" id="L127">				return false;</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">		} else if (!reflectionUI.equals(other.reflectionUI))</span>
+<span class="nc" id="L129">			return false;</span>
+<span class="nc" id="L130">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L135">		return &quot;DefaultConstructorInfo [javaConstructor=&quot; + javaConstructor + &quot;, objectJavaClass=&quot; + objectJavaClass</span>
+<span class="fc" id="L136">				+ &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

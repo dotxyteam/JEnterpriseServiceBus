@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
-import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
@@ -87,14 +86,7 @@ public class InstantiationUtils {
 			throw new UnexpectedError();
 		}
 		List<VariableDeclaration> expectedVariableDeclarations = compilationContext.getVariableDeclarations(function);
-		Set<String> actualVariableNames = instantiationContext.getVariables().stream()
-				.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE).map(variable -> variable.getName())
-				.collect(Collectors.toSet());
-		Set<String> expectedVariableNames = expectedVariableDeclarations.stream()
-				.map(variableDeclaration -> variableDeclaration.getVariableName()).collect(Collectors.toSet());
-		if (!actualVariableNames.equals(expectedVariableNames)) {
-			throw new UnexpectedError();
-		}
+		MiscUtils.checkVariables(expectedVariableDeclarations, instantiationContext.getVariables());		
 		CompiledFunction<?> compiledFunction;
 		try {
 			compiledFunction = function.getCompiledVersion(compilationContext.getPrecompiler(),
@@ -285,8 +277,8 @@ public class InstantiationUtils {
 				Object defaultValue = getDefaultValue(type);
 				if (defaultValue.getClass().isEnum()) {
 					functionBody = "return "
-							+ MiscUtils.adaptClassNameToSourceCode(
-									makeTypeNamesRelative(type.getName(), getAncestorInstanceBuilders(currentFacade)))
+							+ makeTypeNamesRelative(MiscUtils.adaptClassNameToSourceCode(type.getName()),
+									getAncestorInstanceBuilders(currentFacade))
 							+ "." + defaultValue.toString() + ";";
 				} else if (defaultValue instanceof String) {
 					functionBody = "return \"" + defaultValue + "\";";

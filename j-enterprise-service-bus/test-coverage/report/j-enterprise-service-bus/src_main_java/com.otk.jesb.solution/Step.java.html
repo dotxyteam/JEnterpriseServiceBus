@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Step.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.solution</a> &gt; <span class="el_source">Step.java</span></div><h1>Step.java</h1><pre class="source lang-java linenums">package com.otk.jesb.solution;
+
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.util.MiscUtils;
+
+/**
+ * This class allows to represent nodes that host each {@link Operation} within
+ * a {@link Plan}.
+ * 
+ * @author olitank
+ *
+ */
+public class Step extends PlanElement {
+
+<span class="fc" id="L18">	private String name = &quot;&quot;;</span>
+	private OperationBuilder&lt;?&gt; operationBuilder;
+<span class="fc" id="L20">	private int diagramX = 0;</span>
+<span class="fc" id="L21">	private int diagramY = 0;</span>
+	private CompositeStep&lt;?&gt; parent;
+
+	public Step() {
+<span class="fc" id="L25">		this((OperationBuilder&lt;?&gt;) null);</span>
+<span class="fc" id="L26">	}</span>
+
+	public Step(OperationMetadata&lt;?&gt; operationMetadata) throws InstantiationException, IllegalAccessException {
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">		this((operationMetadata != null) ? operationMetadata.getOperationBuilderClass().newInstance() : null);</span>
+<span class="fc" id="L30">	}</span>
+
+<span class="fc" id="L32">	public Step(OperationBuilder&lt;?&gt; operationBuilder) {</span>
+<span class="fc" id="L33">		this.operationBuilder = operationBuilder;</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">		if (operationBuilder != null) {</span>
+<span class="fc" id="L35">			name = MiscUtils.inferOperationClass(operationBuilder.getClass()).getSimpleName();</span>
+<span class="fc" id="L36">			name = name.substring(0, 1).toLowerCase() + name.substring(1);</span>
+		}
+<span class="fc" id="L38">	}</span>
+
+	public String getName() {
+<span class="fc" id="L41">		return name;</span>
+	}
+
+	public void setName(String name) {
+<span class="fc" id="L45">		this.name = name;</span>
+<span class="fc" id="L46">	}</span>
+
+	public OperationBuilder&lt;?&gt; getOperationBuilder() {
+<span class="fc" id="L49">		return operationBuilder;</span>
+	}
+
+	public void setOperationBuilder(OperationBuilder&lt;?&gt; operationBuilder) {
+<span class="fc" id="L53">		this.operationBuilder = operationBuilder;</span>
+<span class="fc" id="L54">	}</span>
+
+	public int getDiagramX() {
+<span class="fc" id="L57">		return diagramX;</span>
+	}
+
+	public void setDiagramX(int diagramX) {
+<span class="fc" id="L61">		this.diagramX = diagramX;</span>
+<span class="fc" id="L62">	}</span>
+
+	public int getDiagramY() {
+<span class="fc" id="L65">		return diagramY;</span>
+	}
+
+	public void setDiagramY(int diagramY) {
+<span class="fc" id="L69">		this.diagramY = diagramY;</span>
+<span class="fc" id="L70">	}</span>
+
+	public CompositeStep&lt;?&gt; getParent() {
+<span class="fc" id="L73">		return parent;</span>
+	}
+
+	public void setParent(CompositeStep&lt;?&gt; parent) {
+<span class="fc" id="L77">		this.parent = parent;</span>
+<span class="fc" id="L78">	}</span>
+
+	@Override
+	public String getSummary() {
+<span class="fc" id="L82">		return name;</span>
+	}
+
+	@Override
+	public void validate(boolean recursively, Plan plan) throws ValidationError {
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">		if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(name).matches()) {</span>
+<span class="nc" id="L88">			throw new ValidationError(&quot;The step name must match the following regular expression: &quot;</span>
+<span class="nc" id="L89">					+ MiscUtils.VARIABLE_NAME_PATTERN.pattern());</span>
+		}
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">		if (plan.isPreceding(this, this)) {</span>
+<span class="nc" id="L92">			throw new ValidationError(&quot;Cycle detected&quot;);</span>
+		}
+<span class="fc bfc" id="L94" title="All 2 branches covered.">		if (recursively) {</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">			if (operationBuilder != null) {</span>
+<span class="fc" id="L96">				operationBuilder.validate(recursively, plan, this);</span>
+			}
+		}
+<span class="fc" id="L99">	}</span>
+
+	@Override
+	public String toString() {
+<span class="fc" id="L103">		return name;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

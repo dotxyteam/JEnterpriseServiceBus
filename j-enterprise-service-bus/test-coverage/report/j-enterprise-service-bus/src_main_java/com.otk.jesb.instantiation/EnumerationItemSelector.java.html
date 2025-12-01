@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>EnumerationItemSelector.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">EnumerationItemSelector.java</span></div><h1>EnumerationItemSelector.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+
+/**
+ * Allows to specify an enumeration item.
+ * 
+ * @author olitank
+ *
+ */
+public class EnumerationItemSelector {
+
+	private List&lt;String&gt; itemNames;
+	private String selectedItemName;
+
+<span class="fc" id="L20">	public EnumerationItemSelector() {</span>
+<span class="fc" id="L21">	}</span>
+
+<span class="nc" id="L23">	public EnumerationItemSelector(List&lt;String&gt; itemNames) {</span>
+<span class="nc" id="L24">		this.itemNames = itemNames;</span>
+<span class="nc" id="L25">		selectedItemName = itemNames.get(0);</span>
+<span class="nc" id="L26">	}</span>
+
+	public List&lt;String&gt; getItemNames() {
+<span class="fc" id="L29">		return itemNames;</span>
+	}
+
+	public String getSelectedItemName() {
+<span class="fc" id="L33">		return selectedItemName;</span>
+	}
+
+	public void setSelectedItemName(String selectedItemName) {
+<span class="fc" id="L37">		this.selectedItemName = selectedItemName;</span>
+<span class="fc" id="L38">	}</span>
+
+	public void configure(IEnumerationTypeInfo enumType) {
+<span class="fc" id="L41">		itemNames = Arrays.asList(enumType.getValues()).stream().map(item -&gt; enumType.getValueInfo(item).getName())</span>
+<span class="fc" id="L42">				.collect(Collectors.toList());</span>
+<span class="fc" id="L43">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

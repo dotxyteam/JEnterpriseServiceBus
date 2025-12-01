@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Schedule.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.activation.builtin</a> &gt; <span class="el_source">Schedule.java</span></div><h1>Schedule.java</h1><pre class="source lang-java linenums">package com.otk.jesb.activation.builtin;
+
+import com.otk.jesb.activation.Activator;
+import com.otk.jesb.activation.ActivatorStructure;
+import com.otk.jesb.solution.Plan.ExecutionError;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.activation.ActivatorMetadata;
+import com.otk.jesb.activation.ActivationHandler;
+import com.otk.jesb.Variant;
+import xy.reflect.ui.info.custom.InfoCustomizations;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+import com.otk.jesb.Log;
+import com.otk.jesb.ValidationError;
+import xy.reflect.ui.info.ResourcePath;
+import java.util.Arrays;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
+public class Schedule extends Activator {
+
+<span class="nc" id="L26">	private Variant&lt;com.otk.jesb.meta.DateTime&gt; startDateTimeVariant = new Variant&lt;com.otk.jesb.meta.DateTime&gt;(</span>
+<span class="nc" id="L27">			com.otk.jesb.meta.DateTime.class,</span>
+<span class="nc" id="L28">			com.otk.jesb.meta.DateTime.fromJavaUtilDate(new java.util.Date(System.currentTimeMillis() + 60000)));</span>
+<span class="nc" id="L29">	private Variant&lt;Boolean&gt; repeatingVariant = new Variant&lt;Boolean&gt;(Boolean.class, false);</span>
+<span class="nc" id="L30">	private RepetitionSettingsStructure repetitionSettings = new RepetitionSettingsStructure();</span>
+<span class="nc" id="L31">	private Variant&lt;String&gt; timeZoneIdentifierVariant = new Variant&lt;String&gt;(String.class, null);</span>
+
+	private ActivationHandler activationHandler;
+	private ScheduledExecutorService scheduler;
+
+<span class="nc" id="L36">	public Schedule() {</span>
+<span class="nc" id="L37">	}</span>
+
+	public Variant&lt;com.otk.jesb.meta.DateTime&gt; getStartDateTimeVariant() {
+<span class="nc" id="L40">		return startDateTimeVariant;</span>
+	}
+
+	public void setStartDateTimeVariant(Variant&lt;com.otk.jesb.meta.DateTime&gt; startDateTimeVariant) {
+<span class="nc" id="L44">		this.startDateTimeVariant = startDateTimeVariant;</span>
+<span class="nc" id="L45">	}</span>
+
+	public Variant&lt;Boolean&gt; getRepeatingVariant() {
+<span class="nc" id="L48">		return repeatingVariant;</span>
+	}
+
+	public void setRepeatingVariant(Variant&lt;Boolean&gt; repeatingVariant) {
+<span class="nc" id="L52">		this.repeatingVariant = repeatingVariant;</span>
+<span class="nc" id="L53">	}</span>
+
+	public RepetitionSettingsStructure getRepetitionSettings() {
+<span class="nc" id="L56">		return repetitionSettings;</span>
+	}
+
+	public void setRepetitionSettings(RepetitionSettingsStructure repetitionSettings) {
+<span class="nc" id="L60">		this.repetitionSettings = repetitionSettings;</span>
+<span class="nc" id="L61">	}</span>
+
+	public Variant&lt;String&gt; getTimeZoneIdentifierVariant() {
+<span class="nc" id="L64">		return timeZoneIdentifierVariant;</span>
+	}
+
+	public void setTimeZoneIdentifierVariant(Variant&lt;String&gt; timeZoneIdentifierVariant) {
+<span class="nc" id="L68">		this.timeZoneIdentifierVariant = timeZoneIdentifierVariant;</span>
+<span class="nc" id="L69">	}</span>
+
+	@Override
+	public String toString() {
+<span class="nc" id="L73">		return &quot;Schedule [startDateTimeVariant=&quot; + startDateTimeVariant + &quot;, repeatingVariant=&quot; + repeatingVariant</span>
+<span class="nc" id="L74">				+ &quot;, repetitionSettings=&quot; + repetitionSettings + &quot;, timeZoneIdentifierVariant=&quot;</span>
+<span class="nc" id="L75">				+ timeZoneIdentifierVariant + &quot;]&quot;;</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getInputClass() {
+<span class="nc" id="L80">		return InputClassStructure.class;</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getOutputClass() {
+<span class="nc" id="L85">		return null;</span>
+	}
+
+	@Override
+	public boolean isAutomaticallyTriggerable() {
+<span class="nc" id="L90">		return true;</span>
+	}
+
+	@Override
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+<span class="nc" id="L95">		this.activationHandler = activationHandler;</span>
+<span class="nc" id="L96">		scheduler = MiscUtils.newScheduler(Schedule.class.getName() + &quot;Worker-&quot; + hashCode(), 1);</span>
+<span class="nc" id="L97">		Runnable task = new Runnable() {</span>
+			@Override
+			public void run() {
+				try {
+<span class="nc" id="L101">					activationHandler.trigger(new InputClassStructure(com.otk.jesb.meta.DateTime.now()));</span>
+<span class="nc" id="L102">				} catch (ExecutionError e) {</span>
+<span class="nc" id="L103">					Log.get().error(e);</span>
+				}
+<span class="nc" id="L105">			}</span>
+		};
+<span class="nc" id="L107">		ChronoUnit chronUnit = Arrays.stream(ChronoUnit.class.getEnumConstants())</span>
+<span class="nc" id="L108">				.filter(constant -&gt; repetitionSettings.periodUnitVariant.getValue().name().startsWith(constant.name()))</span>
+<span class="nc" id="L109">				.findFirst().get();</span>
+<span class="nc" id="L110">		prepare(task, startDateTimeVariant.getValue().toJavaUtilDate(), repeatingVariant.getValue(),</span>
+<span class="nc" id="L111">				repetitionSettings.periodLengthVariant.getValue(), chronUnit,</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">				(repetitionSettings.getEndDateTimeVariant().getValue() == null) ? null</span>
+<span class="nc" id="L113">						: repetitionSettings.getEndDateTimeVariant().getValue().toJavaUtilDate());</span>
+<span class="nc" id="L114">	}</span>
+
+	@Override
+	public void finalizeAutomaticTrigger() throws Exception {
+<span class="nc" id="L118">		MiscUtils.willRethrowCommonly(compositeException -&gt; {</span>
+<span class="nc" id="L119">			compositeException.tryCactch(() -&gt; {</span>
+<span class="nc" id="L120">				scheduler.shutdownNow();</span>
+<span class="nc" id="L121">			});</span>
+<span class="nc" id="L122">			compositeException.tryCactch(() -&gt; {</span>
+<span class="nc" id="L123">				scheduler.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);</span>
+<span class="nc" id="L124">			});</span>
+<span class="nc" id="L125">			scheduler = null;</span>
+<span class="nc" id="L126">			this.activationHandler = null;</span>
+<span class="nc" id="L127">		});</span>
+<span class="nc" id="L128">	}</span>
+
+	@Override
+	public boolean isAutomaticTriggerReady() {
+<span class="nc bnc" id="L132" title="All 2 branches missed.">		return activationHandler != null;</span>
+	}
+
+	public static void customizeUI(InfoCustomizations infoCustomizations) {
+		// com.otk.jesb.activation.builtin.Schedule form customization
+		{
+			// field control positions
+			InfoCustomizations
+<span class="fc" id="L140">					.getTypeCustomization(infoCustomizations, com.otk.jesb.activation.builtin.Schedule.class.getName())</span>
+<span class="fc" id="L141">					.setCustomFieldsOrder(java.util.Arrays.asList(&quot;startDateTimeVariant&quot;, &quot;repeatingVariant&quot;,</span>
+<span class="fc" id="L142">							&quot;repetitionSettings&quot;, &quot;timeZoneIdentifierVariant&quot;));</span>
+			// startDateTimeVariant control customization
+			{
+				InfoCustomizations
+<span class="fc" id="L146">						.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L147">								com.otk.jesb.activation.builtin.Schedule.class.getName(), &quot;startDateTimeVariant&quot;)</span>
+<span class="fc" id="L148">						.setCustomFieldCaption(&quot;Start At&quot;);</span>
+<span class="fc" id="L149">				InfoCustomizations.getTypeCustomization(InfoCustomizations.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L150">						com.otk.jesb.ui.GUI.VariantCustomizations.getAdapterTypeName(</span>
+<span class="fc" id="L151">								com.otk.jesb.activation.builtin.Schedule.class.getName(), &quot;startDateTimeVariant&quot;),</span>
+<span class="fc" id="L152">						com.otk.jesb.ui.GUI.VariantCustomizations.getConstantValueFieldName(&quot;startDateTimeVariant&quot;))</span>
+<span class="fc" id="L153">						.getSpecificTypeCustomizations(), com.otk.jesb.meta.DateTime.class.getName())</span>
+<span class="fc" id="L154">						.setSpecificProperties(new java.util.HashMap&lt;String, Object&gt;() {</span>
+							private static final long serialVersionUID = 1L;
+							{
+<span class="fc" id="L157">								ReflectionUIUtils.setFieldControlPluginIdentifier(this,</span>
+<span class="fc" id="L158">										&quot;com.otk.jesb.ui.GUI$JESDDateTimePickerPlugin&quot;);</span>
+<span class="fc" id="L159">								ReflectionUIUtils.setFieldControlPluginConfiguration(this,</span>
+<span class="fc" id="L160">										&quot;com.otk.jesb.ui.GUI$JESDDateTimePickerPlugin&quot;,</span>
+<span class="fc" id="L161">										(java.io.Serializable) com.otk.jesb.PluginBuilder</span>
+<span class="fc" id="L162">												.readControlPluginConfiguration(</span>
+<span class="fc" id="L163">														&quot;&lt;xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin_-DateTimePickerConfiguration&gt;&lt;dateFormat&gt;yyyy-MM-dd&lt;/dateFormat&gt;&lt;timeFormat&gt;HH:mm:ss&lt;/timeFormat&gt;&lt;/xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin_-DateTimePickerConfiguration&gt;&quot;));</span>
+							}
+						});
+			}
+			// repeatingVariant control customization
+			{
+				InfoCustomizations
+<span class="fc" id="L170">						.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L171">								com.otk.jesb.activation.builtin.Schedule.class.getName(), &quot;repeatingVariant&quot;)</span>
+<span class="fc" id="L172">						.setCustomFieldCaption(&quot;Repeat&quot;);</span>
+			}
+			// repetitionSettings control customization
+			{
+				InfoCustomizations
+<span class="fc" id="L177">						.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L178">								com.otk.jesb.activation.builtin.Schedule.class.getName(), &quot;repetitionSettings&quot;)</span>
+<span class="fc" id="L179">						.setCustomFieldCaption(&quot;Repetition Settings&quot;);</span>
+				InfoCustomizations
+<span class="fc" id="L181">						.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L182">								com.otk.jesb.activation.builtin.Schedule.class.getName(), &quot;repetitionSettings&quot;)</span>
+<span class="fc" id="L183">						.setValueValidityDetectionForced(true);</span>
+				InfoCustomizations
+<span class="fc" id="L185">						.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L186">								com.otk.jesb.activation.builtin.Schedule.class.getName(), &quot;repetitionSettings&quot;)</span>
+<span class="fc" id="L187">						.setFormControlEmbeddingForced(true);</span>
+<span class="fc" id="L188">				RepetitionSettingsStructure.customizeUI(infoCustomizations);</span>
+			}
+			// timeZoneIdentifierVariant control customization
+			{
+				InfoCustomizations
+<span class="fc" id="L193">						.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L194">								com.otk.jesb.activation.builtin.Schedule.class.getName(), &quot;timeZoneIdentifierVariant&quot;)</span>
+<span class="fc" id="L195">						.setCustomFieldCaption(&quot;Time Zone&quot;);</span>
+			}
+			// hide UI customization method
+<span class="fc" id="L198">			InfoCustomizations.getMethodCustomization(infoCustomizations,</span>
+<span class="fc" id="L199">					com.otk.jesb.activation.builtin.Schedule.class.getName(), ReflectionUIUtils.buildMethodSignature(</span>
+<span class="fc" id="L200">							&quot;void&quot;, &quot;customizeUI&quot;, java.util.Arrays.asList(InfoCustomizations.class.getName())))</span>
+<span class="fc" id="L201">					.setHidden(true);</span>
+		}
+<span class="fc" id="L203">	}</span>
+
+	@Override
+	public void validate(boolean recursively, com.otk.jesb.solution.Plan plan) throws ValidationError {
+<span class="nc" id="L207">		super.validate(recursively, plan);</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">		if (recursively) {</span>
+			try {
+<span class="nc" id="L210">				startDateTimeVariant.validate();</span>
+<span class="nc" id="L211">			} catch (ValidationError e) {</span>
+<span class="nc" id="L212">				throw new ValidationError(&quot;Failed to validate 'Start At'&quot;, e);</span>
+			}
+		}
+<span class="nc bnc" id="L215" title="All 2 branches missed.">		if (recursively) {</span>
+			try {
+<span class="nc" id="L217">				repeatingVariant.validate();</span>
+<span class="nc" id="L218">			} catch (ValidationError e) {</span>
+<span class="nc" id="L219">				throw new ValidationError(&quot;Failed to validate 'Repeat'&quot;, e);</span>
+			}
+		}
+<span class="nc bnc" id="L222" title="All 2 branches missed.">		if (recursively) {</span>
+			try {
+<span class="nc" id="L224">				repetitionSettings.validate(recursively, plan);</span>
+<span class="nc" id="L225">			} catch (ValidationError e) {</span>
+<span class="nc" id="L226">				throw new ValidationError(&quot;Failed to validate 'Repetition Settings'&quot;, e);</span>
+			}
+		}
+<span class="nc bnc" id="L229" title="All 2 branches missed.">		if (recursively) {</span>
+			try {
+<span class="nc" id="L231">				timeZoneIdentifierVariant.validate();</span>
+<span class="nc" id="L232">			} catch (ValidationError e) {</span>
+<span class="nc" id="L233">				throw new ValidationError(&quot;Failed to validate 'Time Zone'&quot;, e);</span>
+			}
+		}
+<span class="nc bnc" id="L236" title="All 2 branches missed.">		if (repeatingVariant.getValue()) {</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">			if (repetitionSettings.periodLengthVariant.getValue() &lt;= 0) {</span>
+<span class="nc" id="L238">				throw new ValidationError(&quot;Invalid repetition period length: &quot;</span>
+<span class="nc" id="L239">						+ repetitionSettings.periodLengthVariant.getValue() + &quot; (positive number expected)&quot;);</span>
+			}
+<span class="nc bnc" id="L241" title="All 2 branches missed.">			if (repetitionSettings.endDateTimeVariant.getValue() != null) {</span>
+<span class="nc" id="L242">				if (!repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate()</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">						.after(startDateTimeVariant.getValue().toJavaUtilDate())) {</span>
+<span class="nc" id="L244">					throw new ValidationError(</span>
+<span class="nc" id="L245">							&quot;Invalid schedule end date/time: It is not after the schedule start date/time&quot;);</span>
+				}
+<span class="nc bnc" id="L247" title="All 2 branches missed.">				if (!repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate().after(new java.util.Date())) {</span>
+<span class="nc" id="L248">					throw new ValidationError(&quot;Invalid schedule end date/time: It has passed&quot;);</span>
+				}
+			}
+		} else {
+<span class="nc bnc" id="L252" title="All 2 branches missed.">			if (!startDateTimeVariant.getValue().toJavaUtilDate().after(new java.util.Date())) {</span>
+<span class="nc" id="L253">				throw new ValidationError(&quot;Invalid schedule start date/time: It has passed&quot;);</span>
+			}
+		}
+<span class="nc bnc" id="L256" title="All 2 branches missed.">		if (timeZoneIdentifierVariant.getValue() != null) {</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">			if (!ZoneId.getAvailableZoneIds().contains(timeZoneIdentifierVariant.getValue())) {</span>
+<span class="nc" id="L258">				throw new ValidationError(&quot;Invalid time zone: '&quot; + timeZoneIdentifierVariant.getValue() + &quot;': Expected &quot;</span>
+<span class="nc" id="L259">						+ ZoneId.getAvailableZoneIds());</span>
+			}
+		}
+<span class="nc" id="L262">	}</span>
+
+	private ScheduledFuture&lt;?&gt; prepare(Runnable task, java.util.Date start, boolean repeating, long periodLength,
+			ChronoUnit periodUnit, java.util.Date end) {
+<span class="nc" id="L266">		java.util.Date now = new java.util.Date();</span>
+		java.util.Date next;
+<span class="nc bnc" id="L268" title="All 2 branches missed.">		if (repeating) {</span>
+<span class="nc" id="L269">			next = computeNextOccurrence(start, periodLength, periodUnit, now);</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">			if (end != null) {</span>
+<span class="nc bnc" id="L271" title="All 2 branches missed.">				if (end.before(next)) {</span>
+<span class="nc" id="L272">					return null;</span>
+				}
+			}
+		} else {
+<span class="nc" id="L276">			next = start;</span>
+		}
+<span class="nc" id="L278">		long nowMilliseconds = now.getTime();</span>
+<span class="nc" id="L279">		long nextMilliseconds = next.getTime();</span>
+<span class="nc" id="L280">		long delayMilliseconds = nextMilliseconds - nowMilliseconds;</span>
+<span class="nc" id="L281">		return scheduler.schedule(() -&gt; {</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">			if (repeating) {</span>
+<span class="nc" id="L283">				prepare(task, start, repeating, periodLength, periodUnit, end);</span>
+			}
+<span class="nc" id="L285">			task.run();</span>
+<span class="nc" id="L286">		}, delayMilliseconds, TimeUnit.MILLISECONDS);</span>
+	}
+
+	private java.util.Date computeNextOccurrence(java.util.Date start, long periodLength, ChronoUnit periodUnit,
+			java.util.Date now) {
+<span class="nc bnc" id="L291" title="All 2 branches missed.">		if (start.after(now)) {</span>
+<span class="nc" id="L292">			return start;</span>
+		}
+<span class="nc bnc" id="L294" title="All 2 branches missed.">		ZoneId timeZone = (timeZoneIdentifierVariant.getValue() != null)</span>
+<span class="nc" id="L295">				? ZoneId.of(timeZoneIdentifierVariant.getValue())</span>
+<span class="nc" id="L296">				: ZoneId.systemDefault();</span>
+<span class="nc" id="L297">		ZonedDateTime startZonedDateTime = start.toInstant().atZone(timeZone);</span>
+<span class="nc" id="L298">		ZonedDateTime nowZonedDateTime = now.toInstant().atZone(timeZone);</span>
+<span class="nc" id="L299">		long elapsed = periodUnit.between(startZonedDateTime, nowZonedDateTime);</span>
+<span class="nc" id="L300">		long missed = (elapsed / periodLength) + 1;</span>
+<span class="nc" id="L301">		return java.util.Date.from(startZonedDateTime.plus(missed * periodLength, periodUnit).toInstant());</span>
+	}
+
+	static public class InputClassStructure {
+
+		public final com.otk.jesb.meta.DateTime activationMoment;
+
+<span class="nc" id="L308">		public InputClassStructure(com.otk.jesb.meta.DateTime activationMoment) {</span>
+<span class="nc" id="L309">			this.activationMoment = activationMoment;</span>
+<span class="nc" id="L310">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L314">			return &quot;InputClassStructure [activationMoment=&quot; + activationMoment + &quot;]&quot;;</span>
+		}
+
+	}
+
+<span class="fc" id="L319">	public static class Metadata implements ActivatorMetadata {</span>
+
+		@Override
+		public String getActivatorName() {
+<span class="fc" id="L323">			return &quot;Schedule&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends Activator&gt; getActivatorClass() {
+<span class="fc" id="L328">			return Schedule.class;</span>
+		}
+
+		@Override
+		public ResourcePath getActivatorIconImagePath() {
+<span class="fc" id="L333">			return new ResourcePath(</span>
+<span class="fc" id="L334">					ResourcePath.specifyClassPathResourceLocation(Schedule.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+	}
+
+	static public class RepetitionSettingsStructure implements ActivatorStructure {
+
+<span class="nc" id="L341">		private Variant&lt;RepetitionSettingsStructurePeriodUnitStructure&gt; periodUnitVariant = new Variant&lt;RepetitionSettingsStructurePeriodUnitStructure&gt;(</span>
+<span class="nc" id="L342">				RepetitionSettingsStructurePeriodUnitStructure.class,</span>
+<span class="nc" id="L343">				RepetitionSettingsStructurePeriodUnitStructure.DAYS);</span>
+<span class="nc" id="L344">		private Variant&lt;Long&gt; periodLengthVariant = new Variant&lt;Long&gt;(Long.class, 1l);</span>
+<span class="nc" id="L345">		private Variant&lt;com.otk.jesb.meta.DateTime&gt; endDateTimeVariant = new Variant&lt;com.otk.jesb.meta.DateTime&gt;(</span>
+<span class="nc" id="L346">				com.otk.jesb.meta.DateTime.class, null);</span>
+
+<span class="nc" id="L348">		public RepetitionSettingsStructure() {</span>
+<span class="nc" id="L349">		}</span>
+
+		public Variant&lt;RepetitionSettingsStructurePeriodUnitStructure&gt; getPeriodUnitVariant() {
+<span class="nc" id="L352">			return periodUnitVariant;</span>
+		}
+
+		public void setPeriodUnitVariant(Variant&lt;RepetitionSettingsStructurePeriodUnitStructure&gt; periodUnitVariant) {
+<span class="nc" id="L356">			this.periodUnitVariant = periodUnitVariant;</span>
+<span class="nc" id="L357">		}</span>
+
+		public Variant&lt;Long&gt; getPeriodLengthVariant() {
+<span class="nc" id="L360">			return periodLengthVariant;</span>
+		}
+
+		public void setPeriodLengthVariant(Variant&lt;Long&gt; periodLengthVariant) {
+<span class="nc" id="L364">			this.periodLengthVariant = periodLengthVariant;</span>
+<span class="nc" id="L365">		}</span>
+
+		public Variant&lt;com.otk.jesb.meta.DateTime&gt; getEndDateTimeVariant() {
+<span class="nc" id="L368">			return endDateTimeVariant;</span>
+		}
+
+		public void setEndDateTimeVariant(Variant&lt;com.otk.jesb.meta.DateTime&gt; endDateTimeVariant) {
+<span class="nc" id="L372">			this.endDateTimeVariant = endDateTimeVariant;</span>
+<span class="nc" id="L373">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L377">			return &quot;RepetitionSettingsStructure [periodUnitVariant=&quot; + periodUnitVariant + &quot;, periodLengthVariant=&quot;</span>
+<span class="nc" id="L378">					+ periodLengthVariant + &quot;, endDateTimeVariant=&quot; + endDateTimeVariant + &quot;]&quot;;</span>
+		}
+
+		public static void customizeUI(InfoCustomizations infoCustomizations) {
+			// RepetitionSettingsStructure form customization
+			{
+				// field control positions
+<span class="fc" id="L385">				InfoCustomizations.getTypeCustomization(infoCustomizations, RepetitionSettingsStructure.class.getName())</span>
+<span class="fc" id="L386">						.setCustomFieldsOrder(java.util.Arrays.asList(&quot;periodUnitVariant&quot;, &quot;periodLengthVariant&quot;,</span>
+<span class="fc" id="L387">								&quot;endDateTimeVariant&quot;));</span>
+				// periodUnitVariant control customization
+				{
+<span class="fc" id="L390">					InfoCustomizations.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L391">							RepetitionSettingsStructure.class.getName(), &quot;periodUnitVariant&quot;)</span>
+<span class="fc" id="L392">							.setCustomFieldCaption(&quot;Period Unit&quot;);</span>
+				}
+				// periodLengthVariant control customization
+				{
+<span class="fc" id="L396">					InfoCustomizations.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L397">							RepetitionSettingsStructure.class.getName(), &quot;periodLengthVariant&quot;)</span>
+<span class="fc" id="L398">							.setCustomFieldCaption(&quot;Period Length&quot;);</span>
+				}
+				// endDateTimeVariant control customization
+				{
+<span class="fc" id="L402">					InfoCustomizations.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L403">							RepetitionSettingsStructure.class.getName(), &quot;endDateTimeVariant&quot;)</span>
+<span class="fc" id="L404">							.setCustomFieldCaption(&quot;End At&quot;);</span>
+<span class="fc" id="L405">					InfoCustomizations.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L406">							com.otk.jesb.ui.GUI.VariantCustomizations.getAdapterTypeName(</span>
+<span class="fc" id="L407">									RepetitionSettingsStructure.class.getName(), &quot;endDateTimeVariant&quot;),</span>
+<span class="fc" id="L408">							com.otk.jesb.ui.GUI.VariantCustomizations.getConstantValueFieldName(&quot;endDateTimeVariant&quot;))</span>
+<span class="fc" id="L409">							.setNullValueDistinctForced(true);</span>
+					InfoCustomizations
+<span class="fc" id="L411">							.getTypeCustomization(</span>
+									InfoCustomizations
+<span class="fc" id="L413">											.getFieldCustomization(infoCustomizations,</span>
+<span class="fc" id="L414">													com.otk.jesb.ui.GUI.VariantCustomizations.getAdapterTypeName(</span>
+<span class="fc" id="L415">															RepetitionSettingsStructure.class.getName(),</span>
+<span class="fc" id="L416">															&quot;endDateTimeVariant&quot;),</span>
+													com.otk.jesb.ui.GUI.VariantCustomizations
+<span class="fc" id="L418">															.getConstantValueFieldName(&quot;endDateTimeVariant&quot;))</span>
+<span class="fc" id="L419">											.getSpecificTypeCustomizations(),</span>
+<span class="fc" id="L420">									com.otk.jesb.meta.DateTime.class.getName())</span>
+<span class="fc" id="L421">							.setSpecificProperties(new java.util.HashMap&lt;String, Object&gt;() {</span>
+								private static final long serialVersionUID = 1L;
+								{
+<span class="fc" id="L424">									ReflectionUIUtils.setFieldControlPluginIdentifier(this,</span>
+<span class="fc" id="L425">											&quot;com.otk.jesb.ui.GUI$JESDDateTimePickerPlugin&quot;);</span>
+<span class="fc" id="L426">									ReflectionUIUtils.setFieldControlPluginConfiguration(this,</span>
+<span class="fc" id="L427">											&quot;com.otk.jesb.ui.GUI$JESDDateTimePickerPlugin&quot;,</span>
+<span class="fc" id="L428">											(java.io.Serializable) com.otk.jesb.PluginBuilder</span>
+<span class="fc" id="L429">													.readControlPluginConfiguration(</span>
+<span class="fc" id="L430">															&quot;&lt;xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin_-DateTimePickerConfiguration&gt;&lt;dateFormat&gt;yyyy-MM-dd&lt;/dateFormat&gt;&lt;timeFormat&gt;HH:mm:ss&lt;/timeFormat&gt;&lt;/xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin_-DateTimePickerConfiguration&gt;&quot;));</span>
+								}
+							});
+				}
+				// hide UI customization method
+<span class="fc" id="L435">				InfoCustomizations.getMethodCustomization(infoCustomizations,</span>
+<span class="fc" id="L436">						RepetitionSettingsStructure.class.getName(), ReflectionUIUtils.buildMethodSignature(&quot;void&quot;,</span>
+<span class="fc" id="L437">								&quot;customizeUI&quot;, java.util.Arrays.asList(InfoCustomizations.class.getName())))</span>
+<span class="fc" id="L438">						.setHidden(true);</span>
+			}
+<span class="fc" id="L440">		}</span>
+
+		@Override
+		public void validate(boolean recursively, com.otk.jesb.solution.Plan plan) throws ValidationError {
+<span class="nc bnc" id="L444" title="All 2 branches missed.">			if (recursively) {</span>
+				try {
+<span class="nc" id="L446">					periodLengthVariant.validate();</span>
+<span class="nc" id="L447">				} catch (ValidationError e) {</span>
+<span class="nc" id="L448">					throw new ValidationError(&quot;Failed to validate 'Period Length'&quot;, e);</span>
+				}
+			}
+<span class="nc bnc" id="L451" title="All 2 branches missed.">			if (recursively) {</span>
+				try {
+<span class="nc" id="L453">					endDateTimeVariant.validate();</span>
+<span class="nc" id="L454">				} catch (ValidationError e) {</span>
+<span class="nc" id="L455">					throw new ValidationError(&quot;Failed to validate 'End At'&quot;, e);</span>
+				}
+			}
+<span class="nc" id="L458">		}</span>
+
+<span class="nc" id="L460">		static public enum RepetitionSettingsStructurePeriodUnitStructure {</span>
+<span class="nc" id="L461">			MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS, MONTHS, YEARS;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

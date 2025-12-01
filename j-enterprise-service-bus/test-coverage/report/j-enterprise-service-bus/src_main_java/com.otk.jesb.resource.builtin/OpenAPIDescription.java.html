@@ -1,0 +1,717 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>OpenAPIDescription.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.resource.builtin</a> &gt; <span class="el_source">OpenAPIDescription.java</span></div><h1>OpenAPIDescription.java</h1><pre class="source lang-java linenums">package com.otk.jesb.resource.builtin;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.stream.Collectors;
+
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.Response.Status;
+
+import org.apache.cxf.jaxrs.impl.ResponseBuilderImpl;
+import org.openapitools.codegen.ClientOptInput;
+import org.openapitools.codegen.DefaultGenerator;
+import org.openapitools.codegen.config.CodegenConfigurator;
+import org.springframework.http.ResponseEntity;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.visitor.ModifierVisitor;
+import com.otk.jesb.Log;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.StandardError;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.InstanceBuilder;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.resource.Resource;
+import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.CodeBuilder;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+import com.github.javaparser.ast.Node;
+
+public class OpenAPIDescription extends WebDocumentBasedResource {
+
+	private String text;
+
+<span class="pc" id="L71">	private UpToDateGeneratedClasses upToDateGeneratedClasses = new UpToDateGeneratedClasses();</span>
+<span class="fc" id="L72">	private static WeakHashMap&lt;Class&lt;?&gt;, Class&lt;?&gt;&gt; serviceImplementationClassByInterface = new WeakHashMap&lt;Class&lt;?&gt;, Class&lt;?&gt;&gt;();</span>
+
+<span class="fc" id="L74">	public OpenAPIDescription() {</span>
+<span class="fc" id="L75">	}</span>
+
+	public OpenAPIDescription(String name) {
+<span class="nc" id="L78">		super(name);</span>
+<span class="nc" id="L79">	}</span>
+
+	public String getText() {
+<span class="nc" id="L82">		return text;</span>
+	}
+
+	public void setText(String text) {
+<span class="fc" id="L86">		this.text = text;</span>
+<span class="fc" id="L87">	}</span>
+
+	public void load(Source source) throws IOException {
+<span class="nc" id="L90">		try (InputStream in = source.getInputStream()) {</span>
+<span class="nc" id="L91">			text = MiscUtils.read(in);</span>
+		}
+<span class="nc" id="L93">	}</span>
+
+	protected void runClassesGenerationTool(File mainFile, File outputDirectory) throws Exception {
+		{
+<span class="fc" id="L97">			CodegenConfigurator configurator = new CodegenConfigurator();</span>
+<span class="fc" id="L98">			configurator.setInputSpec(mainFile.getPath());</span>
+<span class="fc" id="L99">			configurator.setGeneratorName(&quot;java&quot;);</span>
+<span class="fc" id="L100">			configurator.setOutputDir(outputDirectory.getPath());</span>
+<span class="fc" id="L101">			configurator.addAdditionalProperty(&quot;apiPackage&quot;, getClientPackageName());</span>
+<span class="fc" id="L102">			configurator.addAdditionalProperty(&quot;modelPackage&quot;, getClientPackageName());</span>
+<span class="fc" id="L103">			configurator.addAdditionalProperty(&quot;dateLibrary&quot;, &quot;java8&quot;);</span>
+<span class="fc" id="L104">			configurator.addAdditionalProperty(&quot;library&quot;, &quot;resttemplate&quot;);</span>
+<span class="fc" id="L105">			ClientOptInput clientOptInput = configurator.toClientOptInput();</span>
+<span class="fc" id="L106">			DefaultGenerator generator = new DefaultGenerator();</span>
+<span class="fc" id="L107">			generator.opts(clientOptInput).generate();</span>
+		}
+		{
+<span class="fc" id="L110">			CodegenConfigurator configurator = new CodegenConfigurator();</span>
+<span class="fc" id="L111">			configurator.setInputSpec(mainFile.getPath());</span>
+<span class="fc" id="L112">			configurator.setGeneratorName(&quot;jaxrs-cxf&quot;);</span>
+<span class="fc" id="L113">			configurator.setOutputDir(outputDirectory.getPath());</span>
+<span class="fc" id="L114">			configurator.addAdditionalProperty(&quot;apiPackage&quot;, getServicePackageName());</span>
+<span class="fc" id="L115">			configurator.addAdditionalProperty(&quot;modelPackage&quot;, getServicePackageName());</span>
+<span class="fc" id="L116">			configurator.addAdditionalProperty(&quot;dateLibrary&quot;, &quot;java8&quot;);</span>
+<span class="fc" id="L117">			ClientOptInput clientOptInput = configurator.toClientOptInput();</span>
+<span class="fc" id="L118">			DefaultGenerator generator = new DefaultGenerator();</span>
+<span class="fc" id="L119">			generator.opts(clientOptInput).generate();</span>
+		}
+<span class="fc" id="L121">	}</span>
+
+	private void generateSwaggerInitializeResourceClass(File sourceDirectory) throws IOException {
+<span class="fc" id="L124">		CodeBuilder swaggerInitializerResourceSourceCode = new CodeBuilder();</span>
+<span class="fc" id="L125">		swaggerInitializerResourceSourceCode.append(&quot;package &quot; + getServicePackageName() + &quot;;\n&quot;);</span>
+<span class="fc" id="L126">		swaggerInitializerResourceSourceCode.append(&quot;\n&quot;);</span>
+<span class="fc" id="L127">		swaggerInitializerResourceSourceCode.append(&quot;import javax.ws.rs.GET;\n&quot;);</span>
+<span class="fc" id="L128">		swaggerInitializerResourceSourceCode.append(&quot;import javax.ws.rs.Path;\n&quot;);</span>
+<span class="fc" id="L129">		swaggerInitializerResourceSourceCode.append(&quot;import javax.ws.rs.Produces;\n&quot;);</span>
+<span class="fc" id="L130">		swaggerInitializerResourceSourceCode.append(&quot;import javax.ws.rs.core.Response;\n&quot;);</span>
+<span class="fc" id="L131">		swaggerInitializerResourceSourceCode.append(&quot;\n&quot;);</span>
+<span class="fc" id="L132">		swaggerInitializerResourceSourceCode.append(&quot;@Path(\&quot;/swagger-initializer.js\&quot;)\n&quot;);</span>
+<span class="fc" id="L133">		swaggerInitializerResourceSourceCode.append(&quot;public class SwaggerInitializerResource {\n&quot;);</span>
+<span class="fc" id="L134">		swaggerInitializerResourceSourceCode.append(&quot;\n&quot;);</span>
+<span class="fc" id="L135">		swaggerInitializerResourceSourceCode.append(&quot;    @GET\n&quot;);</span>
+<span class="fc" id="L136">		swaggerInitializerResourceSourceCode.append(&quot;    @Produces(\&quot;application/javascript\&quot;)\n&quot;);</span>
+<span class="fc" id="L137">		swaggerInitializerResourceSourceCode.append(&quot;    public Response get() {\n&quot;);</span>
+<span class="fc" id="L138">		swaggerInitializerResourceSourceCode.append(&quot;        String js = \&quot; window.onload = function() {\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L139">		swaggerInitializerResourceSourceCode</span>
+<span class="fc" id="L140">				.append(&quot;        		\&quot;          window.ui = SwaggerUIBundle({\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L141">		swaggerInitializerResourceSourceCode</span>
+<span class="fc" id="L142">				.append(&quot;        		\&quot;            url: \\\&quot;./openapi.json\\\&quot;,\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L143">		swaggerInitializerResourceSourceCode.append(&quot;        		\&quot;            dom_id: '#swagger-ui',\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L144">		swaggerInitializerResourceSourceCode.append(&quot;        		\&quot;            deepLinking: true,\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L145">		swaggerInitializerResourceSourceCode.append(&quot;        		\&quot;            presets: [\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L146">		swaggerInitializerResourceSourceCode</span>
+<span class="fc" id="L147">				.append(&quot;        		\&quot;              SwaggerUIBundle.presets.apis,\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L148">		swaggerInitializerResourceSourceCode</span>
+<span class="fc" id="L149">				.append(&quot;        		\&quot;              SwaggerUIStandalonePreset\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L150">		swaggerInitializerResourceSourceCode.append(&quot;        		\&quot;            ],\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L151">		swaggerInitializerResourceSourceCode.append(&quot;        		\&quot;            plugins: [\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L152">		swaggerInitializerResourceSourceCode</span>
+<span class="fc" id="L153">				.append(&quot;        		\&quot;              SwaggerUIBundle.plugins.DownloadUrl\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L154">		swaggerInitializerResourceSourceCode.append(&quot;        		\&quot;            ],\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L155">		swaggerInitializerResourceSourceCode</span>
+<span class="fc" id="L156">				.append(&quot;        		\&quot;            layout: \\\&quot;StandaloneLayout\\\&quot;\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L157">		swaggerInitializerResourceSourceCode.append(&quot;        		\&quot;          });\\n\&quot; + \n&quot;);</span>
+<span class="fc" id="L158">		swaggerInitializerResourceSourceCode.append(&quot;        		\&quot;        };\&quot;;\n&quot;);</span>
+<span class="fc" id="L159">		swaggerInitializerResourceSourceCode.append(&quot;        return Response.ok(js).build();\n&quot;);</span>
+<span class="fc" id="L160">		swaggerInitializerResourceSourceCode.append(&quot;    }\n&quot;);</span>
+<span class="fc" id="L161">		swaggerInitializerResourceSourceCode.append(&quot;}\n&quot;);</span>
+<span class="fc" id="L162">		swaggerInitializerResourceSourceCode.append(&quot;&quot;);</span>
+<span class="fc" id="L163">		File swaggerInitializerResourceSourceFile = new File(sourceDirectory,</span>
+<span class="fc" id="L164">				getServicePackageName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;/SwaggerInitializerResource.java&quot;);</span>
+<span class="fc" id="L165">		Files.write(swaggerInitializerResourceSourceFile.toPath(),</span>
+<span class="fc" id="L166">				swaggerInitializerResourceSourceCode.toString().getBytes());</span>
+<span class="fc" id="L167">	}</span>
+
+	public Class&lt;?&gt; getAPIServiceInterface() {
+		try {
+<span class="fc" id="L171">			return upToDateGeneratedClasses</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">					.get().stream().filter(c -&gt; c.getPackage().getName().equals(getServicePackageName())</span>
+<span class="pc bpc" id="L173" title="1 of 4 branches missed.">							&amp;&amp; c.isInterface() &amp;&amp; c.getAnnotation(io.swagger.annotations.Api.class) != null)</span>
+<span class="fc" id="L174">					.findFirst().orElse(null);</span>
+<span class="nc" id="L175">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L176">			throw new PotentialError(e);</span>
+		}
+	}
+
+	public Class&lt;?&gt; getSwaggerInitializerResourceClass() {
+		try {
+<span class="fc" id="L182">			return upToDateGeneratedClasses.get().stream()</span>
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">					.filter(c -&gt; c.getPackage().getName().equals(getServicePackageName())</span>
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">							&amp;&amp; &quot;SwaggerInitializerResource&quot;.equals(c.getSimpleName()))</span>
+<span class="fc" id="L185">					.findFirst().orElse(null);</span>
+<span class="nc" id="L186">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L187">			throw new PotentialError(e);</span>
+		}
+	}
+
+	public Class&lt;?&gt; getAPIServiceImplementationClass() {
+<span class="fc" id="L192">		Class&lt;?&gt; currentServiceInterface = getAPIServiceInterface();</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">		if (currentServiceInterface == null) {</span>
+<span class="nc" id="L194">			return null;</span>
+		}
+<span class="fc" id="L196">		synchronized (serviceImplementationClassByInterface) {</span>
+<span class="fc" id="L197">			serviceImplementationClassByInterface.computeIfAbsent(currentServiceInterface, serviceInterface -&gt; {</span>
+<span class="fc" id="L198">				String className = serviceInterface.getName() + &quot;Impl&quot;;</span>
+<span class="fc" id="L199">				CodeBuilder javaSource = new CodeBuilder();</span>
+<span class="fc" id="L200">				javaSource.append(&quot;package &quot; + MiscUtils.extractPackageNameFromClassName(className) + &quot;;&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L201">				javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L202">				javaSource.append(&quot;public class &quot; + MiscUtils.extractSimpleNameFromClassName(className) + &quot; implements &quot;</span>
+<span class="fc" id="L203">						+ MiscUtils.adaptClassNameToSourceCode(serviceInterface.getName()) + &quot;{&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L204">				javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L205">				javaSource.indenting(() -&gt; {</span>
+<span class="fc" id="L206">					javaSource.append(&quot;private &quot; + InvocationHandler.class.getName() + &quot; invocationHandler;\n&quot;);</span>
+<span class="fc" id="L207">					javaSource.append(&quot;\n&quot;);</span>
+					{
+<span class="fc" id="L209">						javaSource.append(&quot;public &quot; + MiscUtils.extractSimpleNameFromClassName(className) + &quot;(&quot;</span>
+<span class="fc" id="L210">								+ InvocationHandler.class.getName() + &quot; invocationHandler){&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L211">						javaSource.appendIndented(&quot;this.invocationHandler = invocationHandler;\n&quot;);</span>
+<span class="fc" id="L212">						javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+					}
+<span class="fc bfc" id="L214" title="All 2 branches covered.">					for (Method method : serviceInterface.getMethods()) {</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">						if (!Modifier.isAbstract(method.getModifiers())) {</span>
+<span class="nc" id="L216">							continue;</span>
+						}
+<span class="fc" id="L218">						javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L219">						javaSource.append(&quot;@Override\n&quot;);</span>
+<span class="fc" id="L220">						javaSource.append(</span>
+<span class="fc" id="L221">								&quot;public &quot; + MiscUtils.adaptClassNameToSourceCode(method.getReturnType().getName()) + &quot; &quot;</span>
+<span class="fc" id="L222">										+ method.getName() + &quot;(&quot;</span>
+<span class="fc" id="L223">										+ Arrays.stream(method.getParameters())</span>
+<span class="fc" id="L224">												.map(parameter -&gt; MiscUtils.adaptClassNameToSourceCode(</span>
+<span class="fc" id="L225">														parameter.getType().getName()) + &quot; &quot; + parameter.getName())</span>
+<span class="fc" id="L226">												.collect(Collectors.joining(&quot;, &quot;))</span>
+<span class="fc" id="L227">										+ &quot;) {&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L228">						javaSource.indenting(() -&gt; {</span>
+<span class="fc" id="L229">							String methodReflectionAccessInstruction = MiscUtils</span>
+<span class="fc" id="L230">									.adaptClassNameToSourceCode(serviceInterface.getName()) + &quot;.class.getMethod(\&quot;&quot;</span>
+<span class="fc" id="L231">									+ method.getName() + &quot;\&quot;, new Class[]{&quot;</span>
+<span class="fc" id="L232">									+ Arrays.stream(method.getParameters())</span>
+<span class="fc" id="L233">											.map(parameter -&gt; MiscUtils.adaptClassNameToSourceCode(</span>
+<span class="fc" id="L234">													parameter.getType().getName()) + &quot;.class&quot;)</span>
+<span class="fc" id="L235">											.collect(Collectors.joining(&quot;, &quot;))</span>
+<span class="fc" id="L236">									+ &quot;})&quot;;</span>
+<span class="fc" id="L237">							String methodArgumentArrayCreationInstruction = &quot;new Object[]{&quot;</span>
+<span class="fc" id="L238">									+ Arrays.stream(method.getParameters()).map(parameter -&gt; parameter.getName())</span>
+<span class="fc" id="L239">											.collect(Collectors.joining(&quot;, &quot;))</span>
+<span class="fc" id="L240">									+ &quot;}&quot;;</span>
+<span class="fc" id="L241">							javaSource.append(&quot;try {\n&quot;);</span>
+<span class="fc" id="L242">							javaSource</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">									.appendIndented((method.getReturnType().equals(void.class) ? &quot;&quot;</span>
+<span class="fc" id="L244">											: (&quot;return (&quot; + MiscUtils.adaptClassNameToSourceCode(</span>
+<span class="fc" id="L245">													method.getReturnType().getName()) + &quot;)&quot;))</span>
+<span class="fc" id="L246">											+ &quot;invocationHandler.invoke(this, &quot; + methodReflectionAccessInstruction</span>
+<span class="fc" id="L247">											+ &quot;, &quot; + methodArgumentArrayCreationInstruction + &quot;);&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L248">							javaSource.append(&quot;} catch (Throwable t) {\n&quot;);</span>
+<span class="fc" id="L249">							javaSource.indenting(() -&gt; {</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">								for (Class&lt;?&gt; exceptionType : method.getExceptionTypes()) {</span>
+<span class="nc" id="L251">									javaSource.append(&quot;if(t instanceof &quot;</span>
+<span class="nc" id="L252">											+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName()) + &quot;) {\n&quot;);</span>
+<span class="nc" id="L253">									javaSource.append(&quot;throw (&quot;</span>
+<span class="nc" id="L254">											+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName()) + &quot;)t;\n&quot;);</span>
+<span class="nc" id="L255">									javaSource.append(&quot;}\n&quot;);</span>
+								}
+<span class="fc" id="L257">								javaSource.append(&quot;throw new &quot;</span>
+<span class="fc" id="L258">										+ MiscUtils.adaptClassNameToSourceCode(UnexpectedError.class.getName())</span>
+<span class="fc" id="L259">										+ &quot;(t);\n&quot;);</span>
+<span class="fc" id="L260">							});</span>
+<span class="fc" id="L261">							javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L262">						});</span>
+<span class="fc" id="L263">						javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+					}
+<span class="fc" id="L265">				});</span>
+<span class="fc" id="L266">				javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L267">				javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+				try {
+<span class="fc" id="L269">					return (Class&lt;?&gt;) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());</span>
+<span class="nc" id="L270">				} catch (CompilationError e) {</span>
+<span class="nc" id="L271">					throw new PotentialError(e);</span>
+				}
+			});
+<span class="fc" id="L274">			return serviceImplementationClassByInterface.get(currentServiceInterface);</span>
+		}
+	}
+
+	public Class&lt;?&gt; getAPIClientClass() {
+		try {
+<span class="fc" id="L280">			return upToDateGeneratedClasses.get().stream().filter(</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">					c -&gt; c.getPackage().getName().equals(getClientPackageName()) &amp;&amp; Arrays.stream(c.getDeclaredFields())</span>
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">							.anyMatch(field -&gt; field.getType().equals(getAPIClientConfigurationClass())))</span>
+<span class="fc" id="L283">					.findFirst().orElse(null);</span>
+<span class="nc" id="L284">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L285">			throw new PotentialError(e);</span>
+		}
+	}
+
+	public Class&lt;?&gt; getAPIClientConfigurationClass() {
+		try {
+<span class="fc" id="L291">			return upToDateGeneratedClasses.get().stream().filter(</span>
+<span class="fc bfc" id="L292" title="All 4 branches covered.">					c -&gt; c.getPackage().getName().equals(getBasePackageName()) &amp;&amp; c.getSimpleName().equals(&quot;ApiClient&quot;))</span>
+<span class="fc" id="L293">					.findFirst().orElse(null);</span>
+<span class="nc" id="L294">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L295">			throw new PotentialError(e);</span>
+		}
+	}
+
+	public List&lt;APIOperationDescriptor&gt; getServiceOperationDescriptors() {
+<span class="fc" id="L300">		Class&lt;?&gt; serviceInterface = getAPIServiceInterface();</span>
+<span class="pc bpc" id="L301" title="1 of 2 branches missed.">		if (serviceInterface == null) {</span>
+<span class="nc" id="L302">			return Collections.emptyList();</span>
+		}
+<span class="fc" id="L304">		return Arrays.asList(serviceInterface.getDeclaredMethods()).stream().map(m -&gt; new APIOperationDescriptor(m))</span>
+<span class="fc" id="L305">				.collect(Collectors.toList());</span>
+	}
+
+	public List&lt;APIOperationDescriptor&gt; getClientOperationDescriptors() {
+<span class="fc" id="L309">		Class&lt;?&gt; clientClass = getAPIClientClass();</span>
+<span class="pc bpc" id="L310" title="1 of 2 branches missed.">		if (clientClass == null) {</span>
+<span class="nc" id="L311">			return Collections.emptyList();</span>
+		}
+<span class="fc" id="L313">		return Arrays.asList(clientClass.getDeclaredMethods()).stream()</span>
+<span class="fc bfc" id="L314" title="All 2 branches covered.">				.filter(m -&gt; (m.getReturnType() != ResponseEntity.class)</span>
+<span class="fc bfc" id="L315" title="All 2 branches covered.">						&amp;&amp; (m.getReturnType() != getAPIClientConfigurationClass())</span>
+<span class="fc bfc" id="L316" title="All 2 branches covered.">						&amp;&amp; !((m.getParameterCount() == 1)</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">								&amp;&amp; (m.getParameterTypes()[0] == getAPIClientConfigurationClass())))</span>
+<span class="fc" id="L318">				.map(m -&gt; new APIOperationDescriptor(m)).collect(Collectors.toList());</span>
+	}
+
+	public APIOperationDescriptor getServiceOperationDescriptor(String operationSignature) {
+<span class="fc" id="L322">		return getServiceOperationDescriptors().stream()</span>
+<span class="fc" id="L323">				.filter(o -&gt; o.getOperationSignature().equals(operationSignature)).findFirst().orElse(null);</span>
+	}
+
+	public APIOperationDescriptor getClientOperationDescriptor(String operationSignature) {
+<span class="fc" id="L327">		return getClientOperationDescriptors().stream()</span>
+<span class="fc" id="L328">				.filter(o -&gt; o.getOperationSignature().equals(operationSignature)).findFirst().orElse(null);</span>
+	}
+
+	private String getClientPackageName() {
+<span class="fc" id="L332">		return getBasePackageName() + &quot;.client&quot;;</span>
+	}
+
+	private String getServicePackageName() {
+<span class="fc" id="L336">		return getBasePackageName() + &quot;.service&quot;;</span>
+	}
+
+	private String getBasePackageName() {
+<span class="fc" id="L340">		return InstantiationUtils.toRelativeTypeNameVariablePart(</span>
+<span class="fc" id="L341">				OpenAPIDescription.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(this));</span>
+	}
+
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+<span class="fc" id="L346">		super.validate(recursively);</span>
+<span class="pc bpc" id="L347" title="2 of 4 branches missed.">		if ((text == null) || text.trim().isEmpty()) {</span>
+<span class="nc" id="L348">			throw new ValidationError(&quot;Text not provided&quot;);</span>
+		}
+		try {
+<span class="fc" id="L351">			upToDateGeneratedClasses.get();</span>
+<span class="pc" id="L352">		} catch (Throwable t) {</span>
+<span class="nc" id="L353">			throw new ValidationError(&quot;Failed to validate the &quot; + getClass().getSimpleName(), t);</span>
+		}
+<span class="fc" id="L355">	}</span>
+
+<span class="fc" id="L357">	protected class UpToDateGeneratedClasses extends UpToDate&lt;List&lt;Class&lt;?&gt;&gt;&gt; {</span>
+
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+<span class="fc" id="L361">			return text;</span>
+		}
+
+		@Override
+		protected List&lt;Class&lt;?&gt;&gt; obtainLatest(Object versionIdentifier) throws VersionAccessException {
+<span class="pc bpc" id="L366" title="1 of 2 branches missed.">			if (text == null) {</span>
+<span class="nc" id="L367">				return Collections.emptyList();</span>
+			}
+			try {
+<span class="fc" id="L370">				File directory = MiscUtils.createTemporaryDirectory();</span>
+<span class="fc" id="L371">				File mainFile = new File(directory, &quot;main.oad&quot;);</span>
+				try {
+<span class="fc" id="L373">					MiscUtils.write(mainFile, text, false);</span>
+<span class="fc" id="L374">					File sourceDirectory = MiscUtils.createTemporaryDirectory();</span>
+					try {
+<span class="fc" id="L376">						runClassesGenerationTool(mainFile, sourceDirectory);</span>
+<span class="fc" id="L377">						generateSwaggerInitializeResourceClass(new File(sourceDirectory, &quot;/src/gen/java&quot;));</span>
+<span class="fc" id="L378">						CodeGenerationPostProcessor.process(sourceDirectory);</span>
+<span class="fc" id="L379">						List&lt;Class&lt;?&gt;&gt; result = new ArrayList&lt;Class&lt;?&gt;&gt;();</span>
+<span class="fc" id="L380">						result.addAll(MiscUtils.IN_MEMORY_COMPILER</span>
+<span class="fc" id="L381">								.compile(new File(sourceDirectory.getPath() + &quot;/src/gen/java&quot;)));</span>
+<span class="fc" id="L382">						result.addAll(MiscUtils.IN_MEMORY_COMPILER</span>
+<span class="fc" id="L383">								.compile(new File(sourceDirectory.getPath() + &quot;/src/main/java&quot;)));</span>
+<span class="fc" id="L384">						return result;</span>
+					} finally {
+<span class="fc" id="L386">						MiscUtils.delete(sourceDirectory);</span>
+					}
+				} finally {
+					try {
+<span class="fc" id="L390">						MiscUtils.delete(mainFile);</span>
+<span class="fc" id="L391">						MiscUtils.delete(directory);</span>
+<span class="pc" id="L392">					} catch (Throwable t) {</span>
+<span class="nc bnc" id="L393" title="All 2 branches missed.">						if (Log.isVerbose()) {</span>
+<span class="nc" id="L394">							Log.get().error(t);</span>
+						}
+					}
+				}
+<span class="nc" id="L398">			} catch (Exception e) {</span>
+<span class="nc" id="L399">				throw new PotentialError(e);</span>
+			}
+		}
+
+	}
+
+<span class="nc" id="L405">	protected static class CodeGenerationPostProcessor {</span>
+
+		public static void process(File sourceDirectory) throws IOException {
+<span class="fc" id="L408">			List&lt;File&gt; javaFiles = Files.walk(sourceDirectory.toPath()).filter(p -&gt; p.toString().endsWith(&quot;.java&quot;))</span>
+<span class="fc" id="L409">					.map(p -&gt; p.toFile()).collect(Collectors.toList());</span>
+<span class="fc bfc" id="L410" title="All 2 branches covered.">			for (File file : javaFiles) {</span>
+<span class="fc" id="L411">				CompilationUnit compilationUnit = StaticJavaParser.parse(file);</span>
+<span class="fc" id="L412">				compilationUnit.accept(new ModifierVisitor&lt;Void&gt;() {</span>
+
+					@Override
+					public Node visit(ImportDeclaration importDeclaration, Void arg) {
+<span class="fc" id="L416">						if (Arrays</span>
+<span class="fc" id="L417">								.asList(&quot;org.openapitools.jackson.nullable.JsonNullableModule&quot;,</span>
+<span class="fc" id="L418">										&quot;io.swagger.jaxrs.PATCH&quot;, &quot;org.apache.cxf.jaxrs.model.wadl.Description&quot;,</span>
+<span class="fc" id="L419">										&quot;org.apache.cxf.jaxrs.model.wadl.DocTarget&quot;)</span>
+<span class="fc bfc" id="L420" title="All 2 branches covered.">								.contains(importDeclaration.getNameAsString())) {</span>
+<span class="fc" id="L421">							return null;</span>
+						}
+<span class="fc" id="L423">						return super.visit(importDeclaration, arg);</span>
+					}
+
+<span class="fc" id="L426">				}, null);</span>
+<span class="fc" id="L427">				Files.write(file.toPath(), compilationUnit.toString().getBytes());</span>
+			}
+<span class="fc" id="L429">		}</span>
+	}
+
+	public static class APIOperationDescriptor {
+		/*
+		 * Cannot have simple inputClassByMethod/outputClassByMethod WeakHashMaps
+		 * because the method object reference is not stable, unlike the method
+		 * declaring class object reference that is then used as the WeakHashMap key.
+		 */
+<span class="fc" id="L438">		private static WeakHashMap&lt;Class&lt;?&gt;, Map&lt;Method, Class&lt;? extends OperationInput&gt;&gt;&gt; inputClassByMethodByDeclaringClass = new WeakHashMap&lt;Class&lt;?&gt;, Map&lt;Method, Class&lt;? extends OperationInput&gt;&gt;&gt;();</span>
+<span class="fc" id="L439">		private static WeakHashMap&lt;Class&lt;?&gt;, Map&lt;Method, Class&lt;?&gt;&gt;&gt; outputClassByMethodByDeclaringClass = new WeakHashMap&lt;Class&lt;?&gt;, Map&lt;Method, Class&lt;?&gt;&gt;&gt;();</span>
+
+		private Method operationMethod;
+
+<span class="fc" id="L443">		public APIOperationDescriptor(Method m) {</span>
+<span class="fc" id="L444">			this.operationMethod = m;</span>
+<span class="fc" id="L445">		}</span>
+
+		public String getOperationSignature() {
+<span class="fc" id="L448">			String result = ReflectionUIUtils.buildMethodSignature(operationMethod);</span>
+<span class="fc" id="L449">			result = InstantiationUtils.makeTypeNamesRelative(result, Arrays</span>
+<span class="fc" id="L450">					.asList(new InstanceBuilder(Accessor.returning(operationMethod.getDeclaringClass().getName()))));</span>
+<span class="fc" id="L451">			return result;</span>
+		}
+
+		public Method retrieveMethod() {
+<span class="fc" id="L455">			return operationMethod;</span>
+		}
+
+		public List&lt;ResponseException&gt; getSampleResponseExceptions() {
+<span class="nc" id="L459">			List&lt;ResponseException&gt; result = new ArrayList&lt;OpenAPIDescription.ResponseException&gt;();</span>
+<span class="nc" id="L460">			ApiResponses responsesAnnotation = operationMethod.getAnnotation(ApiResponses.class);</span>
+<span class="nc bnc" id="L461" title="All 2 branches missed.">			if (responsesAnnotation != null) {</span>
+<span class="nc bnc" id="L462" title="All 2 branches missed.">				for (ApiResponse responseAnnotation : responsesAnnotation.value()) {</span>
+<span class="nc" id="L463">					ResponseException responseException = new ResponseException(responseAnnotation.code());</span>
+<span class="nc bnc" id="L464" title="All 4 branches missed.">					if ((responseAnnotation.response() != null) &amp;&amp; (responseAnnotation.response() != Void.class)</span>
+<span class="nc bnc" id="L465" title="All 2 branches missed.">							&amp;&amp; (responseAnnotation.response() != Object.class)) {</span>
+<span class="nc" id="L466">						responseException.setContentType(MediaType.APPLICATION_JSON);</span>
+						Object sampleEntity;
+						try {
+<span class="nc" id="L469">							InstanceBuilder entityBuilder = new InstanceBuilder(</span>
+<span class="nc" id="L470">									Accessor.returning(responseAnnotation.response().getName()));</span>
+<span class="nc" id="L471">							InstantiationUtils.makeConcreteRecursively(Facade.get(entityBuilder, null), 3);</span>
+<span class="nc" id="L472">							sampleEntity = entityBuilder</span>
+<span class="nc" id="L473">									.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));</span>
+<span class="nc" id="L474">						} catch (Exception e) {</span>
+<span class="nc" id="L475">							throw new UnexpectedError(e);</span>
+						}
+<span class="nc" id="L477">						ObjectMapper mapper = new JacksonJsonProvider().locateMapper(sampleEntity.getClass(),</span>
+<span class="nc" id="L478">								MediaType.APPLICATION_JSON_TYPE);</span>
+						String jsonBody;
+						try {
+<span class="nc" id="L481">							jsonBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(sampleEntity);</span>
+<span class="nc" id="L482">						} catch (JsonProcessingException e) {</span>
+<span class="nc" id="L483">							throw new UnexpectedError(e);</span>
+						}
+<span class="nc" id="L485">						responseException.setBody(jsonBody);</span>
+					}
+<span class="nc" id="L487">					result.add(responseException);</span>
+				}
+			}
+<span class="nc" id="L490">			return result;</span>
+		}
+
+		public String getResponseExceptionClassName() {
+<span class="nc" id="L494">			return ResponseException.class.getName();</span>
+		}
+
+		@SuppressWarnings(&quot;unchecked&quot;)
+		public Class&lt;? extends OperationInput&gt; getOperationInputClass() {
+<span class="fc" id="L499">			synchronized (inputClassByMethodByDeclaringClass) {</span>
+<span class="fc" id="L500">				inputClassByMethodByDeclaringClass.computeIfAbsent(operationMethod.getDeclaringClass(),</span>
+<span class="fc" id="L501">						(declaringClass -&gt; new HashMap&lt;Method, Class&lt;? extends OperationInput&gt;&gt;()));</span>
+<span class="fc" id="L502">				inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())</span>
+<span class="fc" id="L503">						.computeIfAbsent(operationMethod, operationMethod -&gt; {</span>
+<span class="fc" id="L504">							String className = operationMethod.getDeclaringClass().getName() + &quot;_&quot;</span>
+<span class="fc" id="L505">									+ operationMethod.getName() + &quot;.&quot; + OperationInput.class.getSimpleName();</span>
+<span class="fc" id="L506">							String additionalyImplemented = MiscUtils</span>
+<span class="fc" id="L507">									.adaptClassNameToSourceCode(OperationInput.class.getName());</span>
+<span class="fc" id="L508">							ClassicStructure stucture = new ClassicStructure();</span>
+<span class="fc bfc" id="L509" title="All 2 branches covered.">							for (Parameter parameter : operationMethod.getParameters()) {</span>
+<span class="fc" id="L510">								SimpleElement element = new SimpleElement();</span>
+<span class="fc" id="L511">								element.setName(parameter.getName());</span>
+<span class="fc" id="L512">								String typeName = parameter.getType().getName();</span>
+								{
+<span class="fc" id="L514">									List&lt;Class&lt;?&gt;&gt; genericTypeParameters = new JavaTypeInfoSource(parameter.getType(),</span>
+<span class="fc" id="L515">											operationMethod,</span>
+<span class="fc" id="L516">											Arrays.asList(operationMethod.getParameters()).indexOf(parameter), null)</span>
+<span class="fc" id="L517">													.guessGenericTypeParameters(parameter.getType());</span>
+<span class="pc bpc" id="L518" title="1 of 2 branches missed.">									if (genericTypeParameters != null) {</span>
+<span class="nc" id="L519">										typeName += &quot;&lt;&quot; + genericTypeParameters.stream().map(Class::getName)</span>
+<span class="nc" id="L520">												.collect(Collectors.joining(&quot;, &quot;)) + &quot;&gt;&quot;;</span>
+									}
+								}
+<span class="fc" id="L523">								element.setTypeNameOrAlias(typeName);</span>
+<span class="fc" id="L524">								stucture.getElements().add(element);</span>
+							}
+<span class="fc" id="L526">							CodeBuilder additionalMethodDeclarations = new CodeBuilder();</span>
+<span class="fc" id="L527">							additionalMethodDeclarations.append(&quot;@Override&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L528">							additionalMethodDeclarations.append(&quot;public Object[] listParameterValues() {&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L529">							additionalMethodDeclarations</span>
+<span class="fc" id="L530">									.appendIndented(&quot;return new Object[] {&quot;</span>
+<span class="fc" id="L531">											+ MiscUtils.stringJoin(Arrays.asList(operationMethod.getParameters())</span>
+<span class="fc" id="L532">													.stream().map(p -&gt; p.getName()).collect(Collectors.toList()), &quot;, &quot;)</span>
+<span class="fc" id="L533">											+ &quot;};&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L534">							additionalMethodDeclarations.append(&quot;}&quot; + &quot;\n&quot;);</span>
+							try {
+<span class="fc" id="L536">								return (Class&lt;? extends OperationInput&gt;) MiscUtils.IN_MEMORY_COMPILER.compile(className,</span>
+<span class="fc" id="L537">										stucture.generateJavaTypeSourceCode(className, additionalyImplemented, null,</span>
+<span class="fc" id="L538">												null, null, additionalMethodDeclarations.toString(),</span>
+<span class="fc" id="L539">												Collections.emptyMap()));</span>
+<span class="nc" id="L540">							} catch (CompilationError e) {</span>
+<span class="nc" id="L541">								throw new PotentialError(e);</span>
+							}
+						});
+<span class="fc" id="L544">				return inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass()).get(operationMethod);</span>
+			}
+		}
+
+		@SuppressWarnings(&quot;unchecked&quot;)
+		public Class&lt;?&gt; getOperationOutputClass() {
+<span class="fc" id="L550">			synchronized (outputClassByMethodByDeclaringClass) {</span>
+<span class="fc" id="L551">				outputClassByMethodByDeclaringClass.computeIfAbsent(operationMethod.getDeclaringClass(),</span>
+<span class="fc" id="L552">						(declaringClass -&gt; new HashMap&lt;Method, Class&lt;?&gt;&gt;()));</span>
+<span class="fc" id="L553">				outputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())</span>
+<span class="fc" id="L554">						.computeIfAbsent(operationMethod, operationMethod -&gt; {</span>
+<span class="fc bfc" id="L555" title="All 2 branches covered.">							if (operationMethod.getReturnType() == void.class) {</span>
+<span class="fc" id="L556">								return null;</span>
+							}
+<span class="fc" id="L558">							String className = operationMethod.getDeclaringClass().getName() + &quot;_&quot;</span>
+<span class="fc" id="L559">									+ operationMethod.getName() + &quot;.OperationOutput&quot;;</span>
+<span class="fc" id="L560">							ClassicStructure stucture = new ClassicStructure();</span>
+							{
+<span class="fc" id="L562">								SimpleElement resultElement = new SimpleElement();</span>
+<span class="fc" id="L563">								resultElement.setName(&quot;result&quot;);</span>
+<span class="fc" id="L564">								String typeName = operationMethod.getReturnType().getName();</span>
+								{
+<span class="fc" id="L566">									List&lt;Class&lt;?&gt;&gt; genericTypeParameters = new JavaTypeInfoSource(</span>
+<span class="fc" id="L567">											operationMethod.getReturnType(), operationMethod, -1, null)</span>
+<span class="fc" id="L568">													.guessGenericTypeParameters(operationMethod.getReturnType());</span>
+<span class="fc bfc" id="L569" title="All 2 branches covered.">									if (genericTypeParameters != null) {</span>
+<span class="fc" id="L570">										typeName += &quot;&lt;&quot; + genericTypeParameters.stream().map(Class::getName)</span>
+<span class="fc" id="L571">												.collect(Collectors.joining(&quot;, &quot;)) + &quot;&gt;&quot;;</span>
+									}
+								}
+<span class="fc" id="L574">								resultElement.setTypeNameOrAlias(typeName);</span>
+<span class="fc" id="L575">								stucture.getElements().add(resultElement);</span>
+							}
+							try {
+<span class="fc" id="L578">								return (Class&lt;? extends OperationInput&gt;) MiscUtils.IN_MEMORY_COMPILER.compile(className,</span>
+<span class="fc" id="L579">										stucture.generateJavaTypeSourceCode(className));</span>
+<span class="nc" id="L580">							} catch (CompilationError e) {</span>
+<span class="nc" id="L581">								throw new PotentialError(e);</span>
+							}
+						});
+<span class="fc" id="L584">				return outputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())</span>
+<span class="fc" id="L585">						.get(operationMethod);</span>
+			}
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L591">			final int prime = 31;</span>
+<span class="fc" id="L592">			int result = 1;</span>
+<span class="pc bpc" id="L593" title="1 of 2 branches missed.">			result = prime * result + ((operationMethod == null) ? 0 : operationMethod.hashCode());</span>
+<span class="fc" id="L594">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="pc bpc" id="L599" title="1 of 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L600">				return true;</span>
+<span class="pc bpc" id="L601" title="1 of 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L602">				return false;</span>
+<span class="pc bpc" id="L603" title="1 of 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L604">				return false;</span>
+<span class="fc" id="L605">			APIOperationDescriptor other = (APIOperationDescriptor) obj;</span>
+<span class="pc bpc" id="L606" title="1 of 2 branches missed.">			if (operationMethod == null) {</span>
+<span class="nc bnc" id="L607" title="All 2 branches missed.">				if (other.operationMethod != null)</span>
+<span class="nc" id="L608">					return false;</span>
+<span class="pc bpc" id="L609" title="1 of 2 branches missed.">			} else if (!operationMethod.equals(other.operationMethod))</span>
+<span class="nc" id="L610">				return false;</span>
+<span class="fc" id="L611">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L616">			return &quot;Operation [signature=&quot; + getOperationSignature() + &quot;]&quot;;</span>
+		}
+
+		public interface OperationInput {
+
+			Object[] listParameterValues();
+
+		}
+	}
+
+<span class="fc" id="L626">	public static class Metadata implements ResourceMetadata {</span>
+
+		@Override
+		public ResourcePath getResourceIconImagePath() {
+<span class="fc" id="L630">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L631">					.specifyClassPathResourceLocation(OpenAPIDescription.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+		@Override
+		public Class&lt;? extends Resource&gt; getResourceClass() {
+<span class="fc" id="L636">			return OpenAPIDescription.class;</span>
+		}
+
+		@Override
+		public String getResourceTypeName() {
+<span class="fc" id="L641">			return &quot;OpenAPI Description&quot;;</span>
+		}
+
+	}
+
+	public static class ResponseException extends StandardError {
+
+		private static final long serialVersionUID = 1L;
+		private int statusCode;
+		private String statusText;
+		private String contentType;
+		private String body;
+
+		public ResponseException(Status status) {
+<span class="fc" id="L655">			this(status.getStatusCode());</span>
+<span class="fc" id="L656">		}</span>
+			
+<span class="fc" id="L658">		public ResponseException(int statusCode) {</span>
+<span class="fc" id="L659">			this.statusCode = statusCode;</span>
+<span class="fc" id="L660">			Status status = Status.fromStatusCode(statusCode);</span>
+<span class="pc bpc" id="L661" title="1 of 2 branches missed.">			this.statusText = (status != null) ? status.getReasonPhrase() : &quot;&lt;Unknown&gt;&quot;;</span>
+<span class="fc" id="L662">		}</span>
+
+		public int getStatusCode() {
+<span class="fc" id="L665">			return statusCode;</span>
+		}
+
+		public void setStatusCode(int statusCode) {
+<span class="nc" id="L669">			this.statusCode = statusCode;</span>
+<span class="nc" id="L670">		}</span>
+
+		public String getStatusText() {
+<span class="fc" id="L673">			return statusText;</span>
+		}
+
+		public void setStatusText(String statusText) {
+<span class="nc" id="L677">			this.statusText = statusText;</span>
+<span class="nc" id="L678">		}</span>
+
+		public String getContentType() {
+<span class="nc" id="L681">			return contentType;</span>
+		}
+
+		public void setContentType(String contentType) {
+<span class="fc" id="L685">			this.contentType = contentType;</span>
+<span class="fc" id="L686">		}</span>
+
+		public String getBody() {
+<span class="fc" id="L689">			return body;</span>
+		}
+
+		public void setBody(String body) {
+<span class="fc" id="L693">			this.body = body;</span>
+<span class="fc" id="L694">		}</span>
+
+		public WebApplicationException toWebApplicationException() {
+<span class="fc" id="L697">			Status status = Status.fromStatusCode(statusCode);</span>
+<span class="pc bpc" id="L698" title="1 of 2 branches missed.">			ResponseBuilder responseBuilder = (status != null) ? Response.status(status) : new ResponseBuilderImpl();</span>
+<span class="pc bpc" id="L699" title="1 of 2 branches missed.">			if (contentType != null) {</span>
+<span class="fc" id="L700">				responseBuilder = responseBuilder.type(contentType);</span>
+			}
+<span class="pc bpc" id="L702" title="1 of 2 branches missed.">			if (body != null) {</span>
+<span class="fc" id="L703">				responseBuilder = responseBuilder.entity(body);</span>
+			}
+<span class="fc" id="L705">			return new WebApplicationException(responseBuilder.build());</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L710">			return &quot;ResponseException [statusCode=&quot; + statusCode + &quot;, statusText=&quot; + statusText + &quot;, contentType=&quot;</span>
+<span class="fc" id="L711">					+ contentType + &quot;, body=&quot; + body + &quot;]&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

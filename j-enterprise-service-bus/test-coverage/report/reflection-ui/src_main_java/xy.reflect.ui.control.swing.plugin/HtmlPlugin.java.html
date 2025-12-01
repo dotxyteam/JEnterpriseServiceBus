@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>HtmlPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">HtmlPlugin.java</span></div><h1>HtmlPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.io.File;
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+
+import javax.swing.BorderFactory;
+import javax.swing.JEditorPane;
+import javax.swing.JTextPane;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.html.HTMLDocument;
+
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.plugin.StyledTextPlugin.StyledTextConfiguration.ControlDimensionSpecification;
+import xy.reflect.ui.control.swing.plugin.StyledTextPlugin.StyledTextConfiguration.ControlSizeUnit;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.util.AlternativeDesktopApi;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Field control plugin that allows to display/update text formatted using HTML.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L36">public class HtmlPlugin extends StyledTextPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L40">		return &quot;HTML Control&quot;;</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="nc" id="L45">		return new HtmlConfiguration();</span>
+	}
+
+	@Override
+	public HtmlControl createControl(Object renderer, IFieldControlInput input) {
+<span class="fc" id="L50">		return new HtmlControl((SwingRenderer) renderer, input);</span>
+	}
+
+<span class="nc" id="L53">	public static class HtmlConfiguration extends AbstractConfiguration {</span>
+		private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L56">		public IBaseURLAccessor baseURLAccessor = new FileBaseURLAccessor();</span>
+<span class="nc" id="L57">		public ControlDimensionSpecification width = new ControlDimensionSpecification();</span>
+		public ControlDimensionSpecification height;
+<span class="nc" id="L59">		public boolean pureHtmlColors = false;</span>
+
+		public URL getBaseURL() throws Exception {
+<span class="fc" id="L62">			return baseURLAccessor.getURL();</span>
+		}
+
+		public int getWidthInPixels() {
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">			if (width == null) {</span>
+<span class="nc" id="L67">				return -1;</span>
+			}
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">			if (width.unit == ControlSizeUnit.PIXELS) {</span>
+<span class="fc" id="L70">				return width.value;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">			} else if (width.unit == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L72">				Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L73">				return Math.round((width.value / 100f) * screenSize.width);</span>
+			} else {
+<span class="nc" id="L75">				throw new ReflectionUIError();</span>
+			}
+		}
+
+		public int getHeightInPixels() {
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">			if (height == null) {</span>
+<span class="nc" id="L81">				return -1;</span>
+			}
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">			if (height.unit == ControlSizeUnit.PIXELS) {</span>
+<span class="fc" id="L84">				return height.value;</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">			} else if (height.unit == ControlSizeUnit.SCREEN_PERCENT) {</span>
+<span class="nc" id="L86">				Dimension screenSize = MiscUtils.getDefaultScreenSize();</span>
+<span class="nc" id="L87">				return Math.round((height.value / 100f) * screenSize.height);</span>
+			} else {
+<span class="nc" id="L89">				throw new ReflectionUIError();</span>
+			}
+		}
+
+		public static interface IBaseURLAccessor extends Serializable {
+
+			URL getURL() throws Exception;
+
+		}
+
+<span class="nc" id="L99">		public static class FileBaseURLAccessor implements IBaseURLAccessor {</span>
+
+			private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L103">			public File directory = new File(&quot;.&quot;);</span>
+
+			@Override
+			public URL getURL() throws Exception {
+<span class="fc" id="L107">				return directory.toURI().toURL();</span>
+			}
+
+			public void validate() throws Exception {
+<span class="nc bnc" id="L111" title="All 2 branches missed.">				if (!directory.isDirectory()) {</span>
+<span class="nc" id="L112">					throw new ReflectionUIError(&quot;Directory not found: '&quot; + directory.getAbsolutePath() + &quot;'&quot;);</span>
+				}
+<span class="nc" id="L114">			}</span>
+
+		}
+
+<span class="nc" id="L118">		public static class ClasspathBaseURLAccessor implements IBaseURLAccessor {</span>
+
+			private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L122">			public String sourceClassName = &quot;&quot;;</span>
+
+			@Override
+			public URL getURL() throws Exception {
+<span class="nc" id="L126">				Class&lt;?&gt; theClass = Class.forName(sourceClassName);</span>
+				/*
+				 * theClass.getResource(&quot;.&quot;) returns an URL that may point to a wrong existing
+				 * path to a folder in the wrong jar or disk directory. To solve this issue, we
+				 * need to force this URL to be the parent of the theClass URL.
+				 */
+<span class="nc" id="L132">				URL theClassURL = theClass.getResource(theClass.getSimpleName() + &quot;.class&quot;);</span>
+<span class="nc" id="L133">				String theClassURLSpecification = theClassURL.toString();</span>
+<span class="nc" id="L134">				String theClassParentUrlSpecification = theClassURLSpecification.substring(0,</span>
+<span class="nc" id="L135">						theClassURLSpecification.length() - (theClass.getSimpleName() + &quot;.class&quot;).length());</span>
+<span class="nc" id="L136">				URL result = new URL(theClassParentUrlSpecification);</span>
+<span class="nc" id="L137">				return result;</span>
+			}
+
+			public void validate() throws Exception {
+<span class="nc" id="L141">				Class.forName(sourceClassName);</span>
+<span class="nc" id="L142">			}</span>
+
+		}
+
+	}
+
+	public class HtmlControl extends StyledTextControl {
+
+		private static final long serialVersionUID = 1L;
+
+		protected HtmlConfiguration controlConfiguration;
+
+<span class="fc" id="L154">		public HtmlControl(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L155">			super(swingRenderer, input);</span>
+<span class="fc" id="L156">		}</span>
+
+		@Override
+		public boolean showsCaption() {
+<span class="fc" id="L160">			return true;</span>
+		}
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L165" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc" id="L166">				updateControlConfiguration();</span>
+			}
+<span class="fc" id="L168">			super.refreshUI(refreshStructure);</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">				if (data.getCaption().length() &gt; 0) {</span>
+<span class="nc" id="L171">					setBorder(</span>
+<span class="nc" id="L172">							BorderFactory.createTitledBorder(swingRenderer.prepareMessageToDisplay(data.getCaption())));</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">					if (data.getLabelForegroundColor() != null) {</span>
+<span class="nc" id="L174">						((TitledBorder) getBorder())</span>
+<span class="nc" id="L175">								.setTitleColor(SwingRendererUtils.getColor(data.getLabelForegroundColor()));</span>
+					}
+<span class="nc bnc" id="L177" title="All 2 branches missed.">					if (data.getBorderColor() != null) {</span>
+<span class="nc" id="L178">						((TitledBorder) getBorder()).setBorder(</span>
+<span class="nc" id="L179">								BorderFactory.createLineBorder(SwingRendererUtils.getColor(data.getBorderColor())));</span>
+					}
+<span class="nc" id="L181">				} else {</span>
+<span class="fc" id="L182">					setBorder(BorderFactory.createEmptyBorder());</span>
+				}
+<span class="fc" id="L184">				textComponent.setBorder(BorderFactory.createEmptyBorder());</span>
+			}
+<span class="fc" id="L186">			return true;</span>
+		}
+
+		@Override
+		protected void updateControlConfiguration() {
+<span class="fc" id="L191">			controlConfiguration = (HtmlConfiguration) loadControlCustomization(input);</span>
+<span class="fc" id="L192">		}</span>
+
+		@Override
+		protected JTextComponent createTextComponent() {
+<span class="fc" id="L196">			JTextComponent result = super.createTextComponent();</span>
+<span class="fc" id="L197">			((JTextPane) result).addHyperlinkListener(new HyperlinkListener() {</span>
+				public void hyperlinkUpdate(HyperlinkEvent e) {
+<span class="nc bnc" id="L199" title="All 2 branches missed.">					if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {</span>
+						try {
+<span class="nc" id="L201">							openWebPage(e.getURL());</span>
+<span class="nc" id="L202">						} catch (Throwable t) {</span>
+<span class="nc" id="L203">							swingRenderer.handleException(HtmlControl.this, t);</span>
+						}
+
+					}
+<span class="nc" id="L207">				}</span>
+			});
+<span class="fc" id="L209">			return result;</span>
+		}
+
+		protected void openWebPage(URL url) {
+			URI uri;
+			try {
+<span class="nc" id="L215">				uri = url.toURI();</span>
+<span class="nc" id="L216">			} catch (URISyntaxException e) {</span>
+<span class="nc" id="L217">				throw new ReflectionUIError(e);</span>
+			}
+			try {
+<span class="nc" id="L220">				Desktop.getDesktop().browse(uri);</span>
+<span class="nc" id="L221">			} catch (Exception e) {</span>
+<span class="nc" id="L222">				if (!new AlternativeDesktopApi() {</span>
+
+					@Override
+					protected void logErr(String msg, Throwable t) {
+<span class="nc" id="L226">						swingRenderer.getReflectionUI().logDebug(new ReflectionUIError(msg, t));</span>
+<span class="nc" id="L227">					}</span>
+
+					@Override
+					protected void logErr(String msg) {
+<span class="nc" id="L231">						swingRenderer.getReflectionUI().logDebug(msg);</span>
+<span class="nc" id="L232">					}</span>
+
+					@Override
+					protected void logOut(String msg) {
+<span class="nc" id="L236">						swingRenderer.getReflectionUI().logDebug(msg);</span>
+<span class="nc" id="L237">					}</span>
+
+<span class="nc bnc" id="L239" title="All 2 branches missed.">				}.browse(uri)) {</span>
+<span class="nc" id="L240">					throw new ReflectionUIError(&quot;Failed to display the web page '&quot; + url + &quot;': &quot; + e, e);</span>
+				}
+			}
+<span class="nc" id="L243">		}</span>
+
+		@Override
+		protected void refreshTextComponent(boolean refreshStructure) {
+<span class="fc bfc" id="L247" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc" id="L248">				updateTextComponentEditorKit(refreshStructure);</span>
+			}
+<span class="fc" id="L250">			super.refreshTextComponent(refreshStructure);</span>
+<span class="fc" id="L251">		}</span>
+
+		@Override
+		protected void updateTextComponentStyle(boolean refreshStructure) {
+<span class="fc bfc" id="L255" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">				if (controlConfiguration.pureHtmlColors) {</span>
+<span class="nc" id="L257">					textComponent.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, false);</span>
+<span class="nc" id="L258">					textComponent.setOpaque(true);</span>
+<span class="nc" id="L259">					textComponent.setBackground(new JTextPane().getBackground());</span>
+<span class="nc" id="L260">				} else {</span>
+<span class="fc" id="L261">					textComponent.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true);</span>
+				}
+			}
+
+<span class="fc" id="L265">		}</span>
+
+		protected void updateTextComponentEditorKit(boolean refreshStructure) {
+<span class="fc" id="L268">			listenerDisabled = true;</span>
+			try {
+<span class="fc" id="L270">				((JTextPane) textComponent).setContentType(&quot;text/html&quot;);</span>
+<span class="fc" id="L271">				HTMLDocument doc = (HTMLDocument) textComponent.getDocument();</span>
+				try {
+<span class="fc" id="L273">					doc.setBase(controlConfiguration.getBaseURL());</span>
+<span class="pc" id="L274">				} catch (Exception e) {</span>
+<span class="nc" id="L275">					throw new ReflectionUIError(e);</span>
+				}
+			} finally {
+<span class="fc" id="L278">				listenerDisabled = false;</span>
+			}
+<span class="fc" id="L280">		}</span>
+
+		@Override
+		protected void restoringCaretPosition(Runnable runnable) {
+<span class="fc" id="L284">			runnable.run();</span>
+<span class="fc" id="L285">		}</span>
+
+		@Override
+		protected int getConfiguredScrollPaneWidth() {
+<span class="fc" id="L289">			return controlConfiguration.getWidthInPixels();</span>
+		}
+
+		@Override
+		protected int getConfiguredScrollPaneHeight() {
+<span class="fc" id="L294">			return controlConfiguration.getHeightInPixels();</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

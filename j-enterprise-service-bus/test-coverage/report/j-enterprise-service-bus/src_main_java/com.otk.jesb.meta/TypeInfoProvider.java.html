@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TypeInfoProvider.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.meta</a> &gt; <span class="el_source">TypeInfoProvider.java</span></div><h1>TypeInfoProvider.java</h1><pre class="source lang-java linenums">package com.otk.jesb.meta;
+
+import java.lang.reflect.Array;
+import java.lang.reflect.Member;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
+import com.github.javaparser.resolution.types.ResolvedType;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.util.MiscUtils;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.IInfo;
+import xy.reflect.ui.info.field.GetterFieldInfo;
+import xy.reflect.ui.info.field.PublicFieldInfo;
+import xy.reflect.ui.info.method.DefaultConstructorInfo;
+import xy.reflect.ui.info.method.DefaultMethodInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.util.ClassUtils;
+
+<span class="nc" id="L25">public class TypeInfoProvider {</span>
+
+<span class="fc" id="L27">	public static final ReflectionUI INTROSPECTOR = ReflectionUI.getDefault();</span>
+
+	public static ITypeInfo getTypeInfo(String typeName) {
+<span class="fc" id="L30">		return getTypeInfo(MiscUtils.getJESBClass(typeName));</span>
+	}
+
+	public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
+<span class="fc" id="L34">		return getTypeInfo(MiscUtils.getJESBClass(typeName), typeOwner);</span>
+	}
+
+	public static ITypeInfo getTypeInfo(Class&lt;?&gt; objectClass, IInfo typeOwner) {
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">		if (typeOwner != null) {</span>
+			Member javaTypeOwner;
+<span class="fc bfc" id="L40" title="All 2 branches covered.">			if (typeOwner instanceof GetterFieldInfo) {</span>
+<span class="fc" id="L41">				javaTypeOwner = ((GetterFieldInfo) typeOwner).getJavaGetterMethod();</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">			} else if (typeOwner instanceof PublicFieldInfo) {</span>
+<span class="fc" id="L43">				javaTypeOwner = ((PublicFieldInfo) typeOwner).getJavaField();</span>
+<span class="pc bnc" id="L44" title="All 2 branches missed.">			} else if (typeOwner instanceof DefaultMethodInfo) {</span>
+<span class="nc" id="L45">				javaTypeOwner = ((DefaultMethodInfo) typeOwner).getJavaMethod();</span>
+<span class="nc" id="L46">			} else {</span>
+<span class="nc" id="L47">				throw new UnexpectedError();</span>
+			}
+<span class="fc" id="L49">			return getTypeInfo(objectClass, javaTypeOwner);</span>
+		} else {
+<span class="nc" id="L51">			return getTypeInfo(objectClass);</span>
+		}
+	}
+
+	public static ITypeInfo getTypeInfo(Class&lt;?&gt; objectClass) {
+<span class="fc" id="L56">		return INTROSPECTOR.getTypeInfo(new JavaTypeInfoSource(objectClass, null));</span>
+	}
+
+	public static ITypeInfo getTypeInfo(Class&lt;?&gt; objectClass, Member javaTypeOwner) {
+<span class="fc" id="L60">		JavaTypeInfoSource javaTypeInfoSource = new JavaTypeInfoSource(objectClass, javaTypeOwner, -1, null);</span>
+<span class="fc" id="L61">		return INTROSPECTOR.getTypeInfo(javaTypeInfoSource);</span>
+	}
+
+	public static ITypeInfo getTypeInfo(String parameterTypeName, IMethodInfo method, int parameterPosition) {
+<span class="fc" id="L65">		Class&lt;?&gt; objectClass = MiscUtils.getJESBClass(parameterTypeName);</span>
+		JavaTypeInfoSource javaTypeInfoSource;
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">		if (method instanceof DefaultConstructorInfo) {</span>
+<span class="fc" id="L68">			javaTypeInfoSource = new JavaTypeInfoSource(objectClass,</span>
+<span class="fc" id="L69">					((DefaultConstructorInfo) method).getJavaConstructor(), parameterPosition, null);</span>
+<span class="pc bnc" id="L70" title="All 2 branches missed.">		} else if (method instanceof DefaultMethodInfo) {</span>
+<span class="nc" id="L71">			javaTypeInfoSource = new JavaTypeInfoSource(objectClass, ((DefaultMethodInfo) method).getJavaMethod(),</span>
+<span class="nc" id="L72">					parameterPosition, null);</span>
+<span class="nc" id="L73">		} else {</span>
+<span class="nc" id="L74">			throw new UnexpectedError();</span>
+		}
+<span class="fc" id="L76">		return INTROSPECTOR.getTypeInfo(javaTypeInfoSource);</span>
+	}
+
+	public static ITypeInfo getTypeInfo(Class&lt;?&gt; objectClass, Class&lt;?&gt;[] genericTypeParameters) {
+<span class="nc" id="L80">		JavaTypeInfoSource javaTypeInfoSource = new JavaTypeInfoSource(objectClass, genericTypeParameters, null);</span>
+<span class="nc" id="L81">		return INTROSPECTOR.getTypeInfo(javaTypeInfoSource);</span>
+	}
+
+	public static ITypeInfo getInfoFromResolvedType(ResolvedType resolvedType) {
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">		if (resolvedType.isPrimitive()) {</span>
+<span class="nc" id="L86">			return getTypeInfo(ClassUtils</span>
+<span class="nc" id="L87">					.wrapperToPrimitiveClass(MiscUtils.getJESBClass(resolvedType.asPrimitive().getBoxTypeQName())));</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		} else if (resolvedType.isReferenceType()) {</span>
+<span class="fc" id="L89">			ResolvedReferenceType referenceType = resolvedType.asReferenceType();</span>
+<span class="fc" id="L90">			String qualifiedName = referenceType.getQualifiedName();</span>
+<span class="fc" id="L91">			Class&lt;?&gt; javaType = MiscUtils.getJESBClassFromCanonicalName(qualifiedName);</span>
+<span class="fc" id="L92">			List&lt;ResolvedType&gt; typeParameters = referenceType.typeParametersValues();</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">			if (typeParameters.size() &gt; 0) {</span>
+<span class="nc" id="L94">				List&lt;Class&lt;?&gt;&gt; typeParameterClasses = new ArrayList&lt;Class&lt;?&gt;&gt;();</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">				for (ResolvedType resolvedTypeParameter : typeParameters) {</span>
+<span class="nc" id="L96">					ITypeInfo typeParameterInfo = getInfoFromResolvedType(resolvedTypeParameter);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">					if (typeParameterInfo == null) {</span>
+<span class="nc" id="L98">						return getTypeInfo(javaType);</span>
+					}
+<span class="nc" id="L100">					typeParameterClasses.add(((DefaultTypeInfo) typeParameterInfo).getJavaType());</span>
+				}
+<span class="nc" id="L102">				return getTypeInfo(javaType,</span>
+<span class="nc" id="L103">						typeParameterClasses.toArray(new Class&lt;?&gt;[typeParameterClasses.size()]));</span>
+			} else {
+<span class="fc" id="L105">				return getTypeInfo(javaType);</span>
+			}
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">		} else if (resolvedType.isArray()) {</span>
+<span class="fc" id="L108">			Class&lt;?&gt; componentClass = ((DefaultTypeInfo) getInfoFromResolvedType(</span>
+<span class="fc" id="L109">					resolvedType.asArrayType().getComponentType())).getJavaType();</span>
+<span class="fc" id="L110">			return getTypeInfo(Array.newInstance(componentClass, 0).getClass());</span>
+<span class="nc bnc" id="L111" title="All 4 branches missed.">		} else if (resolvedType.isWildcard() &amp;&amp; resolvedType.asWildcard().isBounded()) {</span>
+<span class="nc" id="L112">			return getInfoFromResolvedType(resolvedType.asWildcard().getBoundedType());</span>
+		} else {
+<span class="nc" id="L114">			return null;</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -198,6 +198,7 @@ public class GUI extends MultiSwingCustomizer {
 
 	private static WeakHashMap<RootInstanceBuilder, Object> rootInitializerBackupByBuilder = new WeakHashMap<RootInstanceBuilder, Object>();
 	private static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
+	private static boolean planExecutorScrollLocked = false;
 
 	private static Deque<Asset> stackOfCurrentAssets = new ArrayDeque<Asset>();
 	private static Deque<PlanElement> stackOfCurrentPlanElements = new ArrayDeque<PlanElement>();
@@ -264,6 +265,10 @@ public class GUI extends MultiSwingCustomizer {
 		return diagramDragIntentByPlan;
 	}
 
+	public static boolean isPlanExecutorScrollLocked() {
+		return planExecutorScrollLocked;
+	}
+
 	public static void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
 		Object rootInitializer = rootInstanceBuilder.getRootInstantiationNode();
 		Object rootInitializerBackup;
@@ -294,6 +299,9 @@ public class GUI extends MultiSwingCustomizer {
 			return GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
 		}
 		if (objectClass == Reference.class) {
+			return GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
+		}
+		if (objectClass == FunctionEditor.class) {
 			return GLOBAL_EXCLUSIVE_CUSTOMIZATIONS;
 		}
 		if (Structure.class.isAssignableFrom(objectClass)) {
@@ -984,7 +992,7 @@ public class GUI extends MultiSwingCustomizer {
 			return new MethodAction(this, input) {
 
 				private static final long serialVersionUID = 1L;
-				
+
 				/*
 				 * Fix (for forms not refreshing when an invoked method is read-only) in
 				 * reflection-ui-6.0.1.
@@ -1458,12 +1466,6 @@ public class GUI extends MultiSwingCustomizer {
 									int caseCount = (int) invocationData.getParameterValue(0);
 									InitializationSwitchFacade.install(parentFacade, caseCount, initializerFacades);
 									return null;
-								}
-
-								@Override
-								public List<ItemPosition> getPostSelection() {
-									return Collections.singletonList(
-											firstItemPosition.getSubItemPosition(0).getSubItemPosition(0));
 								}
 
 							});
@@ -2076,9 +2078,7 @@ public class GUI extends MultiSwingCustomizer {
 						});
 						return result;
 					} else if (type.getName().equals(PlanExecutor.class.getName())
-							|| type.getName().equals(PlanExecutor.SubPlanExecutor.class.getName()))
-
-					{
+							|| type.getName().equals(PlanExecutor.SubPlanExecutor.class.getName())) {
 						List<IFieldInfo> result = new ArrayList<IFieldInfo>(baseResult);
 						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
 
@@ -2100,6 +2100,35 @@ public class GUI extends MultiSwingCustomizer {
 							@Override
 							public ITypeInfo getType() {
 								return getTypeInfo(new JavaTypeInfoSource(DebugPlanDiagram.Source.class,
+										new SpecificitiesIdentifier(type.getName(), getName())));
+							}
+
+						});
+						result.add(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {
+
+							@Override
+							public String getName() {
+								return "scrollLocked";
+							}
+
+							@Override
+							public String getCaption() {
+								return "Scroll Locked";
+							}
+
+							@Override
+							public Object getValue(Object object) {
+								return planExecutorScrollLocked;
+							}
+
+							@Override
+							public void setValue(Object object, Object value) {
+								planExecutorScrollLocked = (boolean) value;
+							}
+
+							@Override
+							public ITypeInfo getType() {
+								return getTypeInfo(new JavaTypeInfoSource(boolean.class,
 										new SpecificitiesIdentifier(type.getName(), getName())));
 							}
 
@@ -3367,7 +3396,7 @@ public class GUI extends MultiSwingCustomizer {
 									return ((Variant) object).getValue();
 								}
 
-								@SuppressWarnings({ "rawtypes" })
+								@SuppressWarnings({ "rawtypes", "unchecked" })
 								@Override
 								public void setValue(Object object, Object value) {
 									((Variant) object).setConstantValue(value);

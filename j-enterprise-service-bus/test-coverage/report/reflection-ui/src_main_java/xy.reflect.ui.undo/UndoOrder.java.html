@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>UndoOrder.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.undo</a> &gt; <span class="el_source">UndoOrder.java</span></div><h1>UndoOrder.java</h1><pre class="source lang-java linenums">
+
+
+package xy.reflect.ui.undo;
+
+/**
+ * Specifies how to order the execution of undo modifications according to the
+ * source do/redo modifications order.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L13">public enum UndoOrder {</span>
+<span class="fc" id="L14">	/**</span>
+	 * See {@link #getNormal()}.
+	 */
+<span class="fc" id="L17">	LIFO,</span>
+
+<span class="fc" id="L19">	/**</span>
+	 * See {@link #getAbnormal()}.
+	 */
+<span class="fc" id="L22">	FIFO;</span>
+
+	/**
+	 * @return the {@link #LIFO} enum constant specifying that undo modifications
+	 *         order should be the opposite of the do/redo modifications order.
+	 */
+	public static UndoOrder getNormal() {
+<span class="fc" id="L29">		return LIFO;</span>
+	}
+
+	/**
+	 * @return the {@link #FIFO} enum constant specifying that undo modifications
+	 *         order should be the same as the do/redo modifications order.
+	 */
+	public static UndoOrder getAbnormal() {
+<span class="fc" id="L37">		return FIFO;</span>
+	}
+};
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

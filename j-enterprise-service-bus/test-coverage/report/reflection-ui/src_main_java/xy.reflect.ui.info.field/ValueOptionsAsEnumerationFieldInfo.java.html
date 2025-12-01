@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ValueOptionsAsEnumerationFieldInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.field</a> &gt; <span class="el_source">ValueOptionsAsEnumerationFieldInfo.java</span></div><h1>ValueOptionsAsEnumerationFieldInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.field;
+
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.factory.GenericEnumerationFactory;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+
+/**
+ * Field proxy allowing to view/edit the base field value as an enumeration
+ * item.
+ * 
+ * @author olitank
+ *
+ */
+public abstract class ValueOptionsAsEnumerationFieldInfo extends FieldInfoProxy {
+
+	protected ReflectionUI reflectionUI;
+
+	protected GenericEnumerationFactory enumFactory;
+
+	protected abstract Object getObject();
+
+	public ValueOptionsAsEnumerationFieldInfo(ReflectionUI reflectionUI, IFieldInfo base) {
+<span class="fc" id="L30">		super(base);</span>
+<span class="fc" id="L31">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L32">		this.enumFactory = createEnumerationFactory();</span>
+<span class="fc" id="L33">	}</span>
+
+	protected GenericEnumerationFactory createEnumerationFactory() {
+<span class="fc" id="L36">		String enumTypeName = &quot;ValueOptions [ownerType=&quot; + getObjectType().getName() + &quot;, field=&quot; + base.getName()</span>
+<span class="fc" id="L37">				+ &quot;]&quot;;</span>
+<span class="fc" id="L38">		Iterable&lt;Object&gt; iterable = new Iterable&lt;Object&gt;() {</span>
+			@Override
+			public Iterator&lt;Object&gt; iterator() {
+<span class="fc" id="L41">				Object[] valueOptions = base.getValueOptions(getObject());</span>
+<span class="fc" id="L42">				return Arrays.asList(valueOptions).iterator();</span>
+			}
+		};
+<span class="fc" id="L45">		return new GenericEnumerationFactory(reflectionUI, iterable, enumTypeName, &quot;&quot;, false,</span>
+<span class="fc" id="L46">				base.getType().supports(null));</span>
+	}
+
+	protected ITypeInfo getObjectType() {
+<span class="fc" id="L50">		return reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(getObject()));</span>
+	}
+
+	@Override
+	public boolean hasValueOptions(Object object) {
+<span class="nc" id="L55">		return false;</span>
+	}
+
+	@Override
+	public Object[] getValueOptions(Object object) {
+<span class="nc" id="L60">		return null;</span>
+	}
+
+	@Override
+	public Object getValue(Object object) {
+<span class="fc" id="L65">		Object value = super.getValue(object);</span>
+<span class="fc" id="L66">		return enumFactory.getItemInstance(value);</span>
+	}
+
+	@Override
+	public void setValue(Object object, Object value) {
+<span class="fc" id="L71">		value = enumFactory.getInstanceItem(value);</span>
+<span class="fc" id="L72">		super.setValue(object, value);</span>
+<span class="fc" id="L73">	}</span>
+
+	@Override
+	public Runnable getNextUpdateCustomUndoJob(Object object, Object value) {
+<span class="fc" id="L77">		value = enumFactory.getInstanceItem(value);</span>
+<span class="fc" id="L78">		return super.getNextUpdateCustomUndoJob(object, value);</span>
+	}
+
+	@Override
+	public Runnable getPreviousUpdateCustomRedoJob(Object object, Object value) {
+<span class="nc" id="L83">		value = enumFactory.getInstanceItem(value);</span>
+<span class="nc" id="L84">		return super.getPreviousUpdateCustomRedoJob(object, value);</span>
+	}
+
+	@Override
+	public ITypeInfo getType() {
+<span class="fc" id="L89">		return reflectionUI.getTypeInfo(enumFactory</span>
+<span class="fc" id="L90">				.getInstanceTypeInfoSource(new SpecificitiesIdentifier(getObjectType().getName(), getName())));</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L95">		return null;</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="fc" id="L100">		return null;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L105">		final int prime = 31;</span>
+<span class="nc" id="L106">		int result = super.hashCode();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		result = prime * result + ((getObject() == null) ? 0 : getObject().hashCode());</span>
+<span class="nc" id="L108">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L113" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L114">			return true;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="nc" id="L116">			return false;</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L118">			return false;</span>
+<span class="nc" id="L119">		ValueOptionsAsEnumerationFieldInfo other = (ValueOptionsAsEnumerationFieldInfo) obj;</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">		if (getObject() == null) {</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">			if (other.getObject() != null)</span>
+<span class="nc" id="L122">				return false;</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">		} else if (!getObject().equals(other.getObject()))</span>
+<span class="nc" id="L124">			return false;</span>
+<span class="nc" id="L125">		return true;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

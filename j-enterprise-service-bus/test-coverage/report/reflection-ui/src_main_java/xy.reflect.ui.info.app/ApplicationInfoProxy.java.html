@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ApplicationInfoProxy.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.app</a> &gt; <span class="el_source">ApplicationInfoProxy.java</span></div><h1>ApplicationInfoProxy.java</h1><pre class="source lang-java linenums">
+
+
+package xy.reflect.ui.info.app;
+
+import java.util.Map;
+
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.ResourcePath;
+
+/**
+ * Application information proxy class. The methods in this class should be overridden to
+ * provide custom information.
+ * 
+ * @author olitank
+ *
+ */
+public class ApplicationInfoProxy implements IApplicationInfo {
+
+	protected IApplicationInfo base;
+
+<span class="nc" id="L22">	public ApplicationInfoProxy(IApplicationInfo base) {</span>
+<span class="nc" id="L23">		this.base = base;</span>
+<span class="nc" id="L24">	}</span>
+
+	public String getName() {
+<span class="nc" id="L27">		return base.getName();</span>
+	}
+
+	public String getCaption() {
+<span class="nc" id="L31">		return base.getCaption();</span>
+	}
+
+	public String getOnlineHelp() {
+<span class="nc" id="L35">		return base.getOnlineHelp();</span>
+	}
+
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L39">		return base.getSpecificProperties();</span>
+	}
+
+	public ColorSpecification getMainBackgroundColor() {
+<span class="nc" id="L43">		return base.getMainBackgroundColor();</span>
+	}
+
+	public ColorSpecification getMainForegroundColor() {
+<span class="nc" id="L47">		return base.getMainForegroundColor();</span>
+	}
+
+	public ColorSpecification getMainBorderColor() {
+<span class="nc" id="L51">		return base.getMainBorderColor();</span>
+	}
+
+	public ColorSpecification getMainEditorForegroundColor() {
+<span class="nc" id="L55">		return base.getMainEditorForegroundColor();</span>
+	}
+
+	public ColorSpecification getMainEditorBackgroundColor() {
+<span class="nc" id="L59">		return base.getMainEditorBackgroundColor();</span>
+	}
+
+	public ResourcePath getMainBackgroundImagePath() {
+<span class="nc" id="L63">		return base.getMainBackgroundImagePath();</span>
+	}
+
+	public ResourcePath getLabelCustomFontResourcePath() {
+<span class="nc" id="L67">		return base.getLabelCustomFontResourcePath();</span>
+	}
+
+	public ResourcePath getEditorCustomFontResourcePath() {
+<span class="nc" id="L71">		return base.getEditorCustomFontResourcePath();</span>
+	}
+
+	public ResourcePath getButtonCustomFontResourcePath() {
+<span class="nc" id="L75">		return base.getButtonCustomFontResourcePath();</span>
+	}
+
+	public ColorSpecification getMainButtonBackgroundColor() {
+<span class="nc" id="L79">		return base.getMainButtonBackgroundColor();</span>
+	}
+
+	public ColorSpecification getMainButtonForegroundColor() {
+<span class="nc" id="L83">		return base.getMainButtonForegroundColor();</span>
+	}
+
+	public ColorSpecification getMainButtonBorderColor() {
+<span class="nc" id="L87">		return base.getMainButtonBorderColor();</span>
+	}
+
+	public ColorSpecification getTitleBackgroundColor() {
+<span class="nc" id="L91">		return base.getTitleBackgroundColor();</span>
+	}
+
+	public ColorSpecification getTitleForegroundColor() {
+<span class="nc" id="L95">		return base.getTitleForegroundColor();</span>
+	}
+
+	public ResourcePath getTitleCustomFontResourcePath() {
+<span class="nc" id="L99">		return base.getTitleCustomFontResourcePath();</span>
+	}
+
+	public ResourcePath getMainButtonBackgroundImagePath() {
+<span class="nc" id="L103">		return base.getMainButtonBackgroundImagePath();</span>
+	}
+
+	public ResourcePath getIconImagePath() {
+<span class="nc" id="L107">		return base.getIconImagePath();</span>
+	}
+
+	public boolean isSystemIntegrationCrossPlatform() {
+<span class="nc" id="L111">		return base.isSystemIntegrationCrossPlatform();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L116">		final int prime = 31;</span>
+<span class="nc" id="L117">		int result = 1;</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">		result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="nc" id="L119">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L124" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L125">			return true;</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L127">			return false;</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L129">			return false;</span>
+<span class="nc" id="L130">		ApplicationInfoProxy other = (ApplicationInfoProxy) obj;</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">		if (base == null) {</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">			if (other.base != null)</span>
+<span class="nc" id="L133">				return false;</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">		} else if (!base.equals(other.base))</span>
+<span class="nc" id="L135">			return false;</span>
+<span class="nc" id="L136">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L141">		return &quot;ApplicationInfoProxy [base=&quot; + base + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

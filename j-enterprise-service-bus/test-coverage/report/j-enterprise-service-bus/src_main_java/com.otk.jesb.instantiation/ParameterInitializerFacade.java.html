@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ParameterInitializerFacade.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">ParameterInitializerFacade.java</span></div><h1>ParameterInitializerFacade.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.List;
+
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.util.InstantiationUtils;
+
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+
+public class ParameterInitializerFacade extends InitializerFacade {
+
+	private int parameterPosition;
+	private IParameterInfo parameterInfo;
+
+	public ParameterInitializerFacade(Facade parent, int parameterPosition) {
+<span class="fc" id="L21">		super(parent);</span>
+<span class="fc" id="L22">		this.parameterPosition = parameterPosition;</span>
+<span class="fc" id="L23">	}</span>
+
+	@Override
+	public List&lt;VariableDeclaration&gt; getAdditionalVariableDeclarations(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations) {
+<span class="fc" id="L28">		List&lt;VariableDeclaration&gt; baseResult = getParent().getAdditionalVariableDeclarations(null,</span>
+<span class="fc" id="L29">				baseVariableDeclarations);</span>
+<span class="fc" id="L30">		List&lt;VariableDeclaration&gt; result = baseResult;</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">		if (function == null) {</span>
+<span class="fc" id="L32">			return result;</span>
+		}
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">		if (getParameterValue() == function) {</span>
+<span class="fc" id="L35">			return result;</span>
+		}
+<span class="nc" id="L37">		throw new UnexpectedError();</span>
+	}
+
+	@Override
+	public Class&lt;?&gt; getFunctionReturnType(InstantiationFunction function,
+			List&lt;VariableDeclaration&gt; baseVariableDeclarations) {
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">		if (getParameterValue() == function) {</span>
+<span class="fc" id="L44">			return ((DefaultTypeInfo) getParameterInfo().getType()).getJavaType();</span>
+		}
+<span class="nc" id="L46">		throw new UnexpectedError();</span>
+	}
+
+	@Override
+	public void validate(boolean recursively, List&lt;VariableDeclaration&gt; variableDeclarations) throws ValidationError {
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if (!getParent().isConcrete()) {</span>
+<span class="nc" id="L52">			return;</span>
+		}
+<span class="fc bfc" id="L54" title="All 2 branches covered.">		if (!isConcrete()) {</span>
+<span class="fc" id="L55">			throw new ValidationError(&quot;Parameter value specification required&quot;);</span>
+		}
+<span class="fc" id="L57">		InstantiationUtils.validateValue(getUnderlying().getParameterValue(), getParameterInfo().getType(), this,</span>
+<span class="fc" id="L58">				&quot;parameter value&quot;, recursively, variableDeclarations);</span>
+<span class="fc" id="L59">	}</span>
+
+	@Override
+	public boolean isValidable() {
+<span class="fc" id="L63">		return getParent().isConcrete();</span>
+	}
+
+	@Override
+	public String express() {
+<span class="fc" id="L68">		Object value = getParameterValue();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">		if (value instanceof InstanceBuilderFacade) {</span>
+<span class="fc" id="L70">			value = ((InstanceBuilderFacade) value).getUnderlying();</span>
+		}
+<span class="fc" id="L72">		String result = InstantiationUtils.express(value);</span>
+<span class="fc" id="L73">		return result;</span>
+	}
+
+	public IParameterInfo getParameterInfo() {
+<span class="fc bfc" id="L77" title="All 2 branches covered.">		if (parameterInfo == null) {</span>
+<span class="fc" id="L78">			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();</span>
+<span class="fc" id="L79">			IMethodInfo constructor = InstantiationUtils.getConstructorInfo(parentTypeInfo,</span>
+<span class="fc" id="L80">					getCurrentInstanceBuilderFacade().getSelectedConstructorSignature());</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">			if (constructor == null) {</span>
+<span class="nc" id="L82">				throw new UnexpectedError();</span>
+			}
+<span class="fc" id="L84">			parameterInfo = constructor.getParameters().get(parameterPosition);</span>
+		}
+<span class="fc" id="L86">		return parameterInfo;</span>
+	}
+
+	@Override
+	public ParameterInitializer getUnderlying() {
+<span class="fc" id="L91">		return ((InitializationCase) getParent().getUnderlying()).getParameterInitializer(parameterPosition);</span>
+	}
+
+	@Override
+	protected Object retrieveInitializerValue(Object initializer) {
+<span class="fc" id="L96">		return ((ParameterInitializer) initializer).getParameterValue();</span>
+	}
+
+	@Override
+	protected void updateInitializerValue(Object initializer, Object newValue) {
+<span class="fc" id="L101">		((ParameterInitializer) initializer).setParameterValue(newValue);</span>
+<span class="fc" id="L102">	}</span>
+
+	@Override
+	protected ITypeInfo getValueType() {
+<span class="fc" id="L106">		return getParameterInfo().getType();</span>
+	}
+
+	@Override
+	protected void createUnderlying(Object value) {
+<span class="fc" id="L111">		((InitializationCase) getParent().getUnderlying()).getParameterInitializers()</span>
+<span class="fc" id="L112">				.add(new ParameterInitializer(parameterPosition, value));</span>
+<span class="fc" id="L113">	}</span>
+
+	@Override
+	protected void deleteUnderlying() {
+<span class="nc" id="L117">		((InitializationCase) getParent().getUnderlying()).removeParameterInitializer(parameterPosition);</span>
+<span class="nc" id="L118">	}</span>
+
+	public int getParameterPosition() {
+<span class="fc" id="L121">		return parameterPosition;</span>
+	}
+
+	public String getParameterName() {
+<span class="fc" id="L125">		return getParameterInfo().getName();</span>
+	}
+
+	public String getParameterTypeName() {
+<span class="fc" id="L129">		return super.getValueTypeName();</span>
+	}
+
+	public Object createDefaultParameterValue() {
+<span class="nc" id="L133">		return super.createDefaultValue();</span>
+	}
+
+	public ValueMode getParameterValueMode() {
+<span class="fc" id="L137">		return super.getValueMode();</span>
+	}
+
+	public void setParameterValueMode(ValueMode valueMode) {
+<span class="fc" id="L141">		super.setValueMode(valueMode);</span>
+<span class="fc" id="L142">	}</span>
+
+	public Object getParameterValue() {
+<span class="fc" id="L145">		return super.getValue();</span>
+	}
+
+	public void setParameterValue(Object value) {
+<span class="fc" id="L149">		super.setValue(value);</span>
+<span class="fc" id="L150">	}</span>
+
+	@Override
+	public String toString() {
+<span class="fc" id="L154">		return &quot;(&quot; + getParameterInfo().getName() + &quot;)&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

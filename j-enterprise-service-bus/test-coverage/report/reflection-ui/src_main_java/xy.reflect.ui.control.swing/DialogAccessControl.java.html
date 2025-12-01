@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>DialogAccessControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing</a> &gt; <span class="el_source">DialogAccessControl.java</span></div><h1>DialogAccessControl.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import xy.reflect.ui.control.BufferedFieldControlData;
+import xy.reflect.ui.control.DefaultFieldControlData;
+import xy.reflect.ui.control.ErrorHandlingFieldControlData;
+import xy.reflect.ui.control.FieldControlInputProxy;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IContext;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.builder.AbstractEditorBuilder;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.AbstractControlButton;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.type.DefaultTypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
+import xy.reflect.ui.undo.FieldControlDataModification;
+import xy.reflect.ui.undo.IModification;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Field control that displays a button allowing to open an editor for the field
+ * value.
+ * 
+ * @author olitank
+ *
+ */
+public class DialogAccessControl extends ControlPanel implements IAdvancedFieldControl {
+
+	protected static final long serialVersionUID = 1L;
+	protected SwingRenderer swingRenderer;
+	protected BufferedFieldControlData data;
+
+	protected Component statusControl;
+	protected Component iconControl;
+	protected Component actionControl;
+	protected IFieldControlInput input;
+
+<span class="fc" id="L61">	public DialogAccessControl(final SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L62">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L63">		input = new FieldControlInputProxy(input) {</span>
+<span class="fc" id="L64">			ErrorHandlingFieldControlData errorHandlingFieldControlData = new ErrorHandlingFieldControlData(</span>
+<span class="fc" id="L65">					super.getControlData(), swingRenderer, DialogAccessControl.this);</span>
+
+<span class="fc" id="L67">			BufferedFieldControlData bufferedFieldControlData = new BufferedFieldControlData(</span>
+<span class="fc" id="L68">					errorHandlingFieldControlData);</span>
+
+			@Override
+			public IFieldControlData getControlData() {
+<span class="fc" id="L72">				return bufferedFieldControlData;</span>
+			}
+		};
+<span class="fc" id="L75">		this.input = input;</span>
+<span class="fc" id="L76">		this.data = (BufferedFieldControlData) input.getControlData();</span>
+
+<span class="fc" id="L78">		setLayout(new GridBagLayout());</span>
+<span class="fc" id="L79">		statusControl = createStatusControl(input);</span>
+<span class="fc" id="L80">		actionControl = createActionControl();</span>
+<span class="fc" id="L81">		iconControl = createIconControl();</span>
+
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">		if (actionControl != null) {</span>
+<span class="fc" id="L84">			GridBagConstraints c = new GridBagConstraints();</span>
+<span class="fc" id="L85">			add(SwingRendererUtils.flowInLayout(actionControl, GridBagConstraints.CENTER), c);</span>
+		}
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">		if (statusControl != null) {</span>
+<span class="fc" id="L88">			GridBagConstraints c = new GridBagConstraints();</span>
+<span class="fc" id="L89">			c.fill = GridBagConstraints.HORIZONTAL;</span>
+<span class="fc" id="L90">			c.weightx = 1.0;</span>
+<span class="fc" id="L91">			add(statusControl, c);</span>
+		}
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		if (iconControl != null) {</span>
+<span class="fc" id="L94">			GridBagConstraints c = new GridBagConstraints();</span>
+<span class="fc" id="L95">			add(SwingRendererUtils.flowInLayout(iconControl, GridBagConstraints.CENTER), c);</span>
+		}
+
+<span class="fc" id="L98">		refreshUI(true);</span>
+<span class="fc" id="L99">	}</span>
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+<span class="fc" id="L103">		Object value = data.getValue();</span>
+<span class="pc bpc" id="L104" title="1 of 4 branches missed.">		if ((value == null) &amp;&amp; !isNullSupported()) {</span>
+<span class="nc" id="L105">			return false;</span>
+		}
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">		if (statusControl != null) {</span>
+<span class="fc" id="L108">			data.returningValue(value, new Runnable() {</span>
+				public void run() {
+<span class="fc" id="L110">					updateStatusControl(refreshStructure);</span>
+<span class="fc" id="L111">				}</span>
+			});
+		}
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">		if (iconControl != null) {</span>
+<span class="fc" id="L115">			data.returningValue(value, new Runnable() {</span>
+				public void run() {
+<span class="fc" id="L117">					updateIconControl(refreshStructure);</span>
+<span class="fc" id="L118">				}</span>
+			});
+		}
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">		if (actionControl != null) {</span>
+<span class="fc" id="L122">			updateActionControl();</span>
+		}
+<span class="fc" id="L124">		return true;</span>
+	}
+
+	protected boolean isNullSupported() {
+<span class="nc" id="L128">		return false;</span>
+	}
+
+	protected Component createIconControl() {
+<span class="fc" id="L132">		return new JLabel();</span>
+	}
+
+	protected Component createActionControl() {
+<span class="fc" id="L136">		final JButton result = new AbstractControlButton() {</span>
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Image retrieveBackgroundImage() {
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">				if (data.getButtonBackgroundImagePath() == null) {</span>
+<span class="fc" id="L143">					return null;</span>
+				} else {
+<span class="nc" id="L145">					return SwingRendererUtils.loadImageThroughCache(data.getButtonBackgroundImagePath(),</span>
+<span class="nc" id="L146">							ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()), swingRenderer);</span>
+				}
+			}
+
+			@Override
+			public Font retrieveCustomFont() {
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">				if (data.getButtonCustomFontResourcePath() == null) {</span>
+<span class="fc" id="L153">					return null;</span>
+				} else {
+<span class="nc" id="L155">					return SwingRendererUtils.loadFontThroughCache(data.getButtonCustomFontResourcePath(),</span>
+<span class="nc" id="L156">							ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()), swingRenderer);</span>
+				}
+			}
+
+			@Override
+			public Color retrieveBackgroundColor() {
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">				if (data.getButtonBackgroundColor() == null) {</span>
+<span class="fc" id="L163">					return null;</span>
+				} else {
+<span class="nc" id="L165">					return SwingRendererUtils.getColor(data.getButtonBackgroundColor());</span>
+				}
+			}
+
+			@Override
+			public Color retrieveForegroundColor() {
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">				if (data.getButtonForegroundColor() == null) {</span>
+<span class="fc" id="L172">					return null;</span>
+				} else {
+<span class="nc" id="L174">					return SwingRendererUtils.getColor(data.getButtonForegroundColor());</span>
+				}
+			}
+
+			@Override
+			public Color retrieveBorderColor() {
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">				if (data.getButtonBorderColor() == null) {</span>
+<span class="fc" id="L181">					return null;</span>
+				} else {
+<span class="nc" id="L183">					return SwingRendererUtils.getColor(data.getButtonBorderColor());</span>
+				}
+			}
+
+			@Override
+			public String retrieveText() {
+<span class="fc" id="L189">				return swingRenderer.prepareMessageToDisplay(&quot;...&quot;);</span>
+			}
+
+			@Override
+			public Dimension getPreferredSize() {
+<span class="fc" id="L194">				Dimension result = super.getPreferredSize();</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">				if (result == null) {</span>
+<span class="nc" id="L196">					return null;</span>
+				}
+<span class="fc" id="L198">				result.width = result.height;</span>
+<span class="fc" id="L199">				return result;</span>
+			}
+
+		};
+<span class="fc" id="L203">		result.addActionListener(new ActionListener() {</span>
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+<span class="fc" id="L208">					openDialog(result);</span>
+<span class="pc" id="L209">				} catch (Throwable t) {</span>
+<span class="nc" id="L210">					swingRenderer.handleException(result, t);</span>
+				}
+<span class="fc" id="L212">			}</span>
+		});
+<span class="fc" id="L214">		return result;</span>
+	}
+
+	protected Component createStatusControl(IFieldControlInput input) {
+<span class="fc" id="L218">		return new TextControl(swingRenderer, new FieldControlInputProxy(input) {</span>
+
+			@Override
+			public IFieldControlData getControlData() {
+<span class="fc" id="L222">				return new DefaultFieldControlData(swingRenderer.getReflectionUI()) {</span>
+
+					@Override
+					public Object getValue() {
+<span class="fc" id="L226">						Object fieldValue = DialogAccessControl.this.data.getValue();</span>
+<span class="fc" id="L227">						return ReflectionUIUtils.toString(swingRenderer.getReflectionUI(), fieldValue);</span>
+					}
+
+					@Override
+					public ITypeInfo getType() {
+<span class="nc" id="L232">						return new DefaultTypeInfo(swingRenderer.getReflectionUI(),</span>
+<span class="nc" id="L233">								new JavaTypeInfoSource(String.class, null));</span>
+					}
+
+				};
+			}
+		});
+	}
+
+	protected void openDialog(Component ownerComponent) {
+<span class="fc" id="L242">		AbstractEditorBuilder subDialogBuilder = createSubDialogBuilder(ownerComponent);</span>
+<span class="fc" id="L243">		subDialogBuilder.createAndShowDialog();</span>
+<span class="fc" id="L244">	}</span>
+
+	protected AbstractEditorBuilder createSubDialogBuilder(Component ownerComponent) {
+<span class="fc" id="L247">		return new SubDialogBuilder(swingRenderer, ownerComponent, this, input);</span>
+	}
+
+	protected void updateActionControl() {
+<span class="fc" id="L251">		((AbstractControlButton) actionControl).initialize();</span>
+<span class="fc" id="L252">	}</span>
+
+	protected void updateIconControl(boolean refreshStructure) {
+<span class="fc" id="L255">		ImageIcon icon = SwingRendererUtils.getObjectIcon(swingRenderer, data.getValue());</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">		if (icon != null) {</span>
+<span class="nc" id="L257">			icon = SwingRendererUtils.getSmallIcon(icon);</span>
+		}
+<span class="fc" id="L259">		((JLabel) iconControl).setIcon(icon);</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">		iconControl.setVisible(((JLabel) iconControl).getIcon() != null);</span>
+<span class="fc" id="L261">	}</span>
+
+	protected void updateStatusControl(boolean refreshStructure) {
+<span class="fc" id="L264">		((TextControl) statusControl).refreshUI(refreshStructure);</span>
+<span class="fc" id="L265">	}</span>
+
+	@Override
+	public boolean displayError(Throwable error) {
+<span class="nc" id="L269">		return false;</span>
+	}
+
+	@Override
+	public boolean showsCaption() {
+<span class="fc" id="L274">		return false;</span>
+	}
+
+	@Override
+	public boolean isModificationStackManaged() {
+<span class="fc" id="L279">		return true;</span>
+	}
+
+	@Override
+	public boolean areValueAccessErrorsManaged() {
+<span class="fc" id="L284">		return true;</span>
+	}
+
+	@Override
+	public boolean requestCustomFocus() {
+<span class="fc bfc" id="L289" title="All 2 branches covered.">		if (data.isGetOnly()) {</span>
+<span class="fc" id="L290">			return false;</span>
+		}
+<span class="fc bfc" id="L292" title="All 2 branches covered.">		if (SwingRendererUtils.requestAnyComponentFocus(statusControl, swingRenderer)) {</span>
+<span class="fc" id="L293">			return true;</span>
+		}
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">		if (SwingRendererUtils.requestAnyComponentFocus(actionControl, swingRenderer)) {</span>
+<span class="nc" id="L296">			return true;</span>
+		}
+<span class="fc" id="L298">		return false;</span>
+	}
+
+	@Override
+	public void validateControlData(ValidationSession session) throws Exception {
+<span class="nc" id="L303">		AbstractEditorBuilder subDialogBuilder = createSubDialogBuilder(this);</span>
+<span class="nc" id="L304">		subDialogBuilder.performHeadlessFormValidation(session);</span>
+<span class="nc" id="L305">	}</span>
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
+<span class="fc" id="L309">	}</span>
+
+	protected static class SubDialogBuilder extends AbstractEditorBuilder {
+
+		protected SwingRenderer swingRenderer;
+		protected Component ownerComponent;
+		protected IAdvancedFieldControl parentControl;
+		protected IFieldControlInput input;
+		protected IFieldControlData data;
+
+<span class="fc" id="L319">		public SubDialogBuilder(SwingRenderer swingRenderer, Component ownerComponent,</span>
+				IAdvancedFieldControl parentControl, IFieldControlInput input) {
+<span class="fc" id="L321">			this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L322">			this.ownerComponent = ownerComponent;</span>
+<span class="fc" id="L323">			this.parentControl = parentControl;</span>
+<span class="fc" id="L324">			this.input = input;</span>
+<span class="fc" id="L325">			this.data = input.getControlData();</span>
+<span class="fc" id="L326">		}</span>
+
+		@Override
+		protected IValidationJob getValueAbstractFormValidationJob() {
+<span class="nc" id="L330">			return data.getValueAbstractFormValidationJob();</span>
+		}
+
+		@Override
+		protected IContext getContext() {
+<span class="fc" id="L335">			return input.getContext();</span>
+		}
+
+		@Override
+		protected IContext getSubContext() {
+<span class="fc" id="L340">			return null;</span>
+		}
+
+		@Override
+		protected boolean isEncapsulatedFormEmbedded() {
+<span class="fc" id="L345">			return true;</span>
+		}
+
+		@Override
+		protected boolean isEncapsulatedisControlValueValiditionEnabled() {
+<span class="fc" id="L350">			return true;</span>
+		}
+
+		@Override
+		protected boolean isCustomEncapsulatedControlForbidden() {
+<span class="fc" id="L355">			return true;</span>
+		}
+
+		@Override
+		protected boolean isNullValueDistinct() {
+<span class="fc" id="L360">			return false;</span>
+		}
+
+		@Override
+		public SwingRenderer getSwingRenderer() {
+<span class="fc" id="L365">			return swingRenderer;</span>
+		}
+
+		@Override
+		protected ValueReturnMode getReturnModeFromParent() {
+<span class="fc" id="L370">			return data.getValueReturnMode();</span>
+		}
+
+		@Override
+		protected ITypeInfoSource getEncapsulatedFieldDeclaredTypeSource() {
+<span class="fc" id="L375">			return data.getType().getSource();</span>
+		}
+
+		@Override
+		protected Object loadValue() {
+<span class="fc" id="L380">			return data.getValue();</span>
+		}
+
+		@Override
+		protected String getParentModificationTitle() {
+<span class="fc" id="L385">			return FieldControlDataModification.getTitle(data.getCaption());</span>
+		}
+
+		@Override
+		protected boolean isParentModificationVolatile() {
+<span class="fc" id="L390">			return data.isTransient();</span>
+		}
+
+		@Override
+		protected ModificationStack getParentModificationStack() {
+<span class="fc" id="L395">			return input.getModificationStack();</span>
+		}
+
+		@Override
+		protected Component getOwnerComponent() {
+<span class="fc" id="L400">			return ownerComponent;</span>
+		}
+
+		@Override
+		protected boolean canCommitToParent() {
+<span class="fc bfc" id="L405" title="All 2 branches covered.">			return !data.isGetOnly();</span>
+		}
+
+		@Override
+		protected IModification createCommittingModification(Object newObjectValue) {
+<span class="fc" id="L410">			return new FieldControlDataModification(data, newObjectValue);</span>
+		}
+
+		@Override
+		protected IModification createUndoModificationsReplacement() {
+<span class="fc" id="L415">			return ReflectionUIUtils.createUndoModificationsReplacement(data);</span>
+		}
+
+		@Override
+		protected IInfoFilter getEncapsulatedFormFilter() {
+<span class="fc" id="L420">			return data.getFormControlFilter();</span>
+		}
+
+		@Override
+		protected void handleRealtimeLinkCommitException(Throwable t) {
+<span class="nc" id="L425">			swingRenderer.handleException(ownerComponent, t);</span>
+<span class="nc" id="L426">		}</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>HyperlinkTooltip.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.util</a> &gt; <span class="el_source">HyperlinkTooltip.java</span></div><h1>HyperlinkTooltip.java</h1><pre class="source lang-java linenums">package xy.reflect.ui.control.swing.util;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
+import java.awt.Rectangle;
+import java.awt.Window.Type;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
+import java.util.Arrays;
+import java.util.WeakHashMap;
+import java.util.function.Function;
+
+import javax.swing.JWindow;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+
+public class HyperlinkTooltip {
+
+<span class="fc" id="L25">	protected static int MILLISECONDS_BEFORE_OPENING = Integer</span>
+<span class="fc" id="L26">			.valueOf(System.getProperty(HyperlinkTooltip.class.getName() + &quot;.MILLISECONDS_BEFORE_OPENING&quot;, &quot;500&quot;));</span>
+<span class="fc" id="L27">	protected static int MILLISECONDS_BEFORE_CLOSING = Integer</span>
+<span class="fc" id="L28">			.valueOf(System.getProperty(HyperlinkTooltip.class.getName() + &quot;.MILLISECONDS_BEFORE_CLOSING&quot;, &quot;500&quot;));</span>
+
+<span class="fc" id="L30">	protected static final WeakHashMap&lt;Component, HyperlinkTooltip&gt; BY_COMPONENT = new WeakHashMap&lt;&gt;();</span>
+
+	protected final String message;
+	protected final Runnable linkOpener;
+	protected Object customValue;
+	protected Function&lt;Component, Rectangle&gt; customComponentResponsiveBoundsMapper;
+
+	protected final JWindow window;
+	protected final MouseMotionListener mouseMotionListener;
+	protected Timer showingTimer;
+	protected Timer hidingTimer;
+
+<span class="nc" id="L42">	protected HyperlinkTooltip(Component component, String message, Runnable linkOpener) {</span>
+<span class="nc" id="L43">		this.message = message;</span>
+<span class="nc" id="L44">		this.linkOpener = linkOpener;</span>
+<span class="nc" id="L45">		this.window = new JWindow(SwingUtilities.getWindowAncestor(component));</span>
+<span class="nc" id="L46">		window.setType(Type.UTILITY);</span>
+<span class="nc" id="L47">		window.setAlwaysOnTop(true);</span>
+<span class="nc" id="L48">		window.setFocusableWindowState(false);</span>
+<span class="nc" id="L49">		HyperlinkLabel label = createHyperlinkLabel();</span>
+<span class="nc" id="L50">		label.setOpaque(true);</span>
+<span class="nc" id="L51">		label.setBackground(getBackground());</span>
+<span class="nc" id="L52">		label.setBorder(getBorder());</span>
+<span class="nc" id="L53">		label.setRawTextAndLinkOpener(message, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L56">				window.setVisible(false);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">				if (HyperlinkTooltip.this.linkOpener != null) {</span>
+<span class="nc" id="L58">					HyperlinkTooltip.this.linkOpener.run();</span>
+				}
+<span class="nc" id="L60">			}</span>
+		});
+<span class="nc" id="L62">		window.add(label);</span>
+<span class="nc" id="L63">		window.pack();</span>
+<span class="nc" id="L64">		showingTimer = new Timer(MILLISECONDS_BEFORE_OPENING, e -&gt; {</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">			if (!isConnectedTo(component)) {</span>
+<span class="nc" id="L66">				return;</span>
+			}
+<span class="nc bnc" id="L68" title="All 2 branches missed.">			if (!component.isShowing()) {</span>
+<span class="nc" id="L69">				return;</span>
+			}
+<span class="nc" id="L71">			PointerInfo pointerInfo = MouseInfo.getPointerInfo();</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">			if (pointerInfo != null) {</span>
+<span class="nc" id="L73">				Point pointerLocation = pointerInfo.getLocation();</span>
+<span class="nc" id="L74">				Rectangle componentBounds = getComponentResponsiveBoundsOnScreen(component);</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">				if (componentBounds.contains(pointerLocation)) {</span>
+<span class="nc" id="L76">					window.setLocation(componentBounds.x + ((componentBounds.width - window.getWidth()) / 2),</span>
+<span class="nc" id="L77">							componentBounds.y + componentBounds.height);</span>
+<span class="nc" id="L78">					window.setVisible(true);</span>
+<span class="nc" id="L79">					hidingTimer.restart();</span>
+				}
+			}
+<span class="nc" id="L82">		});</span>
+<span class="nc" id="L83">		showingTimer.setRepeats(false);</span>
+<span class="nc" id="L84">		hidingTimer = new Timer(MILLISECONDS_BEFORE_CLOSING, e -&gt; {</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">			if (!isConnectedTo(component)) {</span>
+<span class="nc" id="L86">				window.setVisible(false);</span>
+<span class="nc" id="L87">				return;</span>
+			}
+<span class="nc bnc" id="L89" title="All 2 branches missed.">			if (!component.isShowing()) {</span>
+<span class="nc" id="L90">				window.setVisible(false);</span>
+<span class="nc" id="L91">				return;</span>
+			}
+<span class="nc" id="L93">			PointerInfo pointerInfo = MouseInfo.getPointerInfo();</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">			if (pointerInfo != null) {</span>
+<span class="nc" id="L95">				Point pointerLocation = pointerInfo.getLocation();</span>
+<span class="nc" id="L96">				Rectangle componentBounds = getComponentResponsiveBoundsOnScreen(component);</span>
+<span class="nc bnc" id="L97" title="All 4 branches missed.">				if (!componentBounds.contains(pointerLocation) &amp;&amp; !window.getBounds().contains(pointerLocation)) {</span>
+<span class="nc" id="L98">					window.setVisible(false);</span>
+<span class="nc" id="L99">				} else {</span>
+<span class="nc" id="L100">					hidingTimer.restart();</span>
+				}
+<span class="nc" id="L102">			} else {</span>
+<span class="nc" id="L103">				window.setVisible(false);</span>
+			}
+<span class="nc" id="L105">		});</span>
+<span class="nc" id="L106">		hidingTimer.setRepeats(false);</span>
+<span class="nc" id="L107">		mouseMotionListener = new MouseMotionAdapter() {</span>
+			@Override
+			public void mouseMoved(MouseEvent e) {
+<span class="nc bnc" id="L110" title="All 2 branches missed.">				if (!window.isVisible()) {</span>
+<span class="nc" id="L111">					showingTimer.restart();</span>
+<span class="nc" id="L112">				} else {</span>
+<span class="nc" id="L113">					hidingTimer.restart();</span>
+				}
+<span class="nc" id="L115">			}</span>
+		};
+<span class="nc" id="L117">		component.addMouseMotionListener(mouseMotionListener);</span>
+<span class="nc" id="L118">		label.addMouseMotionListener(mouseMotionListener);</span>
+
+<span class="nc" id="L120">	}</span>
+
+	protected Rectangle getComponentResponsiveBoundsOnScreen(Component component) {
+<span class="nc" id="L123">		Rectangle result = component.getBounds();</span>
+<span class="nc" id="L124">		result.setLocation(component.getLocationOnScreen());</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		if (customComponentResponsiveBoundsMapper != null) {</span>
+<span class="nc" id="L126">			Rectangle responsiveBounds = customComponentResponsiveBoundsMapper.apply(component);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">			if (responsiveBounds == null) {</span>
+<span class="nc" id="L128">				return null;</span>
+			}
+<span class="nc" id="L130">			result.x += responsiveBounds.x;</span>
+<span class="nc" id="L131">			result.y += responsiveBounds.y;</span>
+<span class="nc" id="L132">			result.width = responsiveBounds.width;</span>
+<span class="nc" id="L133">			result.height = responsiveBounds.height;</span>
+		}
+<span class="nc" id="L135">		return result;</span>
+	}
+
+	protected boolean isConnectedTo(Component component) {
+<span class="nc" id="L139">		return Arrays.asList(component.getMouseMotionListeners()).contains(mouseMotionListener);</span>
+	}
+
+	protected HyperlinkLabel createHyperlinkLabel() {
+<span class="nc" id="L143">		return new HyperlinkLabel();</span>
+	}
+
+	protected Border getBorder() {
+<span class="nc" id="L147">		return UIManager.getBorder(&quot;ToolTip.border&quot;);</span>
+	}
+
+	protected Color getBackground() {
+<span class="nc" id="L151">		return UIManager.getColor(&quot;ToolTip.background&quot;);</span>
+	}
+
+	public String getMessage() {
+<span class="nc" id="L155">		return message;</span>
+	}
+
+	public Runnable getLinkOpener() {
+<span class="nc" id="L159">		return linkOpener;</span>
+	}
+
+	public Object getCustomValue() {
+<span class="nc" id="L163">		return customValue;</span>
+	}
+
+	public void setCustomValue(Object customValue) {
+<span class="nc" id="L167">		this.customValue = customValue;</span>
+<span class="nc" id="L168">	}</span>
+
+	public Function&lt;Component, Rectangle&gt; getCustomComponentResponsiveBoundsMapper() {
+<span class="nc" id="L171">		return customComponentResponsiveBoundsMapper;</span>
+	}
+
+	public void setCustomComponentResponsiveBoundsMapper(
+			Function&lt;Component, Rectangle&gt; customComponentResponsiveBoundsMapper) {
+<span class="nc" id="L176">		this.customComponentResponsiveBoundsMapper = customComponentResponsiveBoundsMapper;</span>
+<span class="nc" id="L177">	}</span>
+
+	public MouseMotionListener getMouseMotionListener() {
+<span class="nc" id="L180">		return mouseMotionListener;</span>
+	}
+
+	public Timer getShowingTimer() {
+<span class="nc" id="L184">		return showingTimer;</span>
+	}
+
+	public Timer getHidingTimer() {
+<span class="nc" id="L188">		return hidingTimer;</span>
+	}
+
+	public static void set(Component component, String message, Runnable linkOpener) {
+<span class="nc" id="L192">		unset(component);</span>
+<span class="nc" id="L193">		BY_COMPONENT.put(component, new HyperlinkTooltip(component, message, linkOpener));</span>
+<span class="nc" id="L194">	}</span>
+
+	public static void unset(Component component) {
+<span class="nc" id="L197">		HyperlinkTooltip tooltip = BY_COMPONENT.remove(component);</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">		if (tooltip != null) {</span>
+<span class="nc" id="L199">			component.removeMouseMotionListener(tooltip.mouseMotionListener);</span>
+<span class="nc" id="L200">			tooltip.window.setVisible(false);</span>
+<span class="nc" id="L201">			tooltip.window.dispose();</span>
+		}
+<span class="nc" id="L203">	}</span>
+
+	public static HyperlinkTooltip get(Component comp) {
+<span class="fc" id="L206">		return BY_COMPONENT.get(comp);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

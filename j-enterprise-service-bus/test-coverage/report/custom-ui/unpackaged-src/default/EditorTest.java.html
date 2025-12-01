@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>EditorTest.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">custom-ui</a> &gt; <a href="../index.html" class="el_bundle">unpackaged-src</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">EditorTest.java</span></div><h1>EditorTest.java</h1><pre class="source lang-java linenums">import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.SwingUtilities;
+
+import xy.reflect.ui.CustomizedUI;
+import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
+import xy.reflect.ui.info.custom.InfoCustomizations;
+
+<span class="nc" id="L11">public class EditorTest {</span>
+
+	public static void main(String[] args) {
+<span class="nc" id="L14">		InfoCustomizations infoCustomizations = new InfoCustomizations();</span>
+<span class="nc" id="L15">		CustomizedUI reflectionUI = new CustomizedUI(infoCustomizations);</span>
+<span class="nc" id="L16">		SwingCustomizer renderer = new SwingCustomizer(reflectionUI,</span>
+<span class="nc" id="L17">				System.getProperty(&quot;custom-ui.project.directory&quot;, &quot;./&quot;) + &quot;unpackaged-src/default.icu&quot;);</span>
+<span class="nc" id="L18">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L21">				renderer.openObjectFrame(new Test(), null, null);</span>
+<span class="nc" id="L22">			}</span>
+		});
+<span class="nc" id="L24">	}</span>
+
+<span class="nc" id="L26">	public static class Test {</span>
+<span class="nc" id="L27">		private Integer systematicallyReplacedDirectValue = 0;</span>
+<span class="nc" id="L28">		private Test2 nonReplacedDirectValue = new Test2();</span>
+<span class="nc" id="L29">		private List&lt;Integer&gt; systematicallyReplacedDirectList = new ArrayList&lt;Integer&gt;(Arrays.asList(1, 2, 3));</span>
+
+		public Integer getSystematicallyReplacedDirectValue() {
+<span class="nc" id="L32">			return systematicallyReplacedDirectValue;</span>
+		}
+
+		public void setSystematicallyReplacedDirectValue(Integer systematicallyReplacedDirectValue) {
+<span class="nc" id="L36">			this.systematicallyReplacedDirectValue = systematicallyReplacedDirectValue;</span>
+<span class="nc" id="L37">		}</span>
+
+		public Test2 getNonReplacedDirectValue() {
+<span class="nc" id="L40">			return nonReplacedDirectValue;</span>
+		}
+
+		public void setNonReplacedDirectValue(Test2 nonReplacedDirectValue) {
+<span class="nc" id="L44">			this.nonReplacedDirectValue = nonReplacedDirectValue;</span>
+<span class="nc" id="L45">		}</span>
+
+		public List&lt;Integer&gt; getSystematicallyReplacedDirectList() {
+<span class="nc" id="L48">			return systematicallyReplacedDirectList;</span>
+		}
+
+		public void setSystematicallyReplacedDirectList(List&lt;Integer&gt; systematicallyReplacedDirectList) {
+<span class="nc" id="L52">			this.systematicallyReplacedDirectList = systematicallyReplacedDirectList;</span>
+<span class="nc" id="L53">		}</span>
+	}
+
+<span class="nc" id="L56">	public static class Test2 {</span>
+<span class="nc" id="L57">		private String value = &quot;azerty&quot;;</span>
+
+		public String getValue() {
+<span class="nc" id="L60">			return value;</span>
+		}
+
+		public void setValue(String value) {
+<span class="nc" id="L64">			this.value = value;</span>
+<span class="nc" id="L65">		}</span>
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

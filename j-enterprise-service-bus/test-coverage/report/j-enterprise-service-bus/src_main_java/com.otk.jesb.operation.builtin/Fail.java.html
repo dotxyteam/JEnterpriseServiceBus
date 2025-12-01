@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Fail.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">Fail.java</span></div><h1>Fail.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.beans.Transient;
+import java.util.Collections;
+import java.util.List;
+
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.instantiation.InstanceBuilderFacade;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public class Fail implements Operation {
+
+	private Throwable exception;
+
+<span class="fc" id="L27">	public Fail(Throwable exception) {</span>
+<span class="fc" id="L28">		this.exception = exception;</span>
+<span class="fc" id="L29">	}</span>
+
+	public Throwable getException() {
+<span class="nc" id="L32">		return exception;</span>
+	}
+
+	@Override
+	public Object execute() throws Throwable {
+<span class="fc" id="L37">		throw exception;</span>
+	}
+
+<span class="fc" id="L40">	public static class Metadata implements OperationMetadata&lt;Fail&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L44">			return &quot;Fail&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L49">			return &quot;General&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;Fail&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L54">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L59">			return new ResourcePath(</span>
+<span class="fc" id="L60">					ResourcePath.specifyClassPathResourceLocation(Fail.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+<span class="fc" id="L64">	public static class Builder implements OperationBuilder&lt;Fail&gt; {</span>
+
+<span class="fc" id="L66">		private String exceptionClassName = Exception.class.getName();</span>
+<span class="fc" id="L67">		private RootInstanceBuilder exceptionBuilder = new RootInstanceBuilder(&quot;ExceptionInput&quot;,</span>
+<span class="fc" id="L68">				new ExceptionClassNameAccessor());</span>
+
+		public String getExceptionClassName() {
+<span class="nc" id="L71">			return exceptionClassName;</span>
+		}
+
+		public void setExceptionClassName(String exceptionClassName) {
+<span class="fc" id="L75">			this.exceptionClassName = exceptionClassName;</span>
+<span class="fc" id="L76">		}</span>
+
+		public RootInstanceBuilder getExceptionBuilder() {
+<span class="nc" id="L79">			return exceptionBuilder;</span>
+		}
+
+		public void setExceptionBuilder(RootInstanceBuilder exceptionBuilder) {
+<span class="fc" id="L83">			this.exceptionBuilder = exceptionBuilder;</span>
+<span class="fc" id="L84">		}</span>
+
+		public List&lt;String&gt; getExceptionContructorSignatureOptions() {
+<span class="nc" id="L87">			List&lt;InstanceBuilderFacade&gt; rootInstanceBuilderFacades = exceptionBuilder.getWrappedInstanceBuilderFacades();</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">			if(rootInstanceBuilderFacades.isEmpty()) {</span>
+<span class="nc" id="L89">				return Collections.emptyList();</span>
+			}
+<span class="nc" id="L91">			List&lt;String&gt; result = null;</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">			for (InstanceBuilderFacade facade : rootInstanceBuilderFacades) {</span>
+				try {
+<span class="nc bnc" id="L94" title="All 2 branches missed.">					if (result == null) {</span>
+<span class="nc" id="L95">						result = facade.getConstructorSignatureOptions();</span>
+<span class="nc" id="L96">					} else {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">						if (!result.equals(facade.getConstructorSignatureOptions())) {</span>
+<span class="nc" id="L98">							throw new Throwable();</span>
+						}
+					}
+<span class="nc" id="L101">				} catch (Throwable e) {</span>
+<span class="nc" id="L102">					result = Collections.singletonList(null);</span>
+<span class="nc" id="L103">					break;</span>
+				}
+			}
+<span class="nc" id="L106">			return result;</span>
+		}
+
+		@Transient
+		public String getExceptionContructorSignature() {
+<span class="nc" id="L111">			String result = null;</span>
+<span class="nc" id="L112">			List&lt;InstanceBuilderFacade&gt; rootInstanceBuilderFacades = exceptionBuilder.getWrappedInstanceBuilderFacades();</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">			for (InstanceBuilderFacade facade : rootInstanceBuilderFacades) {</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">				if (result == null) {</span>
+<span class="nc" id="L115">					result = facade.getSelectedConstructorSignature();</span>
+<span class="nc" id="L116">				} else {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">					if (!result.equals(facade.getSelectedConstructorSignature())) {</span>
+<span class="nc" id="L118">						result = null;</span>
+<span class="nc" id="L119">						break;</span>
+					}
+				}
+			}
+<span class="nc" id="L123">			return result;</span>
+		}
+
+		public void setExceptionContructorSignature(String constructorSignature) {
+<span class="nc bnc" id="L127" title="All 2 branches missed.">			if (constructorSignature == null) {</span>
+<span class="nc" id="L128">				return;</span>
+			}
+<span class="nc" id="L130">			List&lt;InstanceBuilderFacade&gt; rootInstanceBuilderFacades = exceptionBuilder.getWrappedInstanceBuilderFacades();</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">			for (InstanceBuilderFacade facade : rootInstanceBuilderFacades) {</span>
+<span class="nc" id="L132">				facade.setSelectedConstructorSignature(constructorSignature);</span>
+			}
+<span class="nc" id="L134">		}</span>
+
+		@Override
+		public Fail build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+<span class="fc" id="L138">			Throwable exception = (Throwable) exceptionBuilder.build(new InstantiationContext(context.getVariables(),</span>
+<span class="fc" id="L139">					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));</span>
+<span class="fc" id="L140">			return new Fail(exception);</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="fc" id="L145">			return null;</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="fc" id="L150">			MiscUtils.getJESBClass(exceptionClassName);</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">				if (exceptionBuilder != null) {</span>
+					try {
+<span class="fc" id="L154">						exceptionBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L155">								plan.getValidationContext(step).getVariableDeclarations());</span>
+<span class="pc" id="L156">					} catch (ValidationError e) {</span>
+<span class="nc" id="L157">						throw new ValidationError(&quot;Failed to validate the exception builder&quot;, e);</span>
+					}
+				}
+			}
+<span class="fc" id="L161">		}</span>
+
+<span class="fc" id="L163">		public class ExceptionClassNameAccessor extends Accessor&lt;String&gt; {</span>
+
+			@Override
+			public String get() {
+<span class="fc" id="L167">				return exceptionClassName;</span>
+			}
+
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

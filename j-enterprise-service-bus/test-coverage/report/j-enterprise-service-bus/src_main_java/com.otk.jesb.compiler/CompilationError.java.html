@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CompilationError.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.compiler</a> &gt; <span class="el_source">CompilationError.java</span></div><h1>CompilationError.java</h1><pre class="source lang-java linenums">package com.otk.jesb.compiler;
+
+import com.otk.jesb.StandardError;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
+
+public class CompilationError extends StandardError {
+
+	private static final long serialVersionUID = 1L;
+
+	private int startPosition;
+	private int endPosition;
+	private String sourceFilePath;
+	private String sourceCode;
+
+	public CompilationError(int startPosition, int endPosition, String message, String sourceFilePath,
+			String sourceCode, Throwable cause) {
+<span class="fc" id="L18">		super(message, cause);</span>
+<span class="fc" id="L19">		this.startPosition = startPosition;</span>
+<span class="fc" id="L20">		this.endPosition = endPosition;</span>
+<span class="fc" id="L21">		this.sourceFilePath = sourceFilePath;</span>
+<span class="fc" id="L22">		this.sourceCode = sourceCode;</span>
+<span class="fc" id="L23">	}</span>
+
+	public CompilationError(int startPosition, int endPosition, String message, String sourceFilePath,
+			String sourceCode) {
+<span class="fc" id="L27">		this(startPosition, endPosition, message, sourceFilePath, sourceCode, null);</span>
+<span class="fc" id="L28">	}</span>
+
+	public int getStartPosition() {
+<span class="fc" id="L31">		return startPosition;</span>
+	}
+
+	public int getEndPosition() {
+<span class="fc" id="L35">		return endPosition;</span>
+	}
+
+	public String getSourceFilePath() {
+<span class="fc" id="L39">		return sourceFilePath;</span>
+	}
+
+	public String getSourceCode() {
+<span class="fc" id="L43">		return sourceCode;</span>
+	}
+
+	public Pair&lt;Pair&lt;Integer, Integer&gt;, Pair&lt;Integer, Integer&gt;&gt; getRowAndColumnPairs() {
+<span class="fc" id="L47">		return new Pair&lt;Pair&lt;Integer, Integer&gt;, Pair&lt;Integer, Integer&gt;&gt;(</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">				(startPosition == -1) ? null : MiscUtils.convertIndexToPosition(sourceCode, startPosition),</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">				(endPosition == -1) ? null : MiscUtils.convertIndexToPosition(sourceCode, endPosition));</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

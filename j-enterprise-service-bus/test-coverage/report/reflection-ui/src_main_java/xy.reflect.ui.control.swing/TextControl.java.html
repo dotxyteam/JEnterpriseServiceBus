@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>TextControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing</a> &gt; <span class="el_source">TextControl.java</span></div><h1>TextControl.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JViewport;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.JTextComponent;
+
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.ControlScrollPane;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.ReschedulableTask;
+
+/**
+ * Field control that displays String values in a text box.
+ * 
+ * @author olitank
+ *
+ */
+public class TextControl extends ControlPanel implements IAdvancedFieldControl {
+
+	protected static final long serialVersionUID = 1L;
+	protected SwingRenderer swingRenderer;
+	protected IFieldControlInput input;
+	protected IFieldControlData data;
+
+	protected JTextComponent textComponent;
+	protected JScrollPane scrollPane;
+<span class="fc" id="L55">	protected boolean listenerDisabled = false;</span>
+
+	protected Border defaultTextComponentBorder;
+	protected ReschedulableTask dataUpdateProcess;
+
+<span class="fc" id="L60">	public TextControl(final SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L61">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L62">		input = adaptTextInput(input);</span>
+<span class="fc" id="L63">		this.input = input;</span>
+<span class="fc" id="L64">		this.data = input.getControlData();</span>
+<span class="fc" id="L65">		this.dataUpdateProcess = createDelayedUpdateProcess();</span>
+
+<span class="fc" id="L67">		setLayout(new BorderLayout());</span>
+
+<span class="fc" id="L69">		textComponent = createTextComponent();</span>
+		{
+<span class="fc" id="L71">			setupTextComponentEvents();</span>
+<span class="fc" id="L72">			scrollPane = createScrollPane();</span>
+<span class="fc" id="L73">			scrollPane.setViewportView(textComponent);</span>
+<span class="fc" id="L74">			add(scrollPane, BorderLayout.CENTER);</span>
+		}
+<span class="fc" id="L76">		refreshUI(true);</span>
+<span class="fc" id="L77">	}</span>
+
+	protected ReschedulableTask createDelayedUpdateProcess() {
+<span class="fc" id="L80">		return swingRenderer.createDelayedUpdateProcess(this, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L83">				TextControl.this.commitChanges();</span>
+<span class="fc" id="L84">			}</span>
+<span class="fc" id="L85">		}, 1000);</span>
+	}
+
+	public JTextComponent getTextComponent() {
+<span class="fc" id="L89">		return textComponent;</span>
+	}
+
+	protected IFieldControlInput adaptTextInput(IFieldControlInput input) {
+<span class="fc" id="L93">		return input;</span>
+	}
+
+	protected void setupTextComponentEvents() {
+<span class="fc" id="L97">		textComponent.getDocument().addUndoableEditListener(new UndoableEditListener() {</span>
+			@Override
+			public void undoableEditHappened(UndoableEditEvent e) {
+				try {
+<span class="fc" id="L101">					TextControl.this.textComponentEditHappened();</span>
+<span class="pc" id="L102">				} catch (Throwable t) {</span>
+<span class="nc" id="L103">					swingRenderer.handleException(TextControl.this, t);</span>
+				}
+<span class="fc" id="L105">			}</span>
+		});
+<span class="fc" id="L107">		textComponent.addFocusListener(new FocusListener() {</span>
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				try {
+<span class="fc" id="L112">					TextControl.this.onFocustLoss();</span>
+<span class="pc" id="L113">				} catch (Throwable t) {</span>
+<span class="nc" id="L114">					swingRenderer.handleException(TextControl.this, t);</span>
+				}
+<span class="fc" id="L116">			}</span>
+
+			@Override
+			public void focusGained(FocusEvent e) {
+<span class="fc" id="L120">			}</span>
+		});
+<span class="fc" id="L122">		textComponent.addMouseListener(new MouseAdapter() {</span>
+			@Override
+			public void mousePressed(MouseEvent e) {
+<span class="nc" id="L125">				maybeShowPopup(e);</span>
+<span class="nc" id="L126">			}</span>
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+<span class="nc" id="L130">				maybeShowPopup(e);</span>
+<span class="nc" id="L131">			}</span>
+
+			private void maybeShowPopup(MouseEvent e) {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">				if (e.isPopupTrigger()) {</span>
+<span class="nc" id="L135">					JPopupMenu popup = new JPopupMenu();</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">					if (textComponent.getSelectedText() != null) {</span>
+<span class="nc" id="L137">						popup.add(new JMenuItem(new DefaultEditorKit.CopyAction() {</span>
+							private static final long serialVersionUID = 1L;
+
+							{
+<span class="nc" id="L141">								putValue(Action.NAME, swingRenderer.prepareMessageToDisplay(&quot;Copy&quot;));</span>
+							}
+						}));
+					}
+<span class="nc bnc" id="L145" title="All 2 branches missed.">					if (textComponent.isEditable()) {</span>
+<span class="nc" id="L146">						popup.add(new JMenuItem(new DefaultEditorKit.CutAction() {</span>
+							private static final long serialVersionUID = 1L;
+
+							{
+<span class="nc" id="L150">								putValue(Action.NAME, swingRenderer.prepareMessageToDisplay(&quot;Cut&quot;));</span>
+							}
+						}));
+<span class="nc" id="L153">						popup.add(new JMenuItem(new DefaultEditorKit.PasteAction() {</span>
+							private static final long serialVersionUID = 1L;
+
+							{
+<span class="nc" id="L157">								putValue(Action.NAME, swingRenderer.prepareMessageToDisplay(&quot;Paste&quot;));</span>
+							}
+						}));
+					}
+<span class="nc" id="L161">					popup.show(e.getComponent(), e.getX(), e.getY());</span>
+				}
+<span class="nc" id="L163">			}</span>
+		});
+
+<span class="fc" id="L166">	}</span>
+
+	@Override
+	public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L170" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc" id="L171">			updateScrollPolicy();</span>
+		}
+<span class="fc bfc" id="L173" title="All 2 branches covered.">		if (dataUpdateProcess.isActive()) {</span>
+			/*
+			 * If a change is pending, the refresh can then be aborted, as it will be
+			 * performed later after the change is committed. Note that refreshing the
+			 * control would have deleted the new control value before it was committed.
+			 */
+<span class="fc" id="L179">			return true;</span>
+		}
+<span class="fc" id="L181">		refreshTextComponent(refreshStructure);</span>
+<span class="fc" id="L182">		return true;</span>
+	}
+
+	protected void updateScrollPolicy() {
+<span class="fc bfc" id="L186" title="All 2 branches covered.">		if (areScrollBarsEnabled()) {</span>
+<span class="fc" id="L187">			scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);</span>
+<span class="fc" id="L188">			scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);</span>
+<span class="fc" id="L189">		} else {</span>
+<span class="fc" id="L190">			scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);</span>
+<span class="fc" id="L191">			scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);</span>
+		}
+<span class="fc" id="L193">	}</span>
+
+	protected boolean areScrollBarsEnabled() {
+<span class="fc" id="L196">		return true;</span>
+	}
+
+	protected JScrollPane createScrollPane() {
+<span class="fc" id="L200">		return new ControlScrollPane() {</span>
+
+			protected static final long serialVersionUID = 1L;
+
+			{
+<span class="fc" id="L205">				SwingRendererUtils.removeScrollPaneBorder(this);</span>
+			}
+
+			@Override
+			public Dimension getPreferredSize() {
+<span class="fc" id="L210">				return getScrollPanePreferredSize(super.getPreferredSize());</span>
+			}
+
+			@Override
+			public Dimension getMinimumSize() {
+<span class="nc" id="L215">				Dimension result = super.getMinimumSize();</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">				if (result != null) {</span>
+<span class="nc" id="L217">					Dimension preferredSize = getPreferredSize();</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">					if (preferredSize != null) {</span>
+<span class="nc" id="L219">						result.height = Math.min(result.height, preferredSize.height);</span>
+					}
+				}
+<span class="nc" id="L222">				return result;</span>
+
+			}
+
+			@Override
+			public Dimension getMaximumSize() {
+<span class="nc" id="L228">				Dimension result = super.getMaximumSize();</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">				if (result != null) {</span>
+<span class="nc" id="L230">					Dimension preferredSize = getPreferredSize();</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">					if (preferredSize != null) {</span>
+<span class="nc" id="L232">						result.height = Math.max(result.height, preferredSize.height);</span>
+					}
+				}
+<span class="nc" id="L235">				return result;</span>
+			}
+
+		};
+	}
+
+	protected Dimension getScrollPanePreferredSize(Dimension defaultPreferredSize) {
+<span class="fc" id="L242">		Dimension result = new Dimension(defaultPreferredSize);</span>
+<span class="fc" id="L243">		Dimension characterSize = new Dimension(SwingRendererUtils.getStandardCharacterWidth(textComponent),</span>
+<span class="fc" id="L244">				SwingRendererUtils.getStandardCharacterHeight(textComponent));</span>
+<span class="fc" id="L245">		result.width = Math.min(result.width, characterSize.width * 20);</span>
+<span class="fc" id="L246">		result.height = Math.min(result.height, characterSize.height * 10);</span>
+<span class="fc" id="L247">		return result;</span>
+
+	}
+
+	protected JTextComponent createTextComponent() {
+<span class="fc" id="L252">		return new JTextArea() {</span>
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void replaceSelection(String content) {
+<span class="fc" id="L258">				boolean listenerWasDisabled = listenerDisabled;</span>
+<span class="fc" id="L259">				listenerDisabled = true;</span>
+				try {
+<span class="fc" id="L261">					super.replaceSelection(content);</span>
+<span class="fc" id="L262">				} finally {</span>
+<span class="fc" id="L263">					listenerDisabled = listenerWasDisabled;</span>
+				}
+				try {
+<span class="fc" id="L266">					TextControl.this.textComponentEditHappened();</span>
+<span class="pc" id="L267">				} catch (Throwable t) {</span>
+<span class="nc" id="L268">					swingRenderer.handleException(TextControl.this, t);</span>
+				}
+<span class="fc" id="L270">			}</span>
+
+		};
+	}
+
+	protected void refreshTextComponent(boolean refreshStructure) {
+<span class="fc bfc" id="L276" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">			if (data.isGetOnly()) {</span>
+<span class="fc" id="L278">				textComponent.setEditable(false);</span>
+<span class="fc" id="L279">				textComponent.setOpaque(false);</span>
+<span class="fc" id="L280">				textComponent.setForeground(SwingRendererUtils.getColor(data.getLabelForegroundColor()));</span>
+<span class="fc" id="L281">				textComponent.setBorder(BorderFactory.createEmptyBorder());</span>
+<span class="fc" id="L282">			} else {</span>
+<span class="fc" id="L283">				textComponent.setEditable(true);</span>
+<span class="fc" id="L284">				textComponent.setOpaque(true);</span>
+<span class="fc bfc" id="L285" title="All 2 branches covered.">				if (data.getEditorForegroundColor() != null) {</span>
+<span class="fc" id="L286">					textComponent.setForeground(SwingRendererUtils.getColor(data.getEditorForegroundColor()));</span>
+<span class="fc" id="L287">					textComponent.setCaretColor(SwingRendererUtils.getColor(data.getEditorForegroundColor()));</span>
+<span class="fc" id="L288">				} else {</span>
+<span class="fc" id="L289">					textComponent.setForeground(new JTextField().getForeground());</span>
+<span class="fc" id="L290">					textComponent.setCaretColor(new JTextField().getForeground());</span>
+				}
+<span class="pc bpc" id="L292" title="1 of 2 branches missed.">				if (data.getEditorBackgroundColor() != null) {</span>
+<span class="fc" id="L293">					textComponent.setBackground(SwingRendererUtils.getColor(data.getEditorBackgroundColor()));</span>
+<span class="fc" id="L294">				} else {</span>
+<span class="nc" id="L295">					textComponent.setBackground(new JTextField().getBackground());</span>
+				}
+<span class="fc bfc" id="L297" title="All 2 branches covered.">				if (data.getBorderColor() != null) {</span>
+<span class="fc" id="L298">					textComponent.setBorder(</span>
+<span class="fc" id="L299">							BorderFactory.createLineBorder(SwingRendererUtils.getColor(data.getBorderColor())));</span>
+<span class="fc" id="L300">				} else {</span>
+<span class="fc" id="L301">					textComponent.setBorder(new JTextField().getBorder());</span>
+				}
+			}
+<span class="pc bpc" id="L304" title="1 of 2 branches missed.">			if (data.getEditorCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L305">				textComponent.setFont(SwingRendererUtils</span>
+<span class="nc" id="L306">						.loadFontThroughCache(data.getEditorCustomFontResourcePath(),</span>
+<span class="nc" id="L307">								ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()), swingRenderer)</span>
+<span class="nc" id="L308">						.deriveFont(textComponent.getFont().getStyle(), textComponent.getFont().getSize()));</span>
+<span class="nc" id="L309">			} else {</span>
+<span class="fc" id="L310">				textComponent.setFont(new JTextField().getFont());</span>
+			}
+
+		}
+<span class="fc" id="L314">		listenerDisabled = true;</span>
+		try {
+<span class="fc" id="L316">			updateTextComponentValue();</span>
+<span class="fc" id="L317">		} finally {</span>
+<span class="fc" id="L318">			listenerDisabled = false;</span>
+		}
+<span class="fc" id="L320">	}</span>
+
+	protected void updateTextComponentValue() {
+<span class="fc" id="L323">		String newText = (String) data.getValue();</span>
+<span class="fc bfc" id="L324" title="All 2 branches covered.">		final String finalText = (newText != null) ? newText : &quot;&quot;;</span>
+<span class="fc bfc" id="L325" title="All 2 branches covered.">		if (!MiscUtils.equalsOrBothNull(textComponent.getText(), finalText)) {</span>
+<span class="fc" id="L326">			restoringViewPortState(</span>
+<span class="fc" id="L327">					() -&gt; restoringCaretPosition(() -&gt; restoringSelection(() -&gt; textComponent.setText(finalText))));</span>
+<span class="fc" id="L328">			SwingRendererUtils.handleComponentSizeChange(textComponent);</span>
+		}
+<span class="fc" id="L330">	}</span>
+
+	protected void restoringViewPortState(Runnable runnable) {
+		final Rectangle visibleRectangle;
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">		if (textComponent.getParent() instanceof JViewport) {</span>
+<span class="fc" id="L335">			JViewport viewport = (JViewport) textComponent.getParent();</span>
+<span class="fc" id="L336">			visibleRectangle = viewport.getViewRect();</span>
+<span class="fc" id="L337">		} else {</span>
+<span class="nc" id="L338">			visibleRectangle = null;</span>
+		}
+<span class="fc" id="L340">		runnable.run();</span>
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">		if (visibleRectangle != null) {</span>
+<span class="fc" id="L342">			SwingUtilities.invokeLater(new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="fc" id="L345">					textComponent.scrollRectToVisible(visibleRectangle);</span>
+<span class="fc" id="L346">				}</span>
+			});
+		}
+<span class="fc" id="L349">	}</span>
+
+	protected void restoringCaretPosition(Runnable runnable) {
+<span class="fc" id="L352">		int lastCaretPosition = textComponent.getCaretPosition();</span>
+<span class="fc" id="L353">		runnable.run();</span>
+<span class="fc" id="L354">		textComponent.setCaretPosition(Math.min(lastCaretPosition, textComponent.getDocument().getLength()));</span>
+<span class="fc" id="L355">	}</span>
+
+	protected void restoringSelection(Runnable runnable) {
+<span class="fc" id="L358">		int selectionStart = textComponent.getCaret().getMark();</span>
+<span class="fc" id="L359">		int selectionEnd = textComponent.getCaret().getDot();</span>
+<span class="fc" id="L360">		runnable.run();</span>
+<span class="pc bpc" id="L361" title="1 of 2 branches missed.">		if (selectionStart != selectionEnd) {</span>
+<span class="nc" id="L362">			textComponent.getCaret().setDot(Math.min(selectionStart, textComponent.getDocument().getLength()));</span>
+<span class="nc" id="L363">			textComponent.getCaret().moveDot(Math.min(selectionEnd, textComponent.getDocument().getLength()));</span>
+		}
+<span class="fc" id="L365">	}</span>
+
+	protected void commitChanges() {
+<span class="fc" id="L368">		data.setValue(textComponent.getText());</span>
+<span class="fc" id="L369">	}</span>
+
+	protected void textComponentEditHappened() {
+<span class="fc bfc" id="L372" title="All 2 branches covered.">		if (listenerDisabled) {</span>
+<span class="fc" id="L373">			return;</span>
+		}
+<span class="fc" id="L375">		dataUpdateProcess.reschedule();</span>
+<span class="fc" id="L376">	}</span>
+
+	protected void onFocustLoss() {
+<span class="fc bfc" id="L379" title="All 2 branches covered.">		if (dataUpdateProcess.cancelSchedule()) {</span>
+<span class="fc" id="L380">			commitChanges();</span>
+		}
+<span class="fc" id="L382">	}</span>
+
+	@Override
+	public boolean displayError(Throwable error) {
+<span class="fc" id="L386">		SwingRendererUtils.displayErrorOnBorderAndTooltip(this, textComponent, error, swingRenderer);</span>
+<span class="fc" id="L387">		return true;</span>
+	}
+
+	@Override
+	public boolean showsCaption() {
+<span class="fc" id="L392">		return false;</span>
+	}
+
+	@Override
+	public boolean isModificationStackManaged() {
+<span class="fc" id="L397">		return false;</span>
+	}
+
+	@Override
+	public boolean areValueAccessErrorsManaged() {
+<span class="fc" id="L402">		return false;</span>
+	}
+
+	@Override
+	public boolean requestCustomFocus() {
+<span class="fc bfc" id="L407" title="All 2 branches covered.">		if (data.isGetOnly()) {</span>
+<span class="fc" id="L408">			return false;</span>
+		}
+<span class="fc bfc" id="L410" title="All 2 branches covered.">		if (SwingRendererUtils.requestAnyComponentFocus(textComponent, swingRenderer)) {</span>
+<span class="fc" id="L411">			return true;</span>
+		}
+<span class="fc" id="L413">		return false;</span>
+	}
+
+	@Override
+	public void validateControlData(ValidationSession session) throws Exception {
+<span class="fc" id="L418">	}</span>
+
+	@Override
+	public void addMenuContributions(MenuModel menuModel) {
+<span class="fc" id="L422">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InspectResource.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">InspectResource.java</span></div><h1>InspectResource.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
+
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.activation.builtin.WatchFileSystem;
+import com.otk.jesb.activation.builtin.WatchFileSystem.ResourceKind;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Step;
+
+import xy.reflect.ui.info.ResourcePath;
+
+public class InspectResource implements Operation {
+
+	private String path;
+
+<span class="fc" id="L29">	public InspectResource(String path) {</span>
+<span class="fc" id="L30">		this.path = path;</span>
+<span class="fc" id="L31">	}</span>
+
+	public String getPath() {
+<span class="nc" id="L34">		return path;</span>
+	}
+
+	@Override
+	public Object execute() throws Throwable {
+<span class="fc" id="L39">		Path nioPath = Paths.get(path);</span>
+<span class="fc" id="L40">		String absolutePath = nioPath.toAbsolutePath().toString();</span>
+<span class="fc" id="L41">		String name = nioPath.getFileName().toString();</span>
+<span class="fc" id="L42">		boolean existing = Files.exists(nioPath, LinkOption.NOFOLLOW_LINKS);</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">		WatchFileSystem.ResourceKind resourceKind = existing ? WatchFileSystem.ResourceKind.get(nioPath) : null;</span>
+		String owner;
+		try {
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">			owner = existing ? Files.getOwner(nioPath, LinkOption.NOFOLLOW_LINKS).getName() : null;</span>
+<span class="pc" id="L47">		} catch (UnsupportedOperationException | IOException e) {</span>
+<span class="nc" id="L48">			owner = null;</span>
+		}
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		boolean readable = existing ? Files.isReadable(nioPath) : false;</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		boolean writable = existing ? Files.isWritable(nioPath) : false;</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">		boolean executable = existing ? Files.isExecutable(nioPath) : false;</span>
+		boolean hidden;
+		try {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">			hidden = existing ? Files.isHidden(nioPath) : false;</span>
+<span class="pc" id="L56">		} catch (IOException e) {</span>
+<span class="nc" id="L57">			hidden = false;</span>
+		}
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">		boolean symbolicLink = existing ? Files.isSymbolicLink(nioPath) : false;</span>
+		String fileStoreName;
+		try {
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">			fileStoreName = existing ? Files.getFileStore(nioPath).name() : null;</span>
+<span class="pc" id="L63">		} catch (IOException e) {</span>
+<span class="nc" id="L64">			fileStoreName = null;</span>
+		}
+		Date lastModificationTimestamp;
+		try {
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">			lastModificationTimestamp = existing</span>
+<span class="fc" id="L69">					? new Date(Files.getLastModifiedTime(nioPath, LinkOption.NOFOLLOW_LINKS).toMillis())</span>
+<span class="nc" id="L70">					: null;</span>
+<span class="pc" id="L71">		} catch (IOException e) {</span>
+<span class="nc" id="L72">			lastModificationTimestamp = null;</span>
+		}
+<span class="fc" id="L74">		return new PathInpectionResult(absolutePath, name, existing, resourceKind, owner, readable, writable,</span>
+<span class="fc" id="L75">				executable, hidden, symbolicLink, fileStoreName, lastModificationTimestamp);</span>
+	}
+
+	public static class PathInpectionResult {
+		private String absolutePath;
+		private String name;
+		private WatchFileSystem.ResourceKind resourceKind;
+		private String owner;
+		private boolean existing;
+		private boolean readable;
+		private boolean writable;
+		private boolean executable;
+		private boolean hidden;
+		private boolean symbolicLink;
+		private String fileStoreName;
+		private Date lastModificationTimestamp;
+
+<span class="fc" id="L92">		public PathInpectionResult(String absolutePath, String name, boolean existing, ResourceKind resourceKind,</span>
+				String owner, boolean readable, boolean writable, boolean executable, boolean hidden,
+				boolean symbolicLink, String fileStoreName, Date lastModificationTimestamp) {
+<span class="fc" id="L95">			this.absolutePath = absolutePath;</span>
+<span class="fc" id="L96">			this.name = name;</span>
+<span class="fc" id="L97">			this.resourceKind = resourceKind;</span>
+<span class="fc" id="L98">			this.owner = owner;</span>
+<span class="fc" id="L99">			this.existing = existing;</span>
+<span class="fc" id="L100">			this.readable = readable;</span>
+<span class="fc" id="L101">			this.writable = writable;</span>
+<span class="fc" id="L102">			this.executable = executable;</span>
+<span class="fc" id="L103">			this.hidden = hidden;</span>
+<span class="fc" id="L104">			this.symbolicLink = symbolicLink;</span>
+<span class="fc" id="L105">			this.fileStoreName = fileStoreName;</span>
+<span class="fc" id="L106">			this.lastModificationTimestamp = lastModificationTimestamp;</span>
+<span class="fc" id="L107">		}</span>
+
+		public String getAbsolutePath() {
+<span class="fc" id="L110">			return absolutePath;</span>
+		}
+
+		public String getName() {
+<span class="fc" id="L114">			return name;</span>
+		}
+
+		public WatchFileSystem.ResourceKind getResourceKind() {
+<span class="nc" id="L118">			return resourceKind;</span>
+		}
+
+		public String getOwner() {
+<span class="nc" id="L122">			return owner;</span>
+		}
+
+		public boolean isExisting() {
+<span class="fc" id="L126">			return existing;</span>
+		}
+
+		public boolean isReadable() {
+<span class="nc" id="L130">			return readable;</span>
+		}
+
+		public boolean isWritable() {
+<span class="nc" id="L134">			return writable;</span>
+		}
+
+		public boolean isExecutable() {
+<span class="nc" id="L138">			return executable;</span>
+		}
+
+		public boolean isHidden() {
+<span class="nc" id="L142">			return hidden;</span>
+		}
+
+		public boolean isSymbolicLink() {
+<span class="nc" id="L146">			return symbolicLink;</span>
+		}
+
+		public String getFileStoreName() {
+<span class="nc" id="L150">			return fileStoreName;</span>
+		}
+
+		public Date getLastModificationTimestamp() {
+<span class="nc" id="L154">			return lastModificationTimestamp;</span>
+		}
+
+	}
+
+<span class="fc" id="L159">	public static class Builder implements OperationBuilder&lt;InspectResource&gt; {</span>
+
+<span class="fc" id="L161">		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(</span>
+<span class="fc" id="L162">				InspectResource.class.getSimpleName() + &quot;Input&quot;, InspectResource.class.getName());</span>
+
+		public RootInstanceBuilder getInstanceBuilder() {
+<span class="nc" id="L165">			return instanceBuilder;</span>
+		}
+
+		public void setInstanceBuilder(RootInstanceBuilder instanceBuilder) {
+<span class="fc" id="L169">			this.instanceBuilder = instanceBuilder;</span>
+<span class="fc" id="L170">		}</span>
+
+		@Override
+		public InspectResource build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+<span class="fc" id="L174">			return (InspectResource) instanceBuilder.build(new InstantiationContext(context.getVariables(),</span>
+<span class="fc" id="L175">					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="fc" id="L180">			return PathInpectionResult.class;</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">				if (instanceBuilder != null) {</span>
+					try {
+<span class="fc" id="L188">						instanceBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L189">								plan.getValidationContext(step).getVariableDeclarations());</span>
+<span class="pc" id="L190">					} catch (ValidationError e) {</span>
+<span class="nc" id="L191">						throw new ValidationError(&quot;Failed to validate the input builder&quot;, e);</span>
+					}
+				}
+			}
+<span class="fc" id="L195">		}</span>
+
+	}
+
+<span class="fc" id="L199">	public static class Metadata implements OperationMetadata&lt;InspectResource&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L203">			return &quot;Inspect Resource&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L208">			return &quot;File System&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;InspectResource&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L213">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L218">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L219">					.specifyClassPathResourceLocation(InspectResource.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

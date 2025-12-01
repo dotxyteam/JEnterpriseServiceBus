@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractSaveMenuItem.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.menu</a> &gt; <span class="el_source">AbstractSaveMenuItem.java</span></div><h1>AbstractSaveMenuItem.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.menu;
+
+import java.io.File;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.menu.StandardActionMenuItemInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Base class for &quot;save&quot; and &quot;save as&quot; menu items.
+ * 
+ * @author olitank
+ *
+ */
+public abstract class AbstractSaveMenuItem extends AbstractFileMenuItem {
+
+	protected static final long serialVersionUID = 1L;
+
+	public AbstractSaveMenuItem(SwingRenderer swingRenderer, Form menuBarOwner,
+			StandardActionMenuItemInfo menuItemInfo) {
+<span class="fc" id="L23">		super(swingRenderer, menuBarOwner, menuItemInfo);</span>
+<span class="fc" id="L24">	}</span>
+
+	@Override
+	protected void persist(final SwingRenderer swingRenderer, final Form form, File file) {
+<span class="fc" id="L28">		Object object = form.getObject();</span>
+<span class="fc" id="L29">		final ITypeInfo type = swingRenderer.getReflectionUI()</span>
+<span class="fc" id="L30">				.getTypeInfo(swingRenderer.getReflectionUI().getTypeInfoSource(object));</span>
+<span class="fc" id="L31">		swingRenderer.showBusyDialogWhile(form, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L34">				type.save(object, file);</span>
+<span class="fc" id="L35">			}</span>
+<span class="fc" id="L36">		}, ReflectionUIUtils.composeMessage(swingRenderer.getObjectTitle(object), &quot;Saving...&quot;));</span>
+<span class="fc" id="L37">	}</span>
+
+	@Override
+	protected File retrieveFile() {
+<span class="fc" id="L41">		File result = super.retrieveFile();</span>
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">		if (result != null) {</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">			if (result.exists()) {</span>
+<span class="nc" id="L44">				if (!swingRenderer.openQuestionDialog(menuBarOwner,</span>
+<span class="nc" id="L45">						&quot;The file '&quot; + result.getPath() + &quot;' already exists.\nDo you want to replace it?&quot;,</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">						fileBrowserConfiguration.actionTitle, &quot;OK&quot;, &quot;Cancel&quot;)) {</span>
+<span class="nc" id="L47">					result = null;</span>
+				}
+			}
+		}
+<span class="fc" id="L51">		return result;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

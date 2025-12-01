@@ -2,6 +2,7 @@ package com.otk.jesb;
 
 import java.io.PrintStream;
 import java.text.DateFormat;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import com.otk.jesb.util.MiscUtils;
 
@@ -13,6 +14,7 @@ public class Console extends Log {
 	private int size = 100000;
 	private final Object bufferMutex = new Object();
 	private String pendingInputLine;
+	private Consumer<String> pendingInputLineConsumer = line -> log(line, true, null, null, null);
 
 	public int getSize() {
 		return size;
@@ -33,6 +35,14 @@ public class Console extends Log {
 		this.pendingInputLine = pendingInputLine;
 	}
 
+	public Consumer<String> getPendingInputLineConsumer() {
+		return pendingInputLineConsumer;
+	}
+
+	public void setPendingInputLineConsumer(Consumer<String> pendingInputLineConsumer) {
+		this.pendingInputLineConsumer = pendingInputLineConsumer;
+	}
+
 	@Override
 	public PrintStream createErrorStream() {
 		return getPrintStream(System.err, LogFile.ERROR_LEVEL_NAME, "#FFFFFF", "#FF6E40", () -> true);
@@ -48,8 +58,7 @@ public class Console extends Log {
 		return getPrintStream(System.out, LogFile.INFORMATION_LEVEL_NAME, "#FFFFFF", "#AAAAAA", () -> true);
 	}
 
-	protected void log(String message, Boolean lineTerminated, String levelName, String prefixColor,
-			String messageColor) {
+	public void log(String message, Boolean lineTerminated, String levelName, String prefixColor, String messageColor) {
 		synchronized (bufferMutex) {
 			String date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(MiscUtils.now());
 			int MAX_MESSAGE_LENGTH = 5000;
@@ -82,6 +91,10 @@ public class Console extends Log {
 		}
 	}
 
+	public void log(String message) {
+		log(message, true, null, null, null);
+	}
+
 	public String read() {
 		return buffer.toString() + "<font color=\"blue\">_</font>";
 	}
@@ -91,8 +104,7 @@ public class Console extends Log {
 		if (s == null) {
 			s = "";
 		}
-		JESB.getStandardInputSource().pushLine(s);
-		JESB.getStandardOutput().println(s);
+		pendingInputLineConsumer.accept(s);
 		pendingInputLine = null;
 	}
 
@@ -110,5 +122,10 @@ public class Console extends Log {
 			}
 			log(line, lineTerminated, levelName, prefixColor, messageColor);
 		}, enablementStatusSupplier);
+	}
+
+	public PrintStream getPrintStream(PrintStream parallelPrintStream,
+			final Supplier<Boolean> enablementStatusSupplier) {
+		return getPrintStream(parallelPrintStream, null, null, null, enablementStatusSupplier);
 	}
 }

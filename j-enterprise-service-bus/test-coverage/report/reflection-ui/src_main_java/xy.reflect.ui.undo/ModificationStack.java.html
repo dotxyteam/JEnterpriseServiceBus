@@ -1,0 +1,884 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ModificationStack.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.undo</a> &gt; <span class="el_source">ModificationStack.java</span></div><h1>ModificationStack.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.undo;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
+
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.Filter;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * This is an undo management class. it allows to undo/redo actions performed
+ * using instances of {@link IModification}.
+ * 
+ * An object should be exclusively modified through the same modification stack
+ * to preserve its consistency. If a modification occurs but cannot be logged in
+ * the modification stack for any reason, then {@link #invalidate()} should be
+ * called to inform the modification stack and its clients.
+ * 
+ * @author olitank
+ *
+ */
+public class ModificationStack {
+
+<span class="fc" id="L28">	public static final String DEFAULT_CAPACITY_PROPERTY_KEY = ModificationStack.class.getName() + &quot;.defaultCapacity&quot;;</span>
+
+<span class="fc" id="L30">	public static final ModificationStack DUMMY_MODIFICATION_STACK = new ModificationStack(&quot;DUMMY_MODIFICATION_STACK&quot;) {</span>
+
+		@Override
+		public void addListener(IModificationListener listener) {
+<span class="nc" id="L34">			throw new ReflectionUIError();</span>
+		}
+
+		@Override
+		public void apply(IModification modification) {
+<span class="nc" id="L39">			throw new ReflectionUIError();</span>
+		}
+
+<span class="fc" id="L42">	};</span>
+
+<span class="fc" id="L44">	protected Stack&lt;IModification&gt; undoStack = new Stack&lt;IModification&gt;();</span>
+<span class="fc" id="L45">	protected Stack&lt;IModification&gt; redoStack = new Stack&lt;IModification&gt;();</span>
+	protected String name;
+<span class="fc" id="L47">	protected int maximumSize = Integer.valueOf(System.getProperty(DEFAULT_CAPACITY_PROPERTY_KEY, &quot;25&quot;));</span>
+<span class="fc" id="L48">	protected Stack&lt;ModificationStack&gt; compositeStack = new Stack&lt;ModificationStack&gt;();</span>
+<span class="fc" id="L49">	protected List&lt;IModificationListener&gt; listeners = new ArrayList&lt;IModificationListener&gt;();</span>
+<span class="fc" id="L50">	protected boolean invalidated = false;</span>
+<span class="fc" id="L51">	protected boolean wasInvalidated = false;</span>
+<span class="fc" id="L52">	protected boolean exhaustive = true;</span>
+<span class="fc" id="L53">	protected long stateVersion = 0;</span>
+<span class="fc" id="L54">	protected boolean eventFiringEnabled = true;</span>
+	protected Filter&lt;IModification&gt; pushFilter;
+
+<span class="fc" id="L57">	protected IModificationListener internalListener = new IModificationListener() {</span>
+
+		@Override
+		public void afterUndo(IModification undoModification) {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">			if (!undoModification.isVolatile()) {</span>
+<span class="nc" id="L62">				stateVersion--;</span>
+			}
+<span class="nc" id="L64">		}</span>
+
+		@Override
+		public void afterRedo(IModification redoModification) {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">			if (!redoModification.isVolatile()) {</span>
+<span class="nc" id="L69">				stateVersion++;</span>
+			}
+<span class="nc" id="L71">		}</span>
+
+		@Override
+		public void afterPush(IModification undoModification) {
+<span class="fc bfc" id="L75" title="All 2 branches covered.">			if (!undoModification.isVolatile()) {</span>
+<span class="fc" id="L76">				stateVersion++;</span>
+			}
+<span class="fc" id="L78">		}</span>
+
+		@Override
+		public void afterClearInvalidation() {
+<span class="fc" id="L82">		}</span>
+
+		@Override
+		public void afterInvalidate() {
+<span class="fc" id="L86">			stateVersion++;</span>
+<span class="fc" id="L87">		}</span>
+
+	};
+<span class="fc" id="L90">	protected IModificationListener allListenersProxy = new IModificationListener() {</span>
+
+		@Override
+		public void afterPush(IModification undoModification) {
+<span class="fc" id="L94">			internalListener.afterPush(undoModification);</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">			if (!eventFiringEnabled) {</span>
+<span class="nc" id="L96">				return;</span>
+			}
+<span class="fc bfc" id="L98" title="All 2 branches covered.">			for (IModificationListener listener : new ArrayList&lt;IModificationListener&gt;(</span>
+<span class="fc" id="L99">					ModificationStack.this.listeners)) {</span>
+<span class="fc" id="L100">				listener.afterPush(undoModification);</span>
+			}
+<span class="fc" id="L102">		}</span>
+
+		@Override
+		public void afterUndo(IModification undoModification) {
+<span class="nc" id="L106">			internalListener.afterUndo(undoModification);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">			if (!eventFiringEnabled) {</span>
+<span class="nc" id="L108">				return;</span>
+			}
+<span class="nc bnc" id="L110" title="All 2 branches missed.">			for (IModificationListener listener : new ArrayList&lt;IModificationListener&gt;(</span>
+<span class="nc" id="L111">					ModificationStack.this.listeners)) {</span>
+<span class="nc" id="L112">				listener.afterUndo(undoModification);</span>
+			}
+<span class="nc" id="L114">		}</span>
+
+		@Override
+		public void afterRedo(IModification modification) {
+<span class="nc" id="L118">			internalListener.afterRedo(modification);</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">			if (!eventFiringEnabled) {</span>
+<span class="nc" id="L120">				return;</span>
+			}
+<span class="nc bnc" id="L122" title="All 2 branches missed.">			for (IModificationListener listener : new ArrayList&lt;IModificationListener&gt;(</span>
+<span class="nc" id="L123">					ModificationStack.this.listeners)) {</span>
+<span class="nc" id="L124">				listener.afterRedo(modification);</span>
+			}
+<span class="nc" id="L126">		}</span>
+
+		@Override
+		public void afterInvalidate() {
+<span class="fc" id="L130">			internalListener.afterInvalidate();</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">			if (!eventFiringEnabled) {</span>
+<span class="nc" id="L132">				return;</span>
+			}
+<span class="fc bfc" id="L134" title="All 2 branches covered.">			for (IModificationListener listener : new ArrayList&lt;IModificationListener&gt;(</span>
+<span class="fc" id="L135">					ModificationStack.this.listeners)) {</span>
+<span class="fc" id="L136">				listener.afterInvalidate();</span>
+			}
+<span class="fc" id="L138">		}</span>
+
+		@Override
+		public void afterClearInvalidation() {
+<span class="fc" id="L142">			internalListener.afterClearInvalidation();</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">			if (!eventFiringEnabled) {</span>
+<span class="nc" id="L144">				return;</span>
+			}
+<span class="fc bfc" id="L146" title="All 2 branches covered.">			for (IModificationListener listener : new ArrayList&lt;IModificationListener&gt;(</span>
+<span class="fc" id="L147">					ModificationStack.this.listeners)) {</span>
+<span class="fc" id="L148">				listener.afterClearInvalidation();</span>
+			}
+<span class="fc" id="L150">		}</span>
+
+	};
+
+	/**
+	 * Constructs an empty modification stack having the specified name.
+	 * 
+	 * @param name The name.
+	 */
+<span class="fc" id="L159">	public ModificationStack(String name) {</span>
+<span class="fc" id="L160">		this.name = name;</span>
+<span class="fc" id="L161">	}</span>
+
+	/**
+	 * @return the name of this modification stack.
+	 */
+	public String getName() {
+<span class="nc" id="L167">		return name;</span>
+	}
+
+	/**
+	 * Updates the name of this modification stack.
+	 * 
+	 * @param name The new name.
+	 */
+	public void setName(String name) {
+<span class="fc" id="L176">		this.name = name;</span>
+<span class="fc" id="L177">	}</span>
+
+	/**
+	 * @return the maximum size of the stack. Note that once this size is exceeded,
+	 *         {@link #wasInvalidated()} will return true.
+	 */
+	public int getMaximumSize() {
+<span class="nc" id="L184">		return maximumSize;</span>
+	}
+
+	/**
+	 * Updates the maximum size of the stack. Note that once this size is exceeded,
+	 * {@link #wasInvalidated()} will return true.
+	 * 
+	 * @param maximumSize The new maximum size value.
+	 */
+	public void setMaximumSize(int maximumSize) {
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">		if (maximumSize &lt;= 0) {</span>
+<span class="nc" id="L195">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L197">		this.maximumSize = maximumSize;</span>
+<span class="fc" id="L198">	}</span>
+
+	/**
+	 * @return false if a volatile modification ({@link IModification#isVolatile()}
+	 *         == true) has been submitted at least once to this modification stack
+	 *         (means that some undo modifications were not pushed), true otherwise.
+	 */
+	public boolean isExhaustive() {
+<span class="fc" id="L206">		return exhaustive;</span>
+	}
+
+	/**
+	 * Adds the specified listener to the modification stack.
+	 * 
+	 * @param listener The listener.
+	 */
+	public void addListener(IModificationListener listener) {
+<span class="fc" id="L215">		listeners.add(listener);</span>
+<span class="fc" id="L216">	}</span>
+
+	/**
+	 * Removes the specified listener from the modification stack.
+	 * 
+	 * @param listener The listener.
+	 */
+	public void removeListener(IModificationListener listener) {
+<span class="fc" id="L224">		listeners.remove(listener);</span>
+<span class="fc" id="L225">	}</span>
+
+	/**
+	 * @return all the modification stack listeners.
+	 */
+	public IModificationListener[] getListeners() {
+<span class="fc" id="L231">		return listeners.toArray(new IModificationListener[listeners.size()]);</span>
+	}
+
+	/**
+	 * @return whether listeners are enabled or not.
+	 */
+	public boolean isEventFiringEnabled() {
+<span class="nc" id="L238">		return eventFiringEnabled;</span>
+	}
+
+	/**
+	 * Enables/disables listeners.
+	 * 
+	 * @param eventFiringEnabled Is true to enable listeners, false to disable
+	 *                           listeners.
+	 */
+	public void setEventFiringEnabled(boolean eventFiringEnabled) {
+<span class="nc" id="L248">		this.eventFiringEnabled = eventFiringEnabled;</span>
+<span class="nc" id="L249">	}</span>
+
+	/**
+	 * @return a filter used to alter modifications before adding them on the undo
+	 *         stack or null.
+	 */
+	public Filter&lt;IModification&gt; getPushFilter() {
+<span class="nc" id="L256">		return pushFilter;</span>
+	}
+
+	/**
+	 * Changes the filter used to alter modifications before adding them on the undo
+	 * stack.
+	 * 
+	 * @param pushFilter The new filter or null.
+	 */
+	public void setPushFilter(Filter&lt;IModification&gt; pushFilter) {
+<span class="fc" id="L266">		this.pushFilter = pushFilter;</span>
+<span class="fc" id="L267">	}</span>
+
+	/**
+	 * Normally stores the specified undo modification on the undo stack and clears
+	 * redo stack.
+	 * 
+	 * If there is a 'push' filter (see {@link #getPushFilter()}) then the specified
+	 * undo modification will be filtered before being stored.
+	 * 
+	 * If the specified undo modification is null (see
+	 * {@link IModification#isNull()}) then it will not be stored and false will be
+	 * returned.
+	 * 
+	 * If the specified undo modification is volatile (see
+	 * {@link IModification#isVolatile()}) then it will not be stored and this
+	 * modification stack will be marked as non-exhaustive (see
+	 * {@link #isExhaustive()}).
+	 * 
+	 * If there is a current composite modification (see {@link #isInComposite()})
+	 * then the specified undo modification will rather be stored on it.
+	 * 
+	 * @param undoModification The undo modification that should be pushed onto the
+	 *                         undo stack.
+	 * @return true only and only if the specified undo modification is not null.
+	 */
+	public boolean push(IModification undoModification) {
+<span class="fc bfc" id="L293" title="All 2 branches covered.">		if (undoModification.isNull()) {</span>
+<span class="fc" id="L294">			return false;</span>
+		}
+<span class="fc bfc" id="L296" title="All 2 branches covered.">		if (isInComposite()) {</span>
+<span class="fc bfc" id="L297" title="All 2 branches covered.">			if (!undoModification.isVolatile()) {</span>
+<span class="fc" id="L298">				compositeStack.peek().push(undoModification);</span>
+			}
+<span class="fc" id="L300">			return true;</span>
+		}
+<span class="fc bfc" id="L302" title="All 2 branches covered.">		if (pushFilter != null) {</span>
+<span class="fc" id="L303">			undoModification = pushFilter.get(undoModification);</span>
+		}
+<span class="fc" id="L305">		validate();</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">		if (undoModification.isVolatile()) {</span>
+<span class="fc" id="L307">			exhaustive = false;</span>
+<span class="fc" id="L308">		} else {</span>
+<span class="fc" id="L309">			undoStack.push(undoModification);</span>
+		}
+<span class="pc bpc" id="L311" title="1 of 2 branches missed.">		if (undoStack.size() &gt; maximumSize) {</span>
+<span class="nc" id="L312">			undoStack.remove(0);</span>
+<span class="nc" id="L313">			wasInvalidated = true;</span>
+		}
+<span class="fc bfc" id="L315" title="All 2 branches covered.">		if (!undoModification.isVolatile()) {</span>
+<span class="fc" id="L316">			redoStack.clear();</span>
+		}
+<span class="fc" id="L318">		allListenersProxy.afterPush(undoModification);</span>
+<span class="fc" id="L319">		return true;</span>
+	}
+
+	protected IModification applySafelyAndGetOpposite(IModification modification) {
+		try {
+<span class="fc" id="L324">			return applyAndGetOpposite(modification);</span>
+<span class="fc" id="L325">		} catch (IrreversibleModificationException e) {</span>
+<span class="fc" id="L326">			invalidate();</span>
+<span class="fc" id="L327">			return null;</span>
+<span class="nc" id="L328">		} catch (CancelledModificationException e) {</span>
+<span class="nc" id="L329">			return null;</span>
+		}
+	}
+
+	protected IModification applyAndGetOpposite(IModification modification) {
+<span class="fc" id="L334">		return modification.applyAndGetOpposite(this);</span>
+	}
+
+	/**
+	 * Executes the specified modification and pushes its opposite modification on
+	 * the undo stack (calls {@link #push(IModification)}).
+	 * 
+	 * @param modification The modification that must be executed.
+	 */
+	public void apply(IModification modification) {
+<span class="fc" id="L344">		IModification undoModification = applySafelyAndGetOpposite(modification);</span>
+<span class="fc bfc" id="L345" title="All 2 branches covered.">		if (undoModification == null) {</span>
+<span class="fc" id="L346">			return;</span>
+		}
+<span class="fc" id="L348">		push(undoModification);</span>
+<span class="fc" id="L349">	}</span>
+
+	/**
+	 * Executes the next undo modification (modification on the top of the undo
+	 * stack) if found.
+	 * 
+	 * @throws ReflectionUIError If a composite modification is being created.
+	 */
+	public void undo() {
+<span class="nc bnc" id="L358" title="All 2 branches missed.">		if (isInComposite()) {</span>
+<span class="nc" id="L359">			throw new ReflectionUIError(&quot;Cannot undo while composite modification creation is ongoing&quot;);</span>
+		}
+<span class="nc bnc" id="L361" title="All 2 branches missed.">		if (undoStack.size() == 0) {</span>
+<span class="nc" id="L362">			throw new ReflectionUIError(&quot;Cannot undo: The undo stack is empty&quot;);</span>
+		}
+<span class="nc" id="L364">		IModification undoModif = undoStack.pop();</span>
+<span class="nc" id="L365">		IModification redoModif = applySafelyAndGetOpposite(undoModif);</span>
+<span class="nc bnc" id="L366" title="All 2 branches missed.">		if (redoModif == null) {</span>
+<span class="nc" id="L367">			return;</span>
+		}
+<span class="nc" id="L369">		redoStack.push(redoModif);</span>
+<span class="nc" id="L370">		allListenersProxy.afterUndo(undoModif);</span>
+<span class="nc" id="L371">	}</span>
+
+	/**
+	 * Executes the next redo modification (modification on the top of the redo
+	 * stack) if found.
+	 * 
+	 * @throws ReflectionUIError If a composite modification is being created.
+	 */
+	public void redo() {
+<span class="nc bnc" id="L380" title="All 2 branches missed.">		if (isInComposite()) {</span>
+<span class="nc" id="L381">			throw new ReflectionUIError(&quot;Cannot redo while composite modification creation is ongoing&quot;);</span>
+		}
+<span class="nc bnc" id="L383" title="All 2 branches missed.">		if (redoStack.size() == 0) {</span>
+<span class="nc" id="L384">			throw new ReflectionUIError(&quot;Cannot redo: The redo stack is empty&quot;);</span>
+		}
+<span class="nc" id="L386">		IModification redoModif = redoStack.pop();</span>
+<span class="nc" id="L387">		IModification undoModif = applySafelyAndGetOpposite(redoModif);</span>
+<span class="nc bnc" id="L388" title="All 2 branches missed.">		if (undoModif == null) {</span>
+<span class="nc" id="L389">			return;</span>
+		}
+<span class="nc" id="L391">		undoStack.push(undoModif);</span>
+<span class="nc" id="L392">		allListenersProxy.afterRedo(redoModif);</span>
+<span class="nc" id="L393">	}</span>
+
+	/**
+	 * @return the next modification that will be executed when calling
+	 *         {@link ModificationStack#undo()}.
+	 */
+	public IModification getNextUndoModification() {
+<span class="pc bpc" id="L400" title="1 of 2 branches missed.">		if (isInComposite()) {</span>
+<span class="nc" id="L401">			return null;</span>
+		}
+<span class="fc bfc" id="L403" title="All 2 branches covered.">		if (undoStack.size() == 0) {</span>
+<span class="fc" id="L404">			return null;</span>
+		}
+<span class="fc" id="L406">		return undoStack.peek();</span>
+	}
+
+	/**
+	 * @return the next modification that will be executed when calling
+	 *         {@link ModificationStack#redo()}.
+	 */
+	public IModification getNextRedoModification() {
+<span class="pc bpc" id="L414" title="1 of 2 branches missed.">		if (isInComposite()) {</span>
+<span class="nc" id="L415">			return null;</span>
+		}
+<span class="pc bpc" id="L417" title="1 of 2 branches missed.">		if (redoStack.size() == 0) {</span>
+<span class="fc" id="L418">			return null;</span>
+		}
+<span class="nc" id="L420">		return redoStack.peek();</span>
+	}
+
+	/**
+	 * Executes all the undo modifications (calls {@link #undo()} until
+	 * {@link #getNextUndoModification()} returns null).
+	 */
+	public void undoAll() {
+<span class="nc bnc" id="L428" title="All 2 branches missed.">		while (getNextUndoModification() != null) {</span>
+<span class="nc" id="L429">			undo();</span>
+		}
+<span class="nc" id="L431">	}</span>
+
+	/**
+	 * @return whether there are remaining undo modifications.
+	 */
+	public Boolean canUndo() {
+<span class="fc bfc" id="L437" title="All 4 branches covered.">		return (getNextUndoModification() != null) &amp;&amp; !isInvalidated();</span>
+	}
+
+	/**
+	 * @return whether there are remaining redo modifications.
+	 */
+	public Boolean canRedo() {
+<span class="pc bpc" id="L444" title="3 of 4 branches missed.">		return (getNextRedoModification() != null) &amp;&amp; !isInvalidated();</span>
+	}
+
+	/**
+	 * @return whether the objects managed by this modification stack can be
+	 *         reverted to their initial state (in other terms, there are remaining
+	 *         undo modifications and the modification stack was never invalidated).
+	 */
+	public Boolean canReset() {
+<span class="fc bfc" id="L453" title="All 4 branches covered.">		return canUndo() &amp;&amp; !wasInvalidated();</span>
+	}
+
+	/**
+	 * Begins the creation of a composite modification. Following this method call,
+	 * all the modifications that will be added to this stack will be packed into a
+	 * unique modification until the call of
+	 * {@link #endComposite(String, UndoOrder, boolean)} to finalize the composite
+	 * modification creation or {@link #abortComposite()} to cancel it. Note that
+	 * calling this method multiple times before making the related calls to
+	 * {@link #endComposite(String, UndoOrder, boolean)} or
+	 * {@link #abortComposite()} will result in the creation of inner composite
+	 * modifications.
+	 */
+	public void beginComposite() {
+<span class="fc bfc" id="L468" title="All 2 branches covered.">		if (!isInComposite()) {</span>
+<span class="fc" id="L469">			validate();</span>
+		}
+<span class="fc" id="L471">		ModificationStack compositeStackElement = new ModificationStack(</span>
+<span class="fc" id="L472">				&quot;(composite level &quot; + compositeStack.size() + &quot;) &quot; + name);</span>
+<span class="fc" id="L473">		compositeStackElement.setMaximumSize(Integer.MAX_VALUE);</span>
+<span class="fc" id="L474">		compositeStack.push(compositeStackElement);</span>
+<span class="fc" id="L475">	}</span>
+
+	/**
+	 * @return true if a call to {@link #beginComposite()} have been done but the
+	 *         call to the related {@link #endComposite(String, UndoOrder, boolean)}
+	 *         or {@link #abortComposite()} has not been done yet.
+	 */
+	public boolean isInComposite() {
+<span class="fc bfc" id="L483" title="All 2 branches covered.">		return compositeStack.size() &gt; 0;</span>
+	}
+
+	/**
+	 * @return the current composite modification stack (also the last). If
+	 *         {@link #isInComposite()} returns false then null is returned.
+	 */
+	public ModificationStack getCurrentComposite() {
+<span class="nc bnc" id="L491" title="All 2 branches missed.">		if (isInComposite()) {</span>
+<span class="nc" id="L492">			return compositeStack.peek();</span>
+		} else {
+<span class="nc" id="L494">			return null;</span>
+		}
+	}
+
+	/**
+	 * @param title      The composite modification title.
+	 * @param order      The composite modification undo order.
+	 * @param isVolatile Whether the composite modification will be marked as
+	 *                   volatile (see {@link IModification#isVolatile()}) or not.
+	 *                   Note that even if this parameter value is false then the
+	 *                   composite modification may be volatile anyway (when
+	 *                   composed of volatile modifications only).
+	 * @return true if the final composite undo modification was successfully pushed
+	 *         onto the undo stack. If the composite modification is null or
+	 *         invalidated then false will be returned.
+	 */
+	public boolean endComposite(String title, UndoOrder order, boolean isVolatile) {
+<span class="fc" id="L511">		ModificationStack topComposite = compositeStack.pop();</span>
+		ModificationStack compositeParent;
+<span class="fc bfc" id="L513" title="All 2 branches covered.">		if (compositeStack.size() &gt; 0) {</span>
+<span class="fc" id="L514">			compositeParent = compositeStack.peek();</span>
+<span class="fc" id="L515">		} else {</span>
+<span class="fc" id="L516">			compositeParent = this;</span>
+		}
+<span class="fc bfc" id="L518" title="All 2 branches covered.">		if (topComposite.wasInvalidated) {</span>
+<span class="fc" id="L519">			compositeParent.invalidate();</span>
+<span class="fc" id="L520">			return false;</span>
+		}
+		CompositeModification topCompositeUndoModif;
+		{
+<span class="fc" id="L524">			List&lt;IModification&gt; list = new ArrayList&lt;IModification&gt;(topComposite.undoStack);</span>
+<span class="fc bfc" id="L525" title="All 2 branches covered.">			if (order == UndoOrder.getNormal()) {</span>
+<span class="fc" id="L526">				Collections.reverse(list);</span>
+			}
+<span class="fc" id="L528">			topCompositeUndoModif = new CompositeModification(AbstractModification.getUndoTitle(title), order,</span>
+<span class="fc" id="L529">					list.toArray(new IModification[list.size()])) {</span>
+
+				@Override
+				public boolean isVolatile() {
+<span class="pc bpc" id="L533" title="1 of 2 branches missed.">					if (isVolatile) {</span>
+<span class="nc" id="L534">						return true;</span>
+					}
+<span class="fc" id="L536">					return super.isVolatile();</span>
+				}
+
+			};
+		}
+<span class="pc bpc" id="L541" title="1 of 2 branches missed.">		if (!topComposite.isExhaustive()) {</span>
+<span class="nc" id="L542">			compositeParent.exhaustive = false;</span>
+		}
+<span class="fc" id="L544">		return compositeParent.push(topCompositeUndoModif);</span>
+	}
+
+	/**
+	 * Cancels a composite modification creation initiated by a preceding call to
+	 * {@link #beginComposite()}.
+	 */
+	public void abortComposite() {
+<span class="fc" id="L552">		compositeStack.pop();</span>
+<span class="fc" id="L553">	}</span>
+
+	/**
+	 * Convenient composite modification creation method that calls
+	 * {@link #beginComposite()}, performs the specified action and calls
+	 * {@link #endComposite(String, UndoOrder, boolean)} or
+	 * {@link #abortComposite()}.
+	 * 
+	 * @param title      The composite modification title.
+	 * @param order      The composite modification undo order.
+	 * @param isVolatile Whether the composite modification will be marked as
+	 *                   volatile (see {@link IModification#isVolatile()}) or not.
+	 *                   Note that even if this parameter value is false then the
+	 *                   composite modification may be volatile anyway (when
+	 *                   composed of volatile modifications only).
+	 * @param action     If the call of {@link Accessor#get()} on this parameter
+	 *                   returns true then the composite modification is ended.
+	 *                   Otherwise the composite modification is aborted.
+	 * @return true if the final composite undo modification was successfully pushed
+	 *         onto the undo stack. If the composite modification is null or
+	 *         invalidated then false will be returned.
+	 */
+	public boolean insideComposite(String title, UndoOrder order, Accessor&lt;Boolean&gt; action, boolean isVolatile) {
+<span class="fc" id="L576">		beginComposite();</span>
+		boolean ok;
+		try {
+<span class="fc" id="L579">			ok = action.get();</span>
+<span class="pc" id="L580">		} catch (Throwable t) {</span>
+			try {
+<span class="nc" id="L582">				invalidate();</span>
+<span class="nc" id="L583">			} catch (Throwable ignore) {</span>
+			}
+			try {
+<span class="nc" id="L586">				endComposite(title, order, isVolatile);</span>
+<span class="nc" id="L587">			} catch (Throwable ignore) {</span>
+			}
+<span class="nc" id="L589">			throw new ReflectionUIError(t);</span>
+		}
+<span class="fc bfc" id="L591" title="All 2 branches covered.">		if (ok) {</span>
+<span class="fc" id="L592">			return endComposite(title, order, isVolatile);</span>
+		} else {
+<span class="fc" id="L594">			abortComposite();</span>
+<span class="fc" id="L595">			return false;</span>
+		}
+	}
+
+	/**
+	 * Informs the modification stack of the current undo management inconsistency.
+	 * Subsequently {@link #isInvalidated()} and {@link #wasInvalidated()} will
+	 * return true and the undo and redo stacks will be emptied to ensure that the
+	 * undo management remains consistent. This invalidation state will be cleared
+	 * if an undo modification gets added afterwards but {@link #wasInvalidated()}
+	 * will always return true after this operation. Note that if the invalidation
+	 * occurs during a composite modification creation (see
+	 * {@link #isInComposite()}) then it will be cancelled if the composite
+	 * modification creation is aborted.
+	 */
+	public void invalidate() {
+<span class="fc bfc" id="L611" title="All 2 branches covered.">		if (isInComposite()) {</span>
+<span class="fc" id="L612">			compositeStack.peek().invalidate();</span>
+<span class="fc" id="L613">			return;</span>
+		}
+<span class="fc" id="L615">		wasInvalidated = invalidated = true;</span>
+<span class="fc" id="L616">		allListenersProxy.afterInvalidate();</span>
+<span class="fc" id="L617">	}</span>
+
+	protected void validate() {
+<span class="pc bpc" id="L620" title="1 of 2 branches missed.">		if (isInComposite()) {</span>
+<span class="nc" id="L621">			compositeStack.peek().validate();</span>
+<span class="nc" id="L622">			return;</span>
+		}
+<span class="fc bfc" id="L624" title="All 2 branches covered.">		if (invalidated) {</span>
+<span class="fc" id="L625">			redoStack.clear();</span>
+<span class="fc" id="L626">			undoStack.clear();</span>
+<span class="fc" id="L627">			invalidated = false;</span>
+<span class="fc" id="L628">			allListenersProxy.afterClearInvalidation();</span>
+		}
+<span class="fc" id="L630">	}</span>
+
+	/**
+	 * @return whether this modification stack is currently invalidated. Note that
+	 *         if the invalidation occurred during a composite modification creation
+	 *         (see {@link #isInComposite()}) then it will be cancelled if the
+	 *         composite modification creation is aborted.
+	 */
+	public boolean isInvalidated() {
+<span class="pc bpc" id="L639" title="1 of 2 branches missed.">		if (isInComposite()) {</span>
+<span class="nc" id="L640">			return compositeStack.peek().isInvalidated();</span>
+		}
+<span class="fc" id="L642">		return invalidated;</span>
+	}
+
+	/**
+	 * @return whether this modification stack has been at least once invalidated
+	 *         (invalidation not cancelled). Note that this status is temporarily
+	 *         reset during a composite modification creation (see
+	 *         {@link #isInComposite()}) and persisted if true at the end of the
+	 *         composite modification creation or restored if the composite
+	 *         modification creation is aborted.
+	 */
+	public boolean wasInvalidated() {
+<span class="fc bfc" id="L654" title="All 2 branches covered.">		if (isInComposite()) {</span>
+<span class="fc" id="L655">			return compositeStack.peek().wasInvalidated();</span>
+		}
+<span class="fc" id="L657">		return wasInvalidated;</span>
+	}
+
+	/**
+	 * Resets the modification stack. Calling {@link #isInvalidated()} and
+	 * {@link #wasInvalidated()} will be set to return false.
+	 */
+	public void forget() {
+<span class="pc bpc" id="L665" title="1 of 2 branches missed.">		if (isInComposite()) {</span>
+<span class="nc" id="L666">			throw new ReflectionUIError(&quot;Cannot forget while composite modification creation is ongoing&quot;);</span>
+		}
+<span class="fc" id="L668">		invalidate();</span>
+<span class="fc" id="L669">		validate();</span>
+<span class="fc" id="L670">		wasInvalidated = false;</span>
+<span class="fc" id="L671">		exhaustive = true;</span>
+<span class="fc" id="L672">	}</span>
+
+	/**
+	 * @return whether objects managed by this modification stack are in their
+	 *         initial state (in other terms, there are no remaining undo
+	 *         modifications and the modification stack was never invalidated).
+	 */
+	public boolean isInitial() {
+<span class="fc bfc" id="L680" title="All 2 branches covered.">		if (getNextUndoModification() != null) {</span>
+<span class="fc" id="L681">			return false;</span>
+		}
+<span class="fc bfc" id="L683" title="All 2 branches covered.">		if (wasInvalidated) {</span>
+<span class="fc" id="L684">			return false;</span>
+		}
+<span class="pc bpc" id="L686" title="3 of 4 branches missed.">		if (isInComposite() &amp;&amp; !compositeStack.peek().isInitial()) {</span>
+<span class="nc" id="L687">			return false;</span>
+		}
+<span class="fc" id="L689">		return true;</span>
+	}
+
+	/**
+	 * @return the current undo modification stack elements.
+	 */
+	public IModification[] getUndoModifications() {
+<span class="fc" id="L696">		return undoStack.toArray(new IModification[undoStack.size()]);</span>
+	}
+
+	/**
+	 * @return the current redo modification stack elements.
+	 */
+	public IModification[] getRedoModifications() {
+<span class="nc" id="L703">		return redoStack.toArray(new IModification[redoStack.size()]);</span>
+	}
+
+	/**
+	 * @return a number identifying the current state of all the objects managed by
+	 *         this modification stack. If this value does not change between 2
+	 *         calls then the managed objects have not changed or their changes have
+	 *         successfully been reverted.
+	 */
+	public long getStateVersion() {
+<span class="fc" id="L713">		return stateVersion;</span>
+	}
+
+	/**
+	 * @param title         The title of the modification.
+	 * @param undoOrder     The undo order.
+	 * @param modifications The sub-modifications.
+	 * @return A modification composed of sub-modifications that are applied in the
+	 *         specified order.
+	 */
+	public static IModification createCompositeModification(String title, UndoOrder undoOrder,
+			IModification... modifications) {
+<span class="fc" id="L725">		return new CompositeModification(title, undoOrder, modifications);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L730">		return ModificationStack.class.getSimpleName() + &quot;[&quot; + name + &quot;]&quot;;</span>
+	}
+
+	protected static class CompositeModification implements IModification {
+
+		protected IModification[] modifications;
+		protected String title;
+		protected UndoOrder undoOrder;
+
+<span class="fc" id="L739">		public CompositeModification(String title, UndoOrder undoOrder, IModification... modifications) {</span>
+<span class="fc" id="L740">			this.title = title;</span>
+<span class="fc" id="L741">			this.undoOrder = undoOrder;</span>
+<span class="fc" id="L742">			this.modifications = modifications;</span>
+<span class="fc" id="L743">		}</span>
+
+		public CompositeModification(String title, UndoOrder undoOrder, List&lt;IModification&gt; modifications) {
+<span class="fc" id="L746">			this(title, undoOrder, modifications.toArray(new IModification[modifications.size()]));</span>
+<span class="fc" id="L747">		}</span>
+
+		@Override
+		public boolean isNull() {
+<span class="pc bfc" id="L751" title="All 2 branches covered.">			for (IModification modif : modifications) {</span>
+<span class="pc bpc" id="L752" title="1 of 2 branches missed.">				if (!modif.isNull()) {</span>
+<span class="fc" id="L753">					return false;</span>
+				}
+			}
+<span class="fc" id="L756">			return true;</span>
+		}
+
+		@Override
+		public boolean isVolatile() {
+<span class="pc bpc" id="L761" title="1 of 2 branches missed.">			if (modifications.length == 0) {</span>
+<span class="nc" id="L762">				return false;</span>
+			}
+<span class="pc bpc" id="L764" title="1 of 2 branches missed.">			for (IModification modif : modifications) {</span>
+<span class="pc bpc" id="L765" title="1 of 2 branches missed.">				if (!modif.isVolatile()) {</span>
+<span class="fc" id="L766">					return false;</span>
+				}
+			}
+<span class="nc" id="L769">			return true;</span>
+		}
+
+		@Override
+		public boolean isComposite() {
+<span class="nc" id="L774">			return true;</span>
+		}
+
+		@Override
+		public IModification applyAndGetOpposite(ModificationStack modificationStack) {
+<span class="fc" id="L779">			List&lt;IModification&gt; oppositeModifications = new ArrayList&lt;IModification&gt;();</span>
+<span class="fc bfc" id="L780" title="All 2 branches covered.">			for (IModification modif : modifications) {</span>
+<span class="fc" id="L781">				IModification undoModif = modificationStack.applyAndGetOpposite(modif);</span>
+<span class="pc bpc" id="L782" title="1 of 2 branches missed.">				if (undoModif == null) {</span>
+<span class="nc" id="L783">					return null;</span>
+				}
+<span class="pc bpc" id="L785" title="1 of 2 branches missed.">				if (undoOrder == UndoOrder.getNormal()) {</span>
+<span class="nc" id="L786">					oppositeModifications.add(0, undoModif);</span>
+<span class="pc bpc" id="L787" title="1 of 2 branches missed.">				} else if (undoOrder == UndoOrder.getAbnormal()) {</span>
+<span class="fc" id="L788">					oppositeModifications.add(undoModif);</span>
+<span class="fc" id="L789">				} else {</span>
+<span class="nc" id="L790">					throw new ReflectionUIError();</span>
+				}
+			}
+<span class="fc" id="L793">			return new CompositeModification(AbstractModification.getUndoTitle(title), undoOrder,</span>
+<span class="fc" id="L794">					oppositeModifications);</span>
+		}
+
+		public void setTitle(String title) {
+<span class="nc" id="L798">			this.title = title;</span>
+<span class="nc" id="L799">		}</span>
+
+		@Override
+		public String getTitle() {
+<span class="fc bfc" id="L803" title="All 2 branches covered.">			if (title != null) {</span>
+<span class="fc" id="L804">				return title;</span>
+			} else {
+<span class="fc" id="L806">				List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L807" title="All 2 branches covered.">				for (IModification modif : modifications) {</span>
+<span class="fc" id="L808">					String modifTitle = modif.getTitle();</span>
+<span class="fc bfc" id="L809" title="All 2 branches covered.">					if (modifTitle == null) {</span>
+<span class="fc" id="L810">						return null;</span>
+					}
+<span class="fc" id="L812">					result.add(modifTitle);</span>
+				}
+<span class="pc bpc" id="L814" title="1 of 2 branches missed.">				if (result.size() == 0) {</span>
+<span class="nc" id="L815">					return null;</span>
+<span class="fc bfc" id="L816" title="All 2 branches covered.">				} else if (result.size() == 1) {</span>
+<span class="fc" id="L817">					return result.get(0);</span>
+				} else {
+<span class="pc bpc" id="L819" title="1 of 2 branches missed.">					if (result.get(0).endsWith(&quot;, ...&quot;)) {</span>
+<span class="nc" id="L820">						return result.get(0);</span>
+					} else {
+<span class="fc" id="L822">						return result.get(0) + &quot;, ...&quot;;</span>
+					}
+				}
+			}
+		}
+
+		public IModification[] getModifications() {
+<span class="nc" id="L829">			return modifications;</span>
+		}
+
+		public void setModifications(IModification[] modifications) {
+<span class="nc" id="L833">			this.modifications = modifications;</span>
+<span class="nc" id="L834">		}</span>
+
+		public UndoOrder getUndoOrder() {
+<span class="nc" id="L837">			return undoOrder;</span>
+		}
+
+		public void setUndoOrder(UndoOrder undoOrder) {
+<span class="nc" id="L841">			this.undoOrder = undoOrder;</span>
+<span class="nc" id="L842">		}</span>
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L846">			final int prime = 31;</span>
+<span class="nc" id="L847">			int result = 1;</span>
+<span class="nc" id="L848">			result = prime * result + Arrays.hashCode(modifications);</span>
+<span class="nc bnc" id="L849" title="All 2 branches missed.">			result = prime * result + ((title == null) ? 0 : title.hashCode());</span>
+<span class="nc bnc" id="L850" title="All 2 branches missed.">			result = prime * result + ((undoOrder == null) ? 0 : undoOrder.hashCode());</span>
+<span class="nc" id="L851">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L856" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L857">				return true;</span>
+<span class="nc bnc" id="L858" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L859">				return false;</span>
+<span class="nc bnc" id="L860" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L861">				return false;</span>
+<span class="nc" id="L862">			CompositeModification other = (CompositeModification) obj;</span>
+<span class="nc bnc" id="L863" title="All 2 branches missed.">			if (!Arrays.equals(modifications, other.modifications))</span>
+<span class="nc" id="L864">				return false;</span>
+<span class="nc bnc" id="L865" title="All 2 branches missed.">			if (title == null) {</span>
+<span class="nc bnc" id="L866" title="All 2 branches missed.">				if (other.title != null)</span>
+<span class="nc" id="L867">					return false;</span>
+<span class="nc bnc" id="L868" title="All 2 branches missed.">			} else if (!title.equals(other.title))</span>
+<span class="nc" id="L869">				return false;</span>
+<span class="nc bnc" id="L870" title="All 2 branches missed.">			if (undoOrder != other.undoOrder)</span>
+<span class="nc" id="L871">				return false;</span>
+<span class="nc" id="L872">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L877">			return &quot;CompositeModification [title=&quot; + title + &quot;, undoOrder=&quot; + undoOrder + &quot;, modifications=&quot;</span>
+<span class="fc" id="L878">					+ Arrays.toString(modifications) + &quot;]&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

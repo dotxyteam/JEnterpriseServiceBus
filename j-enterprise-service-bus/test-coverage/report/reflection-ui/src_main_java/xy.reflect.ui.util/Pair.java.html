@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Pair.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">Pair.java</span></div><h1>Pair.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.util;
+
+/**
+ * Simple generic pair class.
+ * 
+ * @author olitank
+ *
+ * @param &lt;T1&gt; The first element type.
+ * @param &lt;T2&gt; The second elemnt type.
+ */
+public class Pair&lt;T1, T2&gt; {
+
+	protected T1 first;
+	protected T2 second;
+
+	/**
+	 * Main constructor.
+	 * 
+	 * @param first  The first element.
+	 * @param second The second element.
+	 */
+<span class="fc" id="L23">	public Pair(T1 first, T2 second) {</span>
+<span class="fc" id="L24">		this.first = first;</span>
+<span class="fc" id="L25">		this.second = second;</span>
+<span class="fc" id="L26">	}</span>
+
+	/**
+	 * @return the first element.
+	 */
+	public T1 getFirst() {
+<span class="fc" id="L32">		return first;</span>
+	}
+
+	/**
+	 * @return the second element.
+	 */
+	public T2 getSecond() {
+<span class="fc" id="L39">		return second;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L44">		final int prime = 31;</span>
+<span class="fc" id="L45">		int result = 1;</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">		result = prime * result + ((first == null) ? 0 : first.hashCode());</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">		result = prime * result + ((second == null) ? 0 : second.hashCode());</span>
+<span class="fc" id="L48">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L54">			return true;</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L56">			return false;</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L58">			return false;</span>
+<span class="fc" id="L59">		Pair&lt;?, ?&gt; other = (Pair&lt;?, ?&gt;) obj;</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">		if (first == null) {</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">			if (other.first != null)</span>
+<span class="nc" id="L62">				return false;</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">		} else if (!first.equals(other.first))</span>
+<span class="nc" id="L64">			return false;</span>
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">		if (second == null) {</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">			if (other.second != null)</span>
+<span class="nc" id="L67">				return false;</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">		} else if (!second.equals(other.second))</span>
+<span class="nc" id="L69">			return false;</span>
+<span class="fc" id="L70">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L75">		return &quot;Pair [first=&quot; + first + &quot;, second=&quot; + second + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

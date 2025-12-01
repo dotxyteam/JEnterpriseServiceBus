@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ExecuteCommand.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">ExecuteCommand.java</span></div><h1>ExecuteCommand.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.util.CommandExecutor;
+import xy.reflect.ui.info.ResourcePath;
+
+public class ExecuteCommand implements Operation {
+
+	private String executable;
+<span class="fc" id="L26">	private String[] arguments = new String[0];</span>
+<span class="fc" id="L27">	private String workingDirectoryPath = &quot;.&quot;;</span>
+<span class="fc" id="L28">	private int timeoutMilliseconds = 0;</span>
+<span class="fc" id="L29">	private boolean runAsynchronously = false;</span>
+
+<span class="fc" id="L31">	public ExecuteCommand(String executable) {</span>
+<span class="fc" id="L32">		this.executable = executable;</span>
+<span class="fc" id="L33">	}</span>
+
+	public String getExecutable() {
+<span class="nc" id="L36">		return executable;</span>
+	}
+
+	public String[] getArguments() {
+<span class="nc" id="L40">		return arguments;</span>
+	}
+
+	public void setArguments(String[] arguments) {
+<span class="fc" id="L44">		this.arguments = arguments;</span>
+<span class="fc" id="L45">	}</span>
+
+	public String getWorkingDirectoryPath() {
+<span class="nc" id="L48">		return workingDirectoryPath;</span>
+	}
+
+	public void setWorkingDirectoryPath(String workingDirectoryPath) {
+<span class="nc" id="L52">		this.workingDirectoryPath = workingDirectoryPath;</span>
+<span class="nc" id="L53">	}</span>
+
+	public int getTimeoutMilliseconds() {
+<span class="nc" id="L56">		return timeoutMilliseconds;</span>
+	}
+
+	public void setTimeoutMilliseconds(int timeoutMilliseconds) {
+<span class="fc" id="L60">		this.timeoutMilliseconds = timeoutMilliseconds;</span>
+<span class="fc" id="L61">	}</span>
+
+	public boolean isRunAsynchronously() {
+<span class="nc" id="L64">		return runAsynchronously;</span>
+	}
+
+	private void setRunAsynchronously(boolean runAsynchronously) {
+<span class="fc" id="L68">		this.runAsynchronously = runAsynchronously;</span>
+<span class="fc" id="L69">	}</span>
+
+	@Override
+	public Object execute() throws Throwable {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">		ByteArrayOutputStream outReceiver = runAsynchronously ? null : new ByteArrayOutputStream();</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">		ByteArrayOutputStream errReceiver = runAsynchronously ? null : new ByteArrayOutputStream();</span>
+<span class="fc" id="L75">		String commandLine = CommandExecutor.quoteArgument(executable) + &quot; &quot;</span>
+<span class="fc" id="L76">				+ Arrays.stream(arguments).map(CommandExecutor::quoteArgument).collect(Collectors.joining(&quot; &quot;));</span>
+		Process process;
+		try {
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">			process = CommandExecutor.run(commandLine, !runAsynchronously, outReceiver, errReceiver,</span>
+<span class="fc" id="L80">					new File(workingDirectoryPath),</span>
+<span class="fc" id="L81">					timeoutMilliseconds,</span>
+<span class="fc" id="L82">					TimeUnit.MILLISECONDS);</span>
+<span class="pc" id="L83">		} catch (TimeoutException e) {</span>
+<span class="nc" id="L84">			process = null;</span>
+		}
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">		boolean timedOut = (process == null);</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">		return runAsynchronously ? null</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">				: new CommandResult(timedOut ? null : process.exitValue(), outReceiver.toString(),</span>
+<span class="fc" id="L89">						errReceiver.toString(), timedOut);</span>
+	}
+
+	public static class CommandResult {
+		private Integer exitCode;
+		private String output;
+		private String error;
+		private boolean timedOut;
+
+<span class="fc" id="L98">		public CommandResult(Integer exitCode, String output, String error, boolean timedOut) {</span>
+<span class="fc" id="L99">			this.exitCode = exitCode;</span>
+<span class="fc" id="L100">			this.output = output;</span>
+<span class="fc" id="L101">			this.error = error;</span>
+<span class="fc" id="L102">			this.timedOut = timedOut;</span>
+<span class="fc" id="L103">		}</span>
+
+		public Integer getExitCode() {
+<span class="nc" id="L106">			return exitCode;</span>
+		}
+
+		public String getOutput() {
+<span class="fc" id="L110">			return output;</span>
+		}
+
+		public String getError() {
+<span class="nc" id="L114">			return error;</span>
+		}
+
+		public boolean isTimedOut() {
+<span class="nc" id="L118">			return timedOut;</span>
+		}
+
+	}
+
+<span class="fc" id="L123">	public static class Builder implements OperationBuilder&lt;ExecuteCommand&gt; {</span>
+
+<span class="fc" id="L125">		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(&quot;CommandInput&quot;,</span>
+<span class="fc" id="L126">				ExecuteCommand.class.getName());</span>
+<span class="fc" id="L127">		private boolean runAsynchronously = false;</span>
+
+		public RootInstanceBuilder getInstanceBuilder() {
+<span class="nc" id="L130">			return instanceBuilder;</span>
+		}
+
+		public void setInstanceBuilder(RootInstanceBuilder instanceBuilder) {
+<span class="fc" id="L134">			this.instanceBuilder = instanceBuilder;</span>
+<span class="fc" id="L135">		}</span>
+
+		public boolean isRunAsynchronously() {
+<span class="nc" id="L138">			return runAsynchronously;</span>
+		}
+
+		public void setRunAsynchronously(boolean runAsynchronously) {
+<span class="fc" id="L142">			this.runAsynchronously = runAsynchronously;</span>
+<span class="fc" id="L143">		}</span>
+
+		@Override
+		public ExecuteCommand build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+<span class="fc" id="L147">			ExecuteCommand result = (ExecuteCommand) instanceBuilder.build(new InstantiationContext(</span>
+<span class="fc" id="L148">					context.getVariables(),</span>
+<span class="fc" id="L149">					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));</span>
+<span class="fc" id="L150">			result.setRunAsynchronously(runAsynchronously);</span>
+<span class="fc" id="L151">			return result;</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">			return runAsynchronously ? null : CommandResult.class;</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L161" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">				if (instanceBuilder != null) {</span>
+					try {
+<span class="fc" id="L164">						instanceBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L165">								plan.getValidationContext(step).getVariableDeclarations());</span>
+<span class="pc" id="L166">					} catch (ValidationError e) {</span>
+<span class="nc" id="L167">						throw new ValidationError(&quot;Failed to validate the input builder&quot;, e);</span>
+					}
+				}
+			}
+<span class="fc" id="L171">		}</span>
+
+	}
+
+<span class="fc" id="L175">	public static class Metadata implements OperationMetadata&lt;ExecuteCommand&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L179">			return &quot;Execute Command&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L184">			return &quot;General&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;ExecuteCommand&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L189">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L194">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L195">					.specifyClassPathResourceLocation(ExecuteCommand.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

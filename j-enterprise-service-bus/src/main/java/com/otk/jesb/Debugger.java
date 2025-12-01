@@ -41,11 +41,13 @@ public class Debugger extends Session {
 	private List<PlanExecutor> activePlanExecutors = new ArrayList<Debugger.PlanExecutor>();
 	private PlanActivationFilter currentPlanActivationFilter = PlanActivationFilter.ACTIVABLE_PLANS;
 	private Console console = Console.DEFAULT;
-	private static boolean scrollLocked = false;
 
-	public Debugger(Solution solution) {
+	public Debugger(Solution solution, boolean openSession) {
 		this.solution = solution;
 		planActivations = collectPlanActivations();
+		if (openSession) {
+			open();
+		}
 	}
 
 	public Console getConsole() {
@@ -85,6 +87,12 @@ public class Debugger extends Session {
 		this.currentPlanActivationFilter = currentPlanActivationFilter;
 	}
 
+	public List<PlanExecutor> getActivePlanExecutors() {
+		synchronized (activePlanExecutors) {
+			return new ArrayList<Debugger.PlanExecutor>(activePlanExecutors);
+		}
+	}
+
 	@Override
 	protected void initiate() {
 	}
@@ -117,17 +125,21 @@ public class Debugger extends Session {
 	}
 
 	public void stopExecutions() {
-		for (PlanActivation planActivator : planActivations) {
-			planActivator.stopExecutions();
+		for (PlanExecutor planExecutor : getActivePlanExecutors()) {
+			planExecutor.stop();
 		}
 	}
 
-	protected synchronized void onExecutionStart(PlanExecutor planExecutor) {
-		activePlanExecutors.add(planExecutor);
+	protected void onExecutionStart(PlanExecutor planExecutor) {
+		synchronized (activePlanExecutors) {
+			activePlanExecutors.add(planExecutor);
+		}
 	}
 
-	protected synchronized void onExecutionEnd(PlanExecutor planExecutor) {
-		activePlanExecutors.remove(planExecutor);
+	protected void onExecutionEnd(PlanExecutor planExecutor) {
+		synchronized (activePlanExecutors) {
+			activePlanExecutors.remove(planExecutor);
+		}
 	}
 
 	public class PlanActivation {
@@ -193,11 +205,15 @@ public class Debugger extends Session {
 					@Override
 					public Object trigger(Object planInput) throws ExecutionError {
 						PlanExecutor planExecutor = createPlanExecutor(planInput);
-						planExecutors.add(planExecutor);
 						try {
 							planExecutor.join();
 						} catch (InterruptedException e) {
-							throw new UnexpectedError(e);
+							planExecutor.interrupt();
+							while (planExecutor.isActive()) {
+								planExecutor.interrupt();
+								MiscUtils.relieveCPU();
+							}
+							Thread.currentThread().interrupt();
 						}
 						if (planExecutor.getExecutionError() != null) {
 							throw planExecutor.getExecutionError();
@@ -224,7 +240,9 @@ public class Debugger extends Session {
 		}
 
 		protected PlanExecutor createPlanExecutor(Object planInput) {
-			return new PlanExecutor(plan, planInput);
+			PlanExecutor planExecutor = new PlanExecutor(plan, planInput);
+			planExecutors.add(planExecutor);
+			return planExecutor;
 		}
 
 		protected void handleActivationError(Exception e) {
@@ -240,12 +258,6 @@ public class Debugger extends Session {
 			return plan.getActivator().isAutomaticallyTriggerable();
 		}
 
-		public void stopExecutions() {
-			for (PlanExecutor planExecutor : planExecutors) {
-				planExecutor.stop();
-			}
-		}
-
 		public Activator getActivator() {
 			return plan.getActivator();
 		}
@@ -253,7 +265,7 @@ public class Debugger extends Session {
 		public void executePlan() throws Exception {
 			Object planInput = planInputBuilder
 					.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
-			planExecutors.add(new PlanExecutor(plan, planInput));
+			createPlanExecutor(planInput);
 		}
 
 		@Override
@@ -345,14 +357,6 @@ public class Debugger extends Session {
 			return Reference.get(plan).getPath();
 		}
 
-		public boolean isScrollLocked() {
-			return scrollLocked;
-		}
-
-		public void setScrollLocked(boolean scrollLocked) {
-			Debugger.scrollLocked = scrollLocked;
-		}
-
 		public List<StepCrossing> getStepCrossings() {
 			return stepCrossings;
 		}
@@ -418,12 +422,10 @@ public class Debugger extends Session {
 		}
 
 		public List<Variable> getVariables() {
-			synchronized (executionContext) {
-				return executionContext.getVariables().stream()
-						.filter(variable -> !variable.getName().equals(Plan.INPUT_VARIABLE_NAME)
-								&& (variable.getValue() != Variable.UNDEFINED_VALUE))
-						.map(variable -> new Variable.Proxy(variable)).collect(Collectors.toList());
-			}
+			return executionContext.getVariables().stream()
+					.filter(variable -> !variable.getName().equals(Plan.INPUT_VARIABLE_NAME)
+							&& (variable.getValue() != Variable.UNDEFINED_VALUE))
+					.map(variable -> new Variable.Proxy(variable)).collect(Collectors.toList());
 		}
 
 		protected synchronized void start() {
@@ -460,10 +462,17 @@ public class Debugger extends Session {
 		}
 
 		public void join() throws InterruptedException {
-			if (!isActive()) {
-				return;
+			Thread activeThread = thread;
+			if (activeThread != null) {
+				activeThread.join();
 			}
-			thread.join();
+		}
+
+		public void interrupt() {
+			Thread activeThread = thread;
+			if (activeThread != null) {
+				activeThread.interrupt();
+			}
 		}
 
 		protected void execute() {

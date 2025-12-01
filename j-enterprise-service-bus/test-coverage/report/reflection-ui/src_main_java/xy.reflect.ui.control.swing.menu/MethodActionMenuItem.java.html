@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MethodActionMenuItem.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.menu</a> &gt; <span class="el_source">MethodActionMenuItem.java</span></div><h1>MethodActionMenuItem.java</h1><pre class="source lang-java linenums">/*
+ * 
+ */
+package xy.reflect.ui.control.swing.menu;
+
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
+
+import xy.reflect.ui.control.DefaultMethodControlData;
+import xy.reflect.ui.control.IMethodControlData;
+import xy.reflect.ui.control.IMethodControlInput;
+import xy.reflect.ui.control.MethodContext;
+import xy.reflect.ui.control.swing.MethodAction;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.menu.MethodActionMenuItemInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.util.KeyboardShortcut;
+
+/**
+ * Menu item that allows to invoke a method.
+ * 
+ * @author olitank
+ *
+ */
+public class MethodActionMenuItem extends AbstractMenuItem {
+
+	private static final long serialVersionUID = 1L;
+
+	protected MethodActionMenuItemInfo menuItemInfo;
+
+	public MethodActionMenuItem(SwingRenderer swingRenderer, Form menuBarOwner, MethodActionMenuItemInfo menuItemInfo) {
+<span class="fc" id="L39">		super(swingRenderer, menuBarOwner);</span>
+<span class="fc" id="L40">		this.menuItemInfo = menuItemInfo;</span>
+<span class="fc" id="L41">		configure();</span>
+<span class="fc" id="L42">	}</span>
+
+	public Form getContextForm() {
+<span class="fc" id="L45">		return (Form) menuItemInfo.getSpecificProperties().get(Form.ACTION_MENU_ITEM_CONTEXT_FORM);</span>
+	}
+
+	@Override
+	public void refresh() {
+<span class="nc" id="L50">		configure();</span>
+<span class="nc" id="L51">	}</span>
+
+	protected void configure() {
+<span class="fc" id="L54">		setAction(createAction());</span>
+<span class="fc" id="L55">		setAccelerator(createAccelerator());</span>
+		try {
+<span class="fc" id="L57">			setText(menuItemInfo.getCaption());</span>
+<span class="fc" id="L58">			Image image = swingRenderer.getMenuItemIconImage(menuItemInfo);</span>
+			ImageIcon icon;
+<span class="fc bfc" id="L60" title="All 2 branches covered.">			if (image != null) {</span>
+<span class="fc" id="L61">				icon = SwingRendererUtils.getSmallIcon(SwingRendererUtils.getIcon(image));</span>
+<span class="fc" id="L62">			} else {</span>
+<span class="fc" id="L63">				icon = null;</span>
+			}
+<span class="fc" id="L65">			setIcon(icon);</span>
+<span class="fc" id="L66">			setEnabled(menuItemInfo.getMethod().isEnabled(getContextForm().getObject()));</span>
+<span class="pc" id="L67">		} catch (Throwable t) {</span>
+<span class="nc" id="L68">			swingRenderer.getReflectionUI().logError(t);</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">			if (getText() == null) {</span>
+<span class="nc" id="L70">				setText(t.toString());</span>
+<span class="nc" id="L71">			} else {</span>
+<span class="nc" id="L72">				setText(getText() + &quot;(&quot; + t.toString() + &quot;)&quot;);</span>
+			}
+<span class="nc" id="L74">			setEnabled(false);</span>
+		}
+<span class="fc" id="L76">	}</span>
+
+	protected KeyStroke createAccelerator() {
+<span class="fc" id="L79">		KeyboardShortcut keyboardShortcut = menuItemInfo.getKeyboardShortcut();</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">		if (keyboardShortcut == null) {</span>
+<span class="fc" id="L81">			return null;</span>
+		}
+<span class="nc" id="L83">		return KeyStroke.getKeyStroke(keyboardShortcut.getKeyCode(), keyboardShortcut.getModifiers());</span>
+	}
+
+	protected Action createAction() {
+<span class="fc" id="L87">		return new AbstractAction() {</span>
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+<span class="fc" id="L93">					MethodAction methodAction = swingRenderer.createMethodAction(new IMethodControlInput() {</span>
+
+						@Override
+						public ModificationStack getModificationStack() {
+<span class="fc" id="L97">							return getContextForm().getModificationStack();</span>
+						}
+
+						@Override
+						public MethodContext getContext() {
+<span class="fc" id="L102">							ITypeInfo objectType = swingRenderer.getReflectionUI().getTypeInfo(</span>
+<span class="fc" id="L103">									swingRenderer.getReflectionUI().getTypeInfoSource(getContextForm().getObject()));</span>
+<span class="fc" id="L104">							return new MethodContext(objectType.getName(), menuItemInfo.getMethod().getSignature());</span>
+						}
+
+						@Override
+						public IMethodControlData getControlData() {
+<span class="fc" id="L109">							return new DefaultMethodControlData(swingRenderer.getReflectionUI(),</span>
+<span class="fc" id="L110">									getContextForm().getObject(), menuItemInfo.getMethod());</span>
+						}
+					});
+<span class="fc" id="L113">					methodAction.onInvocationRequest(menuBarOwner);</span>
+<span class="fc" id="L114">				} catch (Throwable t) {</span>
+<span class="fc" id="L115">					swingRenderer.handleException(menuBarOwner, t);</span>
+				}
+<span class="fc" id="L117">			}</span>
+
+		};
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

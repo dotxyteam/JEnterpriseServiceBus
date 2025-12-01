@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FadingPanel.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.util</a> &gt; <span class="el_source">FadingPanel.java</span></div><h1>FadingPanel.java</h1><pre class="source lang-java linenums">package com.otk.jesb.util;
+
+import java.awt.BorderLayout;
+
+public class FadingPanel extends TransparentPanel {
+	private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L8">	int fadingLevel = 0;</span>
+<span class="fc" id="L9">	int fadingSpeedPercentage = 90;</span>
+
+<span class="fc" id="L11">	public FadingPanel() {</span>
+<span class="fc" id="L12">		setOpacity(1.0f);</span>
+<span class="fc" id="L13">		setLayout(new BorderLayout());</span>
+<span class="fc" id="L14">	}</span>
+
+	public void fade(int fadingLevelIncrement, double opacityTarget) {
+<span class="fc" id="L17">		int EACH_STEP_MINIMUM_DURATION = 50;</span>
+<span class="fc" id="L18">		long startTime = System.currentTimeMillis();</span>
+<span class="fc" id="L19">		long minimumSpentTime = 0;</span>
+<span class="fc" id="L20">		while (true) {</span>
+<span class="fc" id="L21">			long spentTime = System.currentTimeMillis() - startTime;</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">			if ((minimumSpentTime - spentTime) &gt; 0) {</span>
+<span class="fc" id="L23">				MiscUtils.sleepSafely(minimumSpentTime - spentTime);</span>
+			}
+<span class="fc" id="L25">			double opacity = getFadingAnimationOpacity(fadingLevel, fadingSpeedPercentage);</span>
+<span class="fc" id="L26">			setOpacity((float) opacity);</span>
+<span class="fc" id="L27">			paintImmediately(getBounds());</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">			if (opacity == opacityTarget) {</span>
+<span class="fc" id="L29">				break;</span>
+			}
+<span class="fc" id="L31">			fadingLevel = fadingLevel + fadingLevelIncrement;</span>
+<span class="fc" id="L32">			minimumSpentTime += EACH_STEP_MINIMUM_DURATION;</span>
+		}
+<span class="fc" id="L34">	}</span>
+
+	protected double getFadingAnimationOpacity(int fadingLevel, int fadingSpeedPercentage) {
+<span class="fc" id="L37">		int MIN_STEPS = 2;</span>
+<span class="fc" id="L38">		int MAX_STEPS = 12;</span>
+<span class="fc" id="L39">		final int fadingStepCount = Math</span>
+<span class="fc" id="L40">				.round(MIN_STEPS + ((MAX_STEPS - MIN_STEPS) * (100.0f - fadingSpeedPercentage) / 100.0f));</span>
+<span class="fc" id="L41">		double result = 1 - (((double) fadingLevel) / (double) fadingStepCount);</span>
+<span class="fc" id="L42">		result = Math.max(result, 0d);</span>
+<span class="fc" id="L43">		result = Math.min(result, 1d);</span>
+<span class="fc" id="L44">		return result;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

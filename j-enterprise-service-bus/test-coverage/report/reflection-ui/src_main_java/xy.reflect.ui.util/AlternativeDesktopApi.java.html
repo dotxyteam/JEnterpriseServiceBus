@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AlternativeDesktopApi.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">AlternativeDesktopApi.java</span></div><h1>AlternativeDesktopApi.java</h1><pre class="source lang-java linenums">/*
+ * 
+ */
+package xy.reflect.ui.util;
+
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="nc" id="L13">public class AlternativeDesktopApi {</span>
+
+	public boolean browse(URI uri) {
+
+<span class="nc bnc" id="L17" title="All 2 branches missed.">		if (openSystemSpecific(uri.toString()))</span>
+<span class="nc" id="L18">			return true;</span>
+
+<span class="nc bnc" id="L20" title="All 2 branches missed.">		if (browseDESKTOP(uri))</span>
+<span class="nc" id="L21">			return true;</span>
+
+<span class="nc" id="L23">		return false;</span>
+	}
+
+	public boolean open(File file) {
+
+<span class="nc bnc" id="L28" title="All 2 branches missed.">		if (openSystemSpecific(file.getPath()))</span>
+<span class="nc" id="L29">			return true;</span>
+
+<span class="nc bnc" id="L31" title="All 2 branches missed.">		if (openDESKTOP(file))</span>
+<span class="nc" id="L32">			return true;</span>
+
+<span class="nc" id="L34">		return false;</span>
+	}
+
+	public boolean edit(File file) {
+
+		// you can try something like
+		// runCommand(&quot;gimp&quot;, &quot;%s&quot;, file.getPath())
+		// based on user preferences.
+
+<span class="nc bnc" id="L43" title="All 2 branches missed.">		if (openSystemSpecific(file.getPath()))</span>
+<span class="nc" id="L44">			return true;</span>
+
+<span class="nc bnc" id="L46" title="All 2 branches missed.">		if (editDESKTOP(file))</span>
+<span class="nc" id="L47">			return true;</span>
+
+<span class="nc" id="L49">		return false;</span>
+	}
+
+	protected boolean openSystemSpecific(String what) {
+
+<span class="nc" id="L54">		EnumOS os = getOs();</span>
+
+<span class="nc bnc" id="L56" title="All 2 branches missed.">		if (os.isLinux()) {</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">			if (runCommand(&quot;kde-open&quot;, &quot;%s&quot;, what))</span>
+<span class="nc" id="L58">				return true;</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">			if (runCommand(&quot;gnome-open&quot;, &quot;%s&quot;, what))</span>
+<span class="nc" id="L60">				return true;</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">			if (runCommand(&quot;xdg-open&quot;, &quot;%s&quot;, what))</span>
+<span class="nc" id="L62">				return true;</span>
+		}
+
+<span class="nc bnc" id="L65" title="All 2 branches missed.">		if (os.isMac()) {</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">			if (runCommand(&quot;open&quot;, &quot;%s&quot;, what))</span>
+<span class="nc" id="L67">				return true;</span>
+		}
+
+<span class="nc bnc" id="L70" title="All 2 branches missed.">		if (os.isWindows()) {</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">			if (runCommand(&quot;explorer&quot;, &quot;%s&quot;, what))</span>
+<span class="nc" id="L72">				return true;</span>
+		}
+
+<span class="nc" id="L75">		return false;</span>
+	}
+
+	protected boolean browseDESKTOP(URI uri) {
+
+<span class="nc" id="L80">		logOut(&quot;Trying to use Desktop.getDesktop().browse() with &quot; + uri.toString());</span>
+		try {
+<span class="nc bnc" id="L82" title="All 2 branches missed.">			if (!Desktop.isDesktopSupported()) {</span>
+<span class="nc" id="L83">				logErr(&quot;Platform is not supported.&quot;);</span>
+<span class="nc" id="L84">				return false;</span>
+			}
+
+<span class="nc bnc" id="L87" title="All 2 branches missed.">			if (!Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {</span>
+<span class="nc" id="L88">				logErr(&quot;BROWSE is not supported.&quot;);</span>
+<span class="nc" id="L89">				return false;</span>
+			}
+
+<span class="nc" id="L92">			Desktop.getDesktop().browse(uri);</span>
+
+<span class="nc" id="L94">			return true;</span>
+<span class="nc" id="L95">		} catch (Throwable t) {</span>
+<span class="nc" id="L96">			logErr(&quot;Error using desktop browse.&quot;, t);</span>
+<span class="nc" id="L97">			return false;</span>
+		}
+	}
+
+	protected boolean openDESKTOP(File file) {
+
+<span class="nc" id="L103">		logOut(&quot;Trying to use Desktop.getDesktop().open() with &quot; + file.toString());</span>
+		try {
+<span class="nc bnc" id="L105" title="All 2 branches missed.">			if (!Desktop.isDesktopSupported()) {</span>
+<span class="nc" id="L106">				logErr(&quot;Platform is not supported.&quot;);</span>
+<span class="nc" id="L107">				return false;</span>
+			}
+
+<span class="nc bnc" id="L110" title="All 2 branches missed.">			if (!Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {</span>
+<span class="nc" id="L111">				logErr(&quot;OPEN is not supported.&quot;);</span>
+<span class="nc" id="L112">				return false;</span>
+			}
+
+<span class="nc" id="L115">			Desktop.getDesktop().open(file);</span>
+
+<span class="nc" id="L117">			return true;</span>
+<span class="nc" id="L118">		} catch (Throwable t) {</span>
+<span class="nc" id="L119">			logErr(&quot;Error using desktop open.&quot;, t);</span>
+<span class="nc" id="L120">			return false;</span>
+		}
+	}
+
+	protected boolean editDESKTOP(File file) {
+
+<span class="nc" id="L126">		logOut(&quot;Trying to use Desktop.getDesktop().edit() with &quot; + file);</span>
+		try {
+<span class="nc bnc" id="L128" title="All 2 branches missed.">			if (!Desktop.isDesktopSupported()) {</span>
+<span class="nc" id="L129">				logErr(&quot;Platform is not supported.&quot;);</span>
+<span class="nc" id="L130">				return false;</span>
+			}
+
+<span class="nc bnc" id="L133" title="All 2 branches missed.">			if (!Desktop.getDesktop().isSupported(Desktop.Action.EDIT)) {</span>
+<span class="nc" id="L134">				logErr(&quot;EDIT is not supported.&quot;);</span>
+<span class="nc" id="L135">				return false;</span>
+			}
+
+<span class="nc" id="L138">			Desktop.getDesktop().edit(file);</span>
+
+<span class="nc" id="L140">			return true;</span>
+<span class="nc" id="L141">		} catch (Throwable t) {</span>
+<span class="nc" id="L142">			logErr(&quot;Error using desktop edit.&quot;, t);</span>
+<span class="nc" id="L143">			return false;</span>
+		}
+	}
+
+	protected boolean runCommand(String command, String args, String file) {
+
+<span class="nc" id="L149">		logOut(&quot;Trying to exec:\n   cmd = &quot; + command + &quot;\n   args = &quot; + args + &quot;\n   %s = &quot; + file);</span>
+
+<span class="nc" id="L151">		String[] parts = prepareCommand(command, args, file);</span>
+
+		try {
+<span class="nc" id="L154">			Process p = Runtime.getRuntime().exec(parts);</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">			if (p == null)</span>
+<span class="nc" id="L156">				return false;</span>
+
+			try {
+<span class="nc" id="L159">				int retval = p.exitValue();</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">				if (retval == 0) {</span>
+<span class="nc" id="L161">					logErr(&quot;Process ended immediately.&quot;);</span>
+<span class="nc" id="L162">					return false;</span>
+				} else {
+<span class="nc" id="L164">					logErr(&quot;Process crashed.&quot;);</span>
+<span class="nc" id="L165">					return false;</span>
+				}
+<span class="nc" id="L167">			} catch (IllegalThreadStateException itse) {</span>
+<span class="nc" id="L168">				logErr(&quot;Process is running.&quot;);</span>
+<span class="nc" id="L169">				return true;</span>
+			}
+<span class="nc" id="L171">		} catch (IOException e) {</span>
+<span class="nc" id="L172">			logErr(&quot;Error running command.&quot;, e);</span>
+<span class="nc" id="L173">			return false;</span>
+		}
+	}
+
+	protected String[] prepareCommand(String command, String args, String file) {
+
+<span class="nc" id="L179">		List&lt;String&gt; parts = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L180">		parts.add(command);</span>
+
+<span class="nc bnc" id="L182" title="All 2 branches missed.">		if (args != null) {</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">			for (String s : args.split(&quot; &quot;)) {</span>
+<span class="nc" id="L184">				s = String.format(s, file); // put in the filename thing</span>
+
+<span class="nc" id="L186">				parts.add(s.trim());</span>
+			}
+		}
+
+<span class="nc" id="L190">		return parts.toArray(new String[parts.size()]);</span>
+	}
+
+	protected void logErr(String msg, Throwable t) {
+<span class="nc" id="L194">		System.err.println(msg);</span>
+<span class="nc" id="L195">		t.printStackTrace();</span>
+<span class="nc" id="L196">	}</span>
+
+	protected void logErr(String msg) {
+<span class="nc" id="L199">		System.err.println(msg);</span>
+<span class="nc" id="L200">	}</span>
+
+	protected void logOut(String msg) {
+<span class="nc" id="L203">		System.out.println(msg);</span>
+<span class="nc" id="L204">	}</span>
+
+<span class="nc" id="L206">	public enum EnumOS {</span>
+<span class="nc" id="L207">		linux, macos, solaris, unknown, windows;</span>
+
+		public boolean isLinux() {
+
+<span class="nc bnc" id="L211" title="All 4 branches missed.">			return this == linux || this == solaris;</span>
+		}
+
+		public boolean isMac() {
+
+<span class="nc bnc" id="L216" title="All 2 branches missed.">			return this == macos;</span>
+		}
+
+		public boolean isWindows() {
+
+<span class="nc bnc" id="L221" title="All 2 branches missed.">			return this == windows;</span>
+		}
+	}
+
+	public EnumOS getOs() {
+
+<span class="nc" id="L227">		String s = System.getProperty(&quot;os.name&quot;).toLowerCase();</span>
+
+<span class="nc bnc" id="L229" title="All 2 branches missed.">		if (s.contains(&quot;win&quot;)) {</span>
+<span class="nc" id="L230">			return EnumOS.windows;</span>
+		}
+
+<span class="nc bnc" id="L233" title="All 2 branches missed.">		if (s.contains(&quot;mac&quot;)) {</span>
+<span class="nc" id="L234">			return EnumOS.macos;</span>
+		}
+
+<span class="nc bnc" id="L237" title="All 2 branches missed.">		if (s.contains(&quot;solaris&quot;)) {</span>
+<span class="nc" id="L238">			return EnumOS.solaris;</span>
+		}
+
+<span class="nc bnc" id="L241" title="All 2 branches missed.">		if (s.contains(&quot;sunos&quot;)) {</span>
+<span class="nc" id="L242">			return EnumOS.solaris;</span>
+		}
+
+<span class="nc bnc" id="L245" title="All 2 branches missed.">		if (s.contains(&quot;linux&quot;)) {</span>
+<span class="nc" id="L246">			return EnumOS.linux;</span>
+		}
+
+<span class="nc bnc" id="L249" title="All 2 branches missed.">		if (s.contains(&quot;unix&quot;)) {</span>
+<span class="nc" id="L250">			return EnumOS.linux;</span>
+		} else {
+<span class="nc" id="L252">			return EnumOS.unknown;</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>BetterFutureTask.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">BetterFutureTask.java</span></div><h1>BetterFutureTask.java</h1><pre class="source lang-java linenums">package xy.reflect.ui.util;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+/**
+ * Based on
+ * http://stackoverflow.com/questions/6040962/wait-for-cancel-on-futuretask:
+ * Based on FixedFutureTask (@author Aleksandr Dubinsky).
+ * 
+ * Additionally allows to interrupt repeatedly interrupt the running thread
+ * until it terminates.
+ * 
+ * @author olitank
+ */
+/**
+ * @author olitank
+ *
+ * @param &lt;T&gt;
+ */
+public class BetterFutureTask&lt;T&gt; extends FutureTask&lt;T&gt; {
+
+<span class="fc" id="L29">	protected final Semaphore semaphore = new Semaphore(1);</span>
+	protected Thread thread;
+<span class="fc" id="L31">	protected final Object threadMutex = new Object();</span>
+
+	/**
+	 * Creates a {@code FutureTask} that will, upon running, execute the given
+	 * {@code Runnable}, and arrange that {@code get} will return the given result
+	 * on successful completion.
+	 *
+	 * @param runnable the runnable task
+	 * @param result   the result to return on successful completion. If you don't
+	 *                 need a particular result, consider using constructions of the
+	 *                 form:
+	 *                 {@code Future&lt;?&gt; f = new FutureTask&lt;Void&gt;(runnable, null)}
+	 * @throws NullPointerException if the runnable is null
+	 */
+	public BetterFutureTask(Runnable runnable, T result) {
+<span class="fc" id="L46">		this(Executors.callable(runnable, result));</span>
+<span class="fc" id="L47">	}</span>
+
+	/**
+	 * Creates a {@code FutureTask} that will, upon running, execute the given
+	 * {@code Callable}.
+	 *
+	 * @param callable the callable task
+	 * @throws NullPointerException if the callable is null
+	 */
+	@SuppressWarnings({ &quot;unchecked&quot;, &quot;rawtypes&quot; })
+	public BetterFutureTask(Callable&lt;T&gt; callable) {
+<span class="fc" id="L58">		this(new MyCallable(callable));</span>
+<span class="fc" id="L59">	}</span>
+
+	/** Some ugly code to work around the compiler's limitations on constructors */
+	protected BetterFutureTask(MyCallable&lt;T&gt; myCallable) {
+<span class="fc" id="L63">		super(myCallable);</span>
+<span class="fc" id="L64">		myCallable.task = this;</span>
+<span class="fc" id="L65">	}</span>
+
+	@Override
+	public void run() {
+<span class="fc" id="L69">		synchronized (threadMutex) {</span>
+<span class="fc" id="L70">			thread = Thread.currentThread();</span>
+		}
+<span class="fc" id="L72">		super.run();</span>
+<span class="fc" id="L73">		synchronized (threadMutex) {</span>
+<span class="fc" id="L74">			thread = null;</span>
+		}
+<span class="fc" id="L76">	}</span>
+
+	
+
+	/**
+	 * Waits if necessary for the computation to complete or finish cancelling, and
+	 * then retrieves its result, if available.
+	 *
+	 * @return the computed result
+	 * @throws CancellationException if the computation was cancelled
+	 * @throws ExecutionException    if the computation threw an exception
+	 * @throws InterruptedException  if the current thread was interrupted while
+	 *                               waiting
+	 */
+	@Override
+	public T get() throws InterruptedException, ExecutionException, CancellationException {
+		try {
+<span class="nc" id="L93">			return super.get();</span>
+<span class="nc" id="L94">		} catch (CancellationException e) {</span>
+<span class="nc" id="L95">			semaphore.acquire();</span>
+<span class="nc" id="L96">			semaphore.release();</span>
+<span class="nc" id="L97">			throw e;</span>
+		}
+	}
+
+	/**
+	 * Waits if necessary for at most the given time for the computation to complete
+	 * or finish cancelling, and then retrieves its result, if available.
+	 *
+	 * @param timeout the maximum time to wait
+	 * @param unit    the time unit of the timeout argument
+	 * @return the computed result
+	 * @throws CancellationException if the computation was cancelled
+	 * @throws ExecutionException    if the computation threw an exception
+	 * @throws InterruptedException  if the current thread was interrupted while
+	 *                               waiting
+	 * @throws CancellationException
+	 * @throws TimeoutException      if the wait timed out
+	 */
+	@Override
+	public T get(long timeout, TimeUnit unit)
+			throws InterruptedException, ExecutionException, CancellationException, TimeoutException {
+		try {
+<span class="fc" id="L119">			return super.get(timeout, unit);</span>
+<span class="fc" id="L120">		} catch (CancellationException e) {</span>
+<span class="fc" id="L121">			semaphore.acquire();</span>
+<span class="fc" id="L122">			semaphore.release();</span>
+<span class="fc" id="L123">			throw e;</span>
+		}
+	}
+
+	/**
+	 * Attempts to cancel execution of this task and waits for the task to complete
+	 * if it has been started. If the task has not started when
+	 * {@code cancelWithJoin} is called, this task should never run. If the task has
+	 * already started, then the {@code mayInterruptIfRunning} parameter determines
+	 * whether the thread executing this task should be interrupted in an attempt to
+	 * stop the task.
+	 *
+	 * &lt;p&gt;
+	 * After this method returns, subsequent calls to {@link #isDone} will always
+	 * return {@code true}. Subsequent calls to {@link #isCancelled} will always
+	 * return {@code true} if this method returned {@code true}.
+	 *
+	 * @param mayInterruptIfRunning {@code true} if the thread executing this task
+	 *                              should be interrupted; otherwise, in-progress
+	 *                              tasks are allowed to complete
+	 * @throws InterruptedException if the thread is interrupted
+	 */
+	public void cancelAndWait(boolean mayInterruptIfRunning) throws InterruptedException {
+<span class="fc" id="L146">		cancel(mayInterruptIfRunning);</span>
+<span class="fc" id="L147">		semaphore.acquire();</span>
+<span class="fc" id="L148">		semaphore.release();</span>
+<span class="fc" id="L149">	}</span>
+
+	protected static class MyCallable&lt;T&gt; implements Callable&lt;T&gt; {
+<span class="fc" id="L152">		MyCallable(Callable&lt;T&gt; callable) {</span>
+<span class="fc" id="L153">			this.callable = callable;</span>
+<span class="fc" id="L154">		}</span>
+
+		final Callable&lt;T&gt; callable;
+		BetterFutureTask&lt;T&gt; task;
+
+		@Override
+		public T call() throws Exception {
+
+<span class="fc" id="L162">			task.semaphore.acquire();</span>
+			try {
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">				if (task.isCancelled())</span>
+<span class="nc" id="L165">					return null;</span>
+
+<span class="fc" id="L167">				return callable.call();</span>
+			} finally {
+<span class="fc" id="L169">				task.semaphore.release();</span>
+			}
+		}
+	}
+	
+	/**
+	 * Behaves almost like {@link #cancelAndWait(boolean)} with &quot;true&quot; argument and
+	 * repeatedly interrupts the running thread until it terminates. This can be
+	 * useful if the first interrupt is ignored (presumably due to a bug).
+	 * 
+	 * @param millisecondsBetweenInterrupts
+	 * 
+	 * @throws InterruptedException if the thread is interrupted
+	 */
+	public void cancelRepeatedlyAndWait(long millisecondsBetweenInterrupts) throws InterruptedException {
+<span class="fc" id="L184">		cancel(true);</span>
+<span class="fc bfc" id="L185" title="All 2 branches covered.">		while (!semaphore.tryAcquire()) {</span>
+<span class="fc" id="L186">			Thread.sleep(millisecondsBetweenInterrupts);</span>
+<span class="fc" id="L187">			synchronized (threadMutex) {</span>
+<span class="fc bfc" id="L188" title="All 2 branches covered.">				if (thread != null) {</span>
+<span class="fc" id="L189">					thread.interrupt();</span>
+<span class="fc" id="L190">				} else {</span>
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">					if (!semaphore.tryAcquire()) {</span>
+<span class="nc" id="L192">						throw new AssertionError();</span>
+					}
+<span class="fc" id="L194">					break;</span>
+				}
+			}
+		}
+<span class="fc" id="L198">		semaphore.release();</span>
+<span class="fc" id="L199">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

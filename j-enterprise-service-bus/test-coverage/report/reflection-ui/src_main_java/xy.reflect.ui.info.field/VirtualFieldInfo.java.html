@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>VirtualFieldInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.field</a> &gt; <span class="el_source">VirtualFieldInfo.java</span></div><h1>VirtualFieldInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.field;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.util.IDerivedInstance;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Purely virtual field information. The field values are attached to the owner
+ * object and garbage-collected when the owner object is garbage-collected. The
+ * owner object must then reside in memory (not be a temporary object) in order
+ * to preserve the value modifications.
+ * 
+ * Note that
+ * 
+ * @author olitank
+ *
+ */
+public class VirtualFieldInfo extends AbstractInfo implements IFieldInfo {
+
+	protected String fieldName;
+	protected ITypeInfo fieldType;
+
+<span class="fc" id="L37">	protected static Map&lt;Object, Map&lt;VirtualFieldInfo, Object&gt;&gt; valueByFieldByObject = MiscUtils</span>
+<span class="fc" id="L38">			.newWeakKeysIdentityBasedMap();</span>
+
+<span class="fc" id="L40">	public VirtualFieldInfo(String fieldName, ITypeInfo fieldType) {</span>
+<span class="fc" id="L41">		this.fieldName = fieldName;</span>
+<span class="fc" id="L42">		this.fieldType = fieldType;</span>
+<span class="fc" id="L43">	}</span>
+
+	@Override
+	public String getName() {
+<span class="fc" id="L47">		return fieldName;</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="nc" id="L52">		return ReflectionUIUtils.identifierToCaption(fieldName);</span>
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="fc" id="L57">		return false;</span>
+	}
+
+	@Override
+	public boolean isRelevant(Object object) {
+<span class="fc" id="L62">		return true;</span>
+	}
+
+	@Override
+	public double getDisplayAreaHorizontalWeight() {
+<span class="fc" id="L67">		return 1.0;</span>
+	}
+
+	@Override
+	public double getDisplayAreaVerticalWeight() {
+<span class="fc" id="L72">		return 0.0;</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaHorizontallyFilled() {
+<span class="fc" id="L77">		return true;</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaVerticallyFilled() {
+<span class="fc" id="L82">		return false;</span>
+	}
+
+	@Override
+	public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L87">	}</span>
+
+	@Override
+	public String getOnlineHelp() {
+<span class="fc" id="L91">		return null;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L96">		return Collections.emptyMap();</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L101">		return null;</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="fc" id="L106">		return null;</span>
+	}
+
+	@Override
+	public ITypeInfo getType() {
+<span class="fc" id="L111">		return fieldType;</span>
+	}
+
+	@Override
+	public Object getValue(Object object) {
+<span class="fc" id="L116">		Map&lt;VirtualFieldInfo, Object&gt; valueByField = getValueByField(object);</span>
+<span class="fc" id="L117">		return valueByField.get(this);</span>
+	}
+
+	@Override
+	public void setValue(Object object, Object value) {
+<span class="nc bnc" id="L122" title="All 2 branches missed.">		if (!fieldType.supports(value)) {</span>
+<span class="nc" id="L123">			throw new ReflectionUIError(&quot;Virtual field '&quot; + fieldName + &quot;': New value not supported: '&quot; + value</span>
+<span class="nc" id="L124">					+ &quot;'. Expected value of type '&quot; + fieldType.getName() + &quot;'&quot;);</span>
+		}
+<span class="nc" id="L126">		getValueByField(object).put(this, value);</span>
+<span class="nc" id="L127">	}</span>
+
+	protected Map&lt;VirtualFieldInfo, Object&gt; getValueByField(Object object) {
+<span class="fc" id="L130">		object = IDerivedInstance.root(object);</span>
+<span class="fc" id="L131">		Map&lt;VirtualFieldInfo, Object&gt; valueByField = valueByFieldByObject.get(object);</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">		if (valueByField == null) {</span>
+<span class="fc" id="L133">			valueByField = new HashMap&lt;VirtualFieldInfo, Object&gt;();</span>
+<span class="fc" id="L134">			valueByFieldByObject.put(object, valueByField);</span>
+		}
+<span class="fc" id="L136">		return valueByField;</span>
+	}
+
+	@Override
+	public boolean hasValueOptions(Object object) {
+<span class="fc" id="L141">		return false;</span>
+	}
+
+	@Override
+	public Object[] getValueOptions(Object object) {
+<span class="nc" id="L146">		return null;</span>
+	}
+
+	@Override
+	public Runnable getNextUpdateCustomUndoJob(Object object, Object newValue) {
+<span class="fc" id="L151">		return null;</span>
+	}
+
+	@Override
+	public Runnable getPreviousUpdateCustomRedoJob(Object object, Object newValue) {
+<span class="nc" id="L156">		return null;</span>
+	}
+
+	@Override
+	public boolean isNullValueDistinct() {
+<span class="fc" id="L161">		return false;</span>
+	}
+
+	@Override
+	public boolean isGetOnly() {
+<span class="fc" id="L166">		return false;</span>
+	}
+
+	@Override
+	public boolean isTransient() {
+<span class="fc" id="L171">		return false;</span>
+	}
+
+	@Override
+	public String getNullValueLabel() {
+<span class="fc" id="L176">		return null;</span>
+	}
+
+	@Override
+	public ValueReturnMode getValueReturnMode() {
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">		return fieldType.isPrimitive() ? ValueReturnMode.CALCULATED : ValueReturnMode.DIRECT;</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="fc" id="L186">		return null;</span>
+	}
+
+	@Override
+	public boolean isFormControlMandatory() {
+<span class="fc" id="L191">		return false;</span>
+	}
+
+	@Override
+	public boolean isFormControlEmbedded() {
+<span class="fc" id="L196">		return false;</span>
+	}
+
+	@Override
+	public IInfoFilter getFormControlFilter() {
+<span class="nc" id="L201">		return IInfoFilter.DEFAULT;</span>
+	}
+
+	@Override
+	public long getAutoUpdatePeriodMilliseconds() {
+<span class="fc" id="L206">		return -1;</span>
+	}
+
+	@Override
+	public boolean isControlValueValiditionEnabled() {
+<span class="fc" id="L211">		return false;</span>
+	}
+
+	@Override
+	public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L216">		return null;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L221">		final int prime = 31;</span>
+<span class="fc" id="L222">		int result = 1;</span>
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">		result = prime * result + ((fieldName == null) ? 0 : fieldName.hashCode());</span>
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">		result = prime * result + ((fieldType == null) ? 0 : fieldType.hashCode());</span>
+<span class="fc" id="L225">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L230" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L231">			return true;</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L233">			return false;</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L235">			return false;</span>
+<span class="nc" id="L236">		VirtualFieldInfo other = (VirtualFieldInfo) obj;</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">		if (fieldName == null) {</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">			if (other.fieldName != null)</span>
+<span class="nc" id="L239">				return false;</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">		} else if (!fieldName.equals(other.fieldName))</span>
+<span class="nc" id="L241">			return false;</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">		if (fieldType == null) {</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">			if (other.fieldType != null)</span>
+<span class="nc" id="L244">				return false;</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">		} else if (!fieldType.equals(other.fieldType))</span>
+<span class="nc" id="L246">			return false;</span>
+<span class="nc" id="L247">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L252">		return &quot;VirtualFieldInfo [fieldName=&quot; + fieldName + &quot;, fieldType=&quot; + fieldType + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

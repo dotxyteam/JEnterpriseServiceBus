@@ -116,6 +116,9 @@ public class PluginBuilder {
 
 	public void setPackageName(String packageName) {
 		this.packageName = packageName;
+		if (isTestingPrepared()) {
+			unprepareTesting();
+		}
 	}
 
 	public List<OperationDescriptor> getOperations() {
@@ -124,6 +127,9 @@ public class PluginBuilder {
 
 	public void setOperations(List<OperationDescriptor> operations) {
 		this.operations = operations;
+		if (isTestingPrepared()) {
+			unprepareTesting();
+		}
 	}
 
 	public List<ResourceDescriptor> getResources() {
@@ -132,6 +138,9 @@ public class PluginBuilder {
 
 	public void setResources(List<ResourceDescriptor> resources) {
 		this.resources = resources;
+		if (isTestingPrepared()) {
+			unprepareTesting();
+		}
 	}
 
 	public List<ActivatorDescriptor> getActivators() {
@@ -140,6 +149,9 @@ public class PluginBuilder {
 
 	public void setActivators(List<ActivatorDescriptor> activators) {
 		this.activators = activators;
+		if (isTestingPrepared()) {
+			unprepareTesting();
+		}
 	}
 
 	public void generateProject(File outputDirectory) throws IOException {
@@ -225,39 +237,10 @@ public class PluginBuilder {
 		return onlineJAR != null;
 	}
 
-	private void withoutTestingPrepared(Runnable runnable) {
-		if (onlineJAR == null) {
-			runnable.run();
-			return;
-		}
-		Solution.INSTANCE.setRequiredJARs(MiscUtils.removed(Solution.INSTANCE.getRequiredJARs(), -1, onlineJAR));
-		try {
-			runnable.run();
-		} finally {
-			Solution.INSTANCE.setRequiredJARs(MiscUtils.added(Solution.INSTANCE.getRequiredJARs(),
-					Solution.INSTANCE.getRequiredJARs().size(), onlineJAR));
-		}
-	}
-
 	private List<Class<?>> compile(File sourceDirectory) throws CompilationError {
-		@SuppressWarnings("unchecked")
-		List<Class<?>>[] result = new List[1];
-		CompilationError[] compilationError = new CompilationError[1];
-		withoutTestingPrepared(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					result[0] = MiscUtils.IN_MEMORY_COMPILER.compile(sourceDirectory);
-					result[0] = MiscUtils.expandWithEnclosedClasses(result[0]);
-				} catch (CompilationError e) {
-					compilationError[0] = e;
-				}
-			}
-		});
-		if (compilationError[0] != null) {
-			throw compilationError[0];
-		}
-		return result[0];
+		List<Class<?>> result = MiscUtils.IN_MEMORY_COMPILER.compile(sourceDirectory);
+		result = MiscUtils.expandWithEnclosedClasses(result);
+		return result;
 	}
 
 	private File getResourceDirectory(File projectDirectory) {
@@ -440,7 +423,9 @@ public class PluginBuilder {
 				File temporaryDirectory = MiscUtils.createTemporaryDirectory();
 				try {
 					generateSources(temporaryDirectory);
-					compile(temporaryDirectory);
+					if (!PluginBuilder.INSTANCE.isTestingPrepared()) {
+						compile(temporaryDirectory);
+					}
 				} finally {
 					MiscUtils.delete(temporaryDirectory);
 				}
@@ -711,7 +696,7 @@ public class PluginBuilder {
 		private byte[] operationIconImageData;
 		private List<ParameterDescriptor> parameters = new ArrayList<ParameterDescriptor>();
 		private ClassOptionDescriptor result;
-		private String executionMethodBody;
+		private String executionMethodBody = "return null;";
 		private String additionalBuilderValidationStatements;
 
 		public String getOpertionTypeName() {

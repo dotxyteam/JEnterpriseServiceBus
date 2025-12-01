@@ -1,0 +1,892 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ImplicitListFieldInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.field</a> &gt; <span class="el_source">ImplicitListFieldInfo.java</span></div><h1>ImplicitListFieldInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.field;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.ITransaction;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.method.AbstractConstructorInfo;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.iterable.item.DetachedItemDetailsAccessMode;
+import xy.reflect.ui.info.type.iterable.item.IListItemDetailsAccessMode;
+import xy.reflect.ui.info.type.iterable.item.ItemPosition;
+import xy.reflect.ui.info.type.iterable.structure.DefaultListStructuralInfo;
+import xy.reflect.ui.info.type.iterable.structure.IListStructuralInfo;
+import xy.reflect.ui.info.type.iterable.util.IDynamicListAction;
+import xy.reflect.ui.info.type.iterable.util.IDynamicListProperty;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.info.type.source.PrecomputedTypeInfoSource;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.undo.ListModificationFactory;
+import xy.reflect.ui.util.IDerivedInstance;
+import xy.reflect.ui.util.Mapper;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Virtual list field that uses multiple fields/methods to simulate a list
+ * value.
+ * 
+ * @author olitank
+ *
+ */
+public class ImplicitListFieldInfo extends AbstractInfo implements IFieldInfo {
+
+	protected ReflectionUI reflectionUI;
+	protected String fieldName;
+	protected ITypeInfo itemType;
+	protected ITypeInfo parentType;
+	protected String createMethodName;
+	protected String getMethodName;
+	protected String addMethodName;
+	protected String removeMethodName;
+	protected String sizeFieldName;
+
+<span class="fc" id="L65">	public ImplicitListFieldInfo(ReflectionUI reflectionUI, String fieldName, ITypeInfo parentType, ITypeInfo itemType,</span>
+			String createMethodName, String getMethodName, String addMethodName, String removeMethodName,
+			String sizeFieldName) {
+<span class="fc" id="L68">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L69">		this.fieldName = fieldName;</span>
+<span class="fc" id="L70">		this.parentType = parentType;</span>
+<span class="fc" id="L71">		this.createMethodName = createMethodName;</span>
+<span class="fc" id="L72">		this.getMethodName = getMethodName;</span>
+<span class="fc" id="L73">		this.addMethodName = addMethodName;</span>
+<span class="fc" id="L74">		this.removeMethodName = removeMethodName;</span>
+<span class="fc" id="L75">		this.sizeFieldName = sizeFieldName;</span>
+<span class="fc" id="L76">		this.itemType = itemType;</span>
+<span class="fc" id="L77">	}</span>
+
+	protected IMethodInfo getCreateMethod() {
+<span class="nc bnc" id="L80" title="All 2 branches missed.">		if (createMethodName == null) {</span>
+<span class="nc" id="L81">			return null;</span>
+		}
+<span class="nc" id="L83">		IMethodInfo result = ReflectionUIUtils.findInfoByName(parentType.getMethods(), createMethodName);</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L85">			throw new ReflectionUIError(</span>
+<span class="nc" id="L86">					&quot;Method '&quot; + createMethodName + &quot;' not found in type '&quot; + parentType.getName() + &quot;'&quot;);</span>
+		}
+<span class="nc" id="L88">		return result;</span>
+	}
+
+	protected IMethodInfo getGetMethod() {
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">		if (getMethodName == null) {</span>
+<span class="nc" id="L93">			return null;</span>
+		}
+<span class="fc" id="L95">		IMethodInfo result = ReflectionUIUtils.findInfoByName(parentType.getMethods(), getMethodName);</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L97">			throw new ReflectionUIError(</span>
+<span class="nc" id="L98">					&quot;Method '&quot; + getMethodName + &quot;' not found in type '&quot; + parentType.getName() + &quot;'&quot;);</span>
+		}
+<span class="fc" id="L100">		return result;</span>
+	}
+
+	protected IMethodInfo getAddMethod() {
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">		if (addMethodName == null) {</span>
+<span class="nc" id="L105">			return null;</span>
+		}
+<span class="fc" id="L107">		IMethodInfo result = ReflectionUIUtils.findInfoByName(parentType.getMethods(), addMethodName);</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L109">			throw new ReflectionUIError(</span>
+<span class="nc" id="L110">					&quot;Method '&quot; + addMethodName + &quot;' not found in type '&quot; + parentType.getName() + &quot;'&quot;);</span>
+		}
+<span class="fc" id="L112">		return result;</span>
+	}
+
+	protected IMethodInfo getRemoveMethod() {
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">		if (removeMethodName == null) {</span>
+<span class="nc" id="L117">			return null;</span>
+		}
+<span class="fc" id="L119">		IMethodInfo result = ReflectionUIUtils.findInfoByName(parentType.getMethods(), removeMethodName);</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L121">			throw new ReflectionUIError(</span>
+<span class="nc" id="L122">					&quot;Method '&quot; + removeMethodName + &quot;' not found in type '&quot; + parentType.getName() + &quot;'&quot;);</span>
+		}
+<span class="fc" id="L124">		return result;</span>
+	}
+
+	protected IFieldInfo getSizeField() {
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">		if (sizeFieldName == null) {</span>
+<span class="nc" id="L129">			return null;</span>
+		}
+<span class="fc" id="L131">		IFieldInfo result = ReflectionUIUtils.findInfoByName(parentType.getFields(), sizeFieldName);</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L133">			throw new ReflectionUIError(</span>
+<span class="nc" id="L134">					&quot;Field '&quot; + sizeFieldName + &quot;' not found in type '&quot; + parentType.getName() + &quot;'&quot;);</span>
+		}
+<span class="fc" id="L136">		return result;</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc" id="L141">		return fieldName;</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc" id="L146">		return ReflectionUIUtils.identifierToCaption(fieldName);</span>
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="fc" id="L151">		return false;</span>
+	}
+
+	@Override
+	public boolean isRelevant(Object object) {
+<span class="fc" id="L156">		return true;</span>
+	}
+
+	@Override
+	public double getDisplayAreaHorizontalWeight() {
+<span class="fc" id="L161">		return 1.0;</span>
+	}
+
+	@Override
+	public double getDisplayAreaVerticalWeight() {
+<span class="fc" id="L166">		return 0.0;</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaHorizontallyFilled() {
+<span class="fc" id="L171">		return true;</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaVerticallyFilled() {
+<span class="fc" id="L176">		return false;</span>
+	}
+
+	@Override
+	public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="nc" id="L181">	}</span>
+
+	@Override
+	public String getOnlineHelp() {
+<span class="fc" id="L185">		return null;</span>
+	}
+
+	@Override
+	public boolean isControlValueValiditionEnabled() {
+<span class="fc" id="L190">		return false;</span>
+	}
+
+	@Override
+	public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L195">		return null;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L200">		return Collections.emptyMap();</span>
+	}
+
+	@Override
+	public IListTypeInfo getType() {
+<span class="fc" id="L205">		return (IListTypeInfo) reflectionUI</span>
+<span class="fc" id="L206">				.getTypeInfo(new PrecomputedTypeInstanceWrapper.TypeInfoSource(new ValueTypeInfo()));</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L211">		return null;</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(final Object object) {
+<span class="fc" id="L216">		return Collections.&lt;IMethodInfo&gt;singletonList(new AbstractConstructorInfo() {</span>
+
+			@Override
+			public ITypeInfo getReturnValueType() {
+<span class="nc" id="L220">				return ImplicitListFieldInfo.this.getType();</span>
+			}
+
+			@Override
+			public Object invoke(Object ignore, InvocationData invocationData) {
+<span class="nc" id="L225">				Object result = getCreateMethod().invoke(object, new InvocationData(object, getCreateMethod(), object));</span>
+<span class="nc" id="L226">				return result;</span>
+			}
+
+			@Override
+			public List&lt;IParameterInfo&gt; getParameters() {
+<span class="fc" id="L231">				return Collections.emptyList();</span>
+			}
+		});
+	}
+
+	@Override
+	public Object getValue(Object object) {
+<span class="fc" id="L238">		return new PrecomputedTypeInstanceWrapper(new ValueInstance(object), new ValueTypeInfo());</span>
+	}
+
+	@Override
+	public Runnable getNextUpdateCustomUndoJob(Object object, Object value) {
+<span class="nc" id="L243">		return null;</span>
+	}
+
+	@Override
+	public Runnable getPreviousUpdateCustomRedoJob(Object object, Object newValue) {
+<span class="nc" id="L248">		return null;</span>
+	}
+
+	@Override
+	public void setValue(Object object, Object value) {
+<span class="nc" id="L253">		Object[] array = getType().toArray(value);</span>
+<span class="nc" id="L254">		while (true) {</span>
+<span class="nc" id="L255">			int size = (Integer) getSizeField().getValue(object);</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">			if (size == 0) {</span>
+<span class="nc" id="L257">				break;</span>
+			}
+<span class="nc" id="L259">			getRemoveMethod().invoke(object, new InvocationData(object, getRemoveMethod(), 0, 0));</span>
+		}
+<span class="nc bnc" id="L261" title="All 2 branches missed.">		for (int i = 0; i &lt; array.length; i++) {</span>
+<span class="nc" id="L262">			Object item = array[i];</span>
+<span class="nc" id="L263">			InvocationData invocationData = new InvocationData(object, getAddMethod());</span>
+<span class="nc" id="L264">			invocationData.getProvidedParameterValues().put(0, i);</span>
+<span class="nc" id="L265">			invocationData.getProvidedParameterValues().put(1, item);</span>
+<span class="nc" id="L266">			getAddMethod().invoke(object, invocationData);</span>
+		}
+<span class="nc" id="L268">	}</span>
+
+	@Override
+	public boolean hasValueOptions(Object object) {
+<span class="fc" id="L272">		return false;</span>
+	}
+
+	@Override
+	public Object[] getValueOptions(Object object) {
+<span class="nc" id="L277">		return null;</span>
+	}
+
+	@Override
+	public boolean isNullValueDistinct() {
+<span class="fc" id="L282">		return false;</span>
+	}
+
+	@Override
+	public String getNullValueLabel() {
+<span class="nc" id="L287">		return null;</span>
+	}
+
+	@Override
+	public boolean isGetOnly() {
+<span class="pc bpc" id="L292" title="2 of 4 branches missed.">		return (getAddMethod() == null) || (getRemoveMethod() == null);</span>
+	}
+
+	@Override
+	public boolean isTransient() {
+<span class="nc" id="L297">		return false;</span>
+	}
+
+	@Override
+	public ValueReturnMode getValueReturnMode() {
+<span class="fc" id="L302">		return ValueReturnMode.combine(ValueReturnMode.PROXY, getGetMethod().getValueReturnMode());</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="fc" id="L307">		return null;</span>
+	}
+
+	@Override
+	public boolean isFormControlMandatory() {
+<span class="fc" id="L312">		return false;</span>
+	}
+
+	@Override
+	public boolean isFormControlEmbedded() {
+<span class="fc" id="L317">		return false;</span>
+	}
+
+	@Override
+	public IInfoFilter getFormControlFilter() {
+<span class="nc" id="L322">		return IInfoFilter.DEFAULT;</span>
+	}
+
+	public long getAutoUpdatePeriodMilliseconds() {
+<span class="fc" id="L326">		return -1;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L331">		final int prime = 31;</span>
+<span class="fc" id="L332">		int result = 1;</span>
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">		result = prime * result + ((addMethodName == null) ? 0 : addMethodName.hashCode());</span>
+<span class="pc bpc" id="L334" title="1 of 2 branches missed.">		result = prime * result + ((createMethodName == null) ? 0 : createMethodName.hashCode());</span>
+<span class="pc bpc" id="L335" title="1 of 2 branches missed.">		result = prime * result + ((fieldName == null) ? 0 : fieldName.hashCode());</span>
+<span class="pc bpc" id="L336" title="1 of 2 branches missed.">		result = prime * result + ((getMethodName == null) ? 0 : getMethodName.hashCode());</span>
+<span class="pc bpc" id="L337" title="1 of 2 branches missed.">		result = prime * result + ((itemType == null) ? 0 : itemType.hashCode());</span>
+<span class="pc bpc" id="L338" title="1 of 2 branches missed.">		result = prime * result + ((removeMethodName == null) ? 0 : removeMethodName.hashCode());</span>
+<span class="pc bpc" id="L339" title="1 of 2 branches missed.">		result = prime * result + ((sizeFieldName == null) ? 0 : sizeFieldName.hashCode());</span>
+<span class="fc" id="L340">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">		if (this == obj)</span>
+<span class="fc" id="L346">			return true;</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L348">			return false;</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L350">			return false;</span>
+<span class="nc" id="L351">		ImplicitListFieldInfo other = (ImplicitListFieldInfo) obj;</span>
+<span class="nc bnc" id="L352" title="All 2 branches missed.">		if (addMethodName == null) {</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">			if (other.addMethodName != null)</span>
+<span class="nc" id="L354">				return false;</span>
+<span class="nc bnc" id="L355" title="All 2 branches missed.">		} else if (!addMethodName.equals(other.addMethodName))</span>
+<span class="nc" id="L356">			return false;</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">		if (createMethodName == null) {</span>
+<span class="nc bnc" id="L358" title="All 2 branches missed.">			if (other.createMethodName != null)</span>
+<span class="nc" id="L359">				return false;</span>
+<span class="nc bnc" id="L360" title="All 2 branches missed.">		} else if (!createMethodName.equals(other.createMethodName))</span>
+<span class="nc" id="L361">			return false;</span>
+<span class="nc bnc" id="L362" title="All 2 branches missed.">		if (fieldName == null) {</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">			if (other.fieldName != null)</span>
+<span class="nc" id="L364">				return false;</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">		} else if (!fieldName.equals(other.fieldName))</span>
+<span class="nc" id="L366">			return false;</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">		if (getMethodName == null) {</span>
+<span class="nc bnc" id="L368" title="All 2 branches missed.">			if (other.getMethodName != null)</span>
+<span class="nc" id="L369">				return false;</span>
+<span class="nc bnc" id="L370" title="All 2 branches missed.">		} else if (!getMethodName.equals(other.getMethodName))</span>
+<span class="nc" id="L371">			return false;</span>
+<span class="nc bnc" id="L372" title="All 2 branches missed.">		if (itemType == null) {</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">			if (other.itemType != null)</span>
+<span class="nc" id="L374">				return false;</span>
+<span class="nc bnc" id="L375" title="All 2 branches missed.">		} else if (!itemType.equals(other.itemType))</span>
+<span class="nc" id="L376">			return false;</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">		if (removeMethodName == null) {</span>
+<span class="nc bnc" id="L378" title="All 2 branches missed.">			if (other.removeMethodName != null)</span>
+<span class="nc" id="L379">				return false;</span>
+<span class="nc bnc" id="L380" title="All 2 branches missed.">		} else if (!removeMethodName.equals(other.removeMethodName))</span>
+<span class="nc" id="L381">			return false;</span>
+<span class="nc bnc" id="L382" title="All 2 branches missed.">		if (sizeFieldName == null) {</span>
+<span class="nc bnc" id="L383" title="All 2 branches missed.">			if (other.sizeFieldName != null)</span>
+<span class="nc" id="L384">				return false;</span>
+<span class="nc bnc" id="L385" title="All 2 branches missed.">		} else if (!sizeFieldName.equals(other.sizeFieldName))</span>
+<span class="nc" id="L386">			return false;</span>
+<span class="nc" id="L387">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L392">		return &quot;ImplicitListField [fieldName=&quot; + fieldName + &quot;, parentType=&quot; + parentType + &quot;]&quot;;</span>
+	}
+
+	public class ValueInstance implements IDerivedInstance {
+		protected Object[] array;
+		protected Object object;
+
+<span class="fc" id="L399">		public ValueInstance(Object object) {</span>
+<span class="fc" id="L400">			this.object = object;</span>
+<span class="fc" id="L401">			this.array = buildArrayFromObject(object);</span>
+<span class="fc" id="L402">		}</span>
+
+<span class="nc" id="L404">		public ValueInstance(Object[] precomputedArray) {</span>
+<span class="nc" id="L405">			this.array = precomputedArray;</span>
+<span class="nc" id="L406">		}</span>
+
+		@Override
+		public Object getBaseInstance() {
+<span class="nc" id="L410">			return object;</span>
+		}
+
+		protected Object[] buildArrayFromObject(Object object) {
+<span class="fc" id="L414">			List&lt;Object&gt; result = new ArrayList&lt;Object&gt;();</span>
+<span class="fc" id="L415">			int size = (Integer) getSizeField().getValue(object);</span>
+<span class="fc bfc" id="L416" title="All 2 branches covered.">			for (int i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L417">				Object item = getGetMethod().invoke(object, new InvocationData(object, getGetMethod(), i));</span>
+<span class="fc" id="L418">				result.add(item);</span>
+			}
+<span class="fc" id="L420">			return result.toArray();</span>
+		}
+
+		public ImplicitListFieldInfo getImplicitListField() {
+<span class="fc" id="L424">			return ImplicitListFieldInfo.this;</span>
+		}
+
+		protected Object[] getArray() {
+<span class="fc" id="L428">			return array;</span>
+		}
+
+		public ImplicitListFieldInfo getSourceField() {
+<span class="nc" id="L432">			return ImplicitListFieldInfo.this;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L437">			final int prime = 31;</span>
+<span class="nc" id="L438">			int result = 1;</span>
+<span class="nc" id="L439">			result = prime * result + getSourceField().hashCode();</span>
+<span class="nc" id="L440">			result = prime * result + Arrays.deepHashCode(array);</span>
+<span class="nc" id="L441">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L446" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L447">				return true;</span>
+<span class="nc bnc" id="L448" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L449">				return false;</span>
+<span class="nc bnc" id="L450" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L451">				return false;</span>
+<span class="nc" id="L452">			ValueInstance other = (ValueInstance) obj;</span>
+<span class="nc bnc" id="L453" title="All 2 branches missed.">			if (!getSourceField().equals(other.getSourceField()))</span>
+<span class="nc" id="L454">				return false;</span>
+<span class="nc bnc" id="L455" title="All 2 branches missed.">			if (!Arrays.deepEquals(array, other.array))</span>
+<span class="nc" id="L456">				return false;</span>
+<span class="nc" id="L457">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L462">			return &quot;ValueInstance [of=&quot; + getImplicitListField() + &quot;]&quot;;</span>
+		}
+
+	}
+
+<span class="fc" id="L467">	public class ValueTypeInfo extends AbstractInfo implements IListTypeInfo {</span>
+
+		@Override
+		public ITypeInfo getParent() {
+<span class="nc" id="L471">			return null;</span>
+		}
+
+		@Override
+		public IValidationJob getListItemAbstractFormValidationJob(ItemPosition itemPosition) {
+<span class="fc" id="L476">			return null;</span>
+		}
+
+		@Override
+		public boolean isItemNodeValidityDetectionEnabled(ItemPosition itemPosition) {
+<span class="nc" id="L481">			return true;</span>
+		}
+
+		@Override
+		public ITypeInfoSource getSource() {
+<span class="fc" id="L486">			return new PrecomputedTypeInfoSource(this,</span>
+<span class="fc" id="L487">					new SpecificitiesIdentifier(parentType.getName(), ImplicitListFieldInfo.this.getName()));</span>
+		}
+
+		@Override
+		public boolean areItemsAutomaticallyPositioned() {
+<span class="fc" id="L492">			return false;</span>
+		}
+
+		@Override
+		public boolean isMoveAllowed() {
+<span class="pc bpc" id="L497" title="1 of 2 branches missed.">			return !areItemsAutomaticallyPositioned();</span>
+		}
+
+		@Override
+		public boolean isValidationRequired() {
+<span class="nc" id="L502">			return false;</span>
+		}
+
+		@Override
+		public IFieldInfo getSelectionTargetField(ITypeInfo objectType) {
+<span class="fc" id="L507">			return null;</span>
+		}
+
+		@Override
+		public ITransaction createTransaction(Object object) {
+<span class="nc" id="L512">			return null;</span>
+		}
+
+		@Override
+		public void onFormRefresh(Object object) {
+<span class="nc" id="L517">		}</span>
+
+		@Override
+		public Runnable getLastFormRefreshStateRestorationJob(Object object) {
+<span class="nc" id="L521">			return null;</span>
+		}
+
+		@Override
+		public CategoriesStyle getCategoriesStyle() {
+<span class="nc" id="L526">			return CategoriesStyle.getDefault(reflectionUI, reflectionUI.getTypeInfo(getSource()));</span>
+		}
+
+		@Override
+		public ResourcePath getFormBackgroundImagePath() {
+<span class="nc" id="L531">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBackgroundColor() {
+<span class="nc" id="L536">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormForegroundColor() {
+<span class="nc" id="L541">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBorderColor() {
+<span class="nc" id="L546">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBackgroundColor() {
+<span class="nc" id="L551">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonForegroundColor() {
+<span class="nc" id="L556">			return null;</span>
+		}
+
+		@Override
+		public ResourcePath getFormButtonBackgroundImagePath() {
+<span class="nc" id="L561">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBorderColor() {
+<span class="nc" id="L566">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesBackgroundColor() {
+<span class="nc" id="L571">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesForegroundColor() {
+<span class="nc" id="L576">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorForegroundColor() {
+<span class="nc" id="L581">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorBackgroundColor() {
+<span class="nc" id="L586">			return null;</span>
+		}
+
+		@Override
+		public int getFormPreferredWidth() {
+<span class="nc" id="L591">			return -1;</span>
+		}
+
+		@Override
+		public int getFormPreferredHeight() {
+<span class="nc" id="L596">			return -1;</span>
+		}
+
+		@Override
+		public int getFormSpacing() {
+<span class="nc" id="L601">			return ITypeInfo.DEFAULT_FORM_SPACING;</span>
+		}
+
+		@Override
+		public boolean canPersist() {
+<span class="nc" id="L606">			return false;</span>
+		}
+
+		@Override
+		public void onFormVisibilityChange(Object object, boolean visible) {
+<span class="nc" id="L611">		}</span>
+
+		@Override
+		public void onFormCreation(Object object, boolean beforeOrAFter) {
+<span class="nc" id="L615">		}</span>
+
+		@Override
+		public void save(Object object, File outputFile) {
+<span class="nc" id="L619">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public void load(Object object, File inputFile) {
+<span class="nc" id="L624">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public FieldsLayout getFieldsLayout() {
+<span class="nc" id="L629">			return FieldsLayout.VERTICAL_FLOW;</span>
+		}
+
+		@Override
+		public MethodsLayout getMethodsLayout() {
+<span class="nc" id="L634">			return MethodsLayout.HORIZONTAL_FLOW;</span>
+		}
+
+		@Override
+		public MenuModel getMenuModel() {
+<span class="nc" id="L639">			return new MenuModel();</span>
+		}
+
+		@Override
+		public ResourcePath getIconImagePath(Object object) {
+<span class="nc" id="L644">			return null;</span>
+		}
+
+		@Override
+		public boolean isItemNullValueSupported() {
+<span class="fc" id="L649">			return false;</span>
+		}
+
+		@Override
+		public ItemCreationMode getItemCreationMode() {
+<span class="nc" id="L654">			return ItemCreationMode.UNDEFINED;</span>
+		}
+
+		@Override
+		public ToolsLocation getToolsLocation() {
+<span class="fc" id="L659">			return ToolsLocation.EAST;</span>
+		}
+
+		@Override
+		public ValueReturnMode getItemReturnMode() {
+<span class="fc" id="L664">			return getGetMethod().getValueReturnMode();</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L669">			return Collections.emptyMap();</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="nc" id="L674">			return null;</span>
+		}
+
+		@Override
+		public String getName() {
+<span class="fc" id="L679">			return &quot;ImplicitListType [fieldName=&quot; + fieldName + &quot;, parentType=&quot; + parentType.getName() + &quot;]&quot;;</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="nc" id="L684">			return ReflectionUIUtils.getDefaultListTypeCaption(this);</span>
+		}
+
+		@Override
+		public void validate(Object object, ValidationSession session) throws Exception {
+<span class="nc" id="L689">		}</span>
+
+		@Override
+		public boolean supports(Object object) {
+<span class="nc bnc" id="L693" title="All 2 branches missed.">			if (!(object instanceof ValueInstance)) {</span>
+<span class="nc" id="L694">				return false;</span>
+			}
+<span class="nc bnc" id="L696" title="All 2 branches missed.">			if (!getSourceField().equals(((ValueInstance) object).getSourceField())) {</span>
+<span class="nc" id="L697">				return false;</span>
+			}
+<span class="nc" id="L699">			return true;</span>
+		}
+
+		@Override
+		public boolean isConcrete() {
+<span class="fc" id="L704">			return true;</span>
+		}
+
+		@Override
+		public boolean isPrimitive() {
+<span class="nc" id="L709">			return false;</span>
+		}
+
+		@Override
+		public boolean isImmutable() {
+<span class="nc" id="L714">			return false;</span>
+		}
+
+		@Override
+		public boolean isModificationStackAccessible() {
+<span class="nc" id="L719">			return false;</span>
+		}
+
+		@Override
+		public List&lt;ITypeInfo&gt; getPolymorphicInstanceSubTypes() {
+<span class="nc" id="L724">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public boolean isPolymorphicInstanceAbstractTypeOptionAllowed() {
+<span class="fc" id="L729">			return false;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getMethods() {
+<span class="nc" id="L734">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public List&lt;IFieldInfo&gt; getFields() {
+<span class="nc" id="L739">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getConstructors() {
+<span class="nc" id="L744">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public Object[] toArray(Object listValue) {
+<span class="fc" id="L749">			ValueInstance implicitListFieldValue = (ValueInstance) listValue;</span>
+<span class="pc bpc" id="L750" title="1 of 2 branches missed.">			if (!ImplicitListFieldInfo.this.equals(implicitListFieldValue.getImplicitListField())) {</span>
+<span class="nc" id="L751">				throw new ReflectionUIError();</span>
+			}
+<span class="fc" id="L753">			return implicitListFieldValue.getArray();</span>
+		}
+
+		@Override
+		public boolean canReplaceContent() {
+<span class="fc" id="L758">			return true;</span>
+		}
+
+		@Override
+		public void replaceContent(Object listValue, Object[] array) {
+<span class="nc" id="L763">			ValueInstance implicitListFieldValue = (ValueInstance) listValue;</span>
+<span class="nc" id="L764">			implicitListFieldValue.array = array;</span>
+<span class="nc" id="L765">		}</span>
+
+		@Override
+		public Object fromArray(Object[] array) {
+<span class="nc" id="L769">			return new ValueInstance(array);</span>
+		}
+
+		@Override
+		public boolean canInstantiateFromArray() {
+<span class="nc" id="L774">			return true;</span>
+		}
+
+		@Override
+		public boolean isInsertionAllowed() {
+<span class="pc bpc" id="L779" title="1 of 2 branches missed.">			return createMethodName != null;</span>
+		}
+
+		@Override
+		public boolean isRemovalAllowed() {
+<span class="pc bpc" id="L784" title="1 of 2 branches missed.">			return removeMethodName != null;</span>
+		}
+
+		@Override
+		public boolean canViewItemDetails() {
+<span class="fc" id="L789">			return true;</span>
+		}
+
+		@Override
+		public IListStructuralInfo getStructuralInfo() {
+<span class="fc" id="L794">			return new DefaultListStructuralInfo(reflectionUI);</span>
+		}
+
+		@Override
+		public IListItemDetailsAccessMode getDetailsAccessMode() {
+<span class="fc" id="L799">			return new DetachedItemDetailsAccessMode();</span>
+		}
+
+		@Override
+		public List&lt;IDynamicListAction&gt; getDynamicActions(List&lt;? extends ItemPosition&gt; selection,
+				Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor) {
+<span class="fc" id="L805">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public List&lt;IDynamicListProperty&gt; getDynamicProperties(List&lt;? extends ItemPosition&gt; selection,
+				Mapper&lt;ItemPosition, ListModificationFactory&gt; listModificationFactoryAccessor) {
+<span class="fc" id="L811">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public ITypeInfo getItemType() {
+<span class="fc" id="L816">			return itemType;</span>
+		}
+
+		public List&lt;IMethodInfo&gt; getItemConstructors() {
+<span class="nc" id="L820">			return Collections.&lt;IMethodInfo&gt;singletonList(new AbstractConstructorInfo() {</span>
+
+				@Override
+				public ITypeInfo getReturnValueType() {
+<span class="nc" id="L824">					return ValueTypeInfo.this.getItemType();</span>
+				}
+
+				@Override
+				public Object invoke(Object parentObject, InvocationData invocationData) {
+<span class="nc" id="L829">					Object result = getCreateMethod().invoke(parentObject,</span>
+<span class="nc" id="L830">							new InvocationData(parentObject, getCreateMethod(), parentObject));</span>
+<span class="nc" id="L831">					return result;</span>
+				}
+
+				@Override
+				public List&lt;IParameterInfo&gt; getParameters() {
+<span class="nc" id="L836">					return Collections.emptyList();</span>
+				}
+			});
+		}
+
+		@Override
+		public boolean canCopy(Object object) {
+<span class="nc" id="L843">			ReflectionUIUtils.checkInstance(this, object);</span>
+<span class="nc" id="L844">			return false;</span>
+		}
+
+		@Override
+		public Object copy(Object object) {
+<span class="nc" id="L849">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public String toString(Object object) {
+<span class="nc" id="L854">			ReflectionUIUtils.checkInstance(this, object);</span>
+<span class="nc" id="L855">			List&lt;String&gt; result = new ArrayList&lt;String&gt;();</span>
+<span class="nc bnc" id="L856" title="All 2 branches missed.">			for (Object item : toArray(object)) {</span>
+<span class="nc" id="L857">				result.add(ReflectionUIUtils.toString(reflectionUI, item));</span>
+			}
+<span class="nc" id="L859">			return MiscUtils.stringJoin(result, &quot;, &quot;);</span>
+		}
+
+		public ImplicitListFieldInfo getSourceField() {
+<span class="fc" id="L863">			return ImplicitListFieldInfo.this;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L868">			return getSourceField().hashCode();</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="pc bpc" id="L873" title="1 of 2 branches missed.">			if (obj == null) {</span>
+<span class="nc" id="L874">				return false;</span>
+			}
+<span class="pc bpc" id="L876" title="1 of 2 branches missed.">			if (!getClass().equals(obj.getClass())) {</span>
+<span class="nc" id="L877">				return false;</span>
+			}
+<span class="pc bpc" id="L879" title="1 of 2 branches missed.">			if (!getSourceField().equals(((ValueTypeInfo) obj).getSourceField())) {</span>
+<span class="nc" id="L880">				return false;</span>
+			}
+<span class="fc" id="L882">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L887">			return &quot;TypeInfo [of=&quot; + getSourceField() + &quot;]&quot;;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

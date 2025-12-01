@@ -1,0 +1,692 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ImageIcon.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">ImageIcon.java</span></div><h1>ImageIcon.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.util;
+
+import java.awt.*;
+import java.awt.image.*;
+import java.beans.ConstructorProperties;
+import java.beans.Transient;
+import java.net.URL;
+
+import java.io.Serializable;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.accessibility.*;
+import javax.swing.Icon;
+
+import xy.reflect.ui.info.custom.InfoCustomizations;
+
+import java.lang.reflect.Field;
+import java.security.*;
+
+/**
+ * &lt;strong&gt;Important:&lt;/strong&gt; This class is a copy of the
+ * {@link javax.swing.ImageIcon} class only used to stabilize the serialization
+ * of image icons which unfortunately changes from one version of Java to
+ * another. {@link javax.swing.ImageIcon} was used in the
+ * {@link InfoCustomizations} files to make the {@link BufferedImage} objects
+ * serializable. It caused compatibility issues when upgrading the Java runtime.
+ * The references to {@link javax.swing.ImageIcon} were then replaced by the
+ * current class in those files to allow to load successfully their images
+ * whatever Java version is used.
+ * 
+ * &lt;p&gt;
+ * An implementation of the Icon interface that paints Icons from Images. Images
+ * that are created from a URL, filename or byte array are preloaded using
+ * MediaTracker to monitor the loaded state of the image.
+ *
+ * &lt;p&gt;
+ * For further information and examples of using image icons, see &lt;a href=
+ * &quot;https://docs.oracle.com/javase/tutorial/uiswing/components/icon.html&quot;&gt;How to
+ * Use Icons&lt;/a&gt; in &lt;em&gt;The Java Tutorial.&lt;/em&gt;
+ *
+ * &lt;p&gt;
+ * &lt;strong&gt;Warning:&lt;/strong&gt; Serialized objects of this class will not be
+ * compatible with future Swing releases. The current serialization support is
+ * appropriate for short term storage or RMI between applications running the
+ * same version of Swing. As of 1.4, support for long term storage of all
+ * JavaBeans&amp;trade; has been added to the &lt;code&gt;java.beans&lt;/code&gt; package.
+ * Please see {@link java.beans.XMLEncoder}.
+ */
+@SuppressWarnings(&quot;all&quot;)
+public class ImageIcon implements Icon, Serializable, Accessible {
+
+	private static final long serialVersionUID = -6641606116167121396L;
+
+	/*
+	 * Keep references to the filename and location so that alternate persistence
+	 * schemes have the option to archive images symbolically rather than including
+	 * the image data in the archive.
+	 */
+	transient private String filename;
+	transient private URL location;
+
+	transient Image image;
+<span class="nc" id="L69">	transient int loadStatus = 0;</span>
+	ImageObserver imageObserver;
+<span class="nc" id="L71">	String description = null;</span>
+
+	/**
+	 * Do not use this shared component, which is used to track image loading. It is
+	 * left for backward compatibility only.
+	 * 
+	 * @deprecated since 1.8
+	 */
+	@Deprecated
+	protected final static Component component;
+
+	/**
+	 * Do not use this shared media tracker, which is used to load images. It is
+	 * left for backward compatibility only.
+	 * 
+	 * @deprecated since 1.8
+	 */
+	@Deprecated
+	protected final static MediaTracker tracker;
+
+	static {
+<span class="fc" id="L92">		component = AccessController.doPrivileged(new PrivilegedAction&lt;Component&gt;() {</span>
+			public Component run() {
+				try {
+<span class="fc" id="L95">					final Component component = createNoPermsComponent();</span>
+
+					// 6482575 - clear the appContext field so as not to leak it
+<span class="fc" id="L98">					Field appContextField =</span>
+
+<span class="fc" id="L100">							Component.class.getDeclaredField(&quot;appContext&quot;);</span>
+<span class="fc" id="L101">					appContextField.setAccessible(true);</span>
+<span class="fc" id="L102">					appContextField.set(component, null);</span>
+
+<span class="fc" id="L104">					return component;</span>
+<span class="nc" id="L105">				} catch (Throwable e) {</span>
+					// We don't care about component.
+					// So don't prevent class initialisation.
+					// e.printStackTrace();
+<span class="nc" id="L109">					return null;</span>
+				}
+			}
+		});
+<span class="fc" id="L113">		tracker = new MediaTracker(component);</span>
+	}
+
+	private static Component createNoPermsComponent() {
+		// 7020198 - set acc field to no permissions and no subject
+		// Note, will have appContext set.
+<span class="fc" id="L119">		return AccessController.doPrivileged(new PrivilegedAction&lt;Component&gt;() {</span>
+			public Component run() {
+<span class="fc" id="L121">				return new Component() {</span>
+				};
+			}
+<span class="fc" id="L124">		}, new AccessControlContext(new ProtectionDomain[] { new ProtectionDomain(null, null) }));</span>
+	}
+
+	/**
+	 * Id used in loading images from MediaTracker.
+	 */
+	private static int mediaTrackerID;
+
+<span class="fc" id="L132">	private final static Object TRACKER_KEY = new StringBuilder(&quot;TRACKER_KEY&quot;);</span>
+<span class="fc" id="L133">	private static final Map&lt;Object, Object&gt; appContextReplacement = new HashMap&lt;Object, Object&gt;();</span>
+
+<span class="nc" id="L135">	int width = -1;</span>
+<span class="nc" id="L136">	int height = -1;</span>
+
+	/**
+	 * Creates an ImageIcon from the specified file. The image will be preloaded by
+	 * using MediaTracker to monitor the loading state of the image.
+	 * 
+	 * @param filename    the name of the file containing the image
+	 * @param description a brief textual description of the image
+	 * @see #ImageIcon(String)
+	 */
+<span class="nc" id="L146">	public ImageIcon(String filename, String description) {</span>
+<span class="nc" id="L147">		image = Toolkit.getDefaultToolkit().getImage(filename);</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">		if (image == null) {</span>
+<span class="nc" id="L149">			return;</span>
+		}
+<span class="nc" id="L151">		this.filename = filename;</span>
+<span class="nc" id="L152">		this.description = description;</span>
+<span class="nc" id="L153">		loadImage(image);</span>
+<span class="nc" id="L154">	}</span>
+
+	/**
+	 * Creates an ImageIcon from the specified file. The image will be preloaded by
+	 * using MediaTracker to monitor the loading state of the image. The specified
+	 * String can be a file name or a file path. When specifying a path, use the
+	 * Internet-standard forward-slash (&quot;/&quot;) as a separator. (The string is
+	 * converted to an URL, so the forward-slash works on all systems.) For example,
+	 * specify:
+	 * 
+	 * &lt;pre&gt;
+	 * new ImageIcon(&quot;images/myImage.gif&quot;)
+	 * &lt;/pre&gt;
+	 * 
+	 * The description is initialized to the &lt;code&gt;filename&lt;/code&gt; string.
+	 *
+	 * @param filename a String specifying a filename or path
+	 * @see #getDescription
+	 */
+	@ConstructorProperties({ &quot;description&quot; })
+	public ImageIcon(String filename) {
+<span class="nc" id="L175">		this(filename, filename);</span>
+<span class="nc" id="L176">	}</span>
+
+	/**
+	 * Creates an ImageIcon from the specified URL. The image will be preloaded by
+	 * using MediaTracker to monitor the loaded state of the image.
+	 * 
+	 * @param location    the URL for the image
+	 * @param description a brief textual description of the image
+	 * @see #ImageIcon(String)
+	 */
+<span class="nc" id="L186">	public ImageIcon(URL location, String description) {</span>
+<span class="nc" id="L187">		image = Toolkit.getDefaultToolkit().getImage(location);</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">		if (image == null) {</span>
+<span class="nc" id="L189">			return;</span>
+		}
+<span class="nc" id="L191">		this.location = location;</span>
+<span class="nc" id="L192">		this.description = description;</span>
+<span class="nc" id="L193">		loadImage(image);</span>
+<span class="nc" id="L194">	}</span>
+
+	/**
+	 * Creates an ImageIcon from the specified URL. The image will be preloaded by
+	 * using MediaTracker to monitor the loaded state of the image. The icon's
+	 * description is initialized to be a string representation of the URL.
+	 * 
+	 * @param location the URL for the image
+	 * @see #getDescription
+	 */
+	public ImageIcon(URL location) {
+<span class="nc" id="L205">		this(location, location.toExternalForm());</span>
+<span class="nc" id="L206">	}</span>
+
+	/**
+	 * Creates an ImageIcon from the image.
+	 * 
+	 * @param image       the image
+	 * @param description a brief textual description of the image
+	 */
+	public ImageIcon(Image image, String description) {
+<span class="nc" id="L215">		this(image);</span>
+<span class="nc" id="L216">		this.description = description;</span>
+<span class="nc" id="L217">	}</span>
+
+	/**
+	 * Creates an ImageIcon from an image object. If the image has a &quot;comment&quot;
+	 * property that is a string, then the string is used as the description of this
+	 * icon.
+	 * 
+	 * @param image the image
+	 * @see #getDescription
+	 * @see java.awt.Image#getProperty
+	 */
+<span class="nc" id="L228">	public ImageIcon(Image image) {</span>
+<span class="nc" id="L229">		this.image = image;</span>
+<span class="nc" id="L230">		Object o = image.getProperty(&quot;comment&quot;, imageObserver);</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">		if (o instanceof String) {</span>
+<span class="nc" id="L232">			description = (String) o;</span>
+		}
+<span class="nc" id="L234">		loadImage(image);</span>
+<span class="nc" id="L235">	}</span>
+
+	/**
+	 * Creates an ImageIcon from an array of bytes which were read from an image
+	 * file containing a supported image format, such as GIF, JPEG, or (as of 1.3)
+	 * PNG. Normally this array is created by reading an image using
+	 * Class.getResourceAsStream(), but the byte array may also be statically stored
+	 * in a class.
+	 *
+	 * @param imageData   an array of pixels in an image format supported by the AWT
+	 *                    Toolkit, such as GIF, JPEG, or (as of 1.3) PNG
+	 * @param description a brief textual description of the image
+	 * @see java.awt.Toolkit#createImage
+	 */
+<span class="nc" id="L249">	public ImageIcon(byte[] imageData, String description) {</span>
+<span class="nc" id="L250">		this.image = Toolkit.getDefaultToolkit().createImage(imageData);</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">		if (image == null) {</span>
+<span class="nc" id="L252">			return;</span>
+		}
+<span class="nc" id="L254">		this.description = description;</span>
+<span class="nc" id="L255">		loadImage(image);</span>
+<span class="nc" id="L256">	}</span>
+
+	/**
+	 * Creates an ImageIcon from an array of bytes which were read from an image
+	 * file containing a supported image format, such as GIF, JPEG, or (as of 1.3)
+	 * PNG. Normally this array is created by reading an image using
+	 * Class.getResourceAsStream(), but the byte array may also be statically stored
+	 * in a class. If the resulting image has a &quot;comment&quot; property that is a string,
+	 * then the string is used as the description of this icon.
+	 *
+	 * @param imageData an array of pixels in an image format supported by the AWT
+	 *                  Toolkit, such as GIF, JPEG, or (as of 1.3) PNG
+	 * @see java.awt.Toolkit#createImage
+	 * @see #getDescription
+	 * @see java.awt.Image#getProperty
+	 */
+<span class="nc" id="L272">	public ImageIcon(byte[] imageData) {</span>
+<span class="nc" id="L273">		this.image = Toolkit.getDefaultToolkit().createImage(imageData);</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">		if (image == null) {</span>
+<span class="nc" id="L275">			return;</span>
+		}
+<span class="nc" id="L277">		Object o = image.getProperty(&quot;comment&quot;, imageObserver);</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">		if (o instanceof String) {</span>
+<span class="nc" id="L279">			description = (String) o;</span>
+		}
+<span class="nc" id="L281">		loadImage(image);</span>
+<span class="nc" id="L282">	}</span>
+
+	/**
+	 * Creates an uninitialized image icon.
+	 */
+<span class="nc" id="L287">	public ImageIcon() {</span>
+<span class="nc" id="L288">	}</span>
+
+	/**
+	 * Loads the image, returning only when the image is loaded.
+	 * 
+	 * @param image the image
+	 */
+	protected void loadImage(Image image) {
+<span class="fc" id="L296">		MediaTracker mTracker = getTracker();</span>
+<span class="fc" id="L297">		synchronized (mTracker) {</span>
+<span class="fc" id="L298">			int id = getNextID();</span>
+
+<span class="fc" id="L300">			mTracker.addImage(image, id);</span>
+			try {
+<span class="fc" id="L302">				mTracker.waitForID(id, 0);</span>
+<span class="pc" id="L303">			} catch (InterruptedException e) {</span>
+<span class="nc" id="L304">				System.out.println(&quot;INTERRUPTED while loading Image&quot;);</span>
+			}
+<span class="fc" id="L306">			loadStatus = mTracker.statusID(id, false);</span>
+<span class="fc" id="L307">			mTracker.removeImage(image, id);</span>
+
+<span class="fc" id="L309">			width = image.getWidth(imageObserver);</span>
+<span class="fc" id="L310">			height = image.getHeight(imageObserver);</span>
+		}
+<span class="fc" id="L312">	}</span>
+
+	/**
+	 * Returns an ID to use with the MediaTracker in loading an image.
+	 */
+	private int getNextID() {
+<span class="fc" id="L318">		synchronized (getTracker()) {</span>
+<span class="fc" id="L319">			return ++mediaTrackerID;</span>
+		}
+	}
+
+	/**
+	 * Returns the MediaTracker for the current AppContext, creating a new
+	 * MediaTracker if necessary.
+	 */
+	private MediaTracker getTracker() {
+		Object trackerObj;
+<span class="fc" id="L329">		Map&lt;Object, Object&gt; ac = appContextReplacement;</span>
+		// Opt: Only synchronize if trackerObj comes back null?
+		// If null, synchronize, re-check for null, and put new tracker
+<span class="fc" id="L332">		synchronized (ac) {</span>
+<span class="fc" id="L333">			trackerObj = ac.get(TRACKER_KEY);</span>
+<span class="fc bfc" id="L334" title="All 2 branches covered.">			if (trackerObj == null) {</span>
+<span class="fc" id="L335">				Component comp = new Component() {</span>
+				};
+<span class="fc" id="L337">				trackerObj = new MediaTracker(comp);</span>
+<span class="fc" id="L338">				ac.put(TRACKER_KEY, trackerObj);</span>
+			}
+		}
+<span class="fc" id="L341">		return (MediaTracker) trackerObj;</span>
+	}
+
+	/**
+	 * Returns the status of the image loading operation.
+	 * 
+	 * @return the loading status as defined by java.awt.MediaTracker
+	 * @see java.awt.MediaTracker#ABORTED
+	 * @see java.awt.MediaTracker#ERRORED
+	 * @see java.awt.MediaTracker#COMPLETE
+	 */
+	public int getImageLoadStatus() {
+<span class="nc" id="L353">		return loadStatus;</span>
+	}
+
+	/**
+	 * Returns this icon's &lt;code&gt;Image&lt;/code&gt;.
+	 * 
+	 * @return the &lt;code&gt;Image&lt;/code&gt; object for this &lt;code&gt;ImageIcon&lt;/code&gt;
+	 */
+	@Transient
+	public Image getImage() {
+<span class="pc bpc" id="L363" title="1 of 2 branches missed.">		if (image == null) {</span>
+<span class="nc" id="L364">			return null;</span>
+		}
+<span class="fc" id="L366">		BufferedImage result = new BufferedImage(image.getWidth(null), image.getHeight(null),</span>
+<span class="fc" id="L367">				BufferedImage.TYPE_INT_ARGB);</span>
+<span class="fc" id="L368">		Graphics2D g = result.createGraphics();</span>
+<span class="fc" id="L369">		g.drawImage(image, 0, 0, null);</span>
+<span class="fc" id="L370">		return result;</span>
+	}
+
+	/**
+	 * Sets the image displayed by this icon.
+	 * 
+	 * @param image the image
+	 */
+	public void setImage(Image image) {
+<span class="nc" id="L379">		this.image = image;</span>
+<span class="nc" id="L380">		loadImage(image);</span>
+<span class="nc" id="L381">	}</span>
+
+	/**
+	 * Gets the description of the image. This is meant to be a brief textual
+	 * description of the object. For example, it might be presented to a blind user
+	 * to give an indication of the purpose of the image. The description may be
+	 * null.
+	 *
+	 * @return a brief textual description of the image
+	 */
+	public String getDescription() {
+<span class="nc" id="L392">		return description;</span>
+	}
+
+	/**
+	 * Sets the description of the image. This is meant to be a brief textual
+	 * description of the object. For example, it might be presented to a blind user
+	 * to give an indication of the purpose of the image.
+	 * 
+	 * @param description a brief textual description of the image
+	 */
+	public void setDescription(String description) {
+<span class="nc" id="L403">		this.description = description;</span>
+<span class="nc" id="L404">	}</span>
+
+	/**
+	 * Paints the icon. The top-left corner of the icon is drawn at the point
+	 * (&lt;code&gt;x&lt;/code&gt;, &lt;code&gt;y&lt;/code&gt;) in the coordinate space of the graphics
+	 * context &lt;code&gt;g&lt;/code&gt;. If this icon has no image observer, this method uses
+	 * the &lt;code&gt;c&lt;/code&gt; component as the observer.
+	 *
+	 * @param c the component to be used as the observer if this icon has no image
+	 *          observer
+	 * @param g the graphics context
+	 * @param x the X coordinate of the icon's top-left corner
+	 * @param y the Y coordinate of the icon's top-left corner
+	 */
+	public synchronized void paintIcon(Component c, Graphics g, int x, int y) {
+<span class="nc bnc" id="L419" title="All 2 branches missed.">		if (imageObserver == null) {</span>
+<span class="nc" id="L420">			g.drawImage(image, x, y, c);</span>
+<span class="nc" id="L421">		} else {</span>
+<span class="nc" id="L422">			g.drawImage(image, x, y, imageObserver);</span>
+		}
+<span class="nc" id="L424">	}</span>
+
+	/**
+	 * Gets the width of the icon.
+	 *
+	 * @return the width in pixels of this icon
+	 */
+	public int getIconWidth() {
+<span class="nc" id="L432">		return width;</span>
+	}
+
+	/**
+	 * Gets the height of the icon.
+	 *
+	 * @return the height in pixels of this icon
+	 */
+	public int getIconHeight() {
+<span class="nc" id="L441">		return height;</span>
+	}
+
+	/**
+	 * Sets the image observer for the image. Set this property if the ImageIcon
+	 * contains an animated GIF, so the observer is notified to update its display.
+	 * For example:
+	 * 
+	 * &lt;pre&gt;
+	 *     icon = new ImageIcon(...)
+	 *     button.setIcon(icon);
+	 *     icon.setImageObserver(button);
+	 * &lt;/pre&gt;
+	 *
+	 * @param observer the image observer
+	 */
+	public void setImageObserver(ImageObserver observer) {
+<span class="nc" id="L458">		imageObserver = observer;</span>
+<span class="nc" id="L459">	}</span>
+
+	/**
+	 * Returns the image observer for the image.
+	 *
+	 * @return the image observer, which may be null
+	 */
+	@Transient
+	public ImageObserver getImageObserver() {
+<span class="nc" id="L468">		return imageObserver;</span>
+	}
+
+	/**
+	 * Returns a string representation of this image.
+	 *
+	 * @return a string representing this image
+	 */
+	public String toString() {
+<span class="nc bnc" id="L477" title="All 2 branches missed.">		if (description != null) {</span>
+<span class="nc" id="L478">			return description;</span>
+		}
+<span class="nc" id="L480">		return super.toString();</span>
+	}
+
+	private void readObject(ObjectInputStream s) throws ClassNotFoundException, IOException {
+<span class="fc" id="L484">		s.defaultReadObject();</span>
+
+<span class="fc" id="L486">		int w = s.readInt();</span>
+<span class="fc" id="L487">		int h = s.readInt();</span>
+<span class="fc" id="L488">		int[] pixels = (int[]) (s.readObject());</span>
+
+<span class="pc bpc" id="L490" title="1 of 2 branches missed.">		if (pixels != null) {</span>
+<span class="fc" id="L491">			Toolkit tk = Toolkit.getDefaultToolkit();</span>
+<span class="fc" id="L492">			ColorModel cm = ColorModel.getRGBdefault();</span>
+<span class="fc" id="L493">			image = tk.createImage(new MemoryImageSource(w, h, cm, pixels, 0, w));</span>
+<span class="fc" id="L494">			loadImage(image);</span>
+		}
+<span class="fc" id="L496">	}</span>
+
+	private void writeObject(ObjectOutputStream s) throws IOException {
+<span class="nc" id="L499">		s.defaultWriteObject();</span>
+
+<span class="nc" id="L501">		int w = getIconWidth();</span>
+<span class="nc" id="L502">		int h = getIconHeight();</span>
+<span class="nc bnc" id="L503" title="All 2 branches missed.">		int[] pixels = image != null ? new int[w * h] : null;</span>
+
+<span class="nc bnc" id="L505" title="All 2 branches missed.">		if (image != null) {</span>
+			try {
+<span class="nc" id="L507">				PixelGrabber pg = new PixelGrabber(image, 0, 0, w, h, pixels, 0, w);</span>
+<span class="nc" id="L508">				pg.grabPixels();</span>
+<span class="nc bnc" id="L509" title="All 2 branches missed.">				if ((pg.getStatus() &amp; ImageObserver.ABORT) != 0) {</span>
+<span class="nc" id="L510">					throw new IOException(&quot;failed to load image contents&quot;);</span>
+				}
+<span class="nc" id="L512">			} catch (InterruptedException e) {</span>
+<span class="nc" id="L513">				throw new IOException(&quot;image load interrupted&quot;);</span>
+			}
+		}
+
+<span class="nc" id="L517">		s.writeInt(w);</span>
+<span class="nc" id="L518">		s.writeInt(h);</span>
+<span class="nc" id="L519">		s.writeObject(pixels);</span>
+<span class="nc" id="L520">	}</span>
+
+	/**
+	 * --- Accessibility Support ---
+	 */
+
+<span class="nc" id="L526">	private AccessibleImageIcon accessibleContext = null;</span>
+
+	/**
+	 * Gets the AccessibleContext associated with this ImageIcon. For image icons,
+	 * the AccessibleContext takes the form of an AccessibleImageIcon. A new
+	 * AccessibleImageIcon instance is created if necessary.
+	 *
+	 * @return an AccessibleImageIcon that serves as the AccessibleContext of this
+	 *         ImageIcon
+	 * @beaninfo expert: true description: The AccessibleContext associated with
+	 *           this ImageIcon.
+	 * @since 1.3
+	 */
+	public AccessibleContext getAccessibleContext() {
+<span class="nc bnc" id="L540" title="All 2 branches missed.">		if (accessibleContext == null) {</span>
+<span class="nc" id="L541">			accessibleContext = new AccessibleImageIcon();</span>
+		}
+<span class="nc" id="L543">		return accessibleContext;</span>
+	}
+
+	/**
+	 * This class implements accessibility support for the &lt;code&gt;ImageIcon&lt;/code&gt;
+	 * class. It provides an implementation of the Java Accessibility API
+	 * appropriate to image icon user-interface elements.
+	 * &lt;p&gt;
+	 * &lt;strong&gt;Warning:&lt;/strong&gt; Serialized objects of this class will not be
+	 * compatible with future Swing releases. The current serialization support is
+	 * appropriate for short term storage or RMI between applications running the
+	 * same version of Swing. As of 1.4, support for long term storage of all
+	 * JavaBeans&amp;trade; has been added to the &lt;code&gt;java.beans&lt;/code&gt; package.
+	 * Please see {@link java.beans.XMLEncoder}.
+	 * 
+	 * @since 1.3
+	 */
+<span class="nc" id="L560">	protected class AccessibleImageIcon extends AccessibleContext implements AccessibleIcon, Serializable {</span>
+
+		/*
+		 * AccessibleContest implementation -----------------
+		 */
+
+		/**
+		 * Gets the role of this object.
+		 *
+		 * @return an instance of AccessibleRole describing the role of the object
+		 * @see AccessibleRole
+		 */
+		public AccessibleRole getAccessibleRole() {
+<span class="nc" id="L573">			return AccessibleRole.ICON;</span>
+		}
+
+		/**
+		 * Gets the state of this object.
+		 *
+		 * @return an instance of AccessibleStateSet containing the current state set of
+		 *         the object
+		 * @see AccessibleState
+		 */
+		public AccessibleStateSet getAccessibleStateSet() {
+<span class="nc" id="L584">			return null;</span>
+		}
+
+		/**
+		 * Gets the Accessible parent of this object. If the parent of this object
+		 * implements Accessible, this method should simply return getParent().
+		 *
+		 * @return the Accessible parent of this object -- can be null if this object
+		 *         does not have an Accessible parent
+		 */
+		public Accessible getAccessibleParent() {
+<span class="nc" id="L595">			return null;</span>
+		}
+
+		/**
+		 * Gets the index of this object in its accessible parent.
+		 *
+		 * @return the index of this object in its parent; -1 if this object does not
+		 *         have an accessible parent.
+		 * @see #getAccessibleParent
+		 */
+		public int getAccessibleIndexInParent() {
+<span class="nc" id="L606">			return -1;</span>
+		}
+
+		/**
+		 * Returns the number of accessible children in the object. If all of the
+		 * children of this object implement Accessible, than this method should return
+		 * the number of children of this object.
+		 *
+		 * @return the number of accessible children in the object.
+		 */
+		public int getAccessibleChildrenCount() {
+<span class="nc" id="L617">			return 0;</span>
+		}
+
+		/**
+		 * Returns the nth Accessible child of the object.
+		 *
+		 * @param i zero-based index of child
+		 * @return the nth Accessible child of the object
+		 */
+		public Accessible getAccessibleChild(int i) {
+<span class="nc" id="L627">			return null;</span>
+		}
+
+		/**
+		 * Returns the locale of this object.
+		 *
+		 * @return the locale of this object
+		 */
+		public Locale getLocale() throws IllegalComponentStateException {
+<span class="nc" id="L636">			return null;</span>
+		}
+
+		/*
+		 * AccessibleIcon implementation -----------------
+		 */
+
+		/**
+		 * Gets the description of the icon. This is meant to be a brief textual
+		 * description of the object. For example, it might be presented to a blind user
+		 * to give an indication of the purpose of the icon.
+		 *
+		 * @return the description of the icon
+		 */
+		public String getAccessibleIconDescription() {
+<span class="nc" id="L651">			return ImageIcon.this.getDescription();</span>
+		}
+
+		/**
+		 * Sets the description of the icon. This is meant to be a brief textual
+		 * description of the object. For example, it might be presented to a blind user
+		 * to give an indication of the purpose of the icon.
+		 *
+		 * @param description the description of the icon
+		 */
+		public void setAccessibleIconDescription(String description) {
+<span class="nc" id="L662">			ImageIcon.this.setDescription(description);</span>
+<span class="nc" id="L663">		}</span>
+
+		/**
+		 * Gets the height of the icon.
+		 *
+		 * @return the height of the icon
+		 */
+		public int getAccessibleIconHeight() {
+<span class="nc" id="L671">			return ImageIcon.this.height;</span>
+		}
+
+		/**
+		 * Gets the width of the icon.
+		 *
+		 * @return the width of the icon
+		 */
+		public int getAccessibleIconWidth() {
+<span class="nc" id="L680">			return ImageIcon.this.width;</span>
+		}
+
+		private void readObject(ObjectInputStream s) throws ClassNotFoundException, IOException {
+<span class="nc" id="L684">			s.defaultReadObject();</span>
+<span class="nc" id="L685">		}</span>
+
+		private void writeObject(ObjectOutputStream s) throws IOException {
+<span class="nc" id="L688">			s.defaultWriteObject();</span>
+<span class="nc" id="L689">		}</span>
+	} // AccessibleImageIcon
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

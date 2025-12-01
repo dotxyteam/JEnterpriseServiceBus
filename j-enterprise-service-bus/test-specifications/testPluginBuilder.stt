@@ -369,6 +369,14 @@
       </componentFinder>
       <disabled>false</disabled>
       <keyboardInteractions>
+        <xy.ui.testing.action.component.SendKeysAction_-SpecialKey_-CtrlA>
+          <altDown>false</altDown>
+          <altGrtDown>false</altGrtDown>
+          <ctrlDown>true</ctrlDown>
+          <keyName>KEY_A</keyName>
+          <metaDown>false</metaDown>
+          <shiftDown>false</shiftDown>
+        </xy.ui.testing.action.component.SendKeysAction_-SpecialKey_-CtrlA>
         <xy.ui.testing.action.component.SendKeysAction_-WriteText>
           <text>return &quot;Hello&quot; + ((name.value!=null) ? (&quot; &quot;+name.value) : &quot;&quot;);</text>
         </xy.ui.testing.action.component.SendKeysAction_-WriteText>

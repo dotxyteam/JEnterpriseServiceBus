@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>HyperlinkLabel.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.util</a> &gt; <span class="el_source">HyperlinkLabel.java</span></div><h1>HyperlinkLabel.java</h1><pre class="source lang-java linenums">package xy.reflect.ui.control.swing.util;
+
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.JLabel;
+
+import xy.reflect.ui.util.MiscUtils;
+
+public class HyperlinkLabel extends JLabel {
+
+	private static final long serialVersionUID = 1L;
+
+	protected String rawText;
+<span class="fc" id="L17">	protected boolean underlined = false;</span>
+	protected Runnable linkOpener;
+	protected Object customValue;
+
+<span class="fc" id="L21">	protected boolean revalidationDisabled = false;</span>
+
+	public HyperlinkLabel(String rawText, Runnable linkOpener) {
+<span class="fc" id="L24">		super((String) null);</span>
+<span class="fc" id="L25">		setForeground(Color.BLUE);</span>
+<span class="fc" id="L26">		setup();</span>
+<span class="fc" id="L27">		setRawTextAndLinkOpener(rawText, linkOpener);</span>
+<span class="fc" id="L28">		refresh();</span>
+<span class="fc" id="L29">	}</span>
+
+	public HyperlinkLabel() {
+<span class="fc" id="L32">		this(null, null);</span>
+<span class="fc" id="L33">	}</span>
+
+	public Runnable getLinkOpener() {
+<span class="nc" id="L36">		return linkOpener;</span>
+	}
+
+	public void setLinkOpener(Runnable linkOpener) {
+<span class="nc" id="L40">		this.linkOpener = linkOpener;</span>
+<span class="nc" id="L41">		refresh();</span>
+<span class="nc" id="L42">	}</span>
+
+	public String getRawText() {
+<span class="nc" id="L45">		return rawText;</span>
+	}
+
+	public void setRawText(String text) {
+<span class="fc" id="L49">		this.rawText = text;</span>
+<span class="fc" id="L50">		refresh();</span>
+<span class="fc" id="L51">	}</span>
+
+	public void setRawTextAndLinkOpener(String rawText, Runnable linkOpener) {
+<span class="fc" id="L54">		this.rawText = rawText;</span>
+<span class="fc" id="L55">		this.linkOpener = linkOpener;</span>
+<span class="fc" id="L56">		refresh();</span>
+<span class="fc" id="L57">	}</span>
+
+	@Override
+	public void setText(String text) {
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">		if (text == null) {</span>
+<span class="fc" id="L62">			setRawText(null);</span>
+<span class="fc" id="L63">		} else {</span>
+<span class="nc" id="L64">			throw new UnsupportedOperationException();</span>
+		}
+<span class="fc" id="L66">	}</span>
+
+	public Object getCustomValue() {
+<span class="fc" id="L69">		return customValue;</span>
+	}
+
+	public void setCustomValue(Object customValue) {
+<span class="fc" id="L73">		this.customValue = customValue;</span>
+<span class="fc" id="L74">	}</span>
+
+	protected void refresh() {
+<span class="fc bfc" id="L77" title="All 2 branches covered.">		if (rawText == null) {</span>
+<span class="fc" id="L78">			super.setText(null);</span>
+<span class="fc" id="L79">			setCursor(new Cursor(Cursor.DEFAULT_CURSOR));</span>
+<span class="fc" id="L80">		} else {</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">			if (linkOpener == null) {</span>
+<span class="fc" id="L82">				super.setText(rawText);</span>
+<span class="fc" id="L83">				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));</span>
+<span class="fc" id="L84">			} else {</span>
+<span class="fc" id="L85">				String htmlText = MiscUtils.escapeHTML(rawText, true);</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">				htmlText = underlined ? &quot;&lt;u&gt;&quot; + htmlText + &quot;&lt;/u&gt;&quot; : htmlText;</span>
+<span class="fc" id="L87">				htmlText = &quot;&lt;html&gt;&lt;span style=\&quot;color: &quot; + getLinkColorCode() + &quot;;\&quot;&gt;&quot; + htmlText + &quot;&lt;/span&gt;&lt;/html&gt;&quot;;</span>
+<span class="fc" id="L88">				super.setText(htmlText);</span>
+<span class="fc" id="L89">				setCursor(new Cursor(Cursor.HAND_CURSOR));</span>
+			}
+		}
+<span class="fc" id="L92">	}</span>
+
+	@Override
+	public void setForeground(Color fg) {
+<span class="fc" id="L96">		super.setForeground(fg);</span>
+<span class="fc" id="L97">		refresh();</span>
+<span class="fc" id="L98">	}</span>
+
+	protected void setup() {
+<span class="fc" id="L101">		addMouseListener(new MouseAdapter() {</span>
+			public void mouseClicked(MouseEvent e) {
+<span class="fc" id="L103">				openLink();</span>
+<span class="fc" id="L104">			}</span>
+
+			public void mouseEntered(MouseEvent e) {
+<span class="nc" id="L107">				revalidationDisabled = true;</span>
+				try {
+<span class="nc" id="L109">					HyperlinkLabel.this.underlined = true;</span>
+<span class="nc" id="L110">					refresh();</span>
+<span class="nc" id="L111">				} finally {</span>
+<span class="nc" id="L112">					revalidationDisabled = false;</span>
+				}
+<span class="nc" id="L114">			}</span>
+
+			public void mouseExited(MouseEvent e) {
+<span class="nc" id="L117">				revalidationDisabled = true;</span>
+				try {
+<span class="nc" id="L119">					HyperlinkLabel.this.underlined = false;</span>
+<span class="nc" id="L120">					refresh();</span>
+<span class="nc" id="L121">				} finally {</span>
+<span class="nc" id="L122">					revalidationDisabled = false;</span>
+				}
+<span class="nc" id="L124">			}</span>
+		});
+<span class="fc" id="L126">	}</span>
+
+	@Override
+	public void revalidate() {
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">		if (revalidationDisabled) {</span>
+<span class="nc" id="L131">			return;</span>
+		}
+<span class="fc" id="L133">		super.revalidate();</span>
+<span class="fc" id="L134">	}</span>
+
+	protected void openLink() {
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">		if (linkOpener != null) {</span>
+<span class="fc" id="L138">			linkOpener.run();</span>
+		}
+<span class="fc" id="L140">	}</span>
+
+	protected String getLinkColorCode() {
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">		if (getForeground() == null) {</span>
+<span class="nc" id="L144">			return System.getProperty(HyperlinkLabel.class.getName() + &quot;.LINK_COLOR_CODE&quot;, &quot;#000099&quot;);</span>
+		} else {
+<span class="fc" id="L146">			Color color = getForeground();</span>
+<span class="fc" id="L147">			return String.format(&quot;#%02X%02X%02X&quot;, color.getRed(), color.getGreen(), color.getBlue());</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

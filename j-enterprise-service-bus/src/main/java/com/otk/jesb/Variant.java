@@ -26,7 +26,7 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class Variant<T> {
 
 	private Class<T> valueClass;
-	private Object constantValue;
+	private T constantValue;
 	private Expression<String> expression;
 	private boolean variable = false;
 
@@ -51,11 +51,11 @@ public class Variant<T> {
 		this.valueClass = valueClass;
 	}
 
-	public Object getConstantValue() {
+	public T getConstantValue() {
 		return constantValue;
 	}
 
-	public void setConstantValue(Object constantValue) {
+	public void setConstantValue(T constantValue) {
 		this.constantValue = constantValue;
 	}
 

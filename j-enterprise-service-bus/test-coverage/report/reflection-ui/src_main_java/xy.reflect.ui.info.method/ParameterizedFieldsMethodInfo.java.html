@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ParameterizedFieldsMethodInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.method</a> &gt; <span class="el_source">ParameterizedFieldsMethodInfo.java</span></div><h1>ParameterizedFieldsMethodInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.method;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.parameter.FieldAsParameterInfo;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.undo.IrreversibleModificationException;
+import xy.reflect.ui.util.FutureActionBuilder;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Method proxy that have additional virtual parameters allowing view/update the
+ * values of specified fields.
+ * 
+ * @author olitank
+ *
+ */
+public class ParameterizedFieldsMethodInfo extends MethodInfoProxy {
+
+	protected ReflectionUI reflectionUI;
+	protected List&lt;IFieldInfo&gt; parameterizedFields;
+	protected ITypeInfo objectType;
+	protected FutureActionBuilder undoJobBuilder;
+	protected FutureActionBuilder redoJobBuilder;
+	protected List&lt;FieldAsParameterInfo&gt; generatedParameters;
+
+	public ParameterizedFieldsMethodInfo(ReflectionUI reflectionUI, IMethodInfo method,
+			List&lt;IFieldInfo&gt; parameterizedFields, ITypeInfo objectType) {
+<span class="nc" id="L35">		super(method);</span>
+<span class="nc" id="L36">		this.reflectionUI = reflectionUI;</span>
+<span class="nc" id="L37">		this.parameterizedFields = parameterizedFields;</span>
+<span class="nc" id="L38">		this.objectType = objectType;</span>
+<span class="nc" id="L39">		this.generatedParameters = generateParameters();</span>
+<span class="nc" id="L40">	}</span>
+
+	protected List&lt;FieldAsParameterInfo&gt; generateParameters() {
+<span class="nc" id="L43">		List&lt;FieldAsParameterInfo&gt; result = new ArrayList&lt;FieldAsParameterInfo&gt;();</span>
+<span class="nc" id="L44">		int startPosition = super.getParameters().size();</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">		for (int i = 0; i &lt; parameterizedFields.size(); i++) {</span>
+<span class="nc" id="L46">			final IFieldInfo field = parameterizedFields.get(i);</span>
+<span class="nc" id="L47">			final int position = i + startPosition;</span>
+<span class="nc" id="L48">			result.add(new FieldAsParameterInfo(reflectionUI, field, position) {</span>
+
+				@Override
+				public String getName() {
+<span class="nc" id="L52">					return &quot;field.&quot; + field.getName();</span>
+				}
+			});
+		}
+<span class="nc" id="L56">		return result;</span>
+	}
+
+	@Override
+	public List&lt;IParameterInfo&gt; getParameters() {
+<span class="nc" id="L61">		List&lt;IParameterInfo&gt; result = new ArrayList&lt;IParameterInfo&gt;(super.getParameters());</span>
+<span class="nc" id="L62">		result.addAll(generatedParameters);</span>
+<span class="nc" id="L63">		return result;</span>
+	}
+
+	@Override
+	public String getSignature() {
+<span class="nc" id="L68">		return ReflectionUIUtils.buildMethodSignature(this);</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="nc" id="L73">		String result = super.getCaption();</span>
+<span class="nc bnc" id="L74" title="All 6 branches missed.">		if ((super.getParameters().size() == 0) &amp;&amp; (generatedParameters.size() &gt; 0) &amp;&amp; !result.endsWith(&quot;...&quot;)) {</span>
+<span class="nc" id="L75">			result += &quot;...&quot;;</span>
+		}
+<span class="nc" id="L77">		return result;</span>
+	}
+
+	@Override
+	public boolean isReadOnly() {
+<span class="nc bnc" id="L82" title="All 2 branches missed.">		if (!super.isReadOnly()) {</span>
+<span class="nc" id="L83">			return false;</span>
+		}
+<span class="nc" id="L85">		return true;</span>
+	}
+
+	@Override
+	public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L90">		undoJobBuilder = new FutureActionBuilder();</span>
+<span class="nc" id="L91">		return undoJobBuilder.will(new FutureActionBuilder.FuturePerformance() {</span>
+			@Override
+			public void perform(Map&lt;String, Object&gt; options) {
+<span class="nc" id="L94">				undoInvocation(object, invocationData, options);</span>
+<span class="nc" id="L95">			}</span>
+		});
+	}
+
+	@Override
+	public Object invoke(Object object, InvocationData invocationData) {
+<span class="nc" id="L101">		InvocationData newInvocationData = new InvocationData(invocationData);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">		for (FieldAsParameterInfo generatedParameter : generatedParameters) {</span>
+<span class="nc" id="L103">			Object value = invocationData.getParameterValue(generatedParameter.getPosition());</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">			if (undoJobBuilder != null) {</span>
+<span class="nc" id="L105">				undoJobBuilder.setOption(getUndoJobName(generatedParameter), ReflectionUIUtils</span>
+<span class="nc" id="L106">						.getNextUpdateCustomOrDefaultUndoJob(object, generatedParameter.getSourceField(), value));</span>
+			}
+<span class="nc" id="L108">			generatedParameter.getSourceField().setValue(object, value);</span>
+<span class="nc" id="L109">			newInvocationData.getProvidedParameterValues().remove(generatedParameter.getPosition());</span>
+<span class="nc" id="L110">			newInvocationData.getDefaultParameterValues().remove(generatedParameter.getPosition());</span>
+		}
+<span class="nc bnc" id="L112" title="All 2 branches missed.">		Runnable baseMethodUndoJob = super.isReadOnly() ? new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="nc" id="L115">			}</span>
+<span class="nc" id="L116">		} : super.getNextInvocationUndoJob(object, invocationData);</span>
+<span class="nc" id="L117">		Object result = super.invoke(object, newInvocationData);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">		if (undoJobBuilder != null) {</span>
+<span class="nc" id="L119">			undoJobBuilder.setOption(getBaseMethodUndoJobName(), baseMethodUndoJob);</span>
+<span class="nc" id="L120">			undoJobBuilder.build();</span>
+<span class="nc" id="L121">			undoJobBuilder = null;</span>
+		}
+<span class="nc" id="L123">		return result;</span>
+	}
+
+	@Override
+	public Runnable getPreviousInvocationCustomRedoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L128">		redoJobBuilder = new FutureActionBuilder();</span>
+<span class="nc" id="L129">		return redoJobBuilder.will(new FutureActionBuilder.FuturePerformance() {</span>
+			@Override
+			public void perform(Map&lt;String, Object&gt; options) {
+<span class="nc" id="L132">				redoInvocation(options);</span>
+<span class="nc" id="L133">			}</span>
+		});
+	}
+
+	protected void undoInvocation(Object object, InvocationData invocationData,
+			Map&lt;String, Object&gt; undoJobBuilderOptions) {
+<span class="nc" id="L139">		Runnable baseMethodUndoJob = (Runnable) undoJobBuilderOptions.get(getBaseMethodUndoJobName());</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">		if (baseMethodUndoJob == null) {</span>
+<span class="nc" id="L141">			throw new IrreversibleModificationException();</span>
+		}
+		Runnable baseMethodRedoJob;
+		{
+<span class="nc bnc" id="L145" title="All 2 branches missed.">			if (super.isReadOnly()) {</span>
+<span class="nc" id="L146">				baseMethodRedoJob = new Runnable() {</span>
+					@Override
+					public void run() {
+<span class="nc" id="L149">					}</span>
+				};
+<span class="nc" id="L151">			} else {</span>
+<span class="nc" id="L152">				baseMethodRedoJob = super.getPreviousInvocationCustomRedoJob(object, invocationData);</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">				if (baseMethodRedoJob == null) {</span>
+<span class="nc" id="L154">					baseMethodRedoJob = new Runnable() {</span>
+						@Override
+						public void run() {
+<span class="nc" id="L157">							ParameterizedFieldsMethodInfo.super.invoke(object, invocationData);</span>
+<span class="nc" id="L158">						}</span>
+					};
+				}
+			}
+		}
+<span class="nc" id="L163">		baseMethodUndoJob.run();</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">		for (int i = generatedParameters.size() - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L165">			FieldAsParameterInfo generatedParameter = generatedParameters.get(i);</span>
+<span class="nc" id="L166">			Runnable fieldUndoJob = (Runnable) undoJobBuilderOptions.get(getUndoJobName(generatedParameter));</span>
+<span class="nc" id="L167">			Object value = invocationData.getParameterValue(generatedParameter.getPosition());</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">			if (redoJobBuilder != null) {</span>
+<span class="nc" id="L169">				redoJobBuilder.setOption(getRedoJobName(generatedParameter), ReflectionUIUtils</span>
+<span class="nc" id="L170">						.getPreviousUpdateCustomOrDefaultRedoJob(object, generatedParameter.getSourceField(), value));</span>
+			}
+<span class="nc" id="L172">			fieldUndoJob.run();</span>
+		}
+<span class="nc bnc" id="L174" title="All 2 branches missed.">		if (redoJobBuilder != null) {</span>
+<span class="nc" id="L175">			redoJobBuilder.setOption(getBaseMethodRedoJobName(), baseMethodRedoJob);</span>
+<span class="nc" id="L176">			redoJobBuilder.build();</span>
+<span class="nc" id="L177">			redoJobBuilder = null;</span>
+		}
+<span class="nc" id="L179">	}</span>
+
+	protected void redoInvocation(Map&lt;String, Object&gt; redoJobBuilderOptions) {
+<span class="nc" id="L182">		Runnable baseMethodRedoJob = (Runnable) redoJobBuilderOptions.get(getBaseMethodRedoJobName());</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">		if (baseMethodRedoJob == null) {</span>
+<span class="nc" id="L184">			throw new IrreversibleModificationException();</span>
+		}
+<span class="nc bnc" id="L186" title="All 2 branches missed.">		for (int i = generatedParameters.size() - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L187">			FieldAsParameterInfo generatedParameter = generatedParameters.get(i);</span>
+<span class="nc" id="L188">			Runnable fieldRedoJob = (Runnable) redoJobBuilderOptions.get(getRedoJobName(generatedParameter));</span>
+<span class="nc" id="L189">			fieldRedoJob.run();</span>
+		}
+<span class="nc" id="L191">		baseMethodRedoJob.run();</span>
+<span class="nc" id="L192">	}</span>
+
+	protected String getBaseMethodUndoJobName() {
+<span class="nc" id="L195">		return &quot;baseMethodUndoJob&quot;;</span>
+	}
+
+	protected String getBaseMethodRedoJobName() {
+<span class="nc" id="L199">		return &quot;baseMethodRedoJob&quot;;</span>
+	}
+
+	protected String getUndoJobName(FieldAsParameterInfo generatedParameter) {
+<span class="nc" id="L203">		return &quot;field&quot; + generatedParameter.getPosition() + &quot;UndoJob&quot;;</span>
+	}
+
+	protected String getRedoJobName(FieldAsParameterInfo generatedParameter) {
+<span class="nc" id="L207">		return &quot;field&quot; + generatedParameter.getPosition() + &quot;RedoJob&quot;;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L212">		final int prime = 31;</span>
+<span class="nc" id="L213">		int result = super.hashCode();</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">		result = prime * result + ((objectType == null) ? 0 : objectType.hashCode());</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">		result = prime * result + ((parameterizedFields == null) ? 0 : parameterizedFields.hashCode());</span>
+<span class="nc" id="L216">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L221" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L222">			return true;</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">		if (!super.equals(obj))</span>
+<span class="nc" id="L224">			return false;</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L226">			return false;</span>
+<span class="nc" id="L227">		ParameterizedFieldsMethodInfo other = (ParameterizedFieldsMethodInfo) obj;</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">		if (objectType == null) {</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">			if (other.objectType != null)</span>
+<span class="nc" id="L230">				return false;</span>
+<span class="nc bnc" id="L231" title="All 2 branches missed.">		} else if (!objectType.equals(other.objectType))</span>
+<span class="nc" id="L232">			return false;</span>
+<span class="nc bnc" id="L233" title="All 2 branches missed.">		if (parameterizedFields == null) {</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">			if (other.parameterizedFields != null)</span>
+<span class="nc" id="L235">				return false;</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">		} else if (!parameterizedFields.equals(other.parameterizedFields))</span>
+<span class="nc" id="L237">			return false;</span>
+<span class="nc" id="L238">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L243">		return &quot;ParameterizedFieldsMethodInfo [parameterizedFields=&quot; + parameterizedFields + &quot;, objectType=&quot;</span>
+<span class="nc" id="L244">				+ objectType + &quot;, base=&quot; + base + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

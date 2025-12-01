@@ -1,0 +1,2362 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Form.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.renderer</a> &gt; <span class="el_source">Form.java</span></div><h1>Form.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.renderer;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.LayoutManager;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JMenuBar;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JToolTip;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.IAdvancedFieldControl;
+import xy.reflect.ui.control.IAdvancedMethodControl;
+import xy.reflect.ui.control.IFieldControlData;
+import xy.reflect.ui.control.swing.builder.DialogBuilder;
+import xy.reflect.ui.control.swing.builder.DialogBuilder.RenderedDialog;
+import xy.reflect.ui.control.swing.menu.Menu;
+import xy.reflect.ui.control.swing.util.AbstractControlButton;
+import xy.reflect.ui.control.swing.util.BetterGridLayout;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.ControlScrollPane;
+import xy.reflect.ui.control.swing.util.ControlTabbedPane;
+import xy.reflect.ui.control.swing.util.ClassicTabbedPane;
+import xy.reflect.ui.control.swing.util.HyperlinkLabel;
+import xy.reflect.ui.control.swing.util.ImagePanel;
+import xy.reflect.ui.control.swing.util.ListTabbedPane;
+import xy.reflect.ui.control.swing.util.ModificationStackControls;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.field.FieldInfoProxy;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.menu.AbstractActionMenuItemInfo;
+import xy.reflect.ui.info.menu.IMenuElementInfo;
+import xy.reflect.ui.info.menu.MenuInfo;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.MethodsLayout;
+import xy.reflect.ui.info.type.factory.FilteredTypeFactory;
+import xy.reflect.ui.undo.AbstractSimpleModificationListener;
+import xy.reflect.ui.undo.IModification;
+import xy.reflect.ui.undo.IModificationListener;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.undo.SlaveModificationStack;
+import xy.reflect.ui.util.Filter;
+import xy.reflect.ui.util.MinimalListUpdater;
+import xy.reflect.ui.util.BetterFutureTask;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+import xy.reflect.ui.util.ValidationErrorWrapper;
+
+/**
+ * Instances of this class are forms allowing to edit any object. The layout and
+ * the controls are generated according to type information ({@link ITypeInfo})
+ * extracted form the underlying object.
+ * 
+ * A {@link ModificationStack} is used to record and revert/replay
+ * modifications. It is also used as modification event producer in order to
+ * refresh and then keep the field controls up to date when a modification is
+ * detected.
+ * 
+ * @author olitank
+ *
+ */
+public class Form extends ImagePanel {
+
+	private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L111">	public static final String ACTION_MENU_ITEM_CONTEXT_FORM = Form.class.getName() + &quot;.actionMenuItemContextForm&quot;;</span>
+
+	protected SwingRenderer swingRenderer;
+	protected Object object;
+	protected ITypeInfo filteredObjectType;
+	protected ModificationStack modificationStack;
+<span class="fc" id="L117">	protected boolean forwardingUpdateEventToTwinFormsDisabled = false;</span>
+	protected IInfoFilter infoFilter;
+<span class="fc" id="L119">	protected SortedMap&lt;InfoCategory, List&lt;FieldControlPlaceHolder&gt;&gt; fieldControlPlaceHoldersByCategory = new TreeMap&lt;InfoCategory, List&lt;FieldControlPlaceHolder&gt;&gt;();</span>
+<span class="fc" id="L120">	protected SortedMap&lt;InfoCategory, List&lt;MethodControlPlaceHolder&gt;&gt; methodControlPlaceHoldersByCategory = new TreeMap&lt;InfoCategory, List&lt;MethodControlPlaceHolder&gt;&gt;();</span>
+
+	protected Container categoriesControl;
+	protected MinimalListUpdater&lt;InfoCategory&gt; categoriesVisibilityUpdater;
+	protected JScrollPane scrollPane;
+<span class="fc" id="L125">	protected IModificationListener fieldsUpdateListener = createFieldsUpdateListener();</span>
+<span class="fc" id="L126">	protected boolean visibilityEventsDisabled = false;</span>
+<span class="fc" id="L127">	protected List&lt;IFormListener&gt; listeners = new ArrayList&lt;IFormListener&gt;();</span>
+	protected JLabel statusBar;
+	protected JMenuBar menuBar;
+<span class="fc" id="L130">	protected boolean shown = false;</span>
+	protected BetterFutureTask&lt;Boolean&gt; currentValidationTask;
+	protected MinimalListUpdater&lt;MenuInfo&gt; menuBarUpdater;
+<span class="fc" id="L133">	protected boolean neverShown = true;</span>
+
+	/**
+	 * Creates a form allowing to view/edit the given object.
+	 * 
+	 * @param swingRenderer The renderer used to generate this form controls.
+	 * @param object        The object that will be viewed/edited through this form.
+	 * @param infoFilter    A filter that will be used to exclude some
+	 *                      fields/methods of the object.
+	 */
+<span class="fc" id="L143">	public Form(SwingRenderer swingRenderer, final Object object, IInfoFilter infoFilter) {</span>
+<span class="fc" id="L144">		final ITypeInfo objectType = swingRenderer.getReflectionUI()</span>
+<span class="fc" id="L145">				.getTypeInfo(swingRenderer.getReflectionUI().getTypeInfoSource(object));</span>
+<span class="fc" id="L146">		swingRenderer.showBusyDialogWhile(this, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L149">				objectType.onFormCreation(object, true);</span>
+<span class="fc" id="L150">			}</span>
+<span class="fc" id="L151">		}, getInitializationJobTitle());</span>
+		try {
+<span class="fc" id="L153">			this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L154">			setObject(object);</span>
+<span class="fc" id="L155">			setInfoFilter(infoFilter);</span>
+<span class="fc" id="L156">			setModificationStack(new ModificationStack(null));</span>
+<span class="fc" id="L157">			getModificationStack().addListener(fieldsUpdateListener);</span>
+<span class="fc" id="L158">			handleVisibilityEvents();</span>
+<span class="fc" id="L159">			menuBar = createMenuBar();</span>
+<span class="fc" id="L160">			statusBar = createStatusBar();</span>
+<span class="fc" id="L161">			refresh(true);</span>
+<span class="fc" id="L162">		} finally {</span>
+<span class="fc" id="L163">			swingRenderer.showBusyDialogWhile(this, new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="fc" id="L166">					objectType.onFormCreation(object, false);</span>
+<span class="fc" id="L167">				}</span>
+<span class="fc" id="L168">			}, getInitializationJobTitle());</span>
+
+		}
+<span class="fc" id="L171">	}</span>
+
+	protected String getInitializationJobTitle() {
+<span class="fc" id="L174">		return &quot;Setting up...&quot;;</span>
+	}
+
+	protected String getFinalizationJobTitle() {
+<span class="fc" id="L178">		return &quot;Cleaning up...&quot;;</span>
+	}
+
+	public ITypeInfo getFilteredObjectType() {
+<span class="fc" id="L182">		return filteredObjectType;</span>
+	}
+
+	public BetterFutureTask&lt;Boolean&gt; getCurrentValidationTask() {
+<span class="nc" id="L186">		return currentValidationTask;</span>
+	}
+
+	@Override
+	public void removeNotify() {
+<span class="fc" id="L191">		super.removeNotify();</span>
+<span class="fc" id="L192">		ensureNoCurrentValidationTask();</span>
+<span class="fc" id="L193">	}</span>
+
+	protected void handleVisibilityEvents() {
+<span class="fc" id="L196">		addAncestorListener(new AncestorListener() {</span>
+
+			@Override
+			public void ancestorAdded(AncestorEvent event) {
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">				if (visibilityEventsDisabled) {</span>
+<span class="nc" id="L201">					return;</span>
+				}
+				try {
+<span class="fc" id="L204">					formShown();</span>
+<span class="pc" id="L205">				} catch (Throwable t) {</span>
+<span class="nc" id="L206">					Form.this.swingRenderer.handleException(Form.this, t);</span>
+				}
+<span class="fc" id="L208">			}</span>
+
+			@Override
+			public void ancestorRemoved(AncestorEvent event) {
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">				if (visibilityEventsDisabled) {</span>
+<span class="nc" id="L213">					return;</span>
+				}
+				try {
+<span class="fc" id="L216">					formHidden();</span>
+<span class="pc" id="L217">				} catch (Throwable t) {</span>
+<span class="nc" id="L218">					Form.this.swingRenderer.handleException(Form.this, t);</span>
+				}
+<span class="fc" id="L220">			}</span>
+
+			@Override
+			public void ancestorMoved(AncestorEvent event) {
+<span class="fc" id="L224">			}</span>
+
+		});
+<span class="fc" id="L227">	}</span>
+
+	/**
+	 * @return The object that is viewed/edited through this form.
+	 */
+	public Object getObject() {
+<span class="fc" id="L233">		return object;</span>
+	}
+
+	/**
+	 * Changes the object that is viewed/edited through this form. Note that this
+	 * method does not refresh the form. {@link #refresh(boolean)} should be called
+	 * after this method to actually display the new object values.
+	 * 
+	 * @param object The new object.
+	 */
+	public void setObject(Object object) {
+<span class="fc" id="L244">		ensureNoCurrentValidationTask();</span>
+<span class="fc" id="L245">		this.object = object;</span>
+<span class="fc" id="L246">	}</span>
+
+	/**
+	 * @return whether this form is currently visible on the screen. Note that
+	 *         unlike the {@link #isVisible()} method, this method return value
+	 *         interpretation does not depend on the parent component visibility.
+	 */
+	public boolean isShown() {
+<span class="fc" id="L254">		return shown;</span>
+	}
+
+	/**
+	 * @return the renderer used to generate this form controls.
+	 */
+	public SwingRenderer getSwingRenderer() {
+<span class="fc" id="L261">		return swingRenderer;</span>
+	}
+
+	/**
+	 * @return the modification stack associated with this form.
+	 */
+	public ModificationStack getModificationStack() {
+<span class="fc" id="L268">		return modificationStack;</span>
+	}
+
+	/**
+	 * Changes the modification stack associated with this form.
+	 * 
+	 * @param modificationStack The new modification stack.
+	 */
+	public void setModificationStack(ModificationStack modificationStack) {
+<span class="fc" id="L277">		this.modificationStack = modificationStack;</span>
+<span class="fc" id="L278">	}</span>
+
+	/**
+	 * @return whether the forwarding of field update events to twin forms (other
+	 *         forms that display the same object as this form) is disabled or not.
+	 */
+	public boolean isForwardingUpdateEventToTwinFormsDisabled() {
+<span class="fc" id="L285">		return forwardingUpdateEventToTwinFormsDisabled;</span>
+	}
+
+	/**
+	 * Updates whether the forwarding of field update events to twin forms (other
+	 * forms that display the same object as this form) is disabled or not.
+	 * 
+	 * @param forwardingUpdateEventToTwinFormsDisabled The new listener status.
+	 */
+	public void setForwardingUpdateEventToTwinFormsDisabled(boolean forwardingUpdateEventToTwinFormsDisabled) {
+<span class="nc" id="L295">		this.forwardingUpdateEventToTwinFormsDisabled = forwardingUpdateEventToTwinFormsDisabled;</span>
+<span class="nc" id="L296">	}</span>
+
+	/**
+	 * @return the filter that is used to exclude some fields/methods of the object.
+	 */
+	public IInfoFilter getInfoFilter() {
+<span class="nc" id="L302">		return infoFilter;</span>
+	}
+
+	/**
+	 * Changes the filter that is used to exclude some fields/methods of the object.
+	 * Note that this method does not refresh the form. {@link #refresh(boolean)}
+	 * should be called with the parameter refreshStructure=true after to actually
+	 * apply the new filter.
+	 * 
+	 * @param infoFilter The new filter.
+	 */
+	public void setInfoFilter(IInfoFilter infoFilter) {
+<span class="fc" id="L314">		this.infoFilter = infoFilter;</span>
+<span class="fc" id="L315">	}</span>
+
+	/**
+	 * @return the menu bar component.
+	 */
+	public JMenuBar getMenuBar() {
+<span class="fc" id="L321">		return menuBar;</span>
+	}
+
+	/**
+	 * @return the status bar component.
+	 */
+	public JLabel getStatusBar() {
+<span class="fc" id="L328">		return statusBar;</span>
+	}
+
+	/**
+	 * @return the map the current field control place holders by category.
+	 */
+	public SortedMap&lt;InfoCategory, List&lt;FieldControlPlaceHolder&gt;&gt; getFieldControlPlaceHoldersByCategory() {
+<span class="fc" id="L335">		return fieldControlPlaceHoldersByCategory;</span>
+	}
+
+	/**
+	 * @return the map the current method control place holders by category.
+	 */
+	public SortedMap&lt;InfoCategory, List&lt;MethodControlPlaceHolder&gt;&gt; getMethodControlPlaceHoldersByCategory() {
+<span class="fc" id="L342">		return methodControlPlaceHoldersByCategory;</span>
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+<span class="fc" id="L347">		Dimension result = super.getPreferredSize();</span>
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L349">			result = new Dimension(100, 100);</span>
+		}
+<span class="pc bpc" id="L351" title="1 of 2 branches missed.">		if (filteredObjectType != null) {</span>
+<span class="fc" id="L352">			Dimension configuredSize = new Dimension(filteredObjectType.getFormPreferredWidth(),</span>
+<span class="fc" id="L353">					filteredObjectType.getFormPreferredHeight());</span>
+<span class="fc bfc" id="L354" title="All 2 branches covered.">			if (configuredSize.width &gt; 0) {</span>
+<span class="fc" id="L355">				result.width = configuredSize.width;</span>
+			}
+<span class="fc bfc" id="L357" title="All 2 branches covered.">			if (configuredSize.height &gt; 0) {</span>
+<span class="fc" id="L358">				result.height = configuredSize.height;</span>
+			}
+		}
+<span class="fc" id="L361">		return result;</span>
+	}
+
+	@Override
+	public Dimension getMinimumSize() {
+<span class="nc" id="L366">		Dimension result = super.getMinimumSize();</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">		if (result != null) {</span>
+<span class="nc" id="L368">			Dimension preferredSize = getPreferredSize();</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">			if (preferredSize != null) {</span>
+<span class="nc" id="L370">				result.width = Math.min(result.width, preferredSize.width);</span>
+<span class="nc" id="L371">				result.height = Math.min(result.height, preferredSize.height);</span>
+			}
+		}
+<span class="nc" id="L374">		return result;</span>
+
+	}
+
+	@Override
+	public Dimension getMaximumSize() {
+<span class="nc" id="L380">		Dimension result = super.getMaximumSize();</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">		if (result != null) {</span>
+<span class="nc" id="L382">			Dimension preferredSize = getPreferredSize();</span>
+<span class="nc bnc" id="L383" title="All 2 branches missed.">			if (preferredSize != null) {</span>
+<span class="nc" id="L384">				result.width = Math.max(result.width, preferredSize.width);</span>
+<span class="nc" id="L385">				result.height = Math.max(result.height, preferredSize.height);</span>
+			}
+		}
+<span class="nc" id="L388">		return result;</span>
+	}
+
+	/**
+	 * Uses type information to check that the state of the underlying object is
+	 * valid. Note that this method should not be called from the UI thread.
+	 * 
+	 * @param session If the state of the underlying object is not valid.
+	 * @throws Exception If the state of the underlying object is not valid.
+	 */
+	public void validateForm(ValidationSession session) throws Exception {
+		try {
+<span class="fc" id="L400">			swingRenderer.getReflectionUI().getValidationErrorRegistry().attributing(object, (sessionArg) -&gt; {</span>
+<span class="fc" id="L401">				ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L402">				List&lt;InfoCategory&gt; allCategories = collectCategories(fieldControlPlaceHoldersByCategory,</span>
+<span class="fc" id="L403">						methodControlPlaceHoldersByCategory);</span>
+<span class="fc" id="L404">				boolean categoriesDisplayed = shouldCategoriesBeDisplayed(allCategories);</span>
+<span class="fc bfc" id="L405" title="All 2 branches covered.">				for (InfoCategory category : fieldControlPlaceHoldersByCategory.keySet()) {</span>
+<span class="fc bfc" id="L406" title="All 2 branches covered.">					for (FieldControlPlaceHolder fieldControlPlaceHolder : fieldControlPlaceHoldersByCategory</span>
+<span class="fc" id="L407">							.get(category)) {</span>
+<span class="fc" id="L408">						if (swingRenderer.getReflectionUI().getValidationErrorRegistry()</span>
+<span class="fc bfc" id="L409" title="All 2 branches covered.">								.isValidationCancelled(Thread.currentThread())) {</span>
+<span class="fc" id="L410">							return;</span>
+						}
+<span class="fc bfc" id="L412" title="All 2 branches covered.">						if (!fieldControlPlaceHolder.isVisible()) {</span>
+<span class="fc" id="L413">							continue;</span>
+						}
+<span class="fc bfc" id="L415" title="All 2 branches covered.">						if (!fieldControlPlaceHolder.getControlData().isControlValueValiditionEnabled()) {</span>
+<span class="fc" id="L416">							continue;</span>
+						}
+<span class="fc" id="L418">						Component fieldControl = fieldControlPlaceHolder.getFieldControl();</span>
+<span class="pc bpc" id="L419" title="1 of 2 branches missed.">						if (fieldControl instanceof IAdvancedFieldControl) {</span>
+							try {
+<span class="fc" id="L421">								((IAdvancedFieldControl) fieldControl).validateControlData(session);</span>
+<span class="fc" id="L422">								if (!swingRenderer.getReflectionUI().getValidationErrorRegistry()</span>
+<span class="fc bfc" id="L423" title="All 2 branches covered.">										.isValidationCancelled(Thread.currentThread())) {</span>
+<span class="fc" id="L424">									fieldControlPlaceHolder.setBorder(null);</span>
+								}
+<span class="fc" id="L426">							} catch (Exception e) {</span>
+<span class="fc bfc" id="L427" title="All 2 branches covered.">								if (!(e instanceof ValidationErrorWrapper)) {</span>
+<span class="fc" id="L428">									SwingRendererUtils.setErrorBorder(fieldControlPlaceHolder, swingRenderer);</span>
+								}
+<span class="fc" id="L430">								String contextCaption = null;</span>
+<span class="fc" id="L431">								IFieldInfo field = fieldControlPlaceHolder.getField();</span>
+<span class="fc bfc" id="L432" title="All 2 branches covered.">								if (field.getCaption().length() &gt; 0) {</span>
+<span class="fc" id="L433">									contextCaption = field.getCaption();</span>
+								}
+<span class="fc bfc" id="L435" title="All 2 branches covered.">								if (categoriesDisplayed) {</span>
+<span class="fc" id="L436">									contextCaption = category.getCaption();</span>
+								}
+<span class="fc" id="L438">								throw new ValidationErrorWrapper(contextCaption, e);</span>
+							}
+						}
+					}
+				}
+<span class="fc bfc" id="L443" title="All 2 branches covered.">				for (InfoCategory category : methodControlPlaceHoldersByCategory.keySet()) {</span>
+<span class="fc bfc" id="L444" title="All 2 branches covered.">					for (MethodControlPlaceHolder methodControlPlaceHolder : methodControlPlaceHoldersByCategory</span>
+<span class="fc" id="L445">							.get(category)) {</span>
+<span class="fc" id="L446">						if (swingRenderer.getReflectionUI().getValidationErrorRegistry()</span>
+<span class="fc bfc" id="L447" title="All 2 branches covered.">								.isValidationCancelled(Thread.currentThread())) {</span>
+<span class="fc" id="L448">							return;</span>
+						}
+<span class="fc bfc" id="L450" title="All 2 branches covered.">						if (!methodControlPlaceHolder.isVisible()) {</span>
+<span class="fc" id="L451">							continue;</span>
+						}
+<span class="fc bfc" id="L453" title="All 2 branches covered.">						if (!methodControlPlaceHolder.getControlData().isControlReturnValueValiditionEnabled()) {</span>
+<span class="fc" id="L454">							continue;</span>
+						}
+<span class="fc" id="L456">						Component methodControl = methodControlPlaceHolder.getMethodControl();</span>
+<span class="pc bpc" id="L457" title="1 of 2 branches missed.">						if (methodControl instanceof IAdvancedMethodControl) {</span>
+							try {
+<span class="fc" id="L459">								((IAdvancedMethodControl) methodControl).validateControlData(session);</span>
+<span class="fc" id="L460">								if (!swingRenderer.getReflectionUI().getValidationErrorRegistry()</span>
+<span class="pc bpc" id="L461" title="1 of 2 branches missed.">										.isValidationCancelled(Thread.currentThread())) {</span>
+<span class="fc" id="L462">									methodControlPlaceHolder.setBorder(null);</span>
+								}
+<span class="pc" id="L464">							} catch (Exception e) {</span>
+<span class="nc" id="L465">								SwingRendererUtils.setErrorBorder(methodControlPlaceHolder, swingRenderer);</span>
+<span class="nc" id="L466">								String contextCaption = null;</span>
+<span class="nc" id="L467">								IMethodInfo method = methodControlPlaceHolder.getMethod();</span>
+<span class="nc bnc" id="L468" title="All 2 branches missed.">								if (method.getCaption().length() &gt; 0) {</span>
+<span class="nc" id="L469">									contextCaption = method.getCaption();</span>
+								}
+<span class="nc bnc" id="L471" title="All 2 branches missed.">								if (categoriesDisplayed) {</span>
+<span class="nc" id="L472">									contextCaption = category.getCaption();</span>
+								}
+<span class="nc" id="L474">								throw new ValidationErrorWrapper(contextCaption, e);</span>
+							}
+						}
+					}
+				}
+<span class="fc" id="L479">				ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc" id="L480">				type.validate(object, session);</span>
+<span class="fc" id="L481">			}, validationError -&gt; swingRenderer.getReflectionUI().logDebug(validationError)).validate(session);</span>
+<span class="fc" id="L482">			if (!swingRenderer.getReflectionUI().getValidationErrorRegistry()</span>
+<span class="fc bfc" id="L483" title="All 2 branches covered.">					.isValidationCancelled(Thread.currentThread())) {</span>
+<span class="fc bfc" id="L484" title="All 2 branches covered.">				for (IFormListener l : listeners) {</span>
+<span class="fc" id="L485">					l.afterValidation(null);</span>
+				}
+			}
+<span class="fc" id="L488">		} catch (Exception e) {</span>
+<span class="fc bfc" id="L489" title="All 2 branches covered.">			for (IFormListener l : listeners) {</span>
+<span class="fc" id="L490">				l.afterValidation(e);</span>
+			}
+<span class="fc" id="L492">			throw e;</span>
+		}
+<span class="fc" id="L494">	}</span>
+
+	/**
+	 * Runs {@link #validateForm()} asynchronously and updates the status bar
+	 * accordingly (displays a validation error if the form is not valid).
+	 */
+	public void validateFormInBackgroundAndReportOnStatusBar() {
+<span class="fc" id="L501">		ensureNoCurrentValidationTask();</span>
+<span class="fc" id="L502">		currentValidationTask = swingRenderer.getReflectionUI().getValidationErrorRegistry()</span>
+<span class="fc" id="L503">				.createValidationTask(new Runnable() {</span>
+<span class="fc" id="L504">					boolean completedValidationStatusReported = false;</span>
+
+					@Override
+					public void run() {
+<span class="fc" id="L508">						final Icon initialStatusBarIcon = statusBar.getIcon();</span>
+<span class="fc" id="L509">						scheduleOngoingValidationStatusDisplay();</span>
+						try {
+<span class="fc" id="L511">							validateForm(new ValidationSession());</span>
+<span class="fc" id="L512">						} catch (Exception e) {</span>
+<span class="fc" id="L513">							return;</span>
+<span class="nc" id="L514">						} catch (Throwable t) {</span>
+<span class="nc" id="L515">							SwingUtilities.invokeLater(new Runnable() {</span>
+								@Override
+								public void run() {
+<span class="nc" id="L518">									swingRenderer.handleException(Form.this, t);</span>
+<span class="nc" id="L519">								}</span>
+							});
+						} finally {
+<span class="fc" id="L522">							currentValidationTask = null;</span>
+<span class="fc" id="L523">							SwingUtilities.invokeLater(new Runnable() {</span>
+								@Override
+								public void run() {
+<span class="fc" id="L526">									statusBar.setIcon(initialStatusBarIcon);</span>
+<span class="fc" id="L527">									refreshValidityComponents();</span>
+<span class="fc" id="L528">									completedValidationStatusReported = true;</span>
+<span class="fc" id="L529">								}</span>
+							});
+						}
+<span class="fc" id="L532">					}</span>
+
+					void scheduleOngoingValidationStatusDisplay() {
+<span class="fc" id="L535">						swingRenderer.getDelayedUpdateExecutorService().submit(new Runnable() {</span>
+<span class="fc" id="L536">							BetterFutureTask&lt;Boolean&gt; task = currentValidationTask;</span>
+
+							@Override
+							public void run() {
+								try {
+<span class="fc" id="L541">									task.get(getOngoingValidationStausDisplayDelayMilliseconds(),</span>
+<span class="fc" id="L542">											TimeUnit.MILLISECONDS);</span>
+<span class="fc" id="L543">								} catch (TimeoutException e) {</span>
+<span class="fc" id="L544">									SwingUtilities.invokeLater(new Runnable() {</span>
+										@Override
+										public void run() {
+<span class="pc bpc" id="L547" title="1 of 2 branches missed.">											if (completedValidationStatusReported) {</span>
+<span class="nc" id="L548">												return;</span>
+											}
+<span class="pc bpc" id="L550" title="1 of 2 branches missed.">											if (!statusBar.isVisible()) {</span>
+<span class="fc" id="L551">												showErrorOnStatusBar(</span>
+<span class="fc" id="L552">														new ReflectionUIError(getOngoingValidationMessage()));</span>
+											}
+<span class="fc" id="L554">											statusBar.setIcon(getOngoingValidationIcon());</span>
+<span class="fc" id="L555">										}</span>
+									});
+<span class="fc" id="L557">								} catch (CancellationException | ExecutionException e) {</span>
+<span class="fc" id="L558">									return;</span>
+<span class="nc" id="L559">								} catch (InterruptedException e) {</span>
+<span class="nc" id="L560">									throw new ReflectionUIError(e);</span>
+								}
+<span class="fc" id="L562">							}</span>
+						});
+<span class="fc" id="L564">					}</span>
+				});
+<span class="fc" id="L566">		swingRenderer.getFormValidatorService().submit(currentValidationTask);</span>
+<span class="fc" id="L567">	}</span>
+
+	protected long getOngoingValidationStausDisplayDelayMilliseconds() {
+<span class="fc" id="L570">		return 5000;</span>
+	}
+
+	protected Icon getOngoingValidationIcon() {
+<span class="fc" id="L574">		return SwingRendererUtils.ERROR_REFRESHING_ICON;</span>
+	}
+
+	protected String getOngoingValidationMessage() {
+<span class="fc" id="L578">		return &quot;Validating...&quot;;</span>
+	}
+
+	protected void refreshValidityComponents() {
+<span class="fc" id="L582">		Exception validationError = swingRenderer.getReflectionUI().getValidationErrorRegistry()</span>
+<span class="fc" id="L583">				.getValidationError(object, null);</span>
+<span class="fc" id="L584">		showErrorOnStatusBar(validationError);</span>
+<span class="pc bpc" id="L585" title="1 of 4 branches missed.">		setStandardOKButtonEnabled((validationError == null) || !filteredObjectType.isValidationRequired());</span>
+<span class="fc" id="L586">	}</span>
+
+	protected void setStandardOKButtonEnabled(boolean b) {
+<span class="fc bfc" id="L589" title="All 2 branches covered.">		if (SwingRendererUtils.findAncestorForms(this, swingRenderer).size() &gt; 0) {</span>
+<span class="fc" id="L590">			return;</span>
+		}
+<span class="fc" id="L592">		Window window = SwingRendererUtils.getWindowAncestorOrSelf(this);</span>
+<span class="fc bfc" id="L593" title="All 2 branches covered.">		if (!(window instanceof RenderedDialog)) {</span>
+<span class="fc" id="L594">			return;</span>
+		}
+<span class="fc" id="L596">		DialogBuilder dialogBuilder = ((RenderedDialog) window).getDialogBuilder();</span>
+<span class="fc" id="L597">		JButton button = dialogBuilder.getStandardOKButton();</span>
+<span class="fc bfc" id="L598" title="All 2 branches covered.">		if (button == null) {</span>
+<span class="fc" id="L599">			return;</span>
+		}
+<span class="fc" id="L601">		button.setEnabled(b);</span>
+<span class="fc" id="L602">	}</span>
+
+	protected void showErrorOnStatusBar(Exception error) {
+<span class="fc" id="L605">		Exception previousError = (Exception) ((HyperlinkLabel) statusBar).getCustomValue();</span>
+		boolean statusUpdateRequired;
+		try {
+<span class="fc" id="L608">			statusUpdateRequired = !MiscUtils.sameExceptionOrBothNull(error, previousError,</span>
+<span class="fc bfc" id="L609" title="All 2 branches covered.">					swingRenderer.getReflectionUI());</span>
+<span class="pc" id="L610">		} catch (Exception e) {</span>
+<span class="nc" id="L611">			swingRenderer.getReflectionUI().logDebug(</span>
+<span class="nc" id="L612">					&quot;WARNING: Failed to compare exceptions '&quot; + error + &quot;' and '&quot; + previousError + &quot;': &quot; + e);</span>
+<span class="nc" id="L613">			statusUpdateRequired = true;</span>
+		}
+<span class="fc bfc" id="L615" title="All 2 branches covered.">		if (statusUpdateRequired) {</span>
+			String errorSummary;
+<span class="fc bfc" id="L617" title="All 2 branches covered.">			if (error == null) {</span>
+<span class="fc" id="L618">				errorSummary = null;</span>
+<span class="fc" id="L619">			} else {</span>
+<span class="fc" id="L620">				errorSummary = MiscUtils.getPrettyErrorMessage(error);</span>
+<span class="fc" id="L621">				errorSummary = MiscUtils.multiToSingleLine(errorSummary);</span>
+<span class="fc" id="L622">				errorSummary = MiscUtils.truncateNicely(errorSummary, getErrorSummaryMaximumLength());</span>
+			}
+<span class="fc bfc" id="L624" title="All 2 branches covered.">			if (errorSummary == null) {</span>
+<span class="fc" id="L625">				statusBar.setIcon(null);</span>
+<span class="fc" id="L626">				statusBar.setToolTipText(null);</span>
+<span class="fc" id="L627">				((HyperlinkLabel) statusBar).setRawTextAndLinkOpener(null, null);</span>
+<span class="fc" id="L628">				((HyperlinkLabel) statusBar).setCustomValue(null);</span>
+<span class="fc" id="L629">			} else {</span>
+<span class="fc" id="L630">				statusBar.setIcon(SwingRendererUtils.ERROR_ICON);</span>
+<span class="fc" id="L631">				statusBar.setToolTipText(SwingRendererUtils.adaptToolTipTextToMultiline(errorSummary));</span>
+<span class="fc" id="L632">				((HyperlinkLabel) statusBar).setRawTextAndLinkOpener(errorSummary,</span>
+<span class="fc bfc" id="L633" title="All 2 branches covered.">						getOngoingValidationMessage().equals(error.getMessage()) ? null : new Runnable() {</span>
+							@Override
+							public void run() {
+<span class="fc" id="L636">								swingRenderer.openErrorDetailsDialog(statusBar,</span>
+<span class="fc" id="L637">										ValidationErrorWrapper.unwrapValidationError(error));</span>
+<span class="fc" id="L638">							}</span>
+
+						});
+<span class="fc" id="L641">				((HyperlinkLabel) statusBar).setCustomValue(error);</span>
+			}
+<span class="fc" id="L643">			SwingRendererUtils.handleComponentSizeChange(statusBar);</span>
+		}
+<span class="fc bfc" id="L645" title="All 2 branches covered.">		statusBar.setVisible(statusBar.getText() != null);</span>
+<span class="fc" id="L646">	}</span>
+
+	protected int getErrorSummaryMaximumLength() {
+<span class="fc" id="L649">		return 150;</span>
+	}
+
+	protected void formShown() {
+		{// Ensure this method is called first for parent forms
+<span class="fc bfc" id="L654" title="All 2 branches covered.">			for (Form ancestorForm : SwingRendererUtils.findAncestorForms(this, swingRenderer)) {</span>
+<span class="fc bfc" id="L655" title="All 2 branches covered.">				if (!ancestorForm.shown) {</span>
+<span class="fc" id="L656">					ancestorForm.formShown();</span>
+				}
+			}
+<span class="fc bfc" id="L659" title="All 2 branches covered.">			if (shown) {</span>
+<span class="fc" id="L660">				return;</span>
+			}
+		}
+<span class="fc" id="L663">		shown = true;</span>
+<span class="fc" id="L664">		boolean wasNeverShown = neverShown;</span>
+<span class="fc" id="L665">		neverShown = false;</span>
+<span class="fc" id="L666">		swingRenderer.getAllDisplayedForms().add(this);</span>
+<span class="fc" id="L667">		swingRenderer.showBusyDialogWhile(this, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L670">				Form.this.filteredObjectType.onFormVisibilityChange(object, true);</span>
+<span class="fc" id="L671">			}</span>
+<span class="fc" id="L672">		}, getInitializationJobTitle());</span>
+<span class="fc bfc" id="L673" title="All 4 branches covered.">		if ((statusBar.getParent() != null) &amp;&amp; wasNeverShown) {</span>
+<span class="fc" id="L674">			validateFormInBackgroundAndReportOnStatusBar();</span>
+		}
+<span class="fc" id="L676">	}</span>
+
+	protected void formHidden() {
+		{// Ensure this method is called first for child forms
+<span class="fc bfc" id="L680" title="All 2 branches covered.">			for (Form descendantForm : SwingRendererUtils.findDescendantForms(this, swingRenderer)) {</span>
+<span class="fc bfc" id="L681" title="All 2 branches covered.">				if (descendantForm.shown) {</span>
+<span class="fc" id="L682">					descendantForm.formHidden();</span>
+				}
+			}
+<span class="fc bfc" id="L685" title="All 2 branches covered.">			if (!shown) {</span>
+<span class="fc" id="L686">				return;</span>
+			}
+		}
+<span class="fc" id="L689">		shown = false;</span>
+<span class="fc" id="L690">		swingRenderer.getAllDisplayedForms().remove(this);</span>
+<span class="fc" id="L691">		swingRenderer.showBusyDialogWhile(this, new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L694">				Form.this.filteredObjectType.onFormVisibilityChange(object, false);</span>
+<span class="fc" id="L695">			}</span>
+<span class="fc" id="L696">		}, getFinalizationJobTitle());</span>
+<span class="fc" id="L697">	}</span>
+
+	protected boolean isModificationStackSlave() {
+<span class="fc" id="L700">		return modificationStack instanceof SlaveModificationStack;</span>
+	}
+
+	protected IModificationListener createFieldsUpdateListener() {
+<span class="fc" id="L704">		return new AbstractSimpleModificationListener() {</span>
+			@Override
+			public void afterClearInvalidation() {
+				// no event
+<span class="fc" id="L708">			}</span>
+
+			@Override
+			protected void handleAnyEvent(IModification modification) {
+<span class="fc bfc" id="L712" title="All 4 branches covered.">				onFieldsUpdate((modification != null) &amp;&amp; modification.isVolatile());</span>
+<span class="fc" id="L713">			}</span>
+		};
+	}
+
+	protected void onFieldsUpdate(boolean sourceModificationVolatile) {
+<span class="fc bfc" id="L718" title="All 2 branches covered.">		if (isModificationStackSlave()) {</span>
+<span class="fc" id="L719">			return;</span>
+		}
+<span class="fc" id="L721">		SwingUtilities.invokeLater(new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc bfc" id="L724" title="All 2 branches covered.">				if (isShown()) {</span>
+<span class="fc" id="L725">					refresh(false);</span>
+				}
+<span class="fc" id="L727">				forwardUpdateEventToTwins(sourceModificationVolatile);</span>
+<span class="fc" id="L728">			}</span>
+		});
+<span class="fc" id="L730">	}</span>
+
+	protected void forwardUpdateEventToTwins(boolean sourceModificationVolatile) {
+<span class="pc bpc" id="L733" title="1 of 2 branches missed.">		if (isForwardingUpdateEventToTwinFormsDisabled()) {</span>
+<span class="nc" id="L734">			return;</span>
+		}
+<span class="fc bfc" id="L736" title="All 2 branches covered.">		for (Form twinForm : SwingRendererUtils.findObjectDisplayedForms(object, swingRenderer)) {</span>
+<span class="pc bpc" id="L737" title="1 of 2 branches missed.">			if (twinForm != Form.this) {</span>
+<span class="nc" id="L738">				ModificationStack twinFormModifStack = twinForm.getModificationStack();</span>
+<span class="nc bnc" id="L739" title="All 2 branches missed.">				if (twinForm.isDisplayable()) {</span>
+<span class="nc" id="L740">					twinForm.setForwardingUpdateEventToTwinFormsDisabled(true);</span>
+<span class="nc bnc" id="L741" title="All 2 branches missed.">					if (sourceModificationVolatile) {</span>
+<span class="nc" id="L742">						twinFormModifStack.push(IModification.VOLATILE_MODIFICATION);</span>
+<span class="nc" id="L743">					} else {</span>
+<span class="nc" id="L744">						twinFormModifStack.invalidate();</span>
+					}
+<span class="nc" id="L746">					twinForm.setForwardingUpdateEventToTwinFormsDisabled(false);</span>
+				}
+			}
+		}
+<span class="fc" id="L750">	}</span>
+
+	protected JScrollPane createMainScrollPane(Component content) {
+<span class="fc" id="L753">		ControlScrollPane result = new ControlScrollPane(content);</span>
+<span class="fc" id="L754">		SwingRendererUtils.removeScrollPaneBorder(result);</span>
+<span class="fc" id="L755">		return result;</span>
+	}
+
+	protected void layoutMembersControlPlaceHolders(
+			Map&lt;InfoCategory, List&lt;FieldControlPlaceHolder&gt;&gt; fieldControlPlaceHoldersByCategory,
+			Map&lt;InfoCategory, List&lt;MethodControlPlaceHolder&gt;&gt; methodControlPlaceHoldersByCategory,
+			JPanel membersPanel) {
+<span class="fc bfc" id="L762" title="All 4 branches covered.">		if ((filteredObjectType.getFormPreferredWidth() != -1) || (filteredObjectType.getFormPreferredHeight() != -1)) {</span>
+<span class="fc" id="L763">			ControlPanel contentPanel = new ControlPanel();</span>
+			{
+<span class="fc" id="L765">				membersPanel.setLayout(new BorderLayout());</span>
+<span class="fc" id="L766">				membersPanel.add(scrollPane = createMainScrollPane(contentPanel), BorderLayout.CENTER);</span>
+			}
+<span class="fc" id="L768">			membersPanel = contentPanel;</span>
+<span class="fc" id="L769">		} else {</span>
+<span class="fc" id="L770">			scrollPane = null;</span>
+		}
+<span class="fc" id="L772">		List&lt;InfoCategory&gt; allCategories = collectCategories(fieldControlPlaceHoldersByCategory,</span>
+<span class="fc" id="L773">				methodControlPlaceHoldersByCategory);</span>
+<span class="fc bfc" id="L774" title="All 2 branches covered.">		if (shouldCategoriesBeDisplayed(allCategories)) {</span>
+<span class="fc" id="L775">			membersPanel.setLayout(new BorderLayout());</span>
+<span class="fc" id="L776">			categoriesControl = createCategoriesControl();</span>
+<span class="fc" id="L777">			categoriesVisibilityUpdater = createCategoriesVisibilityUpdater(allCategories);</span>
+<span class="fc" id="L778">			membersPanel.add(categoriesControl, BorderLayout.CENTER);</span>
+<span class="fc" id="L779">			Form form = SwingRendererUtils.findParentForm(categoriesControl, swingRenderer);</span>
+<span class="pc bpc" id="L780" title="1 of 2 branches missed.">			if (form == null) {</span>
+<span class="nc" id="L781">				throw new ReflectionUIError();</span>
+			}
+		} else {
+<span class="fc" id="L784">			List&lt;FieldControlPlaceHolder&gt; fieldControlPlaceHolders = fieldControlPlaceHoldersByCategory.values()</span>
+<span class="fc" id="L785">					.stream().flatMap(List::stream).collect(Collectors.toList());</span>
+<span class="pc bpc" id="L786" title="1 of 2 branches missed.">			if (fieldControlPlaceHolders == null) {</span>
+<span class="nc" id="L787">				fieldControlPlaceHolders = Collections.emptyList();</span>
+			}
+<span class="fc" id="L789">			List&lt;MethodControlPlaceHolder&gt; methodControlPlaceHolders = methodControlPlaceHoldersByCategory.values()</span>
+<span class="fc" id="L790">					.stream().flatMap(List::stream).collect(Collectors.toList());</span>
+<span class="pc bpc" id="L791" title="1 of 2 branches missed.">			if (methodControlPlaceHolders == null) {</span>
+<span class="nc" id="L792">				methodControlPlaceHolders = Collections.emptyList();</span>
+			}
+<span class="fc" id="L794">			categoriesControl = null;</span>
+<span class="fc" id="L795">			categoriesVisibilityUpdater = null;</span>
+<span class="fc" id="L796">			layoutMembersControlPlaceHolders(fieldControlPlaceHolders, methodControlPlaceHolders, membersPanel);</span>
+		}
+<span class="fc" id="L798">	}</span>
+
+	protected JLabel createStatusBar() {
+<span class="fc" id="L801">		HyperlinkLabel result = new HyperlinkLabel() {</span>
+
+			private static final long serialVersionUID = 1L;
+
+			private static final int PREFERRED_WIDTH = 300;
+
+			@Override
+			public Dimension getPreferredSize() {
+<span class="fc" id="L809">				Dimension result = super.getPreferredSize();</span>
+<span class="pc bpc" id="L810" title="1 of 2 branches missed.">				if (result != null) {</span>
+<span class="fc" id="L811">					result.width = PREFERRED_WIDTH;</span>
+				}
+<span class="fc" id="L813">				return result;</span>
+			}
+
+			@Override
+			public Dimension getMaximumSize() {
+<span class="nc" id="L818">				Dimension result = super.getMaximumSize();</span>
+<span class="nc bnc" id="L819" title="All 2 branches missed.">				if (result != null) {</span>
+<span class="nc" id="L820">					result.width = Math.max(result.width, PREFERRED_WIDTH);</span>
+				}
+<span class="nc" id="L822">				return result;</span>
+			}
+
+			@Override
+			public Dimension getMinimumSize() {
+<span class="nc" id="L827">				Dimension result = super.getMinimumSize();</span>
+<span class="nc bnc" id="L828" title="All 2 branches missed.">				if (result != null) {</span>
+<span class="nc" id="L829">					result.width = Math.min(result.width, PREFERRED_WIDTH);</span>
+				}
+<span class="nc" id="L831">				return result;</span>
+			}
+
+		};
+<span class="fc" id="L835">		result.setFont(new JToolTip().getFont());</span>
+<span class="fc" id="L836">		result.setCustomValue(new Exception(&quot;INITIAL_UNDEFINED_ERROR&quot;));</span>
+<span class="fc" id="L837">		result.setName(&quot;statusBar&quot;);</span>
+<span class="fc" id="L838">		result.setBackground(new Color(255, 200, 200));</span>
+<span class="fc" id="L839">		result.setOpaque(true);</span>
+<span class="fc" id="L840">		result.setForeground(new Color(255, 0, 0));</span>
+<span class="fc" id="L841">		result.setBorder(BorderFactory.createLineBorder(new Color(255, 0, 0), 1, true));</span>
+<span class="fc" id="L842">		return result;</span>
+	}
+
+	protected JMenuBar createMenuBar() {
+<span class="fc" id="L846">		JMenuBar result = new JMenuBar();</span>
+<span class="fc" id="L847">		result.setName(&quot;menuBar&quot;);</span>
+<span class="fc" id="L848">		return result;</span>
+	}
+
+	protected MinimalListUpdater&lt;InfoCategory&gt; createCategoriesVisibilityUpdater(List&lt;InfoCategory&gt; allCategories) {
+
+<span class="fc" id="L853">		return new MinimalListUpdater&lt;InfoCategory&gt;() {</span>
+<span class="fc" id="L854">			Map&lt;InfoCategory, Component&gt; tabByCategory = new HashMap&lt;InfoCategory, Component&gt;();</span>
+			{
+<span class="fc bfc" id="L856" title="All 2 branches covered.">				for (final InfoCategory category : allCategories) {</span>
+<span class="fc" id="L857">					List&lt;FieldControlPlaceHolder&gt; fieldControlPlaceHolders = fieldControlPlaceHoldersByCategory</span>
+<span class="fc" id="L858">							.get(category);</span>
+<span class="fc bfc" id="L859" title="All 2 branches covered.">					if (fieldControlPlaceHolders == null) {</span>
+<span class="fc" id="L860">						fieldControlPlaceHolders = Collections.emptyList();</span>
+					}
+<span class="fc" id="L862">					List&lt;MethodControlPlaceHolder&gt; methodControlPlaceHolders = methodControlPlaceHoldersByCategory</span>
+<span class="fc" id="L863">							.get(category);</span>
+<span class="fc bfc" id="L864" title="All 2 branches covered.">					if (methodControlPlaceHolders == null) {</span>
+<span class="fc" id="L865">						methodControlPlaceHolders = Collections.emptyList();</span>
+					}
+
+<span class="fc" id="L868">					JPanel tab = new ControlPanel();</span>
+<span class="fc" id="L869">					tab.setName(&quot;categoryContainerControl [category=&quot; + category.getCaption() + &quot;]&quot;);</span>
+<span class="fc" id="L870">					tab.setLayout(new BorderLayout());</span>
+
+<span class="fc" id="L872">					JPanel tabContent = new ControlPanel();</span>
+<span class="fc" id="L873">					tabContent.setName(&quot;categoryContentControl [category=&quot; + category.getCaption() + &quot;]&quot;);</span>
+<span class="fc" id="L874">					tab.add(tabContent, BorderLayout.CENTER);</span>
+<span class="fc" id="L875">					layoutMembersControlPlaceHolders(fieldControlPlaceHolders, methodControlPlaceHolders, tabContent);</span>
+<span class="fc" id="L876">					tabByCategory.put(category, tab);</span>
+				}
+			}
+
+			@Override
+			protected List&lt;InfoCategory&gt; collectKeys() {
+<span class="fc" id="L882">				return allCategories;</span>
+			}
+
+			@Override
+			protected boolean shouldBePresent(InfoCategory category) {
+<span class="fc" id="L887">				List&lt;FieldControlPlaceHolder&gt; fieldControlPlaceHolders = fieldControlPlaceHoldersByCategory</span>
+<span class="fc" id="L888">						.get(category);</span>
+<span class="fc bfc" id="L889" title="All 2 branches covered.">				if (fieldControlPlaceHolders != null) {</span>
+<span class="fc bfc" id="L890" title="All 2 branches covered.">					for (FieldControlPlaceHolder fieldControlPlaceHolder : fieldControlPlaceHolders) {</span>
+<span class="fc bfc" id="L891" title="All 2 branches covered.">						if (fieldControlPlaceHolder.isVisible()) {</span>
+<span class="fc" id="L892">							return true;</span>
+						}
+					}
+				}
+<span class="fc" id="L896">				List&lt;MethodControlPlaceHolder&gt; methodControlPlaceHolders = methodControlPlaceHoldersByCategory</span>
+<span class="fc" id="L897">						.get(category);</span>
+<span class="fc bfc" id="L898" title="All 2 branches covered.">				if (methodControlPlaceHolders != null) {</span>
+<span class="fc bfc" id="L899" title="All 2 branches covered.">					for (MethodControlPlaceHolder methodControlPlaceHolder : methodControlPlaceHolders) {</span>
+<span class="pc bpc" id="L900" title="1 of 2 branches missed.">						if (methodControlPlaceHolder.isVisible()) {</span>
+<span class="nc" id="L901">							return true;</span>
+						}
+					}
+				}
+<span class="fc" id="L905">				return false;</span>
+			}
+
+			@Override
+			protected void add(int tabIndex, InfoCategory category) {
+<span class="fc" id="L910">				Component tab = tabByCategory.get(category);</span>
+<span class="fc" id="L911">				Image iconImage = swingRenderer.getCategoryIconImage(category);</span>
+<span class="pc bpc" id="L912" title="1 of 2 branches missed.">				ImageIcon icon = (iconImage != null) ? new ImageIcon(iconImage) : null;</span>
+<span class="fc bfc" id="L913" title="All 2 branches covered.">				if (categoriesControl instanceof ListTabbedPane) {</span>
+<span class="fc" id="L914">					((ListTabbedPane) categoriesControl).insertTab(</span>
+<span class="fc" id="L915">							swingRenderer.prepareMessageToDisplay(category.getCaption()), icon, tab, tabIndex);</span>
+<span class="pc bpc" id="L916" title="1 of 2 branches missed.">				} else if (categoriesControl instanceof ClassicTabbedPane) {</span>
+<span class="nc" id="L917">					((ClassicTabbedPane) categoriesControl).insertTab(</span>
+<span class="nc" id="L918">							swingRenderer.prepareMessageToDisplay(category.getCaption()), icon, tab, &quot;&quot;, tabIndex);</span>
+<span class="pc bpc" id="L919" title="1 of 2 branches missed.">				} else if (categoriesControl instanceof ControlTabbedPane) {</span>
+<span class="fc" id="L920">					((ControlTabbedPane) categoriesControl).insertTab(</span>
+<span class="fc" id="L921">							swingRenderer.prepareMessageToDisplay(category.getCaption()), icon, tab, &quot;&quot;, tabIndex);</span>
+<span class="fc" id="L922">				} else {</span>
+<span class="nc" id="L923">					throw new ReflectionUIError();</span>
+				}
+<span class="fc" id="L925">			}</span>
+
+			@Override
+			protected void remove(int index) {
+<span class="nc bnc" id="L929" title="All 2 branches missed.">				if (categoriesControl instanceof ListTabbedPane) {</span>
+<span class="nc" id="L930">					((ListTabbedPane) categoriesControl).removeTabAt(index);</span>
+<span class="nc bnc" id="L931" title="All 2 branches missed.">				} else if (categoriesControl instanceof ClassicTabbedPane) {</span>
+<span class="nc" id="L932">					((ClassicTabbedPane) categoriesControl).removeTabAt(index);</span>
+<span class="nc bnc" id="L933" title="All 2 branches missed.">				} else if (categoriesControl instanceof ControlTabbedPane) {</span>
+<span class="nc" id="L934">					((ControlTabbedPane) categoriesControl).removeTabAt(index);</span>
+<span class="nc" id="L935">				} else {</span>
+<span class="nc" id="L936">					throw new ReflectionUIError();</span>
+				}
+<span class="nc" id="L938">			}</span>
+
+		};
+	}
+
+	protected boolean shouldCategoriesBeDisplayed(List&lt;InfoCategory&gt; categories) {
+<span class="pc bpc" id="L944" title="1 of 6 branches missed.">		return !((categories.size() == 1) &amp;&amp; (swingRenderer.getNullInfoCategory().equals(categories.get(0))))</span>
+<span class="fc" id="L945">				&amp;&amp; (categories.size() &gt; 0);</span>
+	}
+
+	protected &lt;T1, T2&gt; List&lt;InfoCategory&gt; collectCategories(Map&lt;InfoCategory, T1&gt; t1ByCategory,
+			Map&lt;InfoCategory, T2&gt; t2ByCategory) {
+<span class="fc" id="L950">		SortedSet&lt;InfoCategory&gt; result = new TreeSet&lt;InfoCategory&gt;();</span>
+<span class="fc" id="L951">		result.addAll(t1ByCategory.keySet());</span>
+<span class="fc" id="L952">		result.addAll(t2ByCategory.keySet());</span>
+<span class="fc" id="L953">		return new ArrayList&lt;InfoCategory&gt;(result);</span>
+	}
+
+	protected int getExpectedCategoriesControlPlacement() {
+<span class="fc" id="L957">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L958">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc bfc" id="L959" title="All 2 branches covered.">		if (type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.STANDARD) {</span>
+<span class="fc" id="L960">			return JTabbedPane.TOP;</span>
+<span class="pc bpc" id="L961" title="1 of 2 branches missed.">		} else if (type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.CLASSIC) {</span>
+<span class="nc" id="L962">			return JTabbedPane.TOP;</span>
+<span class="fc bfc" id="L963" title="All 2 branches covered.">		} else if (type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.MODERN) {</span>
+<span class="fc" id="L964">			return JTabbedPane.TOP;</span>
+<span class="pc bpc" id="L965" title="1 of 2 branches missed.">		} else if (type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.STANDARD_VERTICAL) {</span>
+<span class="fc" id="L966">			return JTabbedPane.LEFT;</span>
+<span class="nc bnc" id="L967" title="All 2 branches missed.">		} else if (type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.CLASSIC_VERTICAL) {</span>
+<span class="nc" id="L968">			return JTabbedPane.LEFT;</span>
+<span class="nc bnc" id="L969" title="All 2 branches missed.">		} else if (type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.MODERN_VERTICAL) {</span>
+<span class="nc" id="L970">			return JTabbedPane.LEFT;</span>
+		} else {
+<span class="nc" id="L972">			throw new ReflectionUIError();</span>
+		}
+	}
+
+	protected Container createCategoriesControl() {
+<span class="fc" id="L977">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L978">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc bfc" id="L979" title="All 2 branches covered.">		if ((type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.MODERN)</span>
+<span class="pc bpc" id="L980" title="1 of 2 branches missed.">				|| (type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.MODERN_VERTICAL)) {</span>
+<span class="fc" id="L981">			return new ListTabbedPane(ClassicTabbedPane.TOP) {</span>
+
+				private static final long serialVersionUID = 1L;
+				private JButton nonSelectedCellRenderer;
+				private JLabel selectedCellRenderer;
+
+				{
+<span class="fc" id="L988">					setOpaque(false);</span>
+<span class="fc" id="L989">					setName(&quot;categoriesControl [parent=&quot; + this.getName() + &quot;]&quot;);</span>
+				}
+
+				@Override
+				protected JScrollPane wrapListControl(@SuppressWarnings(&quot;rawtypes&quot;) JList listControl) {
+<span class="fc" id="L994">					JScrollPane result = new ControlScrollPane(listControl);</span>
+<span class="fc" id="L995">					result.setBorder(null);</span>
+<span class="fc" id="L996">					return result;</span>
+				}
+
+				@Override
+				protected JPanel createCurrentComponentContainer() {
+<span class="fc" id="L1001">					JPanel result = super.createCurrentComponentContainer();</span>
+<span class="fc" id="L1002">					result.setOpaque(false);</span>
+<span class="fc" id="L1003">					return result;</span>
+				}
+
+				@Override
+				protected JButton createNonSelectedTabHeaderCellRendererComponent() {
+<span class="fc" id="L1008">					return nonSelectedCellRenderer = super.createNonSelectedTabHeaderCellRendererComponent();</span>
+				}
+
+				@Override
+				protected JLabel createSelectedTabHeaderCellRendererComponent() {
+<span class="fc" id="L1013">					return selectedCellRenderer = super.createSelectedTabHeaderCellRendererComponent();</span>
+				}
+
+				protected void refreshCurrentComponentContainerBorder() {
+<span class="fc" id="L1017">					Color tabBorderColor = getControlsBorderColor();</span>
+<span class="pc bpc" id="L1018" title="1 of 2 branches missed.">					if (tabBorderColor != null) {</span>
+<span class="fc" id="L1019">						currentComponentContainer.setBorder(BorderFactory.createLineBorder(tabBorderColor));</span>
+<span class="fc" id="L1020">					} else {</span>
+<span class="nc" id="L1021">						currentComponentContainer.setBorder(BorderFactory.createTitledBorder(&quot;&quot;));</span>
+					}
+<span class="fc" id="L1023">				}</span>
+
+				protected void refreshNonSelectedCellRenderer() {
+<span class="fc" id="L1026">					nonSelectedCellRenderer.setForeground(getCategoriesCellForegroundColor());</span>
+<span class="fc" id="L1027">					nonSelectedCellRenderer.setBorderPainted(false);</span>
+<span class="fc" id="L1028">					nonSelectedCellRenderer.setBorder(BorderFactory.createEmptyBorder(getLayoutSpacing(),</span>
+<span class="fc" id="L1029">							getLayoutSpacing(), getLayoutSpacing(), getLayoutSpacing()));</span>
+<span class="fc" id="L1030">					Color backgroundColor = getCategoriesCellBackgroundColor();</span>
+<span class="pc bpc" id="L1031" title="1 of 2 branches missed.">					if (backgroundColor != null) {</span>
+<span class="nc" id="L1032">						nonSelectedCellRenderer.setContentAreaFilled(true);</span>
+<span class="nc" id="L1033">						nonSelectedCellRenderer.setBackground(backgroundColor);</span>
+<span class="nc" id="L1034">					} else {</span>
+<span class="fc" id="L1035">						nonSelectedCellRenderer.setContentAreaFilled(false);</span>
+<span class="fc" id="L1036">						nonSelectedCellRenderer.setBackground(null);</span>
+					}
+<span class="fc" id="L1038">					Font labelCustomFont = getLabelCustomFont();</span>
+					{
+<span class="pc bpc" id="L1040" title="1 of 2 branches missed.">						if (labelCustomFont != null) {</span>
+<span class="nc" id="L1041">							nonSelectedCellRenderer</span>
+<span class="nc" id="L1042">									.setFont(labelCustomFont.deriveFont(nonSelectedCellRenderer.getFont().getStyle(),</span>
+<span class="nc" id="L1043">											nonSelectedCellRenderer.getFont().getSize()));</span>
+<span class="nc" id="L1044">						} else {</span>
+<span class="fc" id="L1045">							nonSelectedCellRenderer.setFont(new JButton().getFont());</span>
+						}
+					}
+<span class="fc" id="L1048">				}</span>
+
+				protected void refreshSelectedCellRenderer() {
+<span class="fc" id="L1051">					selectedCellRenderer.setForeground(getCategoriesCellForegroundColor());</span>
+<span class="fc" id="L1052">					Color backgroundColor = getCategoriesCellBackgroundColor();</span>
+<span class="fc" id="L1053">					selectedCellRenderer.setBorder(BorderFactory.createEmptyBorder(getLayoutSpacing(),</span>
+<span class="fc" id="L1054">							getLayoutSpacing(), getLayoutSpacing(), getLayoutSpacing()));</span>
+<span class="pc bpc" id="L1055" title="1 of 2 branches missed.">					if (backgroundColor != null) {</span>
+<span class="nc" id="L1056">						selectedCellRenderer.setOpaque(true);</span>
+<span class="nc" id="L1057">						selectedCellRenderer</span>
+<span class="nc" id="L1058">								.setBackground(SwingRendererUtils.addColorActivationEffect(backgroundColor));</span>
+<span class="nc" id="L1059">					} else {</span>
+<span class="fc" id="L1060">						selectedCellRenderer.setOpaque(false);</span>
+<span class="fc" id="L1061">						selectedCellRenderer.setBackground(null);</span>
+<span class="fc" id="L1062">						selectedCellRenderer</span>
+<span class="fc" id="L1063">								.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),</span>
+<span class="fc" id="L1064">										BorderFactory.createEmptyBorder(getLayoutSpacing() - 2, getLayoutSpacing() - 2,</span>
+<span class="fc" id="L1065">												getLayoutSpacing() - 2, getLayoutSpacing() - 2)));</span>
+					}
+<span class="fc" id="L1067">					Font labelCustomFont = getLabelCustomFont();</span>
+					{
+<span class="pc bpc" id="L1069" title="1 of 2 branches missed.">						if (labelCustomFont != null) {</span>
+<span class="nc" id="L1070">							selectedCellRenderer</span>
+<span class="nc" id="L1071">									.setFont(labelCustomFont.deriveFont(selectedCellRenderer.getFont().getStyle(),</span>
+<span class="nc" id="L1072">											selectedCellRenderer.getFont().getSize()));</span>
+<span class="nc" id="L1073">						} else {</span>
+<span class="fc" id="L1074">							selectedCellRenderer.setFont(new JLabel().getFont());</span>
+						}
+					}
+<span class="fc" id="L1077">				}</span>
+
+				protected void refreshNonSelectableArea() {
+<span class="fc" id="L1080">					Color backgroundColor = getCategoriesCellBackgroundColor();</span>
+<span class="pc bpc" id="L1081" title="1 of 2 branches missed.">					if (backgroundColor != null) {</span>
+<span class="nc" id="L1082">						titleListControl.setOpaque(true);</span>
+<span class="nc" id="L1083">						titleListControl.setBackground(backgroundColor);</span>
+<span class="nc" id="L1084">						titleListControlWrapper.setOpaque(true);</span>
+<span class="nc" id="L1085">						titleListControlWrapper.setBackground(backgroundColor);</span>
+<span class="nc" id="L1086">					} else {</span>
+<span class="fc" id="L1087">						titleListControl.setOpaque(false);</span>
+<span class="fc" id="L1088">						titleListControlWrapper.setOpaque(false);</span>
+					}
+<span class="fc" id="L1090">				}</span>
+
+				@Override
+				public void setTabPlacement(int placement) {
+<span class="fc" id="L1094">					super.setTabPlacement(placement);</span>
+<span class="fc" id="L1095">					refreshSelectedCellRenderer();</span>
+<span class="fc" id="L1096">					refreshNonSelectedCellRenderer();</span>
+<span class="fc" id="L1097">				}</span>
+
+				@Override
+				public void refresh() {
+<span class="fc" id="L1101">					refreshSelectedCellRenderer();</span>
+<span class="fc" id="L1102">					refreshNonSelectedCellRenderer();</span>
+<span class="fc" id="L1103">					refreshNonSelectableArea();</span>
+<span class="fc" id="L1104">					refreshCurrentComponentContainerBorder();</span>
+<span class="fc" id="L1105">					super.refresh();</span>
+<span class="fc" id="L1106">				}</span>
+
+			};
+<span class="pc bpc" id="L1109" title="1 of 2 branches missed.">		} else if ((type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.CLASSIC)</span>
+<span class="pc bpc" id="L1110" title="1 of 2 branches missed.">				|| (type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.CLASSIC_VERTICAL)) {</span>
+<span class="nc" id="L1111">			return new ClassicTabbedPane() {</span>
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected Color getTabBorderColor() {
+<span class="nc" id="L1117">					Color result = getControlsBorderColor();</span>
+<span class="nc bnc" id="L1118" title="All 2 branches missed.">					if (result != null) {</span>
+<span class="nc" id="L1119">						return result;</span>
+					}
+<span class="nc" id="L1121">					return super.getTabBorderColor();</span>
+				}
+
+			};
+<span class="fc bfc" id="L1125" title="All 2 branches covered.">		} else if ((type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.STANDARD)</span>
+<span class="pc bpc" id="L1126" title="1 of 2 branches missed.">				|| (type.getCategoriesStyle() == ITypeInfo.CategoriesStyle.STANDARD_VERTICAL)) {</span>
+<span class="fc" id="L1127">			return new ControlTabbedPane();</span>
+		} else {
+<span class="nc" id="L1129">			throw new ReflectionUIError();</span>
+		}
+	}
+
+	protected void refreshCategoriesControlStructure() {
+<span class="fc bfc" id="L1134" title="All 2 branches covered.">		if (categoriesControl != null) {</span>
+<span class="fc bfc" id="L1135" title="All 2 branches covered.">			if (categoriesControl instanceof ListTabbedPane) {</span>
+<span class="fc" id="L1136">				((ListTabbedPane) categoriesControl).refresh();</span>
+<span class="fc" id="L1137">				((ListTabbedPane) categoriesControl).setTabPlacement(getExpectedCategoriesControlPlacement());</span>
+<span class="pc bpc" id="L1138" title="1 of 2 branches missed.">			} else if (categoriesControl instanceof ClassicTabbedPane) {</span>
+<span class="nc" id="L1139">				((ClassicTabbedPane) categoriesControl).setForeground(getCategoriesCellForegroundColor());</span>
+<span class="nc" id="L1140">				((ClassicTabbedPane) categoriesControl).setBackground(getCategoriesCellBackgroundColor());</span>
+<span class="nc" id="L1141">				((ClassicTabbedPane) categoriesControl)</span>
+<span class="nc bnc" id="L1142" title="All 2 branches missed.">						.setTabBackgroundPainted(getCategoriesCellBackgroundColor() != null);</span>
+<span class="nc" id="L1143">				((ClassicTabbedPane) categoriesControl).updateUI();</span>
+<span class="nc" id="L1144">				((ClassicTabbedPane) categoriesControl).setTabPlacement(getExpectedCategoriesControlPlacement());</span>
+<span class="pc bpc" id="L1145" title="1 of 2 branches missed.">			} else if (categoriesControl instanceof ControlTabbedPane) {</span>
+<span class="fc" id="L1146">				((ControlTabbedPane) categoriesControl).setForeground(getCategoriesCellForegroundColor());</span>
+<span class="fc" id="L1147">				((ControlTabbedPane) categoriesControl).setBackground(getCategoriesCellBackgroundColor());</span>
+<span class="fc" id="L1148">				((ControlTabbedPane) categoriesControl).setTabPlacement(getExpectedCategoriesControlPlacement());</span>
+<span class="fc" id="L1149">			} else {</span>
+<span class="nc" id="L1150">				throw new ReflectionUIError();</span>
+			}
+		}
+<span class="fc" id="L1153">	}</span>
+
+	protected Color getMainBorderColor() {
+<span class="fc" id="L1156">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc bfc" id="L1157" title="All 2 branches covered.">		if (reflectionUI.getApplicationInfo().getMainBorderColor() != null) {</span>
+<span class="fc" id="L1158">			return SwingRendererUtils.getColor(reflectionUI.getApplicationInfo().getMainBorderColor());</span>
+		} else {
+<span class="fc" id="L1160">			return null;</span>
+		}
+	}
+
+	public Font getLabelCustomFont() {
+<span class="fc" id="L1165">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="pc bpc" id="L1166" title="1 of 2 branches missed.">		if (reflectionUI.getApplicationInfo().getLabelCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L1167">			return SwingRendererUtils.loadFontThroughCache(</span>
+<span class="nc" id="L1168">					reflectionUI.getApplicationInfo().getLabelCustomFontResourcePath(),</span>
+<span class="nc" id="L1169">					ReflectionUIUtils.getErrorLogListener(reflectionUI), swingRenderer);</span>
+		} else {
+<span class="fc" id="L1171">			return null;</span>
+		}
+	}
+
+	public Color getControlsForegroundColor() {
+<span class="fc" id="L1176">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L1177">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc bfc" id="L1178" title="All 2 branches covered.">		if (type.getFormForegroundColor() != null) {</span>
+<span class="fc" id="L1179">			return SwingRendererUtils.getColor(type.getFormForegroundColor());</span>
+		}
+<span class="fc" id="L1181">		Color result = swingRenderer.getMainForegroundColor();</span>
+<span class="fc bfc" id="L1182" title="All 2 branches covered.">		if (result == null) {</span>
+<span class="fc" id="L1183">			result = new JPanel().getForeground();</span>
+		}
+<span class="fc" id="L1185">		return result;</span>
+	}
+
+	public Color getControlsBackgroundColor() {
+<span class="fc" id="L1189">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L1190">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc bfc" id="L1191" title="All 2 branches covered.">		if (type.getFormBackgroundColor() == null) {</span>
+			/*
+			 * Note that we do not return the main background color because we want the form
+			 * to be transparent so that a window background image would be visible through
+			 * the controls.
+			 */
+<span class="fc" id="L1197">			return null;</span>
+		} else {
+<span class="fc" id="L1199">			return SwingRendererUtils.getColor(type.getFormBackgroundColor());</span>
+		}
+	}
+
+	public Color getControlsBorderColor() {
+<span class="fc" id="L1204">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L1205">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc bfc" id="L1206" title="All 2 branches covered.">		if (type.getFormBorderColor() == null) {</span>
+<span class="fc" id="L1207">			return getMainBorderColor();</span>
+		} else {
+<span class="fc" id="L1209">			return SwingRendererUtils.getColor(type.getFormBorderColor());</span>
+		}
+	}
+
+	public Image getControlsBackgroundImage() {
+<span class="fc" id="L1214">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L1215">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc bfc" id="L1216" title="All 2 branches covered.">		if (type.getFormBackgroundImagePath() == null) {</span>
+<span class="fc" id="L1217">			return null;</span>
+		} else {
+<span class="fc" id="L1219">			return SwingRendererUtils.loadImageThroughCache(type.getFormBackgroundImagePath(),</span>
+<span class="fc" id="L1220">					ReflectionUIUtils.getErrorLogListener(reflectionUI), swingRenderer);</span>
+		}
+	}
+
+	protected Color getCategoriesCellBackgroundColor() {
+<span class="fc" id="L1225">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L1226">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="pc bpc" id="L1227" title="1 of 2 branches missed.">		if (type.getCategoriesBackgroundColor() != null) {</span>
+<span class="nc" id="L1228">			return SwingRendererUtils.getColor(type.getCategoriesBackgroundColor());</span>
+		} else {
+<span class="fc" id="L1230">			return getControlsBackgroundColor();</span>
+		}
+	}
+
+	protected Color getCategoriesCellForegroundColor() {
+<span class="fc" id="L1235">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L1236">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="pc bpc" id="L1237" title="1 of 2 branches missed.">		if (type.getCategoriesForegroundColor() != null) {</span>
+<span class="nc" id="L1238">			return SwingRendererUtils.getColor(type.getCategoriesForegroundColor());</span>
+		} else {
+<span class="fc" id="L1240">			return getControlsForegroundColor();</span>
+		}
+	}
+
+	/**
+	 * @return the position of the currently selected category (-1 if there is no
+	 *         selected category) among all displayed categories
+	 *         ({@link #getDisplayedCategories()}).
+	 */
+	public int getSelectedCategoryIndex() {
+<span class="pc bpc" id="L1250" title="1 of 2 branches missed.">		if (categoriesControl != null) {</span>
+<span class="nc bnc" id="L1251" title="All 2 branches missed.">			if (categoriesControl instanceof ListTabbedPane) {</span>
+<span class="nc" id="L1252">				return ((ListTabbedPane) categoriesControl).getSelectedIndex();</span>
+<span class="nc bnc" id="L1253" title="All 2 branches missed.">			} else if (categoriesControl instanceof ClassicTabbedPane) {</span>
+<span class="nc" id="L1254">				return ((ClassicTabbedPane) categoriesControl).getSelectedIndex();</span>
+<span class="nc bnc" id="L1255" title="All 2 branches missed.">			} else if (categoriesControl instanceof ControlTabbedPane) {</span>
+<span class="nc" id="L1256">				return ((ControlTabbedPane) categoriesControl).getSelectedIndex();</span>
+			} else {
+<span class="nc" id="L1258">				throw new ReflectionUIError();</span>
+			}
+		}
+<span class="fc" id="L1261">		return -1;</span>
+	}
+
+	/**
+	 * Changes the currently selected category. If the specified category position
+	 * is -1 then the category selection is cleared.
+	 * 
+	 * @param index The position among all displayed categories
+	 *              ({@link #getDisplayedCategories()}) of the category that must be
+	 *              selected (-1 if the category selection must be cleared).
+	 */
+	public void setSelectedCategoryIndex(int index) {
+<span class="pc bpc" id="L1273" title="1 of 2 branches missed.">		if (categoriesControl != null) {</span>
+<span class="pc bpc" id="L1274" title="1 of 2 branches missed.">			if (categoriesControl instanceof ListTabbedPane) {</span>
+<span class="fc" id="L1275">				((ListTabbedPane) categoriesControl).setSelectedIndex(index);</span>
+<span class="pc bnc" id="L1276" title="All 2 branches missed.">			} else if (categoriesControl instanceof ClassicTabbedPane) {</span>
+<span class="nc" id="L1277">				((ClassicTabbedPane) categoriesControl).setSelectedIndex(index);</span>
+<span class="nc bnc" id="L1278" title="All 2 branches missed.">			} else if (categoriesControl instanceof ControlTabbedPane) {</span>
+<span class="nc" id="L1279">				((ControlTabbedPane) categoriesControl).setSelectedIndex(index);</span>
+<span class="nc" id="L1280">			} else {</span>
+<span class="nc" id="L1281">				throw new ReflectionUIError();</span>
+			}
+		}
+<span class="fc" id="L1284">	}</span>
+
+	/**
+	 * @return all displayed categories.
+	 */
+	public List&lt;InfoCategory&gt; getDisplayedCategories() {
+<span class="pc bpc" id="L1290" title="1 of 2 branches missed.">		if (categoriesVisibilityUpdater == null) {</span>
+<span class="nc" id="L1291">			return Collections.emptyList();</span>
+		} else {
+<span class="fc" id="L1293">			return categoriesVisibilityUpdater.getPresentKeys();</span>
+		}
+	}
+
+	/**
+	 * @param category A category among the displayed categories
+	 *                 ({@link #getDisplayedCategories()}).
+	 * @return the component that contains the controls of the specified category.
+	 *         If there is not any displayed category then null is returned.
+	 */
+	public Component getCategoryComponent(InfoCategory category) {
+<span class="nc bnc" id="L1304" title="All 2 branches missed.">		if (categoriesControl != null) {</span>
+<span class="nc" id="L1305">			int categoryIndex = getDisplayedCategories().indexOf(category);</span>
+<span class="nc bnc" id="L1306" title="All 2 branches missed.">			if (categoryIndex != -1) {</span>
+<span class="nc bnc" id="L1307" title="All 2 branches missed.">				if (categoriesControl instanceof ListTabbedPane) {</span>
+<span class="nc" id="L1308">					return ((ListTabbedPane) categoriesControl).getComponentAt(categoryIndex);</span>
+<span class="nc bnc" id="L1309" title="All 2 branches missed.">				} else if (categoriesControl instanceof ClassicTabbedPane) {</span>
+<span class="nc" id="L1310">					return ((ClassicTabbedPane) categoriesControl).getComponentAt(categoryIndex);</span>
+<span class="nc bnc" id="L1311" title="All 2 branches missed.">				} else if (categoriesControl instanceof ControlTabbedPane) {</span>
+<span class="nc" id="L1312">					return ((ControlTabbedPane) categoriesControl).getComponentAt(categoryIndex);</span>
+				} else {
+<span class="nc" id="L1314">					throw new ReflectionUIError();</span>
+				}
+			}
+		}
+<span class="nc" id="L1318">		return null;</span>
+	}
+
+	/**
+	 * @return the control used to categorize the form controls.
+	 */
+	public Container getCategoriesControl() {
+<span class="nc" id="L1325">		return categoriesControl;</span>
+	}
+
+	/**
+	 * @return the scroll pane that contains the form controls, or null if the
+	 *         form's contents are not scrollable.
+	 */
+	public JScrollPane getScrollPane() {
+<span class="nc" id="L1333">		return scrollPane;</span>
+	}
+
+	protected SortedMap&lt;InfoCategory, List&lt;IMethodInfo&gt;&gt; getMethodsByCategory(List&lt;IMethodInfo&gt; methods) {
+<span class="fc" id="L1337">		return new TreeMap&lt;InfoCategory, List&lt;IMethodInfo&gt;&gt;(methods.stream()</span>
+<span class="fc bfc" id="L1338" title="All 2 branches covered.">				.collect(Collectors.groupingBy(method -&gt; (method.getCategory() != null) ? method.getCategory()</span>
+<span class="fc" id="L1339">						: swingRenderer.getNullInfoCategory())));</span>
+	}
+
+	protected SortedMap&lt;InfoCategory, List&lt;IFieldInfo&gt;&gt; getFieldsByCategory(List&lt;IFieldInfo&gt; fields) {
+<span class="fc" id="L1343">		return new TreeMap&lt;InfoCategory, List&lt;IFieldInfo&gt;&gt;(fields.stream().collect(Collectors.groupingBy(</span>
+<span class="fc bfc" id="L1344" title="All 2 branches covered.">				field -&gt; (field.getCategory() != null) ? field.getCategory() : swingRenderer.getNullInfoCategory())));</span>
+	}
+
+	protected ITypeInfo buildFormFilteredType() {
+<span class="fc" id="L1348">		IInfoFilter infoFilter = this.infoFilter;</span>
+<span class="pc bpc" id="L1349" title="1 of 2 branches missed.">		if (infoFilter == null) {</span>
+<span class="nc" id="L1350">			infoFilter = IInfoFilter.DEFAULT;</span>
+		}
+<span class="fc" id="L1352">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L1353">		final ITypeInfo rawType = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc" id="L1354">		ITypeInfo result = new FilteredTypeFactory(infoFilter) {</span>
+
+			List&lt;IFieldInfo&gt; fields;
+			List&lt;IMethodInfo&gt; methods;
+			MenuModel menuModel;
+			{
+				try {
+<span class="fc" id="L1361">					fields = super.getFields(rawType);</span>
+<span class="fc" id="L1362">					methods = super.getMethods(rawType);</span>
+<span class="fc" id="L1363">					menuModel = super.getMenuModel(rawType);</span>
+<span class="pc" id="L1364">				} catch (final Throwable t) {</span>
+<span class="nc" id="L1365">					swingRenderer.getReflectionUI().logError(t);</span>
+<span class="nc" id="L1366">					fields = Collections.&lt;IFieldInfo&gt;singletonList(new FieldInfoProxy(IFieldInfo.NULL_FIELD_INFO) {</span>
+						@Override
+						public Object getValue(Object object) {
+<span class="nc" id="L1369">							throw new ReflectionUIError(t);</span>
+						}
+
+						@Override
+						public String getCaption() {
+<span class="nc" id="L1374">							return &quot;Error&quot;;</span>
+						}
+					});
+<span class="nc" id="L1377">					methods = Collections.emptyList();</span>
+<span class="nc" id="L1378">					menuModel = new MenuModel();</span>
+				}
+			}
+
+			@Override
+			protected List&lt;IFieldInfo&gt; getFields(ITypeInfo type) {
+<span class="fc" id="L1384">				return fields;</span>
+			}
+
+			@Override
+			protected List&lt;IMethodInfo&gt; getMethods(ITypeInfo type) {
+<span class="fc" id="L1389">				return methods;</span>
+			}
+
+			@Override
+			protected MenuModel getMenuModel(ITypeInfo type) {
+<span class="nc" id="L1394">				return menuModel;</span>
+			}
+
+<span class="fc" id="L1397">		}.wrapTypeInfo(rawType);</span>
+<span class="fc" id="L1398">		return result;</span>
+	}
+
+	/**
+	 * @param fieldName The name of the field to search for.
+	 * @return the first visible control place holder associated with a field that
+	 *         has the specified name.
+	 */
+	public FieldControlPlaceHolder getFieldControlPlaceHolder(String fieldName) {
+<span class="fc bfc" id="L1407" title="All 2 branches covered.">		for (InfoCategory category : fieldControlPlaceHoldersByCategory.keySet()) {</span>
+<span class="fc bfc" id="L1408" title="All 2 branches covered.">			for (FieldControlPlaceHolder fieldControlPlaceHolder : fieldControlPlaceHoldersByCategory.get(category)) {</span>
+<span class="fc bfc" id="L1409" title="All 2 branches covered.">				if (!fieldControlPlaceHolder.isVisible()) {</span>
+<span class="fc" id="L1410">					continue;</span>
+				}
+<span class="fc bfc" id="L1412" title="All 2 branches covered.">				if (fieldName.equals(fieldControlPlaceHolder.getField().getName())) {</span>
+<span class="fc" id="L1413">					return fieldControlPlaceHolder;</span>
+				}
+			}
+		}
+<span class="fc" id="L1417">		return null;</span>
+	}
+
+	/**
+	 * @param methodSignature The signature of the method to search for.
+	 * @return the first visible control place holder associated with a method that
+	 *         has the specified signature.
+	 */
+	public MethodControlPlaceHolder getMethodControlPlaceHolder(String methodSignature) {
+<span class="nc bnc" id="L1426" title="All 2 branches missed.">		for (InfoCategory category : methodControlPlaceHoldersByCategory.keySet()) {</span>
+<span class="nc bnc" id="L1427" title="All 2 branches missed.">			for (MethodControlPlaceHolder methodControlPlaceHolder : methodControlPlaceHoldersByCategory</span>
+<span class="nc" id="L1428">					.get(category)) {</span>
+<span class="nc bnc" id="L1429" title="All 2 branches missed.">				if (!methodControlPlaceHolder.isVisible()) {</span>
+<span class="nc" id="L1430">					continue;</span>
+				}
+<span class="nc bnc" id="L1432" title="All 2 branches missed.">				if (methodControlPlaceHolder.getMethod().getSignature().equals(methodSignature)) {</span>
+<span class="nc" id="L1433">					return methodControlPlaceHolder;</span>
+				}
+			}
+		}
+<span class="nc" id="L1437">		return null;</span>
+	}
+
+	protected void layoutMembersPanels(Container container, Container fieldsPanel, Container methodsPanel) {
+<span class="fc" id="L1441">		container.setLayout(new BorderLayout());</span>
+<span class="fc bfc" id="L1442" title="All 2 branches covered.">		if (fieldsPanel != null) {</span>
+<span class="fc" id="L1443">			container.add(fieldsPanel, BorderLayout.CENTER);</span>
+		}
+<span class="fc bfc" id="L1445" title="All 2 branches covered.">		if (methodsPanel != null) {</span>
+<span class="fc" id="L1446">			container.add(methodsPanel, BorderLayout.SOUTH);</span>
+		}
+<span class="fc" id="L1448">	}</span>
+
+	protected void layoutMembersControlPlaceHolders(List&lt;FieldControlPlaceHolder&gt; fielControlPlaceHolders,
+			final List&lt;MethodControlPlaceHolder&gt; methodControlPlaceHolders, JPanel membersPanel) {
+<span class="fc bfc" id="L1452" title="All 2 branches covered.">		Container fieldsPanel = (fielControlPlaceHolders.size() == 0) ? null</span>
+<span class="fc" id="L1453">				: createFieldsPanel(fielControlPlaceHolders);</span>
+<span class="fc bfc" id="L1454" title="All 2 branches covered.">		Container methodsPanel = (methodControlPlaceHolders.size() == 0) ? null</span>
+<span class="fc" id="L1455">				: createMethodsPanel(methodControlPlaceHolders);</span>
+<span class="fc" id="L1456">		layoutMembersPanels(membersPanel, fieldsPanel, methodsPanel);</span>
+<span class="fc" id="L1457">	}</span>
+
+	/**
+	 * Updates the state of the current form controls.
+	 * 
+	 * @param refreshStructure Whether the current form should update its structure
+	 *                         to reflect the recent meta-data changes. Mainly used
+	 *                         in design mode.
+	 * 
+	 */
+	public void refresh(boolean refreshStructure) {
+<span class="fc" id="L1468">		ensureNoCurrentValidationTask();</span>
+<span class="fc bfc" id="L1469" title="All 4 branches covered.">		if (refreshStructure &amp;&amp; detectStructureChange()) {</span>
+<span class="fc" id="L1470">			InfoCategory initiallySelectedCategory = null;</span>
+			{
+<span class="pc bpc" id="L1472" title="1 of 2 branches missed.">				if (getSelectedCategoryIndex() != -1) {</span>
+<span class="nc" id="L1473">					initiallySelectedCategory = getDisplayedCategories().get(getSelectedCategoryIndex());</span>
+				}
+			}
+			try {
+<span class="fc" id="L1477">				removeAll();</span>
+<span class="fc" id="L1478">				createMembersControlPlaceHolders();</span>
+<span class="fc" id="L1479">				layoutMembersControlPlaceHolders(fieldControlPlaceHoldersByCategory,</span>
+<span class="fc" id="L1480">						methodControlPlaceHoldersByCategory, this);</span>
+<span class="fc" id="L1481">				realizeMembersControls();</span>
+<span class="fc bfc" id="L1482" title="All 2 branches covered.">				if (categoriesVisibilityUpdater != null) {</span>
+<span class="fc" id="L1483">					categoriesVisibilityUpdater.update();</span>
+				}
+<span class="fc" id="L1485">				SwingRendererUtils.handleComponentSizeChange(this);</span>
+<span class="fc" id="L1486">			} finally {</span>
+<span class="pc bpc" id="L1487" title="1 of 2 branches missed.">				if (initiallySelectedCategory != null) {</span>
+<span class="nc" id="L1488">					int newIndex = getDisplayedCategories().indexOf(initiallySelectedCategory);</span>
+<span class="nc bnc" id="L1489" title="All 2 branches missed.">					if (newIndex != -1) {</span>
+<span class="nc" id="L1490">						setSelectedCategoryIndex(newIndex);</span>
+					}
+				}
+			}
+		} else {
+<span class="fc bfc" id="L1495" title="All 2 branches covered.">			for (InfoCategory category : fieldControlPlaceHoldersByCategory.keySet()) {</span>
+<span class="fc" id="L1496">				List&lt;FieldControlPlaceHolder&gt; fieldControlPlaceHolders = fieldControlPlaceHoldersByCategory</span>
+<span class="fc" id="L1497">						.get(category);</span>
+<span class="fc bfc" id="L1498" title="All 2 branches covered.">				for (int i = 0; i &lt; fieldControlPlaceHolders.size(); i++) {</span>
+<span class="fc" id="L1499">					FieldControlPlaceHolder fieldControlPlaceHolder = fieldControlPlaceHolders.get(i);</span>
+<span class="fc" id="L1500">					fieldControlPlaceHolder.refreshUI(refreshStructure);</span>
+<span class="fc bfc" id="L1501" title="All 2 branches covered.">					if (refreshStructure) {</span>
+<span class="fc" id="L1502">						updateFieldControlLayoutInContainer(fieldControlPlaceHolder);</span>
+					}
+				}
+			}
+<span class="fc bfc" id="L1506" title="All 2 branches covered.">			for (InfoCategory category : methodControlPlaceHoldersByCategory.keySet()) {</span>
+<span class="fc" id="L1507">				List&lt;MethodControlPlaceHolder&gt; methodControlPlaceHolders = methodControlPlaceHoldersByCategory</span>
+<span class="fc" id="L1508">						.get(category);</span>
+<span class="fc bfc" id="L1509" title="All 2 branches covered.">				for (int i = 0; i &lt; methodControlPlaceHolders.size(); i++) {</span>
+<span class="fc" id="L1510">					MethodControlPlaceHolder methodControlPlaceHolder = methodControlPlaceHolders.get(i);</span>
+<span class="fc" id="L1511">					methodControlPlaceHolder.refreshUI(refreshStructure);</span>
+<span class="fc bfc" id="L1512" title="All 2 branches covered.">					if (refreshStructure) {</span>
+<span class="fc" id="L1513">						updateMethodControlLayoutInContainer(methodControlPlaceHolder);</span>
+					}
+				}
+			}
+<span class="fc bfc" id="L1517" title="All 2 branches covered.">			if (categoriesVisibilityUpdater != null) {</span>
+<span class="fc" id="L1518">				categoriesVisibilityUpdater.update();</span>
+			}
+		}
+<span class="fc bfc" id="L1521" title="All 2 branches covered.">		if (refreshStructure) {</span>
+<span class="fc" id="L1522">			updateFieldsPanelsLayout();</span>
+<span class="fc" id="L1523">			refreshCategoriesControlStructure();</span>
+<span class="fc" id="L1524">			setPreservingRatio(true);</span>
+<span class="fc" id="L1525">			setFillingAreaWhenPreservingRatio(true);</span>
+<span class="fc" id="L1526">			Color backgroundColor = getControlsBackgroundColor();</span>
+<span class="fc" id="L1527">			Color foregroundColor = getControlsForegroundColor();</span>
+<span class="fc" id="L1528">			Image image = getControlsBackgroundImage();</span>
+<span class="fc" id="L1529">			setBackground(backgroundColor);</span>
+<span class="fc" id="L1530">			setImage(image);</span>
+<span class="pc bpc" id="L1531" title="1 of 4 branches missed.">			setOpaque((backgroundColor != null) &amp;&amp; (image == null));</span>
+<span class="fc" id="L1532">			Color borderColor = getControlsBorderColor();</span>
+<span class="fc bfc" id="L1533" title="All 2 branches covered.">			if (scrollPane != null) {</span>
+<span class="fc bfc" id="L1534" title="All 2 branches covered.">				if (borderColor != null) {</span>
+<span class="fc" id="L1535">					scrollPane.setBorder(BorderFactory.createLineBorder(borderColor));</span>
+<span class="fc" id="L1536">				} else {</span>
+<span class="fc" id="L1537">					scrollPane.setBorder(new JScrollPane().getBorder());</span>
+				}
+			}
+			{
+<span class="fc" id="L1541">				menuBar.setBackground(backgroundColor);</span>
+<span class="fc bfc" id="L1542" title="All 2 branches covered.">				menuBar.setOpaque(backgroundColor != null);</span>
+<span class="fc" id="L1543">				menuBar.setForeground(foregroundColor);</span>
+<span class="fc bfc" id="L1544" title="All 2 branches covered.">				if (borderColor != null) {</span>
+<span class="fc" id="L1545">					Border outsideBorder = BorderFactory.createMatteBorder(0, 0, 1, 0, borderColor);</span>
+<span class="fc" id="L1546">					Border insideBorder = BorderFactory.createEmptyBorder(getLayoutSpacing(), getLayoutSpacing(),</span>
+<span class="fc" id="L1547">							getLayoutSpacing(), getLayoutSpacing());</span>
+<span class="fc" id="L1548">					menuBar.setBorder(BorderFactory.createCompoundBorder(outsideBorder, insideBorder));</span>
+<span class="fc" id="L1549">				} else {</span>
+<span class="fc" id="L1550">					menuBar.setBorder(new JMenuBar().getBorder());</span>
+				}
+<span class="fc" id="L1552">				menuBar.removeAll();</span>
+				// force menu bar update
+<span class="fc" id="L1554">				menuBarUpdater = null;</span>
+			}
+			{
+<span class="fc" id="L1557">				int borderSpacing = getLayoutSpacing();</span>
+<span class="fc" id="L1558">				Border insideBorder = BorderFactory.createEmptyBorder(borderSpacing, borderSpacing, borderSpacing,</span>
+<span class="fc" id="L1559">						borderSpacing);</span>
+<span class="fc" id="L1560">				Border outsideBorder = createStatusBar().getBorder();</span>
+<span class="fc" id="L1561">				statusBar.setBorder(BorderFactory.createCompoundBorder(outsideBorder, insideBorder));</span>
+<span class="fc" id="L1562">				Font labelCustomFont = getLabelCustomFont();</span>
+				{
+<span class="pc bpc" id="L1564" title="1 of 2 branches missed.">					if (labelCustomFont != null) {</span>
+<span class="nc" id="L1565">						statusBar.setFont(labelCustomFont.deriveFont(statusBar.getFont().getStyle(),</span>
+<span class="nc" id="L1566">								statusBar.getFont().getSize()));</span>
+<span class="nc" id="L1567">					} else {</span>
+<span class="fc" id="L1568">						statusBar.setFont(createStatusBar().getFont());</span>
+					}
+				}
+			}
+		}
+<span class="fc" id="L1573">		refreshValidityComponents();</span>
+<span class="fc" id="L1574">		finalizeFormUpdate();</span>
+<span class="fc bfc" id="L1575" title="All 2 branches covered.">		for (IFormListener l : listeners) {</span>
+<span class="fc" id="L1576">			l.onRefresh(refreshStructure);</span>
+		}
+<span class="fc" id="L1578">		filteredObjectType.onFormRefresh(object);</span>
+<span class="fc" id="L1579">	}</span>
+
+	/**
+	 * If a validation job is running, it will be interrupted after the execution of
+	 * this method.
+	 */
+	public void ensureNoCurrentValidationTask() {
+<span class="fc bfc" id="L1586" title="All 4 branches covered.">		if ((currentValidationTask != null) &amp;&amp; !currentValidationTask.isDone()) {</span>
+			try {
+<span class="fc" id="L1588">				currentValidationTask.cancelRepeatedlyAndWait(100);</span>
+<span class="pc" id="L1589">			} catch (InterruptedException e) {</span>
+<span class="nc" id="L1590">				throw new ReflectionUIError(e);</span>
+			}
+		}
+<span class="fc" id="L1593">	}</span>
+
+	protected void createMembersControlPlaceHolders() {
+<span class="fc" id="L1596">		fieldControlPlaceHoldersByCategory = new TreeMap&lt;InfoCategory, List&lt;FieldControlPlaceHolder&gt;&gt;(</span>
+<span class="fc" id="L1597">				getFieldsByCategory(filteredObjectType.getFields()).entrySet().stream()</span>
+<span class="fc" id="L1598">						.collect(Collectors.toMap(Map.Entry::getKey, entry -&gt; entry.getValue().stream()</span>
+<span class="fc" id="L1599">								.map(this::createFieldControlPlaceHolder).collect(Collectors.toList()))));</span>
+<span class="fc" id="L1600">		methodControlPlaceHoldersByCategory = new TreeMap&lt;InfoCategory, List&lt;MethodControlPlaceHolder&gt;&gt;(</span>
+<span class="fc" id="L1601">				getMethodsByCategory(filteredObjectType.getMethods()).entrySet().stream()</span>
+<span class="fc" id="L1602">						.collect(Collectors.toMap(Map.Entry::getKey, entry -&gt; entry.getValue().stream()</span>
+<span class="fc" id="L1603">								.map(this::createMethodControlPlaceHolder).collect(Collectors.toList()))));</span>
+<span class="fc" id="L1604">	}</span>
+
+	protected void realizeMembersControls() {
+<span class="fc bfc" id="L1607" title="All 2 branches covered.">		for (List&lt;FieldControlPlaceHolder&gt; fieldControlPlaceHolders : fieldControlPlaceHoldersByCategory.values()) {</span>
+<span class="fc bfc" id="L1608" title="All 2 branches covered.">			for (FieldControlPlaceHolder fieldControlPlaceHolder : fieldControlPlaceHolders) {</span>
+<span class="fc" id="L1609">				fieldControlPlaceHolder.initializeUI();</span>
+			}
+		}
+<span class="fc bfc" id="L1612" title="All 2 branches covered.">		for (List&lt;MethodControlPlaceHolder&gt; methodControlPlaceHolders : methodControlPlaceHoldersByCategory.values()) {</span>
+<span class="fc bfc" id="L1613" title="All 2 branches covered.">			for (MethodControlPlaceHolder methodControlPlaceHolder : methodControlPlaceHolders) {</span>
+<span class="fc" id="L1614">				methodControlPlaceHolder.initializeUI();</span>
+			}
+		}
+<span class="fc" id="L1617">	}</span>
+
+	protected boolean detectStructureChange() {
+
+<span class="pc bpc" id="L1621" title="1 of 2 branches missed.">		SortedMap&lt;InfoCategory, List&lt;IFieldInfo&gt;&gt; oldFieldsByCategory = (fieldControlPlaceHoldersByCategory != null)</span>
+<span class="fc" id="L1622">				? new TreeMap&lt;InfoCategory, List&lt;IFieldInfo&gt;&gt;(fieldControlPlaceHoldersByCategory.entrySet().stream()</span>
+<span class="fc" id="L1623">						.collect(Collectors.toMap(Map.Entry::getKey,</span>
+<span class="fc" id="L1624">								entry -&gt; entry.getValue().stream().map(FieldControlPlaceHolder::getField)</span>
+<span class="fc" id="L1625">										.collect(Collectors.toList()))))</span>
+<span class="nc" id="L1626">				: null;</span>
+<span class="pc bpc" id="L1627" title="1 of 2 branches missed.">		SortedMap&lt;InfoCategory, List&lt;IMethodInfo&gt;&gt; oldMethodsByCategory = (methodControlPlaceHoldersByCategory != null)</span>
+<span class="fc" id="L1628">				? new TreeMap&lt;InfoCategory, List&lt;IMethodInfo&gt;&gt;(methodControlPlaceHoldersByCategory.entrySet().stream()</span>
+<span class="fc" id="L1629">						.collect(Collectors.toMap(Map.Entry::getKey,</span>
+<span class="fc" id="L1630">								entry -&gt; entry.getValue().stream().map(MethodControlPlaceHolder::getMethod)</span>
+<span class="fc" id="L1631">										.collect(Collectors.toList()))))</span>
+<span class="nc" id="L1632">				: null;</span>
+
+<span class="fc" id="L1634">		boolean modificationsDetected = false;</span>
+
+<span class="fc" id="L1636">		ITypeInfo oldObjectType = filteredObjectType;</span>
+<span class="fc" id="L1637">		filteredObjectType = buildFormFilteredType();</span>
+
+<span class="fc bfc" id="L1639" title="All 2 branches covered.">		if (!filteredObjectType.equals(oldObjectType)) {</span>
+<span class="fc" id="L1640">			modificationsDetected = true;</span>
+<span class="fc" id="L1641">			setName(&quot;form [objectType=&quot; + filteredObjectType.getName() + &quot;]&quot;);</span>
+<span class="fc" id="L1642">			modificationStack.setName(getName());</span>
+		}
+
+<span class="fc" id="L1645">		SortedMap&lt;InfoCategory, List&lt;IFieldInfo&gt;&gt; newFieldsByCategory = getFieldsByCategory(</span>
+<span class="fc" id="L1646">				filteredObjectType.getFields());</span>
+<span class="fc" id="L1647">		SortedMap&lt;InfoCategory, List&lt;IMethodInfo&gt;&gt; newMethodsByCategory = getMethodsByCategory(</span>
+<span class="fc" id="L1648">				filteredObjectType.getMethods());</span>
+
+<span class="fc bfc" id="L1650" title="All 2 branches covered.">		if (!modificationsDetected) {</span>
+<span class="pc bpc" id="L1651" title="1 of 2 branches missed.">			if ((oldFieldsByCategory == null) || !new ArrayList&lt;InfoCategory&gt;(newFieldsByCategory.keySet())</span>
+<span class="pc bpc" id="L1652" title="1 of 2 branches missed.">					.equals(new ArrayList&lt;InfoCategory&gt;(oldFieldsByCategory.keySet()))) {</span>
+<span class="nc" id="L1653">				modificationsDetected = true;</span>
+			}
+		}
+
+<span class="fc bfc" id="L1657" title="All 2 branches covered.">		if (!modificationsDetected) {</span>
+<span class="pc bpc" id="L1658" title="1 of 2 branches missed.">			if ((oldMethodsByCategory == null) || !new ArrayList&lt;InfoCategory&gt;(newMethodsByCategory.keySet())</span>
+<span class="pc bpc" id="L1659" title="1 of 2 branches missed.">					.equals(new ArrayList&lt;InfoCategory&gt;(oldMethodsByCategory.keySet()))) {</span>
+<span class="nc" id="L1660">				modificationsDetected = true;</span>
+			}
+		}
+
+<span class="fc bfc" id="L1664" title="All 2 branches covered.">		if (!modificationsDetected) {</span>
+<span class="fc bfc" id="L1665" title="All 2 branches covered.">			for (InfoCategory category : newFieldsByCategory.keySet()) {</span>
+<span class="fc" id="L1666">				List&lt;IFieldInfo&gt; newFields = newFieldsByCategory.get(category);</span>
+<span class="fc" id="L1667">				List&lt;IFieldInfo&gt; oldFields = oldFieldsByCategory.get(category);</span>
+<span class="pc bpc" id="L1668" title="1 of 2 branches missed.">				if (oldFields.size() != newFields.size()) {</span>
+<span class="nc" id="L1669">					modificationsDetected = true;</span>
+<span class="nc" id="L1670">					break;</span>
+				}
+<span class="fc bfc" id="L1672" title="All 2 branches covered.">				for (int i = 0; i &lt; newFields.size(); i++) {</span>
+<span class="pc bpc" id="L1673" title="1 of 2 branches missed.">					if (!newFields.get(i).equals(oldFields.get(i))) {</span>
+<span class="nc" id="L1674">						modificationsDetected = true;</span>
+<span class="nc" id="L1675">						break;</span>
+					}
+				}
+<span class="pc bpc" id="L1678" title="1 of 2 branches missed.">				if (modificationsDetected) {</span>
+<span class="nc" id="L1679">					break;</span>
+				}
+			}
+		}
+
+<span class="fc bfc" id="L1684" title="All 2 branches covered.">		if (!modificationsDetected) {</span>
+<span class="fc bfc" id="L1685" title="All 2 branches covered.">			for (InfoCategory category : newMethodsByCategory.keySet()) {</span>
+<span class="fc" id="L1686">				List&lt;IMethodInfo&gt; newMethods = newMethodsByCategory.get(category);</span>
+<span class="fc" id="L1687">				List&lt;IMethodInfo&gt; oldMethods = oldMethodsByCategory.get(category);</span>
+<span class="pc bpc" id="L1688" title="1 of 2 branches missed.">				if (oldMethods.size() != newMethods.size()) {</span>
+<span class="nc" id="L1689">					modificationsDetected = true;</span>
+<span class="nc" id="L1690">					break;</span>
+				}
+<span class="fc bfc" id="L1692" title="All 2 branches covered.">				for (int i = 0; i &lt; newMethods.size(); i++) {</span>
+<span class="fc bfc" id="L1693" title="All 2 branches covered.">					if (!newMethods.get(i).equals(oldMethods.get(i))) {</span>
+<span class="fc" id="L1694">						modificationsDetected = true;</span>
+<span class="fc" id="L1695">						break;</span>
+					}
+				}
+<span class="fc bfc" id="L1698" title="All 2 branches covered.">				if (modificationsDetected) {</span>
+<span class="fc" id="L1699">					break;</span>
+				}
+			}
+		}
+
+<span class="fc bfc" id="L1704" title="All 2 branches covered.">		if (!modificationsDetected) {</span>
+<span class="fc" id="L1705">			List&lt;InfoCategory&gt; allCategories = collectCategories(newFieldsByCategory, newMethodsByCategory);</span>
+<span class="pc bpc" id="L1706" title="1 of 4 branches missed.">			if ((allCategories.size() == 1) &amp;&amp; (swingRenderer.getNullInfoCategory().equals(allCategories.get(0)))) {</span>
+<span class="pc bpc" id="L1707" title="1 of 2 branches missed.">				if (categoriesControl != null) {</span>
+<span class="nc" id="L1708">					modificationsDetected = true;</span>
+				}
+<span class="pc bpc" id="L1710" title="1 of 2 branches missed.">			} else if (allCategories.size() &gt; 0) {</span>
+<span class="pc bpc" id="L1711" title="1 of 2 branches missed.">				if (categoriesControl == null) {</span>
+<span class="nc" id="L1712">					modificationsDetected = true;</span>
+				}
+			}
+<span class="fc bfc" id="L1715" title="All 2 branches covered.">			if (categoriesControl != null) {</span>
+<span class="fc" id="L1716">				Container newCategoriesControl = createCategoriesControl();</span>
+<span class="pc bpc" id="L1717" title="1 of 2 branches missed.">				if (newCategoriesControl.getClass() != categoriesControl.getClass()) {</span>
+<span class="nc" id="L1718">					modificationsDetected = true;</span>
+<span class="nc" id="L1719">				} else {</span>
+<span class="fc bfc" id="L1720" title="All 2 branches covered.">					if (newCategoriesControl instanceof ListTabbedPane) {</span>
+<span class="pc bpc" id="L1721" title="1 of 2 branches missed.">						if (((ListTabbedPane) categoriesControl)</span>
+<span class="fc" id="L1722">								.getTabPlacement() != getExpectedCategoriesControlPlacement()) {</span>
+<span class="nc" id="L1723">							modificationsDetected = true;</span>
+						}
+<span class="pc bpc" id="L1725" title="1 of 2 branches missed.">					} else if (newCategoriesControl instanceof ClassicTabbedPane) {</span>
+<span class="nc bnc" id="L1726" title="All 2 branches missed.">						if (((ClassicTabbedPane) categoriesControl)</span>
+<span class="nc" id="L1727">								.getTabPlacement() != getExpectedCategoriesControlPlacement()) {</span>
+<span class="nc" id="L1728">							modificationsDetected = true;</span>
+						}
+<span class="pc bpc" id="L1730" title="1 of 2 branches missed.">					} else if (newCategoriesControl instanceof ControlTabbedPane) {</span>
+<span class="pc bpc" id="L1731" title="1 of 2 branches missed.">						if (((ControlTabbedPane) categoriesControl)</span>
+<span class="fc" id="L1732">								.getTabPlacement() != getExpectedCategoriesControlPlacement()) {</span>
+<span class="nc" id="L1733">							modificationsDetected = true;</span>
+						}
+<span class="nc" id="L1735">					} else {</span>
+<span class="nc" id="L1736">						throw new ReflectionUIError();</span>
+					}
+				}
+			}
+		}
+
+<span class="fc bfc" id="L1742" title="All 2 branches covered.">		if (!modificationsDetected) {</span>
+<span class="fc bfc" id="L1743" title="All 2 branches covered.">			if (((filteredObjectType.getFormPreferredWidth() != -1)</span>
+<span class="pc bpc" id="L1744" title="2 of 6 branches missed.">					|| (filteredObjectType.getFormPreferredHeight() != -1)) != (scrollPane != null)) {</span>
+<span class="nc" id="L1745">				modificationsDetected = true;</span>
+			}
+		}
+
+<span class="fc" id="L1749">		return modificationsDetected;</span>
+	}
+
+	protected void finalizeFormUpdate() {
+<span class="fc" id="L1753">		updateMenuBar();</span>
+<span class="fc bfc" id="L1754" title="All 4 branches covered.">		if ((statusBar.getParent() != null) &amp;&amp; shown) {</span>
+<span class="fc" id="L1755">			validateFormInBackgroundAndReportOnStatusBar();</span>
+		}
+<span class="fc" id="L1757">	}</span>
+
+	/**
+	 * Updates this form menu bar. If the menu bar does not have a parent component
+	 * (probably because the current form is not a root form) then nothing is done.
+	 */
+	public void updateMenuBar() {
+<span class="fc bfc" id="L1764" title="All 2 branches covered.">		if (menuBar.getParent() == null) {</span>
+<span class="fc" id="L1765">			return;</span>
+		}
+<span class="fc bfc" id="L1767" title="All 2 branches covered.">		if (menuBarUpdater == null) {</span>
+<span class="fc" id="L1768">			menuBarUpdater = new MinimalListUpdater&lt;MenuInfo&gt;() {</span>
+
+				@Override
+				protected List&lt;MenuInfo&gt; collectKeys() {
+<span class="fc" id="L1772">					MenuModel globalMenuModel = new MenuModel();</span>
+<span class="fc" id="L1773">					addMenuContributionTo(globalMenuModel);</span>
+<span class="fc" id="L1774">					return globalMenuModel.getMenus();</span>
+				}
+
+				@Override
+				protected boolean shouldBePresent(MenuInfo menuInfo) {
+<span class="fc" id="L1779">					return true;</span>
+				}
+
+				@Override
+				protected void add(int index, MenuInfo menuInfo) {
+<span class="fc" id="L1784">					menuBar.add(creatMenu(menuInfo), index);</span>
+<span class="fc" id="L1785">				}</span>
+
+				@Override
+				protected void remove(int index) {
+<span class="fc" id="L1789">					menuBar.remove(index);</span>
+<span class="fc" id="L1790">				}</span>
+
+				@Override
+				protected void refresh(MenuInfo current, int index) {
+<span class="fc" id="L1794">					((Menu) menuBar.getMenu(index)).refresh();</span>
+<span class="fc" id="L1795">				}</span>
+
+			};
+		}
+<span class="fc" id="L1799">		menuBarUpdater.update();</span>
+<span class="fc bfc" id="L1800" title="All 2 branches covered.">		menuBar.setVisible(menuBar.getComponentCount() &gt; 0);</span>
+<span class="fc" id="L1801">		SwingRendererUtils.handleComponentSizeChange(menuBar);</span>
+<span class="fc" id="L1802">	}</span>
+
+	protected Menu creatMenu(MenuInfo menuInfo) {
+<span class="fc" id="L1805">		return new Menu(swingRenderer, this, menuInfo);</span>
+	}
+
+	/**
+	 * Import this form menu contributions into the specified menu model.
+	 * 
+	 * @param menuModel The menu model that will receive this form menu
+	 *                  contributions.
+	 */
+	public void addMenuContributionTo(MenuModel menuModel) {
+<span class="fc" id="L1815">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L1816">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc" id="L1817">		MenuModel formMenuModel = type.getMenuModel();</span>
+<span class="fc" id="L1818">		menuModel.importContributions(formMenuModel, new Filter&lt;IMenuElementInfo&gt;() {</span>
+			@Override
+			public IMenuElementInfo get(IMenuElementInfo e) {
+<span class="fc bfc" id="L1821" title="All 2 branches covered.">				if (e instanceof AbstractActionMenuItemInfo) {</span>
+<span class="fc" id="L1822">					AbstractActionMenuItemInfo action = (AbstractActionMenuItemInfo) e;</span>
+<span class="fc" id="L1823">					Map&lt;String, Object&gt; specificProperties = new HashMap&lt;String, Object&gt;(</span>
+<span class="fc" id="L1824">							action.getSpecificProperties());</span>
+<span class="fc" id="L1825">					specificProperties.put(ACTION_MENU_ITEM_CONTEXT_FORM, Form.this);</span>
+<span class="fc" id="L1826">					action.setSpecificProperties(specificProperties);</span>
+				}
+<span class="fc" id="L1828">				return e;</span>
+			}
+		});
+<span class="fc bfc" id="L1831" title="All 2 branches covered.">		for (InfoCategory category : fieldControlPlaceHoldersByCategory.keySet()) {</span>
+<span class="fc bfc" id="L1832" title="All 2 branches covered.">			for (FieldControlPlaceHolder fieldControlPlaceHolder : fieldControlPlaceHoldersByCategory.get(category)) {</span>
+<span class="fc bfc" id="L1833" title="All 2 branches covered.">				if (!fieldControlPlaceHolder.isVisible()) {</span>
+<span class="fc" id="L1834">					continue;</span>
+				}
+<span class="fc" id="L1836">				Component fieldControl = fieldControlPlaceHolder.getFieldControl();</span>
+<span class="pc bpc" id="L1837" title="1 of 2 branches missed.">				if (fieldControl instanceof IAdvancedFieldControl) {</span>
+<span class="fc" id="L1838">					((IAdvancedFieldControl) fieldControl).addMenuContributions(menuModel);</span>
+				}
+			}
+		}
+<span class="fc" id="L1842">	}</span>
+
+	/**
+	 * Requests that this form (actually the 1st focusable control of this form) get
+	 * the input focus.
+	 * 
+	 * @return false if the focus change request is guaranteed to fail; true if it
+	 *         is likely to succeed.
+	 */
+	public boolean requestFormFocus() {
+<span class="fc bfc" id="L1852" title="All 2 branches covered.">		for (InfoCategory category : fieldControlPlaceHoldersByCategory.keySet()) {</span>
+<span class="fc bfc" id="L1853" title="All 2 branches covered.">			for (FieldControlPlaceHolder fieldControlPlaceHolder : fieldControlPlaceHoldersByCategory.get(category)) {</span>
+<span class="fc bfc" id="L1854" title="All 2 branches covered.">				if (!fieldControlPlaceHolder.isVisible()) {</span>
+<span class="fc" id="L1855">					continue;</span>
+				}
+<span class="fc" id="L1857">				if (SwingRendererUtils.requestAnyComponentFocus(fieldControlPlaceHolder.getFieldControl(),</span>
+<span class="fc bfc" id="L1858" title="All 2 branches covered.">						swingRenderer)) {</span>
+<span class="fc" id="L1859">					return true;</span>
+				}
+			}
+		}
+<span class="fc" id="L1863">		return false;</span>
+	}
+
+	/**
+	 * @param field The field for which the control place holder must be created.
+	 * @return a new control place holder for the given field.
+	 */
+	protected FieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
+<span class="nc" id="L1871">		return new FieldControlPlaceHolder(this, field);</span>
+	}
+
+	/**
+	 * @param method The method for which the control place holder must be created.
+	 * @return a new control place holder for the given method.
+	 */
+	protected MethodControlPlaceHolder createMethodControlPlaceHolder(IMethodInfo method) {
+<span class="nc" id="L1879">		return new MethodControlPlaceHolder(this, method);</span>
+	}
+
+	protected Container createFieldsPanel(List&lt;FieldControlPlaceHolder&gt; fielControlPlaceHolders) {
+<span class="fc" id="L1883">		JPanel fieldsPanel = new ControlPanel();</span>
+<span class="fc" id="L1884">		fieldsPanel.setLayout(getFieldsPanelLayout());</span>
+<span class="fc" id="L1885">		fieldsPanel.setBorder(getFieldsPanelBorder());</span>
+<span class="fc bfc" id="L1886" title="All 2 branches covered.">		for (int i = 0; i &lt; fielControlPlaceHolders.size(); i++) {</span>
+<span class="fc" id="L1887">			FieldControlPlaceHolder fieldControlPlaceHolder = fielControlPlaceHolders.get(i);</span>
+			{
+<span class="fc" id="L1889">				fieldsPanel.add(fieldControlPlaceHolder);</span>
+<span class="fc" id="L1890">				fieldControlPlaceHolder.setLayoutInContainerUpdateNeeded(true);</span>
+<span class="fc" id="L1891">				fieldControlPlaceHolder.setPositionInContainer(i);</span>
+<span class="fc" id="L1892">				updateFieldControlLayoutInContainer(fieldControlPlaceHolder);</span>
+			}
+		}
+<span class="fc" id="L1895">		fieldsPanel.setName(&quot;fieldsPanel [parent=&quot; + this.getName() + &quot;]&quot;);</span>
+<span class="fc" id="L1896">		return fieldsPanel;</span>
+	}
+
+	protected Container createMethodsPanel(final List&lt;MethodControlPlaceHolder&gt; methodControlPlaceHolders) {
+<span class="fc" id="L1900">		JPanel methodsPanel = new ControlPanel();</span>
+<span class="fc" id="L1901">		methodsPanel.setLayout(getMethodsPanelLayout());</span>
+<span class="fc" id="L1902">		methodsPanel.setBorder(getMethodsPanelBorder());</span>
+<span class="fc bfc" id="L1903" title="All 2 branches covered.">		for (MethodControlPlaceHolder methodControlPlaceHolder : methodControlPlaceHolders) {</span>
+<span class="fc" id="L1904">			methodsPanel.add(methodControlPlaceHolder);</span>
+<span class="fc" id="L1905">			updateMethodControlLayoutInContainer(methodControlPlaceHolder);</span>
+		}
+<span class="fc" id="L1907">		methodsPanel.setName(&quot;methodsPanel [parent=&quot; + this.getName() + &quot;]&quot;);</span>
+<span class="fc" id="L1908">		return SwingRendererUtils.flowInLayout(methodsPanel, GridBagConstraints.CENTER);</span>
+	}
+
+	protected LayoutManager getFieldsPanelLayout() {
+<span class="fc" id="L1912">		return new GridBagLayout();</span>
+	}
+
+	protected LayoutManager getMethodsPanelLayout() {
+<span class="fc" id="L1916">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L1917">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc" id="L1918">		MethodsLayout methodsOrientation = type.getMethodsLayout();</span>
+<span class="fc" id="L1919">		int spacing = getLayoutSpacing();</span>
+		GridLayout newLayout;
+<span class="pc bpc" id="L1921" title="1 of 2 branches missed.">		if (methodsOrientation == MethodsLayout.HORIZONTAL_FLOW) {</span>
+<span class="fc" id="L1922">			newLayout = new BetterGridLayout(1, 0, spacing, spacing);</span>
+<span class="pc bnc" id="L1923" title="All 2 branches missed.">		} else if (methodsOrientation == MethodsLayout.VERTICAL_FLOW) {</span>
+<span class="nc" id="L1924">			newLayout = new BetterGridLayout(0, 1, spacing, spacing);</span>
+<span class="nc" id="L1925">		} else {</span>
+<span class="nc" id="L1926">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L1928">		return newLayout;</span>
+	}
+
+	protected Border getFieldsPanelBorder() {
+<span class="fc" id="L1932">		return null;</span>
+	}
+
+	protected Border getMethodsPanelBorder() {
+<span class="fc" id="L1936">		int spacing = getLayoutSpacing();</span>
+<span class="fc" id="L1937">		return new EmptyBorder(spacing, spacing, spacing, spacing);</span>
+	}
+
+	protected void updateFieldsPanelsLayout() {
+<span class="fc bfc" id="L1941" title="All 2 branches covered.">		for (InfoCategory category : fieldControlPlaceHoldersByCategory.keySet()) {</span>
+<span class="fc" id="L1942">			List&lt;FieldControlPlaceHolder&gt; fieldControlPlaceHolders = fieldControlPlaceHoldersByCategory.get(category);</span>
+<span class="fc" id="L1943">			JPanel fieldsPanel = (JPanel) fieldControlPlaceHolders.stream().filter(Component::isVisible)</span>
+<span class="fc" id="L1944">					.map(Component::getParent).findFirst().orElse(null);</span>
+<span class="fc bfc" id="L1945" title="All 2 branches covered.">			if (fieldsPanel == null) {</span>
+<span class="fc" id="L1946">				continue;</span>
+			}
+<span class="fc" id="L1948">			boolean fieldsPanelVerticallyFilled = false;</span>
+<span class="fc bfc" id="L1949" title="All 2 branches covered.">			for (int i = 0; i &lt; fieldControlPlaceHolders.size(); i++) {</span>
+<span class="fc" id="L1950">				FieldControlPlaceHolder fieldControlPlaceHolder = fieldControlPlaceHolders.get(i);</span>
+<span class="fc bfc" id="L1951" title="All 2 branches covered.">				if (!fieldControlPlaceHolder.isVisible()) {</span>
+<span class="fc" id="L1952">					continue;</span>
+				}
+<span class="fc" id="L1954">				GridBagConstraints fieldControlPlaceHolderLayoutConstraints = ((GridBagLayout) fieldsPanel.getLayout())</span>
+<span class="fc" id="L1955">						.getConstraints(fieldControlPlaceHolder);</span>
+<span class="fc bfc" id="L1956" title="All 2 branches covered.">				if (fieldControlPlaceHolderLayoutConstraints.weighty &gt; 0) {</span>
+<span class="fc" id="L1957">					fieldsPanelVerticallyFilled = true;</span>
+<span class="fc" id="L1958">					break;</span>
+				}
+			}
+<span class="fc" id="L1961">			Container membersPanel = fieldsPanel.getParent();</span>
+<span class="fc" id="L1962">			((BorderLayout) membersPanel.getLayout()).removeLayoutComponent(fieldsPanel);</span>
+<span class="fc" id="L1963">			((BorderLayout) membersPanel.getLayout()).addLayoutComponent(fieldsPanel,</span>
+<span class="fc bfc" id="L1964" title="All 2 branches covered.">					!fieldsPanelVerticallyFilled ? BorderLayout.NORTH : BorderLayout.CENTER);</span>
+		}
+<span class="fc" id="L1966">	}</span>
+
+	protected void updateFieldControlLayoutInContainer(FieldControlPlaceHolder fieldControlPlaceHolder) {
+<span class="fc" id="L1969">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L1970">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc" id="L1971">		IFieldInfo field = fieldControlPlaceHolder.getField();</span>
+<span class="fc" id="L1972">		ITypeInfo.FieldsLayout fieldsOrientation = type.getFieldsLayout();</span>
+<span class="fc" id="L1973">		JPanel fieldsPanel = (JPanel) fieldControlPlaceHolder.getParent();</span>
+<span class="fc" id="L1974">		int spacing = getLayoutSpacing();</span>
+
+<span class="fc" id="L1976">		Component captionControl = fieldControlPlaceHolder.getSiblingCaptionControl();</span>
+<span class="fc bfc" id="L1977" title="All 2 branches covered.">		if (captionControl != null) {</span>
+<span class="fc" id="L1978">			fieldsPanel.remove(captionControl);</span>
+<span class="fc" id="L1979">			fieldControlPlaceHolder.setSiblingCaptionControl(null);</span>
+		}
+<span class="fc bfc" id="L1981" title="All 4 branches covered.">		boolean shouldHaveSeparateCaptionControl = !fieldControlPlaceHolder.showsCaption()</span>
+<span class="fc" id="L1982">				&amp;&amp; (fieldControlPlaceHolder.getField().getCaption().length() &gt; 0);</span>
+<span class="fc bfc" id="L1983" title="All 2 branches covered.">		if (shouldHaveSeparateCaptionControl) {</span>
+<span class="fc" id="L1984">			captionControl = createSeparateFieldCaptionControl(fieldControlPlaceHolder);</span>
+<span class="fc" id="L1985">			captionControl.setVisible(fieldControlPlaceHolder.isVisible());</span>
+<span class="fc" id="L1986">			GridBagConstraints captionControlLayoutConstraints = new GridBagConstraints();</span>
+<span class="fc" id="L1987">			captionControlLayoutConstraints.insets = new Insets(spacing, spacing, spacing, spacing);</span>
+<span class="fc bfc" id="L1988" title="All 2 branches covered.">			if (fieldsOrientation == ITypeInfo.FieldsLayout.VERTICAL_FLOW) {</span>
+<span class="fc" id="L1989">				captionControlLayoutConstraints.gridx = 0;</span>
+<span class="fc" id="L1990">				captionControlLayoutConstraints.gridy = fieldControlPlaceHolder.getPositionInContainer();</span>
+<span class="pc bpc" id="L1991" title="1 of 2 branches missed.">			} else if (fieldsOrientation == ITypeInfo.FieldsLayout.HORIZONTAL_FLOW) {</span>
+<span class="fc" id="L1992">				captionControlLayoutConstraints.gridy = 0;</span>
+<span class="fc" id="L1993">				captionControlLayoutConstraints.gridx = fieldControlPlaceHolder.getPositionInContainer();</span>
+<span class="fc" id="L1994">			} else {</span>
+<span class="nc" id="L1995">				throw new ReflectionUIError();</span>
+			}
+<span class="fc" id="L1997">			captionControlLayoutConstraints.anchor = GridBagConstraints.WEST;</span>
+<span class="fc" id="L1998">			fieldsPanel.add(captionControl, captionControlLayoutConstraints);</span>
+<span class="fc" id="L1999">			fieldControlPlaceHolder.setSiblingCaptionControl(captionControl);</span>
+		}
+
+<span class="fc" id="L2002">		GridBagConstraints fieldControlPlaceHolderLayoutConstraints = new GridBagConstraints();</span>
+<span class="fc" id="L2003">		fieldControlPlaceHolderLayoutConstraints.insets = new Insets(spacing, spacing, spacing, spacing);</span>
+<span class="fc bfc" id="L2004" title="All 2 branches covered.">		if (fieldsOrientation == ITypeInfo.FieldsLayout.VERTICAL_FLOW) {</span>
+<span class="fc bfc" id="L2005" title="All 2 branches covered.">			if (!shouldHaveSeparateCaptionControl) {</span>
+<span class="fc" id="L2006">				fieldControlPlaceHolderLayoutConstraints.gridwidth = 2;</span>
+<span class="fc" id="L2007">				fieldControlPlaceHolderLayoutConstraints.gridx = 0;</span>
+<span class="fc" id="L2008">			} else {</span>
+<span class="fc" id="L2009">				fieldControlPlaceHolderLayoutConstraints.gridx = 1;</span>
+			}
+<span class="fc" id="L2011">			fieldControlPlaceHolderLayoutConstraints.gridy = fieldControlPlaceHolder.getPositionInContainer();</span>
+<span class="pc bpc" id="L2012" title="1 of 2 branches missed.">		} else if (fieldsOrientation == ITypeInfo.FieldsLayout.HORIZONTAL_FLOW) {</span>
+<span class="fc bfc" id="L2013" title="All 2 branches covered.">			if (!shouldHaveSeparateCaptionControl) {</span>
+<span class="fc" id="L2014">				fieldControlPlaceHolderLayoutConstraints.gridheight = 2;</span>
+<span class="fc" id="L2015">				fieldControlPlaceHolderLayoutConstraints.gridy = 0;</span>
+<span class="fc" id="L2016">			} else {</span>
+<span class="fc" id="L2017">				fieldControlPlaceHolderLayoutConstraints.gridy = 1;</span>
+			}
+<span class="fc" id="L2019">			fieldControlPlaceHolderLayoutConstraints.gridx = fieldControlPlaceHolder.getPositionInContainer();</span>
+<span class="fc" id="L2020">		} else {</span>
+<span class="nc" id="L2021">			throw new ReflectionUIError();</span>
+		}
+<span class="fc" id="L2023">		fieldControlPlaceHolderLayoutConstraints.weightx = field.getDisplayAreaHorizontalWeight();</span>
+<span class="fc" id="L2024">		fieldControlPlaceHolderLayoutConstraints.weighty = field.getDisplayAreaVerticalWeight();</span>
+<span class="fc bfc" id="L2025" title="All 4 branches covered.">		if (field.isDisplayAreaHorizontallyFilled() &amp;&amp; field.isDisplayAreaVerticallyFilled()) {</span>
+<span class="fc" id="L2026">			fieldControlPlaceHolderLayoutConstraints.fill = GridBagConstraints.BOTH;</span>
+<span class="fc bfc" id="L2027" title="All 2 branches covered.">		} else if (field.isDisplayAreaHorizontallyFilled()) {</span>
+<span class="fc" id="L2028">			fieldControlPlaceHolderLayoutConstraints.fill = GridBagConstraints.HORIZONTAL;</span>
+<span class="pc bpc" id="L2029" title="1 of 2 branches missed.">		} else if (field.isDisplayAreaVerticallyFilled()) {</span>
+<span class="nc" id="L2030">			fieldControlPlaceHolderLayoutConstraints.fill = GridBagConstraints.VERTICAL;</span>
+<span class="nc" id="L2031">		} else {</span>
+<span class="fc" id="L2032">			fieldControlPlaceHolderLayoutConstraints.fill = GridBagConstraints.NONE;</span>
+		}
+<span class="fc bfc" id="L2034" title="All 2 branches covered.">		for (Form subForm : SwingRendererUtils.findDescendantForms(fieldControlPlaceHolder, swingRenderer)) {</span>
+<span class="fc" id="L2035">			subForm.visibilityEventsDisabled = true;</span>
+		}
+		try {
+<span class="fc" id="L2038">			((GridBagLayout) fieldsPanel.getLayout()).setConstraints(fieldControlPlaceHolder,</span>
+<span class="fc" id="L2039">					fieldControlPlaceHolderLayoutConstraints);</span>
+<span class="fc" id="L2040">		} finally {</span>
+<span class="fc bfc" id="L2041" title="All 2 branches covered.">			for (Form subForm : SwingRendererUtils.findDescendantForms(fieldControlPlaceHolder, swingRenderer)) {</span>
+<span class="fc" id="L2042">				subForm.visibilityEventsDisabled = false;</span>
+			}
+		}
+
+<span class="fc" id="L2046">		Component onlineHelpControl = fieldControlPlaceHolder.getSiblingOnlineHelpControl();</span>
+<span class="fc bfc" id="L2047" title="All 2 branches covered.">		if (onlineHelpControl != null) {</span>
+<span class="fc" id="L2048">			fieldsPanel.remove(onlineHelpControl);</span>
+<span class="fc" id="L2049">			fieldControlPlaceHolder.setSiblingOnlineHelpControl(null);</span>
+		}
+<span class="fc" id="L2051">		onlineHelpControl = createFieldOnlineHelpControl(fieldControlPlaceHolder);</span>
+<span class="fc bfc" id="L2052" title="All 2 branches covered.">		if (onlineHelpControl != null) {</span>
+<span class="fc" id="L2053">			onlineHelpControl.setVisible(fieldControlPlaceHolder.isVisible());</span>
+<span class="fc" id="L2054">			fieldControlPlaceHolder.setSiblingOnlineHelpControl(onlineHelpControl);</span>
+<span class="fc" id="L2055">			GridBagConstraints layoutConstraints = new GridBagConstraints();</span>
+<span class="fc" id="L2056">			layoutConstraints.insets = new Insets(spacing, spacing, spacing, spacing);</span>
+<span class="pc bpc" id="L2057" title="1 of 2 branches missed.">			if (fieldsOrientation == ITypeInfo.FieldsLayout.VERTICAL_FLOW) {</span>
+<span class="fc" id="L2058">				layoutConstraints.gridx = 2;</span>
+<span class="fc" id="L2059">				layoutConstraints.gridy = fieldControlPlaceHolder.getPositionInContainer();</span>
+<span class="pc bnc" id="L2060" title="All 2 branches missed.">			} else if (fieldsOrientation == ITypeInfo.FieldsLayout.HORIZONTAL_FLOW) {</span>
+<span class="nc" id="L2061">				layoutConstraints.gridy = 2;</span>
+<span class="nc" id="L2062">				layoutConstraints.gridx = fieldControlPlaceHolder.getPositionInContainer();</span>
+<span class="nc" id="L2063">			} else {</span>
+<span class="nc" id="L2064">				throw new ReflectionUIError();</span>
+			}
+<span class="fc" id="L2066">			fieldsPanel.add(onlineHelpControl, layoutConstraints);</span>
+		}
+
+<span class="fc" id="L2069">		SwingRendererUtils.handleComponentSizeChange(fieldsPanel);</span>
+
+<span class="fc" id="L2071">		fieldControlPlaceHolder.setLayoutInContainerUpdateNeeded(false);</span>
+
+<span class="fc" id="L2073">	}</span>
+
+	protected void updateMethodControlLayoutInContainer(MethodControlPlaceHolder methodControlPlaceHolder) {
+<span class="fc" id="L2076">		boolean layoutUpdated = false;</span>
+<span class="fc" id="L2077">		JPanel methodsPanel = (JPanel) methodControlPlaceHolder.getParent();</span>
+<span class="fc" id="L2078">		GridLayout newLayout = (GridLayout) getMethodsPanelLayout();</span>
+<span class="fc" id="L2079">		GridLayout oldLayout = (GridLayout) methodsPanel.getLayout();</span>
+<span class="pc bpc" id="L2080" title="2 of 4 branches missed.">		if (!((oldLayout.getRows() == newLayout.getRows()) &amp;&amp; (oldLayout.getColumns() == newLayout.getColumns())</span>
+<span class="pc bpc" id="L2081" title="2 of 4 branches missed.">				&amp;&amp; (oldLayout.getHgap() == newLayout.getHgap()) &amp;&amp; (oldLayout.getVgap() == newLayout.getVgap()))) {</span>
+<span class="nc" id="L2082">			methodsPanel.setLayout(newLayout);</span>
+<span class="nc" id="L2083">			layoutUpdated = true;</span>
+		}
+<span class="fc" id="L2085">		EmptyBorder newBorder = (EmptyBorder) getMethodsPanelBorder();</span>
+<span class="fc" id="L2086">		EmptyBorder oldBorder = (EmptyBorder) methodsPanel.getBorder();</span>
+<span class="pc bpc" id="L2087" title="1 of 2 branches missed.">		if (!oldBorder.getBorderInsets().equals(newBorder.getBorderInsets())) {</span>
+<span class="nc" id="L2088">			layoutUpdated = true;</span>
+<span class="nc" id="L2089">			methodsPanel.setBorder(newBorder);</span>
+		}
+<span class="pc bpc" id="L2091" title="1 of 2 branches missed.">		if (layoutUpdated) {</span>
+<span class="nc" id="L2092">			SwingRendererUtils.handleComponentSizeChange(methodsPanel);</span>
+		}
+<span class="fc" id="L2094">	}</span>
+
+	protected Component createFieldOnlineHelpControl(FieldControlPlaceHolder fieldControlPlaceHolder) {
+<span class="fc" id="L2097">		final IFieldControlData data = fieldControlPlaceHolder.getControlData();</span>
+<span class="fc" id="L2098">		final String onlineHelp = data.getOnlineHelp();</span>
+<span class="pc bpc" id="L2099" title="1 of 4 branches missed.">		if ((onlineHelp == null) || (onlineHelp.length() == 0)) {</span>
+<span class="fc" id="L2100">			return null;</span>
+		}
+<span class="fc" id="L2102">		final String title = ReflectionUIUtils.composeMessage(data.getCaption(), &quot;Help&quot;);</span>
+<span class="fc" id="L2103">		final JButton result = new AbstractControlButton() {</span>
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Image retrieveBackgroundImage() {
+<span class="pc bpc" id="L2109" title="1 of 2 branches missed.">				if (data.getButtonBackgroundImagePath() == null) {</span>
+<span class="fc" id="L2110">					return null;</span>
+				} else {
+<span class="nc" id="L2112">					return SwingRendererUtils.loadImageThroughCache(data.getButtonBackgroundImagePath(),</span>
+<span class="nc" id="L2113">							ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()), swingRenderer);</span>
+				}
+			}
+
+			@Override
+			public Font retrieveCustomFont() {
+<span class="pc bpc" id="L2119" title="1 of 2 branches missed.">				if (data.getButtonCustomFontResourcePath() == null) {</span>
+<span class="fc" id="L2120">					return null;</span>
+				} else {
+<span class="nc" id="L2122">					return SwingRendererUtils.loadFontThroughCache(data.getButtonCustomFontResourcePath(),</span>
+<span class="nc" id="L2123">							ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()), swingRenderer);</span>
+				}
+			}
+
+			@Override
+			public Color retrieveBackgroundColor() {
+<span class="pc bpc" id="L2129" title="1 of 2 branches missed.">				if (data.getButtonBackgroundColor() == null) {</span>
+<span class="fc" id="L2130">					return null;</span>
+				} else {
+<span class="nc" id="L2132">					return SwingRendererUtils.getColor(data.getButtonBackgroundColor());</span>
+				}
+			}
+
+			@Override
+			public Color retrieveForegroundColor() {
+<span class="pc bpc" id="L2138" title="1 of 2 branches missed.">				if (data.getButtonForegroundColor() == null) {</span>
+<span class="fc" id="L2139">					return null;</span>
+				} else {
+<span class="nc" id="L2141">					return SwingRendererUtils.getColor(data.getButtonForegroundColor());</span>
+				}
+			}
+
+			@Override
+			public Color retrieveBorderColor() {
+<span class="pc bpc" id="L2147" title="1 of 2 branches missed.">				if (data.getButtonBorderColor() == null) {</span>
+<span class="fc" id="L2148">					return null;</span>
+				} else {
+<span class="nc" id="L2150">					return SwingRendererUtils.getColor(data.getButtonBorderColor());</span>
+				}
+			}
+
+			@Override
+			public String retrieveText() {
+<span class="fc" id="L2156">				return &quot;&quot;;</span>
+			}
+
+			@Override
+			public String retrieveToolTipText() {
+<span class="fc" id="L2161">				return swingRenderer.prepareMessageToDisplay(onlineHelp);</span>
+			}
+
+			@Override
+			public Icon retrieveIcon() {
+<span class="fc" id="L2166">				return SwingRendererUtils.HELP_ICON;</span>
+			}
+
+		};
+<span class="fc" id="L2170">		result.setFocusable(false);</span>
+<span class="fc" id="L2171">		result.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L2174">				swingRenderer.openInformationDialog(result, onlineHelp, title);</span>
+<span class="nc" id="L2175">			}</span>
+		});
+<span class="fc" id="L2177">		result.setName(&quot;fieldOnlineHelpControl [field=&quot; + fieldControlPlaceHolder.getField().getName() + &quot;, parent=&quot;</span>
+<span class="fc" id="L2178">				+ this.getName() + &quot;]&quot;);</span>
+<span class="fc" id="L2179">		return result;</span>
+	}
+
+	protected Component createButtonBarOnlineHelpControl() {
+<span class="fc" id="L2183">		final ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L2184">		final ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc" id="L2185">		final String onlineHelp = type.getOnlineHelp();</span>
+<span class="pc bpc" id="L2186" title="3 of 4 branches missed.">		if ((onlineHelp == null) || (onlineHelp.length() == 0)) {</span>
+<span class="fc" id="L2187">			return null;</span>
+		}
+<span class="nc" id="L2189">		final String title = ReflectionUIUtils.composeMessage(swingRenderer.getObjectTitle(object), &quot;Help&quot;);</span>
+<span class="nc" id="L2190">		final JButton result = new AbstractControlButton() {</span>
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Image retrieveBackgroundImage() {
+<span class="nc bnc" id="L2196" title="All 2 branches missed.">				if (type.getFormButtonBackgroundImagePath() != null) {</span>
+<span class="nc" id="L2197">					return SwingRendererUtils.loadImageThroughCache(type.getFormButtonBackgroundImagePath(),</span>
+<span class="nc" id="L2198">							ReflectionUIUtils.getErrorLogListener(reflectionUI), swingRenderer);</span>
+				}
+<span class="nc bnc" id="L2200" title="All 2 branches missed.">				if (reflectionUI.getApplicationInfo().getMainButtonBackgroundImagePath() != null) {</span>
+<span class="nc" id="L2201">					return SwingRendererUtils.loadImageThroughCache(</span>
+<span class="nc" id="L2202">							reflectionUI.getApplicationInfo().getMainButtonBackgroundImagePath(),</span>
+<span class="nc" id="L2203">							ReflectionUIUtils.getErrorLogListener(reflectionUI), swingRenderer);</span>
+				}
+<span class="nc" id="L2205">				return null;</span>
+			}
+
+			@Override
+			public Font retrieveCustomFont() {
+<span class="nc bnc" id="L2210" title="All 2 branches missed.">				if (reflectionUI.getApplicationInfo().getButtonCustomFontResourcePath() == null) {</span>
+<span class="nc" id="L2211">					return null;</span>
+				} else {
+<span class="nc" id="L2213">					return SwingRendererUtils.loadFontThroughCache(</span>
+<span class="nc" id="L2214">							reflectionUI.getApplicationInfo().getButtonCustomFontResourcePath(),</span>
+<span class="nc" id="L2215">							ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()), swingRenderer);</span>
+				}
+			}
+
+			@Override
+			public Color retrieveBackgroundColor() {
+<span class="nc bnc" id="L2221" title="All 2 branches missed.">				if (type.getFormButtonBackgroundColor() != null) {</span>
+<span class="nc" id="L2222">					return SwingRendererUtils.getColor(type.getFormButtonBackgroundColor());</span>
+				}
+<span class="nc bnc" id="L2224" title="All 2 branches missed.">				if (reflectionUI.getApplicationInfo().getMainButtonBackgroundColor() != null) {</span>
+<span class="nc" id="L2225">					return SwingRendererUtils</span>
+<span class="nc" id="L2226">							.getColor(reflectionUI.getApplicationInfo().getMainButtonBackgroundColor());</span>
+				}
+<span class="nc" id="L2228">				return null;</span>
+			}
+
+			@Override
+			public Color retrieveForegroundColor() {
+<span class="nc bnc" id="L2233" title="All 2 branches missed.">				if (type.getFormButtonForegroundColor() != null) {</span>
+<span class="nc" id="L2234">					return SwingRendererUtils.getColor(type.getFormButtonForegroundColor());</span>
+				}
+<span class="nc bnc" id="L2236" title="All 2 branches missed.">				if (reflectionUI.getApplicationInfo().getMainButtonForegroundColor() != null) {</span>
+<span class="nc" id="L2237">					return SwingRendererUtils</span>
+<span class="nc" id="L2238">							.getColor(reflectionUI.getApplicationInfo().getMainButtonForegroundColor());</span>
+				}
+<span class="nc" id="L2240">				return null;</span>
+			}
+
+			@Override
+			public Color retrieveBorderColor() {
+<span class="nc bnc" id="L2245" title="All 2 branches missed.">				if (type.getFormButtonBorderColor() != null) {</span>
+<span class="nc" id="L2246">					return SwingRendererUtils.getColor(type.getFormButtonBorderColor());</span>
+				}
+<span class="nc bnc" id="L2248" title="All 2 branches missed.">				if (reflectionUI.getApplicationInfo().getMainButtonBorderColor() != null) {</span>
+<span class="nc" id="L2249">					return SwingRendererUtils.getColor(reflectionUI.getApplicationInfo().getMainButtonBorderColor());</span>
+				}
+<span class="nc" id="L2251">				return null;</span>
+			}
+
+			@Override
+			public String retrieveText() {
+<span class="nc" id="L2256">				return &quot;&quot;;</span>
+			}
+
+			@Override
+			public String retrieveToolTipText() {
+<span class="nc" id="L2261">				return swingRenderer.prepareMessageToDisplay(onlineHelp);</span>
+			}
+
+			@Override
+			public Icon retrieveIcon() {
+<span class="nc" id="L2266">				return SwingRendererUtils.HELP_ICON;</span>
+			}
+
+		};
+<span class="nc" id="L2270">		result.setFocusable(false);</span>
+<span class="nc" id="L2271">		result.addActionListener(new ActionListener() {</span>
+			@Override
+			public void actionPerformed(ActionEvent e) {
+<span class="nc" id="L2274">				swingRenderer.openInformationDialog(result, onlineHelp, title);</span>
+<span class="nc" id="L2275">			}</span>
+		});
+<span class="nc" id="L2277">		result.setName(&quot;buttonBarOnlineHelpControl [parent=&quot; + this.getName() + &quot;]&quot;);</span>
+<span class="nc" id="L2278">		return result;</span>
+	}
+
+	protected Component createSeparateFieldCaptionControl(FieldControlPlaceHolder fieldControlPlaceHolder) {
+<span class="fc" id="L2282">		IFieldControlData data = fieldControlPlaceHolder.getControlData();</span>
+<span class="fc" id="L2283">		JLabel result = new JLabel(swingRenderer.prepareMessageToDisplay(data.getCaption() + &quot;: &quot;));</span>
+<span class="fc bfc" id="L2284" title="All 2 branches covered.">		if (data.getLabelForegroundColor() != null) {</span>
+<span class="fc" id="L2285">			result.setForeground(SwingRendererUtils.getColor(data.getLabelForegroundColor()));</span>
+		}
+<span class="pc bpc" id="L2287" title="1 of 2 branches missed.">		if (data.getLabelCustomFontResourcePath() != null) {</span>
+<span class="nc" id="L2288">			result.setFont(SwingRendererUtils</span>
+<span class="nc" id="L2289">					.loadFontThroughCache(data.getLabelCustomFontResourcePath(),</span>
+<span class="nc" id="L2290">							ReflectionUIUtils.getErrorLogListener(swingRenderer.getReflectionUI()), swingRenderer)</span>
+<span class="nc" id="L2291">					.deriveFont(result.getFont().getStyle(), result.getFont().getSize()));</span>
+		}
+<span class="fc" id="L2293">		result.setName(&quot;captionControl [field=&quot; + fieldControlPlaceHolder.getField().getName() + &quot;, parent=&quot;</span>
+<span class="fc" id="L2294">				+ this.getName() + &quot;]&quot;);</span>
+<span class="fc" id="L2295">		return result;</span>
+	}
+
+	protected int getLayoutSpacing() {
+<span class="fc" id="L2299">		return filteredObjectType.getFormSpacing();</span>
+	}
+
+	/**
+	 * @return the buttons that should be laid on the containing window button bar
+	 *         when this form is the root one.
+	 */
+	public List&lt;Component&gt; createButtonBarControls() {
+<span class="pc bpc" id="L2307" title="1 of 2 branches missed.">		if (object == null) {</span>
+<span class="nc" id="L2308">			return null;</span>
+		}
+<span class="fc" id="L2310">		List&lt;Component&gt; result = new ArrayList&lt;Component&gt;();</span>
+<span class="fc" id="L2311">		Component onlineHelpControl = createButtonBarOnlineHelpControl();</span>
+<span class="pc bpc" id="L2312" title="1 of 2 branches missed.">		if (onlineHelpControl != null) {</span>
+<span class="nc" id="L2313">			result.add(onlineHelpControl);</span>
+		}
+<span class="fc" id="L2315">		ReflectionUI reflectionUI = swingRenderer.getReflectionUI();</span>
+<span class="fc" id="L2316">		ITypeInfo type = reflectionUI.getTypeInfo(reflectionUI.getTypeInfoSource(object));</span>
+<span class="fc bfc" id="L2317" title="All 2 branches covered.">		if (type.isModificationStackAccessible()) {</span>
+<span class="fc" id="L2318">			result.addAll(new ModificationStackControls(this).create(swingRenderer));</span>
+		}
+<span class="fc" id="L2320">		return result;</span>
+	}
+
+	/**
+	 * @return the modifiable list of listeners that will get the form events
+	 *         notifications.
+	 */
+	public List&lt;IFormListener&gt; getListeners() {
+<span class="fc" id="L2328">		return listeners;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L2333">		return &quot;Form [id=&quot; + hashCode() + &quot;, object=&quot; + object + &quot;]&quot;;</span>
+	}
+
+	/**
+	 * Listener class allowing to get notifications on some form events.
+	 * 
+	 * @author olitank
+	 *
+	 */
+	public interface IFormListener {
+
+		/**
+		 * Called when the source form is refreshed.
+		 * 
+		 * @param refreshStructure The value of the parameter that was passed to
+		 *                         {@link Form#refresh(boolean)}.
+		 */
+		void onRefresh(boolean refreshStructure);
+
+		/**
+		 * Called after the source form is validated.
+		 * 
+		 * @param validationError The validation error or null if the form is valid.
+		 */
+		void afterValidation(Exception validationError);
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

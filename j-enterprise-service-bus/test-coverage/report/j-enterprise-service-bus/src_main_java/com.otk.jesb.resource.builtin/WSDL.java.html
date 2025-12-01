@@ -1,0 +1,599 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>WSDL.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.resource.builtin</a> &gt; <span class="el_source">WSDL.java</span></div><h1>WSDL.java</h1><pre class="source lang-java linenums">package com.otk.jesb.resource.builtin;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.StandardError;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.InstanceBuilder;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.resource.Resource;
+import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.CodeBuilder;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+import com.sun.tools.ws.processor.ProcessorException;
+import com.sun.tools.ws.wscompile.WsimportTool;
+
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+public class WSDL extends XMLBasedDocumentResource {
+
+<span class="fc" id="L41">	public WSDL() {</span>
+<span class="fc" id="L42">	}</span>
+
+	public WSDL(String name) {
+<span class="nc" id="L45">		super(name);</span>
+<span class="nc" id="L46">	}</span>
+
+	@Override
+	protected void runClassesGenerationTool(File mainFile, File metaSchemaFile, File outputDirectory) {
+<span class="fc" id="L50">		String[] wsImportArguments = new String[] { &quot;-s&quot;, outputDirectory.getPath(), &quot;-p&quot;,</span>
+<span class="fc" id="L51">				InstantiationUtils.toRelativeTypeNameVariablePart(</span>
+<span class="fc" id="L52">						WSDL.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(WSDL.this)),</span>
+<span class="fc" id="L53">				&quot;-keep&quot;, &quot;-Xnocompile&quot;, &quot;-b&quot;, metaSchemaFile.toURI().toString(), &quot;-verbose&quot;, mainFile.getPath() };</span>
+<span class="fc" id="L54">		System.setProperty(&quot;javax.xml.accessExternalSchema&quot;, &quot;all&quot;);</span>
+<span class="fc" id="L55">		System.setProperty(&quot;javax.xml.accessExternalDTD&quot;, &quot;all&quot;);</span>
+<span class="fc" id="L56">		ByteArrayOutputStream logsBuffer = new ByteArrayOutputStream();</span>
+		boolean importStatus;
+		Throwable importException;
+		try {
+<span class="fc" id="L60">			importStatus = new WsimportTool(logsBuffer).run(wsImportArguments);</span>
+<span class="fc" id="L61">			importException = null;</span>
+<span class="pc" id="L62">		} catch (Throwable t) {</span>
+<span class="nc" id="L63">			importStatus = false;</span>
+<span class="nc" id="L64">			importException = t;</span>
+		}
+<span class="pc bpc" id="L66" title="2 of 4 branches missed.">		if (!importStatus || (importException != null)) {</span>
+<span class="nc" id="L67">			throw new ProcessorException(&quot;Failed to generate WSDL classes&quot;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">					+ ((logsBuffer.size() &gt; 0) ? (&quot;:\n&quot; + logsBuffer.toString()) : &quot;&quot;), importException);</span>
+		}
+<span class="fc" id="L70">	}</span>
+
+	public List&lt;WSDL.ServiceClientDescriptor&gt; getServiceClientDescriptors() {
+		try {
+<span class="fc" id="L74">			return upToDateGeneratedClasses.get().stream().filter(c -&gt; javax.xml.ws.Service.class.isAssignableFrom(c))</span>
+<span class="fc" id="L75">					.map(c -&gt; new ServiceClientDescriptor(c, this)).collect(Collectors.toList());</span>
+<span class="nc" id="L76">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L77">			throw new PotentialError(e);</span>
+		}
+	}
+
+	public List&lt;WSDL.ServiceSpecificationDescriptor&gt; getServiceSpecificationDescriptors() {
+		try {
+<span class="fc" id="L83">			return upToDateGeneratedClasses.get().stream()</span>
+<span class="fc bfc" id="L84" title="All 4 branches covered.">					.filter(c -&gt; c.isInterface() &amp;&amp; c.getAnnotation(javax.jws.WebService.class) != null)</span>
+<span class="fc" id="L85">					.map(c -&gt; new ServiceSpecificationDescriptor(c, this)).collect(Collectors.toList());</span>
+<span class="nc" id="L86">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L87">			throw new PotentialError(e);</span>
+		}
+	}
+
+	public WSDL.ServiceClientDescriptor getServiceClientDescriptor(String serviceName) {
+<span class="fc" id="L92">		return getServiceClientDescriptors().stream().filter(s -&gt; s.getServiceName().equals(serviceName)).findFirst()</span>
+<span class="fc" id="L93">				.orElse(null);</span>
+	}
+
+	public WSDL.ServiceSpecificationDescriptor getServiceSpecificationDescriptor(String serviceName) {
+<span class="fc" id="L97">		return getServiceSpecificationDescriptors().stream().filter(s -&gt; s.getServiceName().equals(serviceName))</span>
+<span class="fc" id="L98">				.findFirst().orElse(null);</span>
+	}
+
+	public Exception faultDescriptionToException(String faultDescription, Method operationMethod) {
+<span class="fc" id="L102">		String dynamicTypeNamePart = InstantiationUtils</span>
+<span class="fc" id="L103">				.extractDynamicTypeNameVariablePart(operationMethod.getDeclaringClass().getName());</span>
+<span class="fc" id="L104">		faultDescription = InstantiationUtils.makeTypeNamesAbsolute(faultDescription, dynamicTypeNamePart);</span>
+<span class="fc" id="L105">		return (Exception) MiscUtils.deserialize(faultDescription);</span>
+	}
+
+	public String faultExceptionToDescription(Exception faultException, Method operationMethod) {
+<span class="fc" id="L109">		String result = MiscUtils.serialize(faultException).replace(</span>
+<span class="fc" id="L110">				&quot;\n&quot; + &quot;  &lt;cause class=\&quot;&quot; + faultException.getClass().getName() + &quot;\&quot; reference=\&quot;..\&quot;/&gt;&quot;, &quot;&quot;);</span>
+<span class="fc" id="L111">		String dynamicTypeNamePart = InstantiationUtils</span>
+<span class="fc" id="L112">				.extractDynamicTypeNameVariablePart(operationMethod.getDeclaringClass().getName());</span>
+<span class="fc" id="L113">		result = InstantiationUtils.makeTypeNamesRelative(result, dynamicTypeNamePart);</span>
+<span class="fc" id="L114">		return result;</span>
+	}
+
+	public String getFaultDescriptionTemplate(Class&lt;?&gt; faultExceptionClass, Method operationMethod) {
+		Exception sampleFaultException;
+		try {
+<span class="nc" id="L120">			InstanceBuilder exceptionBuilder = new InstanceBuilder(Accessor.returning(faultExceptionClass.getName()));</span>
+<span class="nc" id="L121">			InstantiationUtils.makeConcreteRecursively(Facade.get(exceptionBuilder, null), 3);</span>
+<span class="nc" id="L122">			sampleFaultException = (Exception) exceptionBuilder</span>
+<span class="nc" id="L123">					.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));</span>
+<span class="nc" id="L124">		} catch (Exception e) {</span>
+<span class="nc" id="L125">			throw new UnexpectedError(e);</span>
+		}
+<span class="nc" id="L127">		return faultExceptionToDescription(sampleFaultException, operationMethod);</span>
+	}
+
+	public static class OperationDescriptor {
+		/*
+		 * Cannot have simple inputClassByMethod/outputClassByMethod WeakHashMaps
+		 * because the method object reference is not stable, unlike the method
+		 * declaring class object reference that is then used as the WeakHashMap key.
+		 */
+<span class="fc" id="L136">		private static WeakHashMap&lt;Class&lt;?&gt;, Map&lt;Method, Class&lt;? extends OperationInput&gt;&gt;&gt; inputClassByMethodByDeclaringClass = new WeakHashMap&lt;Class&lt;?&gt;, Map&lt;Method, Class&lt;? extends OperationInput&gt;&gt;&gt;();</span>
+<span class="fc" id="L137">		private static WeakHashMap&lt;Class&lt;?&gt;, Map&lt;Method, Class&lt;?&gt;&gt;&gt; outputClassByMethodByDeclaringClass = new WeakHashMap&lt;Class&lt;?&gt;, Map&lt;Method, Class&lt;?&gt;&gt;&gt;();</span>
+
+		private Method operationMethod;
+		private WSDL wsdl;
+
+<span class="fc" id="L142">		public OperationDescriptor(Method m, WSDL wsdl) {</span>
+<span class="fc" id="L143">			this.operationMethod = m;</span>
+<span class="fc" id="L144">			this.wsdl = wsdl;</span>
+<span class="fc" id="L145">		}</span>
+
+		public String getOperationSignature() {
+<span class="fc" id="L148">			String result = ReflectionUIUtils.buildMethodSignature(operationMethod);</span>
+<span class="fc" id="L149">			result = InstantiationUtils.makeTypeNamesRelative(result, Arrays</span>
+<span class="fc" id="L150">					.asList(new InstanceBuilder(Accessor.returning(operationMethod.getDeclaringClass().getName()))));</span>
+<span class="fc" id="L151">			return result;</span>
+		}
+
+		public Method retrieveMethod() {
+<span class="fc" id="L155">			return operationMethod;</span>
+		}
+
+		public List&lt;ResponseException&gt; getSampleResponseExceptions() {
+<span class="nc" id="L159">			return Arrays.stream(operationMethod.getExceptionTypes())</span>
+<span class="nc" id="L160">					.map(type -&gt; new ResponseException(wsdl.getFaultDescriptionTemplate(type, operationMethod)))</span>
+<span class="nc" id="L161">					.collect(Collectors.toList());</span>
+		}
+
+		public String getResponseExceptionClassName() {
+<span class="nc" id="L165">			return ResponseException.class.getName();</span>
+		}
+
+		@SuppressWarnings(&quot;unchecked&quot;)
+		public Class&lt;? extends OperationInput&gt; getOperationInputClass() {
+<span class="fc" id="L170">			synchronized (inputClassByMethodByDeclaringClass) {</span>
+<span class="fc" id="L171">				inputClassByMethodByDeclaringClass.computeIfAbsent(operationMethod.getDeclaringClass(),</span>
+<span class="fc" id="L172">						(declaringClass -&gt; new HashMap&lt;Method, Class&lt;? extends OperationInput&gt;&gt;()));</span>
+<span class="fc" id="L173">				inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())</span>
+<span class="fc" id="L174">						.computeIfAbsent(operationMethod, operationMethod -&gt; {</span>
+<span class="fc" id="L175">							String className = operationMethod.getDeclaringClass().getName() + &quot;_&quot;</span>
+<span class="fc" id="L176">									+ operationMethod.getName() + &quot;.&quot; + OperationInput.class.getSimpleName();</span>
+<span class="fc" id="L177">							String additionalyImplemented = MiscUtils</span>
+<span class="fc" id="L178">									.adaptClassNameToSourceCode(OperationInput.class.getName());</span>
+<span class="fc" id="L179">							ClassicStructure stucture = new ClassicStructure();</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">							for (Parameter parameter : operationMethod.getParameters()) {</span>
+<span class="fc" id="L181">								SimpleElement element = new SimpleElement();</span>
+<span class="fc" id="L182">								element.setName(parameter.getName());</span>
+<span class="fc" id="L183">								element.setTypeNameOrAlias(parameter.getType().getName());</span>
+<span class="fc" id="L184">								stucture.getElements().add(element);</span>
+							}
+<span class="fc" id="L186">							CodeBuilder additionalMethodDeclarations = new CodeBuilder();</span>
+<span class="fc" id="L187">							additionalMethodDeclarations.append(&quot;@Override&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L188">							additionalMethodDeclarations.append(&quot;public Object[] listParameterValues() {&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L189">							additionalMethodDeclarations</span>
+<span class="fc" id="L190">									.appendIndented(&quot;return new Object[] {&quot;</span>
+<span class="fc" id="L191">											+ MiscUtils.stringJoin(Arrays.asList(operationMethod.getParameters())</span>
+<span class="fc" id="L192">													.stream().map(p -&gt; p.getName()).collect(Collectors.toList()), &quot;, &quot;)</span>
+<span class="fc" id="L193">											+ &quot;};&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L194">							additionalMethodDeclarations.append(&quot;}&quot; + &quot;\n&quot;);</span>
+							try {
+<span class="fc" id="L196">								return (Class&lt;? extends OperationInput&gt;) MiscUtils.IN_MEMORY_COMPILER.compile(className,</span>
+<span class="fc" id="L197">										stucture.generateJavaTypeSourceCode(className, additionalyImplemented, null,</span>
+<span class="fc" id="L198">												null, null, additionalMethodDeclarations.toString(),</span>
+<span class="fc" id="L199">												Collections.emptyMap()));</span>
+<span class="nc" id="L200">							} catch (CompilationError e) {</span>
+<span class="nc" id="L201">								throw new PotentialError(e);</span>
+							}
+						});
+<span class="fc" id="L204">				return inputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass()).get(operationMethod);</span>
+			}
+		}
+
+		@SuppressWarnings(&quot;unchecked&quot;)
+		public Class&lt;?&gt; getOperationOutputClass() {
+<span class="fc" id="L210">			synchronized (outputClassByMethodByDeclaringClass) {</span>
+<span class="fc" id="L211">				outputClassByMethodByDeclaringClass.computeIfAbsent(operationMethod.getDeclaringClass(),</span>
+<span class="fc" id="L212">						(declaringClass -&gt; new HashMap&lt;Method, Class&lt;?&gt;&gt;()));</span>
+<span class="fc" id="L213">				outputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())</span>
+<span class="fc" id="L214">						.computeIfAbsent(operationMethod, operationMethod -&gt; {</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">							if (operationMethod.getReturnType() == void.class) {</span>
+<span class="nc" id="L216">								return null;</span>
+							}
+<span class="fc" id="L218">							String className = operationMethod.getDeclaringClass().getName() + &quot;_&quot;</span>
+<span class="fc" id="L219">									+ operationMethod.getName() + &quot;.OperationOutput&quot;;</span>
+<span class="fc" id="L220">							ClassicStructure stucture = new ClassicStructure();</span>
+							{
+<span class="fc" id="L222">								SimpleElement resultElement = new SimpleElement();</span>
+<span class="fc" id="L223">								resultElement.setName(&quot;result&quot;);</span>
+<span class="fc" id="L224">								resultElement.setTypeNameOrAlias(operationMethod.getReturnType().getName());</span>
+<span class="fc" id="L225">								stucture.getElements().add(resultElement);</span>
+							}
+							try {
+<span class="fc" id="L228">								return (Class&lt;? extends OperationInput&gt;) MiscUtils.IN_MEMORY_COMPILER.compile(className,</span>
+<span class="fc" id="L229">										stucture.generateJavaTypeSourceCode(className));</span>
+<span class="nc" id="L230">							} catch (CompilationError e) {</span>
+<span class="nc" id="L231">								throw new PotentialError(e);</span>
+							}
+						});
+<span class="fc" id="L234">				return outputClassByMethodByDeclaringClass.get(operationMethod.getDeclaringClass())</span>
+<span class="fc" id="L235">						.get(operationMethod);</span>
+			}
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L241">			final int prime = 31;</span>
+<span class="fc" id="L242">			int result = 1;</span>
+<span class="pc bpc" id="L243" title="1 of 2 branches missed.">			result = prime * result + ((operationMethod == null) ? 0 : operationMethod.hashCode());</span>
+<span class="fc" id="L244">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L250">				return true;</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L252">				return false;</span>
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L254">				return false;</span>
+<span class="fc" id="L255">			OperationDescriptor other = (OperationDescriptor) obj;</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">			if (operationMethod == null) {</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">				if (other.operationMethod != null)</span>
+<span class="nc" id="L258">					return false;</span>
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">			} else if (!operationMethod.equals(other.operationMethod))</span>
+<span class="nc" id="L260">				return false;</span>
+<span class="fc" id="L261">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L266">			return &quot;Operation [signature=&quot; + getOperationSignature() + &quot;]&quot;;</span>
+		}
+
+		public interface OperationInput {
+
+			Object[] listParameterValues();
+
+		}
+	}
+
+	public static class PortDescriptor {
+
+		private Class&lt;?&gt; portInterface;
+		private WSDL wsdl;
+
+<span class="fc" id="L281">		public PortDescriptor(Class&lt;?&gt; c, WSDL wsdl) {</span>
+<span class="fc" id="L282">			this.portInterface = c;</span>
+<span class="fc" id="L283">			this.wsdl = wsdl;</span>
+<span class="fc" id="L284">		}</span>
+
+		public String getPortName() {
+<span class="fc" id="L287">			return portInterface.getSimpleName();</span>
+		}
+
+		public List&lt;WSDL.OperationDescriptor&gt; getOperationDescriptors() {
+<span class="fc" id="L291">			return Arrays.asList(portInterface.getDeclaredMethods()).stream().map(m -&gt; new OperationDescriptor(m, wsdl))</span>
+<span class="fc" id="L292">					.collect(Collectors.toList());</span>
+		}
+
+		public Class&lt;?&gt; retrieveInterface() {
+<span class="fc" id="L296">			return portInterface;</span>
+		}
+
+		public WSDL.OperationDescriptor getOperationDescriptor(String operationSignature) {
+<span class="fc" id="L300">			return getOperationDescriptors().stream().filter(o -&gt; o.getOperationSignature().equals(operationSignature))</span>
+<span class="fc" id="L301">					.findFirst().orElse(null);</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L306">			final int prime = 31;</span>
+<span class="nc" id="L307">			int result = 1;</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">			result = prime * result + ((portInterface == null) ? 0 : portInterface.hashCode());</span>
+<span class="nc" id="L309">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L314" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L315">				return true;</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L317">				return false;</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L319">				return false;</span>
+<span class="nc" id="L320">			PortDescriptor other = (PortDescriptor) obj;</span>
+<span class="nc bnc" id="L321" title="All 2 branches missed.">			if (portInterface == null) {</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">				if (other.portInterface != null)</span>
+<span class="nc" id="L323">					return false;</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">			} else if (!portInterface.equals(other.portInterface))</span>
+<span class="nc" id="L325">				return false;</span>
+<span class="nc" id="L326">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L331">			return &quot;Port [name=&quot; + getPortName() + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public static class ServiceClientDescriptor {
+
+		private Class&lt;?&gt; serviceClass;
+		private WSDL wsdl;
+
+<span class="fc" id="L341">		public ServiceClientDescriptor(Class&lt;?&gt; c, WSDL wsdl) {</span>
+<span class="fc" id="L342">			this.serviceClass = c;</span>
+<span class="fc" id="L343">			this.wsdl = wsdl;</span>
+<span class="fc" id="L344">		}</span>
+
+		public String getServiceName() {
+<span class="fc" id="L347">			return serviceClass.getSimpleName();</span>
+		}
+
+		public List&lt;PortDescriptor&gt; getPortDescriptors() {
+<span class="fc" id="L351">			return Arrays.asList(serviceClass.getDeclaredMethods()).stream()</span>
+<span class="pc bpc" id="L352" title="1 of 4 branches missed.">					.filter(m -&gt; Modifier.isPublic(m.getModifiers()) &amp;&amp; m.getName().startsWith(&quot;get&quot;)</span>
+<span class="fc bfc" id="L353" title="All 2 branches covered.">							&amp;&amp; (m.getParameterCount() == 0))</span>
+<span class="fc" id="L354">					.map(m -&gt; new PortDescriptor(m.getReturnType(), wsdl)).collect(Collectors.toList());</span>
+		}
+
+		public Class&lt;?&gt; retrieveClass() {
+<span class="fc" id="L358">			return serviceClass;</span>
+		}
+
+		public WSDL.PortDescriptor getPortDescriptor(String portName) {
+<span class="fc" id="L362">			return getPortDescriptors().stream().filter(p -&gt; p.getPortName().equals(portName)).findFirst().orElse(null);</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L367">			final int prime = 31;</span>
+<span class="nc" id="L368">			int result = 1;</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">			result = prime * result + ((serviceClass == null) ? 0 : serviceClass.hashCode());</span>
+<span class="nc" id="L370">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L375" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L376">				return true;</span>
+<span class="nc bnc" id="L377" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L378">				return false;</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L380">				return false;</span>
+<span class="nc" id="L381">			ServiceClientDescriptor other = (ServiceClientDescriptor) obj;</span>
+<span class="nc bnc" id="L382" title="All 2 branches missed.">			if (serviceClass == null) {</span>
+<span class="nc bnc" id="L383" title="All 2 branches missed.">				if (other.serviceClass != null)</span>
+<span class="nc" id="L384">					return false;</span>
+<span class="nc bnc" id="L385" title="All 2 branches missed.">			} else if (!serviceClass.equals(other.serviceClass))</span>
+<span class="nc" id="L386">				return false;</span>
+<span class="nc" id="L387">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L392">			return &quot;ServiceClient [serviceName=&quot; + getServiceName() + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public static class ServiceSpecificationDescriptor {
+
+<span class="fc" id="L399">		private static WeakHashMap&lt;Class&lt;?&gt;, Class&lt;?&gt;&gt; implementationClassByInterface = new WeakHashMap&lt;Class&lt;?&gt;, Class&lt;?&gt;&gt;();</span>
+
+		private Class&lt;?&gt; serviceInterface;
+		private WSDL wsdl;
+
+<span class="fc" id="L404">		public ServiceSpecificationDescriptor(Class&lt;?&gt; c, WSDL wsdl) {</span>
+<span class="fc" id="L405">			this.serviceInterface = c;</span>
+<span class="fc" id="L406">			this.wsdl = wsdl;</span>
+<span class="fc" id="L407">		}</span>
+
+		public String getServiceName() {
+<span class="fc" id="L410">			javax.jws.WebService annotation = serviceInterface.getAnnotation(javax.jws.WebService.class);</span>
+<span class="pc bpc" id="L411" title="1 of 2 branches missed.">			if (annotation.name() != null) {</span>
+<span class="fc" id="L412">				return annotation.name();</span>
+			} else {
+<span class="nc" id="L414">				return serviceInterface.getSimpleName();</span>
+			}
+		}
+
+		public Class&lt;?&gt; retrieveInterface() {
+<span class="nc" id="L419">			return serviceInterface;</span>
+		}
+
+		public List&lt;WSDL.OperationDescriptor&gt; getOperationDescriptors() {
+<span class="fc" id="L423">			return Arrays.asList(serviceInterface.getDeclaredMethods()).stream()</span>
+<span class="fc" id="L424">					.map(m -&gt; new OperationDescriptor(m, wsdl)).collect(Collectors.toList());</span>
+		}
+
+		public WSDL.OperationDescriptor getOperationDescriptor(String operationSignature) {
+<span class="fc" id="L428">			return getOperationDescriptors().stream().filter(o -&gt; o.getOperationSignature().equals(operationSignature))</span>
+<span class="fc" id="L429">					.findFirst().orElse(null);</span>
+		}
+
+		public Class&lt;?&gt; getImplementationClass() {
+<span class="fc" id="L433">			synchronized (implementationClassByInterface) {</span>
+<span class="fc" id="L434">				implementationClassByInterface.computeIfAbsent(serviceInterface, serviceInterface -&gt; {</span>
+<span class="fc" id="L435">					String className = serviceInterface.getName() + &quot;Impl&quot;;</span>
+<span class="fc" id="L436">					CodeBuilder javaSource = new CodeBuilder();</span>
+<span class="fc" id="L437">					javaSource.append(&quot;package &quot; + MiscUtils.extractPackageNameFromClassName(className) + &quot;;&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L438">					javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L439">					javaSource.append(</span>
+<span class="fc" id="L440">							&quot;public class &quot; + MiscUtils.extractSimpleNameFromClassName(className) + &quot; implements &quot;</span>
+<span class="fc" id="L441">									+ MiscUtils.adaptClassNameToSourceCode(serviceInterface.getName()) + &quot;{&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L442">					javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L443">					javaSource.indenting(() -&gt; {</span>
+<span class="fc" id="L444">						javaSource.append(&quot;private &quot; + InvocationHandler.class.getName() + &quot; invocationHandler;\n&quot;);</span>
+<span class="fc" id="L445">						javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L446">						javaSource.append(&quot;public &quot; + MiscUtils.extractSimpleNameFromClassName(className) + &quot;(&quot;</span>
+<span class="fc" id="L447">								+ InvocationHandler.class.getName() + &quot; invocationHandler){&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L448">						javaSource.appendIndented(&quot;this.invocationHandler = invocationHandler;\n&quot;);</span>
+<span class="fc" id="L449">						javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+<span class="fc bfc" id="L450" title="All 2 branches covered.">						for (Method method : serviceInterface.getMethods()) {</span>
+<span class="pc bpc" id="L451" title="1 of 2 branches missed.">							if (!Modifier.isAbstract(method.getModifiers())) {</span>
+<span class="nc" id="L452">								continue;</span>
+							}
+<span class="fc" id="L454">							javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L455">							javaSource.append(&quot;@Override\n&quot;);</span>
+<span class="fc" id="L456">							String parameterDeclarations = Arrays.stream(method.getParameters())</span>
+<span class="fc" id="L457">									.map(parameter -&gt; MiscUtils.adaptClassNameToSourceCode(</span>
+<span class="fc" id="L458">											parameter.getType().getName()) + &quot; &quot; + parameter.getName())</span>
+<span class="fc" id="L459">									.collect(Collectors.joining(&quot;, &quot;));</span>
+<span class="fc bfc" id="L460" title="All 2 branches covered.">							String exceptionDeclarations = ((method.getExceptionTypes().length &gt; 0)</span>
+<span class="fc" id="L461">									? (&quot; throws &quot; + Arrays.stream(method.getExceptionTypes())</span>
+<span class="fc" id="L462">											.map(type -&gt; MiscUtils.adaptClassNameToSourceCode(type.getName()))</span>
+<span class="fc" id="L463">											.collect(Collectors.joining(&quot;, &quot;)))</span>
+<span class="fc" id="L464">									: &quot;&quot;);</span>
+<span class="fc" id="L465">							javaSource.append(</span>
+<span class="fc" id="L466">									&quot;public &quot; + MiscUtils.adaptClassNameToSourceCode(method.getReturnType().getName())</span>
+<span class="fc" id="L467">											+ &quot; &quot; + method.getName() + &quot;(&quot; + parameterDeclarations + &quot;) &quot;</span>
+<span class="fc" id="L468">											+ exceptionDeclarations + &quot;{&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L469">							javaSource.indenting(() -&gt; {</span>
+<span class="fc" id="L470">								String methodReflectionAccessInstruction = MiscUtils</span>
+<span class="fc" id="L471">										.adaptClassNameToSourceCode(serviceInterface.getName()) + &quot;.class.getMethod(\&quot;&quot;</span>
+<span class="fc" id="L472">										+ method.getName() + &quot;\&quot;, new Class[]{&quot;</span>
+<span class="fc" id="L473">										+ Arrays.stream(method.getParameters())</span>
+<span class="fc" id="L474">												.map(parameter -&gt; MiscUtils.adaptClassNameToSourceCode(</span>
+<span class="fc" id="L475">														parameter.getType().getName()) + &quot;.class&quot;)</span>
+<span class="fc" id="L476">												.collect(Collectors.joining(&quot;, &quot;))</span>
+<span class="fc" id="L477">										+ &quot;})&quot;;</span>
+<span class="fc" id="L478">								String methodArgumentArrayCreationInstruction = &quot;new Object[]{&quot;</span>
+<span class="fc" id="L479">										+ Arrays.stream(method.getParameters()).map(parameter -&gt; parameter.getName())</span>
+<span class="fc" id="L480">												.collect(Collectors.joining(&quot;, &quot;))</span>
+<span class="fc" id="L481">										+ &quot;}&quot;;</span>
+<span class="fc" id="L482">								javaSource.append(&quot;try {\n&quot;);</span>
+<span class="fc" id="L483">								javaSource</span>
+<span class="pc bpc" id="L484" title="1 of 2 branches missed.">										.appendIndented((method.getReturnType().equals(void.class) ? &quot;&quot;</span>
+<span class="fc" id="L485">												: (&quot;return (&quot; + MiscUtils.adaptClassNameToSourceCode(</span>
+<span class="fc" id="L486">														method.getReturnType().getName()) + &quot;)&quot;))</span>
+<span class="fc" id="L487">												+ &quot;invocationHandler.invoke(this, &quot; + methodReflectionAccessInstruction</span>
+<span class="fc" id="L488">												+ &quot;, &quot; + methodArgumentArrayCreationInstruction + &quot;);&quot; + &quot;\n&quot;);</span>
+<span class="fc" id="L489">								javaSource.append(&quot;} catch (Throwable t) {\n&quot;);</span>
+<span class="fc" id="L490">								javaSource.indenting(() -&gt; {</span>
+<span class="fc bfc" id="L491" title="All 2 branches covered.">									for (Class&lt;?&gt; exceptionType : method.getExceptionTypes()) {</span>
+<span class="fc" id="L492">										javaSource.append(&quot;if(t instanceof &quot;</span>
+<span class="fc" id="L493">												+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName())</span>
+<span class="fc" id="L494">												+ &quot;) {\n&quot;);</span>
+<span class="fc" id="L495">										javaSource.appendIndented(&quot;throw (&quot;</span>
+<span class="fc" id="L496">												+ MiscUtils.adaptClassNameToSourceCode(exceptionType.getName())</span>
+<span class="fc" id="L497">												+ &quot;)t;\n&quot;);</span>
+<span class="fc" id="L498">										javaSource.append(&quot;}\n&quot;);</span>
+									}
+<span class="fc" id="L500">									javaSource.append(&quot;throw new &quot;</span>
+<span class="fc" id="L501">											+ MiscUtils.adaptClassNameToSourceCode(UnexpectedError.class.getName())</span>
+<span class="fc" id="L502">											+ &quot;(t);\n&quot;);</span>
+<span class="fc" id="L503">								});</span>
+<span class="fc" id="L504">								javaSource.append(&quot;}\n&quot;);</span>
+<span class="fc" id="L505">							});</span>
+<span class="fc" id="L506">							javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+						}
+<span class="fc" id="L508">					});</span>
+<span class="fc" id="L509">					javaSource.append(&quot;\n&quot;);</span>
+<span class="fc" id="L510">					javaSource.append(&quot;}&quot; + &quot;\n&quot;);</span>
+					try {
+<span class="fc" id="L512">						return (Class&lt;?&gt;) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());</span>
+<span class="nc" id="L513">					} catch (CompilationError e) {</span>
+<span class="nc" id="L514">						throw new PotentialError(e);</span>
+					}
+				});
+<span class="fc" id="L517">				return implementationClassByInterface.get(serviceInterface);</span>
+			}
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L523">			final int prime = 31;</span>
+<span class="nc" id="L524">			int result = 1;</span>
+<span class="nc bnc" id="L525" title="All 2 branches missed.">			result = prime * result + ((serviceInterface == null) ? 0 : serviceInterface.hashCode());</span>
+<span class="nc" id="L526">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L531" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L532">				return true;</span>
+<span class="nc bnc" id="L533" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L534">				return false;</span>
+<span class="nc bnc" id="L535" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L536">				return false;</span>
+<span class="nc" id="L537">			ServiceSpecificationDescriptor other = (ServiceSpecificationDescriptor) obj;</span>
+<span class="nc bnc" id="L538" title="All 2 branches missed.">			if (serviceInterface == null) {</span>
+<span class="nc bnc" id="L539" title="All 2 branches missed.">				if (other.serviceInterface != null)</span>
+<span class="nc" id="L540">					return false;</span>
+<span class="nc bnc" id="L541" title="All 2 branches missed.">			} else if (!serviceInterface.equals(other.serviceInterface))</span>
+<span class="nc" id="L542">				return false;</span>
+<span class="nc" id="L543">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L548">			return &quot;ServiceSpecification [serviceName=&quot; + getServiceName() + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public static class ResponseException extends StandardError {
+
+		private static final long serialVersionUID = 1L;
+
+		private String faultDescription;
+
+<span class="fc" id="L559">		public ResponseException(String faultDescription) {</span>
+<span class="fc" id="L560">			this.faultDescription = faultDescription;</span>
+<span class="fc" id="L561">		}</span>
+
+		public String getFaultDescription() {
+<span class="nc" id="L564">			return faultDescription;</span>
+		}
+
+		public Exception toFaultException(OperationDescriptor operation, WSDL wsdl) {
+<span class="fc" id="L568">			return wsdl.faultDescriptionToException(faultDescription, operation.retrieveMethod());</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L573">			return &quot;ResponseException [faultDescription=&quot; + faultDescription + &quot;]&quot;;</span>
+		}
+
+	}
+
+<span class="fc" id="L578">	public static class Metadata implements ResourceMetadata {</span>
+
+		@Override
+		public ResourcePath getResourceIconImagePath() {
+<span class="fc" id="L582">			return new ResourcePath(</span>
+<span class="fc" id="L583">					ResourcePath.specifyClassPathResourceLocation(WSDL.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+
+		@Override
+		public Class&lt;? extends Resource&gt; getResourceClass() {
+<span class="fc" id="L588">			return WSDL.class;</span>
+		}
+
+		@Override
+		public String getResourceTypeName() {
+<span class="fc" id="L593">			return &quot;WSDL&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

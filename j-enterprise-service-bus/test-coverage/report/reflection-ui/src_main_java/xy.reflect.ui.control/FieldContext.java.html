@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FieldContext.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control</a> &gt; <span class="el_source">FieldContext.java</span></div><h1>FieldContext.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control;
+
+/**
+ * Context that builds its identifier from the given field and its containing
+ * type.
+ * 
+ * @author olitank
+ *
+ */
+public class FieldContext implements IContext {
+
+<span class="fc" id="L13">	public static final FieldContext NULL_FIELD_CONTEXT = new FieldContext(null, null) {</span>
+		@Override
+		public String getIdentifier() {
+<span class="nc" id="L16">			return &quot;NULL_FIELD_CONTEXT&quot;;</span>
+		}
+<span class="fc" id="L18">	};</span>
+
+	protected String objectTypeName;
+	protected String fieldName;
+
+<span class="fc" id="L23">	public FieldContext(String objectTypeName, String fieldName) {</span>
+<span class="fc" id="L24">		this.objectTypeName = objectTypeName;</span>
+<span class="fc" id="L25">		this.fieldName = fieldName;</span>
+<span class="fc" id="L26">	}</span>
+
+	@Override
+	public String getIdentifier() {
+<span class="fc" id="L30">		return &quot;FieldContext [fieldName=&quot; + fieldName + &quot;, objectType=&quot; + objectTypeName + &quot;]&quot;;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L35">		final int prime = 31;</span>
+<span class="fc" id="L36">		int result = 1;</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">		result = prime * result + ((fieldName == null) ? 0 : fieldName.hashCode());</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">		result = prime * result + ((objectTypeName == null) ? 0 : objectTypeName.hashCode());</span>
+<span class="fc" id="L39">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L45">			return true;</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L47">			return false;</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L49">			return false;</span>
+<span class="fc" id="L50">		FieldContext other = (FieldContext) obj;</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if (fieldName == null) {</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">			if (other.fieldName != null)</span>
+<span class="nc" id="L53">				return false;</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		} else if (!fieldName.equals(other.fieldName))</span>
+<span class="nc" id="L55">			return false;</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">		if (objectTypeName == null) {</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">			if (other.objectTypeName != null)</span>
+<span class="nc" id="L58">				return false;</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">		} else if (!objectTypeName.equals(other.objectTypeName))</span>
+<span class="nc" id="L60">			return false;</span>
+<span class="fc" id="L61">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L66">		return getIdentifier();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

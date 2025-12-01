@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CustomCheckBoxPlugin.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.plugin</a> &gt; <span class="el_source">CustomCheckBoxPlugin.java</span></div><h1>CustomCheckBoxPlugin.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.plugin;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
+import xy.reflect.ui.control.swing.CheckBoxControl;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.ResourcePath;
+
+/**
+ * Field control plugin that displays check boxs with custom &quot;selected&quot; and
+ * &quot;non-selected&quot; images.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L31">public class CustomCheckBoxPlugin extends AbstractSimpleCustomizableFieldControlPlugin {</span>
+
+	@Override
+	public String getControlTitle() {
+<span class="nc" id="L35">		return &quot;Custom Check Box&quot;;</span>
+	}
+
+	@Override
+	protected boolean handles(Class&lt;?&gt; javaType) {
+<span class="pc bpc" id="L40" title="1 of 4 branches missed.">		return Boolean.class.equals(javaType) || boolean.class.equals(javaType);</span>
+	}
+
+	@Override
+	public boolean canDisplayDistinctNullValue() {
+<span class="nc" id="L45">		return false;</span>
+	}
+
+	@Override
+	public AbstractConfiguration getDefaultControlCustomization() {
+<span class="nc" id="L50">		return new CustomCheckBoxConfiguration();</span>
+	}
+
+	@Override
+	public CustomCheckBoxControl createControl(Object renderer, IFieldControlInput input) {
+<span class="fc" id="L55">		return new CustomCheckBoxControl((SwingRenderer) renderer, input);</span>
+	}
+
+<span class="nc" id="L58">	public static class CustomCheckBoxConfiguration extends AbstractConfiguration {</span>
+		private static final long serialVersionUID = 1L;
+
+		protected static ImageIcon createDefaultIcon(Color color) {
+<span class="fc" id="L62">			BufferedImage result = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);</span>
+<span class="fc" id="L63">			Graphics2D g = result.createGraphics();</span>
+<span class="fc" id="L64">			g.setColor(color);</span>
+<span class="fc" id="L65">			g.fillRect(0, 0, result.getWidth(), result.getHeight());</span>
+<span class="fc" id="L66">			g.setColor(Color.YELLOW);</span>
+<span class="fc" id="L67">			g.setStroke(new BasicStroke(1f));</span>
+<span class="fc" id="L68">			g.drawRect(0, 0, result.getWidth(), result.getHeight());</span>
+<span class="fc" id="L69">			g.dispose();</span>
+<span class="fc" id="L70">			return new ImageIcon(result);</span>
+		}
+
+<span class="fc" id="L73">		public static final ImageIcon DEFAULT_TRUE_VALUE_ICON = createDefaultIcon(Color.GREEN);</span>
+<span class="fc" id="L74">		public static final ImageIcon DEFAULT_FALSE_VALUE_ICON = createDefaultIcon(Color.RED);</span>
+
+		public ResourcePath trueValueIconPath;
+		public ResourcePath falseValueIconPath;
+
+		public ResourcePath pressedIconPath;
+
+		public ResourcePath trueValueRollOverIconPath;
+		public ResourcePath falseValueRollOverIconPath;
+
+		public ResourcePath trueValueDisabledIconPath;
+		public ResourcePath falseValueDisabledIconPath;
+
+	}
+
+	public class CustomCheckBoxControl extends CheckBoxControl {
+		private static final long serialVersionUID = 1L;
+
+		protected CustomCheckBoxConfiguration controlConfiguration;
+
+<span class="fc" id="L94">		public CustomCheckBoxControl(SwingRenderer swingRenderer, IFieldControlInput input) {</span>
+<span class="fc" id="L95">			super(swingRenderer, input);</span>
+<span class="fc" id="L96">		}</span>
+
+		@Override
+		public boolean refreshUI(boolean refreshStructure) {
+<span class="fc bfc" id="L100" title="All 2 branches covered.">			if (refreshStructure) {</span>
+<span class="fc" id="L101">				updateControlConfiguration();</span>
+<span class="fc" id="L102">				setSelectedIcon(getFirstNonNullImageIcon(CustomCheckBoxConfiguration.DEFAULT_TRUE_VALUE_ICON,</span>
+<span class="fc" id="L103">						controlConfiguration.trueValueIconPath));</span>
+<span class="fc" id="L104">				setIcon(getFirstNonNullImageIcon(CustomCheckBoxConfiguration.DEFAULT_FALSE_VALUE_ICON,</span>
+<span class="fc" id="L105">						controlConfiguration.falseValueIconPath));</span>
+
+<span class="fc" id="L107">				setRolloverSelectedIcon(getFirstNonNullImageIcon(CustomCheckBoxConfiguration.DEFAULT_TRUE_VALUE_ICON,</span>
+<span class="fc" id="L108">						controlConfiguration.trueValueRollOverIconPath, controlConfiguration.trueValueIconPath));</span>
+<span class="fc" id="L109">				setRolloverIcon(getFirstNonNullImageIcon(CustomCheckBoxConfiguration.DEFAULT_FALSE_VALUE_ICON,</span>
+<span class="fc" id="L110">						controlConfiguration.falseValueRollOverIconPath, controlConfiguration.falseValueIconPath));</span>
+
+<span class="fc" id="L112">				setDisabledSelectedIcon(getFirstNonNullImageIcon(CustomCheckBoxConfiguration.DEFAULT_TRUE_VALUE_ICON,</span>
+<span class="fc" id="L113">						controlConfiguration.trueValueDisabledIconPath, controlConfiguration.trueValueIconPath));</span>
+<span class="fc" id="L114">				setDisabledIcon(getFirstNonNullImageIcon(CustomCheckBoxConfiguration.DEFAULT_FALSE_VALUE_ICON,</span>
+<span class="fc" id="L115">						controlConfiguration.falseValueDisabledIconPath, controlConfiguration.falseValueIconPath));</span>
+
+<span class="fc" id="L117">				setPressedIcon(getFirstNonNullImageIcon(getDefaultPressedIcon(), controlConfiguration.pressedIconPath));</span>
+
+<span class="fc" id="L119">				SwingRendererUtils.handleComponentSizeChange(this);</span>
+			}
+<span class="fc" id="L121">			return super.refreshUI(refreshStructure);</span>
+		}
+
+		protected void updateControlConfiguration() {
+<span class="fc" id="L125">			controlConfiguration = (CustomCheckBoxConfiguration) loadControlCustomization(input);</span>
+<span class="fc" id="L126">		}</span>
+
+		protected Icon getDefaultPressedIcon() {
+<span class="fc" id="L129">			List&lt;Icon&gt; iconsToBlend = Arrays.asList(getSelectedIcon(), getIcon());</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">			for (Icon icon : iconsToBlend) {</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">				if (icon == null) {</span>
+<span class="nc" id="L132">					return null;</span>
+				}
+			}
+<span class="fc" id="L135">			Dimension resultSize = new Dimension(0, 0);</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">			for (Icon icon : iconsToBlend) {</span>
+<span class="fc" id="L137">				resultSize.width = Math.max(resultSize.width, icon.getIconWidth());</span>
+<span class="fc" id="L138">				resultSize.height = Math.max(resultSize.height, icon.getIconHeight());</span>
+			}
+<span class="fc" id="L140">			List&lt;BufferedImage&gt; iconImages = new ArrayList&lt;BufferedImage&gt;();</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">			for (Icon icon : iconsToBlend) {</span>
+<span class="fc" id="L142">				BufferedImage iconImage = new BufferedImage(resultSize.width, resultSize.height,</span>
+<span class="fc" id="L143">						BufferedImage.TYPE_4BYTE_ABGR);</span>
+<span class="fc" id="L144">				Graphics2D g = iconImage.createGraphics();</span>
+<span class="fc" id="L145">				icon.paintIcon(null, g, 0, 0);</span>
+<span class="fc" id="L146">				g.dispose();</span>
+<span class="fc" id="L147">				iconImages.add(iconImage);</span>
+			}
+<span class="fc" id="L149">			BufferedImage resultImage = new BufferedImage(resultSize.width, resultSize.height,</span>
+<span class="fc" id="L150">					BufferedImage.TYPE_4BYTE_ABGR);</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">			for (int x = 0; x &lt; resultSize.width; x++) {</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">				for (int y = 0; y &lt; resultSize.height; y++) {</span>
+<span class="fc" id="L153">					int redSum = 0;</span>
+<span class="fc" id="L154">					int greenSum = 0;</span>
+<span class="fc" id="L155">					int blueSum = 0;</span>
+<span class="fc" id="L156">					int alphaSum = 0;</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">					for (BufferedImage iconImage : iconImages) {</span>
+<span class="fc" id="L158">						Color color = new Color(iconImage.getRGB(x, y), true);</span>
+<span class="fc" id="L159">						redSum += color.getRed();</span>
+<span class="fc" id="L160">						greenSum += color.getGreen();</span>
+<span class="fc" id="L161">						blueSum += color.getBlue();</span>
+<span class="fc" id="L162">						alphaSum += color.getAlpha();</span>
+					}
+<span class="fc" id="L164">					int red = Math.round((float) redSum / (float) iconImages.size());</span>
+<span class="fc" id="L165">					int green = Math.round((float) greenSum / (float) iconImages.size());</span>
+<span class="fc" id="L166">					int blue = Math.round((float) blueSum / (float) iconImages.size());</span>
+<span class="fc" id="L167">					int alpha = Math.round((float) alphaSum / (float) iconImages.size());</span>
+<span class="fc" id="L168">					resultImage.setRGB(x, y, new Color(red, green, blue, alpha).getRGB());</span>
+				}
+			}
+<span class="fc" id="L171">			return new ImageIcon(resultImage);</span>
+		}
+
+		protected Icon getFirstNonNullImageIcon(Icon defaultIcon, ResourcePath... iconPaths) {
+<span class="fc bfc" id="L175" title="All 2 branches covered.">			for (ResourcePath iconPath : iconPaths) {</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">				if (iconPath != null) {</span>
+<span class="fc" id="L177">					Image iconImage = swingRenderer.getIconImage(iconPath);</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">					if (iconImage != null) {</span>
+<span class="fc" id="L179">						return new ImageIcon(iconImage);</span>
+					}
+				}
+			}
+<span class="fc" id="L183">			return defaultIcon;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

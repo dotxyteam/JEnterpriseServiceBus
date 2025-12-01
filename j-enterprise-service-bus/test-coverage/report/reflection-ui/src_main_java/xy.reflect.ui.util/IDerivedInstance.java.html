@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>IDerivedInstance.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.util</a> &gt; <span class="el_source">IDerivedInstance.java</span></div><h1>IDerivedInstance.java</h1><pre class="source lang-java linenums">package xy.reflect.ui.util;
+
+import xy.reflect.ui.info.type.ITypeInfo;
+
+/**
+ * This interface allows the identification of derived instances, which are
+ * utility objects normally used to present values associated with other objects
+ * in a different way. These derived instances therefore should not store any
+ * data and so that they can be recreated from the base objects at any time.
+ * 
+ * This interface also allows to identify the associated derived
+ * {@link ITypeInfo} and the base object/instance.
+ * 
+ * Note that such derived instances are not naturally associated with their
+ * derived {@link ITypeInfo}. A {@link PrecomputedTypeInstanceWrapper} is then
+ * used to create and maintain this link.
+ * 
+ * @author olitank
+ *
+ */
+public interface IDerivedInstance {
+
+	/**
+	 * @return the base instance (see {@link IDerivedInstance} documentation for
+	 *         more information).
+	 */
+	Object getBaseInstance();
+
+	/**
+	 * @param object Any object that may be a derived instance wrapper.
+	 * @return the derived instance wrapped in the given object if any, or null.
+	 */
+	static IDerivedInstance get(Object object) {
+<span class="fc bfc" id="L34" title="All 2 branches covered.">		if (object instanceof PrecomputedTypeInstanceWrapper) {</span>
+<span class="fc" id="L35">			PrecomputedTypeInstanceWrapper wrapper = (PrecomputedTypeInstanceWrapper) object;</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">			if (wrapper.getInstance() instanceof IDerivedInstance) {</span>
+<span class="fc" id="L37">				return (IDerivedInstance) wrapper.getInstance();</span>
+			}
+		}
+<span class="fc" id="L40">		return null;</span>
+	}
+
+	/**
+	 * @param object Any object that may be a derived instance wrapper.
+	 * @return the derived type associated wit the derived instance wrapped in the
+	 *         given object if any, or null.
+	 */
+	static ITypeInfo type(Object object) {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		if (object instanceof PrecomputedTypeInstanceWrapper) {</span>
+<span class="nc" id="L50">			PrecomputedTypeInstanceWrapper wrapper = (PrecomputedTypeInstanceWrapper) object;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">			if (wrapper.getInstance() instanceof IDerivedInstance) {</span>
+<span class="nc" id="L52">				return wrapper.getPrecomputedType();</span>
+			}
+		}
+<span class="nc" id="L55">		return null;</span>
+	}
+
+	/**
+	 * @param object Any object that may be a derived instance wrapper.
+	 * @return the base instance of the given stack of derived instances wrapped in
+	 *         the given object if any, or null.
+	 */
+	static Object root(Object object) {
+<span class="fc" id="L64">		IDerivedInstance derivedInstance = get(object);</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		if (derivedInstance != null) {</span>
+<span class="fc" id="L66">			return root(derivedInstance.getBaseInstance());</span>
+		}
+<span class="fc" id="L68">		return object;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

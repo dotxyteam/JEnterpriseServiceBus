@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>EnvironmentSettings.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb</a> &gt; <span class="el_source">EnvironmentSettings.java</span></div><h1>EnvironmentSettings.java</h1><pre class="source lang-java linenums">package com.otk.jesb;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Properties;
+
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.Element;
+import com.otk.jesb.Structure.SimpleElement;
+import com.otk.jesb.Structure.StructuredElement;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.ParameterInitializerFacade;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.solution.Solution;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
+import com.otk.jesb.util.UpToDate;
+import com.otk.jesb.util.UpToDate.VersionAccessException;
+
+/**
+ * This class represents all the data of a solution, which may vary from one
+ * environment to another.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L39">public class EnvironmentSettings {</span>
+
+<span class="fc" id="L41">	public static final VariableDeclaration ROOT_VALUE_DECLARATION = new VariableDeclaration() {</span>
+		@Override
+		public String getVariableName() {
+<span class="fc" id="L44">			return &quot;ENVIRONMENT&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getVariableType() {
+<span class="fc" id="L49">			return Solution.INSTANCE.getEnvironmentSettings().getRootValueClass();</span>
+		}
+
+	};
+
+<span class="fc" id="L54">	public static final Variable ROOT_VARIABLE_ROOT = new Variable() {</span>
+
+		@Override
+		public String getName() {
+<span class="fc" id="L58">			return ROOT_VALUE_DECLARATION.getVariableName();</span>
+		}
+
+		@Override
+		public Object getValue() {
+<span class="fc" id="L63">			return Solution.INSTANCE.getEnvironmentSettings().getRootValue();</span>
+		}
+
+<span class="fc" id="L66">	};</span>
+
+<span class="fc" id="L68">	private List&lt;EnvironmentVariableTreeElement&gt; environmentVariableTreeElements = new ArrayList&lt;EnvironmentSettings.EnvironmentVariableTreeElement&gt;();</span>
+
+<span class="fc" id="L70">	private UpToDate&lt;Class&lt;?&gt;&gt; upToDateRootValueClass = new UpToDateRootValueClass();</span>
+
+<span class="fc" id="L72">	private UpToDate&lt;Object&gt; upToDateRootValue = new UpToDateRootValue();</span>
+
+	public List&lt;EnvironmentVariableTreeElement&gt; getEnvironmentVariableTreeElements() {
+<span class="fc" id="L75">		return environmentVariableTreeElements;</span>
+	}
+
+	public void setEnvironmentVariableTreeElements(
+			List&lt;EnvironmentVariableTreeElement&gt; environmentVariableTreeElements) {
+<span class="fc" id="L80">		this.environmentVariableTreeElements = environmentVariableTreeElements;</span>
+<span class="fc" id="L81">	}</span>
+
+	public Object getRootValue() {
+		try {
+<span class="fc" id="L85">			return upToDateRootValue.get();</span>
+<span class="nc" id="L86">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L87">			throw new PotentialError(e);</span>
+		}
+	}
+
+	public Class&lt;?&gt; getRootValueClass() {
+		try {
+<span class="fc" id="L93">			return upToDateRootValueClass.get();</span>
+<span class="nc" id="L94">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L95">			throw new PotentialError(e);</span>
+		}
+	}
+
+	private ClassicStructure getRootValueStructure() {
+<span class="fc" id="L100">		ClassicStructure result = new ClassicStructure();</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">		for (EnvironmentVariableTreeElement element : environmentVariableTreeElements) {</span>
+<span class="fc" id="L102">			result.getElements().add(toStructure(element));</span>
+		}
+<span class="fc" id="L104">		return result;</span>
+	}
+
+	private RootInstanceBuilder getRootValueBuilder() {
+<span class="fc" id="L108">		RootInstanceBuilder result = new RootInstanceBuilder(&quot;Root&quot;, new VariableRootClassNameAccessor());</span>
+<span class="fc" id="L109">		ParameterInitializerFacade rootInitializerFacade = (ParameterInitializerFacade) result.getFacade().getChildren()</span>
+<span class="fc" id="L110">				.get(0);</span>
+<span class="fc" id="L111">		rootInitializerFacade.setConcrete(true);</span>
+<span class="fc" id="L112">		List&lt;Facade&gt; elementInitializerFacades = rootInitializerFacade.getChildren();</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">		for (EnvironmentVariableTreeElement element : environmentVariableTreeElements) {</span>
+<span class="fc" id="L114">			ParameterInitializerFacade elementInitializerFacade = (ParameterInitializerFacade) elementInitializerFacades</span>
+<span class="fc" id="L115">					.stream().filter(facade -&gt; ((ParameterInitializerFacade) facade).getParameterName()</span>
+<span class="fc" id="L116">							.equals(element.getName()))</span>
+<span class="fc" id="L117">					.findFirst().get();</span>
+<span class="fc" id="L118">			configureInitializer(elementInitializerFacade, element);</span>
+		}
+<span class="fc" id="L120">		return result;</span>
+	}
+
+	private Element toStructure(EnvironmentVariableTreeElement element) {
+<span class="fc bfc" id="L124" title="All 2 branches covered.">		if (element instanceof EnvironmentVariable) {</span>
+<span class="fc" id="L125">			SimpleElement result = new SimpleElement();</span>
+<span class="fc" id="L126">			result.setName(element.getName());</span>
+<span class="fc" id="L127">			result.setTypeNameOrAlias(String.class.getName());</span>
+<span class="fc" id="L128">			return result;</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">		} else if (element instanceof EnvironmentVariableGroup) {</span>
+<span class="fc" id="L130">			StructuredElement result = new StructuredElement();</span>
+<span class="fc" id="L131">			result.setName(element.getName());</span>
+<span class="fc" id="L132">			ClassicStructure structure = new ClassicStructure();</span>
+<span class="fc" id="L133">			result.setStructure(structure);</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">			for (EnvironmentVariableTreeElement childElement : ((EnvironmentVariableGroup) element).getElements()) {</span>
+<span class="fc" id="L135">				result.getSubElements().add(toStructure(childElement));</span>
+			}
+<span class="fc" id="L137">			return result;</span>
+		} else {
+<span class="nc" id="L139">			throw new UnexpectedError();</span>
+		}
+	}
+
+	private void configureInitializer(ParameterInitializerFacade elementInitializerFacade,
+			EnvironmentVariableTreeElement element) {
+<span class="fc bfc" id="L145" title="All 2 branches covered.">		if (element instanceof EnvironmentVariable) {</span>
+<span class="fc" id="L146">			elementInitializerFacade.setParameterValue(((EnvironmentVariable) element).getValueString());</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">		} else if (element instanceof EnvironmentVariableGroup) {</span>
+<span class="fc" id="L148">			elementInitializerFacade.setConcrete(true);</span>
+<span class="fc" id="L149">			List&lt;Facade&gt; childElementInitializerFacades = elementInitializerFacade.getChildren();</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">			for (EnvironmentVariableTreeElement childElement : ((EnvironmentVariableGroup) element).getElements()) {</span>
+<span class="fc" id="L151">				ParameterInitializerFacade childElementInitializerFacade = (ParameterInitializerFacade) childElementInitializerFacades</span>
+<span class="fc" id="L152">						.stream().filter(facade -&gt; ((ParameterInitializerFacade) facade).getParameterName()</span>
+<span class="fc" id="L153">								.equals(childElement.getName()))</span>
+<span class="fc" id="L154">						.findFirst().get();</span>
+<span class="fc" id="L155">				configureInitializer(childElementInitializerFacade, childElement);</span>
+			}
+<span class="fc" id="L157">		} else {</span>
+<span class="nc" id="L158">			throw new UnexpectedError();</span>
+		}
+<span class="fc" id="L160">	}</span>
+
+	public void importProperties(File file) throws FileNotFoundException, IOException {
+<span class="nc" id="L163">		Properties properties = new Properties();</span>
+<span class="nc" id="L164">		try (FileInputStream fileInputStream = new FileInputStream(file)) {</span>
+<span class="nc" id="L165">			properties.load(fileInputStream);</span>
+		}
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		for (EnvironmentVariableTreeElement element : environmentVariableTreeElements) {</span>
+<span class="nc" id="L168">			element.importProperties(properties, null);</span>
+		}
+<span class="nc" id="L170">	}</span>
+
+	public void exportProperties(File file) throws FileNotFoundException, IOException {
+<span class="nc" id="L173">		Properties properties = new Properties();</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">		for (EnvironmentVariableTreeElement element : environmentVariableTreeElements) {</span>
+<span class="nc" id="L175">			element.exportProperties(properties, null);</span>
+		}
+<span class="nc" id="L177">		try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {</span>
+<span class="nc" id="L178">			properties.store(fileOutputStream, null);</span>
+		}
+<span class="nc" id="L180">	}</span>
+
+	public void mergeProperties(File file) throws FileNotFoundException, IOException {
+<span class="nc" id="L183">		Properties oldProperties = new Properties();</span>
+<span class="nc" id="L184">		try (FileInputStream fileInputStream = new FileInputStream(file)) {</span>
+<span class="nc" id="L185">			oldProperties.load(fileInputStream);</span>
+		}
+<span class="nc" id="L187">		Properties newProperties = new Properties();</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">		for (EnvironmentVariableTreeElement element : environmentVariableTreeElements) {</span>
+<span class="nc" id="L189">			element.exportProperties(newProperties, null);</span>
+		}
+<span class="nc" id="L191">		Properties addedProperties = new Properties();</span>
+<span class="nc" id="L192">		Properties removedProperties = new Properties();</span>
+<span class="nc" id="L193">		Properties mergedProperties = new Properties();</span>
+<span class="nc" id="L194">		mergedProperties.putAll(oldProperties);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">		for (Entry&lt;Object, Object&gt; entry : oldProperties.entrySet()) {</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">			if (!newProperties.entrySet().contains(entry)) {</span>
+<span class="nc" id="L197">				mergedProperties.remove(entry.getKey());</span>
+<span class="nc" id="L198">				removedProperties.put(entry.getKey(), entry.getValue());</span>
+			}
+		}
+<span class="nc bnc" id="L201" title="All 2 branches missed.">		for (Entry&lt;Object, Object&gt; entry : newProperties.entrySet()) {</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">			if (!oldProperties.entrySet().contains(entry)) {</span>
+<span class="nc" id="L203">				mergedProperties.put(entry.getKey(), entry.getValue());</span>
+<span class="nc" id="L204">				addedProperties.put(entry.getKey(), entry.getValue());</span>
+			}
+		}
+<span class="nc" id="L207">		StringWriter commentsBuffer = new StringWriter();</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">		if (!addedProperties.isEmpty()) {</span>
+<span class="nc" id="L209">			commentsBuffer.write(&quot;\n- Added:\n&quot;);</span>
+<span class="nc" id="L210">			addedProperties.store(commentsBuffer, null);</span>
+		}
+<span class="nc bnc" id="L212" title="All 2 branches missed.">		if (!removedProperties.isEmpty()) {</span>
+<span class="nc" id="L213">			commentsBuffer.write(&quot;\n- Removed:\n&quot;);</span>
+<span class="nc" id="L214">			removedProperties.store(commentsBuffer, null);</span>
+		}
+<span class="nc" id="L216">		try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {</span>
+			String comments;
+<span class="nc bnc" id="L218" title="All 2 branches missed.">			if (commentsBuffer.getBuffer().length() &gt; 0) {</span>
+<span class="nc" id="L219">				comments = commentsBuffer.toString();</span>
+<span class="nc" id="L220">				comments = comments.replaceAll(</span>
+<span class="nc" id="L221">						&quot;#[a-zA-Z]{3} [a-zA-Z]{3} [0-9]{2} [0-9]{2}\\:[0-9]{2}\\:[0-9]{2} [^\\s]+ [0-9]{4}\r?\n&quot;, &quot;&quot;);</span>
+<span class="nc" id="L222">			} else {</span>
+<span class="nc" id="L223">				comments = &quot;\n(no changes)\n&quot;;</span>
+			}
+<span class="nc" id="L225">			comments = &quot;#############\n&quot; + &quot;MERGE RESULT#\n&quot; + &quot;##############\n&quot; + &quot;&quot; + comments;</span>
+<span class="nc" id="L226">			mergedProperties.store(fileOutputStream, comments);</span>
+		}
+<span class="nc" id="L228">	}</span>
+
+	public void validate() throws ValidationError {
+		try {
+<span class="fc" id="L232">			upToDateRootValue.get();</span>
+<span class="pc" id="L233">		} catch (VersionAccessException e) {</span>
+<span class="nc" id="L234">			throw new ValidationError(&quot;Failed to validate environment variables&quot;, e);</span>
+		}
+<span class="fc" id="L236">	}</span>
+
+<span class="fc" id="L238">	private class VariableRootClassNameAccessor extends Accessor&lt;String&gt; {</span>
+
+		@Override
+		public String get() {
+			try {
+<span class="fc" id="L243">				return upToDateRootValueClass.get().getName();</span>
+<span class="nc" id="L244">			} catch (VersionAccessException e) {</span>
+<span class="nc" id="L245">				throw new PotentialError(e);</span>
+			}
+		}
+
+	}
+
+<span class="fc" id="L251">	private class UpToDateRootValueClass extends UpToDate&lt;Class&lt;?&gt;&gt; {</span>
+
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+<span class="fc" id="L255">			return MiscUtils.serialize(getRootValueStructure());</span>
+		}
+
+		@Override
+		protected Class&lt;?&gt; obtainLatest(Object versionIdentifier) throws VersionAccessException {
+<span class="fc" id="L260">			String className = EnvironmentSettings.class.getName() + InstantiationUtils</span>
+<span class="fc" id="L261">					.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(EnvironmentSettings.this));</span>
+			try {
+<span class="fc" id="L263">				return MiscUtils.IN_MEMORY_COMPILER.compile(className,</span>
+<span class="fc" id="L264">						getRootValueStructure().generateJavaTypeSourceCode(className));</span>
+<span class="nc" id="L265">			} catch (CompilationError e) {</span>
+<span class="nc" id="L266">				throw new VersionAccessException(e);</span>
+			}
+		}
+
+	};
+
+<span class="fc" id="L272">	private class UpToDateRootValue extends UpToDate&lt;Object&gt; {</span>
+
+		@Override
+		protected Object retrieveLastVersionIdentifier() {
+			try {
+<span class="fc" id="L277">				return new Pair&lt;Class&lt;?&gt;, String&gt;(upToDateRootValueClass.get(),</span>
+<span class="fc" id="L278">						MiscUtils.serialize(environmentVariableTreeElements));</span>
+<span class="nc" id="L279">			} catch (VersionAccessException e) {</span>
+<span class="nc" id="L280">				throw new PotentialError(e);</span>
+			}
+		}
+
+		@Override
+		protected Object obtainLatest(Object versionIdentifier) throws VersionAccessException {
+			try {
+<span class="fc" id="L287">				return getRootValueBuilder()</span>
+<span class="fc" id="L288">						.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));</span>
+<span class="nc" id="L289">			} catch (Exception e) {</span>
+<span class="nc" id="L290">				throw new PotentialError(e);</span>
+			}
+		}
+
+	};
+
+<span class="fc" id="L296">	public abstract static class EnvironmentVariableTreeElement {</span>
+		private String name;
+
+		public abstract String getValueSummary();
+
+		protected abstract void importProperties(Properties properties, String propertyNamePrefix);
+
+		protected abstract void exportProperties(Properties properties, String propertyNamePrefix);
+
+		public String getName() {
+<span class="fc" id="L306">			return name;</span>
+		}
+
+		public void setName(String name) {
+<span class="fc" id="L310">			this.name = name;</span>
+<span class="fc" id="L311">		}</span>
+
+	}
+
+	public static class EnvironmentVariable extends EnvironmentVariableTreeElement {
+
+		private static final String NULL_PROPERTY_VALUE = &quot;&lt;null&gt;&quot;;
+
+		private String valueString;
+
+<span class="fc" id="L321">		public EnvironmentVariable() {</span>
+<span class="fc" id="L322">			setName(&quot;var&quot;);</span>
+<span class="fc" id="L323">		}</span>
+
+		public String getValueString() {
+<span class="fc" id="L326">			return valueString;</span>
+		}
+
+		public void setValueString(String valueString) {
+<span class="fc" id="L330">			this.valueString = valueString;</span>
+<span class="fc" id="L331">		}</span>
+
+		@Override
+		public String getValueSummary() {
+<span class="fc" id="L335">			return valueString;</span>
+		}
+
+		@Override
+		protected void importProperties(Properties properties, String propertyNamePrefix) {
+<span class="nc bnc" id="L340" title="All 2 branches missed.">			String propertyName = ((propertyNamePrefix != null) ? (propertyNamePrefix + &quot;.&quot;) : &quot;&quot;) + getName();</span>
+<span class="nc bnc" id="L341" title="All 2 branches missed.">			if (!properties.stringPropertyNames().contains(propertyName)) {</span>
+<span class="nc" id="L342">				Log.get().information(</span>
+<span class="nc" id="L343">						&quot;Variable property not found while importing environment settings: '&quot; + propertyName + &quot;'&quot;);</span>
+<span class="nc" id="L344">				return;</span>
+			}
+<span class="nc" id="L346">			String propertyValue = properties.getProperty(propertyName);</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">			if (NULL_PROPERTY_VALUE.equals(propertyValue)) {</span>
+<span class="nc" id="L348">				propertyValue = null;</span>
+			}
+<span class="nc" id="L350">			valueString = propertyValue;</span>
+<span class="nc" id="L351">		}</span>
+
+		@Override
+		protected void exportProperties(Properties properties, String propertyNamePrefix) {
+<span class="nc bnc" id="L355" title="All 2 branches missed.">			String propertyName = ((propertyNamePrefix != null) ? (propertyNamePrefix + &quot;.&quot;) : &quot;&quot;) + getName();</span>
+<span class="nc" id="L356">			String propertyValue = valueString;</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">			if (propertyValue == null) {</span>
+<span class="nc" id="L358">				propertyValue = NULL_PROPERTY_VALUE;</span>
+			}
+<span class="nc" id="L360">			properties.setProperty(propertyName, propertyValue);</span>
+<span class="nc" id="L361">		}</span>
+
+	}
+
+	public static class EnvironmentVariableGroup extends EnvironmentVariableTreeElement {
+<span class="fc" id="L366">		private List&lt;EnvironmentVariableTreeElement&gt; elements = new ArrayList&lt;EnvironmentSettings.EnvironmentVariableTreeElement&gt;();</span>
+
+<span class="fc" id="L368">		public EnvironmentVariableGroup() {</span>
+<span class="fc" id="L369">			setName(&quot;group&quot;);</span>
+<span class="fc" id="L370">		}</span>
+
+		public List&lt;EnvironmentVariableTreeElement&gt; getElements() {
+<span class="fc" id="L373">			return elements;</span>
+		}
+
+		public void setElements(List&lt;EnvironmentVariableTreeElement&gt; elements) {
+<span class="fc" id="L377">			this.elements = elements;</span>
+<span class="fc" id="L378">		}</span>
+
+		@Override
+		public String getValueSummary() {
+<span class="nc" id="L382">			return null;</span>
+		}
+
+		@Override
+		protected void importProperties(Properties properties, String propertyNamePrefix) {
+<span class="nc bnc" id="L387" title="All 2 branches missed.">			String childPropertyNamePrefix = ((propertyNamePrefix != null) ? (propertyNamePrefix + &quot;.&quot;) : &quot;&quot;)</span>
+<span class="nc" id="L388">					+ getName();</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">			for (EnvironmentVariableTreeElement element : elements) {</span>
+<span class="nc" id="L390">				element.importProperties(properties, childPropertyNamePrefix);</span>
+			}
+<span class="nc" id="L392">		}</span>
+
+		@Override
+		protected void exportProperties(Properties properties, String propertyNamePrefix) {
+<span class="nc bnc" id="L396" title="All 2 branches missed.">			String childPropertyNamePrefix = ((propertyNamePrefix != null) ? (propertyNamePrefix + &quot;.&quot;) : &quot;&quot;)</span>
+<span class="nc" id="L397">					+ getName();</span>
+<span class="nc bnc" id="L398" title="All 2 branches missed.">			for (EnvironmentVariableTreeElement element : elements) {</span>
+<span class="nc" id="L399">				element.exportProperties(properties, childPropertyNamePrefix);</span>
+			}
+<span class="nc" id="L401">		}</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

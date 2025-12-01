@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SaveMenuItem.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.menu</a> &gt; <span class="el_source">SaveMenuItem.java</span></div><h1>SaveMenuItem.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.menu;
+
+import java.io.File;
+
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.menu.StandardActionMenuItemInfo;
+
+/**
+ * Menu item that allows to save an object state to a file.
+ * 
+ * @author olitank
+ *
+ */
+public class SaveMenuItem extends AbstractSaveMenuItem {
+
+	protected static final long serialVersionUID = 1L;
+
+	public SaveMenuItem(SwingRenderer swingRenderer, Form form, StandardActionMenuItemInfo menuItemInfo) {
+<span class="fc" id="L21">		super(swingRenderer, form, menuItemInfo);</span>
+<span class="fc" id="L22">	}</span>
+
+	@Override
+	protected boolean isActive() {
+<span class="fc bfc" id="L26" title="All 2 branches covered.">		if (isFileSynchronized()) {</span>
+<span class="fc" id="L27">			return false;</span>
+		}
+<span class="fc" id="L29">		return super.isActive();</span>
+	}
+
+	@Override
+	protected File retrieveFile() {
+<span class="nc" id="L34">		File file = lastFileByForm.get(getContextForm());</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">		if (file != null) {</span>
+<span class="nc" id="L36">			return file;</span>
+		}
+<span class="nc" id="L38">		return super.retrieveFile();</span>
+	}
+
+	@Override
+	public String getText() {
+<span class="fc" id="L43">		String result = super.getText();</span>
+<span class="fc" id="L44">		File file = lastFileByForm.get(getContextForm());</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">		if (file != null) {</span>
+<span class="fc" id="L46">			result += &quot; &quot; + file.getPath();</span>
+		}
+<span class="fc" id="L48">		return result;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -15,7 +15,6 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
-
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.parameter.IParameterInfo;
@@ -38,7 +37,7 @@ public class InitializationCaseFacade extends Facade {
 	@Override
 	public List<VariableDeclaration> getAdditionalVariableDeclarations(InstantiationFunction function,
 			List<VariableDeclaration> baseVariableDeclarations) {
-		if (function != null) {
+		if ((function != null) && (function != condition)) {
 			throw new UnexpectedError();
 		}
 		return parent.getAdditionalVariableDeclarations(null, baseVariableDeclarations);
@@ -135,6 +134,13 @@ public class InitializationCaseFacade extends Facade {
 		if (!isConcrete()) {
 			return;
 		}
+		for (InitializationCaseFacade caseFacade : parent.getChildren()) {
+			if (caseFacade.getUnderlying() != underlying) {
+				if (MiscUtils.equalsOrBothNull(caseFacade.getCondition(), condition)) {
+					throw new ValidationError("Duplicate case condition detected!");
+				}
+			}
+		}
 		if (recursively) {
 			for (Facade facade : getChildren()) {
 				try {
@@ -168,15 +174,13 @@ public class InitializationCaseFacade extends Facade {
 			conditionCopy = MiscUtils.copy(condition);
 		}
 		InitializationCase underlyingCopy = MiscUtils.copy(getUnderlying());
-		MiscUtils.add(parent.getUnderlying().getInitializationCaseByCondition(), getIndex(), conditionCopy,
-				underlyingCopy);
+		parent.getUnderlying().insertCase(getIndex(), conditionCopy, underlyingCopy);
 	}
 
 	public void insertNewSibling() {
 		InstantiationFunction newSiblingCondition = InitializationCase.createDefaultCondition();
 		InitializationCase newSiblingUnderlying = new InitializationCase();
-		MiscUtils.add(parent.getUnderlying().getInitializationCaseByCondition(), getIndex(), newSiblingCondition,
-				newSiblingUnderlying);
+		parent.getUnderlying().insertCase(getIndex(), newSiblingCondition, newSiblingUnderlying);
 	}
 
 	public boolean canMoveUp() {
@@ -190,7 +194,7 @@ public class InitializationCaseFacade extends Facade {
 		if (isDefault()) {
 			return false;
 		}
-		return getIndex() < (parent.getUnderlying().getInitializationCaseByCondition().size() - 1);
+		return getIndex() < (parent.getUnderlying().getCaseEntries().size() - 1);
 	}
 
 	public void moveUp() {
@@ -198,8 +202,10 @@ public class InitializationCaseFacade extends Facade {
 			return;
 		}
 		int index = getIndex();
-		parent.getUnderlying().getInitializationCaseByCondition().remove(condition);
-		MiscUtils.add(parent.getUnderlying().getInitializationCaseByCondition(), index - 1, condition, underlying);
+		if (!parent.getUnderlying().getCaseEntries().removeIf(entry -> entry.getCondition() == condition)) {
+			throw new UnexpectedError();
+		}
+		parent.getUnderlying().insertCase(index - 1, condition, underlying);
 	}
 
 	public void moveDown() {
@@ -207,8 +213,10 @@ public class InitializationCaseFacade extends Facade {
 			return;
 		}
 		int index = getIndex();
-		parent.getUnderlying().getInitializationCaseByCondition().remove(condition);
-		MiscUtils.add(parent.getUnderlying().getInitializationCaseByCondition(), index + 1, condition, underlying);
+		if (!parent.getUnderlying().getCaseEntries().removeIf(entry -> entry.getCondition() == condition)) {
+			throw new UnexpectedError();
+		}
+		parent.getUnderlying().insertCase(index + 1, condition, underlying);
 	}
 
 	@Override
@@ -486,7 +494,7 @@ public class InitializationCaseFacade extends Facade {
 		if (isDefault()) {
 			return parent.getUnderlying().getDefaultInitializationCase() == underlying;
 		} else {
-			return parent.getUnderlying().getInitializationCaseByCondition().get(condition) == underlying;
+			return parent.getUnderlying().findCase(condition) == underlying;
 		}
 	}
 
@@ -504,8 +512,9 @@ public class InitializationCaseFacade extends Facade {
 					parent.getUnderlying().setDefaultInitializationCase(underlying);
 				}
 			} else {
-				if (!parent.getUnderlying().getInitializationCaseByCondition().containsKey(condition)) {
-					parent.getUnderlying().getInitializationCaseByCondition().put(condition, underlying);
+				if (!parent.getUnderlying().getCaseEntries().stream()
+						.anyMatch(entry -> (entry.getCondition() == condition))) {
+					parent.getUnderlying().addCase(condition, underlying);
 				}
 			}
 		} else {
@@ -517,12 +526,12 @@ public class InitializationCaseFacade extends Facade {
 					}
 				}
 			} else {
-				if (parent.getUnderlying().getInitializationCaseByCondition().containsKey(condition)) {
+				if (parent.getUnderlying().findCase(condition) != null) {
 					for (Object childUnderlying : getChildren().stream().map(facade -> facade.getUnderlying())
 							.filter(Objects::nonNull).toArray()) {
 						Facade.get(childUnderlying, this).setConcrete(false);
 					}
-					parent.getUnderlying().getInitializationCaseByCondition().remove(condition);
+					parent.getUnderlying().removeCase(condition);
 				}
 			}
 		}

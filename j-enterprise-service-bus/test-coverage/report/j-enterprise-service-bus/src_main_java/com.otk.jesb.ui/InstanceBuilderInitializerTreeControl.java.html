@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InstanceBuilderInitializerTreeControl.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.ui</a> &gt; <span class="el_source">InstanceBuilderInitializerTreeControl.java</span></div><h1>InstanceBuilderInitializerTreeControl.java</h1><pre class="source lang-java linenums">package com.otk.jesb.ui;
+
+import javax.swing.DropMode;
+import javax.swing.JLabel;
+import javax.swing.ListSelectionModel;
+import com.otk.jesb.instantiation.Facade;
+import com.otk.jesb.ui.MappingsControl.Side;
+import xy.reflect.ui.control.IFieldControlInput;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.type.iterable.item.BufferedItemPosition;
+
+public class InstanceBuilderInitializerTreeControl extends MappingsControl.SideControl {
+
+	private static final long serialVersionUID = 1L;
+
+	public InstanceBuilderInitializerTreeControl(SwingRenderer swingRenderer, IFieldControlInput input) {
+<span class="fc" id="L17">		super(swingRenderer, input);</span>
+<span class="fc" id="L18">		expandItemPositions(2);</span>
+<span class="fc" id="L19">	}</span>
+
+	@Override
+	protected Side getSide() {
+<span class="fc" id="L23">		return Side.TARGET;</span>
+	}
+
+	@Override
+	protected void initializeTreeTableModelAndControl() {
+<span class="fc" id="L28">		super.initializeTreeTableModelAndControl();</span>
+<span class="fc" id="L29">		treeTableComponent.putClientProperty(InstanceBuilderInitializerTreeControl.class, this);</span>
+<span class="fc" id="L30">		treeTableComponent.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);</span>
+<span class="fc" id="L31">		treeTableComponent.setTransferHandler(new MappingsControl.PathImportTransferHandler());</span>
+<span class="fc" id="L32">		treeTableComponent.setDropMode(DropMode.ON);</span>
+<span class="fc" id="L33">	}</span>
+
+	@Override
+	protected void customizeCellRendererComponent(JLabel label, ItemNode node, int rowIndex, int columnIndex,
+			boolean isSelected, boolean hasFocus) {
+<span class="fc" id="L38">		super.customizeCellRendererComponent(label, node, rowIndex, columnIndex, isSelected, hasFocus);</span>
+<span class="fc" id="L39">		BufferedItemPosition itemPosition = getItemPositionByNode(node);</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">		if (itemPosition != null) {</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">			if (itemPosition.getItem() instanceof Facade) {</span>
+<span class="fc" id="L42">				Facade facade = (Facade) itemPosition.getItem();</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">				label.setForeground(facade.isConcrete() ? MappingsControl.getConcreteElementTextColor()</span>
+<span class="fc" id="L44">						: MappingsControl.getAbstractElementTextColor());</span>
+			}
+		}
+<span class="fc" id="L47">	}</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>FieldControlDataProxy.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control</a> &gt; <span class="el_source">FieldControlDataProxy.java</span></div><h1>FieldControlDataProxy.java</h1><pre class="source lang-java linenums">
+
+
+package xy.reflect.ui.control;
+
+import java.util.Map;
+
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+
+/**
+ * Field control data proxy class. The methods in this class should be overridden to provide a
+ * custom behavior.
+ * 
+ * @author olitank
+ *
+ */
+public class FieldControlDataProxy implements IFieldControlData {
+
+	protected IFieldControlData base;
+
+<span class="fc" id="L26">	public FieldControlDataProxy(IFieldControlData base) {</span>
+<span class="fc" id="L27">		this.base = base;</span>
+<span class="fc" id="L28">	}</span>
+
+	public IFieldControlData getBase() {
+<span class="nc" id="L31">		return base;</span>
+	}
+
+	public Object getValue() {
+<span class="fc" id="L35">		return base.getValue();</span>
+	}
+
+	public void setValue(Object value) {
+<span class="fc" id="L39">		base.setValue(value);</span>
+<span class="fc" id="L40">	}</span>
+
+	public String getCaption() {
+<span class="fc" id="L43">		return base.getCaption();</span>
+	}
+
+	public String getOnlineHelp() {
+<span class="fc" id="L47">		return base.getOnlineHelp();</span>
+	}
+
+	public Runnable getNextUpdateCustomUndoJob(Object newValue) {
+<span class="fc" id="L51">		return base.getNextUpdateCustomUndoJob(newValue);</span>
+	}
+
+	public Runnable getPreviousUpdateCustomRedoJob(Object newValue) {
+<span class="nc" id="L55">		return base.getPreviousUpdateCustomRedoJob(newValue);</span>
+	}
+
+	public Runnable getLastFormRefreshStateRestorationJob() {
+<span class="fc" id="L59">		return base.getLastFormRefreshStateRestorationJob();</span>
+	}
+
+	public boolean isGetOnly() {
+<span class="fc" id="L63">		return base.isGetOnly();</span>
+	}
+
+	public boolean isTransient() {
+<span class="fc" id="L67">		return base.isTransient();</span>
+	}
+
+	public boolean isNullValueDistinct() {
+<span class="fc" id="L71">		return base.isNullValueDistinct();</span>
+	}
+
+	public String getNullValueLabel() {
+<span class="fc" id="L75">		return base.getNullValueLabel();</span>
+	}
+
+	public ITypeInfo getType() {
+<span class="fc" id="L79">		return base.getType();</span>
+	}
+
+	@Override
+	public ValueReturnMode getValueReturnMode() {
+<span class="fc" id="L84">		return base.getValueReturnMode();</span>
+	}
+
+	public boolean isFormControlMandatory() {
+<span class="fc" id="L88">		return base.isFormControlMandatory();</span>
+	}
+
+	public boolean isFormControlEmbedded() {
+<span class="fc" id="L92">		return base.isFormControlEmbedded();</span>
+	}
+
+	public IInfoFilter getFormControlFilter() {
+<span class="fc" id="L96">		return base.getFormControlFilter();</span>
+	}
+
+	public boolean isControlValueValiditionEnabled() {
+<span class="fc" id="L100">		return base.isControlValueValiditionEnabled();</span>
+	}
+
+	public IValidationJob getValueAbstractFormValidationJob() {
+<span class="nc" id="L104">		return base.getValueAbstractFormValidationJob();</span>
+	}
+
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L108">		return base.getSpecificProperties();</span>
+	}
+
+	public ColorSpecification getLabelForegroundColor() {
+<span class="fc" id="L112">		return base.getLabelForegroundColor();</span>
+	}
+
+	public ColorSpecification getBorderColor() {
+<span class="fc" id="L116">		return base.getBorderColor();</span>
+	}
+
+	public ColorSpecification getEditorBackgroundColor() {
+<span class="fc" id="L120">		return base.getEditorBackgroundColor();</span>
+	}
+
+	public ColorSpecification getEditorForegroundColor() {
+<span class="fc" id="L124">		return base.getEditorForegroundColor();</span>
+	}
+
+	public ColorSpecification getNonEditableBackgroundColor() {
+<span class="fc" id="L128">		return base.getNonEditableBackgroundColor();</span>
+	}
+
+	public ColorSpecification getNonEditableForegroundColor() {
+<span class="fc" id="L132">		return base.getNonEditableForegroundColor();</span>
+	}
+
+	public ResourcePath getButtonBackgroundImagePath() {
+<span class="fc" id="L136">		return base.getButtonBackgroundImagePath();</span>
+	}
+
+	public ColorSpecification getButtonBackgroundColor() {
+<span class="fc" id="L140">		return base.getButtonBackgroundColor();</span>
+	}
+
+	public ColorSpecification getButtonForegroundColor() {
+<span class="fc" id="L144">		return base.getButtonForegroundColor();</span>
+	}
+
+	public ColorSpecification getButtonBorderColor() {
+<span class="fc" id="L148">		return base.getButtonBorderColor();</span>
+	}
+
+	public ResourcePath getLabelCustomFontResourcePath() {
+<span class="fc" id="L152">		return base.getLabelCustomFontResourcePath();</span>
+	}
+
+	public ResourcePath getEditorCustomFontResourcePath() {
+<span class="fc" id="L156">		return base.getEditorCustomFontResourcePath();</span>
+	}
+
+	public ResourcePath getButtonCustomFontResourcePath() {
+<span class="fc" id="L160">		return base.getButtonCustomFontResourcePath();</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L165">		final int prime = 31;</span>
+<span class="fc" id="L166">		int result = 1;</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">		result = prime * result + ((base == null) ? 0 : base.hashCode());</span>
+<span class="fc" id="L168">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="nc bnc" id="L173" title="All 2 branches missed.">		if (this == obj)</span>
+<span class="nc" id="L174">			return true;</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L176">			return false;</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L178">			return false;</span>
+<span class="nc" id="L179">		FieldControlDataProxy other = (FieldControlDataProxy) obj;</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		if (base == null) {</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">			if (other.base != null)</span>
+<span class="nc" id="L182">				return false;</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">		} else if (!base.equals(other.base))</span>
+<span class="nc" id="L184">			return false;</span>
+<span class="nc" id="L185">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L190">		return &quot;FieldControlDataProxy [base=&quot; + base + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

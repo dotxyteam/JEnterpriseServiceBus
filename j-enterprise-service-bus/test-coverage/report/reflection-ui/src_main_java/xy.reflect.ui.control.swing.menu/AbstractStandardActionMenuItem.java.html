@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>AbstractStandardActionMenuItem.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.menu</a> &gt; <span class="el_source">AbstractStandardActionMenuItem.java</span></div><h1>AbstractStandardActionMenuItem.java</h1><pre class="source lang-java linenums">/*
+ * 
+ */
+package xy.reflect.ui.control.swing.menu;
+
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
+
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.menu.StandardActionMenuItemInfo;
+import xy.reflect.ui.util.KeyboardShortcut;
+
+/**
+ * Base class for standard menu items.
+ * 
+ * @author olitank
+ *
+ */
+public abstract class AbstractStandardActionMenuItem extends AbstractMenuItem {
+
+	private static final long serialVersionUID = 1L;
+
+	protected StandardActionMenuItemInfo menuItemInfo;
+
+	protected abstract void execute();
+
+	protected abstract boolean isActive();
+
+	public AbstractStandardActionMenuItem(SwingRenderer swingRenderer, Form menuBarOwner,
+			StandardActionMenuItemInfo menuItemInfo) {
+<span class="fc" id="L38">		super(swingRenderer, menuBarOwner);</span>
+<span class="fc" id="L39">		this.menuItemInfo = menuItemInfo;</span>
+<span class="fc" id="L40">		configure();</span>
+<span class="fc" id="L41">	}</span>
+
+	@Override
+	public void refresh() {
+<span class="nc" id="L45">		configure();</span>
+<span class="nc" id="L46">	}</span>
+
+	public SwingRenderer getSwingRenderer() {
+<span class="nc" id="L49">		return swingRenderer;</span>
+	}
+
+	public Form getContextForm() {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">		if (menuItemInfo == null) {</span>
+<span class="fc" id="L54">			return null;</span>
+		}
+<span class="fc" id="L56">		return (Form) menuItemInfo.getSpecificProperties().get(Form.ACTION_MENU_ITEM_CONTEXT_FORM);</span>
+	}
+
+	public StandardActionMenuItemInfo getMenuItemInfo() {
+<span class="nc" id="L60">		return menuItemInfo;</span>
+	}
+
+	protected void configure() {
+<span class="fc" id="L64">		setAction(createAction());</span>
+<span class="fc" id="L65">		setAccelerator(createAccelerator());</span>
+		try {
+<span class="fc" id="L67">			setText(menuItemInfo.getCaption());</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">			if (!isActive()) {</span>
+<span class="fc" id="L69">				setEnabled(false);</span>
+			}
+<span class="fc" id="L71">			Image image = swingRenderer.getMenuItemIconImage(menuItemInfo);</span>
+			ImageIcon icon;
+<span class="fc bfc" id="L73" title="All 2 branches covered.">			if (image != null) {</span>
+<span class="fc" id="L74">				icon = SwingRendererUtils.getSmallIcon(SwingRendererUtils.getIcon(image));</span>
+<span class="fc" id="L75">			} else {</span>
+<span class="fc" id="L76">				icon = null;</span>
+			}
+<span class="fc" id="L78">			setIcon(icon);</span>
+<span class="pc" id="L79">		} catch (Throwable t) {</span>
+<span class="nc" id="L80">			swingRenderer.getReflectionUI().logError(t);</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">			if (getText() == null) {</span>
+<span class="nc" id="L82">				setText(t.toString());</span>
+<span class="nc" id="L83">			} else {</span>
+<span class="nc" id="L84">				setText(getText() + &quot;(&quot; + t.toString() + &quot;)&quot;);</span>
+			}
+<span class="nc" id="L86">			setEnabled(false);</span>
+		}
+<span class="fc" id="L88">	}</span>
+
+	protected KeyStroke createAccelerator() {
+<span class="fc" id="L91">		KeyboardShortcut keyboardShortcut = menuItemInfo.getKeyboardShortcut();</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">		if (keyboardShortcut == null) {</span>
+<span class="fc" id="L93">			return null;</span>
+		}
+<span class="fc" id="L95">		return KeyStroke.getKeyStroke(keyboardShortcut.getKeyCode(), keyboardShortcut.getModifiers());</span>
+	}
+
+	protected Action createAction() {
+<span class="fc" id="L99">		return new AbstractAction() {</span>
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+<span class="fc" id="L106">					execute();</span>
+<span class="pc" id="L107">				} catch (Throwable t) {</span>
+<span class="nc" id="L108">					swingRenderer.handleException(menuBarOwner, t);</span>
+				}
+<span class="fc" id="L110">			}</span>
+		};
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

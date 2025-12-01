@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>SlaveModificationStack.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.undo</a> &gt; <span class="el_source">SlaveModificationStack.java</span></div><h1>SlaveModificationStack.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.undo;
+
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.util.Accessor;
+import xy.reflect.ui.util.Listener;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * A sub-class of {@link ModificationStack} that forwards its
+ * {@link IModification} instances to the given master modification stack. These
+ * modifications can then be undone or redone through this master modification
+ * stack.
+ * 
+ * @author olitank
+ *
+ */
+public class SlaveModificationStack extends ModificationStack {
+
+	protected Accessor&lt;Boolean&gt; valueModifAcceptedGetter;
+	protected Accessor&lt;ValueReturnMode&gt; valueReturnModeGetter;
+	protected Accessor&lt;Boolean&gt; valueReplacedGetter;
+	protected Accessor&lt;Boolean&gt; valueTransactionExecutedGetter;
+	protected Accessor&lt;String&gt; masterModificationTitleGetter;
+	protected Accessor&lt;ModificationStack&gt; masterModificationStackGetter;
+	protected Accessor&lt;Boolean&gt; masterModificationVolatileGetter;
+	protected Accessor&lt;IModification&gt; committingModificationGetter;
+	protected Accessor&lt;IModification&gt; undoModificationsReplacementGetter;
+	protected boolean exclusiveLinkWithParent;
+	protected Listener&lt;String&gt; debugLogListener;
+	protected Listener&lt;String&gt; errorLogListener;
+	protected Listener&lt;Throwable&gt; masterModificationExceptionListener;
+
+	public SlaveModificationStack(String name, Accessor&lt;Boolean&gt; valueModifAcceptedGetter,
+			Accessor&lt;ValueReturnMode&gt; valueReturnModeGetter, Accessor&lt;Boolean&gt; valueReplacedGetter,
+			Accessor&lt;Boolean&gt; valueTransactionExecutedGetter, Accessor&lt;IModification&gt; committingModificationGetter,
+			Accessor&lt;IModification&gt; undoModificationsReplacementGetter, Accessor&lt;String&gt; masterModificationTitleGetter,
+			Accessor&lt;ModificationStack&gt; masterModificationStackGetter,
+			Accessor&lt;Boolean&gt; masterModificationVolatileGetter, boolean exclusiveLinkWithParent,
+			Listener&lt;String&gt; debugLogListener, Listener&lt;String&gt; errorLogListener,
+			Listener&lt;Throwable&gt; masterModificationExceptionListener) {
+<span class="fc" id="L43">		super(name);</span>
+<span class="fc" id="L44">		this.maximumSize = Integer.MAX_VALUE;</span>
+<span class="fc" id="L45">		this.valueModifAcceptedGetter = valueModifAcceptedGetter;</span>
+<span class="fc" id="L46">		this.valueReturnModeGetter = valueReturnModeGetter;</span>
+<span class="fc" id="L47">		this.valueReplacedGetter = valueReplacedGetter;</span>
+<span class="fc" id="L48">		this.valueTransactionExecutedGetter = valueTransactionExecutedGetter;</span>
+<span class="fc" id="L49">		this.committingModificationGetter = committingModificationGetter;</span>
+<span class="fc" id="L50">		this.undoModificationsReplacementGetter = undoModificationsReplacementGetter;</span>
+<span class="fc" id="L51">		this.masterModificationTitleGetter = masterModificationTitleGetter;</span>
+<span class="fc" id="L52">		this.masterModificationStackGetter = masterModificationStackGetter;</span>
+<span class="fc" id="L53">		this.masterModificationVolatileGetter = masterModificationVolatileGetter;</span>
+<span class="fc" id="L54">		this.exclusiveLinkWithParent = exclusiveLinkWithParent;</span>
+<span class="fc" id="L55">		this.debugLogListener = debugLogListener;</span>
+<span class="fc" id="L56">		this.errorLogListener = errorLogListener;</span>
+<span class="fc" id="L57">		this.masterModificationExceptionListener = masterModificationExceptionListener;</span>
+<span class="fc" id="L58">	}</span>
+
+	public Accessor&lt;ModificationStack&gt; getMasterModificationStackGetter() {
+<span class="nc" id="L61">		return masterModificationStackGetter;</span>
+	}
+
+	@Override
+	public void setMaximumSize(int maximumSize) {
+<span class="nc" id="L66">		throw new ReflectionUIError();</span>
+	}
+
+	@Override
+	public boolean push(final IModification undoModif) {
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">		if (undoModif.isNull()) {</span>
+<span class="nc" id="L72">			return false;</span>
+		}
+<span class="fc" id="L74">		boolean result = super.push(undoModif);</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">		if (isInComposite()) {</span>
+<span class="fc" id="L76">			return result;</span>
+		}
+<span class="fc" id="L78">		ModificationStack valueModifStack = new ModificationStack(null);</span>
+<span class="fc" id="L79">		valueModifStack.push(new ModificationStackShitf(this, -1, undoModif.getTitle()) {</span>
+
+			@Override
+			protected void shiftBackward() {
+<span class="nc" id="L83">				SlaveModificationStack.this.slaveUndo();</span>
+<span class="nc" id="L84">			}</span>
+
+			@Override
+			protected void shiftForeward() {
+<span class="nc" id="L88">				SlaveModificationStack.this.slaveRedo();</span>
+<span class="nc" id="L89">			}</span>
+
+			@Override
+			public boolean isVolatile() {
+<span class="fc" id="L93">				return undoModif.isVolatile();</span>
+			}
+
+		});
+<span class="fc" id="L97">		Boolean valueModifAccepted = valueModifAcceptedGetter.get();</span>
+<span class="fc" id="L98">		ValueReturnMode valueReturnMode = valueReturnModeGetter.get();</span>
+<span class="fc" id="L99">		boolean valueReplaced = valueReplacedGetter.get();</span>
+<span class="fc" id="L100">		boolean valueTransactionExecuted = valueTransactionExecutedGetter.get();</span>
+<span class="fc" id="L101">		IModification committingModif = committingModificationGetter.get();</span>
+<span class="fc" id="L102">		IModification undoModificationsReplacement = undoModificationsReplacementGetter.get();</span>
+<span class="fc" id="L103">		String modifTitle = AbstractModification.getUndoTitle(undoModif.getTitle());</span>
+<span class="fc" id="L104">		String modifTitlePrefix = masterModificationTitleGetter.get();</span>
+<span class="fc bfc" id="L105" title="All 4 branches covered.">		if ((modifTitlePrefix != null) &amp;&amp; (modifTitle != null)) {</span>
+<span class="fc" id="L106">			modifTitle = ReflectionUIUtils.composeMessage(modifTitlePrefix, modifTitle);</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">		} else if (modifTitlePrefix != null) {</span>
+<span class="fc" id="L108">			modifTitle = modifTitlePrefix;</span>
+		}
+<span class="fc" id="L110">		ModificationStack parentObjectModifStack = masterModificationStackGetter.get();</span>
+<span class="fc" id="L111">		boolean masterModificationVolatile = masterModificationVolatileGetter.get();</span>
+		try {
+<span class="fc" id="L113">			ReflectionUIUtils.finalizeModifications(parentObjectModifStack, valueModifStack, valueModifAccepted,</span>
+<span class="fc" id="L114">					valueReturnMode, valueReplaced, valueTransactionExecuted, committingModif,</span>
+<span class="fc" id="L115">					undoModificationsReplacement, modifTitle, masterModificationVolatile, debugLogListener,</span>
+<span class="fc" id="L116">					errorLogListener);</span>
+<span class="pc" id="L117">		} catch (Throwable t) {</span>
+<span class="nc" id="L118">			masterModificationExceptionListener.handle(t);</span>
+		}
+<span class="fc" id="L120">		return true;</span>
+	}
+
+	@Override
+	public void invalidate() {
+<span class="fc" id="L125">		super.invalidate();</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">		if (isInComposite()) {</span>
+<span class="fc" id="L127">			return;</span>
+		}
+<span class="fc" id="L129">		forwardInvalidation();</span>
+<span class="fc" id="L130">	}</span>
+
+	protected void forwardInvalidation() {
+<span class="fc" id="L133">		ModificationStack valueModifStack = new ModificationStack(null);</span>
+<span class="fc" id="L134">		valueModifStack.invalidate();</span>
+<span class="fc" id="L135">		Boolean valueModifAccepted = valueModifAcceptedGetter.get();</span>
+<span class="fc" id="L136">		ValueReturnMode valueReturnMode = valueReturnModeGetter.get();</span>
+<span class="fc" id="L137">		boolean valueReplaced = valueReplacedGetter.get();</span>
+<span class="fc" id="L138">		boolean valueTransactionExecuted = valueTransactionExecutedGetter.get();</span>
+<span class="fc" id="L139">		IModification committingModif = committingModificationGetter.get();</span>
+<span class="fc" id="L140">		IModification undoModificationsReplacement = undoModificationsReplacementGetter.get();</span>
+<span class="fc" id="L141">		String parentObjectModifTitle = null;</span>
+<span class="fc" id="L142">		ModificationStack parentObjectModifStack = masterModificationStackGetter.get();</span>
+<span class="fc" id="L143">		boolean parentObjectModificationVolatile = masterModificationVolatileGetter.get();</span>
+		try {
+<span class="fc" id="L145">			ReflectionUIUtils.finalizeModifications(parentObjectModifStack, valueModifStack, valueModifAccepted,</span>
+<span class="fc" id="L146">					valueReturnMode, valueReplaced, valueTransactionExecuted, committingModif,</span>
+<span class="fc" id="L147">					undoModificationsReplacement, parentObjectModifTitle, parentObjectModificationVolatile,</span>
+<span class="fc" id="L148">					debugLogListener, errorLogListener);</span>
+<span class="pc" id="L149">		} catch (Throwable t) {</span>
+<span class="nc" id="L150">			masterModificationExceptionListener.handle(t);</span>
+		}
+<span class="fc" id="L152">	}</span>
+
+	@Override
+	public void forget() {
+<span class="fc" id="L156">		super.forget();</span>
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">		if (exclusiveLinkWithParent) {</span>
+<span class="fc" id="L158">			ModificationStack parentObjectModifStack = masterModificationStackGetter.get();</span>
+<span class="fc" id="L159">			parentObjectModifStack.forget();</span>
+<span class="fc" id="L160">		} else {</span>
+<span class="nc" id="L161">			forwardInvalidation();</span>
+		}
+<span class="fc" id="L163">	}</span>
+
+	@Override
+	public void undo() {
+<span class="nc" id="L167">		slaveUndo();</span>
+<span class="nc" id="L168">		ModificationStack parentObjectModifStack = masterModificationStackGetter.get();</span>
+<span class="nc" id="L169">		parentObjectModifStack.invalidate();</span>
+<span class="nc" id="L170">	}</span>
+
+	@Override
+	public void redo() {
+<span class="nc" id="L174">		slaveRedo();</span>
+<span class="nc" id="L175">		ModificationStack parentObjectModifStack = masterModificationStackGetter.get();</span>
+<span class="nc" id="L176">		parentObjectModifStack.invalidate();</span>
+<span class="nc" id="L177">	}</span>
+
+	protected void slaveUndo() {
+<span class="nc" id="L180">		super.undo();</span>
+<span class="nc" id="L181">	}</span>
+
+	protected void slaveRedo() {
+<span class="nc" id="L184">		super.redo();</span>
+<span class="nc" id="L185">	}</span>
+
+	@Override
+	public boolean isEventFiringEnabled() {
+<span class="nc" id="L189">		ModificationStack parentObjectModifStack = masterModificationStackGetter.get();</span>
+<span class="nc" id="L190">		return parentObjectModifStack.isEventFiringEnabled();</span>
+	}
+
+	@Override
+	public void setEventFiringEnabled(boolean eventFiringEnabled) {
+<span class="nc" id="L195">		ModificationStack parentObjectModifStack = masterModificationStackGetter.get();</span>
+<span class="nc" id="L196">		parentObjectModifStack.setEventFiringEnabled(eventFiringEnabled);</span>
+<span class="nc" id="L197">	}</span>
+
+	@Override
+	public void addListener(IModificationListener listener) {
+<span class="nc" id="L201">		ModificationStack parentObjectModifStack = masterModificationStackGetter.get();</span>
+<span class="nc" id="L202">		parentObjectModifStack.addListener(listener);</span>
+<span class="nc" id="L203">	}</span>
+
+	@Override
+	public void removeListener(IModificationListener listener) {
+<span class="fc" id="L207">		ModificationStack parentObjectModifStack = masterModificationStackGetter.get();</span>
+<span class="fc" id="L208">		parentObjectModifStack.removeListener(listener);</span>
+<span class="fc" id="L209">	}</span>
+
+	@Override
+	public IModificationListener[] getListeners() {
+<span class="nc" id="L213">		ModificationStack parentObjectModifStack = masterModificationStackGetter.get();</span>
+<span class="nc" id="L214">		return parentObjectModifStack.getListeners();</span>
+	}
+
+	/**
+	 * Allows to access the local listeners of this slave modification stack that
+	 * are normally unused since the parent modification stack listeners are used
+	 * instead when calling {@link #addListener(IModificationListener)}.
+	 * 
+	 * @param listener The listener.
+	 */
+	public void addSlaveListener(IModificationListener listener) {
+<span class="fc" id="L225">		super.addListener(listener);</span>
+<span class="fc" id="L226">	}</span>
+
+	/**
+	 * Allows to access the local listeners of this slave modification stack that
+	 * are normally unused since the parent modification stack listeners are used
+	 * instead when calling {@link #removeListener(IModificationListener)}.
+	 * 
+	 * @param listener The listener.
+	 */
+	public void removeSlaveListener(IModificationListener listener) {
+<span class="fc" id="L236">		super.removeListener(listener);</span>
+<span class="fc" id="L237">	}</span>
+
+	/**
+	 * @return the local listeners of this slave modification stack that are
+	 *         normally unused since the parent modification stack listeners are
+	 *         used instead when calling {@link #getListeners()}.
+	 */
+	public IModificationListener[] getSlaveListeners() {
+<span class="nc" id="L245">		return super.getListeners();</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L250">		return &quot;Slave&quot; + super.toString();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

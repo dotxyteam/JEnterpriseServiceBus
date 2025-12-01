@@ -66,3 +66,32 @@ values are part of the algorithms. Note that if an operation static parameter
 value need to be changed dynamically, then an alternate operation that use
 a lower level protocol should be used (eg: HTTP instead of SOAP).  
 
+STRATEGIC POSITIONING
+---------------------
+Enterprise Service Buses (ESBs) are fundamentally very useful because they 
+multiply developer productivity. However, they require specific and rare 
+expertise, leading to the creation of dedicated teams that ultimately become 
+bottlenecks. It likely explains the dislike for this type of product. 
+Actually, autonomy is preferred over productivity, as the former would shorten 
+development delays even if it increases workloads. 
+Thus how can we benefit from both autonomy and productivity? One solution would 
+be to allow each team to leverage the transformation and connectivity 
+capabilities of these tools. But for this to work, the required expertise would 
+need to be minimal or even nonexistent, and the integration of these tools into 
+projects would need to be facilitated. NOTE: It is therefore a good thing that 
+JESB does not use a specific syntax (just Java) to express complex logics. 
+The tool could, for example, be provided as a library usable in commonly 
+mastered programming environments. This involves providing, through the simplest 
+possible API, a way to edit and then invoke the tool's components (mappers, 
+connectors, etc.). Note that bridge APIs could be provided for other languages. 
+The editing interface should also be streamlined to require no special skills. 
+It may be a good idea to display only a subset of the editing tools, a subset 
+then tailored for each need (transformation only, connection only, etc.). 
+It might be necessary to create sub-projects based on derivative tools that 
+would only expose specific facets of the main tool. Current market trends 
+should be taken into account in this context to avoid overly disruptive 
+proposals, capitalizing on fads, etc.
+This positioning is particularly interesting at present because JESB would 
+not have been a serious competitor in the traditional ESB market due to its 
+lack of essential features in this area (monitoring, versioning, security, etc.).
+

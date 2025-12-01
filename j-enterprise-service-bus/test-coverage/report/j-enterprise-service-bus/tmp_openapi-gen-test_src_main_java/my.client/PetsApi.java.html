@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>PetsApi.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">tmp/openapi-gen-test/src/main/java</a> &gt; <a href="index.source.html" class="el_package">my.client</a> &gt; <span class="el_source">PetsApi.java</span></div><h1>PetsApi.java</h1><pre class="source lang-java linenums">package my.client;
+
+import my.ApiClient;
+
+import my.client.Pet;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+
+@javax.annotation.Generated(value = &quot;org.openapitools.codegen.languages.JavaClientCodegen&quot;, date = &quot;2025-08-01T19:38:38.903+02:00[Europe/Paris]&quot;)
+@Component(&quot;my.client.PetsApi&quot;)
+public class PetsApi {
+    private ApiClient apiClient;
+
+    public PetsApi() {
+<span class="nc" id="L30">        this(new ApiClient());</span>
+<span class="nc" id="L31">    }</span>
+
+    @Autowired
+<span class="nc" id="L34">    public PetsApi(ApiClient apiClient) {</span>
+<span class="nc" id="L35">        this.apiClient = apiClient;</span>
+<span class="nc" id="L36">    }</span>
+
+    public ApiClient getApiClient() {
+<span class="nc" id="L39">        return apiClient;</span>
+    }
+
+    public void setApiClient(ApiClient apiClient) {
+<span class="nc" id="L43">        this.apiClient = apiClient;</span>
+<span class="nc" id="L44">    }</span>
+
+    /**
+     * Create a pet
+     * 
+     * &lt;p&gt;&lt;b&gt;201&lt;/b&gt; - Null response
+     * &lt;p&gt;&lt;b&gt;0&lt;/b&gt; - unexpected error
+     * @param pet  (required)
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public void createPets(Pet pet) throws RestClientException {
+<span class="nc" id="L55">        createPetsWithHttpInfo(pet);</span>
+<span class="nc" id="L56">    }</span>
+
+    /**
+     * Create a pet
+     * 
+     * &lt;p&gt;&lt;b&gt;201&lt;/b&gt; - Null response
+     * &lt;p&gt;&lt;b&gt;0&lt;/b&gt; - unexpected error
+     * @param pet  (required)
+     * @return ResponseEntity&amp;lt;Void&amp;gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity&lt;Void&gt; createPetsWithHttpInfo(Pet pet) throws RestClientException {
+<span class="nc" id="L68">        Object localVarPostBody = pet;</span>
+        
+        // verify the required parameter 'pet' is set
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (pet == null) {</span>
+<span class="nc" id="L72">            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, &quot;Missing the required parameter 'pet' when calling createPets&quot;);</span>
+        }
+        
+
+<span class="nc" id="L76">        final MultiValueMap&lt;String, String&gt; localVarQueryParams = new LinkedMultiValueMap&lt;String, String&gt;();</span>
+<span class="nc" id="L77">        final HttpHeaders localVarHeaderParams = new HttpHeaders();</span>
+<span class="nc" id="L78">        final MultiValueMap&lt;String, String&gt; localVarCookieParams = new LinkedMultiValueMap&lt;String, String&gt;();</span>
+<span class="nc" id="L79">        final MultiValueMap&lt;String, Object&gt; localVarFormParams = new LinkedMultiValueMap&lt;String, Object&gt;();</span>
+
+<span class="nc" id="L81">        final String[] localVarAccepts = { </span>
+<span class="nc" id="L82">            &quot;application/json&quot;</span>
+         };
+<span class="nc" id="L84">        final List&lt;MediaType&gt; localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);</span>
+<span class="nc" id="L85">        final String[] localVarContentTypes = { </span>
+<span class="nc" id="L86">            &quot;application/json&quot;</span>
+         };
+<span class="nc" id="L88">        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);</span>
+
+<span class="nc" id="L90">        String[] localVarAuthNames = new String[] {  };</span>
+
+<span class="nc" id="L92">        ParameterizedTypeReference&lt;Void&gt; localReturnType = new ParameterizedTypeReference&lt;Void&gt;() {};</span>
+<span class="nc" id="L93">        return apiClient.invokeAPI(&quot;/pets&quot;, HttpMethod.POST, Collections.&lt;String, Object&gt;emptyMap(), localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);</span>
+    }
+    /**
+     * List all pets
+     * 
+     * &lt;p&gt;&lt;b&gt;200&lt;/b&gt; - A paged array of pets
+     * &lt;p&gt;&lt;b&gt;0&lt;/b&gt; - unexpected error
+     * @param limit How many items to return at one time (max 100) (optional)
+     * @return List&amp;lt;Pet&amp;gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public List&lt;Pet&gt; listPets(Integer limit) throws RestClientException {
+<span class="nc" id="L105">        return listPetsWithHttpInfo(limit).getBody();</span>
+    }
+
+    /**
+     * List all pets
+     * 
+     * &lt;p&gt;&lt;b&gt;200&lt;/b&gt; - A paged array of pets
+     * &lt;p&gt;&lt;b&gt;0&lt;/b&gt; - unexpected error
+     * @param limit How many items to return at one time (max 100) (optional)
+     * @return ResponseEntity&amp;lt;List&amp;lt;Pet&amp;gt;&amp;gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity&lt;List&lt;Pet&gt;&gt; listPetsWithHttpInfo(Integer limit) throws RestClientException {
+<span class="nc" id="L118">        Object localVarPostBody = null;</span>
+        
+
+<span class="nc" id="L121">        final MultiValueMap&lt;String, String&gt; localVarQueryParams = new LinkedMultiValueMap&lt;String, String&gt;();</span>
+<span class="nc" id="L122">        final HttpHeaders localVarHeaderParams = new HttpHeaders();</span>
+<span class="nc" id="L123">        final MultiValueMap&lt;String, String&gt; localVarCookieParams = new LinkedMultiValueMap&lt;String, String&gt;();</span>
+<span class="nc" id="L124">        final MultiValueMap&lt;String, Object&gt; localVarFormParams = new LinkedMultiValueMap&lt;String, Object&gt;();</span>
+
+<span class="nc" id="L126">        localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, &quot;limit&quot;, limit));</span>
+
+<span class="nc" id="L128">        final String[] localVarAccepts = { </span>
+<span class="nc" id="L129">            &quot;application/json&quot;</span>
+         };
+<span class="nc" id="L131">        final List&lt;MediaType&gt; localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);</span>
+<span class="nc" id="L132">        final String[] localVarContentTypes = {  };</span>
+<span class="nc" id="L133">        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);</span>
+
+<span class="nc" id="L135">        String[] localVarAuthNames = new String[] {  };</span>
+
+<span class="nc" id="L137">        ParameterizedTypeReference&lt;List&lt;Pet&gt;&gt; localReturnType = new ParameterizedTypeReference&lt;List&lt;Pet&gt;&gt;() {};</span>
+<span class="nc" id="L138">        return apiClient.invokeAPI(&quot;/pets&quot;, HttpMethod.GET, Collections.&lt;String, Object&gt;emptyMap(), localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);</span>
+    }
+    /**
+     * Info for a specific pet
+     * 
+     * &lt;p&gt;&lt;b&gt;200&lt;/b&gt; - Expected response to a valid request
+     * &lt;p&gt;&lt;b&gt;0&lt;/b&gt; - unexpected error
+     * @param petId The id of the pet to retrieve (required)
+     * @return Pet
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public Pet showPetById(String petId) throws RestClientException {
+<span class="nc" id="L150">        return showPetByIdWithHttpInfo(petId).getBody();</span>
+    }
+
+    /**
+     * Info for a specific pet
+     * 
+     * &lt;p&gt;&lt;b&gt;200&lt;/b&gt; - Expected response to a valid request
+     * &lt;p&gt;&lt;b&gt;0&lt;/b&gt; - unexpected error
+     * @param petId The id of the pet to retrieve (required)
+     * @return ResponseEntity&amp;lt;Pet&amp;gt;
+     * @throws RestClientException if an error occurs while attempting to invoke the API
+     */
+    public ResponseEntity&lt;Pet&gt; showPetByIdWithHttpInfo(String petId) throws RestClientException {
+<span class="nc" id="L163">        Object localVarPostBody = null;</span>
+        
+        // verify the required parameter 'petId' is set
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (petId == null) {</span>
+<span class="nc" id="L167">            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, &quot;Missing the required parameter 'petId' when calling showPetById&quot;);</span>
+        }
+        
+        // create path and map variables
+<span class="nc" id="L171">        final Map&lt;String, Object&gt; uriVariables = new HashMap&lt;String, Object&gt;();</span>
+<span class="nc" id="L172">        uriVariables.put(&quot;petId&quot;, petId);</span>
+
+<span class="nc" id="L174">        final MultiValueMap&lt;String, String&gt; localVarQueryParams = new LinkedMultiValueMap&lt;String, String&gt;();</span>
+<span class="nc" id="L175">        final HttpHeaders localVarHeaderParams = new HttpHeaders();</span>
+<span class="nc" id="L176">        final MultiValueMap&lt;String, String&gt; localVarCookieParams = new LinkedMultiValueMap&lt;String, String&gt;();</span>
+<span class="nc" id="L177">        final MultiValueMap&lt;String, Object&gt; localVarFormParams = new LinkedMultiValueMap&lt;String, Object&gt;();</span>
+
+<span class="nc" id="L179">        final String[] localVarAccepts = { </span>
+<span class="nc" id="L180">            &quot;application/json&quot;</span>
+         };
+<span class="nc" id="L182">        final List&lt;MediaType&gt; localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);</span>
+<span class="nc" id="L183">        final String[] localVarContentTypes = {  };</span>
+<span class="nc" id="L184">        final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);</span>
+
+<span class="nc" id="L186">        String[] localVarAuthNames = new String[] {  };</span>
+
+<span class="nc" id="L188">        ParameterizedTypeReference&lt;Pet&gt; localReturnType = new ParameterizedTypeReference&lt;Pet&gt;() {};</span>
+<span class="nc" id="L189">        return apiClient.invokeAPI(&quot;/pets/{petId}&quot;, HttpMethod.GET, uriVariables, localVarQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAccept, localVarContentType, localVarAuthNames, localReturnType);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>ValueReturnMode.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info</a> &gt; <span class="el_source">ValueReturnMode.java</span></div><h1>ValueReturnMode.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+/**
+ * This enumeration allows to specify what kind of relation exists between a
+ * value returned by a class member (field or a method) and its source object.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L14">public enum ValueReturnMode {</span>
+
+<span class="fc" id="L16">	/**</span>
+	 * Means that the value is an sub-object stored in the source object. Thus
+	 * altering the value is equivalent to altering the source object.
+	 */
+<span class="fc" id="L20">	DIRECT,</span>
+
+<span class="fc" id="L22">	/**</span>
+	 * (for backward compatibility) {@link #DIRECT} or {@link #PROXY}.
+	 */
+	@Deprecated
+<span class="fc" id="L26">	DIRECT_OR_PROXY,</span>
+
+<span class="fc" id="L28">	/**</span>
+	 * Means that the value is not a sub-object stored in the source object,
+	 * nevertheless altering the value will result in altering the source object.
+	 */
+<span class="fc" id="L32">	PROXY,</span>
+
+<span class="fc" id="L34">	/**</span>
+	 * Means that the value is not stored in the source object. It is either a copy
+	 * or a calculation result. Thus altering the value will not alter the source
+	 * object.
+	 */
+<span class="fc" id="L39">	CALCULATED,</span>
+
+<span class="fc" id="L41">	/**</span>
+	 * Means that the value could be stored in the source object or not. Thus
+	 * altering the value may alter (or not) the source object.
+	 */
+<span class="fc" id="L45">	INDETERMINATE;</span>
+
+	/**
+	 * 
+	 * @param parent The parent return mode.
+	 * @param child  The child return mode.
+	 * @return the result of the combination of 2 value return modes as if a parent
+	 *         value was obtained using the parent value return mode and a child
+	 *         value was obtained from the parent value using the child return value
+	 *         mode.
+	 */
+	public static ValueReturnMode combine(ValueReturnMode parent, ValueReturnMode child) {
+<span class="fc" id="L57">		return Collections.max(Arrays.asList(parent, child));</span>
+	}
+
+	/**
+	 * @param valueReturnMode an item of this enumeration.
+	 * @return whether the given valueReturnMode is {@link #DIRECT}, {@link #PROXY},
+	 *         or {@value #DIRECT_OR_PROXY}.
+	 */
+	public static boolean isDirectOrProxy(ValueReturnMode valueReturnMode) {
+<span class="fc bfc" id="L66" title="All 2 branches covered.">		if (valueReturnMode == DIRECT) {</span>
+<span class="fc" id="L67">			return true;</span>
+		}
+<span class="fc bfc" id="L69" title="All 2 branches covered.">		if (valueReturnMode == PROXY) {</span>
+<span class="fc" id="L70">			return true;</span>
+		}
+<span class="fc bfc" id="L72" title="All 2 branches covered.">		if (valueReturnMode == DIRECT_OR_PROXY) {</span>
+<span class="fc" id="L73">			return true;</span>
+		}
+<span class="fc" id="L75">		return false;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

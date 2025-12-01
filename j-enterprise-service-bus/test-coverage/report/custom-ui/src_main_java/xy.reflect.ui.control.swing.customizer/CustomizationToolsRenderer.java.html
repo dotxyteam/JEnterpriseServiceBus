@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CustomizationToolsRenderer.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">custom-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.customizer</a> &gt; <span class="el_source">CustomizationToolsRenderer.java</span></div><h1>CustomizationToolsRenderer.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.customizer;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Image;
+import java.awt.Window;
+import java.awt.event.WindowEvent;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+
+import org.jdesktop.swingx.StackLayout;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.control.swing.util.AlternativeWindowDecorationsPanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.control.swing.util.WindowManager;
+import xy.reflect.ui.info.app.IApplicationInfo;
+import xy.reflect.ui.info.custom.InfoCustomizations.AbstractCustomization;
+import xy.reflect.ui.info.custom.InfoCustomizations.TextualStorage;
+import xy.reflect.ui.info.field.IFieldInfo;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.util.MoreSystemProperties;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * This is a sub-class of {@link SwingRenderer} that generates the customization
+ * tools UIs.
+ * 
+ * @author olitank
+ *
+ */
+public class CustomizationToolsRenderer extends SwingCustomizer {
+
+	public CustomizationToolsRenderer(CustomizationToolsUI toolsUI) {
+<span class="fc" id="L42">		super(toolsUI, MoreSystemProperties.getInfoCustomizationToolsCustomizationsFilePath());</span>
+<span class="fc" id="L43">	}</span>
+
+	public CustomizationToolsUI getCustomizationToolsUI() {
+<span class="fc" id="L46">		return (CustomizationToolsUI) getCustomizedUI();</span>
+	}
+
+	@Override
+	public boolean isCustomizationsEditorEnabled() {
+<span class="fc" id="L51">		return getCustomizationToolsUI().getSwingCustomizer().isMetaCustomizationAllowed();</span>
+	}
+
+	@Override
+	public boolean isMetaCustomizationAllowed() {
+<span class="nc" id="L56">		return false;</span>
+	}
+
+	@Override
+	public CustomizationTools createCustomizationTools() {
+<span class="nc bnc" id="L61" title="All 2 branches missed.">		if (!getCustomizationToolsUI().getSwingCustomizer().isMetaCustomizationAllowed()) {</span>
+<span class="nc" id="L62">			return null;</span>
+		}
+<span class="nc" id="L64">		return new CustomizationTools(this);</span>
+	}
+
+	protected Color getToolsForegroundColor() {
+<span class="nc" id="L68">		IApplicationInfo toolsAppInfo = getCustomizationToolsUI().getApplicationInfo();</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		if (toolsAppInfo.getTitleForegroundColor() != null) {</span>
+<span class="nc" id="L70">			return SwingRendererUtils.getColor(toolsAppInfo.getTitleForegroundColor());</span>
+		}
+<span class="nc" id="L72">		return new Color(0, 255, 255);</span>
+	}
+
+	protected Color getToolsBackgroundColor() {
+<span class="nc" id="L76">		IApplicationInfo toolsAppInfo = getCustomizationToolsUI().getApplicationInfo();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">		if (toolsAppInfo.getTitleBackgroundColor() != null) {</span>
+<span class="nc" id="L78">			return SwingRendererUtils.getColor(toolsAppInfo.getTitleBackgroundColor());</span>
+		}
+<span class="nc" id="L80">		return new Color(0, 0, 0);</span>
+	}
+
+	@Override
+	public WindowManager createWindowManager(Window window) {
+<span class="nc" id="L85">		return new WindowManager(this, window) {</span>
+
+			@Override
+			protected void layoutContentPane(Container contentPane) {
+<span class="nc" id="L89">				alternativeDecorationsPanel = createAlternativeWindowDecorationsPanel(window, contentPane);</span>
+<span class="nc" id="L90">				rootPane.add(alternativeDecorationsPanel, StackLayout.TOP);</span>
+<span class="nc" id="L91">			}</span>
+
+			protected AlternativeWindowDecorationsPanel createAlternativeWindowDecorationsPanel(final Window window,
+					final Component windowContent) {
+<span class="nc" id="L95">				String title = SwingRendererUtils.getWindowTitle(window);</span>
+<span class="nc" id="L96">				Image iconImage = window.getIconImages().get(0);</span>
+				ImageIcon icon;
+<span class="nc bnc" id="L98" title="All 2 branches missed.">				if (SwingRendererUtils.isNullImage(iconImage)) {</span>
+<span class="nc" id="L99">					icon = null;</span>
+<span class="nc" id="L100">				} else {</span>
+<span class="nc" id="L101">					icon = SwingRendererUtils.getSmallIcon(new ImageIcon(iconImage));</span>
+				}
+<span class="nc" id="L103">				return new CustomWindowDecorationsPanel(title, icon, window, windowContent) {</span>
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void configureWindow(Window window) {
+<span class="nc" id="L109">						super.configureWindow(window);</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">						if (window instanceof JFrame) {</span>
+<span class="nc" id="L111">							getCloseButton().setVisible(false);</span>
+<span class="nc" id="L112">							getMaximizeButton().setVisible(false);</span>
+						}
+<span class="nc" id="L114">					}</span>
+
+				};
+			}
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+<span class="nc bnc" id="L121" title="All 2 branches missed.">				if (window instanceof JFrame) {</span>
+<span class="nc" id="L122">					return;</span>
+				}
+<span class="nc" id="L124">				super.windowClosing(e);</span>
+<span class="nc" id="L125">			}</span>
+
+		};
+	}
+
+	@Override
+	public CustomizingForm createForm(Object object, IInfoFilter infoFilter) {
+		/*
+		 * Add a button to allow to change textual storage data field control.
+		 */
+<span class="nc" id="L135">		return new CustomizingForm(this, object, infoFilter) {</span>
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
+<span class="nc" id="L141">				return new CustomizingFieldControlPlaceHolder(this, field) {</span>
+
+					private static final long serialVersionUID = 1L;
+					Component textualStorageFieldControlPluginSelectionComponent;
+
+					@Override
+					public void refreshInfoCustomizationsControl() {
+<span class="nc bnc" id="L148" title="All 2 branches missed.">						if (form.getObject() instanceof TextualStorage) {</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">							if (textualStorageFieldControlPluginSelectionComponent == null) {</span>
+<span class="nc" id="L150">								textualStorageFieldControlPluginSelectionComponent = new CustomizationTools(</span>
+<span class="nc" id="L151">										(SwingCustomizer) swingRenderer) {</span>
+
+									@Override
+									public void changeCustomizationFieldValue(AbstractCustomization customization,
+											String fieldName, Object fieldValue) {
+<span class="nc" id="L156">										ITypeInfo customizationType = ReflectionUI.getDefault().getTypeInfo(</span>
+<span class="nc" id="L157">												ReflectionUI.getDefault().getTypeInfoSource(customization));</span>
+<span class="nc" id="L158">										IFieldInfo customizationField = ReflectionUIUtils</span>
+<span class="nc" id="L159">												.findInfoByName(customizationType.getFields(), fieldName);</span>
+<span class="nc" id="L160">										customizationField.setValue(customization, fieldValue);</span>
+<span class="nc" id="L161">										form.refresh(true);</span>
+<span class="nc" id="L162">									}</span>
+
+									@Override
+									protected JButton makeButton() {
+<span class="nc" id="L166">										JButton result = new JButton(this.swingCustomizer.getCustomizationsIcon());</span>
+<span class="nc" id="L167">										result.setPreferredSize(new Dimension(result.getPreferredSize().height,</span>
+<span class="nc" id="L168">												result.getPreferredSize().height));</span>
+<span class="nc" id="L169">										result.setFocusable(false);</span>
+<span class="nc" id="L170">										return result;</span>
+									}
+<span class="nc" id="L172">								}.makeButtonForTextualStorageDataField(this);</span>
+<span class="nc" id="L173">								add(textualStorageFieldControlPluginSelectionComponent, BorderLayout.EAST);</span>
+<span class="nc" id="L174">								SwingRendererUtils.handleComponentSizeChange(this);</span>
+							}
+						}
+<span class="nc" id="L177">						super.refreshInfoCustomizationsControl();</span>
+<span class="nc" id="L178">					}</span>
+				};
+			}
+		};
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -94,6 +94,23 @@ public class InstanceBuilderFacade extends Facade {
 				return new InstantiationContext(context, InstanceBuilderFacade.this);
 			}
 
+			@Override
+			public void validate(boolean recursively, List<VariableDeclaration> variableDeclarations)
+					throws ValidationError {
+				if (!isConcrete()) {
+					return;
+				}
+				if (recursively) {
+					for (Facade facade : getChildren()) {
+						try {
+							facade.validate(recursively, variableDeclarations);
+						} catch (ValidationError e) {
+							throw new ValidationError("Failed to validate '" + facade.toString() + "'", e);
+						}
+					}
+				}
+			}
+
 		};
 	}
 

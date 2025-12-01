@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>HelpMenuItem.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.menu</a> &gt; <span class="el_source">HelpMenuItem.java</span></div><h1>HelpMenuItem.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.menu;
+
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.menu.StandardActionMenuItemInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.util.ReflectionUIError;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Menu item that allows to display the current object type online help.
+ * 
+ * @author olitank
+ *
+ */
+public class HelpMenuItem extends AbstractStandardActionMenuItem {
+
+	private static final long serialVersionUID = 1L;
+
+	public HelpMenuItem(SwingRenderer swingRenderer, Form menuBarOwner, StandardActionMenuItemInfo menuItemInfo) {
+<span class="nc" id="L22">		super(swingRenderer, menuBarOwner, menuItemInfo);</span>
+<span class="nc" id="L23">	}</span>
+
+	@Override
+	protected void execute() {
+<span class="nc" id="L27">		Object object = getContextForm().getObject();</span>
+<span class="nc" id="L28">		ITypeInfo type = swingRenderer.getReflectionUI()</span>
+<span class="nc" id="L29">				.getTypeInfo(swingRenderer.getReflectionUI().getTypeInfoSource(object));</span>
+<span class="nc" id="L30">		String onlineHelp = type.getOnlineHelp();</span>
+<span class="nc bnc" id="L31" title="All 4 branches missed.">		if ((onlineHelp == null) || (onlineHelp.length() == 0)) {</span>
+<span class="nc" id="L32">			throw new ReflectionUIError(&quot;Online help not provided for the type '&quot; + type.getName() + &quot;'&quot;);</span>
+		}
+<span class="nc" id="L34">		String title = ReflectionUIUtils.composeMessage(swingRenderer.getObjectTitle(object),</span>
+<span class="nc" id="L35">				menuItemInfo.getCaption());</span>
+<span class="nc" id="L36">		swingRenderer.openInformationDialog(menuBarOwner, onlineHelp, title);</span>
+<span class="nc" id="L37">	}</span>
+
+	@Override
+	protected boolean isActive() {
+<span class="nc" id="L41">		return true;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

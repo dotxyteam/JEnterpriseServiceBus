@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CallSOAPWebService.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">CallSOAPWebService.java</span></div><h1>CallSOAPWebService.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.xml.ws.BindingProvider;
+import javax.xml.ws.WebFault;
+
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.Reference;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variant;
+import com.otk.jesb.instantiation.InstantiationContext;
+import com.otk.jesb.instantiation.RootInstanceBuilder;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.operation.OperationMetadata;
+import com.otk.jesb.resource.builtin.WebDocumentBasedResource;
+import com.otk.jesb.resource.builtin.WSDL;
+import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor.OperationInput;
+import com.otk.jesb.solution.Step;
+import com.otk.jesb.solution.Plan.ExecutionContext;
+import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.util.Accessor;
+import com.otk.jesb.util.MiscUtils;
+import xy.reflect.ui.info.ResourcePath;
+
+public class CallSOAPWebService implements Operation {
+
+	private WSDL wsdl;
+	private Class&lt;?&gt; serviceClass;
+	private Class&lt;?&gt; portInterface;
+	private Method operationMethod;
+	private OperationInput operationInput;
+	private String customServiceEndpointURL;
+	private Class&lt;?&gt; operationOutputClass;
+
+<span class="fc" id="L45">	public CallSOAPWebService(WSDL wsdl, Class&lt;?&gt; serviceClass, Class&lt;?&gt; portInterface, Method operationMethod,</span>
+			OperationInput operationInput, String customServiceEndpointURL, Class&lt;?&gt; operationOutputClass) {
+<span class="fc" id="L47">		this.wsdl = wsdl;</span>
+<span class="fc" id="L48">		this.serviceClass = serviceClass;</span>
+<span class="fc" id="L49">		this.portInterface = portInterface;</span>
+<span class="fc" id="L50">		this.operationMethod = operationMethod;</span>
+<span class="fc" id="L51">		this.operationInput = operationInput;</span>
+<span class="fc" id="L52">		this.customServiceEndpointURL = customServiceEndpointURL;</span>
+<span class="fc" id="L53">		this.operationOutputClass = operationOutputClass;</span>
+<span class="fc" id="L54">	}</span>
+
+	public WebDocumentBasedResource getWSDL() {
+<span class="nc" id="L57">		return wsdl;</span>
+	}
+
+	public Class&lt;?&gt; getServiceClass() {
+<span class="nc" id="L61">		return serviceClass;</span>
+	}
+
+	public Class&lt;?&gt; getPortInterface() {
+<span class="nc" id="L65">		return portInterface;</span>
+	}
+
+	public Method getOperationMethod() {
+<span class="nc" id="L69">		return operationMethod;</span>
+	}
+
+	public OperationInput getOperationInput() {
+<span class="nc" id="L73">		return operationInput;</span>
+	}
+
+	public String getCustomServiceEndpointURL() {
+<span class="nc" id="L77">		return customServiceEndpointURL;</span>
+	}
+
+	public Class&lt;?&gt; getOperationOutputClass() {
+<span class="nc" id="L81">		return operationOutputClass;</span>
+	}
+
+	@Override
+	public Object execute() throws Exception {
+<span class="fc" id="L86">		File wsdlFile = MiscUtils.createTemporaryFile(&quot;wsdl&quot;);</span>
+		try {
+<span class="fc" id="L88">			MiscUtils.write(wsdlFile, wsdl.getText(), false);</span>
+<span class="fc" id="L89">			Object service = serviceClass.getConstructor(URL.class).newInstance(wsdlFile.toURI().toURL());</span>
+<span class="fc" id="L90">			Object port = serviceClass.getMethod(&quot;getPort&quot;, Class.class).invoke(service, portInterface);</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">			if (customServiceEndpointURL != null) {</span>
+<span class="fc" id="L92">				BindingProvider bindingProvider = (BindingProvider) port;</span>
+<span class="fc" id="L93">				bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY,</span>
+<span class="fc" id="L94">						customServiceEndpointURL);</span>
+			}
+<span class="fc" id="L96">			Object operationResult = operationMethod.invoke(port,</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">					(operationInput == null) ? new Object[0] : operationInput.listParameterValues());</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">			if (operationOutputClass == null) {</span>
+<span class="nc" id="L99">				return null;</span>
+			}
+<span class="fc" id="L101">			return operationOutputClass.getConstructor(operationMethod.getReturnType()).newInstance(operationResult);</span>
+<span class="fc" id="L102">		} catch (InvocationTargetException e) {</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">			if (e.getTargetException() instanceof Exception) {</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">				if (e.getTargetException().getClass().getAnnotation(WebFault.class) != null) {</span>
+<span class="fc" id="L105">					throw new WSDL.ResponseException(</span>
+<span class="fc" id="L106">							wsdl.faultExceptionToDescription((Exception) e.getTargetException(), operationMethod));</span>
+				} else {
+<span class="fc" id="L108">					throw (Exception) e.getTargetException();</span>
+				}
+			} else {
+<span class="nc" id="L111">				throw new PotentialError(e.getTargetException());</span>
+			}
+		} finally {
+<span class="fc" id="L114">			MiscUtils.delete(wsdlFile);</span>
+		}
+	}
+
+<span class="fc" id="L118">	public static class Metadata implements OperationMetadata&lt;CallSOAPWebService&gt; {</span>
+
+		@Override
+		public String getOperationTypeName() {
+<span class="fc" id="L122">			return &quot;Call SOAP Web Service&quot;;</span>
+		}
+
+		@Override
+		public String getCategoryName() {
+<span class="fc" id="L127">			return &quot;SOAP&quot;;</span>
+		}
+
+		@Override
+		public Class&lt;? extends OperationBuilder&lt;CallSOAPWebService&gt;&gt; getOperationBuilderClass() {
+<span class="fc" id="L132">			return Builder.class;</span>
+		}
+
+		@Override
+		public ResourcePath getOperationIconImagePath() {
+<span class="fc" id="L137">			return new ResourcePath(ResourcePath</span>
+<span class="fc" id="L138">					.specifyClassPathResourceLocation(CallSOAPWebService.class.getName().replace(&quot;.&quot;, &quot;/&quot;) + &quot;.png&quot;));</span>
+		}
+	}
+
+<span class="fc" id="L142">	public static class Builder implements OperationBuilder&lt;CallSOAPWebService&gt; {</span>
+
+<span class="fc" id="L144">		private Reference&lt;WSDL&gt; wsdlReference = new Reference&lt;WSDL&gt;(WSDL.class);</span>
+<span class="fc" id="L145">		private RootInstanceBuilder operationInputBuilder = new RootInstanceBuilder(</span>
+<span class="fc" id="L146">				OperationInput.class.getSimpleName(), new OperationInputClassNameAccessor());</span>
+		private String serviceName;
+		private String portName;
+		private String operationSignature;
+<span class="fc" id="L150">		private Variant&lt;String&gt; customServiceEndpointURLVariant = new Variant&lt;String&gt;(String.class);</span>
+
+		private WSDL getWSDL() {
+<span class="fc" id="L153">			return wsdlReference.resolve();</span>
+		}
+
+		public Reference&lt;WSDL&gt; getWsdlReference() {
+<span class="nc" id="L157">			return wsdlReference;</span>
+		}
+
+		public void setWsdlReference(Reference&lt;WSDL&gt; wsdlReference) {
+<span class="fc" id="L161">			this.wsdlReference = wsdlReference;</span>
+<span class="fc" id="L162">			tryToSelectValuesAutomatically();</span>
+<span class="fc" id="L163">		}</span>
+
+		public String getServiceName() {
+<span class="nc" id="L166">			return serviceName;</span>
+		}
+
+		public void setServiceName(String serviceName) {
+<span class="fc" id="L170">			this.serviceName = serviceName;</span>
+<span class="fc" id="L171">			tryToSelectValuesAutomatically();</span>
+<span class="fc" id="L172">		}</span>
+
+		public String getPortName() {
+<span class="nc" id="L175">			return portName;</span>
+		}
+
+		public void setPortName(String portName) {
+<span class="fc" id="L179">			this.portName = portName;</span>
+<span class="fc" id="L180">			tryToSelectValuesAutomatically();</span>
+<span class="fc" id="L181">		}</span>
+
+		public String getOperationSignature() {
+<span class="nc" id="L184">			return operationSignature;</span>
+		}
+
+		public void setOperationSignature(String operationSignature) {
+<span class="fc" id="L188">			this.operationSignature = operationSignature;</span>
+<span class="fc" id="L189">			tryToSelectValuesAutomatically();</span>
+<span class="fc" id="L190">		}</span>
+
+		public RootInstanceBuilder getOperationInputBuilder() {
+<span class="nc" id="L193">			return operationInputBuilder;</span>
+		}
+
+		public void setOperationInputBuilder(RootInstanceBuilder operationInputBuilder) {
+<span class="fc" id="L197">			this.operationInputBuilder = operationInputBuilder;</span>
+<span class="fc" id="L198">		}</span>
+
+		public Variant&lt;String&gt; getCustomServiceEndpointURLVariant() {
+<span class="nc" id="L201">			return customServiceEndpointURLVariant;</span>
+		}
+
+		public void setCustomServiceEndpointURLVariant(Variant&lt;String&gt; customServiceEndpointURLVariant) {
+<span class="fc" id="L205">			this.customServiceEndpointURLVariant = customServiceEndpointURLVariant;</span>
+<span class="fc" id="L206">		}</span>
+
+		private void tryToSelectValuesAutomatically() {
+			try {
+<span class="fc bfc" id="L210" title="All 2 branches covered.">				if (serviceName == null) {</span>
+<span class="fc" id="L211">					WSDL wsdl = getWSDL();</span>
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">					if (wsdl != null) {</span>
+<span class="nc" id="L213">						List&lt;WSDL.ServiceClientDescriptor&gt; services = wsdl.getServiceClientDescriptors();</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">						if (services.size() &gt; 0) {</span>
+<span class="nc" id="L215">							serviceName = services.get(0).getServiceName();</span>
+						}
+					}
+				}
+<span class="fc bfc" id="L219" title="All 2 branches covered.">				if (portName == null) {</span>
+<span class="fc" id="L220">					WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor();</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">					if (service != null) {</span>
+<span class="nc" id="L222">						List&lt;WSDL.PortDescriptor&gt; ports = service.getPortDescriptors();</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">						if (ports.size() &gt; 0) {</span>
+<span class="nc" id="L224">							portName = ports.get(0).getPortName();</span>
+						}
+					}
+				}
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">				if (operationSignature == null) {</span>
+<span class="nc" id="L229">					WSDL.PortDescriptor port = retrievePortDescriptor();</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">					if (port != null) {</span>
+<span class="nc" id="L231">						List&lt;WSDL.OperationDescriptor&gt; operations = port.getOperationDescriptors();</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">						if (operations.size() &gt; 0) {</span>
+<span class="nc" id="L233">							operationSignature = operations.get(0).getOperationSignature();</span>
+						}
+					}
+				}
+<span class="nc" id="L237">			} catch (Throwable t) {</span>
+			}
+<span class="fc" id="L239">		}</span>
+
+		public List&lt;String&gt; getServiceNameOptions() {
+<span class="nc" id="L242">			WSDL wsdl = getWSDL();</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">			if (wsdl == null) {</span>
+<span class="nc" id="L244">				return Collections.emptyList();</span>
+			}
+<span class="nc" id="L246">			return wsdl.getServiceClientDescriptors().stream().map(s -&gt; s.getServiceName())</span>
+<span class="nc" id="L247">					.collect(Collectors.toList());</span>
+		}
+
+		public List&lt;String&gt; getPortNameOptions() {
+<span class="nc" id="L251">			WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor();</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">			if (service == null) {</span>
+<span class="nc" id="L253">				return Collections.emptyList();</span>
+			}
+<span class="nc" id="L255">			return service.getPortDescriptors().stream().map(p -&gt; p.getPortName()).collect(Collectors.toList());</span>
+		}
+
+		public List&lt;String&gt; getOperationSignatureOptions() {
+<span class="nc" id="L259">			WSDL.PortDescriptor port = retrievePortDescriptor();</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">			if (port == null) {</span>
+<span class="nc" id="L261">				return Collections.emptyList();</span>
+			}
+<span class="nc" id="L263">			return port.getOperationDescriptors().stream().map(o -&gt; o.getOperationSignature())</span>
+<span class="nc" id="L264">					.collect(Collectors.toList());</span>
+		}
+
+		@Override
+		public CallSOAPWebService build(ExecutionContext context, ExecutionInspector executionInspector)
+				throws Exception {
+<span class="fc" id="L270">			WSDL wsdl = getWSDL();</span>
+<span class="fc" id="L271">			Class&lt;?&gt; serviceClass = retrieveServiceClientDescriptor().retrieveClass();</span>
+<span class="fc" id="L272">			Class&lt;?&gt; portInterface = retrievePortDescriptor().retrieveInterface();</span>
+<span class="fc" id="L273">			Method operationMethod = retrieveOperationDescriptor().retrieveMethod();</span>
+<span class="fc" id="L274">			OperationInput operationInput = (OperationInput) operationInputBuilder.build(new InstantiationContext(</span>
+<span class="fc" id="L275">					context.getVariables(),</span>
+<span class="fc" id="L276">					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));</span>
+<span class="fc" id="L277">			Class&lt;?&gt; operationOutputClass = retrieveOperationDescriptor().getOperationOutputClass();</span>
+<span class="fc" id="L278">			return new CallSOAPWebService(wsdl, serviceClass, portInterface, operationMethod, operationInput,</span>
+<span class="fc" id="L279">					customServiceEndpointURLVariant.getValue(), operationOutputClass);</span>
+		}
+
+		@Override
+		public Class&lt;?&gt; getOperationResultClass(Plan currentPlan, Step currentStep) {
+<span class="fc" id="L284">			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();</span>
+<span class="pc bpc" id="L285" title="1 of 2 branches missed.">			if (operation == null) {</span>
+<span class="nc" id="L286">				return null;</span>
+			}
+<span class="fc" id="L288">			return operation.getOperationOutputClass();</span>
+		}
+
+		private WSDL.ServiceClientDescriptor retrieveServiceClientDescriptor() {
+<span class="fc" id="L292">			WSDL wsdl = getWSDL();</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">			if (wsdl == null) {</span>
+<span class="fc" id="L294">				return null;</span>
+			}
+<span class="fc" id="L296">			return wsdl.getServiceClientDescriptor(serviceName);</span>
+		}
+
+		private WSDL.PortDescriptor retrievePortDescriptor() {
+<span class="fc" id="L300">			WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor();</span>
+<span class="pc bpc" id="L301" title="1 of 2 branches missed.">			if (service == null) {</span>
+<span class="nc" id="L302">				return null;</span>
+			}
+<span class="fc" id="L304">			return service.getPortDescriptor(portName);</span>
+		}
+
+		private WSDL.OperationDescriptor retrieveOperationDescriptor() {
+<span class="fc" id="L308">			WSDL.PortDescriptor port = retrievePortDescriptor();</span>
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">			if (port == null) {</span>
+<span class="nc" id="L310">				return null;</span>
+			}
+<span class="fc" id="L312">			return port.getOperationDescriptor(operationSignature);</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L317" title="1 of 2 branches missed.">			if (getWSDL() == null) {</span>
+<span class="nc" id="L318">				throw new ValidationError(&quot;Failed to resolve the WSDL reference&quot;);</span>
+			}
+<span class="pc bpc" id="L320" title="1 of 2 branches missed.">			if (retrieveServiceClientDescriptor() == null) {</span>
+<span class="nc" id="L321">				throw new ValidationError(&quot;Invalid service name '&quot; + serviceName + &quot;'&quot;);</span>
+			}
+<span class="pc bpc" id="L323" title="1 of 2 branches missed.">			if (retrievePortDescriptor() == null) {</span>
+<span class="nc" id="L324">				throw new ValidationError(&quot;Invalid port name '&quot; + portName + &quot;'&quot;);</span>
+			}
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">			if (retrieveOperationDescriptor() == null) {</span>
+<span class="nc" id="L327">				throw new ValidationError(&quot;Invalid operation signature '&quot; + operationSignature + &quot;'&quot;);</span>
+			}
+<span class="fc" id="L329">			String customServiceEndpointURL = customServiceEndpointURLVariant.getValue();</span>
+<span class="pc bpc" id="L330" title="1 of 2 branches missed.">			if (customServiceEndpointURL != null) {</span>
+				try {
+<span class="fc" id="L332">					new URL(customServiceEndpointURL);</span>
+<span class="pc" id="L333">				} catch (MalformedURLException e) {</span>
+<span class="nc" id="L334">					throw new ValidationError(&quot;Invalid custom endpoint URL: '&quot; + customServiceEndpointURL + &quot;'&quot;, e);</span>
+				}
+			}
+<span class="pc bpc" id="L337" title="1 of 2 branches missed.">			if (recursively) {</span>
+<span class="fc" id="L338">				operationInputBuilder.getFacade().validate(recursively,</span>
+<span class="fc" id="L339">						plan.getValidationContext(step).getVariableDeclarations());</span>
+			}
+<span class="fc" id="L341">		}</span>
+
+<span class="fc" id="L343">		private class OperationInputClassNameAccessor extends Accessor&lt;String&gt; {</span>
+			@Override
+			public String get() {
+<span class="fc" id="L346">				WSDL.OperationDescriptor operation = retrieveOperationDescriptor();</span>
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">				if (operation == null) {</span>
+<span class="nc" id="L348">					return null;</span>
+				}
+<span class="fc" id="L350">				return operation.getOperationInputClass().getName();</span>
+			}
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

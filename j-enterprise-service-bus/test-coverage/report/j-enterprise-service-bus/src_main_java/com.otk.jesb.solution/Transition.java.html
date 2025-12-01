@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Transition.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.solution</a> &gt; <span class="el_source">Transition.java</span></div><h1>Transition.java</h1><pre class="source lang-java linenums">package com.otk.jesb.solution;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.otk.jesb.Function;
+import com.otk.jesb.PotentialError;
+import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.compiler.CompiledFunction;
+import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
+import com.otk.jesb.util.MiscUtils;
+
+/**
+ * This class represents the arcs that connect {@link Step} instances in a
+ * {@link Plan}.
+ * 
+ * @author olitank
+ *
+ */
+<span class="fc" id="L24">public class Transition extends PlanElement {</span>
+
+	private Step startStep;
+	private Step endStep;
+	private String label;
+	private Condition condition;
+
+	public Step getStartStep() {
+<span class="fc" id="L32">		return startStep;</span>
+	}
+
+	public void setStartStep(Step startStep) {
+<span class="fc" id="L36">		this.startStep = startStep;</span>
+<span class="fc" id="L37">	}</span>
+
+	public Step getEndStep() {
+<span class="fc" id="L40">		return endStep;</span>
+	}
+
+	public void setEndStep(Step endStep) {
+<span class="fc" id="L44">		this.endStep = endStep;</span>
+<span class="fc" id="L45">	}</span>
+
+	public String getLabel() {
+<span class="fc" id="L48">		return label;</span>
+	}
+
+	public void setLabel(String label) {
+<span class="fc" id="L52">		this.label = label;</span>
+<span class="fc" id="L53">	}</span>
+
+	public Condition getCondition() {
+<span class="fc" id="L56">		return condition;</span>
+	}
+
+	public void setCondition(Condition condition) {
+<span class="fc" id="L60">		this.condition = condition;</span>
+<span class="fc" id="L61">	}</span>
+
+	@Override
+	public void validate(boolean recursively, Plan plan) throws ValidationError {
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		for (Transition otherTransition : plan.getTransitions()) {</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">			if (otherTransition == this) {</span>
+<span class="fc" id="L67">				continue;</span>
+			}
+<span class="pc bpc" id="L69" title="2 of 4 branches missed.">			if ((startStep != null) &amp;&amp; (endStep != null)) {</span>
+<span class="pc bpc" id="L70" title="1 of 4 branches missed.">				if ((startStep == otherTransition.startStep) &amp;&amp; (endStep == otherTransition.endStep)) {</span>
+<span class="nc" id="L71">					throw new ValidationError(&quot;Duplicate transition detected&quot;);</span>
+				}
+			}
+		}
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">		if (recursively) {</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">			if (condition != null) {</span>
+				try {
+<span class="fc" id="L78">					condition.validate(plan.getTransitionContextVariableDeclarations(this));</span>
+<span class="pc" id="L79">				} catch (ValidationError e) {</span>
+<span class="nc" id="L80">					throw new ValidationError(&quot;Failed to valide condition&quot;, e);</span>
+				}
+			}
+		}
+<span class="fc" id="L84">	}</span>
+
+	@Override
+	public String getSummary() {
+<span class="fc" id="L88">		return getStartStep().getName() + &quot; =&gt; &quot; + getEndStep().getName();</span>
+	}
+
+	public List&lt;VariableDeclaration&gt; getVariableDeclarations() {
+<span class="fc" id="L92">		List&lt;VariableDeclaration&gt; result = new ArrayList&lt;VariableDeclaration&gt;();</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">		if (condition instanceof ExceptionCondition) {</span>
+<span class="fc" id="L94">			ExceptionCondition exceptionCondition = (ExceptionCondition) condition;</span>
+<span class="fc" id="L95">			VariableDeclaration exceptionVariableDeclaration = exceptionCondition.getExceptionVariableDeclaration();</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">			if (exceptionVariableDeclaration != null) {</span>
+<span class="fc" id="L97">				result.add(exceptionVariableDeclaration);</span>
+			}
+		}
+<span class="fc" id="L100">		return result;</span>
+	}
+
+	public static List&lt;Transition&gt; computeValidTranstions(List&lt;Transition&gt; transitions,
+			Plan.ExecutionError executionError, Plan.ExecutionContext context) throws FunctionCallError {
+<span class="fc" id="L105">		List&lt;Transition&gt; result = new ArrayList&lt;Transition&gt;();</span>
+<span class="fc" id="L106">		List&lt;Transition&gt; elseTransitions = new ArrayList&lt;Transition&gt;();</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">		for (Transition transition : transitions) {</span>
+<span class="fc bfc" id="L108" title="All 2 branches covered.">			if (transition.getCondition() != null) {</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">				if (transition.getCondition() instanceof IfCondition) {</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">					if (executionError == null) {</span>
+<span class="fc" id="L111">						if (((IfCondition) transition.getCondition()).isFulfilled(</span>
+<span class="fc" id="L112">								context.getPlan().getTransitionContextVariableDeclarations(transition),</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">								context.getVariables())) {</span>
+<span class="fc" id="L114">							result.add(transition);</span>
+						}
+					}
+<span class="fc bfc" id="L117" title="All 2 branches covered.">				} else if (transition.getCondition() instanceof ElseCondition) {</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">					if (executionError == null) {</span>
+<span class="fc" id="L119">						elseTransitions.add(transition);</span>
+					}
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">				} else if (transition.getCondition() instanceof ExceptionCondition) {</span>
+<span class="fc" id="L122">					ExceptionCondition exceptionCondition = (ExceptionCondition) transition.getCondition();</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">					if (executionError != null) {</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">						if (exceptionCondition.isFullfilled(executionError.getCause())) {</span>
+<span class="fc" id="L125">							result.add(transition);</span>
+						}
+					}
+<span class="fc" id="L128">				} else {</span>
+<span class="nc" id="L129">					throw new UnexpectedError();</span>
+				}
+			} else {
+<span class="fc bfc" id="L132" title="All 2 branches covered.">				if (executionError == null) {</span>
+<span class="fc" id="L133">					result.add(transition);</span>
+				}
+			}
+		}
+<span class="fc bfc" id="L137" title="All 2 branches covered.">		if (elseTransitions.size() &gt; 0) {</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">			if (result.stream().noneMatch(transition -&gt; (transition.getCondition() instanceof IfCondition))) {</span>
+<span class="fc" id="L139">				result.addAll(elseTransitions);</span>
+			}
+		}
+<span class="fc" id="L142">		return result;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L147">		StringBuilder result = new StringBuilder();</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">		if (label != null) {</span>
+<span class="fc" id="L149">			result.append(label);</span>
+<span class="fc" id="L150">		} else {</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">			if (condition instanceof IfCondition) {</span>
+<span class="nc" id="L152">				result.append(&quot;?&quot;);</span>
+<span class="pc bfc" id="L153" title="All 2 branches covered.">			} else if (condition instanceof ElseCondition) {</span>
+<span class="fc" id="L154">				result.append(&quot;x&quot;);</span>
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">			} else if (condition instanceof ExceptionCondition) {</span>
+<span class="nc" id="L156">				result.append(&quot;!&quot;);</span>
+			}
+		}
+<span class="fc" id="L159">		return result.toString();</span>
+	}
+
+	public static interface Condition {
+
+		void validate(List&lt;VariableDeclaration&gt; variableDeclarations) throws ValidationError;
+
+	}
+
+	public static class IfCondition extends Function implements Condition {
+<span class="fc" id="L169">		public IfCondition() {</span>
+<span class="fc" id="L170">			setFunctionBody(&quot;return true;&quot;);</span>
+<span class="fc" id="L171">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L175">			return &quot;If: &quot; + getFunctionBody();</span>
+		}
+
+		public boolean isFulfilled(List&lt;VariableDeclaration&gt; variableDeclarations, List&lt;Variable&gt; variables)
+				throws FunctionCallError {
+			CompiledFunction&lt;?&gt; compiledFunction;
+			try {
+<span class="fc" id="L182">				compiledFunction = getCompiledVersion(null, variableDeclarations, boolean.class);</span>
+<span class="pc" id="L183">			} catch (CompilationError e) {</span>
+<span class="nc" id="L184">				throw new PotentialError(e);</span>
+			}
+<span class="fc" id="L186">			return (boolean) compiledFunction.call(variables);</span>
+		}
+
+		@Override
+		public void validate(List&lt;VariableDeclaration&gt; variableDeclarations) throws ValidationError {
+			try {
+<span class="fc" id="L192">				getCompiledVersion(null, variableDeclarations, boolean.class);</span>
+<span class="pc" id="L193">			} catch (CompilationError e) {</span>
+<span class="nc" id="L194">				throw new ValidationError(&quot;Failed to validate the predicate&quot;, e);</span>
+			}
+<span class="fc" id="L196">		}</span>
+
+	}
+
+<span class="fc" id="L200">	public static class ElseCondition implements Condition {</span>
+		@Override
+		public String toString() {
+<span class="nc" id="L203">			return &quot;Else&quot;;</span>
+		}
+
+		@Override
+		public void validate(List&lt;VariableDeclaration&gt; variableDeclarations) throws ValidationError {
+<span class="fc" id="L208">		}</span>
+	}
+
+<span class="fc" id="L211">	public static class ExceptionCondition implements Condition {</span>
+<span class="fc" id="L212">		private String exceptionTypeName = Exception.class.getName();</span>
+		private String exceptionVariableName;
+
+		public String getExceptionTypeName() {
+<span class="nc" id="L216">			return exceptionTypeName;</span>
+		}
+
+		public void setExceptionTypeName(String exceptionTypeName) {
+<span class="fc" id="L220">			this.exceptionTypeName = exceptionTypeName;</span>
+<span class="fc" id="L221">		}</span>
+
+		public String getExceptionVariableName() {
+<span class="nc" id="L224">			return exceptionVariableName;</span>
+		}
+
+		public void setExceptionVariableName(String exceptionVariableName) {
+<span class="fc" id="L228">			this.exceptionVariableName = exceptionVariableName;</span>
+<span class="fc" id="L229">		}</span>
+
+		public VariableDeclaration getExceptionVariableDeclaration() {
+<span class="fc bfc" id="L232" title="All 2 branches covered.">			if (exceptionVariableName == null) {</span>
+<span class="fc" id="L233">				return null;</span>
+			}
+<span class="fc" id="L235">			return new VariableDeclaration() {</span>
+				@Override
+				public Class&lt;?&gt; getVariableType() {
+<span class="fc" id="L238">					return MiscUtils.getJESBClass(exceptionTypeName);</span>
+				}
+
+				@Override
+				public String getVariableName() {
+<span class="fc" id="L243">					return exceptionVariableName;</span>
+				}
+			};
+		}
+
+		public Variable getExceptionVariable(Throwable exception) {
+<span class="fc bfc" id="L249" title="All 2 branches covered.">			if (exceptionVariableName == null) {</span>
+<span class="fc" id="L250">				return null;</span>
+			}
+<span class="fc" id="L252">			return new Variable() {</span>
+
+				@Override
+				public Object getValue() {
+<span class="fc" id="L256">					return exception;</span>
+				}
+
+				@Override
+				public String getName() {
+<span class="fc" id="L261">					return exceptionVariableName;</span>
+				}
+			};
+		}
+
+		public boolean isFullfilled(Throwable thrown) {
+			Class&lt;?&gt; exceptionClass;
+			try {
+<span class="fc" id="L269">				exceptionClass = MiscUtils.getJESBClass(exceptionTypeName);</span>
+<span class="pc" id="L270">			} catch (Throwable t) {</span>
+<span class="nc" id="L271">				throw new PotentialError(t);</span>
+			}
+<span class="fc" id="L273">			return exceptionClass.isInstance(thrown);</span>
+		}
+
+		@Override
+		public void validate(List&lt;VariableDeclaration&gt; variableDeclarations) throws ValidationError {
+<span class="fc" id="L278">			MiscUtils.getJESBClass(exceptionTypeName);</span>
+<span class="fc" id="L279">		}</span>
+
+		@Override
+		public String toString() {
+<span class="nc" id="L283">			return exceptionTypeName;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

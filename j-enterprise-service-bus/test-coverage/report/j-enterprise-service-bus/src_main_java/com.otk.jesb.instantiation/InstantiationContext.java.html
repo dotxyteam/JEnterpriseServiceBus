@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>InstantiationContext.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.instantiation</a> &gt; <span class="el_source">InstantiationContext.java</span></div><h1>InstantiationContext.java</h1><pre class="source lang-java linenums">package com.otk.jesb.instantiation;
+
+import java.util.ArrayList;
+import java.util.List;
+import com.otk.jesb.Variable;
+import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.instantiation.ListItemReplication.IterationVariable;
+import com.otk.jesb.util.MiscUtils;
+
+/**
+ * Contains contextual information to use during the execution of
+ * {@link InstanceBuilder#build(InstantiationContext)}.
+ * 
+ * @author olitank
+ *
+ */
+public class InstantiationContext {
+
+<span class="fc" id="L19">	private List&lt;Variable&gt; variables = new ArrayList&lt;Variable&gt;();</span>
+	private Facade parentFacade;
+	private List&lt;VariableDeclaration&gt; variableDeclarations;
+
+<span class="fc" id="L23">	protected InstantiationContext(Facade parentFacade, List&lt;Variable&gt; variables,</span>
+			List&lt;VariableDeclaration&gt; variableDeclarations) {
+<span class="fc" id="L25">		this.parentFacade = parentFacade;</span>
+<span class="fc" id="L26">		this.variables = variables;</span>
+<span class="fc" id="L27">		this.variableDeclarations = variableDeclarations;</span>
+<span class="fc" id="L28">	}</span>
+
+	protected InstantiationContext(InstantiationContext parentContext, Facade newParentFacade) {
+<span class="fc" id="L31">		this(newParentFacade, parentContext.getVariables(), parentContext.getVariableDeclarations());</span>
+<span class="fc" id="L32">	}</span>
+
+	protected InstantiationContext(InstantiationContext parentContext, IterationVariable newVariable) {
+<span class="fc" id="L35">		this(parentContext.getParentFacade(), MiscUtils.added(parentContext.getVariables(), -1, newVariable),</span>
+<span class="fc" id="L36">				parentContext.getVariableDeclarations());</span>
+<span class="fc" id="L37">	}</span>
+
+	public InstantiationContext(List&lt;Variable&gt; variables, List&lt;VariableDeclaration&gt; variableDeclarations) {
+<span class="fc" id="L40">		this(null, variables, variableDeclarations);</span>
+<span class="fc" id="L41">	}</span>
+
+	public List&lt;Variable&gt; getVariables() {
+<span class="fc" id="L44">		return variables;</span>
+	}
+
+	public Facade getParentFacade() {
+<span class="fc" id="L48">		return parentFacade;</span>
+	}
+
+	public List&lt;VariableDeclaration&gt; getVariableDeclarations() {
+<span class="fc" id="L52">		return variableDeclarations;</span>
+	}
+
+	public InstantiationFunctionCompilationContext getFunctionCompilationContex(InstantiationFunction function) {
+<span class="fc" id="L56">		return new InstantiationFunctionCompilationContext(variableDeclarations, parentFacade);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

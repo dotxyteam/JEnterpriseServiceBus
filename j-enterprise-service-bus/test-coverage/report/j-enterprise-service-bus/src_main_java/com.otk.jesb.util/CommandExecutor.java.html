@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>CommandExecutor.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.util</a> &gt; <span class="el_source">CommandExecutor.java</span></div><h1>CommandExecutor.java</h1><pre class="source lang-java linenums">package com.otk.jesb.util;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import com.otk.jesb.UnexpectedError;
+
+public class CommandExecutor {
+
+	private String commandLine;
+	private OutputStream processOutputRedirectedTo;
+	private OutputStream processErrorRedirectedTo;
+	private File workingDir;
+	private Map&lt;String, String&gt; env;
+	private Process process;
+	private Thread outputRedirector;
+	private Thread errorRedirector;
+
+<span class="fc" id="L28">	public CommandExecutor(String commandLine) {</span>
+<span class="fc" id="L29">		this.commandLine = commandLine;</span>
+<span class="fc" id="L30">	}</span>
+
+<span class="nc" id="L32">	public CommandExecutor() {</span>
+<span class="nc" id="L33">	}</span>
+
+	public String getCommandLine() {
+<span class="nc" id="L36">		return commandLine;</span>
+	}
+
+	public void setCommandLine(String commandLine) {
+<span class="nc" id="L40">		this.commandLine = commandLine;</span>
+<span class="nc" id="L41">	}</span>
+
+	public OutputStream getProcessOutputRedirectedTo() {
+<span class="nc" id="L44">		return processOutputRedirectedTo;</span>
+	}
+
+	public void setProcessOutputRedirectedTo(OutputStream out) {
+<span class="fc" id="L48">		this.processOutputRedirectedTo = out;</span>
+<span class="fc" id="L49">	}</span>
+
+	public OutputStream getProcessErrorRedirectedTo() {
+<span class="nc" id="L52">		return processErrorRedirectedTo;</span>
+	}
+
+	public void setProcessErrorRedirectedTo(OutputStream err) {
+<span class="fc" id="L56">		this.processErrorRedirectedTo = err;</span>
+<span class="fc" id="L57">	}</span>
+
+	public File getWorkingDir() {
+<span class="nc" id="L60">		return workingDir;</span>
+	}
+
+	public void setWorkingDir(File workingDir) {
+<span class="fc" id="L64">		this.workingDir = workingDir;</span>
+<span class="fc" id="L65">	}</span>
+
+	public Map&lt;String, String&gt; getEnv() {
+<span class="nc" id="L68">		return env;</span>
+	}
+
+	public void setEnv(Map&lt;String, String&gt; env) {
+<span class="nc" id="L72">		this.env = env;</span>
+<span class="nc" id="L73">	}</span>
+
+	public Process getLaunchedProcess() {
+<span class="fc" id="L76">		return process;</span>
+	}
+
+	public String[] getEnvAsArray() {
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">		if (env == null) {</span>
+<span class="fc" id="L81">			return null;</span>
+		}
+<span class="nc" id="L83">		List&lt;String&gt; envList = new ArrayList&lt;String&gt;();</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">		for (Map.Entry&lt;String, String&gt; entry : env.entrySet()) {</span>
+<span class="nc" id="L85">			envList.add(entry.getKey() + &quot;=&quot; + entry.getValue());</span>
+		}
+<span class="nc" id="L87">		return envList.toArray(new String[envList.size()]);</span>
+	}
+
+	public void startProcess() throws IOException {
+<span class="fc" id="L91">		String[] args = splitArguments(commandLine);</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">		if (args.length == 0) {</span>
+<span class="nc" id="L93">			throw new IllegalArgumentException(&quot;Executable file not specified&quot;);</span>
+		}
+<span class="fc" id="L95">		String[] envArray = getEnvAsArray();</span>
+<span class="fc" id="L96">		process = Runtime.getRuntime().exec(args, envArray, workingDir);</span>
+<span class="fc" id="L97">		outputRedirector = getProcessStreamRedirector(process.getInputStream(), processOutputRedirectedTo, &quot;Output&quot;);</span>
+<span class="fc" id="L98">		errorRedirector = getProcessStreamRedirector(process.getErrorStream(), processErrorRedirectedTo, &quot;Error&quot;);</span>
+<span class="fc" id="L99">	}</span>
+
+	protected void destroyProcessOnExit() {
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">		if (process == null) {</span>
+<span class="nc" id="L103">			throw new IllegalStateException(&quot;Cannot schedule process destruction on exit: Process not started&quot;);</span>
+		}
+<span class="fc" id="L105">		Runtime.getRuntime().addShutdownHook(new Thread(CommandExecutor.this + &quot; shutdown hook&quot;) {</span>
+<span class="fc" id="L106">			Thread hook = this;</span>
+			{
+<span class="fc" id="L108">				new Thread(CommandExecutor.this + &quot; shutdown hook remover&quot;) {</span>
+					@Override
+					public void run() {
+						try {
+<span class="fc" id="L112">							process.waitFor();</span>
+<span class="pc" id="L113">						} catch (InterruptedException e) {</span>
+<span class="nc" id="L114">							throw new UnexpectedError(e);</span>
+						}
+						try {
+<span class="fc" id="L117">							Runtime.getRuntime().removeShutdownHook(hook);</span>
+<span class="pc" id="L118">						} catch (IllegalStateException shutdownInProgress) {</span>
+						}
+<span class="fc" id="L120">					}</span>
+<span class="fc" id="L121">				}.start();</span>
+			}
+
+			@Override
+			public void run() {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">				if (isProcessAlive()) {</span>
+<span class="nc" id="L127">					killProcess();</span>
+				}
+<span class="nc" id="L129">			}</span>
+		});
+<span class="fc" id="L131">	}</span>
+
+	public boolean isProcessAlive() {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">		if (process != null) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">			if (process.isAlive()) {</span>
+<span class="nc" id="L136">				return true;</span>
+			}
+		}
+<span class="nc" id="L139">		return false;</span>
+	}
+
+	public boolean waitForProcessEnd(long timeout, TimeUnit unit) throws InterruptedException {
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">		if (timeout &lt;= 0) {</span>
+<span class="nc" id="L144">			process.waitFor();</span>
+<span class="nc" id="L145">			return true;</span>
+		} else {
+<span class="fc" id="L147">			return process.waitFor(timeout, unit);</span>
+		}
+	}
+
+	public void killProcess() {
+<span class="nc" id="L152">		process.destroy();</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">		if (process.isAlive()) {</span>
+<span class="nc" id="L154">			process.destroyForcibly();</span>
+		}
+<span class="nc" id="L156">	}</span>
+
+	public void disconnectProcess() {
+<span class="fc bfc" id="L159" title="All 2 branches covered.">		for (Thread thread : new Thread[] { outputRedirector, errorRedirector }) {</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">			while (thread.isAlive()) {</span>
+<span class="fc" id="L161">				thread.interrupt();</span>
+<span class="fc" id="L162">				MiscUtils.relieveCPU();</span>
+			}
+		}
+		try {
+<span class="fc" id="L166">			process.getOutputStream().close();</span>
+<span class="pc" id="L167">		} catch (IOException ignore) {</span>
+		}
+		try {
+<span class="fc" id="L170">			process.getInputStream().close();</span>
+<span class="pc" id="L171">		} catch (IOException ignore) {</span>
+		}
+		try {
+<span class="fc" id="L174">			process.getErrorStream().close();</span>
+<span class="pc" id="L175">		} catch (IOException ignore) {</span>
+		}
+<span class="fc" id="L177">	}</span>
+
+	private Thread getProcessStreamRedirector(InputStream processStream, OutputStream destinationStream,
+			String processStreamName) {
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">		if (destinationStream == null) {</span>
+<span class="nc" id="L182">			return new Thread(&quot;No redirection&quot;);</span>
+		} else {
+<span class="fc" id="L184">			String reason = processStreamName + &quot; stream consumption for &quot; + getCommandDescription();</span>
+<span class="fc" id="L185">			return MiscUtils.redirectStream(processStream, destinationStream, reason);</span>
+		}
+	}
+
+	public String getCommandDescription() {
+<span class="fc" id="L190">		return &quot;Command: &quot; + MiscUtils.truncateNicely(commandLine, 50);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L195">		return &quot;CommandExecutor [commandLine=&quot; + commandLine + &quot;]&quot;;</span>
+	}
+
+	public static Process run(final String commandLine, boolean synchronous, final OutputStream outReceiver,
+			final OutputStream errReceiver, File workingDir, long timeout, TimeUnit timeoutUnit)
+			throws IOException, TimeoutException {
+<span class="fc" id="L201">		CommandExecutor commandExecutor = new CommandExecutor(commandLine);</span>
+<span class="fc" id="L202">		commandExecutor.setProcessOutputRedirectedTo(outReceiver);</span>
+<span class="fc" id="L203">		commandExecutor.setProcessErrorRedirectedTo(errReceiver);</span>
+<span class="fc" id="L204">		commandExecutor.setWorkingDir(workingDir);</span>
+<span class="fc" id="L205">		commandExecutor.startProcess();</span>
+<span class="fc" id="L206">		final boolean[] timedOut = new boolean[] { false };</span>
+<span class="fc" id="L207">		Runnable waitingJob = new Runnable() {</span>
+			@Override
+			public void run() {
+<span class="fc" id="L210">				commandExecutor.destroyProcessOnExit();</span>
+				try {
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">					if (!commandExecutor.waitForProcessEnd(timeout, timeoutUnit)) {</span>
+<span class="nc" id="L213">						commandExecutor.killProcess();</span>
+<span class="nc" id="L214">						timedOut[0] = true;</span>
+					}
+<span class="nc" id="L216">				} catch (InterruptedException e) {</span>
+<span class="nc" id="L217">					commandExecutor.killProcess();</span>
+				} finally {
+<span class="fc" id="L219">					commandExecutor.disconnectProcess();</span>
+				}
+<span class="fc" id="L221">			}</span>
+		};
+<span class="pc bpc" id="L223" title="1 of 2 branches missed.">		if (synchronous) {</span>
+<span class="fc" id="L224">			waitingJob.run();</span>
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">			if (timedOut[0]) {</span>
+<span class="nc" id="L226">				throw new TimeoutException();</span>
+			}
+		} else {
+<span class="nc bnc" id="L229" title="All 2 branches missed.">			if (timeout &gt; 0) {</span>
+<span class="nc" id="L230">				new Thread(waitingJob, &quot;ProcessMonitor [of=&quot; + commandExecutor.getCommandDescription() + &quot;]&quot;) {</span>
+					{
+<span class="nc" id="L232">						setDaemon(true);</span>
+					}
+<span class="nc" id="L234">				}.start();</span>
+<span class="nc" id="L235">			} else {</span>
+<span class="nc" id="L236">				commandExecutor.disconnectProcess();</span>
+			}
+		}
+<span class="fc" id="L239">		return commandExecutor.getLaunchedProcess();</span>
+	}
+
+	public static Process run(final String command, boolean wait, final OutputStream outReceiver,
+			final OutputStream errReceiver) throws IOException, TimeoutException {
+<span class="nc" id="L244">		return run(command, wait, outReceiver, errReceiver, null, 0, null);</span>
+	}
+
+	public static String quoteArgument(String argument) {
+<span class="fc" id="L248">		String[] argumentSplitByQuotes = argument.split(&quot;\&quot;&quot;, -1);</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">		if (argumentSplitByQuotes.length == 1) {</span>
+<span class="fc" id="L250">			return &quot;\&quot;&quot; + argument + &quot;\&quot;&quot;;</span>
+		} else {
+<span class="nc" id="L252">			StringBuilder result = new StringBuilder();</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">			for (int i = 0; i &lt; argumentSplitByQuotes.length; i++) {</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">				if (i &gt; 0) {</span>
+<span class="nc" id="L255">					result.append(&quot;'\&quot;'&quot;);</span>
+				}
+<span class="nc" id="L257">				String elementOfArgumentSplitByQuotes = argumentSplitByQuotes[i];</span>
+<span class="nc" id="L258">				result.append(quoteArgument(elementOfArgumentSplitByQuotes));</span>
+			}
+<span class="nc" id="L260">			return result.toString();</span>
+		}
+	}
+
+	public static String[] splitArguments(String s) {
+<span class="pc bpc" id="L265" title="2 of 4 branches missed.">		if ((s == null) || (s.length() == 0)) {</span>
+<span class="nc" id="L266">			return new String[0];</span>
+		}
+<span class="fc" id="L268">		final int normal = 0;</span>
+<span class="fc" id="L269">		final int inQuote = 1;</span>
+<span class="fc" id="L270">		final int inDoubleQuote = 2;</span>
+<span class="fc" id="L271">		int state = normal;</span>
+<span class="fc" id="L272">		StringTokenizer tok = new StringTokenizer(s, &quot;\&quot;\' &quot;, true);</span>
+<span class="fc" id="L273">		Vector&lt;String&gt; v = new Vector&lt;String&gt;();</span>
+<span class="fc" id="L274">		StringBuilder current = new StringBuilder();</span>
+
+<span class="fc bfc" id="L276" title="All 2 branches covered.">		while (tok.hasMoreTokens()) {</span>
+<span class="fc" id="L277">			String nextTok = tok.nextToken();</span>
+<span class="pc bpc" id="L278" title="1 of 3 branches missed.">			switch (state) {</span>
+			case inQuote:
+<span class="nc bnc" id="L280" title="All 2 branches missed.">				if (&quot;\'&quot;.equals(nextTok)) {</span>
+<span class="nc" id="L281">					state = normal;</span>
+<span class="nc" id="L282">				} else {</span>
+<span class="nc" id="L283">					current.append(nextTok);</span>
+				}
+<span class="nc" id="L285">				break;</span>
+			case inDoubleQuote:
+<span class="fc bfc" id="L287" title="All 2 branches covered.">				if (&quot;\&quot;&quot;.equals(nextTok)) {</span>
+<span class="fc" id="L288">					state = normal;</span>
+<span class="fc" id="L289">				} else {</span>
+<span class="fc" id="L290">					current.append(nextTok);</span>
+				}
+<span class="fc" id="L292">				break;</span>
+			default:
+<span class="pc bpc" id="L294" title="1 of 2 branches missed.">				if (&quot;\'&quot;.equals(nextTok)) {</span>
+<span class="nc" id="L295">					state = inQuote;</span>
+<span class="pc bfc" id="L296" title="All 2 branches covered.">				} else if (&quot;\&quot;&quot;.equals(nextTok)) {</span>
+<span class="fc" id="L297">					state = inDoubleQuote;</span>
+<span class="pc bpc" id="L298" title="1 of 2 branches missed.">				} else if (&quot; &quot;.equals(nextTok)) {</span>
+<span class="pc bpc" id="L299" title="1 of 2 branches missed.">					if (current.length() != 0) {</span>
+<span class="fc" id="L300">						v.addElement(current.toString());</span>
+<span class="fc" id="L301">						current.setLength(0);</span>
+					}
+<span class="fc" id="L303">				} else {</span>
+<span class="nc" id="L304">					current.append(nextTok);</span>
+				}
+				break;
+			}
+		}
+
+<span class="pc bpc" id="L310" title="1 of 2 branches missed.">		if (current.length() != 0) {</span>
+<span class="fc" id="L311">			v.addElement(current.toString());</span>
+		}
+
+<span class="pc bpc" id="L314" title="2 of 4 branches missed.">		if ((state == inQuote) || (state == inDoubleQuote)) {</span>
+<span class="nc" id="L315">			throw new IllegalArgumentException(&quot;unbalanced quotes in &quot; + s);</span>
+		}
+
+<span class="fc" id="L318">		String[] args = new String[v.size()];</span>
+<span class="fc" id="L319">		v.copyInto(args);</span>
+<span class="fc" id="L320">		return args;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Menu.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.menu</a> &gt; <span class="el_source">Menu.java</span></div><h1>Menu.java</h1><pre class="source lang-java linenums">/*
+ * 
+ */
+package xy.reflect.ui.control.swing.menu;
+
+import java.awt.Color;
+import java.awt.Font;
+
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
+import xy.reflect.ui.control.swing.renderer.Form;
+import xy.reflect.ui.control.swing.renderer.SwingRenderer;
+import xy.reflect.ui.info.menu.AbstractMenuItemInfo;
+import xy.reflect.ui.info.menu.CustomActionMenuItemInfo;
+import xy.reflect.ui.info.menu.MenuInfo;
+import xy.reflect.ui.info.menu.MenuItemCategory;
+import xy.reflect.ui.info.menu.MethodActionMenuItemInfo;
+import xy.reflect.ui.info.menu.StandardActionMenuItemInfo;
+import xy.reflect.ui.info.menu.StandardActionMenuItemInfo.Type;
+import xy.reflect.ui.util.KeyboardKey;
+import xy.reflect.ui.util.ReflectionUIError;
+
+/**
+ * Menu item container class.
+ * 
+ * @author olitank
+ *
+ */
+public class Menu extends JMenu {
+
+	private static final long serialVersionUID = 1L;
+
+	protected SwingRenderer swingRenderer;
+	protected Form menuBarOwner;
+	protected MenuInfo menuInfo;
+
+	public Menu(SwingRenderer swingRenderer, Form menuBarOwner, MenuInfo menuInfo) {
+<span class="fc" id="L39">		super(menuInfo.getCaption());</span>
+<span class="fc" id="L40">		this.swingRenderer = swingRenderer;</span>
+<span class="fc" id="L41">		this.menuBarOwner = menuBarOwner;</span>
+<span class="fc" id="L42">		this.menuInfo = menuInfo;</span>
+<span class="fc" id="L43">		initialize();</span>
+<span class="fc" id="L44">	}</span>
+
+	public void refresh() {
+<span class="fc" id="L47">		removeAll();</span>
+<span class="fc" id="L48">		configure();</span>
+<span class="fc" id="L49">	}</span>
+
+	protected void initialize() {
+<span class="fc" id="L52">		customizeUI();</span>
+<span class="fc" id="L53">		configure();</span>
+<span class="fc" id="L54">	}</span>
+
+	protected void configure() {
+<span class="fc bfc" id="L57" title="All 2 branches covered.">		for (int i = 0; i &lt; menuInfo.getItemCategories().size(); i++) {</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">			if (i &gt; 0) {</span>
+<span class="fc" id="L59">				add(createSeparator());</span>
+			}
+<span class="fc" id="L61">			MenuItemCategory category = menuInfo.getItemCategories().get(i);</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">			for (AbstractMenuItemInfo item : category.getItems()) {</span>
+<span class="fc" id="L63">				add(createMenuItem(item));</span>
+			}
+		}
+<span class="fc bfc" id="L66" title="All 2 branches covered.">		if (menuInfo.getItems().size() &gt; 0) {</span>
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">			if (menuInfo.getItemCategories().size() &gt; 0) {</span>
+<span class="nc" id="L68">				add(createSeparator());</span>
+			}
+<span class="fc bfc" id="L70" title="All 2 branches covered.">			for (AbstractMenuItemInfo item : menuInfo.getItems()) {</span>
+<span class="fc" id="L71">				add(createMenuItem(item));</span>
+			}
+		}
+<span class="fc bfc" id="L74" title="All 2 branches covered.">		for (int i = 0; i &lt; getMenuComponentCount(); i++) {</span>
+			// remove useless separators
+<span class="fc bfc" id="L76" title="All 2 branches covered.">			if (getMenuComponent(i) instanceof MenuItemSeparator) {</span>
+<span class="pc bpc" id="L77" title="2 of 4 branches missed.">				if ((i == 0) || (i == getMenuComponentCount())) {</span>
+<span class="nc" id="L78">					remove(i);</span>
+<span class="nc" id="L79">					i--;</span>
+<span class="nc" id="L80">					continue;</span>
+				}
+<span class="pc bpc" id="L82" title="2 of 4 branches missed.">				if ((i &gt; 0) &amp;&amp; (getMenuComponent(i - 1) instanceof MenuItemSeparator)) {</span>
+<span class="nc" id="L83">					remove(i);</span>
+<span class="nc" id="L84">					i--;</span>
+					continue;
+				}
+			}
+		}
+<span class="fc" id="L89">		int mnemonic = computeMnemonic();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">		if (mnemonic != -1) {</span>
+<span class="fc" id="L91">			setMnemonic(mnemonic);</span>
+		}
+<span class="fc" id="L93">	}</span>
+
+	protected void customizeUI() {
+<span class="fc" id="L96">		Color backgroundColor = menuBarOwner.getControlsBackgroundColor();</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">		if (backgroundColor == null) {</span>
+<span class="fc" id="L98">			backgroundColor = swingRenderer.getMainBackgroundColor();</span>
+		}
+<span class="fc" id="L100">		Color foregroundColor = menuBarOwner.getControlsForegroundColor();</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">		if (foregroundColor == null) {</span>
+<span class="nc" id="L102">			foregroundColor = swingRenderer.getMainForegroundColor();</span>
+		}
+<span class="fc" id="L104">		Font labelCustomFont = menuBarOwner.getLabelCustomFont();</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">		if (labelCustomFont == null) {</span>
+<span class="fc" id="L106">			labelCustomFont = swingRenderer.getMainLabelCustomFont(this);</span>
+		}
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">		if (backgroundColor != null) {</span>
+<span class="fc" id="L109">			setBackground(backgroundColor);</span>
+		}
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">		if (isTopLevelMenu()) {</span>
+			/*
+			 * Windows top-level menus may be transparent (no background color) so that an
+			 * eventual background image would be visible through them. Note that the menu
+			 * bar may also be transparent.
+			 */
+<span class="nc bnc" id="L117" title="All 2 branches missed.">			setOpaque(backgroundColor != null);</span>
+<span class="nc" id="L118">		} else {</span>
+<span class="fc" id="L119">			setOpaque(true);</span>
+		}
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">		if (foregroundColor != null) {</span>
+<span class="fc" id="L122">			setForeground(foregroundColor);</span>
+		}
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">		if (labelCustomFont != null) {</span>
+<span class="nc" id="L125">			setFont(labelCustomFont.deriveFont(getFont().getStyle(), getFont().getSize()));</span>
+		}
+<span class="fc" id="L127">	}</span>
+
+	protected int computeMnemonic() {
+<span class="fc" id="L130">		KeyboardKey mnemonicKey = menuInfo.getMnemonicKey();</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">		if (mnemonicKey == null) {</span>
+<span class="fc" id="L132">			return -1;</span>
+		}
+<span class="fc" id="L134">		return mnemonicKey.getKeyCode();</span>
+	}
+
+	protected JSeparator createSeparator() {
+<span class="fc" id="L138">		return new MenuItemSeparator(swingRenderer, menuBarOwner);</span>
+	}
+
+	protected JMenuItem createMenuItem(AbstractMenuItemInfo itemInfo) {
+<span class="fc bfc" id="L142" title="All 2 branches covered.">		if (itemInfo instanceof StandardActionMenuItemInfo) {</span>
+<span class="fc" id="L143">			return createActionMenuItem((StandardActionMenuItemInfo) itemInfo);</span>
+<span class="fc bfc" id="L144" title="All 2 branches covered.">		} else if (itemInfo instanceof MethodActionMenuItemInfo) {</span>
+<span class="fc" id="L145">			return createActionMenuItem((MethodActionMenuItemInfo) itemInfo);</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">		} else if (itemInfo instanceof CustomActionMenuItemInfo) {</span>
+<span class="fc" id="L147">			return createActionMenuItem((CustomActionMenuItemInfo) itemInfo);</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">		} else if (itemInfo instanceof MenuInfo) {</span>
+<span class="nc" id="L149">			return new Menu(swingRenderer, menuBarOwner, (MenuInfo) itemInfo);</span>
+		} else {
+<span class="nc" id="L151">			throw new ReflectionUIError(&quot;Unhandled menu item type: '&quot; + itemInfo + &quot;'&quot;);</span>
+		}
+	}
+
+	protected JMenuItem createActionMenuItem(final CustomActionMenuItemInfo actionMenuItemInfo) {
+<span class="fc" id="L156">		return new CustomActionMenuItem(swingRenderer, menuBarOwner, actionMenuItemInfo);</span>
+	}
+
+	protected JMenuItem createActionMenuItem(final MethodActionMenuItemInfo actionMenuItemInfo) {
+<span class="fc" id="L160">		return new MethodActionMenuItem(swingRenderer, menuBarOwner, actionMenuItemInfo);</span>
+	}
+
+	protected JMenuItem createActionMenuItem(final StandardActionMenuItemInfo menuItemInfo) {
+<span class="fc bfc" id="L164" title="All 2 branches covered.">		if (menuItemInfo.getType() == Type.NEW) {</span>
+<span class="fc" id="L165">			return new RenewMenuItem(swingRenderer, menuBarOwner, menuItemInfo);</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">		} else if (menuItemInfo.getType() == Type.OPEN) {</span>
+<span class="fc" id="L167">			return new OpenMenuItem(swingRenderer, menuBarOwner, menuItemInfo);</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">		} else if (menuItemInfo.getType() == Type.SAVE) {</span>
+<span class="fc" id="L169">			return new SaveMenuItem(swingRenderer, menuBarOwner, menuItemInfo);</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">		} else if (menuItemInfo.getType() == Type.SAVE_AS) {</span>
+<span class="fc" id="L171">			return new SaveAsMenuItem(swingRenderer, menuBarOwner, menuItemInfo);</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">		} else if (menuItemInfo.getType() == Type.UNDO) {</span>
+<span class="fc" id="L173">			return new UndoMenuItem(swingRenderer, menuBarOwner, menuItemInfo);</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">		} else if (menuItemInfo.getType() == Type.REDO) {</span>
+<span class="fc" id="L175">			return new RedoMenuItem(swingRenderer, menuBarOwner, menuItemInfo);</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">		} else if (menuItemInfo.getType() == Type.RESET) {</span>
+<span class="fc" id="L177">			return new ResetMenuItem(swingRenderer, menuBarOwner, menuItemInfo);</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">		} else if (menuItemInfo.getType() == Type.HELP) {</span>
+<span class="nc" id="L179">			return new HelpMenuItem(swingRenderer, menuBarOwner, menuItemInfo);</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">		} else if (menuItemInfo.getType() == Type.EXIT) {</span>
+<span class="fc" id="L181">			return new CloseWindowMenuItem(swingRenderer, menuBarOwner, menuItemInfo);</span>
+		} else {
+<span class="nc" id="L183">			throw new ReflectionUIError();</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

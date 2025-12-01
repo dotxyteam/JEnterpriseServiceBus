@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>Folder.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.solution</a> &gt; <span class="el_source">Folder.java</span></div><h1>Folder.java</h1><pre class="source lang-java linenums">package com.otk.jesb.solution;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.otk.jesb.ValidationError;
+
+/**
+ * This class allows to logically and physically group (in a directory) elements
+ * of a {@link Solution}.
+ * 
+ * @author olitank
+ *
+ */
+public class Folder extends Asset {
+
+<span class="pc" id="L17">	private List&lt;Asset&gt; contents = new ArrayList&lt;Asset&gt;();</span>
+
+<span class="nc" id="L19">	public Folder() {</span>
+<span class="nc" id="L20">	}</span>
+
+	public Folder(String name) {
+<span class="fc" id="L23">		super(name);</span>
+<span class="fc" id="L24">	}</span>
+
+	public List&lt;Asset&gt; getContents() {
+<span class="fc" id="L27">		return contents;</span>
+	}
+
+	public void setContents(List&lt;Asset&gt; contents) {
+<span class="fc" id="L31">		this.contents = contents;</span>
+<span class="fc" id="L32">	}</span>
+
+	public void visitContents(AssetVisitor assetVisitor) {
+<span class="fc bfc" id="L35" title="All 2 branches covered.">		for (Asset asset : contents) {</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">			if (!visitAsset(assetVisitor, asset)) {</span>
+<span class="fc" id="L37">				return;</span>
+			}
+		}
+<span class="fc" id="L40">	}</span>
+
+	private boolean visitAsset(AssetVisitor assetVisitor, Asset asset) {
+<span class="fc bfc" id="L43" title="All 2 branches covered.">		if (!assetVisitor.visitAsset(asset)) {</span>
+<span class="fc" id="L44">			return false;</span>
+		}
+<span class="fc bfc" id="L46" title="All 2 branches covered.">		if (asset instanceof Folder) {</span>
+<span class="fc" id="L47">			((Folder) asset).visitContents(assetVisitor);</span>
+		}
+<span class="fc" id="L49">		return true;</span>
+	}
+
+	@Override
+	public void validate(boolean recursively) throws ValidationError {
+<span class="fc" id="L54">		super.validate(recursively);</span>
+<span class="fc" id="L55">		List&lt;String&gt; assetFileNames = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">		for (Asset asset : contents) {</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">			if (assetFileNames.contains(asset.getFileSystemResourceName())) {</span>
+<span class="nc" id="L58">				throw new ValidationError(</span>
+<span class="nc" id="L59">						&quot;Duplicate name detected among child asset files: '&quot; + asset.getFileSystemResourceName() + &quot;'&quot;);</span>
+			} else {
+<span class="fc" id="L61">				assetFileNames.add(asset.getFileSystemResourceName());</span>
+			}
+		}
+<span class="fc bfc" id="L64" title="All 2 branches covered.">		if (recursively) {</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">			for (Asset asset : contents) {</span>
+				try {
+<span class="fc" id="L67">					asset.validate(true);</span>
+<span class="pc" id="L68">				} catch (ValidationError e) {</span>
+<span class="nc" id="L69">					throw new ValidationError(&quot;Failed to validate '&quot; + asset.getName() + &quot;'&quot;, e);</span>
+				}
+			}
+		}
+<span class="fc" id="L73">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

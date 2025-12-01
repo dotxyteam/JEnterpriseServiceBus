@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>XMLOperation.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">j-enterprise-service-bus</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">com.otk.jesb.operation.builtin</a> &gt; <span class="el_source">XMLOperation.java</span></div><h1>XMLOperation.java</h1><pre class="source lang-java linenums">package com.otk.jesb.operation.builtin;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.otk.jesb.Reference;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.operation.Operation;
+import com.otk.jesb.operation.OperationBuilder;
+import com.otk.jesb.resource.builtin.XSD;
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Step;
+
+public abstract class XMLOperation implements Operation {
+
+	private Class&lt;?&gt; rootElementClass;
+
+<span class="fc" id="L19">	public XMLOperation(Class&lt;?&gt; rootElementClass) {</span>
+<span class="fc" id="L20">		this.rootElementClass = rootElementClass;</span>
+<span class="fc" id="L21">	}</span>
+
+	public Class&lt;?&gt; getRootElementClass() {
+<span class="fc" id="L24">		return rootElementClass;</span>
+	}
+
+<span class="fc" id="L27">	public static abstract class Builder&lt;T extends XMLOperation&gt; implements OperationBuilder&lt;T&gt; {</span>
+
+<span class="fc" id="L29">		private Reference&lt;XSD&gt; xsdReference = new Reference&lt;XSD&gt;(XSD.class);</span>
+		private String rootElementName;
+		
+		private XSD getXSD() {
+<span class="fc" id="L33">			return xsdReference.resolve();</span>
+		}
+
+		public Reference&lt;XSD&gt; getXsdReference() {
+<span class="nc" id="L37">			return xsdReference;</span>
+		}
+
+		public void setXsdReference(Reference&lt;XSD&gt; xsdReference) {
+<span class="fc" id="L41">			this.xsdReference = xsdReference;</span>
+<span class="fc" id="L42">			tryToSelectValuesAutomatically();</span>
+<span class="fc" id="L43">		}</span>
+
+		public String getRootElementName() {
+<span class="fc" id="L46">			return rootElementName;</span>
+		}
+
+		public void setRootElementName(String rootElementName) {
+<span class="fc" id="L50">			this.rootElementName = rootElementName;</span>
+<span class="fc" id="L51">		}</span>
+
+		private void tryToSelectValuesAutomatically() {
+			try {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">				if (rootElementName == null) {</span>
+<span class="nc" id="L56">					XSD xsd = getXSD();</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">					if (xsd != null) {</span>
+<span class="nc" id="L58">						List&lt;XSD.RootElementDescriptor&gt; rootElements = xsd.getRootElements();</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">						if (rootElements.size() &gt; 0) {</span>
+<span class="nc" id="L60">							rootElementName = rootElements.get(0).getName();</span>
+						}
+					}
+				}
+<span class="nc" id="L64">			} catch (Throwable t) {</span>
+			}
+<span class="fc" id="L66">		}</span>
+
+		public List&lt;String&gt; getRootElementNameOptions() {
+<span class="nc" id="L69">			XSD xsd = getXSD();</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">			if (xsd == null) {</span>
+<span class="nc" id="L71">				return Collections.emptyList();</span>
+			}
+<span class="nc" id="L73">			return xsd.getRootElements().stream().map(e -&gt; e.getName()).collect(Collectors.toList());</span>
+		}
+
+		protected XSD.RootElementDescriptor retrieveRootElement() {
+<span class="fc" id="L77">			XSD xsd = getXSD();</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">			if (xsd == null) {</span>
+<span class="nc" id="L79">				return null;</span>
+			}
+<span class="fc" id="L81">			return xsd.getRootElements().stream().filter(e -&gt; e.getName().equals(rootElementName)).findFirst()</span>
+<span class="fc" id="L82">					.orElse(null);</span>
+		}
+
+		@Override
+		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">			if (getXSD() == null) {</span>
+<span class="nc" id="L88">				throw new ValidationError(&quot;Failed to resolve the XSD reference&quot;);</span>
+			}
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">			if (retrieveRootElement() == null) {</span>
+<span class="nc" id="L91">				throw new ValidationError(&quot;Invalid root element name '&quot; + rootElementName + &quot;'&quot;);</span>
+			}
+<span class="fc" id="L93">		}</span>
+
+		
+
+	}
+
+	public static class SourceDocument {
+		public final String text;
+
+<span class="fc" id="L102">		public SourceDocument(String text) {</span>
+<span class="fc" id="L103">			this.text = text;</span>
+<span class="fc" id="L104">		}</span>
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

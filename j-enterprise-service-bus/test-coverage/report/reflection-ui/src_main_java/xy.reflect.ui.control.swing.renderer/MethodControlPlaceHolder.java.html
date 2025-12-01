@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MethodControlPlaceHolder.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.control.swing.renderer</a> &gt; <span class="el_source">MethodControlPlaceHolder.java</span></div><h1>MethodControlPlaceHolder.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.control.swing.renderer;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.util.List;
+
+import javax.swing.SwingUtilities;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
+
+import xy.reflect.ui.control.AbstractMethodControlData;
+import xy.reflect.ui.control.IMethodControlData;
+import xy.reflect.ui.control.IMethodControlInput;
+import xy.reflect.ui.control.MethodContext;
+import xy.reflect.ui.control.swing.MethodControl;
+import xy.reflect.ui.control.swing.util.ControlPanel;
+import xy.reflect.ui.control.swing.util.SwingRendererUtils;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.undo.ModificationStack;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Instances of this class are method control containers.
+ * 
+ * They provide common method control features as undo management, busy
+ * indication, etc.
+ * 
+ * They also generate the input that will be used by the
+ * {@link #createMethodControl()} method and passed to the control constructor.
+ * 
+ * @author olitank
+ *
+ */
+public class MethodControlPlaceHolder extends ControlPanel implements IMethodControlInput {
+
+	protected static final long serialVersionUID = 1L;
+
+	protected final SwingRenderer swingRenderer;
+	protected Form form;
+	protected Component methodControl;
+	protected IMethodInfo method;
+	protected IMethodControlData controlData;
+
+<span class="fc" id="L47">	public MethodControlPlaceHolder(Form form, IMethodInfo method) {</span>
+<span class="fc" id="L48">		this.swingRenderer = form.getSwingRenderer();</span>
+<span class="fc" id="L49">		this.form = form;</span>
+<span class="fc" id="L50">		this.method = method;</span>
+<span class="fc" id="L51">		this.controlData = createControlData();</span>
+<span class="fc" id="L52">		setName(&quot;methodControlPlaceHolder [method=&quot; + method.getName() + &quot;, parent=&quot; + form.getName() + &quot;]&quot;);</span>
+<span class="fc" id="L53">		setLayout(new BorderLayout());</span>
+<span class="fc" id="L54">		manageVisibiltyChanges();</span>
+<span class="fc" id="L55">	}</span>
+
+	public void initializeUI() {
+<span class="fc" id="L58">		refreshUI(true);</span>
+<span class="fc" id="L59">	};</span>
+
+	protected void manageVisibiltyChanges() {
+<span class="fc" id="L62">		addAncestorListener(new AncestorListener() {</span>
+
+			@Override
+			public void ancestorAdded(AncestorEvent event) {
+<span class="fc" id="L66">				MethodControlPlaceHolder.this.swingRenderer.showBusyDialogWhile(MethodControlPlaceHolder.this,</span>
+<span class="fc" id="L67">						new Runnable() {</span>
+							@Override
+							public void run() {
+<span class="fc" id="L70">								MethodControlPlaceHolder.this.method.onControlVisibilityChange(getObject(), true);</span>
+<span class="fc" id="L71">							}</span>
+<span class="fc" id="L72">						}, ReflectionUIUtils.composeMessage(MethodControlPlaceHolder.this.method.getCaption(),</span>
+<span class="fc" id="L73">								&quot;Setting up...&quot;));</span>
+<span class="fc" id="L74">			}</span>
+
+			@Override
+			public void ancestorRemoved(AncestorEvent event) {
+<span class="fc" id="L78">				MethodControlPlaceHolder.this.swingRenderer.showBusyDialogWhile(MethodControlPlaceHolder.this,</span>
+<span class="fc" id="L79">						new Runnable() {</span>
+							@Override
+							public void run() {
+<span class="fc" id="L82">								MethodControlPlaceHolder.this.method.onControlVisibilityChange(getObject(), false);</span>
+<span class="fc" id="L83">							}</span>
+<span class="fc" id="L84">						}, ReflectionUIUtils.composeMessage(MethodControlPlaceHolder.this.method.getCaption(),</span>
+<span class="fc" id="L85">								&quot;Cleaning up...&quot;));</span>
+<span class="fc" id="L86">			}</span>
+
+			@Override
+			public void ancestorMoved(AncestorEvent event) {
+<span class="fc" id="L90">			}</span>
+
+		});
+<span class="fc" id="L93">	}</span>
+
+	public Form getForm() {
+<span class="nc" id="L96">		return form;</span>
+	}
+
+	@Override
+	public Dimension getPreferredSize() {
+<span class="fc" id="L101">		Dimension result = super.getPreferredSize();</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">		if (result == null) {</span>
+<span class="nc" id="L103">			return null;</span>
+		}
+<span class="fc" id="L105">		int maxMethodControlWidth = 0;</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">		if (method.getCategory() != null) {</span>
+<span class="fc" id="L107">			List&lt;MethodControlPlaceHolder&gt; siblingMethodControlPlaceHolders = form</span>
+<span class="fc" id="L108">					.getMethodControlPlaceHoldersByCategory().get(method.getCategory());</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">			if (siblingMethodControlPlaceHolders != null) {</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">				for (MethodControlPlaceHolder methodControlPlaceHolder : siblingMethodControlPlaceHolders) {</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">					if (!methodControlPlaceHolder.isVisible()) {</span>
+<span class="nc" id="L112">						continue;</span>
+					}
+<span class="fc" id="L114">					Component methodControl = methodControlPlaceHolder.getMethodControl();</span>
+<span class="fc" id="L115">					maxMethodControlWidth = Math.max(maxMethodControlWidth, methodControl.getPreferredSize().width);</span>
+				}
+<span class="fc" id="L117">				maxMethodControlWidth = maxMethodControlWidth - (maxMethodControlWidth % getIndentWidth())</span>
+<span class="fc" id="L118">						+ getIndentWidth();</span>
+<span class="fc" id="L119">				result.width = maxMethodControlWidth;</span>
+			}
+		}
+<span class="fc" id="L122">		return result;</span>
+	}
+
+	public int getIndentWidth() {
+<span class="fc" id="L126">		return SwingRendererUtils.getStandardCharacterWidth(form) * 10;</span>
+	}
+
+	public Component getMethodControl() {
+<span class="fc" id="L130">		return methodControl;</span>
+	}
+
+	public Object getObject() {
+<span class="fc" id="L134">		return form.getObject();</span>
+	}
+
+	@Override
+	public IMethodControlData getControlData() {
+<span class="fc" id="L139">		return controlData;</span>
+	}
+
+	@Override
+	public ModificationStack getModificationStack() {
+<span class="fc" id="L144">		return form.getModificationStack();</span>
+	}
+
+	@Override
+	public MethodContext getContext() {
+<span class="fc" id="L149">		ITypeInfo objectType = this.swingRenderer.getReflectionUI()</span>
+<span class="fc" id="L150">				.getTypeInfo(this.swingRenderer.getReflectionUI().getTypeInfoSource(getObject()));</span>
+<span class="fc" id="L151">		return new MethodContext(objectType.getName(), method.getSignature());</span>
+	}
+
+	public IMethodInfo getMethod() {
+<span class="fc" id="L155">		return method;</span>
+	}
+
+	public Component createMethodControl() {
+<span class="fc" id="L159">		MethodControl result = new MethodControl(this.swingRenderer, this);</span>
+<span class="fc" id="L160">		result.initialize();</span>
+<span class="fc" id="L161">		return result;</span>
+	}
+
+	public void refreshUI(boolean refreshStructure) {
+		try {
+<span class="pc bpc" id="L166" title="1 of 4 branches missed.">			setVisible(!method.isHidden() &amp;&amp; method.isRelevant(getObject()));</span>
+<span class="pc" id="L167">		} catch (Throwable t) {</span>
+<span class="nc" id="L168">			SwingUtilities.invokeLater(new Runnable() {</span>
+				@Override
+				public void run() {
+<span class="nc" id="L171">					swingRenderer.handleException(MethodControlPlaceHolder.this, t);</span>
+<span class="nc" id="L172">				}</span>
+			});
+		}
+<span class="fc bfc" id="L175" title="All 2 branches covered.">		if (!isVisible()) {</span>
+<span class="fc" id="L176">			return;</span>
+		}
+<span class="fc bfc" id="L178" title="All 4 branches covered.">		if (refreshStructure &amp;&amp; (methodControl != null)) {</span>
+<span class="fc" id="L179">			remove(methodControl);</span>
+<span class="fc" id="L180">			methodControl = null;</span>
+		}
+<span class="fc bfc" id="L182" title="All 2 branches covered.">		if (methodControl == null) {</span>
+<span class="fc" id="L183">			methodControl = createMethodControl();</span>
+<span class="fc" id="L184">			methodControl.setName(&quot;methodControl [method=&quot; + method.getName() + &quot;, parent=&quot; + form.getName() + &quot;]&quot;);</span>
+<span class="fc" id="L185">			add(methodControl, BorderLayout.CENTER);</span>
+<span class="fc" id="L186">			SwingRendererUtils.handleComponentSizeChange(this);</span>
+		}
+<span class="fc" id="L188">		methodControl.setEnabled(controlData.isEnabled());</span>
+<span class="fc" id="L189">	}</span>
+
+	protected IMethodControlData createControlData() {
+<span class="fc" id="L192">		IMethodControlData result = new MethodControlData(method);</span>
+<span class="fc" id="L193">		return result;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L198">		return &quot;MethodControlPlaceHolder [method=&quot; + method + &quot;, form=&quot; + form + &quot;]&quot;;</span>
+	}
+
+	protected class MethodControlData extends AbstractMethodControlData {
+
+		protected IMethodInfo finalMethod;
+
+<span class="fc" id="L205">		public MethodControlData(IMethodInfo finalMethod) {</span>
+<span class="fc" id="L206">			super(swingRenderer.getReflectionUI());</span>
+<span class="fc" id="L207">			this.finalMethod = finalMethod;</span>
+<span class="fc" id="L208">		}</span>
+
+		@Override
+		public Object getObject() {
+<span class="fc" id="L212">			return form.getObject();</span>
+		}
+
+		@Override
+		protected IMethodInfo getMethod() {
+<span class="fc" id="L217">			return finalMethod;</span>
+		}
+
+		private Object getEnclosingInstance() {
+<span class="nc" id="L221">			return MethodControlPlaceHolder.this;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="nc" id="L226">			final int prime = 31;</span>
+<span class="nc" id="L227">			int result = 1;</span>
+<span class="nc" id="L228">			result = prime * result + getEnclosingInstance().hashCode();</span>
+<span class="nc" id="L229">			result = prime * result + super.hashCode();</span>
+<span class="nc" id="L230">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="nc bnc" id="L235" title="All 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L236">				return true;</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L238">				return false;</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L240">				return false;</span>
+<span class="nc" id="L241">			MethodControlData other = (MethodControlData) obj;</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">			if (!getEnclosingInstance().equals(other.getEnclosingInstance()))</span>
+<span class="nc" id="L243">				return false;</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">			if (!super.equals(other))</span>
+<span class="nc" id="L245">				return false;</span>
+<span class="nc" id="L246">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L251">			return &quot;InitialControlData [of=&quot; + MethodControlPlaceHolder.this + &quot;, finalMethod=&quot; + getMethod() + &quot;]&quot;;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>

@@ -1,0 +1,951 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../../jacoco-resources/report.gif" type="image/gif"/><title>MembersCapsuleFieldInfo.java</title><link rel="stylesheet" href="../../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../../index.html" class="el_report">j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</a> &gt; <a href="../../index.html" class="el_group">reflection-ui</a> &gt; <a href="../index.html" class="el_bundle">src/main/java</a> &gt; <a href="index.source.html" class="el_package">xy.reflect.ui.info.field</a> &gt; <span class="el_source">MembersCapsuleFieldInfo.java</span></div><h1>MembersCapsuleFieldInfo.java</h1><pre class="source lang-java linenums">
+package xy.reflect.ui.info.field;
+
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import xy.reflect.ui.ReflectionUI;
+import xy.reflect.ui.info.AbstractInfo;
+import xy.reflect.ui.info.ColorSpecification;
+import xy.reflect.ui.info.ITransaction;
+import xy.reflect.ui.info.InfoCategory;
+import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.ValueReturnMode;
+import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.menu.MenuModel;
+import xy.reflect.ui.info.method.IMethodInfo;
+import xy.reflect.ui.info.method.InvocationData;
+import xy.reflect.ui.info.method.MethodInfoProxy;
+import xy.reflect.ui.info.parameter.IParameterInfo;
+import xy.reflect.ui.info.parameter.ParameterInfoProxy;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.iterable.IListTypeInfo;
+import xy.reflect.ui.info.type.source.ITypeInfoSource;
+import xy.reflect.ui.info.type.source.PrecomputedTypeInfoSource;
+import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
+import xy.reflect.ui.info.type.source.TypeInfoSourceProxy;
+import xy.reflect.ui.util.IDerivedInstance;
+import xy.reflect.ui.util.MiscUtils;
+import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
+import xy.reflect.ui.util.ReflectionUIUtils;
+
+/**
+ * Virtual field grouping the given members into a virtual sub-object.
+ * 
+ * @author olitank
+ *
+ */
+public class MembersCapsuleFieldInfo extends AbstractInfo implements IFieldInfo {
+
+<span class="fc" id="L49">	public static final String AS_ENCAPSULATED_MEMBER_PROXY_PROPERTY_KEY = MembersCapsuleFieldInfo.class.getName();</span>
+
+	protected List&lt;IFieldInfo&gt; encapsulatedFields;
+	protected List&lt;IMethodInfo&gt; encapsulatedMethods;
+	protected ReflectionUI reflectionUI;
+	protected String fieldName;
+	protected ITypeInfo objectType;
+
+<span class="fc" id="L57">	public MembersCapsuleFieldInfo(ReflectionUI reflectionUI, String fieldName, List&lt;IFieldInfo&gt; encapsulatedFields,</span>
+			List&lt;IMethodInfo&gt; encapsulatedMethods, ITypeInfo objectType) {
+<span class="fc" id="L59">		this.reflectionUI = reflectionUI;</span>
+<span class="fc" id="L60">		this.fieldName = fieldName;</span>
+<span class="fc" id="L61">		this.encapsulatedFields = encapsulatedFields;</span>
+<span class="fc" id="L62">		this.encapsulatedMethods = encapsulatedMethods;</span>
+<span class="fc" id="L63">		this.objectType = objectType;</span>
+<span class="fc" id="L64">	}</span>
+
+	@Override
+	public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L68">	}</span>
+
+	public static String buildTypeName(String fieldName, String objectTypeName) {
+<span class="fc" id="L71">		return MessageFormat.format(&quot;CapsuleFieldType [context=EncapsulationContext [objectType={0}], fieldName={1}]&quot;,</span>
+<span class="fc" id="L72">				objectTypeName, fieldName);</span>
+	}
+
+	public static String extractobjectTypeName(String typeName) {
+<span class="nc" id="L76">		Pattern p = Pattern</span>
+<span class="nc" id="L77">				.compile(&quot;CapsuleFieldType \\[context=EncapsulationContext \\[objectType=(.+)\\], fieldName=(.+)\\]&quot;);</span>
+<span class="nc" id="L78">		Matcher m = p.matcher(typeName);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (!m.matches()) {</span>
+<span class="nc" id="L80">			return null;</span>
+		}
+<span class="nc" id="L82">		return m.group(1);</span>
+	}
+
+	public static String extractFieldName(String typeName) {
+<span class="nc" id="L86">		Pattern p = Pattern</span>
+<span class="nc" id="L87">				.compile(&quot;CapsuleFieldType \\[context=EncapsulationContext \\[objectType=(.+)\\], fieldName=(.+)\\]&quot;);</span>
+<span class="nc" id="L88">		Matcher m = p.matcher(typeName);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		if (!m.matches()) {</span>
+<span class="nc" id="L90">			return null;</span>
+		}
+<span class="nc" id="L92">		return m.group(2);</span>
+	}
+
+	public IFieldInfo createEncapsulatedFieldInfoProxy(IFieldInfo field) {
+<span class="fc" id="L96">		return new EncapsulatedFieldInfoProxy(field);</span>
+	}
+
+	public IMethodInfo createEncapsulatedMethodInfoProxy(IMethodInfo method) {
+<span class="fc" id="L100">		return new EncapsulatedMethodInfoProxy(method);</span>
+	}
+
+	public ITypeInfo getObjectType() {
+<span class="nc" id="L104">		return objectType;</span>
+	}
+
+	public List&lt;IFieldInfo&gt; getEncapsulatedFields() {
+<span class="fc" id="L108">		return encapsulatedFields;</span>
+	}
+
+	public List&lt;IMethodInfo&gt; getEncapsulatedMethods() {
+<span class="fc" id="L112">		return encapsulatedMethods;</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc" id="L117">		return fieldName;</span>
+	}
+
+	@Override
+	public String getCaption() {
+<span class="fc" id="L122">		return ReflectionUIUtils.identifierToCaption(fieldName);</span>
+	}
+
+	@Override
+	public double getDisplayAreaHorizontalWeight() {
+<span class="fc" id="L127">		return 1.0;</span>
+	}
+
+	@Override
+	public double getDisplayAreaVerticalWeight() {
+<span class="fc" id="L132">		return 0.0;</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaHorizontallyFilled() {
+<span class="fc" id="L137">		return true;</span>
+	}
+
+	@Override
+	public boolean isDisplayAreaVerticallyFilled() {
+<span class="fc" id="L142">		return false;</span>
+	}
+
+	@Override
+	public boolean isHidden() {
+<span class="fc" id="L147">		return false;</span>
+	}
+
+	@Override
+	public boolean isRelevant(Object object) {
+<span class="fc" id="L152">		return true;</span>
+	}
+
+	@Override
+	public ITypeInfo getType() {
+<span class="fc" id="L157">		return reflectionUI.getTypeInfo(new PrecomputedTypeInstanceWrapper.TypeInfoSource(new ValueTypeInfo()));</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L162">		return null;</span>
+	}
+
+	@Override
+	public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="fc" id="L167">		return null;</span>
+	}
+
+	@Override
+	public Object getValue(Object object) {
+<span class="fc" id="L172">		return new PrecomputedTypeInstanceWrapper(new Value(object), new ValueTypeInfo());</span>
+	}
+
+	public ValueTypeInfo getValueType() {
+<span class="nc" id="L176">		return new ValueTypeInfo();</span>
+	}
+
+	@Override
+	public Runnable getNextUpdateCustomUndoJob(Object object, Object value) {
+<span class="fc" id="L181">		return null;</span>
+	}
+
+	@Override
+	public Runnable getPreviousUpdateCustomRedoJob(Object object, Object newValue) {
+<span class="nc" id="L186">		return null;</span>
+	}
+
+	@Override
+	public boolean hasValueOptions(Object object) {
+<span class="fc" id="L191">		return false;</span>
+	}
+
+	@Override
+	public Object[] getValueOptions(Object object) {
+<span class="nc" id="L196">		return null;</span>
+	}
+
+	@Override
+	public boolean isGetOnly() {
+<span class="fc" id="L201">		return true;</span>
+	}
+
+	@Override
+	public boolean isTransient() {
+<span class="fc" id="L206">		return false;</span>
+	}
+
+	@Override
+	public ValueReturnMode getValueReturnMode() {
+<span class="fc" id="L211">		return ValueReturnMode.PROXY;</span>
+	}
+
+	@Override
+	public void setValue(Object object, Object value) {
+<span class="nc" id="L216">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public boolean isNullValueDistinct() {
+<span class="fc" id="L221">		return false;</span>
+	}
+
+	@Override
+	public String getNullValueLabel() {
+<span class="fc" id="L226">		return null;</span>
+	}
+
+	@Override
+	public InfoCategory getCategory() {
+<span class="fc" id="L231">		return null;</span>
+	}
+
+	@Override
+	public String getOnlineHelp() {
+<span class="fc" id="L236">		return null;</span>
+	}
+
+	@Override
+	public boolean isFormControlMandatory() {
+<span class="fc" id="L241">		return false;</span>
+	}
+
+	@Override
+	public boolean isFormControlEmbedded() {
+<span class="fc" id="L246">		return false;</span>
+	}
+
+	@Override
+	public boolean isControlValueValiditionEnabled() {
+<span class="fc" id="L251">		return true;</span>
+	}
+
+	@Override
+	public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L256">		return null;</span>
+	}
+
+	@Override
+	public IInfoFilter getFormControlFilter() {
+<span class="fc" id="L261">		return IInfoFilter.DEFAULT;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L266">		return Collections.emptyMap();</span>
+	}
+
+	@Override
+	public long getAutoUpdatePeriodMilliseconds() {
+<span class="fc" id="L271">		return -1;</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="fc" id="L276">		final int prime = 31;</span>
+<span class="fc" id="L277">		int result = 1;</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">		result = prime * result + ((objectType == null) ? 0 : objectType.hashCode());</span>
+<span class="pc bpc" id="L279" title="1 of 2 branches missed.">		result = prime * result + ((fieldName == null) ? 0 : fieldName.hashCode());</span>
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">		result = prime * result + ((encapsulatedFields == null) ? 0 : encapsulatedFields.hashCode());</span>
+<span class="pc bpc" id="L281" title="1 of 2 branches missed.">		result = prime * result + ((encapsulatedMethods == null) ? 0 : encapsulatedMethods.hashCode());</span>
+<span class="fc" id="L282">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+<span class="fc bfc" id="L287" title="All 2 branches covered.">		if (this == obj)</span>
+<span class="fc" id="L288">			return true;</span>
+<span class="pc bpc" id="L289" title="1 of 2 branches missed.">		if (obj == null)</span>
+<span class="nc" id="L290">			return false;</span>
+<span class="pc bpc" id="L291" title="1 of 2 branches missed.">		if (getClass() != obj.getClass())</span>
+<span class="nc" id="L292">			return false;</span>
+<span class="fc" id="L293">		MembersCapsuleFieldInfo other = (MembersCapsuleFieldInfo) obj;</span>
+<span class="pc bpc" id="L294" title="1 of 2 branches missed.">		if (objectType == null) {</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">			if (other.objectType != null)</span>
+<span class="nc" id="L296">				return false;</span>
+<span class="pc bpc" id="L297" title="1 of 2 branches missed.">		} else if (!objectType.equals(other.objectType))</span>
+<span class="nc" id="L298">			return false;</span>
+<span class="pc bpc" id="L299" title="1 of 2 branches missed.">		if (fieldName == null) {</span>
+<span class="nc bnc" id="L300" title="All 2 branches missed.">			if (other.fieldName != null)</span>
+<span class="nc" id="L301">				return false;</span>
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">		} else if (!fieldName.equals(other.fieldName))</span>
+<span class="nc" id="L303">			return false;</span>
+<span class="pc bpc" id="L304" title="1 of 2 branches missed.">		if (encapsulatedFields == null) {</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">			if (other.encapsulatedFields != null)</span>
+<span class="nc" id="L306">				return false;</span>
+<span class="pc bpc" id="L307" title="1 of 2 branches missed.">		} else if (!encapsulatedFields.equals(other.encapsulatedFields))</span>
+<span class="nc" id="L308">			return false;</span>
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">		if (encapsulatedMethods == null) {</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">			if (other.encapsulatedMethods != null)</span>
+<span class="nc" id="L311">				return false;</span>
+<span class="pc bpc" id="L312" title="1 of 2 branches missed.">		} else if (!encapsulatedMethods.equals(other.encapsulatedMethods))</span>
+<span class="nc" id="L313">			return false;</span>
+<span class="fc" id="L314">		return true;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L319">		return &quot;MembersCapsuleField [fieldName=&quot; + fieldName + &quot;, objectType=&quot; + objectType + &quot;, fields=&quot;</span>
+<span class="fc" id="L320">				+ encapsulatedFields + &quot;, methods=&quot; + encapsulatedMethods + &quot;]&quot;;</span>
+	}
+
+	public class Value implements IDerivedInstance {
+
+		protected Object object;
+
+<span class="fc" id="L327">		public Value(Object object) {</span>
+<span class="fc" id="L328">			this.object = object;</span>
+<span class="fc" id="L329">		}</span>
+
+		public Object getObject() {
+<span class="fc" id="L332">			return object;</span>
+		}
+
+		@Override
+		public Object getBaseInstance() {
+<span class="fc" id="L337">			return getObject();</span>
+		}
+
+		public MembersCapsuleFieldInfo getSourceField() {
+<span class="fc" id="L341">			return MembersCapsuleFieldInfo.this;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L346">			final int prime = 31;</span>
+<span class="fc" id="L347">			int result = 1;</span>
+<span class="fc" id="L348">			result = prime * result + getSourceField().hashCode();</span>
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">			result = prime * result + ((object == null) ? 0 : object.hashCode());</span>
+<span class="fc" id="L350">			return result;</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">			if (this == obj)</span>
+<span class="nc" id="L356">				return true;</span>
+<span class="pc bpc" id="L357" title="1 of 2 branches missed.">			if (obj == null)</span>
+<span class="nc" id="L358">				return false;</span>
+<span class="pc bpc" id="L359" title="1 of 2 branches missed.">			if (getClass() != obj.getClass())</span>
+<span class="nc" id="L360">				return false;</span>
+<span class="fc" id="L361">			Value other = (Value) obj;</span>
+<span class="pc bpc" id="L362" title="1 of 2 branches missed.">			if (!getSourceField().equals(other.getSourceField()))</span>
+<span class="nc" id="L363">				return false;</span>
+<span class="pc bpc" id="L364" title="1 of 2 branches missed.">			if (object == null) {</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">				if (other.object != null)</span>
+<span class="nc" id="L366">					return false;</span>
+<span class="pc bpc" id="L367" title="1 of 2 branches missed.">			} else if (!object.equals(other.object))</span>
+<span class="nc" id="L368">				return false;</span>
+<span class="fc" id="L369">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L374">			return &quot;MembersCapsuleFieldFieldInstance [object=&quot; + object + &quot;]&quot;;</span>
+		}
+
+	}
+
+<span class="fc" id="L379">	public class ValueTypeInfo extends AbstractInfo implements ITypeInfo {</span>
+
+		@Override
+		public ITypeInfoSource getSource() {
+<span class="fc" id="L383">			return new PrecomputedTypeInfoSource(this, new SpecificitiesIdentifier(objectType.getName(), fieldName));</span>
+		}
+
+		@Override
+		public ITypeInfo getParent() {
+<span class="nc" id="L388">			return null;</span>
+		}
+
+		@Override
+		public ITransaction createTransaction(Object object) {
+<span class="fc" id="L393">			return null;</span>
+		}
+
+		@Override
+		public void onFormRefresh(Object object) {
+<span class="fc" id="L398">		}</span>
+
+		@Override
+		public Runnable getLastFormRefreshStateRestorationJob(Object object) {
+<span class="fc" id="L402">			return null;</span>
+		}
+
+		@Override
+		public CategoriesStyle getCategoriesStyle() {
+<span class="nc" id="L407">			return CategoriesStyle.getDefault(reflectionUI, reflectionUI.getTypeInfo(getSource()));</span>
+		}
+
+		@Override
+		public ResourcePath getFormBackgroundImagePath() {
+<span class="fc" id="L412">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBackgroundColor() {
+<span class="fc" id="L417">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormForegroundColor() {
+<span class="fc" id="L422">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormBorderColor() {
+<span class="fc" id="L427">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorForegroundColor() {
+<span class="fc" id="L432">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormEditorBackgroundColor() {
+<span class="fc" id="L437">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBackgroundColor() {
+<span class="fc" id="L442">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonForegroundColor() {
+<span class="fc" id="L447">			return null;</span>
+		}
+
+		@Override
+		public ResourcePath getFormButtonBackgroundImagePath() {
+<span class="fc" id="L452">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getFormButtonBorderColor() {
+<span class="fc" id="L457">			return null;</span>
+		}
+
+		@Override
+		public int getFormPreferredWidth() {
+<span class="fc" id="L462">			return -1;</span>
+		}
+
+		@Override
+		public int getFormPreferredHeight() {
+<span class="fc" id="L467">			return -1;</span>
+		}
+
+		@Override
+		public int getFormSpacing() {
+<span class="fc" id="L472">			return ITypeInfo.DEFAULT_FORM_SPACING;</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesBackgroundColor() {
+<span class="fc" id="L477">			return null;</span>
+		}
+
+		@Override
+		public ColorSpecification getCategoriesForegroundColor() {
+<span class="fc" id="L482">			return null;</span>
+		}
+
+		@Override
+		public void onFormVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L487">		}</span>
+
+		@Override
+		public void onFormCreation(Object object, boolean beforeOrAFter) {
+<span class="fc" id="L491">		}</span>
+
+		@Override
+		public boolean canPersist() {
+<span class="nc" id="L495">			return false;</span>
+		}
+
+		@Override
+		public void save(Object object, File outputFile) {
+<span class="nc" id="L500">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public void load(Object object, File inputFile) {
+<span class="nc" id="L505">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public String getName() {
+<span class="fc" id="L510">			return buildTypeName(fieldName, objectType.getName());</span>
+		}
+
+		@Override
+		public String getCaption() {
+<span class="fc" id="L515">			return MembersCapsuleFieldInfo.this.getCaption();</span>
+		}
+
+		@Override
+		public String getOnlineHelp() {
+<span class="fc" id="L520">			return null;</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L525">			return Collections.emptyMap();</span>
+		}
+
+		@Override
+		public boolean isImmutable() {
+<span class="fc" id="L530">			return false;</span>
+		}
+
+		@Override
+		public boolean isPrimitive() {
+<span class="nc" id="L535">			return false;</span>
+		}
+
+		@Override
+		public boolean isConcrete() {
+<span class="fc" id="L540">			return false;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getConstructors() {
+<span class="fc" id="L545">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public List&lt;IFieldInfo&gt; getFields() {
+<span class="fc" id="L550">			List&lt;IFieldInfo&gt; result = new ArrayList&lt;IFieldInfo&gt;();</span>
+<span class="fc bfc" id="L551" title="All 2 branches covered.">			for (IFieldInfo field : MembersCapsuleFieldInfo.this.encapsulatedFields) {</span>
+<span class="fc" id="L552">				result.add(createEncapsulatedFieldInfoProxy(field));</span>
+			}
+<span class="fc" id="L554">			return result;</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getMethods() {
+<span class="fc" id="L559">			List&lt;IMethodInfo&gt; result = new ArrayList&lt;IMethodInfo&gt;();</span>
+<span class="fc bfc" id="L560" title="All 2 branches covered.">			for (IMethodInfo method : MembersCapsuleFieldInfo.this.encapsulatedMethods) {</span>
+<span class="fc" id="L561">				result.add(createEncapsulatedMethodInfoProxy(method));</span>
+			}
+<span class="fc" id="L563">			return result;</span>
+		}
+
+		@Override
+		public boolean supports(Object object) {
+<span class="pc bpc" id="L568" title="1 of 2 branches missed.">			if (!(object instanceof Value)) {</span>
+<span class="nc" id="L569">				return false;</span>
+			}
+<span class="pc bpc" id="L571" title="1 of 2 branches missed.">			if (!getSourceField().equals(((Value) object).getSourceField())) {</span>
+<span class="nc" id="L572">				return false;</span>
+			}
+<span class="fc" id="L574">			return true;</span>
+		}
+
+		@Override
+		public List&lt;ITypeInfo&gt; getPolymorphicInstanceSubTypes() {
+<span class="nc" id="L579">			return Collections.emptyList();</span>
+		}
+
+		@Override
+		public boolean isPolymorphicInstanceAbstractTypeOptionAllowed() {
+<span class="fc" id="L584">			return false;</span>
+		}
+
+		@Override
+		public String toString(Object object) {
+<span class="fc" id="L589">			ITypeInfo valueType = reflectionUI.getTypeInfo(getSource());</span>
+<span class="fc" id="L590">			StringBuilder result = new StringBuilder();</span>
+<span class="fc bfc" id="L591" title="All 2 branches covered.">			for (IFieldInfo field : valueType.getFields()) {</span>
+<span class="fc bfc" id="L592" title="All 2 branches covered.">				if (field.isHidden()) {</span>
+<span class="fc" id="L593">					continue;</span>
+				}
+				try {
+<span class="fc" id="L596">					Object fieldValue = field.getValue(object);</span>
+					String fieldValueString;
+<span class="fc bfc" id="L598" title="All 2 branches covered.">					if (fieldValue == null) {</span>
+<span class="fc" id="L599">						fieldValueString = &quot;&lt;none&gt;&quot;;</span>
+<span class="fc" id="L600">					} else {</span>
+<span class="fc" id="L601">						String stringValue = ReflectionUIUtils.toString(reflectionUI, fieldValue);</span>
+<span class="pc bpc" id="L602" title="1 of 2 branches missed.">						if (stringValue.length() == 0) {</span>
+<span class="nc bnc" id="L603" title="All 2 branches missed.">							if (fieldValue instanceof String) {</span>
+<span class="nc" id="L604">								fieldValueString = &quot;&lt;blank&gt;&quot;;</span>
+<span class="nc" id="L605">							} else {</span>
+<span class="nc" id="L606">								ITypeInfo actualFieldValueType = reflectionUI</span>
+<span class="nc" id="L607">										.getTypeInfo(reflectionUI.getTypeInfoSource(fieldValue));</span>
+<span class="nc bnc" id="L608" title="All 2 branches missed.">								if (actualFieldValueType instanceof IListTypeInfo) {</span>
+<span class="nc" id="L609">									fieldValueString = &quot;&lt;empty&gt;&quot;;</span>
+<span class="nc" id="L610">								} else {</span>
+<span class="nc" id="L611">									fieldValueString = &quot;&quot;;</span>
+								}
+							}
+<span class="nc" id="L614">						} else {</span>
+<span class="fc" id="L615">							fieldValueString = stringValue;</span>
+						}
+					}
+<span class="fc bfc" id="L618" title="All 2 branches covered.">					for (String newLine : MiscUtils.NEW_LINE_SEQUENCES) {</span>
+<span class="fc" id="L619">						fieldValueString = fieldValueString.replace(newLine, &quot; &quot;);</span>
+					}
+<span class="fc" id="L621">					fieldValueString = MiscUtils.truncateNicely(fieldValueString, 20);</span>
+<span class="fc" id="L622">					String fieldId = field.getCaption();</span>
+<span class="pc bpc" id="L623" title="2 of 4 branches missed.">					if ((fieldId != null) &amp;&amp; (fieldId.length() &gt; 0)) {</span>
+<span class="nc" id="L624">						fieldValueString = fieldId + &quot;=&quot; + fieldValueString;</span>
+					}
+<span class="pc bpc" id="L626" title="1 of 2 branches missed.">					if (fieldValueString.length() == 0) {</span>
+<span class="nc" id="L627">						continue;</span>
+					}
+<span class="fc bfc" id="L629" title="All 2 branches covered.">					if (result.length() &gt; 0) {</span>
+<span class="fc" id="L630">						result.append(&quot;, &quot;);</span>
+					}
+<span class="fc" id="L632">					result.append(fieldValueString);</span>
+<span class="pc" id="L633">				} catch (Throwable t) {</span>
+					continue;
+				}
+			}
+<span class="fc" id="L637">			return result.toString();</span>
+		}
+
+		@Override
+		public void validate(Object object, ValidationSession session) throws Exception {
+<span class="fc" id="L642">		}</span>
+
+		@Override
+		public boolean canCopy(Object object) {
+<span class="nc" id="L646">			return false;</span>
+		}
+
+		@Override
+		public Object copy(Object object) {
+<span class="nc" id="L651">			throw new UnsupportedOperationException();</span>
+		}
+
+		@Override
+		public boolean isModificationStackAccessible() {
+<span class="fc" id="L656">			return true;</span>
+		}
+
+		@Override
+		public boolean isValidationRequired() {
+<span class="fc" id="L661">			return false;</span>
+		}
+
+		@Override
+		public ResourcePath getIconImagePath(Object object) {
+<span class="fc" id="L666">			return null;</span>
+		}
+
+		@Override
+		public FieldsLayout getFieldsLayout() {
+<span class="fc" id="L671">			return FieldsLayout.VERTICAL_FLOW;</span>
+		}
+
+		@Override
+		public MethodsLayout getMethodsLayout() {
+<span class="fc" id="L676">			return MethodsLayout.HORIZONTAL_FLOW;</span>
+		}
+
+		@Override
+		public MenuModel getMenuModel() {
+<span class="fc" id="L681">			return new MenuModel();</span>
+		}
+
+		public MembersCapsuleFieldInfo getSourceField() {
+<span class="fc" id="L685">			return MembersCapsuleFieldInfo.this;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L690">			return getSourceField().hashCode();</span>
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+<span class="pc bpc" id="L695" title="1 of 2 branches missed.">			if (obj == null) {</span>
+<span class="nc" id="L696">				return false;</span>
+			}
+<span class="pc bpc" id="L698" title="1 of 2 branches missed.">			if (!getClass().equals(obj.getClass())) {</span>
+<span class="nc" id="L699">				return false;</span>
+			}
+<span class="pc bpc" id="L701" title="1 of 2 branches missed.">			if (!getSourceField().equals(((ValueTypeInfo) obj).getSourceField())) {</span>
+<span class="nc" id="L702">				return false;</span>
+			}
+<span class="fc" id="L704">			return true;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L709">			return &quot;ValueTypeInfo [of=&quot; + getSourceField() + &quot;]&quot;;</span>
+		}
+
+	}
+
+	public class EncapsulatedFieldInfoProxy extends FieldInfoProxy {
+
+<span class="fc" id="L716">		public EncapsulatedFieldInfoProxy(IFieldInfo base) {</span>
+<span class="fc" id="L717">			super(base);</span>
+<span class="fc" id="L718">		}</span>
+
+		public MembersCapsuleFieldInfo getSourceField() {
+<span class="nc" id="L721">			return MembersCapsuleFieldInfo.this;</span>
+		}
+
+		@Override
+		public ITypeInfo getType() {
+<span class="fc" id="L726">			return reflectionUI.getTypeInfo(new TypeInfoSourceProxy(super.getType().getSource()) {</span>
+
+				@Override
+				public SpecificitiesIdentifier getSpecificitiesIdentifier() {
+<span class="fc" id="L730">					return new SpecificitiesIdentifier(MembersCapsuleFieldInfo.this.getType().getName(),</span>
+<span class="fc" id="L731">							EncapsulatedFieldInfoProxy.this.getName());</span>
+				}
+
+				@Override
+				protected String getTypeInfoProxyFactoryIdentifier() {
+<span class="fc" id="L736">					return &quot;FieldValueTypeInfoProxyFactory [of=&quot; + getClass().getName() + &quot;, objectType=&quot;</span>
+<span class="fc" id="L737">							+ objectType.getName() + &quot;, field=&quot; + EncapsulatedFieldInfoProxy.this.getName() + &quot;]&quot;;</span>
+				}
+
+			});
+		}
+
+		@Override
+		public IValidationJob getValueAbstractFormValidationJob(Object object) {
+<span class="nc" id="L745">			object = ((Value) object).getObject();</span>
+<span class="nc" id="L746">			return super.getValueAbstractFormValidationJob(object);</span>
+		}
+
+		@Override
+		public boolean isRelevant(Object object) {
+<span class="fc" id="L751">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L752">			return super.isRelevant(object);</span>
+		}
+
+		@Override
+		public Object getValue(Object object) {
+<span class="fc" id="L757">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L758">			return super.getValue(object);</span>
+		}
+
+		@Override
+		public Runnable getNextUpdateCustomUndoJob(Object object, Object value) {
+<span class="fc" id="L763">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L764">			return super.getNextUpdateCustomUndoJob(object, value);</span>
+		}
+
+		@Override
+		public Runnable getPreviousUpdateCustomRedoJob(Object object, Object value) {
+<span class="nc" id="L769">			object = ((Value) object).getObject();</span>
+<span class="nc" id="L770">			return super.getPreviousUpdateCustomRedoJob(object, value);</span>
+		}
+
+		@Override
+		public boolean hasValueOptions(Object object) {
+<span class="fc" id="L775">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L776">			return super.hasValueOptions(object);</span>
+		}
+
+		@Override
+		public Object[] getValueOptions(Object object) {
+<span class="nc" id="L781">			object = ((Value) object).getObject();</span>
+<span class="nc" id="L782">			return super.getValueOptions(object);</span>
+		}
+
+		@Override
+		public void setValue(Object object, Object value) {
+<span class="fc" id="L787">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L788">			super.setValue(object, value);</span>
+<span class="fc" id="L789">		}</span>
+
+		@Override
+		public List&lt;IMethodInfo&gt; getAlternativeConstructors(Object object) {
+<span class="fc" id="L793">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L794">			return super.getAlternativeConstructors(object);</span>
+		}
+
+		@Override
+		public List&lt;IMethodInfo&gt; getAlternativeListItemConstructors(Object object) {
+<span class="fc" id="L799">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L800">			return super.getAlternativeListItemConstructors(object);</span>
+		}
+
+		@Override
+		public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L805">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L806">			super.onControlVisibilityChange(object, visible);</span>
+<span class="fc" id="L807">		}</span>
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="fc" id="L811">			Map&lt;String, Object&gt; result = new HashMap&lt;String, Object&gt;(super.getSpecificProperties());</span>
+<span class="fc" id="L812">			result.put(AS_ENCAPSULATED_MEMBER_PROXY_PROPERTY_KEY, EncapsulatedFieldInfoProxy.this);</span>
+<span class="fc" id="L813">			result.put(EncapsulatedFieldInfoProxy.class.getName(), EncapsulatedFieldInfoProxy.this);</span>
+<span class="fc" id="L814">			return result;</span>
+		}
+
+		public MembersCapsuleFieldInfo getParent() {
+<span class="nc" id="L818">			return MembersCapsuleFieldInfo.this;</span>
+		}
+
+	}
+
+	public class EncapsulatedMethodInfoProxy extends MethodInfoProxy {
+
+<span class="fc" id="L825">		public EncapsulatedMethodInfoProxy(IMethodInfo base) {</span>
+<span class="fc" id="L826">			super(base);</span>
+<span class="fc" id="L827">		}</span>
+
+		public MembersCapsuleFieldInfo getSourceField() {
+<span class="nc" id="L830">			return MembersCapsuleFieldInfo.this;</span>
+		}
+
+		@Override
+		public ITypeInfo getReturnValueType() {
+<span class="fc bfc" id="L835" title="All 2 branches covered.">			if (super.getReturnValueType() == null) {</span>
+<span class="fc" id="L836">				return null;</span>
+			} else {
+<span class="fc" id="L838">				return reflectionUI.getTypeInfo(new TypeInfoSourceProxy(super.getReturnValueType().getSource()) {</span>
+					@Override
+					public SpecificitiesIdentifier getSpecificitiesIdentifier() {
+<span class="fc" id="L841">						return null;</span>
+					}
+
+					@Override
+					protected String getTypeInfoProxyFactoryIdentifier() {
+<span class="fc" id="L846">						return &quot;MethodReturnValueTypeInfoProxyFactory [of=&quot; + getClass().getName() + &quot;, objectType=&quot;</span>
+<span class="fc" id="L847">								+ objectType.getName() + &quot;, method=&quot; + EncapsulatedMethodInfoProxy.this.getSignature()</span>
+<span class="fc" id="L848">								+ &quot;]&quot;;</span>
+					}
+				});
+			}
+		}
+
+		@Override
+		public List&lt;IParameterInfo&gt; getParameters() {
+<span class="fc" id="L856">			List&lt;IParameterInfo&gt; result = new ArrayList&lt;IParameterInfo&gt;();</span>
+<span class="fc bfc" id="L857" title="All 2 branches covered.">			for (IParameterInfo param : super.getParameters()) {</span>
+<span class="fc" id="L858">				param = new ParameterInfoProxy(param) {</span>
+
+					@Override
+					public Object getDefaultValue(Object object) {
+<span class="nc" id="L862">						object = ((Value) object).getObject();</span>
+<span class="nc" id="L863">						return super.getDefaultValue(object);</span>
+					}
+
+					@Override
+					public boolean hasValueOptions(Object object) {
+<span class="nc" id="L868">						object = ((Value) object).getObject();</span>
+<span class="nc" id="L869">						return super.hasValueOptions(object);</span>
+					}
+
+					@Override
+					public Object[] getValueOptions(Object object) {
+<span class="nc" id="L874">						object = ((Value) object).getObject();</span>
+<span class="nc" id="L875">						return super.getValueOptions(object);</span>
+					}
+
+				};
+<span class="fc" id="L879">				result.add(param);</span>
+			}
+<span class="fc" id="L881">			return result;</span>
+		}
+
+		@Override
+		public IValidationJob getReturnValueAbstractFormValidationJob(Object object, Object returnValue) {
+<span class="nc" id="L886">			object = ((Value) object).getObject();</span>
+<span class="nc" id="L887">			return super.getReturnValueAbstractFormValidationJob(object, returnValue);</span>
+		}
+
+		@Override
+		public Object invoke(Object object, InvocationData invocationData) {
+<span class="fc" id="L892">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L893">			return super.invoke(object, invocationData);</span>
+		}
+
+		@Override
+		public boolean isRelevant(Object object) {
+<span class="fc" id="L898">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L899">			return super.isRelevant(object);</span>
+		}
+
+		@Override
+		public boolean isEnabled(Object object) {
+<span class="fc" id="L904">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L905">			return super.isEnabled(object);</span>
+		}
+
+		@Override
+		public Runnable getNextInvocationUndoJob(Object object, InvocationData invocationData) {
+<span class="fc" id="L910">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L911">			return super.getNextInvocationUndoJob(object, invocationData);</span>
+		}
+
+		@Override
+		public Runnable getPreviousInvocationCustomRedoJob(Object object, InvocationData invocationData) {
+<span class="nc" id="L916">			object = ((Value) object).getObject();</span>
+<span class="nc" id="L917">			return super.getPreviousInvocationCustomRedoJob(object, invocationData);</span>
+		}
+
+		@Override
+		public void validateParameters(Object object, InvocationData invocationData) throws Exception {
+<span class="nc" id="L922">			object = ((Value) object).getObject();</span>
+<span class="nc" id="L923">			super.validateParameters(object, invocationData);</span>
+<span class="nc" id="L924">		}</span>
+
+		@Override
+		public void onControlVisibilityChange(Object object, boolean visible) {
+<span class="fc" id="L928">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L929">			super.onControlVisibilityChange(object, visible);</span>
+<span class="fc" id="L930">		}</span>
+
+		@Override
+		public String getConfirmationMessage(Object object, InvocationData invocationData) {
+<span class="fc" id="L934">			object = ((Value) object).getObject();</span>
+<span class="fc" id="L935">			return super.getConfirmationMessage(object, invocationData);</span>
+		}
+
+		@Override
+		public Map&lt;String, Object&gt; getSpecificProperties() {
+<span class="nc" id="L940">			Map&lt;String, Object&gt; result = new HashMap&lt;String, Object&gt;(super.getSpecificProperties());</span>
+<span class="nc" id="L941">			result.put(AS_ENCAPSULATED_MEMBER_PROXY_PROPERTY_KEY, EncapsulatedMethodInfoProxy.this);</span>
+<span class="nc" id="L942">			return result;</span>
+		}
+
+		public MembersCapsuleFieldInfo getParent() {
+<span class="nc" id="L946">			return MembersCapsuleFieldInfo.this;</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span>j-enterprise-service-bus (java8) (Dec 1, 2025 10:13:41 AM)</div></body></html>
