@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<postals:postals xmlns:postals="http://www.example.com/postals" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.example.com/postals postals.xsd ">
-  <postals:row>
-    <postals:city>postals:city</postals:city>
-    <postals:prefix>postals:prefix</postals:prefix>
-  </postals:row>
-</postals:postals>

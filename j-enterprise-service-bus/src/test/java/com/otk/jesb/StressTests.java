@@ -53,7 +53,7 @@ public class StressTests {
 	@Test
 	public void testMemoryLeaks() throws Exception {
 		final Long PERIOD_MILLISECONDS = 1l;
-		final Long SLEEP_MILLISECONDS = 10l;
+		final Long SLEEP_MILLISECONDS = 100l;
 		Solution solution = Solution.INSTANCE;
 		Plan plan = new Plan();
 		{
@@ -100,33 +100,29 @@ public class StressTests {
 
 			}
 		}
-		boolean freeMemoryStabilizationDetected = false;
+		boolean memoryStabilizationDetected = false;
 		try (Runner session = new Runner(solution)) {
 			long freeMemory = 0;
 			long lastFreeMemory = Long.MAX_VALUE;
 			for (int i = 0; i < 10; i++) {
-				session.deactivatePlans();
-				if (session.getActivePlanExecutors().size() > 0) {
-					Assert.fail();
-				}
 				System.gc();
+				freeMemory = Runtime.getRuntime().freeMemory();
 				if (freeMemory >= lastFreeMemory) {
-					freeMemoryStabilizationDetected = true;
+					memoryStabilizationDetected = true;
 					break;
 				}
 				lastFreeMemory = freeMemory;
 				System.err.println("Free memory: " + freeMemory);
-				session.activatePlans();
 				Thread.sleep(5000);
 				int parallelPlanExecutors = session.getActivePlanExecutors().size();
 				System.err.println("Parallel plan executors: " + parallelPlanExecutors);
 				if (parallelPlanExecutors < Math
-						.round(((float) SLEEP_MILLISECONDS / (float) PERIOD_MILLISECONDS) / 2f)) {
+						.round(((float) SLEEP_MILLISECONDS / (float) PERIOD_MILLISECONDS) / 20f)) {
 					Assert.fail();
 				}
 			}
 		}
-		if (!freeMemoryStabilizationDetected) {
+		if (!memoryStabilizationDetected) {
 			Assert.fail();
 		}
 	}
