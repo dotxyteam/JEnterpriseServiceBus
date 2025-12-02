@@ -68,19 +68,19 @@ a lower level protocol should be used (eg: HTTP instead of SOAP).
 
 STRATEGIC POSITIONING
 ---------------------
-Enterprise Service Buses (ESBs) are fundamentally very useful because they 
+Enterprise Service Buses (ESBs) are undeniably very useful because they 
 multiply developer productivity. However, they require specific and rare 
 expertise, leading to the creation of dedicated teams that ultimately become 
 bottlenecks. It likely explains the dislike for this type of product. 
 Actually, autonomy is preferred over productivity, as the former would shorten 
 development delays even if it increases workloads. 
-Thus how can we benefit from both autonomy and productivity? One solution would 
-be to allow each team to leverage the transformation and connectivity 
+Thus how can we benefit from both autonomy and ESBs productivity? One solution 
+would be to allow each team to leverage the transformation and connectivity 
 capabilities of these tools. But for this to work, the required expertise would 
 need to be minimal or even nonexistent, and the integration of these tools into 
 projects would need to be facilitated. NOTE: It is therefore a good thing that 
 JESB does not use a specific syntax (just Java) to express complex logics. 
-The tool could, for example, be provided as a library usable in commonly 
+The tool could, for example, be provided as a simple library usable in commonly 
 mastered programming environments. This involves providing, through the simplest 
 possible API, a way to edit and then invoke the tool's components (mappers, 
 connectors, etc.). Note that bridge APIs could be provided for other languages. 
