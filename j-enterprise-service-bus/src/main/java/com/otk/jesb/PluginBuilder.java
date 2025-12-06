@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
@@ -169,44 +170,51 @@ public class PluginBuilder {
 	}
 
 	public void generateJAR(File jarFile) throws Exception {
+		if (isTestingPrepared()) {
+			unprepareTesting();
+		}
 		File temporaryDirectory = MiscUtils.createTemporaryDirectory();
 		try {
 			generateProject(temporaryDirectory);
-			List<Class<?>> classes = new ArrayList<Class<?>>();
-			classes.addAll(compile(getSourceDirectory(temporaryDirectory)));
-			Manifest manifest = new Manifest();
-			try (FileInputStream in = new FileInputStream(
-					new File(getMetaInformationDirectory(temporaryDirectory), "MANIFEST.MF"))) {
-				manifest.read(in);
-			}
-			try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile), manifest)) {
-				for (Class<?> clazz : classes) {
-					String entryName = clazz.getName().replace(".", "/") + ".class";
-					JarEntry jarEntry = new JarEntry(entryName);
-					jarOutputStream.putNextEntry(jarEntry);
-					byte[] classBinary = MiscUtils.IN_MEMORY_COMPILER.getClassBinary(clazz);
-					if (classBinary == null) {
-						throw new UnexpectedError();
-					}
-					jarOutputStream.write(classBinary);
-					jarOutputStream.closeEntry();
-				}
-				File resourceDirectory = getResourceDirectory(temporaryDirectory);
-				Files.walkFileTree(resourceDirectory.toPath(), new SimpleFileVisitor<Path>() {
-					@Override
-					public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-						String entryName = resourceDirectory.toPath().relativize(filePath).toString().replace("\\",
-								"/");
-						JarEntry jarEntry = new JarEntry(entryName);
-						jarOutputStream.putNextEntry(jarEntry);
-						jarOutputStream.write(MiscUtils.readBinary(filePath.toFile()));
-						jarOutputStream.closeEntry();
-						return super.visitFile(filePath, attrs);
-					}
-				});
-			}
+			projectToJAR(temporaryDirectory, jarFile);
 		} finally {
 			MiscUtils.delete(temporaryDirectory);
+		}
+	}
+
+	private void projectToJAR(File projectDirectory, File jarFile)
+			throws CompilationError, FileNotFoundException, IOException {
+		List<Class<?>> classes = new ArrayList<Class<?>>();
+		classes.addAll(compile(getSourceDirectory(projectDirectory)));
+		Manifest manifest = new Manifest();
+		try (FileInputStream in = new FileInputStream(
+				new File(getMetaInformationDirectory(projectDirectory), "MANIFEST.MF"))) {
+			manifest.read(in);
+		}
+		try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile), manifest)) {
+			for (Class<?> clazz : classes) {
+				String entryName = clazz.getName().replace(".", "/") + ".class";
+				JarEntry jarEntry = new JarEntry(entryName);
+				jarOutputStream.putNextEntry(jarEntry);
+				byte[] classBinary = MiscUtils.IN_MEMORY_COMPILER.getClassBinary(clazz);
+				if (classBinary == null) {
+					throw new UnexpectedError();
+				}
+				jarOutputStream.write(classBinary);
+				jarOutputStream.closeEntry();
+			}
+			File resourceDirectory = getResourceDirectory(projectDirectory);
+			Files.walkFileTree(resourceDirectory.toPath(), new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+					String entryName = resourceDirectory.toPath().relativize(filePath).toString().replace("\\", "/");
+					JarEntry jarEntry = new JarEntry(entryName);
+					jarOutputStream.putNextEntry(jarEntry);
+					jarOutputStream.write(MiscUtils.readBinary(filePath.toFile()));
+					jarOutputStream.closeEntry();
+					return super.visitFile(filePath, attrs);
+				}
+			});
 		}
 	}
 
@@ -216,7 +224,13 @@ public class PluginBuilder {
 		}
 		File temporaryJarFile = MiscUtils.createTemporaryFile("jar");
 		try {
-			generateJAR(temporaryJarFile);
+			File temporaryDirectory = MiscUtils.createTemporaryDirectory();
+			try {
+				generateProject(temporaryDirectory);
+				projectToJAR(temporaryDirectory, temporaryJarFile);
+			} finally {
+				MiscUtils.delete(temporaryDirectory);
+			}
 			onlineJAR = new JAR(temporaryJarFile);
 			Solution.INSTANCE.setRequiredJARs(MiscUtils.added(Solution.INSTANCE.getRequiredJARs(),
 					Solution.INSTANCE.getRequiredJARs().size(), onlineJAR));
