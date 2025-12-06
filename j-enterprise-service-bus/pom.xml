@@ -5,7 +5,7 @@
 
 	<groupId>com.github.dotxyteam</groupId>
 	<artifactId>j-enterprise-service-bus</artifactId>
-	<version>0.9.3</version>
+	<version>0.9.5</version>
 	<packaging>jar</packaging>
 
 	<name>JEnterpriseServiceBus</name>
