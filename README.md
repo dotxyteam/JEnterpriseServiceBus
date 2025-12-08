@@ -1,5 +1,5 @@
-JEnterpriseServiceBus
-=====================
+J-Enterprise Service Bus
+========================
 
 ![alt JESB icon](https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/j-enterprise-service-bus.png?raw=true)
 
