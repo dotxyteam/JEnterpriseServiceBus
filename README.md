@@ -11,7 +11,7 @@ It has a graphical user interface for process modeling and debugging.
 <table>
 <tr>
 <td><img src="j-enterprise-service-bus/misc/GUI-screenshots/gui.png"></td>
-<td><img src="j-enterprise-service-bus/misc/GUI-screenshots/components/mix.jpg"></td>
+<!--  <td><img src="j-enterprise-service-bus/misc/GUI-screenshots/components/mix.jpg"></td> -->
 </tr>
 </table>
 
