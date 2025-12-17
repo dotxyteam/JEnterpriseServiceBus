@@ -43,22 +43,22 @@ public class SolutionUtils {
 				return plan.execute(planInput, Plan.ExecutionInspector.DEFAULT,
 						new Plan.ExecutionContext(session, plan));
 			}
-		});
+		}, session.getSolutionInstance());
 	}
 
-	public static void deactivatePlan(Plan plan) throws Exception {
-		plan.getActivator().finalizeAutomaticTrigger();
+	public static void deactivatePlan(Plan plan, Session session) throws Exception {
+		plan.getActivator().finalizeAutomaticTrigger(session.getSolutionInstance());
 	}
 
 	public static Object executePlan(Plan plan, Session session, Consumer<InstanceBuilder> inputSetup)
 			throws Exception {
 		InstanceBuilder inputBuilder = new InstanceBuilder(
-				Accessor.returning(plan.getActivator().getInputClass().getName()));
+				Accessor.returning(plan.getActivator().getInputClass(session.getSolutionInstance()).getName()));
 		if (inputSetup != null) {
 			inputSetup.accept(inputBuilder);
 		}
-		Object planInput = inputBuilder
-				.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
+		Object planInput = inputBuilder.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList(),
+				session.getSolutionInstance()));
 		Object planOutput = plan.execute(planInput, Plan.ExecutionInspector.DEFAULT,
 				new Plan.ExecutionContext(session, plan));
 		return planOutput;

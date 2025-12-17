@@ -5,6 +5,7 @@ import java.util.List;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.instantiation.ListItemReplication.IterationVariable;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
 
 /**
@@ -19,25 +20,33 @@ public class InstantiationContext {
 	private List<Variable> variables = new ArrayList<Variable>();
 	private Facade parentFacade;
 	private List<VariableDeclaration> variableDeclarations;
+	private Solution solutionInstance;
 
 	protected InstantiationContext(Facade parentFacade, List<Variable> variables,
-			List<VariableDeclaration> variableDeclarations) {
+			List<VariableDeclaration> variableDeclarations, Solution solutionInstance) {
 		this.parentFacade = parentFacade;
 		this.variables = variables;
 		this.variableDeclarations = variableDeclarations;
+		this.solutionInstance = solutionInstance;
 	}
 
 	protected InstantiationContext(InstantiationContext parentContext, Facade newParentFacade) {
-		this(newParentFacade, parentContext.getVariables(), parentContext.getVariableDeclarations());
+		this(newParentFacade, parentContext.getVariables(), parentContext.getVariableDeclarations(),
+				parentContext.getSolutionInstance());
 	}
 
 	protected InstantiationContext(InstantiationContext parentContext, IterationVariable newVariable) {
 		this(parentContext.getParentFacade(), MiscUtils.added(parentContext.getVariables(), -1, newVariable),
-				parentContext.getVariableDeclarations());
+				parentContext.getVariableDeclarations(), parentContext.getSolutionInstance());
 	}
 
-	public InstantiationContext(List<Variable> variables, List<VariableDeclaration> variableDeclarations) {
-		this(null, variables, variableDeclarations);
+	public InstantiationContext(List<Variable> variables, List<VariableDeclaration> variableDeclarations,
+			Solution solutionInstance) {
+		this(null, variables, variableDeclarations, solutionInstance);
+	}
+
+	public Solution getSolutionInstance() {
+		return solutionInstance;
 	}
 
 	public List<Variable> getVariables() {

@@ -12,6 +12,7 @@ import com.otk.jesb.activation.builtin.WatchFileSystem;
 import com.otk.jesb.AbstractExperiment;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.ui.GUI;
 
 public class Experiment extends AbstractExperiment implements AutoCloseable {
@@ -20,7 +21,7 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				try (Experiment experiment = new Experiment(new WatchFileSystem())) {
+				try (Experiment experiment = new Experiment(new WatchFileSystem(), new Solution())) {
 					GUI.INSTANCE.openObjectFrame(experiment);
 				} catch (Exception e) {
 					throw new UnexpectedError(e);
@@ -29,7 +30,8 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 		});
 	}
 
-	public Experiment(Activator activator) {
+	public Experiment(Activator activator, Solution solutionInstance) {
+		super(solutionInstance);
 		setActivator(activator);
 	}
 
@@ -39,12 +41,16 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 
 	public class ActivationEventBasket extends Session {
 
+		public ActivationEventBasket() {
+			super(new Solution());
+		}
+
 		private List<ActivationEvent> activationEvents = new ArrayList<ActivationEvent>();
 
 		@Override
 		protected void initiate() {
 			try {
-				Experiment.this.getActivator().initializeAutomaticTrigger(getActivationHandler());
+				Experiment.this.getActivator().initializeAutomaticTrigger(getActivationHandler(), solutionInstance);
 			} catch (Exception e) {
 				throw new PotentialError(e);
 			}
@@ -53,7 +59,7 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 		@Override
 		protected void terminate() {
 			try {
-				Experiment.this.getActivator().finalizeAutomaticTrigger();
+				Experiment.this.getActivator().finalizeAutomaticTrigger(solutionInstance);
 			} catch (Exception e) {
 				throw new PotentialError(e);
 			}

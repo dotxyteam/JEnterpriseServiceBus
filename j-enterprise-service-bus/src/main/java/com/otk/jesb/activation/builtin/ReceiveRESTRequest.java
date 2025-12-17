@@ -48,6 +48,7 @@ import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.OperationInput;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionError;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
 
 import io.swagger.v3.oas.models.OpenAPI;
@@ -55,42 +56,47 @@ import xy.reflect.ui.info.ResourcePath;
 
 public class ReceiveRESTRequest extends HTTPRequestReceiver {
 
-	private Reference<OpenAPIDescription> openAPIDescriptionReference = new Reference<OpenAPIDescription>(
-			OpenAPIDescription.class);
+	private Reference<OpenAPIDescription> openAPIDescriptionReference;
 	private String operationSignature;
 
 	private ActivationHandler activationHandler;
 
-	private OpenAPIDescription expectOpenAPIDescription() {
-		OpenAPIDescription result = openAPIDescriptionReference.resolve();
+	private OpenAPIDescription expectOpenAPIDescription(Solution solutionInstance) {
+		OpenAPIDescription result = openAPIDescriptionReference.resolve(solutionInstance);
 		if (result == null) {
 			throw new IllegalStateException("Failed to resolve the OpenAPI Description reference");
 		}
 		return result;
 	}
 
+	public ReceiveRESTRequest() {
+		super();
+		openAPIDescriptionReference = new Reference<OpenAPIDescription>(OpenAPIDescription.class);
+	}
+
 	public Reference<OpenAPIDescription> getOpenAPIDescriptionReference() {
 		return openAPIDescriptionReference;
 	}
 
-	public void setOpenAPIDescriptionReference(Reference<OpenAPIDescription> openAPIDescriptionReference) {
+	public void setOpenAPIDescriptionReference(Reference<OpenAPIDescription> openAPIDescriptionReference,
+			Solution solutionInstance) {
 		this.openAPIDescriptionReference = openAPIDescriptionReference;
-		tryToSelectValuesAutomatically();
+		tryToSelectValuesAutomatically(solutionInstance);
 	}
 
 	public String getOperationSignature() {
 		return operationSignature;
 	}
 
-	public void setOperationSignature(String operationSignature) {
+	public void setOperationSignature(String operationSignature, Solution solutionInstance) {
 		this.operationSignature = operationSignature;
-		tryToSelectValuesAutomatically();
+		tryToSelectValuesAutomatically(solutionInstance);
 	}
 
-	private void tryToSelectValuesAutomatically() {
+	private void tryToSelectValuesAutomatically(Solution solutionInstance) {
 		try {
 			if (operationSignature == null) {
-				List<String> options = getOperationSignatureOptions();
+				List<String> options = getOperationSignatureOptions(solutionInstance);
 				if (options.size() > 0) {
 					operationSignature = options.get(0);
 				}
@@ -100,39 +106,41 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 	}
 
 	@Override
-	protected RESTRequestHandler createRequestHandler(String servicePath) {
-		expectOpenAPIDescription();
+	protected RESTRequestHandler createRequestHandler(String servicePath, Solution solutionInstance) {
+		expectOpenAPIDescription(solutionInstance);
 		return new RESTRequestHandler(servicePath, openAPIDescriptionReference);
 	}
 
 	@Override
-	protected boolean isCompatibleWith(RequestHandler requestHandler) {
+	protected boolean isCompatibleWith(RequestHandler requestHandler, Solution solutionInstance) {
 		if (!(requestHandler instanceof RESTRequestHandler)) {
 			return false;
 		}
-		OpenAPIDescription openAPIDescription = openAPIDescriptionReference.resolve();
+		OpenAPIDescription openAPIDescription = openAPIDescriptionReference.resolve(solutionInstance);
 		if (openAPIDescription == null) {
 			return false;
 		}
-		if (((RESTRequestHandler) requestHandler).getOpenAPIDescriptionReference().resolve() != openAPIDescription) {
+		if (((RESTRequestHandler) requestHandler).getOpenAPIDescriptionReference()
+				.resolve(solutionInstance) != openAPIDescription) {
 			return false;
 		}
 		return true;
 	}
 
-	public List<String> getOperationSignatureOptions() {
+	public List<String> getOperationSignatureOptions(Solution solutionInstance) {
 		try {
-			OpenAPIDescription openAPIDescription = expectOpenAPIDescription();
-			return openAPIDescription.getServiceOperationDescriptors().stream().map(o -> o.getOperationSignature())
-					.collect(Collectors.toList());
+			OpenAPIDescription openAPIDescription = expectOpenAPIDescription(solutionInstance);
+			return openAPIDescription.getServiceOperationDescriptors(solutionInstance).stream()
+					.map(o -> o.getOperationSignature()).collect(Collectors.toList());
 		} catch (IllegalStateException e) {
 			return Collections.emptyList();
 		}
 	}
 
-	private OpenAPIDescription.APIOperationDescriptor expectOperationDescriptor() {
-		OpenAPIDescription openAPIDescription = expectOpenAPIDescription();
-		APIOperationDescriptor result = openAPIDescription.getServiceOperationDescriptor(operationSignature);
+	private OpenAPIDescription.APIOperationDescriptor expectOperationDescriptor(Solution solutionInstance) {
+		OpenAPIDescription openAPIDescription = expectOpenAPIDescription(solutionInstance);
+		APIOperationDescriptor result = openAPIDescription.getServiceOperationDescriptor(operationSignature,
+				solutionInstance);
 		if (result == null) {
 			throw new IllegalStateException(
 					"Failed to get the operation descriptor: Invalid operation signature '" + operationSignature + "'");
@@ -141,9 +149,9 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 	}
 
 	@Override
-	public Class<?> getInputClass() {
+	public Class<?> getInputClass(Solution solutionInstance) {
 		try {
-			OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
+			OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor(solutionInstance);
 			return operation.getOperationInputClass();
 		} catch (IllegalStateException e) {
 			return null;
@@ -151,9 +159,9 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 	}
 
 	@Override
-	public Class<?> getOutputClass() {
+	public Class<?> getOutputClass(Solution solutionInstance) {
 		try {
-			OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
+			OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor(solutionInstance);
 			return operation.getOperationOutputClass();
 		} catch (IllegalStateException e) {
 			return null;
@@ -161,18 +169,20 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 	}
 
 	@Override
-	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler, Solution solutionInstance)
+			throws Exception {
 		this.activationHandler = activationHandler;
-		HTTPServer server = expectServer();
-		OpenAPIDescription openAPIDescription = expectOpenAPIDescription();
-		OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor();
-		String servicePath = getServicePath();
-		RequestHandler requestHandler = server.expectRequestHandler(servicePath);
+		HTTPServer server = expectServer(solutionInstance);
+		OpenAPIDescription openAPIDescription = expectOpenAPIDescription(solutionInstance);
+		OpenAPIDescription.APIOperationDescriptor operation = expectOperationDescriptor(solutionInstance);
+		String servicePath = getServicePath(solutionInstance);
+		RequestHandler requestHandler = server.expectRequestHandler(servicePath, solutionInstance);
 		if (!(requestHandler instanceof RESTRequestHandler)) {
 			throw new IllegalStateException(
 					"Cannot register " + operation + " on " + requestHandler + ": REST request handler required");
 		}
-		if (((RESTRequestHandler) requestHandler).getOpenAPIDescriptionReference().resolve() != openAPIDescription) {
+		if (((RESTRequestHandler) requestHandler).getOpenAPIDescriptionReference()
+				.resolve(solutionInstance) != openAPIDescription) {
 			throw new IllegalStateException("Cannot register " + operation + " on " + requestHandler
 					+ ": REST request handler based on OpenAPI description '" + openAPIDescriptionReference.getPath()
 					+ "' required");
@@ -182,26 +192,27 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 					"Cannot configure " + operation + " of " + requestHandler + ": Operation already configured");
 		}
 		if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
-			requestHandler.activate(server);
+			requestHandler.activate(server, solutionInstance);
 		}
 		((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);
 	}
 
 	@Override
-	public void finalizeAutomaticTrigger() throws Exception {
+	public void finalizeAutomaticTrigger(Solution solutionInstance) throws Exception {
 		MiscUtils.willRethrowCommonly((compositeException) -> {
-			HTTPServer server = compositeException.tryReturnCactch(() -> expectServer());
-			String servicePath = getServicePath();
+			HTTPServer server = compositeException.tryReturnCactch(() -> expectServer(solutionInstance));
+			String servicePath = getServicePath(solutionInstance);
 			RequestHandler requestHandler = (server == null) ? null
-					: compositeException.tryReturnCactch(() -> server.expectRequestHandler(servicePath));
+					: compositeException
+							.tryReturnCactch(() -> server.expectRequestHandler(servicePath, solutionInstance));
 			if (requestHandler != null) {
 				OpenAPIDescription.APIOperationDescriptor operation = compositeException
-						.tryReturnCactch(() -> expectOperationDescriptor());
+						.tryReturnCactch(() -> expectOperationDescriptor(solutionInstance));
 				if (operation != null) {
 					((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
 					if (((RESTRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
 						compositeException.tryCactch(() -> {
-							requestHandler.deactivate(server);
+							requestHandler.deactivate(server, solutionInstance);
 						});
 					}
 				}
@@ -216,10 +227,10 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 	}
 
 	@Override
-	public void validate(boolean recursively, Plan plan) throws ValidationError {
-		super.validate(recursively, plan);
+	public void validate(boolean recursively, Solution solutionInstance, Plan plan) throws ValidationError {
+		super.validate(recursively, solutionInstance, plan);
 		try {
-			expectOperationDescriptor();
+			expectOperationDescriptor(solutionInstance);
 		} catch (IllegalStateException e) {
 			throw new ValidationError(e.getMessage(), e);
 		}
@@ -272,8 +283,8 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 			return activationHandlerByOperation;
 		}
 
-		private OpenAPIDescription expectOpenAPIDescription() {
-			OpenAPIDescription result = openAPIDescriptionReference.resolve();
+		private OpenAPIDescription expectOpenAPIDescription(Solution solutionInstance) {
+			OpenAPIDescription result = openAPIDescriptionReference.resolve(solutionInstance);
 			if (result == null) {
 				throw new IllegalStateException("Failed to resolve the OpenAPI Description reference");
 			}
@@ -281,19 +292,20 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 		}
 
 		@Override
-		protected void install(HTTPServer server) throws Exception {
+		protected void install(HTTPServer server, Solution solutionInstance) throws Exception {
 			if (endpoint != null) {
 				throw new UnexpectedError();
 			}
-			OpenAPIDescription openAPIDescription = expectOpenAPIDescription();
+			OpenAPIDescription openAPIDescription = expectOpenAPIDescription(solutionInstance);
 			JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
-			String servicePath = getServicePathVariant().getValue();
+			String servicePath = getServicePathVariant().getValue(solutionInstance);
 			factory.setAddress(servicePath);
-			factory.setServiceBeans(Arrays.asList(openAPIDescription.getAPIServiceImplementationClass()
+			factory.setServiceBeans(Arrays.asList(openAPIDescription.getAPIServiceImplementationClass(solutionInstance)
 					.getConstructor(InvocationHandler.class).newInstance(new InvocationHandler() {
 						@Override
 						public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-							APIOperationDescriptor operation = new OpenAPIDescription.APIOperationDescriptor(method);
+							APIOperationDescriptor operation = new OpenAPIDescription.APIOperationDescriptor(method,
+									solutionInstance);
 							ActivationHandler registeredActivationHandler = getActivationHandlerByOperation()
 									.get(operation);
 							if (registeredActivationHandler == null) {
@@ -318,24 +330,25 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 							}
 							return operationOutputClass.getFields()[0].get(operationOutput);
 						}
-					}), openAPIDescription.getSwaggerInitializerResourceClass().newInstance()));
+					}), openAPIDescription.getSwaggerInitializerResourceClass(solutionInstance).newInstance()));
 			factory.setProvider(new JacksonJsonProvider());
-			if (webUIEnabledVariant.getValue()) {
+			if (webUIEnabledVariant.getValue(solutionInstance)) {
 				OpenApiFeature openApiFeature = new CustomOpenApiFeature();
 				openApiFeature.setSupportSwaggerUi(true);
 				openApiFeature.setUseContextBasedConfig(true);
 				openApiFeature.setPrettyPrint(true);
-				openApiFeature.setTitle(webUISupport.getTitleVariant().getValue());
-				openApiFeature.setContactName(webUISupport.getContactNameVariant().getValue());
-				openApiFeature.setContactEmail(webUISupport.getContactEmailVariant().getValue());
-				openApiFeature.setContactUrl(webUISupport.getContactUrlVariant().getValue());
-				openApiFeature.setDescription(webUISupport.getDescriptionVariant().getValue());
-				openApiFeature.setVersion(webUISupport.getVersionVariant().getValue());
-				openApiFeature.setLicense(webUISupport.getLicenseVariant().getValue());
-				openApiFeature.setTermsOfServiceUrl(webUISupport.getTermsOfServiceUrlVariant().getValue());
+				openApiFeature.setTitle(webUISupport.getTitleVariant().getValue(solutionInstance));
+				openApiFeature.setContactName(webUISupport.getContactNameVariant().getValue(solutionInstance));
+				openApiFeature.setContactEmail(webUISupport.getContactEmailVariant().getValue(solutionInstance));
+				openApiFeature.setContactUrl(webUISupport.getContactUrlVariant().getValue(solutionInstance));
+				openApiFeature.setDescription(webUISupport.getDescriptionVariant().getValue(solutionInstance));
+				openApiFeature.setVersion(webUISupport.getVersionVariant().getValue(solutionInstance));
+				openApiFeature.setLicense(webUISupport.getLicenseVariant().getValue(solutionInstance));
+				openApiFeature
+						.setTermsOfServiceUrl(webUISupport.getTermsOfServiceUrlVariant().getValue(solutionInstance));
 				openApiFeature.setScan(false);
-				openApiFeature.setResourceClasses(
-						new HashSet<String>(Arrays.asList(openAPIDescription.getAPIServiceInterface().getName())));
+				openApiFeature.setResourceClasses(new HashSet<String>(
+						Arrays.asList(openAPIDescription.getAPIServiceInterface(solutionInstance).getName())));
 				OpenApiCustomizer openApiCustomizer = new OpenApiCustomizer() {
 					@Override
 					public void customize(OpenAPI openApi) {
@@ -350,15 +363,17 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 				factory.setFeatures(Arrays.asList(openApiFeature));
 			}
 			endpoint = factory.create();
-			Log.get().information("Published REST service at: " + server.getLocaBaseURL() + servicePath);
-			if (webUIEnabledVariant.getValue()) {
-				Log.get().information("OpenAPI Description: " + server.getLocaBaseURL() + servicePath + "openapi.json");
-				Log.get().information("Web UI: " + server.getLocaBaseURL() + servicePath + "api-docs");
+			Log.get()
+					.information("Published REST service at: " + server.getLocaBaseURL(solutionInstance) + servicePath);
+			if (webUIEnabledVariant.getValue(solutionInstance)) {
+				Log.get().information("OpenAPI Description: " + server.getLocaBaseURL(solutionInstance) + servicePath
+						+ "openapi.json");
+				Log.get().information("Web UI: " + server.getLocaBaseURL(solutionInstance) + servicePath + "api-docs");
 			}
 		}
 
 		@Override
-		protected void uninstall(HTTPServer server) throws Exception {
+		protected void uninstall(HTTPServer server, Solution solutionInstance) throws Exception {
 			if (endpoint == null) {
 				throw new UnexpectedError();
 			}
@@ -368,26 +383,27 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 				});
 				endpoint = null;
 			});
-			String servicePath = getServicePathVariant().getValue();
-			Log.get().information("Unublished SOAP service: " + server.getLocaBaseURL() + servicePath + "?WSDL");
+			String servicePath = getServicePathVariant().getValue(solutionInstance);
+			Log.get().information(
+					"Unublished SOAP service: " + server.getLocaBaseURL(solutionInstance) + servicePath + "?WSDL");
 		}
 
 		@Override
-		public void validate(HTTPServer server) throws ValidationError {
-			super.validate(server);
+		public void validate(HTTPServer server, Solution solutionInstance) throws ValidationError {
+			super.validate(server, solutionInstance);
 			try {
-				expectOpenAPIDescription();
+				expectOpenAPIDescription(solutionInstance);
 			} catch (IllegalStateException e) {
 				throw new ValidationError(e.getMessage(), e);
 			}
-			webUIEnabledVariant.validate();
-			webUISupport.validate();
+			webUIEnabledVariant.validate(solutionInstance);
+			webUISupport.validate(solutionInstance);
 		}
 
 		@Override
 		public String toString() {
 			return "RESTRequestHandler [openAPIDescription=" + openAPIDescriptionReference.getPath() + ", servicePath="
-					+ getServicePathVariant().getValue() + "]";
+					+ getServicePathVariant() + "]";
 		}
 
 		public static class WebUISupport {
@@ -464,15 +480,15 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 				this.termsOfServiceUrlVariant = termsOfServiceUrlVariant;
 			}
 
-			public void validate() throws ValidationError {
-				titleVariant.validate();
-				contactNameVariant.validate();
-				contactEmailVariant.validate();
-				contactUrlVariant.validate();
-				descriptionVariant.validate();
-				versionVariant.validate();
-				licenseVariant.validate();
-				termsOfServiceUrlVariant.validate();
+			public void validate(Solution solutionInstance) throws ValidationError {
+				titleVariant.validate(solutionInstance);
+				contactNameVariant.validate(solutionInstance);
+				contactEmailVariant.validate(solutionInstance);
+				contactUrlVariant.validate(solutionInstance);
+				descriptionVariant.validate(solutionInstance);
+				versionVariant.validate(solutionInstance);
+				licenseVariant.validate(solutionInstance);
+				termsOfServiceUrlVariant.validate(solutionInstance);
 			}
 		}
 

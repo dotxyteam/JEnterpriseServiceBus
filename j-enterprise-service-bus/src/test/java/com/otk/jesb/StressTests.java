@@ -3,7 +3,6 @@ package com.otk.jesb;
 import java.util.Locale;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -43,21 +42,14 @@ public class StressTests {
 		setupTestEnvironment();
 	}
 
-	@Before
-	public void beforeEachTest() {
-		Solution.INSTANCE.getContents().clear();
-		Solution.INSTANCE.getRequiredJARs().clear();
-		Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().clear();
-	}
-
 	@Test
 	public void testMemoryLeaks() throws Exception {
 		final Long PERIOD_MILLISECONDS = 1l;
 		final Long SLEEP_MILLISECONDS = 100l;
-		Solution solution = Solution.INSTANCE;
+		Solution solutionInstance = new Solution();
 		Plan plan = new Plan();
 		{
-			solution.getContents().add(plan);
+			solutionInstance.getContents().add(plan);
 			Schedule activator = new Schedule();
 			{
 				plan.setActivator(activator);
@@ -68,7 +60,8 @@ public class StressTests {
 			com.otk.jesb.operation.builtin.Log.Builder logOperationBuilder = new com.otk.jesb.operation.builtin.Log.Builder();
 			{
 				plan.getSteps().add(new Step(logOperationBuilder));
-				RootInstanceBuilderFacade intitializationRoot = logOperationBuilder.getInstanceBuilder().getFacade();
+				RootInstanceBuilderFacade intitializationRoot = logOperationBuilder.getInstanceBuilder()
+						.getFacade(solutionInstance);
 				ParameterInitializerFacade logMessageInitializer = (ParameterInitializerFacade) intitializationRoot
 						.getChildren().get(0).getChildren().get(0);
 				logMessageInitializer.setParameterValue(new InstantiationFunction("return \"Activated at \" + "
@@ -77,7 +70,8 @@ public class StressTests {
 			com.otk.jesb.operation.builtin.Sleep.Builder sleepOperationBuilder = new com.otk.jesb.operation.builtin.Sleep.Builder();
 			{
 				plan.getSteps().add(new Step(sleepOperationBuilder));
-				RootInstanceBuilderFacade intitializationRoot = sleepOperationBuilder.getInstanceBuilder().getFacade();
+				RootInstanceBuilderFacade intitializationRoot = sleepOperationBuilder.getInstanceBuilder()
+						.getFacade(solutionInstance);
 				ParameterInitializerFacade sleepMillisecondsInitializer = (ParameterInitializerFacade) intitializationRoot
 						.getChildren().get(0).getChildren().get(0);
 				sleepMillisecondsInitializer.setParameterValue(SLEEP_MILLISECONDS);
@@ -101,7 +95,7 @@ public class StressTests {
 			}
 		}
 		boolean memoryStabilizationDetected = false;
-		try (Runner session = new Runner(solution)) {
+		try (Runner session = new Runner(solutionInstance)) {
 			long freeMemory = 0;
 			long lastFreeMemory = Long.MAX_VALUE;
 			for (int i = 0; i < 10; i++) {

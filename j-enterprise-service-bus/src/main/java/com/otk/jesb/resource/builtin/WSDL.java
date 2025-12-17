@@ -25,6 +25,7 @@ import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.CodeBuilder;
 import com.otk.jesb.util.InstantiationUtils;
@@ -39,6 +40,7 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class WSDL extends XMLBasedDocumentResource {
 
 	public WSDL() {
+		super();
 	}
 
 	public WSDL(String name) {
@@ -69,44 +71,49 @@ public class WSDL extends XMLBasedDocumentResource {
 		}
 	}
 
-	public List<WSDL.ServiceClientDescriptor> getServiceClientDescriptors() {
+	public List<WSDL.ServiceClientDescriptor> getServiceClientDescriptors(Solution solutionInstance) {
 		try {
-			return upToDateGeneratedClasses.get().stream().filter(c -> javax.xml.ws.Service.class.isAssignableFrom(c))
-					.map(c -> new ServiceClientDescriptor(c, this)).collect(Collectors.toList());
+			return upToDateGeneratedClasses.get(solutionInstance).stream()
+					.filter(c -> javax.xml.ws.Service.class.isAssignableFrom(c))
+					.map(c -> new ServiceClientDescriptor(c, this, solutionInstance)).collect(Collectors.toList());
 		} catch (VersionAccessException e) {
 			throw new PotentialError(e);
 		}
 	}
 
-	public List<WSDL.ServiceSpecificationDescriptor> getServiceSpecificationDescriptors() {
+	public List<WSDL.ServiceSpecificationDescriptor> getServiceSpecificationDescriptors(Solution solutionInstance) {
 		try {
-			return upToDateGeneratedClasses.get().stream()
+			return upToDateGeneratedClasses.get(solutionInstance).stream()
 					.filter(c -> c.isInterface() && c.getAnnotation(javax.jws.WebService.class) != null)
-					.map(c -> new ServiceSpecificationDescriptor(c, this)).collect(Collectors.toList());
+					.map(c -> new ServiceSpecificationDescriptor(c, this, solutionInstance))
+					.collect(Collectors.toList());
 		} catch (VersionAccessException e) {
 			throw new PotentialError(e);
 		}
 	}
 
-	public WSDL.ServiceClientDescriptor getServiceClientDescriptor(String serviceName) {
-		return getServiceClientDescriptors().stream().filter(s -> s.getServiceName().equals(serviceName)).findFirst()
-				.orElse(null);
+	public WSDL.ServiceClientDescriptor getServiceClientDescriptor(String serviceName, Solution solutionInstance) {
+		return getServiceClientDescriptors(solutionInstance).stream()
+				.filter(s -> s.getServiceName().equals(serviceName)).findFirst().orElse(null);
 	}
 
-	public WSDL.ServiceSpecificationDescriptor getServiceSpecificationDescriptor(String serviceName) {
-		return getServiceSpecificationDescriptors().stream().filter(s -> s.getServiceName().equals(serviceName))
-				.findFirst().orElse(null);
+	public WSDL.ServiceSpecificationDescriptor getServiceSpecificationDescriptor(String serviceName,
+			Solution solutionInstance) {
+		return getServiceSpecificationDescriptors(solutionInstance).stream()
+				.filter(s -> s.getServiceName().equals(serviceName)).findFirst().orElse(null);
 	}
 
-	public Exception faultDescriptionToException(String faultDescription, Method operationMethod) {
+	public Exception faultDescriptionToException(String faultDescription, Method operationMethod,
+			Solution solutionInstance) {
 		String dynamicTypeNamePart = InstantiationUtils
 				.extractDynamicTypeNameVariablePart(operationMethod.getDeclaringClass().getName());
 		faultDescription = InstantiationUtils.makeTypeNamesAbsolute(faultDescription, dynamicTypeNamePart);
-		return (Exception) MiscUtils.deserialize(faultDescription);
+		return (Exception) MiscUtils.deserialize(faultDescription, solutionInstance.getRuntime().getXstream());
 	}
 
-	public String faultExceptionToDescription(Exception faultException, Method operationMethod) {
-		String result = MiscUtils.serialize(faultException).replace(
+	public String faultExceptionToDescription(Exception faultException, Method operationMethod,
+			Solution solutionInstance) {
+		String result = MiscUtils.serialize(faultException, solutionInstance.getRuntime().getXstream()).replace(
 				"\n" + "  <cause class=\"" + faultException.getClass().getName() + "\" reference=\"..\"/>", "");
 		String dynamicTypeNamePart = InstantiationUtils
 				.extractDynamicTypeNameVariablePart(operationMethod.getDeclaringClass().getName());
@@ -114,17 +121,18 @@ public class WSDL extends XMLBasedDocumentResource {
 		return result;
 	}
 
-	public String getFaultDescriptionTemplate(Class<?> faultExceptionClass, Method operationMethod) {
+	public String getFaultDescriptionTemplate(Class<?> faultExceptionClass, Method operationMethod,
+			Solution solutionInstance) {
 		Exception sampleFaultException;
 		try {
 			InstanceBuilder exceptionBuilder = new InstanceBuilder(Accessor.returning(faultExceptionClass.getName()));
-			InstantiationUtils.makeConcreteRecursively(Facade.get(exceptionBuilder, null), 3);
-			sampleFaultException = (Exception) exceptionBuilder
-					.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
+			InstantiationUtils.makeConcreteRecursively(Facade.get(exceptionBuilder, null, solutionInstance), 3);
+			sampleFaultException = (Exception) exceptionBuilder.build(
+					new InstantiationContext(Collections.emptyList(), Collections.emptyList(), solutionInstance));
 		} catch (Exception e) {
 			throw new UnexpectedError(e);
 		}
-		return faultExceptionToDescription(sampleFaultException, operationMethod);
+		return faultExceptionToDescription(sampleFaultException, operationMethod, solutionInstance);
 	}
 
 	public static class OperationDescriptor {
@@ -135,19 +143,23 @@ public class WSDL extends XMLBasedDocumentResource {
 		 */
 		private static WeakHashMap<Class<?>, Map<Method, Class<? extends OperationInput>>> inputClassByMethodByDeclaringClass = new WeakHashMap<Class<?>, Map<Method, Class<? extends OperationInput>>>();
 		private static WeakHashMap<Class<?>, Map<Method, Class<?>>> outputClassByMethodByDeclaringClass = new WeakHashMap<Class<?>, Map<Method, Class<?>>>();
+		private Solution solutionInstance;
 
 		private Method operationMethod;
 		private WSDL wsdl;
 
-		public OperationDescriptor(Method m, WSDL wsdl) {
+		public OperationDescriptor(Method m, WSDL wsdl, Solution solutionInstance) {
 			this.operationMethod = m;
 			this.wsdl = wsdl;
+			this.solutionInstance = solutionInstance;
 		}
 
 		public String getOperationSignature() {
 			String result = ReflectionUIUtils.buildMethodSignature(operationMethod);
-			result = InstantiationUtils.makeTypeNamesRelative(result, Arrays
-					.asList(new InstanceBuilder(Accessor.returning(operationMethod.getDeclaringClass().getName()))));
+			result = InstantiationUtils.makeTypeNamesRelative(result,
+					Arrays.asList(
+							new InstanceBuilder(Accessor.returning(operationMethod.getDeclaringClass().getName()))),
+					solutionInstance);
 			return result;
 		}
 
@@ -157,7 +169,8 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		public List<ResponseException> getSampleResponseExceptions() {
 			return Arrays.stream(operationMethod.getExceptionTypes())
-					.map(type -> new ResponseException(wsdl.getFaultDescriptionTemplate(type, operationMethod)))
+					.map(type -> new ResponseException(
+							wsdl.getFaultDescriptionTemplate(type, operationMethod, solutionInstance)))
 					.collect(Collectors.toList());
 		}
 
@@ -193,10 +206,11 @@ public class WSDL extends XMLBasedDocumentResource {
 											+ "};" + "\n");
 							additionalMethodDeclarations.append("}" + "\n");
 							try {
-								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
-										stucture.generateJavaTypeSourceCode(className, additionalyImplemented, null,
-												null, null, additionalMethodDeclarations.toString(),
-												Collections.emptyMap()));
+								return (Class<? extends OperationInput>) solutionInstance.getRuntime()
+										.getInMemoryCompiler().compile(className,
+												stucture.generateJavaTypeSourceCode(className, additionalyImplemented,
+														null, null, null, additionalMethodDeclarations.toString(),
+														Collections.emptyMap(), solutionInstance));
 							} catch (CompilationError e) {
 								throw new PotentialError(e);
 							}
@@ -225,8 +239,9 @@ public class WSDL extends XMLBasedDocumentResource {
 								stucture.getElements().add(resultElement);
 							}
 							try {
-								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
-										stucture.generateJavaTypeSourceCode(className));
+								return (Class<? extends OperationInput>) solutionInstance.getRuntime()
+										.getInMemoryCompiler().compile(className,
+												stucture.generateJavaTypeSourceCode(className, solutionInstance));
 							} catch (CompilationError e) {
 								throw new PotentialError(e);
 							}
@@ -277,10 +292,12 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		private Class<?> portInterface;
 		private WSDL wsdl;
+		private Solution solutionInstance;
 
-		public PortDescriptor(Class<?> c, WSDL wsdl) {
+		public PortDescriptor(Class<?> c, WSDL wsdl, Solution solutionInstance) {
 			this.portInterface = c;
 			this.wsdl = wsdl;
+			this.solutionInstance = solutionInstance;
 		}
 
 		public String getPortName() {
@@ -288,8 +305,8 @@ public class WSDL extends XMLBasedDocumentResource {
 		}
 
 		public List<WSDL.OperationDescriptor> getOperationDescriptors() {
-			return Arrays.asList(portInterface.getDeclaredMethods()).stream().map(m -> new OperationDescriptor(m, wsdl))
-					.collect(Collectors.toList());
+			return Arrays.asList(portInterface.getDeclaredMethods()).stream()
+					.map(m -> new OperationDescriptor(m, wsdl, solutionInstance)).collect(Collectors.toList());
 		}
 
 		public Class<?> retrieveInterface() {
@@ -337,10 +354,12 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		private Class<?> serviceClass;
 		private WSDL wsdl;
+		private Solution solutionInstance;
 
-		public ServiceClientDescriptor(Class<?> c, WSDL wsdl) {
+		public ServiceClientDescriptor(Class<?> c, WSDL wsdl, Solution solutionInstance) {
 			this.serviceClass = c;
 			this.wsdl = wsdl;
+			this.solutionInstance = solutionInstance;
 		}
 
 		public String getServiceName() {
@@ -351,7 +370,8 @@ public class WSDL extends XMLBasedDocumentResource {
 			return Arrays.asList(serviceClass.getDeclaredMethods()).stream()
 					.filter(m -> Modifier.isPublic(m.getModifiers()) && m.getName().startsWith("get")
 							&& (m.getParameterCount() == 0))
-					.map(m -> new PortDescriptor(m.getReturnType(), wsdl)).collect(Collectors.toList());
+					.map(m -> new PortDescriptor(m.getReturnType(), wsdl, solutionInstance))
+					.collect(Collectors.toList());
 		}
 
 		public Class<?> retrieveClass() {
@@ -400,10 +420,12 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		private Class<?> serviceInterface;
 		private WSDL wsdl;
+		private Solution solutionInstance;
 
-		public ServiceSpecificationDescriptor(Class<?> c, WSDL wsdl) {
+		public ServiceSpecificationDescriptor(Class<?> c, WSDL wsdl, Solution solutionInstance) {
 			this.serviceInterface = c;
 			this.wsdl = wsdl;
+			this.solutionInstance = solutionInstance;
 		}
 
 		public String getServiceName() {
@@ -421,7 +443,7 @@ public class WSDL extends XMLBasedDocumentResource {
 
 		public List<WSDL.OperationDescriptor> getOperationDescriptors() {
 			return Arrays.asList(serviceInterface.getDeclaredMethods()).stream()
-					.map(m -> new OperationDescriptor(m, wsdl)).collect(Collectors.toList());
+					.map(m -> new OperationDescriptor(m, wsdl, solutionInstance)).collect(Collectors.toList());
 		}
 
 		public WSDL.OperationDescriptor getOperationDescriptor(String operationSignature) {
@@ -509,7 +531,8 @@ public class WSDL extends XMLBasedDocumentResource {
 					javaSource.append("\n");
 					javaSource.append("}" + "\n");
 					try {
-						return (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());
+						return (Class<?>) solutionInstance.getRuntime().getInMemoryCompiler().compile(className,
+								javaSource.toString());
 					} catch (CompilationError e) {
 						throw new PotentialError(e);
 					}
@@ -564,8 +587,8 @@ public class WSDL extends XMLBasedDocumentResource {
 			return faultDescription;
 		}
 
-		public Exception toFaultException(OperationDescriptor operation, WSDL wsdl) {
-			return wsdl.faultDescriptionToException(faultDescription, operation.retrieveMethod());
+		public Exception toFaultException(OperationDescriptor operation, WSDL wsdl, Solution solutionInstance) {
+			return wsdl.faultDescriptionToException(faultDescription, operation.retrieveMethod(), solutionInstance);
 		}
 
 		@Override

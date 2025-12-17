@@ -6,6 +6,7 @@ import com.otk.jesb.AbstractExperiment;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.builtin.JDBCConnection;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.ui.GUI;
 
 public class Experiment extends AbstractExperiment implements AutoCloseable {
@@ -14,7 +15,7 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				try (Experiment experiment = new Experiment(new JDBCConnection())) {
+				try (Experiment experiment = new Experiment(new JDBCConnection(), new Solution())) {
 					GUI.INSTANCE.openObjectFrame(experiment);
 				} catch (Exception e) {
 					throw new UnexpectedError(e);
@@ -25,7 +26,8 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 
 	private Resource mainResource;
 
-	public Experiment(Resource resource) {
+	public Experiment(Resource resource, Solution solutionInstance) {
+		super(solutionInstance);
 		this.mainResource = resource;
 	}
 

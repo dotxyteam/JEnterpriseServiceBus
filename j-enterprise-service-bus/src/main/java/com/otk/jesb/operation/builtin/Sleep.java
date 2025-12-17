@@ -12,6 +12,7 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -28,7 +29,7 @@ public class Sleep implements Operation {
 	}
 
 	@Override
-	public Object execute() throws IOException {
+	public Object execute(Solution solutionInstance) throws IOException {
 		MiscUtils.sleepSafely(milliseconds);
 		return null;
 	}
@@ -52,15 +53,15 @@ public class Sleep implements Operation {
 
 		@Override
 		public ResourcePath getOperationIconImagePath() {
-			return new ResourcePath(ResourcePath
-					.specifyClassPathResourceLocation(Sleep.class.getName().replace(".", "/") + ".png"));
+			return new ResourcePath(
+					ResourcePath.specifyClassPathResourceLocation(Sleep.class.getName().replace(".", "/") + ".png"));
 		}
 	}
 
 	public static class Builder implements OperationBuilder<Sleep> {
 
-		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(
-				Sleep.class.getSimpleName() + "Input", Sleep.class.getName());
+		private RootInstanceBuilder instanceBuilder = new RootInstanceBuilder(Sleep.class.getSimpleName() + "Input",
+				Sleep.class.getName());
 
 		public RootInstanceBuilder getInstanceBuilder() {
 			return instanceBuilder;
@@ -72,22 +73,26 @@ public class Sleep implements Operation {
 
 		@Override
 		public Sleep build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return (Sleep) instanceBuilder.build(new InstantiationContext(context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			return (Sleep) instanceBuilder.build(new InstantiationContext(
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance));
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 			return null;
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
 			if (recursively) {
 				if (instanceBuilder != null) {
 					try {
-						instanceBuilder.getFacade().validate(recursively,
-								plan.getValidationContext(step).getVariableDeclarations());
+						instanceBuilder.getFacade(solutionInstance).validate(recursively,
+								plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the input builder", e);
 					}

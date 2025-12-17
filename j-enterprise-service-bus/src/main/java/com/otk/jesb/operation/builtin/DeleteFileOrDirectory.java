@@ -13,6 +13,7 @@ import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -35,8 +36,8 @@ public class DeleteFileOrDirectory implements Operation {
 	}
 
 	@Override
-	public Object execute() throws Throwable {
-		return util.execute();
+	public Object execute(Solution solutionInstance) throws Throwable {
+		return util.execute(solutionInstance);
 	}
 
 	public static class Builder implements OperationBuilder<DeleteFileOrDirectory> {
@@ -55,22 +56,26 @@ public class DeleteFileOrDirectory implements Operation {
 		@Override
 		public DeleteFileOrDirectory build(ExecutionContext context, ExecutionInspector executionInspector)
 				throws Exception {
-			return (DeleteFileOrDirectory) instanceBuilder.build(new InstantiationContext(context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			return (DeleteFileOrDirectory) instanceBuilder.build(new InstantiationContext(
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance));
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 			return null;
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
 			if (recursively) {
 				if (instanceBuilder != null) {
 					try {
-						instanceBuilder.getFacade().validate(recursively,
-								plan.getValidationContext(step).getVariableDeclarations());
+						instanceBuilder.getFacade(solutionInstance).validate(recursively,
+								plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the input builder", e);
 					}

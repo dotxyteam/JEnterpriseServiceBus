@@ -26,6 +26,7 @@ import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor.OperationInput;
 import com.otk.jesb.resource.builtin.WSDL.ServiceSpecificationDescriptor;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionError;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -39,20 +40,20 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 	private ActivationHandler activationHandler;
 
 	@Override
-	protected SOAPRequestHandler createRequestHandler(String servicePath) {
-		return new SOAPRequestHandler(servicePath, wsdlReference);
+	protected SOAPRequestHandler createRequestHandler(String servicePath, Solution solutionInstance) {
+		return new SOAPRequestHandler(servicePath, wsdlReference, solutionInstance);
 	}
 
 	@Override
-	protected boolean isCompatibleWith(RequestHandler requestHandler) {
+	protected boolean isCompatibleWith(RequestHandler requestHandler, Solution solutionInstance) {
 		if (!(requestHandler instanceof SOAPRequestHandler)) {
 			return false;
 		}
-		WSDL wsdl = wsdlReference.resolve();
+		WSDL wsdl = wsdlReference.resolve(solutionInstance);
 		if (wsdl == null) {
 			return false;
 		}
-		if (((SOAPRequestHandler) requestHandler).getWsdlReference().resolve() != wsdl) {
+		if (((SOAPRequestHandler) requestHandler).getWsdlReference().resolve(solutionInstance) != wsdl) {
 			return false;
 		}
 		return true;
@@ -62,39 +63,39 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		return wsdlReference;
 	}
 
-	public void setWsdlReference(Reference<WSDL> wsdlReference) {
+	public void setWsdlReference(Reference<WSDL> wsdlReference, Solution solutionInstance) {
 		this.wsdlReference = wsdlReference;
-		tryToSelectValuesAutomatically();
+		tryToSelectValuesAutomatically(solutionInstance);
 	}
 
 	public String getServiceName() {
 		return serviceName;
 	}
 
-	public void setServiceName(String serviceName) {
+	public void setServiceName(String serviceName, Solution solutionInstance) {
 		this.serviceName = serviceName;
-		tryToSelectValuesAutomatically();
+		tryToSelectValuesAutomatically(solutionInstance);
 	}
 
 	public String getOperationSignature() {
 		return operationSignature;
 	}
 
-	public void setOperationSignature(String operationSignature) {
+	public void setOperationSignature(String operationSignature, Solution solutionInstance) {
 		this.operationSignature = operationSignature;
-		tryToSelectValuesAutomatically();
+		tryToSelectValuesAutomatically(solutionInstance);
 	}
 
-	private void tryToSelectValuesAutomatically() {
+	private void tryToSelectValuesAutomatically(Solution solutionInstance) {
 		try {
 			if (serviceName == null) {
-				List<String> options = getServiceNameOptions();
+				List<String> options = getServiceNameOptions(solutionInstance);
 				if (options.size() > 0) {
 					serviceName = options.get(0);
 				}
 			}
 			if (operationSignature == null) {
-				List<String> options = getOperationSignatureOptions();
+				List<String> options = getOperationSignatureOptions(solutionInstance);
 				if (options.size() > 0) {
 					operationSignature = options.get(0);
 				}
@@ -103,19 +104,19 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		}
 	}
 
-	public List<String> getServiceNameOptions() {
+	public List<String> getServiceNameOptions(Solution solutionInstance) {
 		try {
-			WSDL wsdl = expectWSDL();
-			return wsdl.getServiceSpecificationDescriptors().stream().map(s -> s.getServiceName())
+			WSDL wsdl = expectWSDL(solutionInstance);
+			return wsdl.getServiceSpecificationDescriptors(solutionInstance).stream().map(s -> s.getServiceName())
 					.collect(Collectors.toList());
 		} catch (IllegalStateException e) {
 			return Collections.emptyList();
 		}
 	}
 
-	public List<String> getOperationSignatureOptions() {
+	public List<String> getOperationSignatureOptions(Solution solutionInstance) {
 		try {
-			WSDL.ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor();
+			WSDL.ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor(solutionInstance);
 			return service.getOperationDescriptors().stream().map(o -> o.getOperationSignature())
 					.collect(Collectors.toList());
 		} catch (IllegalStateException e) {
@@ -123,25 +124,25 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		}
 	}
 
-	private WSDL expectWSDL() {
-		WSDL result = wsdlReference.resolve();
+	private WSDL expectWSDL(Solution solutionInstance) {
+		WSDL result = wsdlReference.resolve(solutionInstance);
 		if (result == null) {
 			throw new IllegalStateException("Failed to resolve the WSDL reference");
 		}
 		return result;
 	}
 
-	private WSDL.ServiceSpecificationDescriptor expectServiceSpecificationDescriptor() {
-		WSDL wsdl = expectWSDL();
-		ServiceSpecificationDescriptor result = wsdl.getServiceSpecificationDescriptor(serviceName);
+	private WSDL.ServiceSpecificationDescriptor expectServiceSpecificationDescriptor(Solution solutionInstance) {
+		WSDL wsdl = expectWSDL(solutionInstance);
+		ServiceSpecificationDescriptor result = wsdl.getServiceSpecificationDescriptor(serviceName, solutionInstance);
 		if (result == null) {
 			throw new IllegalStateException("Invalid service name '" + serviceName + "'");
 		}
 		return result;
 	}
 
-	private WSDL.OperationDescriptor expectOperationDescriptor() {
-		WSDL.ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor();
+	private WSDL.OperationDescriptor expectOperationDescriptor(Solution solutionInstance) {
+		WSDL.ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor(solutionInstance);
 		OperationDescriptor result = service.getOperationDescriptor(operationSignature);
 		if (result == null) {
 			throw new IllegalStateException("Invalid operation signature '" + operationSignature + "'");
@@ -150,10 +151,10 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 	}
 
 	@Override
-	public Class<?> getInputClass() {
+	public Class<?> getInputClass(Solution solutionInstance) {
 		WSDL.OperationDescriptor operation;
 		try {
-			operation = expectOperationDescriptor();
+			operation = expectOperationDescriptor(solutionInstance);
 		} catch (IllegalStateException e) {
 			return null;
 		}
@@ -164,10 +165,10 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 	}
 
 	@Override
-	public Class<?> getOutputClass() {
+	public Class<?> getOutputClass(Solution solutionInstance) {
 		WSDL.OperationDescriptor operation;
 		try {
-			operation = expectOperationDescriptor();
+			operation = expectOperationDescriptor(solutionInstance);
 		} catch (IllegalStateException e) {
 			return null;
 		}
@@ -178,21 +179,22 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 	}
 
 	@Override
-	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler, Solution solutionInstance)
+			throws Exception {
 		this.activationHandler = activationHandler;
-		WSDL wsdl = expectWSDL();
-		WSDL.OperationDescriptor operation = expectOperationDescriptor();
-		HTTPServer server = expectServer();
-		RequestHandler requestHandler = server.expectRequestHandler(getServicePath());
+		WSDL wsdl = expectWSDL(solutionInstance);
+		WSDL.OperationDescriptor operation = expectOperationDescriptor(solutionInstance);
+		HTTPServer server = expectServer(solutionInstance);
+		RequestHandler requestHandler = server.expectRequestHandler(getServicePath(solutionInstance), solutionInstance);
 		if (!(requestHandler instanceof SOAPRequestHandler)) {
 			throw new IllegalStateException(
 					"Cannot register " + operation + " on " + requestHandler + ": SOAP request handler required");
 		}
-		if (((SOAPRequestHandler) requestHandler).getWsdlReference().resolve() != wsdl) {
+		if (((SOAPRequestHandler) requestHandler).getWsdlReference().resolve(solutionInstance) != wsdl) {
 			throw new IllegalStateException("Cannot register " + operation + " on " + requestHandler
 					+ ": SOAP request handler based on WSDL '" + wsdlReference.getPath() + "' required");
 		}
-		if ((((SOAPRequestHandler) requestHandler).getWsdlReference().resolve() != wsdl)
+		if ((((SOAPRequestHandler) requestHandler).getWsdlReference().resolve(solutionInstance) != wsdl)
 				|| !serviceName.equals(((SOAPRequestHandler) requestHandler).getServiceName())) {
 			throw new IllegalStateException("Cannot register " + operation + " on " + requestHandler
 					+ ": SOAP request handler based on service '" + serviceName + "' of WSDL '"
@@ -203,25 +205,26 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 					"Cannot configure " + operation + " of " + requestHandler + ": Operation already configured");
 		}
 		if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
-			requestHandler.activate(server);
+			requestHandler.activate(server, solutionInstance);
 		}
 		((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().put(operation, activationHandler);
 	}
 
 	@Override
-	public void finalizeAutomaticTrigger() throws Exception {
+	public void finalizeAutomaticTrigger(Solution solutionInstance) throws Exception {
 		MiscUtils.willRethrowCommonly((compositeException) -> {
-			HTTPServer server = compositeException.tryReturnCactch(() -> expectServer());
+			HTTPServer server = compositeException.tryReturnCactch(() -> expectServer(solutionInstance));
 			RequestHandler requestHandler = (server == null) ? null
-					: compositeException.tryReturnCactch(() -> server.expectRequestHandler(getServicePath()));
+					: compositeException.tryReturnCactch(
+							() -> server.expectRequestHandler(getServicePath(solutionInstance), solutionInstance));
 			if (requestHandler != null) {
 				WSDL.OperationDescriptor operation = compositeException
-						.tryReturnCactch(() -> expectOperationDescriptor());
+						.tryReturnCactch(() -> expectOperationDescriptor(solutionInstance));
 				if (operation != null) {
 					((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().remove(operation);
 					if (((SOAPRequestHandler) requestHandler).getActivationHandlerByOperation().isEmpty()) {
 						compositeException.tryCactch(() -> {
-							requestHandler.deactivate(server);
+							requestHandler.deactivate(server, solutionInstance);
 						});
 					}
 				}
@@ -236,10 +239,10 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 	}
 
 	@Override
-	public void validate(boolean recursively, Plan plan) throws ValidationError {
-		super.validate(recursively, plan);
+	public void validate(boolean recursively, Solution solutionInstance, Plan plan) throws ValidationError {
+		super.validate(recursively, solutionInstance, plan);
 		try {
-			expectOperationDescriptor();
+			expectOperationDescriptor(solutionInstance);
 		} catch (IllegalStateException e) {
 			throw new ValidationError(e.getMessage(), e);
 		}
@@ -257,10 +260,10 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			super(null);
 		}
 
-		public SOAPRequestHandler(String servicePath, Reference<WSDL> wsdlReference) {
+		public SOAPRequestHandler(String servicePath, Reference<WSDL> wsdlReference, Solution solutionInstance) {
 			super(servicePath);
 			this.wsdlReference = wsdlReference;
-			List<String> serviceNameOptions = getServiceNameOptions();
+			List<String> serviceNameOptions = getServiceNameOptions(solutionInstance);
 			if (serviceNameOptions.size() > 0) {
 				serviceName = serviceNameOptions.get(0);
 			}
@@ -274,12 +277,12 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			this.serviceName = serviceName;
 		}
 
-		public List<String> getServiceNameOptions() {
-			WSDL wsdl = wsdlReference.resolve();
+		public List<String> getServiceNameOptions(Solution solutionInstance) {
+			WSDL wsdl = wsdlReference.resolve(solutionInstance);
 			if (wsdl == null) {
 				return Collections.emptyList();
 			}
-			return wsdl.getServiceSpecificationDescriptors().stream().map(s -> s.getServiceName())
+			return wsdl.getServiceSpecificationDescriptors(solutionInstance).stream().map(s -> s.getServiceName())
 					.collect(Collectors.toList());
 		}
 
@@ -295,17 +298,18 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 			return activationHandlerByOperation;
 		}
 
-		private WSDL expectWSDL() {
-			WSDL result = wsdlReference.resolve();
+		private WSDL expectWSDL(Solution solutionInstance) {
+			WSDL result = wsdlReference.resolve(solutionInstance);
 			if (result == null) {
 				throw new IllegalStateException("Failed to resolve the WSDL reference");
 			}
 			return result;
 		}
 
-		private WSDL.ServiceSpecificationDescriptor expectServiceSpecificationDescriptor() {
-			WSDL wsdl = expectWSDL();
-			ServiceSpecificationDescriptor result = wsdl.getServiceSpecificationDescriptor(serviceName);
+		private WSDL.ServiceSpecificationDescriptor expectServiceSpecificationDescriptor(Solution solutionInstance) {
+			WSDL wsdl = expectWSDL(solutionInstance);
+			ServiceSpecificationDescriptor result = wsdl.getServiceSpecificationDescriptor(serviceName,
+					solutionInstance);
 			if (result == null) {
 				throw new IllegalStateException("Invalid service name '" + serviceName + "'");
 			}
@@ -313,17 +317,18 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		}
 
 		@Override
-		protected void install(HTTPServer server) throws Exception {
+		protected void install(HTTPServer server, Solution solutionInstance) throws Exception {
 			if (endpoint != null) {
 				throw new UnexpectedError();
 			}
-			WSDL wsdl = expectWSDL();
-			ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor();
+			WSDL wsdl = expectWSDL(solutionInstance);
+			ServiceSpecificationDescriptor service = expectServiceSpecificationDescriptor(solutionInstance);
 			endpoint = new EndpointImpl(service.getImplementationClass().getConstructor(InvocationHandler.class)
 					.newInstance(new InvocationHandler() {
 						@Override
 						public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-							OperationDescriptor operation = new WSDL.OperationDescriptor(method, wsdl);
+							OperationDescriptor operation = new WSDL.OperationDescriptor(method, wsdl,
+									solutionInstance);
 							ActivationHandler registeredActivationHandler = getActivationHandlerByOperation()
 									.get(operation);
 							if (registeredActivationHandler == null) {
@@ -336,7 +341,8 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 								operationOutput = registeredActivationHandler.trigger(operationInput);
 							} catch (ExecutionError e) {
 								if (e.getCause() instanceof WSDL.ResponseException) {
-									throw ((WSDL.ResponseException) e.getCause()).toFaultException(operation, wsdl);
+									throw ((WSDL.ResponseException) e.getCause()).toFaultException(operation, wsdl,
+											solutionInstance);
 								} else {
 									throw e;
 								}
@@ -348,14 +354,15 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 							return operationOutputClass.getFields()[0].get(operationOutput);
 						}
 					}));
-			String servicePath = getServicePathVariant().getValue();
+			String servicePath = getServicePathVariant().getValue(solutionInstance);
 			endpoint.publish(servicePath);
-			Log.get().information("Published SOAP service at: " + server.getLocaBaseURL() + servicePath);
-			Log.get().information("WSDL: " + server.getLocaBaseURL() + servicePath + "?wsdl");
+			Log.get()
+					.information("Published SOAP service at: " + server.getLocaBaseURL(solutionInstance) + servicePath);
+			Log.get().information("WSDL: " + server.getLocaBaseURL(solutionInstance) + servicePath + "?wsdl");
 		}
 
 		@Override
-		public void uninstall(HTTPServer server) throws Exception {
+		public void uninstall(HTTPServer server, Solution solutionInstance) throws Exception {
 			if (endpoint == null) {
 				throw new UnexpectedError();
 			}
@@ -365,15 +372,15 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 				});
 				endpoint = null;
 			});
-			String servicePath = getServicePathVariant().getValue();
-			Log.get().information("Unublished SOAP service: " + server.getLocaBaseURL() + servicePath);
+			String servicePath = getServicePathVariant().getValue(solutionInstance);
+			Log.get().information("Unublished SOAP service: " + server.getLocaBaseURL(solutionInstance) + servicePath);
 		}
 
 		@Override
-		public void validate(HTTPServer server) throws ValidationError {
-			super.validate(server);
+		public void validate(HTTPServer server, Solution solutionInstance) throws ValidationError {
+			super.validate(server, solutionInstance);
 			try {
-				expectServiceSpecificationDescriptor();
+				expectServiceSpecificationDescriptor(solutionInstance);
 			} catch (IllegalStateException e) {
 				throw new ValidationError(e.getMessage(), e);
 			}
@@ -381,8 +388,8 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 
 		@Override
 		public String toString() {
-			return "SOAPRequestHandler [wsdl=" + wsdlReference.getPath() + ", servicePath="
-					+ getServicePathVariant().getValue() + "]";
+			return "SOAPRequestHandler [wsdl=" + wsdlReference.getPath() + ", servicePath=" + getServicePathVariant()
+					+ "]";
 		}
 
 	}

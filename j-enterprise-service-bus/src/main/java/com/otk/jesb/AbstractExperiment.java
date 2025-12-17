@@ -9,29 +9,30 @@ import com.otk.jesb.solution.Solution;
 
 public abstract class AbstractExperiment extends Plan implements AutoCloseable {
 
+	protected Solution solutionInstance;
 	private List<Resource> temporaryTestResources = new AbstractList<Resource>() {
 
 		int size = 0;
 
 		@Override
 		public Resource get(int index) {
-			return (Resource) Solution.INSTANCE.getContents().get(index);
+			return (Resource) solutionInstance.getContents().get(index);
 		}
 
 		@Override
 		public Resource set(int index, Resource element) {
-			return (Resource) Solution.INSTANCE.getContents().set(index, element);
+			return (Resource) solutionInstance.getContents().set(index, element);
 		}
 
 		@Override
 		public void add(int index, Resource element) {
-			Solution.INSTANCE.getContents().add(index, element);
+			solutionInstance.getContents().add(index, element);
 			size++;
 		}
 
 		@Override
 		public Resource remove(int index) {
-			Resource result = (Resource) Solution.INSTANCE.getContents().remove(index);
+			Resource result = (Resource) solutionInstance.getContents().remove(index);
 			size--;
 			return result;
 		}
@@ -41,6 +42,10 @@ public abstract class AbstractExperiment extends Plan implements AutoCloseable {
 			return size;
 		}
 	};
+
+	public AbstractExperiment(Solution solutionInstance) {
+		this.solutionInstance = solutionInstance;
+	}
 
 	public List<Resource> getTemporaryTestResources() {
 		return temporaryTestResources;

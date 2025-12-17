@@ -2,6 +2,8 @@ package com.otk.jesb.activation.builtin;
 
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorStructure;
+import com.otk.jesb.solution.Solution;
+import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionError;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.activation.ActivatorMetadata;
@@ -33,9 +35,6 @@ public class Schedule extends Activator {
 	private ActivationHandler activationHandler;
 	private ScheduledExecutorService scheduler;
 	private ThreadPoolExecutor executor;
-
-	public Schedule() {
-	}
 
 	public Variant<com.otk.jesb.meta.DateTime> getStartDateTimeVariant() {
 		return startDateTimeVariant;
@@ -77,12 +76,12 @@ public class Schedule extends Activator {
 	}
 
 	@Override
-	public Class<?> getInputClass() {
+	public Class<?> getInputClass(Solution solutionInstance) {
 		return InputClassStructure.class;
 	}
 
 	@Override
-	public Class<?> getOutputClass() {
+	public Class<?> getOutputClass(Solution solutionInstance) {
 		return null;
 	}
 
@@ -92,7 +91,7 @@ public class Schedule extends Activator {
 	}
 
 	@Override
-	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler, Solution solutionInstance) throws Exception {
 		this.activationHandler = activationHandler;
 		scheduler = MiscUtils.newScheduler(Schedule.class.getName() + "Worker-" + hashCode(), 1);
 		executor = MiscUtils.newExecutor(Schedule.class.getName() + "Executor-" + hashCode(), 1);
@@ -107,16 +106,22 @@ public class Schedule extends Activator {
 			}
 		};
 		ChronoUnit chronUnit = Arrays.stream(ChronoUnit.class.getEnumConstants())
-				.filter(constant -> repetitionSettings.periodUnitVariant.getValue().name().startsWith(constant.name()))
+				.filter(constant -> repetitionSettings.periodUnitVariant.getValue(solutionInstance).name()
+						.startsWith(constant.name()))
 				.findFirst().get();
-		prepare(task, startDateTimeVariant.getValue().toJavaUtilDate(), repeatingVariant.getValue(),
-				repetitionSettings.periodLengthVariant.getValue(), chronUnit,
-				(repetitionSettings.getEndDateTimeVariant().getValue() == null) ? null
-						: repetitionSettings.getEndDateTimeVariant().getValue().toJavaUtilDate());
+		ZoneId timeZone = (timeZoneIdentifierVariant.getValue(solutionInstance) != null)
+				? ZoneId.of(timeZoneIdentifierVariant.getValue(solutionInstance))
+				: ZoneId.systemDefault();
+		prepare(task, startDateTimeVariant.getValue(solutionInstance).toJavaUtilDate(),
+				repeatingVariant.getValue(solutionInstance),
+				repetitionSettings.periodLengthVariant.getValue(solutionInstance), chronUnit,
+				(repetitionSettings.getEndDateTimeVariant().getValue(solutionInstance) == null) ? null
+						: repetitionSettings.getEndDateTimeVariant().getValue(solutionInstance).toJavaUtilDate(),
+				timeZone);
 	}
 
 	@Override
-	public void finalizeAutomaticTrigger() throws Exception {
+	public void finalizeAutomaticTrigger(Solution solutionInstance) throws Exception {
 		MiscUtils.willRethrowCommonly(compositeException -> {
 			compositeException.tryCactch(() -> {
 				scheduler.shutdownNow();
@@ -212,70 +217,72 @@ public class Schedule extends Activator {
 	}
 
 	@Override
-	public void validate(boolean recursively, com.otk.jesb.solution.Plan plan) throws ValidationError {
-		super.validate(recursively, plan);
+	public void validate(boolean recursively, Solution solutionInstance, Plan plan) throws ValidationError {
+		super.validate(recursively, solutionInstance, plan);
 		if (recursively) {
 			try {
-				startDateTimeVariant.validate();
+				startDateTimeVariant.validate(solutionInstance);
 			} catch (ValidationError e) {
 				throw new ValidationError("Failed to validate 'Start At'", e);
 			}
 		}
 		if (recursively) {
 			try {
-				repeatingVariant.validate();
+				repeatingVariant.validate(solutionInstance);
 			} catch (ValidationError e) {
 				throw new ValidationError("Failed to validate 'Repeat'", e);
 			}
 		}
 		if (recursively) {
 			try {
-				repetitionSettings.validate(recursively, plan);
+				repetitionSettings.validate(recursively, solutionInstance, plan);
 			} catch (ValidationError e) {
 				throw new ValidationError("Failed to validate 'Repetition Settings'", e);
 			}
 		}
 		if (recursively) {
 			try {
-				timeZoneIdentifierVariant.validate();
+				timeZoneIdentifierVariant.validate(solutionInstance);
 			} catch (ValidationError e) {
 				throw new ValidationError("Failed to validate 'Time Zone'", e);
 			}
 		}
-		if (repeatingVariant.getValue()) {
-			if (repetitionSettings.periodLengthVariant.getValue() <= 0) {
+		if (repeatingVariant.getValue(solutionInstance)) {
+			if (repetitionSettings.periodLengthVariant.getValue(solutionInstance) <= 0) {
 				throw new ValidationError("Invalid repetition period length: "
-						+ repetitionSettings.periodLengthVariant.getValue() + " (positive number expected)");
+						+ repetitionSettings.periodLengthVariant.getValue(solutionInstance)
+						+ " (positive number expected)");
 			}
-			if (repetitionSettings.endDateTimeVariant.getValue() != null) {
-				if (!repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate()
-						.after(startDateTimeVariant.getValue().toJavaUtilDate())) {
+			if (repetitionSettings.endDateTimeVariant.getValue(solutionInstance) != null) {
+				if (!repetitionSettings.endDateTimeVariant.getValue(solutionInstance).toJavaUtilDate()
+						.after(startDateTimeVariant.getValue(solutionInstance).toJavaUtilDate())) {
 					throw new ValidationError(
 							"Invalid schedule end date/time: It is not after the schedule start date/time");
 				}
-				if (!repetitionSettings.endDateTimeVariant.getValue().toJavaUtilDate().after(new java.util.Date())) {
+				if (!repetitionSettings.endDateTimeVariant.getValue(solutionInstance).toJavaUtilDate()
+						.after(new java.util.Date())) {
 					throw new ValidationError("Invalid schedule end date/time: It has passed");
 				}
 			}
 		} else {
-			if (!startDateTimeVariant.getValue().toJavaUtilDate().after(new java.util.Date())) {
+			if (!startDateTimeVariant.getValue(solutionInstance).toJavaUtilDate().after(new java.util.Date())) {
 				throw new ValidationError("Invalid schedule start date/time: It has passed");
 			}
 		}
-		if (timeZoneIdentifierVariant.getValue() != null) {
-			if (!ZoneId.getAvailableZoneIds().contains(timeZoneIdentifierVariant.getValue())) {
-				throw new ValidationError("Invalid time zone: '" + timeZoneIdentifierVariant.getValue() + "': Expected "
-						+ ZoneId.getAvailableZoneIds());
+		if (timeZoneIdentifierVariant.getValue(solutionInstance) != null) {
+			if (!ZoneId.getAvailableZoneIds().contains(timeZoneIdentifierVariant.getValue(solutionInstance))) {
+				throw new ValidationError("Invalid time zone: '" + timeZoneIdentifierVariant.getValue(solutionInstance)
+						+ "': Expected " + ZoneId.getAvailableZoneIds());
 			}
 		}
 	}
 
 	private ScheduledFuture<?> prepare(Runnable task, java.util.Date start, boolean repeating, long periodLength,
-			ChronoUnit periodUnit, java.util.Date end) {
+			ChronoUnit periodUnit, java.util.Date end, ZoneId timeZone) {
 		java.util.Date now = new java.util.Date();
 		java.util.Date next;
 		if (repeating) {
-			next = computeNextOccurrence(start, periodLength, periodUnit, now);
+			next = computeNextOccurrence(start, periodLength, periodUnit, now, timeZone);
 			if (end != null) {
 				if (end.before(next)) {
 					return null;
@@ -289,20 +296,17 @@ public class Schedule extends Activator {
 		long delayMilliseconds = nextMilliseconds - nowMilliseconds;
 		return scheduler.schedule(() -> {
 			if (repeating) {
-				prepare(task, start, repeating, periodLength, periodUnit, end);
+				prepare(task, start, repeating, periodLength, periodUnit, end, timeZone);
 			}
 			executor.submit(task);
 		}, delayMilliseconds, TimeUnit.MILLISECONDS);
 	}
 
 	private java.util.Date computeNextOccurrence(java.util.Date start, long periodLength, ChronoUnit periodUnit,
-			java.util.Date now) {
+			java.util.Date now, ZoneId timeZone) {
 		if (start.after(now)) {
 			return start;
 		}
-		ZoneId timeZone = (timeZoneIdentifierVariant.getValue() != null)
-				? ZoneId.of(timeZoneIdentifierVariant.getValue())
-				: ZoneId.systemDefault();
 		ZonedDateTime startZonedDateTime = start.toInstant().atZone(timeZone);
 		ZonedDateTime nowZonedDateTime = now.toInstant().atZone(timeZone);
 		long elapsed = periodUnit.between(startZonedDateTime, nowZonedDateTime);
@@ -449,17 +453,17 @@ public class Schedule extends Activator {
 		}
 
 		@Override
-		public void validate(boolean recursively, com.otk.jesb.solution.Plan plan) throws ValidationError {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan) throws ValidationError {
 			if (recursively) {
 				try {
-					periodLengthVariant.validate();
+					periodLengthVariant.validate(solutionInstance);
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to validate 'Period Length'", e);
 				}
 			}
 			if (recursively) {
 				try {
-					endDateTimeVariant.validate();
+					endDateTimeVariant.validate(solutionInstance);
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to validate 'End At'", e);
 				}

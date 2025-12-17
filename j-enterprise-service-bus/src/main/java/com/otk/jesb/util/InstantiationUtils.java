@@ -37,6 +37,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.ValueMode;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
+import com.otk.jesb.solution.Solution;
 
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.AbstractConstructorInfo;
@@ -58,11 +59,11 @@ public class InstantiationUtils {
 	private static final Pattern DYNAMIC_TYPE_NAME_PATTERN = Pattern.compile(
 			".*(" + DYNAMIC_TYPE_NAME_VARIABLE_PART_START + ".+" + DYNAMIC_TYPE_NAME_VARIABLE_PART_END + ").*");
 
-	public static Object cloneInitializer(Object initializer) {
+	public static Object cloneInitializer(Object initializer, Solution solutionInstance) {
 		Function<Pair<ITypeInfo, IFieldInfo>, Function<Object, Object>> customCopierByContext = context -> {
 			ITypeInfo objectType = context.getFirst();
 			IFieldInfo field = context.getSecond();
-			Class<?> objectClass = MiscUtils.getJESBClass(objectType.getName());
+			Class<?> objectClass = solutionInstance.getRuntime().getJESBClass(objectType.getName());
 			if (InstanceBuilder.class.isAssignableFrom(objectClass)) {
 				if (field.getName().equals("dynamicTypeNameAccessor")) {
 					return Function.identity();
@@ -86,7 +87,7 @@ public class InstantiationUtils {
 			throw new UnexpectedError();
 		}
 		List<VariableDeclaration> expectedVariableDeclarations = compilationContext.getVariableDeclarations(function);
-		MiscUtils.checkVariables(expectedVariableDeclarations, instantiationContext.getVariables());		
+		MiscUtils.checkVariables(expectedVariableDeclarations, instantiationContext.getVariables());
 		CompiledFunction<?> compiledFunction;
 		try {
 			compiledFunction = function.getCompiledVersion(compilationContext.getPrecompiler(),
@@ -150,8 +151,8 @@ public class InstantiationUtils {
 		if (condition == null) {
 			return true;
 		}
-		Object conditionResult = interpretValue(condition, TypeInfoProvider.getTypeInfo(Boolean.class.getName()),
-				context);
+		Object conditionResult = interpretValue(condition,
+				TypeInfoProvider.getTypeInfo(Boolean.class.getName(), context.getSolutionInstance()), context);
 		if (!(conditionResult instanceof Boolean)) {
 			throw new PotentialError("Condition evaluation result is not boolean: '" + conditionResult + "'");
 		}
@@ -177,7 +178,8 @@ public class InstantiationUtils {
 	}
 
 	public static void validateValue(Object value, ITypeInfo type, Facade parentFacade, String valueName,
-			boolean recursively, List<VariableDeclaration> variableDeclarations) throws ValidationError {
+			boolean recursively, List<VariableDeclaration> variableDeclarations, Solution solutionInstance)
+			throws ValidationError {
 		if (value instanceof InstantiationFunction) {
 			InstantiationFunction function = (InstantiationFunction) value;
 			InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
@@ -196,8 +198,8 @@ public class InstantiationUtils {
 			try {
 				Class<?> instanceBuilderJavaType;
 				try {
-					instanceBuilderJavaType = MiscUtils.getJESBClass(
-							((InstanceBuilder) value).computeActualTypeName(getAncestorInstanceBuilders(parentFacade)));
+					instanceBuilderJavaType = solutionInstance.getRuntime().getJESBClass(((InstanceBuilder) value)
+							.computeActualTypeName(getAncestorInstanceBuilders(parentFacade), solutionInstance));
 				} catch (Throwable t) {
 					instanceBuilderJavaType = null;
 				}
@@ -208,7 +210,7 @@ public class InstantiationUtils {
 								+ "> is not compatible with the declared type <" + declaredJavaType.getName() + ">");
 					}
 				}
-				new InstanceBuilderFacade(parentFacade, (InstanceBuilder) value).validate(recursively,
+				new InstanceBuilderFacade(parentFacade, (InstanceBuilder) value, solutionInstance).validate(recursively,
 						variableDeclarations);
 			} catch (ValidationError e) {
 				throw new ValidationError("Failed to validate the " + valueName + " instance builder", e);
@@ -263,11 +265,12 @@ public class InstantiationUtils {
 		}
 	}
 
-	public static Object getDefaultInterpretableValue(ITypeInfo type, Facade currentFacade) {
-		return getDefaultInterpretableValue(type, ValueMode.PLAIN, currentFacade);
+	public static Object getDefaultInterpretableValue(ITypeInfo type, Facade currentFacade, Solution solutionInstance) {
+		return getDefaultInterpretableValue(type, ValueMode.PLAIN, currentFacade, solutionInstance);
 	}
 
-	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode, Facade currentFacade) {
+	public static Object getDefaultInterpretableValue(ITypeInfo type, ValueMode valueMode, Facade currentFacade,
+			Solution solutionInstance) {
 		if ((type == null) || type.getName().equals(Object.class.getName())) {
 			return null;
 		} else if (valueMode == ValueMode.FUNCTION) {
@@ -278,7 +281,7 @@ public class InstantiationUtils {
 				if (defaultValue.getClass().isEnum()) {
 					functionBody = "return "
 							+ makeTypeNamesRelative(MiscUtils.adaptClassNameToSourceCode(type.getName()),
-									getAncestorInstanceBuilders(currentFacade))
+									getAncestorInstanceBuilders(currentFacade), solutionInstance)
 							+ "." + defaultValue.toString() + ";";
 				} else if (defaultValue instanceof String) {
 					functionBody = "return \"" + defaultValue + "\";";
@@ -308,8 +311,8 @@ public class InstantiationUtils {
 					InstanceBuilder result = new InstanceBuilder();
 					result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
 					result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
-					if (!type.getName().equals(result
-							.computeActualTypeName(InstantiationUtils.getAncestorInstanceBuilders(currentFacade)))) {
+					if (!type.getName().equals(result.computeActualTypeName(
+							InstantiationUtils.getAncestorInstanceBuilders(currentFacade), solutionInstance))) {
 						throw new UnexpectedError();
 					}
 					return result;
@@ -317,7 +320,7 @@ public class InstantiationUtils {
 					Class<?> javaType = ((DefaultTypeInfo) type).getJavaType();
 					if (SharedStructureModel.isStructuredClass(javaType)) {
 						SharedStructureModel model = SharedStructureModel.getFromStructuredClass(javaType);
-						return new InstanceBuilder(model.getStructuredClassNameAccessor());
+						return new InstanceBuilder(model.getStructuredClassNameAccessor(solutionInstance));
 					} else {
 						if (type instanceof IMapEntryTypeInfo) {
 							return new MapEntryBuilder();
@@ -335,8 +338,8 @@ public class InstantiationUtils {
 							} else if (type.getName().equals(Map.class.getName())) {
 								type = TypeInfoProvider.getTypeInfo(HashMap.class);
 							}
-							return new InstanceBuilder(
-									makeTypeNamesRelative(type.getName(), getAncestorInstanceBuilders(currentFacade)));
+							return new InstanceBuilder(makeTypeNamesRelative(type.getName(),
+									getAncestorInstanceBuilders(currentFacade), solutionInstance));
 						}
 					}
 				}
@@ -355,22 +358,24 @@ public class InstantiationUtils {
 		return value;
 	}
 
-	public static String makeTypeNamesRelative(String text, List<InstanceBuilder> ancestorInstanceBuilders) {
+	public static String makeTypeNamesRelative(String text, List<InstanceBuilder> ancestorInstanceBuilders,
+			Solution solutionInstance) {
 		if ((ancestorInstanceBuilders == null) || (ancestorInstanceBuilders.size() == 0)) {
 			return text;
 		}
-		String dynamicTypeNamePart = findDynamicTypeNameVariablePart(ancestorInstanceBuilders);
+		String dynamicTypeNamePart = findDynamicTypeNameVariablePart(ancestorInstanceBuilders, solutionInstance);
 		if (dynamicTypeNamePart != null) {
 			text = makeTypeNamesRelative(text, dynamicTypeNamePart);
 		}
 		return text;
 	}
 
-	public static String makeTypeNamesAbsolute(String text, List<InstanceBuilder> ancestorInstanceBuilders) {
+	public static String makeTypeNamesAbsolute(String text, List<InstanceBuilder> ancestorInstanceBuilders,
+			Solution solutionInstance) {
 		if ((ancestorInstanceBuilders == null) || (ancestorInstanceBuilders.size() == 0)) {
 			return text;
 		}
-		String dynamicTypeNamePart = findDynamicTypeNameVariablePart(ancestorInstanceBuilders);
+		String dynamicTypeNamePart = findDynamicTypeNameVariablePart(ancestorInstanceBuilders, solutionInstance);
 		if (dynamicTypeNamePart != null) {
 			text = makeTypeNamesAbsolute(text, dynamicTypeNamePart);
 		}
@@ -389,11 +394,12 @@ public class InstantiationUtils {
 		return DYNAMIC_TYPE_NAME_VARIABLE_PART_START + baseClassNamePart + DYNAMIC_TYPE_NAME_VARIABLE_PART_END;
 	}
 
-	public static String findDynamicTypeNameVariablePart(List<InstanceBuilder> ancestorInstanceBuilders) {
+	public static String findDynamicTypeNameVariablePart(List<InstanceBuilder> ancestorInstanceBuilders,
+			Solution solutionInstance) {
 		for (int i = 0; i < ancestorInstanceBuilders.size(); i++) {
 			InstanceBuilder ancestorInstanceBuilder = ancestorInstanceBuilders.get(i);
-			String absoluteAncestorTypeName = ancestorInstanceBuilder
-					.computeActualTypeName(ancestorInstanceBuilders.subList(i + 1, ancestorInstanceBuilders.size()));
+			String absoluteAncestorTypeName = ancestorInstanceBuilder.computeActualTypeName(
+					ancestorInstanceBuilders.subList(i + 1, ancestorInstanceBuilders.size()), solutionInstance);
 			String result = extractDynamicTypeNameVariablePart(absoluteAncestorTypeName);
 			if (result != null) {
 				return result;
@@ -411,11 +417,11 @@ public class InstantiationUtils {
 	}
 
 	public static int positionBeforeTypeNamesMadeAbsolute(int positionAfter, String text,
-			List<InstanceBuilder> ancestorInstanceBuilders) {
+			List<InstanceBuilder> ancestorInstanceBuilders, Solution solutionInstance) {
 		if ((ancestorInstanceBuilders == null) || (ancestorInstanceBuilders.size() == 0)) {
 			return positionAfter;
 		}
-		String dynamicTypeNamePart = findDynamicTypeNameVariablePart(ancestorInstanceBuilders);
+		String dynamicTypeNamePart = findDynamicTypeNameVariablePart(ancestorInstanceBuilders, solutionInstance);
 		if (dynamicTypeNamePart != null) {
 			return MiscUtils.positionAfterReplacement(positionAfter, text, dynamicTypeNamePart,
 					RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE);
@@ -466,15 +472,19 @@ public class InstantiationUtils {
 
 	}
 
-	public static Object getChildInitializerValue(InstanceBuilder instanceBuilder, String childIdentifier) {
-		InitializerFacade initializerFacade = (InitializerFacade) new InstanceBuilderFacade(null, instanceBuilder)
-				.getChildren().stream().filter(facade -> facade.toString().equals(childIdentifier)).findFirst().get();
+	public static Object getChildInitializerValue(InstanceBuilder instanceBuilder, String childIdentifier,
+			Solution solutionInstance) {
+		InitializerFacade initializerFacade = (InitializerFacade) new InstanceBuilderFacade(null, instanceBuilder,
+				solutionInstance).getChildren().stream().filter(facade -> facade.toString().equals(childIdentifier))
+						.findFirst().get();
 		return getInitializerFacadeValue(initializerFacade);
 	}
 
-	public static void setChildInitializerValue(InstanceBuilder instanceBuilder, String childIdentifier, Object value) {
-		InitializerFacade initializerFacade = (InitializerFacade) new InstanceBuilderFacade(null, instanceBuilder)
-				.getChildren().stream().filter(facade -> facade.toString().equals(childIdentifier)).findFirst().get();
+	public static void setChildInitializerValue(InstanceBuilder instanceBuilder, String childIdentifier, Object value,
+			Solution solutionInstance) {
+		InitializerFacade initializerFacade = (InitializerFacade) new InstanceBuilderFacade(null, instanceBuilder,
+				solutionInstance).getChildren().stream().filter(facade -> facade.toString().equals(childIdentifier))
+						.findFirst().get();
 		setInitializerFacadeValue(initializerFacade, value);
 	}
 

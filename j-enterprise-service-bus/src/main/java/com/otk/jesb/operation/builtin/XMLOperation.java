@@ -10,6 +10,7 @@ import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.resource.builtin.XSD;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 
 public abstract class XMLOperation implements Operation {
@@ -28,18 +29,18 @@ public abstract class XMLOperation implements Operation {
 
 		private Reference<XSD> xsdReference = new Reference<XSD>(XSD.class);
 		private String rootElementName;
-		
-		private XSD getXSD() {
-			return xsdReference.resolve();
+
+		private XSD getXSD(Solution solutionInstance) {
+			return xsdReference.resolve(solutionInstance);
 		}
 
 		public Reference<XSD> getXsdReference() {
 			return xsdReference;
 		}
 
-		public void setXsdReference(Reference<XSD> xsdReference) {
+		public void setXsdReference(Reference<XSD> xsdReference, Solution solutionInstance) {
 			this.xsdReference = xsdReference;
-			tryToSelectValuesAutomatically();
+			tryToSelectValuesAutomatically(solutionInstance);
 		}
 
 		public String getRootElementName() {
@@ -50,12 +51,12 @@ public abstract class XMLOperation implements Operation {
 			this.rootElementName = rootElementName;
 		}
 
-		private void tryToSelectValuesAutomatically() {
+		private void tryToSelectValuesAutomatically(Solution solutionInstance) {
 			try {
 				if (rootElementName == null) {
-					XSD xsd = getXSD();
+					XSD xsd = getXSD(solutionInstance);
 					if (xsd != null) {
-						List<XSD.RootElementDescriptor> rootElements = xsd.getRootElements();
+						List<XSD.RootElementDescriptor> rootElements = xsd.getRootElements(solutionInstance);
 						if (rootElements.size() > 0) {
 							rootElementName = rootElements.get(0).getName();
 						}
@@ -65,34 +66,33 @@ public abstract class XMLOperation implements Operation {
 			}
 		}
 
-		public List<String> getRootElementNameOptions() {
-			XSD xsd = getXSD();
+		public List<String> getRootElementNameOptions(Solution solutionInstance) {
+			XSD xsd = getXSD(solutionInstance);
 			if (xsd == null) {
 				return Collections.emptyList();
 			}
-			return xsd.getRootElements().stream().map(e -> e.getName()).collect(Collectors.toList());
+			return xsd.getRootElements(solutionInstance).stream().map(e -> e.getName()).collect(Collectors.toList());
 		}
 
-		protected XSD.RootElementDescriptor retrieveRootElement() {
-			XSD xsd = getXSD();
+		protected XSD.RootElementDescriptor retrieveRootElement(Solution solutionInstance) {
+			XSD xsd = getXSD(solutionInstance);
 			if (xsd == null) {
 				return null;
 			}
-			return xsd.getRootElements().stream().filter(e -> e.getName().equals(rootElementName)).findFirst()
-					.orElse(null);
+			return xsd.getRootElements(solutionInstance).stream().filter(e -> e.getName().equals(rootElementName))
+					.findFirst().orElse(null);
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
-			if (getXSD() == null) {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
+			if (getXSD(solutionInstance) == null) {
 				throw new ValidationError("Failed to resolve the XSD reference");
 			}
-			if (retrieveRootElement() == null) {
+			if (retrieveRootElement(solutionInstance) == null) {
 				throw new ValidationError("Invalid root element name '" + rootElementName + "'");
 			}
 		}
-
-		
 
 	}
 

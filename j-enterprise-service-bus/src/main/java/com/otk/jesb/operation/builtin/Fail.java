@@ -14,9 +14,9 @@ import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.util.Accessor;
-import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 
 import xy.reflect.ui.info.ResourcePath;
 
@@ -33,7 +33,7 @@ public class Fail implements Operation {
 	}
 
 	@Override
-	public Object execute() throws Throwable {
+	public Object execute(Solution solutionInstance) throws Throwable {
 		throw exception;
 	}
 
@@ -83,18 +83,19 @@ public class Fail implements Operation {
 			this.exceptionBuilder = exceptionBuilder;
 		}
 
-		public List<String> getExceptionContructorSignatureOptions() {
-			List<InstanceBuilderFacade> rootInstanceBuilderFacades = exceptionBuilder.getWrappedInstanceBuilderFacades();
-			if(rootInstanceBuilderFacades.isEmpty()) {
+		public List<String> getExceptionContructorSignatureOptions(Solution solutionInstance) {
+			List<InstanceBuilderFacade> rootInstanceBuilderFacades = exceptionBuilder
+					.getWrappedInstanceBuilderFacades(solutionInstance);
+			if (rootInstanceBuilderFacades.isEmpty()) {
 				return Collections.emptyList();
 			}
 			List<String> result = null;
 			for (InstanceBuilderFacade facade : rootInstanceBuilderFacades) {
 				try {
 					if (result == null) {
-						result = facade.getConstructorSignatureOptions();
+						result = facade.getConstructorSignatureOptions(solutionInstance);
 					} else {
-						if (!result.equals(facade.getConstructorSignatureOptions())) {
+						if (!result.equals(facade.getConstructorSignatureOptions(solutionInstance))) {
 							throw new Throwable();
 						}
 					}
@@ -107,9 +108,10 @@ public class Fail implements Operation {
 		}
 
 		@Transient
-		public String getExceptionContructorSignature() {
+		public String getExceptionContructorSignature(Solution solutionInstance) {
 			String result = null;
-			List<InstanceBuilderFacade> rootInstanceBuilderFacades = exceptionBuilder.getWrappedInstanceBuilderFacades();
+			List<InstanceBuilderFacade> rootInstanceBuilderFacades = exceptionBuilder
+					.getWrappedInstanceBuilderFacades(solutionInstance);
 			for (InstanceBuilderFacade facade : rootInstanceBuilderFacades) {
 				if (result == null) {
 					result = facade.getSelectedConstructorSignature();
@@ -123,11 +125,12 @@ public class Fail implements Operation {
 			return result;
 		}
 
-		public void setExceptionContructorSignature(String constructorSignature) {
+		public void setExceptionContructorSignature(String constructorSignature, Solution solutionInstance) {
 			if (constructorSignature == null) {
 				return;
 			}
-			List<InstanceBuilderFacade> rootInstanceBuilderFacades = exceptionBuilder.getWrappedInstanceBuilderFacades();
+			List<InstanceBuilderFacade> rootInstanceBuilderFacades = exceptionBuilder
+					.getWrappedInstanceBuilderFacades(solutionInstance);
 			for (InstanceBuilderFacade facade : rootInstanceBuilderFacades) {
 				facade.setSelectedConstructorSignature(constructorSignature);
 			}
@@ -135,24 +138,28 @@ public class Fail implements Operation {
 
 		@Override
 		public Fail build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			Throwable exception = (Throwable) exceptionBuilder.build(new InstantiationContext(context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			Throwable exception = (Throwable) exceptionBuilder.build(new InstantiationContext(
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance));
 			return new Fail(exception);
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 			return null;
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
-			MiscUtils.getJESBClass(exceptionClassName);
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
+			solutionInstance.getRuntime().getJESBClass(exceptionClassName);
 			if (recursively) {
 				if (exceptionBuilder != null) {
 					try {
-						exceptionBuilder.getFacade().validate(recursively,
-								plan.getValidationContext(step).getVariableDeclarations());
+						exceptionBuilder.getFacade(solutionInstance).validate(recursively,
+								plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the exception builder", e);
 					}
@@ -160,10 +167,10 @@ public class Fail implements Operation {
 			}
 		}
 
-		public class ExceptionClassNameAccessor extends Accessor<String> {
+		public class ExceptionClassNameAccessor extends Accessor<Solution, String> {
 
 			@Override
-			public String get() {
+			public String get(Solution solutionInstance) {
 				return exceptionClassName;
 			}
 

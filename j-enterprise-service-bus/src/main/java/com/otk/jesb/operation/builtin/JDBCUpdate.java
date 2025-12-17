@@ -10,6 +10,8 @@ import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
+
 import xy.reflect.ui.info.ResourcePath;
 
 public class JDBCUpdate extends JDBCOperation {
@@ -19,7 +21,7 @@ public class JDBCUpdate extends JDBCOperation {
 	}
 
 	@Override
-	public Object execute() throws Exception {
+	public Object execute(Solution solutionInstance) throws Exception {
 		PreparedStatement preparedStatement = prepare();
 		int affectedRows = preparedStatement.executeUpdate();
 		return new Result(affectedRows);
@@ -54,14 +56,15 @@ public class JDBCUpdate extends JDBCOperation {
 
 		@Override
 		public JDBCUpdate build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCUpdate result = new JDBCUpdate(context.getSession(), getConnection());
-			result.setStatement(getStatementVariant().getValue());
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			JDBCUpdate result = new JDBCUpdate(context.getSession(), getConnection(solutionInstance));
+			result.setStatement(getStatementVariant().getValue(solutionInstance));
 			result.setParameterValues(buildParameterValues(context));
 			return result;
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 			return Result.class;
 		}
 

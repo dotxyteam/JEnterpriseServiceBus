@@ -13,9 +13,8 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.ui.GUI;
-import com.otk.jesb.util.MiscUtils;
-
 import xy.reflect.ui.info.ResourcePath;
 
 public class JDBCConnection extends Resource {
@@ -43,6 +42,7 @@ public class JDBCConnection extends Resource {
 	private AutoCloseable currentSessionInstanceClosableWrapper;
 
 	public JDBCConnection() {
+		super();
 	}
 
 	public JDBCConnection(String name) {
@@ -81,12 +81,12 @@ public class JDBCConnection extends Resource {
 		this.passwordVariant = passwordVariant;
 	}
 
-	private Connection open() throws Exception {
-		String driverClassName = getDriverClassNameVariant().getValue();
-		String url = getUrlVariant().getValue();
-		String userName = getUserNameVariant().getValue();
-		String password = getPasswordVariant().getValue();
-		Class<?> driverClass = MiscUtils.getJESBClass(driverClassName);
+	private Connection open(Solution solutionInstance) throws Exception {
+		String driverClassName = getDriverClassNameVariant().getValue(solutionInstance);
+		String url = getUrlVariant().getValue(solutionInstance);
+		String userName = getUserNameVariant().getValue(solutionInstance);
+		String password = getPasswordVariant().getValue(solutionInstance);
+		Class<?> driverClass = solutionInstance.getRuntime().getJESBClass(driverClassName);
 		Driver driverInstance = (Driver) driverClass.getDeclaredConstructor().newInstance();
 		Properties properties = new Properties();
 		if (userName != null) {
@@ -98,14 +98,14 @@ public class JDBCConnection extends Resource {
 		return driverInstance.connect(url, properties);
 	}
 
-	public <T> T during(Function<Connection, T> callable) throws Exception {
+	public <T> T during(Function<Connection, T> callable, Solution solutionInstance) throws Exception {
 		synchronized (this) {
 			if (currentSessionInstance != null) {
 				return callable.apply(currentSessionInstance);
 			}
 			instanceMutex.acquire();
 			try {
-				Connection instance = open();
+				Connection instance = open(solutionInstance);
 				try {
 					return callable.apply(instance);
 				} finally {
@@ -118,11 +118,12 @@ public class JDBCConnection extends Resource {
 	}
 
 	public Connection during(Session session) throws Exception {
+		Solution solutionInstance = session.getSolutionInstance();
 		synchronized (this) {
 			if (currentSessionInstance == null) {
 				instanceMutex.acquire();
 				currentSession = session;
-				currentSessionInstance = open();
+				currentSessionInstance = open(solutionInstance);
 				session.getClosables().add(currentSessionInstanceClosableWrapper = new AutoCloseable() {
 					@Override
 					public void close() throws Exception {
@@ -153,10 +154,10 @@ public class JDBCConnection extends Resource {
 	}
 
 	@Override
-	public void validate(boolean recursively) throws ValidationError {
-		super.validate(recursively);
-		String driverClassName = getDriverClassNameVariant().getValue();
-		String url = getUrlVariant().getValue();
+	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
+		super.validate(recursively, solutionInstance);
+		String driverClassName = getDriverClassNameVariant().getValue(solutionInstance);
+		String url = getUrlVariant().getValue(solutionInstance);
 		if ((driverClassName == null) || (driverClassName.trim().length() == 0)) {
 			throw new ValidationError("Driver class name not provided");
 		}
@@ -165,10 +166,10 @@ public class JDBCConnection extends Resource {
 		}
 	}
 
-	public String test() throws Exception {
+	public String test(Solution solutionInstance) throws Exception {
 		instanceMutex.acquire();
 		try {
-			open().close();
+			open(solutionInstance).close();
 		} finally {
 			instanceMutex.release();
 		}

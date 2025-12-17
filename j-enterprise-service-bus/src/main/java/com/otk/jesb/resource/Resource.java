@@ -12,18 +12,19 @@ import com.otk.jesb.solution.Solution;
 public abstract class Resource extends Asset implements ResourceStructure {
 
 	/**
-	 * The default constructor.
-	 */
-	public Resource() {
-	}
-
-	/**
 	 * The naming constructor.
 	 * 
 	 * @param name The new instance name
 	 */
 	public Resource(String name) {
 		super(name);
+	}
+
+	/**
+	 * The default constructor.
+	 */
+	public Resource() {
+		super();
 	}
 
 }

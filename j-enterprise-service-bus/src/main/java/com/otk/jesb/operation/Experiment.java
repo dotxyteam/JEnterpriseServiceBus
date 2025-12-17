@@ -7,6 +7,7 @@ import com.otk.jesb.Session;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.operation.builtin.Evaluate;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.ui.GUI;
 
@@ -16,7 +17,7 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				try (Experiment experiment = new Experiment(new Evaluate.Builder())) {
+				try (Experiment experiment = new Experiment(new Evaluate.Builder(), new Solution())) {
 					GUI.INSTANCE.openObjectFrame(experiment);
 				} catch (Exception e) {
 					throw new UnexpectedError(e);
@@ -27,7 +28,8 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 
 	private ExperimentalStep experimentalStep;
 
-	public Experiment(OperationBuilder<?> operationBuilder) {
+	public Experiment(OperationBuilder<?> operationBuilder, Solution solutionInstance) {
+		super(solutionInstance);
 		experimentalStep = new ExperimentalStep(operationBuilder);
 	}
 
@@ -35,12 +37,12 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 		return experimentalStep;
 	}
 
-	public Object carryOut() throws Throwable {
+	public Object carryOut(Solution solutionInstance) throws Throwable {
 		OperationBuilder<?> operationBuilder = experimentalStep.getOperationBuilder();
-		try (Session session = Session.openDummySession()) {
+		try (Session session = Session.openDummySession(solutionInstance)) {
 			Operation operation = operationBuilder.build(new Plan.ExecutionContext(session, this),
 					ExecutionInspector.DEFAULT);
-			return operation.execute();
+			return operation.execute(solutionInstance);
 		}
 	}
 

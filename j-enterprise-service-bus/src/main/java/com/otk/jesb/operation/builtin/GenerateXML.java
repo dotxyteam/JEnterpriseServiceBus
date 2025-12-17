@@ -13,6 +13,7 @@ import com.otk.jesb.resource.builtin.XSD.RootElementDescriptor;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.util.Accessor;
 import xy.reflect.ui.info.ResourcePath;
@@ -37,7 +38,7 @@ public class GenerateXML extends XMLOperation {
 	}
 
 	@Override
-	public Object execute() throws Exception {
+	public Object execute(Solution solutionInstance) throws Exception {
 		JAXBContext context = JAXBContext.newInstance(getRootElementClass());
 		Marshaller marshaller = context.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, outputFormatted);
@@ -94,35 +95,40 @@ public class GenerateXML extends XMLOperation {
 
 		@Override
 		public GenerateXML build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			Object documentObject = documentObjectBuilder.build(new InstantiationContext(context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			Object documentObject = documentObjectBuilder.build(new InstantiationContext(
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance));
 			Object rootElementObject = documentObject.getClass().getField(getRootElementName()).get(documentObject);
-			return new GenerateXML(rootElementObject, retrieveRootElement().retrieveClass(), outputFormatted);
+			return new GenerateXML(rootElementObject, retrieveRootElement(solutionInstance).retrieveClass(),
+					outputFormatted);
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
-			super.validate(recursively, plan, step);
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
+			super.validate(recursively, solutionInstance, plan, step);
 			if (recursively) {
-				documentObjectBuilder.getFacade().validate(recursively,
-						plan.getValidationContext(step).getVariableDeclarations());
+				documentObjectBuilder.getFacade(solutionInstance).validate(recursively,
+						plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 			}
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 			return SourceDocument.class;
 		}
 
-		public class DocumentObjectClassNameAccessor extends Accessor<String> {
+		public class DocumentObjectClassNameAccessor extends Accessor<Solution, String> {
 
 			@Override
-			public String get() {
-				RootElementDescriptor rootElement = retrieveRootElement();
+			public String get(Solution solutionInstance) {
+				RootElementDescriptor rootElement = retrieveRootElement(solutionInstance);
 				if (rootElement == null) {
 					return null;
 				}
-				return rootElement.getDocumentClass().getName();
+				return rootElement.getDocumentClass(solutionInstance).getName();
 			}
 
 		}

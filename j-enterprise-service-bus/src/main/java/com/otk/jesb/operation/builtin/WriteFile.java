@@ -20,6 +20,7 @@ import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 
 import xy.reflect.ui.info.ResourcePath;
 import com.otk.jesb.util.Accessor;
@@ -37,7 +38,7 @@ public class WriteFile implements Operation {
 	}
 
 	@Override
-	public Object execute() throws Throwable {
+	public Object execute(Solution solutionInstance) throws Throwable {
 		return specificOperation.execute();
 	}
 
@@ -186,26 +187,29 @@ public class WriteFile implements Operation {
 
 		@Override
 		public WriteFile build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			Solution solutionInstance = context.getSession().getSolutionInstance();
 			return new WriteFile((SpecificWriteFileOperation) instanceBuilder.build(new InstantiationContext(
-					context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance)));
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 			return null;
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
 			if (mode == null) {
 				throw new ValidationError("Mode not specified: Expected one of " + Arrays.toString(Mode.values()));
 			}
 			if (recursively) {
 				if (instanceBuilder != null) {
 					try {
-						instanceBuilder.getFacade().validate(recursively,
-								plan.getValidationContext(step).getVariableDeclarations());
+						instanceBuilder.getFacade(solutionInstance).validate(recursively,
+								plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the input builder", e);
 					}
@@ -213,9 +217,9 @@ public class WriteFile implements Operation {
 			}
 		}
 
-		private class SpecificOperationClassNameAccessor extends Accessor<String> {
+		private class SpecificOperationClassNameAccessor extends Accessor<Solution, String> {
 			@Override
-			public String get() {
+			public String get(Solution solutionInstance) {
 				if (mode == Mode.TEXT) {
 					return WriteTextFileOperation.class.getName();
 				} else if (mode == Mode.BINARY) {

@@ -27,6 +27,7 @@ import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
@@ -45,7 +46,7 @@ public class JDBCQuery extends JDBCOperation {
 	}
 
 	@Override
-	public Object execute() throws Exception {
+	public Object execute(Solution solutionInstance) throws Exception {
 		PreparedStatement preparedStatement = prepare();
 		ResultSet resultSet = preparedStatement.executeQuery();
 		List<ColumnDefinition> resultColumnDefinitions = retrieveResultColumnDefinitions(
@@ -125,7 +126,7 @@ public class JDBCQuery extends JDBCOperation {
 		protected List<ColumnDefinition> resultColumnDefinitions = new ArrayList<JDBCQuery.ColumnDefinition>();
 		protected boolean resultColumnDefinitionAutomatic = true;
 
-		protected UpToDate<Class<?>> upToDateResultClass = new UpToDateResultClass();
+		protected UpToDate<Solution, Class<?>> upToDateResultClass = new UpToDateResultClass();
 		protected UpToDateMetaResultColumnDefinitions upToDateMetaResultColumnDefinitions = new UpToDateMetaResultColumnDefinitions();
 
 		public boolean isResultColumnDefinitionAutomatic() {
@@ -136,10 +137,10 @@ public class JDBCQuery extends JDBCOperation {
 			this.resultColumnDefinitionAutomatic = resultColumnDefinitionAutomatic;
 		}
 
-		protected List<ColumnDefinition> computeResultColumnDefinitions() {
+		protected List<ColumnDefinition> computeResultColumnDefinitions(Solution solutionInstance) {
 			if (resultColumnDefinitionAutomatic) {
 				try {
-					return upToDateMetaResultColumnDefinitions.get();
+					return upToDateMetaResultColumnDefinitions.get(solutionInstance);
 				} catch (VersionAccessException e) {
 					throw new PotentialError(e);
 				}
@@ -162,8 +163,8 @@ public class JDBCQuery extends JDBCOperation {
 			super.setConnectionReference(connectionReference);
 		}
 
-		protected Class<?> createResultClass() {
-			Structure resultRowStructure = createResultRowStructure();
+		protected Class<?> createResultClass(Solution solutionInstance) {
+			Structure resultRowStructure = createResultRowStructure(solutionInstance);
 			if (resultRowStructure == null) {
 				return null;
 			}
@@ -171,16 +172,16 @@ public class JDBCQuery extends JDBCOperation {
 					+ MiscUtils.toDigitalUniqueIdentifier(this);
 			Class<?> resultRowClass;
 			try {
-				resultRowClass = MiscUtils.IN_MEMORY_COMPILER.compile(resultRowClassName,
-						resultRowStructure.generateJavaTypeSourceCode(resultRowClassName));
+				resultRowClass = solutionInstance.getRuntime().getInMemoryCompiler().compile(resultRowClassName,
+						resultRowStructure.generateJavaTypeSourceCode(resultRowClassName, solutionInstance));
 			} catch (CompilationError e) {
 				throw new PotentialError(e);
 			}
 			return MiscUtils.getArrayType(resultRowClass);
 		}
 
-		protected Structure createResultRowStructure() {
-			List<ColumnDefinition> resultColumnDefinitions = computeResultColumnDefinitions();
+		protected Structure createResultRowStructure(Solution solutionInstance) {
+			List<ColumnDefinition> resultColumnDefinitions = computeResultColumnDefinitions(solutionInstance);
 			if (resultColumnDefinitions == null) {
 				return null;
 			}
@@ -197,9 +198,10 @@ public class JDBCQuery extends JDBCOperation {
 			return rowStructure;
 		}
 
-		public void retrieveResultColumnDefinitions() throws SQLException, ClassNotFoundException {
+		public void retrieveResultColumnDefinitions(Solution solutionInstance)
+				throws SQLException, ClassNotFoundException {
 			try {
-				this.resultColumnDefinitions = upToDateMetaResultColumnDefinitions.get();
+				this.resultColumnDefinitions = upToDateMetaResultColumnDefinitions.get(solutionInstance);
 			} catch (VersionAccessException e) {
 				throw new PotentialError(e);
 			}
@@ -207,30 +209,32 @@ public class JDBCQuery extends JDBCOperation {
 
 		@Override
 		public JDBCQuery build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			JDBCQuery result = new JDBCQuery(context.getSession(), getConnection(), upToDateResultClass.get());
-			result.setStatement(getStatementVariant().getValue());
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			JDBCQuery result = new JDBCQuery(context.getSession(), getConnection(solutionInstance),
+					upToDateResultClass.get(context.getSession().getSolutionInstance()));
+			result.setStatement(getStatementVariant().getValue(solutionInstance));
 			result.setParameterValues(buildParameterValues(context));
 			return result;
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 			try {
-				return upToDateResultClass.get();
+				return upToDateResultClass.get(solutionInstance);
 			} catch (VersionAccessException e) {
 				return null;
 			}
 		}
 
-		protected List<ColumnDefinition> obtainMetaResultColumnDefinitions() throws Exception {
-			JDBCConnection connection = getConnection();
+		protected List<ColumnDefinition> obtainMetaResultColumnDefinitions(Solution solutionInstance) throws Exception {
+			JDBCConnection connection = getConnection(solutionInstance);
 			if (connection == null) {
 				return null;
 			}
 			return connection.during(new Function<Connection, List<ColumnDefinition>>() {
 				@Override
 				public List<ColumnDefinition> apply(Connection connectionInstance) {
-					String statement = getStatementVariant().getValue();
+					String statement = getStatementVariant().getValue(solutionInstance);
 					if ((statement == null) || statement.trim().isEmpty()) {
 						return null;
 					}
@@ -241,28 +245,29 @@ public class JDBCQuery extends JDBCOperation {
 						throw new PotentialError(e);
 					}
 				}
-			});
+			}, solutionInstance);
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
-			super.validate(recursively, plan, step);
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
+			super.validate(recursively, solutionInstance, plan, step);
 			if (recursively) {
-				validateResultColumnDefinitions();
+				validateResultColumnDefinitions(solutionInstance);
 			}
 		}
 
-		public void validateResultColumnDefinitions() throws ValidationError {
+		public void validateResultColumnDefinitions(Solution solutionInstance) throws ValidationError {
 			List<ColumnDefinition> resultColumnDefinitions;
 			try {
-				resultColumnDefinitions = computeResultColumnDefinitions();
+				resultColumnDefinitions = computeResultColumnDefinitions(solutionInstance);
 			} catch (Throwable t) {
 				throw new PotentialError(t.getMessage(), t);
 			}
 			if (!resultColumnDefinitionAutomatic) {
 				List<ColumnDefinition> metaResultColumnDefinitions;
 				try {
-					metaResultColumnDefinitions = upToDateMetaResultColumnDefinitions.get();
+					metaResultColumnDefinitions = upToDateMetaResultColumnDefinitions.get(solutionInstance);
 				} catch (VersionAccessException e) {
 					metaResultColumnDefinitions = null;
 				}
@@ -275,31 +280,33 @@ public class JDBCQuery extends JDBCOperation {
 			}
 		}
 
-		private class UpToDateResultClass extends UpToDate<Class<?>> {
+		private class UpToDateResultClass extends UpToDate<Solution, Class<?>> {
 			@Override
-			protected Object retrieveLastVersionIdentifier() {
-				return computeResultColumnDefinitions();
+			protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
+				return computeResultColumnDefinitions(solutionInstance);
 			}
 
 			@Override
-			protected Class<?> obtainLatest(Object versionIdentifier) {
-				return createResultClass();
+			protected Class<?> obtainLatest(Solution solutionInstance, Object versionIdentifier) {
+				return createResultClass(solutionInstance);
 			}
 		}
 
-		private class UpToDateMetaResultColumnDefinitions extends UpToDate<List<ColumnDefinition>> {
+		private class UpToDateMetaResultColumnDefinitions extends UpToDate<Solution, List<ColumnDefinition>> {
 
 			@Override
-			protected Object retrieveLastVersionIdentifier() {
-				JDBCConnection connection = getConnection();
-				return new Pair<String, String>((connection != null) ? MiscUtils.serialize(connection) : null,
-						getStatementVariant().getValue());
+			protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
+				JDBCConnection connection = getConnection(solutionInstance);
+				return new Pair<String, String>((connection != null)
+						? MiscUtils.serialize(connection, solutionInstance.getRuntime().getXstream())
+						: null, getStatementVariant().getValue(solutionInstance));
 			}
 
 			@Override
-			protected List<ColumnDefinition> obtainLatest(Object versionIdentifier) throws VersionAccessException {
+			protected List<ColumnDefinition> obtainLatest(Solution solutionInstance, Object versionIdentifier)
+					throws VersionAccessException {
 				try {
-					return obtainMetaResultColumnDefinitions();
+					return obtainMetaResultColumnDefinitions(solutionInstance);
 				} catch (Exception e) {
 					throw new VersionAccessException(e);
 				}
@@ -335,14 +342,14 @@ public class JDBCQuery extends JDBCOperation {
 			this.columnTypeName = columnTypeName;
 		}
 
-		public void validate() throws ValidationError {
+		public void validate(Solution solutionInstance) throws ValidationError {
 			if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(columnName).matches()) {
 				throw new ValidationError(
 						"Invalid column name: '" + columnTypeName + "' (should match the following regular expression: "
 								+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + ")");
 			}
 			try {
-				MiscUtils.getJESBClass(columnTypeName);
+				solutionInstance.getRuntime().getJESBClass(columnTypeName);
 			} catch (Throwable t) {
 				throw new ValidationError("Invalid column type name: '" + columnTypeName + "'");
 			}

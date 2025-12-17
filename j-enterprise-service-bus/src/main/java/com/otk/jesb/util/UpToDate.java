@@ -1,6 +1,9 @@
 package com.otk.jesb.util;
 
-public abstract class UpToDate<T> {
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class UpToDate<C, T> {
 
 	private static final Object UNDEFINED = new Object() {
 
@@ -11,36 +14,59 @@ public abstract class UpToDate<T> {
 
 	};
 
-	private transient Object lastVersionIdentifier = UNDEFINED;
-	private transient T latest;
-	private transient Object customValue;
+	private transient Map<C, Version> lastVersionByContext = new HashMap<C, Version>();
 
-	protected abstract Object retrieveLastVersionIdentifier();
+	protected abstract T obtainLatest(C context, Object versionIdentifier) throws VersionAccessException;
 
-	protected abstract T obtainLatest(Object versionIdentifier) throws VersionAccessException;
+	protected abstract Object retrieveLastVersionIdentifier(C context);
 
-	public Object getCustomValue() {
-		return customValue;
-	}
-
-	public void setCustomValue(Object customValue) {
-		this.customValue = customValue;
-	}
-
-	public T get() throws VersionAccessException {
-		synchronized (this) {
+	public T get(C context) throws VersionAccessException {
+		Version lastVersion = accessLastVersion(context);
+		synchronized (lastVersion) {
 			try {
-				Object versionIdentifier = retrieveLastVersionIdentifier();
-				if (!MiscUtils.equalsOrBothNull(versionIdentifier, lastVersionIdentifier)) {
-					latest = obtainLatest(versionIdentifier);
-					lastVersionIdentifier = versionIdentifier;
+				Object versionIdentifier = retrieveLastVersionIdentifier(context);
+				if (!MiscUtils.equalsOrBothNull(versionIdentifier, lastVersion.getIdentifier())) {
+					lastVersion.setValue(obtainLatest(context, versionIdentifier));
+					lastVersion.setIdentifier(versionIdentifier);
 				}
-				return latest;
+				return lastVersion.getValue();
 			} catch (VersionAccessException e) {
 				throw e;
 			} catch (Throwable t) {
 				throw new VersionAccessException(t);
 			}
+		}
+	}
+
+	private Version accessLastVersion(C context) {
+		synchronized (this) {
+			Version result = lastVersionByContext.get(context);
+			if (result == null) {
+				result = new Version();
+				lastVersionByContext.put(context, result);
+			}
+			return result;
+		}
+	}
+
+	public class Version {
+		private Object identifier = UNDEFINED;
+		private T value;
+
+		public Object getIdentifier() {
+			return identifier;
+		}
+
+		public void setIdentifier(Object identifier) {
+			this.identifier = identifier;
+		}
+
+		public T getValue() {
+			return value;
+		}
+
+		public void setValue(T value) {
+			this.value = value;
 		}
 	}
 
@@ -54,4 +80,25 @@ public abstract class UpToDate<T> {
 
 	}
 
+	public static abstract class GloballyUpToDate<T> extends UpToDate<Object, T> {
+
+		protected abstract T obtainLatest(Object versionIdentifier) throws VersionAccessException;
+
+		protected abstract Object retrieveLastVersionIdentifier();
+
+		@Override
+		protected T obtainLatest(Object context, Object versionIdentifier) throws VersionAccessException {
+			return obtainLatest(versionIdentifier);
+		}
+
+		@Override
+		protected Object retrieveLastVersionIdentifier(Object context) {
+			return retrieveLastVersionIdentifier();
+		}
+
+		public T get() throws VersionAccessException {
+			return get(UNDEFINED);
+		}
+
+	}
 }

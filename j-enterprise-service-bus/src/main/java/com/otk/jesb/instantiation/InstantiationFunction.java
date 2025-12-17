@@ -20,7 +20,6 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.meta.TypeInfoProvider;
-import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
@@ -35,19 +34,18 @@ import xy.reflect.ui.info.type.ITypeInfo;
 public class InstantiationFunction extends Function {
 
 	private Function returnTypeUtil = new Function();
-	private UpToDate<ITypeInfo> upToDateGuessedReturnTypeInfo = new UpToDate<ITypeInfo>() {
+	private UpToDate<CompiledFunction<?>, ITypeInfo> upToDateGuessedReturnTypeInfo = new UpToDate<CompiledFunction<?>, ITypeInfo>() {
 
 		@Override
-		protected Object retrieveLastVersionIdentifier() {
-			CompiledFunction<?> compiledFunction = (CompiledFunction<?>) getCustomValue();
+		protected Object retrieveLastVersionIdentifier(CompiledFunction<?> compiledFunction) {
 			return compiledFunction.getFunctionClass();
 		}
 
 		@Override
-		protected ITypeInfo obtainLatest(Object versionIdentifier) throws VersionAccessException {
-			CompiledFunction<?> compiledFunction = (CompiledFunction<?>) getCustomValue();
-			TypeSolver typeSolver = new CombinedTypeSolver(
-					new ClassLoaderTypeSolver(MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader()));
+		protected ITypeInfo obtainLatest(CompiledFunction<?> compiledFunction, Object versionIdentifier)
+				throws VersionAccessException {
+			TypeSolver typeSolver = new CombinedTypeSolver(new ClassLoaderTypeSolver(compiledFunction
+					.getSolutionInstance().getRuntime().getInMemoryCompiler().getCompiledClassesLoader()));
 			ParserConfiguration configuration = new ParserConfiguration()
 					.setSymbolResolver(new JavaSymbolSolver(typeSolver));
 			JavaParser javaParser = new JavaParser(configuration);
@@ -63,7 +61,7 @@ public class InstantiationFunction extends Function {
 			List<ReturnStmt> returnStatements = compilationUnit.findAll(ReturnStmt.class);
 			ResolvedType resolvedType = returnStatements.get(returnStatements.size() - 1).getExpression().get()
 					.calculateResolvedType();
-			return TypeInfoProvider.getInfoFromResolvedType(resolvedType);
+			return TypeInfoProvider.getInfoFromResolvedType(resolvedType, compiledFunction.getSolutionInstance());
 		}
 
 	};
@@ -86,9 +84,8 @@ public class InstantiationFunction extends Function {
 			throws CompilationError {
 		CompiledFunction<?> compiledFunction = returnTypeUtil.getCompiledVersion(precompiler, variableDeclarations,
 				Object.class);
-		upToDateGuessedReturnTypeInfo.setCustomValue(compiledFunction);
 		try {
-			return upToDateGuessedReturnTypeInfo.get();
+			return upToDateGuessedReturnTypeInfo.get(compiledFunction);
 		} catch (VersionAccessException e) {
 			return null;
 		}

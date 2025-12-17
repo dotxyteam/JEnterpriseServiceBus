@@ -30,6 +30,7 @@ import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionError;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -115,39 +116,42 @@ public class WatchFileSystem extends Activator {
 	}
 
 	@Override
-	public Class<?> getInputClass() {
+	public Class<?> getInputClass(Solution solutionInstance) {
 		return FileSystemEvent.class;
 	}
 
 	@Override
-	public Class<?> getOutputClass() {
+	public Class<?> getOutputClass(Solution solutionInstance) {
 		return null;
 	}
 
 	@Override
-	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler, Solution solutionInstance) throws Exception {
 		this.activationHandler = activationHandler;
-		Path nioBaseDircetoryPath = Paths.get(baseDircetoryPathVariant.getValue());
+		Path nioBaseDircetoryPath = Paths.get(baseDircetoryPathVariant.getValue(solutionInstance));
 		watchService = FileSystems.getDefault().newWatchService();
-		if (preExistingResourcesConsideredVariant.getValue()) {
+		if (preExistingResourcesConsideredVariant.getValue(solutionInstance)) {
 			try (Stream<Path> stream = Files.walk(nioBaseDircetoryPath)) {
 				stream.skip(1).forEach(nioPath -> {
 					try {
 						eventOccured(StandardWatchEventKinds.ENTRY_CREATE, nioBaseDircetoryPath.relativize(nioPath),
-								false);
+								false, solutionInstance);
 					} catch (IOException e) {
 						throw new PotentialError(e);
 					}
 				});
 			}
 		}
-		boolean subDirectoriesWatchedRecursively = subDirectoriesWatchedRecursivelyVariant.getValue();
+		boolean subDirectoriesWatchedRecursively = subDirectoriesWatchedRecursivelyVariant.getValue(solutionInstance);
 		if (subDirectoriesWatchedRecursively) {
-			registerDirectoriesRecursively(nioBaseDircetoryPath, watchService, creationWatchedVariant.getValue(),
-					deletionWatchedVariant.getValue(), modificationWatchedVariant.getValue());
+			registerDirectoriesRecursively(nioBaseDircetoryPath, watchService,
+					creationWatchedVariant.getValue(solutionInstance),
+					deletionWatchedVariant.getValue(solutionInstance),
+					modificationWatchedVariant.getValue(solutionInstance));
 		} else {
-			registerDirectory(watchService, nioBaseDircetoryPath, creationWatchedVariant.getValue(),
-					deletionWatchedVariant.getValue(), modificationWatchedVariant.getValue());
+			registerDirectory(watchService, nioBaseDircetoryPath, creationWatchedVariant.getValue(solutionInstance),
+					deletionWatchedVariant.getValue(solutionInstance),
+					modificationWatchedVariant.getValue(solutionInstance));
 		}
 		thread = new Thread("Worker[of=" + WatchFileSystem.this + "]") {
 
@@ -167,7 +171,7 @@ public class WatchFileSystem extends Activator {
 						for (WatchEvent<?> event : key.pollEvents()) {
 							WatchEvent.Kind<?> eventKind = event.kind();
 							Path nioPath = (Path) event.context();
-							eventOccured(eventKind, nioPath, subDirectoriesWatchedRecursively);
+							eventOccured(eventKind, nioPath, subDirectoriesWatchedRecursively, solutionInstance);
 						}
 						if (!key.reset()) {
 							break;
@@ -188,7 +192,7 @@ public class WatchFileSystem extends Activator {
 	}
 
 	@Override
-	public void finalizeAutomaticTrigger() throws Exception {
+	public void finalizeAutomaticTrigger(Solution solutionInstance) throws Exception {
 		MiscUtils.willRethrowCommonly((compositeException) -> {
 			compositeException.tryCactch(() -> {
 				watchService.close();
@@ -240,14 +244,16 @@ public class WatchFileSystem extends Activator {
 		});
 	}
 
-	private void eventOccured(Kind<?> eventKind, Path nioPath, boolean registerNewDirectory) throws IOException {
-		Path nioBaseDircetoryPath = Paths.get(baseDircetoryPathVariant.getValue());
+	private void eventOccured(Kind<?> eventKind, Path nioPath, boolean registerNewDirectory, Solution solutionInstance)
+			throws IOException {
+		Path nioBaseDircetoryPath = Paths.get(baseDircetoryPathVariant.getValue(solutionInstance));
 		Path resolvedNioPath = nioBaseDircetoryPath.resolve(nioPath);
 		if (Log.isVerbose()) {
 			Log.get().information(eventKind + ": " + resolvedNioPath);
 		}
-		PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + patternVariant.getValue());
-		ResourceKind watchedResourceKind = watchedResourceKindVariant.getValue();
+		PathMatcher pathMatcher = FileSystems.getDefault()
+				.getPathMatcher("glob:" + patternVariant.getValue(solutionInstance));
+		ResourceKind watchedResourceKind = watchedResourceKindVariant.getValue(solutionInstance);
 		if (pathMatcher.matches(nioPath)) {
 			ResourceKind eventResourceKind = ResourceKind.get(resolvedNioPath);
 			if ((eventResourceKind == watchedResourceKind) || (watchedResourceKind == ResourceKind.ANY)) {
@@ -267,17 +273,19 @@ public class WatchFileSystem extends Activator {
 		if (registerNewDirectory) {
 			if (eventKind == StandardWatchEventKinds.ENTRY_CREATE) {
 				if (Files.isDirectory(resolvedNioPath, LinkOption.NOFOLLOW_LINKS)) {
-					registerDirectoriesRecursively(resolvedNioPath, watchService, creationWatchedVariant.getValue(),
-							deletionWatchedVariant.getValue(), modificationWatchedVariant.getValue());
+					registerDirectoriesRecursively(resolvedNioPath, watchService,
+							creationWatchedVariant.getValue(solutionInstance),
+							deletionWatchedVariant.getValue(solutionInstance),
+							modificationWatchedVariant.getValue(solutionInstance));
 				}
 			}
 		}
 	}
 
 	@Override
-	public void validate(boolean recursively, Plan plan) throws ValidationError {
-		super.validate(recursively, plan);
-		String baseDircetoryPath = baseDircetoryPathVariant.getValue();
+	public void validate(boolean recursively, Solution solutionInstance, Plan plan) throws ValidationError {
+		super.validate(recursively, solutionInstance, plan);
+		String baseDircetoryPath = baseDircetoryPathVariant.getValue(solutionInstance);
 		if ((baseDircetoryPath == null) || baseDircetoryPath.isEmpty()) {
 			throw new ValidationError("Base directory path not provided");
 		}
@@ -285,14 +293,14 @@ public class WatchFileSystem extends Activator {
 			throw new ValidationError(
 					"Base directory path does not point to a valid directory: '" + baseDircetoryPath + "'");
 		}
-		subDirectoriesWatchedRecursivelyVariant.validate();
-		watchedResourceKindVariant.validate();
-		patternVariant.validate();
-		if (!creationWatchedVariant.getValue() && !deletionWatchedVariant.getValue()
-				&& !modificationWatchedVariant.getValue()) {
+		subDirectoriesWatchedRecursivelyVariant.validate(solutionInstance);
+		watchedResourceKindVariant.validate(solutionInstance);
+		patternVariant.validate(solutionInstance);
+		if (!creationWatchedVariant.getValue(solutionInstance) && !deletionWatchedVariant.getValue(solutionInstance)
+				&& !modificationWatchedVariant.getValue(solutionInstance)) {
 			throw new ValidationError("No enabled event (creation, deletion, modification)");
 		}
-		preExistingResourcesConsideredVariant.validate();
+		preExistingResourcesConsideredVariant.validate(solutionInstance);
 	}
 
 	public static enum ResourceKind {

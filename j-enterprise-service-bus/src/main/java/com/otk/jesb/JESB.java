@@ -82,7 +82,7 @@ public class JESB {
 		String syntax = executableName + " --help | [[<DIRECTORY_PATH> | <ARCHIVE_FILE_PATH>] "
 				+ helpFormatter.toSyntaxOptions(options) + "]";
 		String optionDescriptions = "\t* DIRECTORY_PATH: The path to a solution directory to load" + "\n"
-				+ "\tARCHIVE_FILE_PATH: The path to a solution archive file to load\n"
+				+ "\t* ARCHIVE_FILE_PATH: The path to a solution archive file to load\n"
 				+ options.getOptions().stream()
 						.map(option -> "\t* "
 								+ ((option.getArgName() != null) ? option.getArgName() : ("--" + option.getLongOpt()))
@@ -91,9 +91,9 @@ public class JESB {
 		return syntax + "\n" + optionDescriptions;
 	}
 
-	private static void setupSampleSolution() {
+	private static void setupSampleSolution(Solution solutionInstance) {
 		Plan plan = new Plan("Sample");
-		Solution.INSTANCE.getContents().add(plan);
+		solutionInstance.getContents().add(plan);
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -183,23 +183,25 @@ public class JESB {
 				Log.get().error(e);
 			}
 		});
+		Solution solutionInstance = commandLine.hasOption(RUNNER_SWITCH_ARGUMENT) ? new Solution()
+				: GUI.SOLUTION_INSTANCE;
 		if (fileOrFolder != null) {
 			if (fileOrFolder.isDirectory()) {
-				Solution.INSTANCE.loadFromDirectory(fileOrFolder);
+				solutionInstance.loadFromDirectory(fileOrFolder);
 			} else if (fileOrFolder.isFile()) {
-				Solution.INSTANCE.loadFromArchiveFile(fileOrFolder);
+				solutionInstance.loadFromArchiveFile(fileOrFolder);
 			} else {
 				throw newIllegalArgumentException(
 						new IOException("Invalid solution directory or archive file: '" + fileOrFolder + "'"), args,
 						options);
 			}
 		} else {
-			setupSampleSolution();
+			setupSampleSolution(solutionInstance);
 		}
 		if (commandLine.hasOption(RUNNER_SWITCH_ARGUMENT)) {
-			runner = new Runner(Solution.INSTANCE, false);
+			runner = new Runner(solutionInstance, false);
 			if (commandLine.hasOption(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)) {
-				Solution.INSTANCE.getEnvironmentSettings()
+				solutionInstance.getEnvironmentSettings()
 						.importProperties(new File(commandLine.getOptionValue(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)));
 			}
 			runner.open();
@@ -207,7 +209,7 @@ public class JESB {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					GUI.INSTANCE.openObjectFrame(Solution.INSTANCE);
+					GUI.INSTANCE.openObjectFrame(solutionInstance);
 				}
 			});
 		}

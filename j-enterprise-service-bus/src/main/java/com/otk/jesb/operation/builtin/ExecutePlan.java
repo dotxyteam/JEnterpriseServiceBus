@@ -13,6 +13,7 @@ import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionError;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 
 import xy.reflect.ui.info.ResourcePath;
 import com.otk.jesb.util.Accessor;
@@ -40,7 +41,7 @@ public class ExecutePlan implements Operation {
 	}
 
 	@Override
-	public Object execute() throws ExecutionError {
+	public Object execute(Solution solutionInstance) throws ExecutionError {
 		return plan.execute(planInput, executionInspector, new ExecutionContext(session, plan));
 	}
 
@@ -75,8 +76,8 @@ public class ExecutePlan implements Operation {
 		private RootInstanceBuilder planInputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Input",
 				new PlanInputClassNameAccessor());
 
-		private Plan getTargetPlan() {
-			return planReference.resolve();
+		private Plan getTargetPlan(Solution solutionInstance) {
+			return planReference.resolve(solutionInstance);
 		}
 
 		public Reference<Plan> getPlanReference() {
@@ -97,32 +98,37 @@ public class ExecutePlan implements Operation {
 
 		@Override
 		public ExecutePlan build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			Object planInput = planInputBuilder.build(new InstantiationContext(context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-			return new ExecutePlan(context.getSession(), getTargetPlan(), planInput, executionInspector);
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			Object planInput = planInputBuilder.build(new InstantiationContext(
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance));
+			return new ExecutePlan(context.getSession(), getTargetPlan(context.getSession().getSolutionInstance()),
+					planInput, executionInspector);
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
-			if (getTargetPlan() == null) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
+			if (getTargetPlan(solutionInstance) == null) {
 				return null;
 			}
-			return getTargetPlan().getActivator().getOutputClass();
+			return getTargetPlan(solutionInstance).getActivator().getOutputClass(solutionInstance);
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
-			if (getTargetPlan() == null) {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
+			if (getTargetPlan(solutionInstance) == null) {
 				throw new ValidationError("Failed to resolve the target plan reference");
 			}
-			if (!getTargetPlan().getActivator().getEnabledVariant().getValue()) {
+			if (!getTargetPlan(solutionInstance).getActivator().getEnabledVariant().getValue(solutionInstance)) {
 				throw new ValidationError("The target plan activation is disabled");
 			}
 			if (recursively) {
 				if (planInputBuilder != null) {
 					try {
-						planInputBuilder.getFacade().validate(recursively,
-								plan.getValidationContext(step).getVariableDeclarations());
+						planInputBuilder.getFacade(solutionInstance).validate(recursively,
+								plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the target plan input builder", e);
 					}
@@ -130,17 +136,17 @@ public class ExecutePlan implements Operation {
 			}
 		}
 
-		private class PlanInputClassNameAccessor extends Accessor<String> {
+		private class PlanInputClassNameAccessor extends Accessor<Solution, String> {
 			@Override
-			public String get() {
-				Plan plan = getTargetPlan();
+			public String get(Solution solutionInstance) {
+				Plan plan = getTargetPlan(solutionInstance);
 				if (plan == null) {
 					return null;
 				}
-				if (plan.getActivator().getInputClass() == null) {
+				if (plan.getActivator().getInputClass(solutionInstance) == null) {
 					return null;
 				}
-				return plan.getActivator().getInputClass().getName();
+				return plan.getActivator().getInputClass(solutionInstance).getName();
 			}
 		}
 

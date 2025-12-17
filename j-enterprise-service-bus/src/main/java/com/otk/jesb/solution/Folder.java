@@ -17,6 +17,7 @@ public class Folder extends Asset {
 	private List<Asset> contents = new ArrayList<Asset>();
 
 	public Folder() {
+		super();
 	}
 
 	public Folder(String name) {
@@ -50,8 +51,8 @@ public class Folder extends Asset {
 	}
 
 	@Override
-	public void validate(boolean recursively) throws ValidationError {
-		super.validate(recursively);
+	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
+		super.validate(recursively, solutionInstance);
 		List<String> assetFileNames = new ArrayList<String>();
 		for (Asset asset : contents) {
 			if (assetFileNames.contains(asset.getFileSystemResourceName())) {
@@ -64,7 +65,7 @@ public class Folder extends Asset {
 		if (recursively) {
 			for (Asset asset : contents) {
 				try {
-					asset.validate(true);
+					asset.validate(true, solutionInstance);
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to validate '" + asset.getName() + "'", e);
 				}

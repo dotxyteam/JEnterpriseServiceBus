@@ -4,14 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.jar.Attributes;
 
 import com.otk.jesb.UnexpectedError;
-import com.otk.jesb.activation.ActivatorMetadata;
-import com.otk.jesb.operation.OperationMetadata;
-import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.util.MiscUtils;
 
 public class JAR extends Asset {
@@ -23,10 +18,7 @@ public class JAR extends Asset {
 	public static final Attributes.Name PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY = new Attributes.Name(
 			"Resource-Metadata-Classes");
 
-	public static final List<OperationMetadata<?>> PLUGIN_OPERATION_METADATAS = new ArrayList<OperationMetadata<?>>();
-	public static final List<ResourceMetadata> PLUGIN_RESOURCE_METADATAS = new ArrayList<ResourceMetadata>();
-	public static final List<ActivatorMetadata> PLUGIN_ACTIVATOR_METADATAS = new ArrayList<ActivatorMetadata>();
-
+	
 	private File temporaryFile;
 
 	public JAR(File file) throws IOException {

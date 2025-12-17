@@ -9,6 +9,8 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 import com.otk.jesb.ValidationError;
 import xy.reflect.ui.info.ResourcePath;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import com.otk.jesb.util.MiscUtils;
@@ -24,9 +26,6 @@ public class ReadCommandLine extends Activator {
 	private BufferedReader standardInput;
 	private Thread thread;
 
-	public ReadCommandLine() {
-	}
-
 	public Variant<String> getPromptVariant() {
 		return promptVariant;
 	}
@@ -41,12 +40,12 @@ public class ReadCommandLine extends Activator {
 	}
 
 	@Override
-	public Class<?> getInputClass() {
+	public Class<?> getInputClass(Solution solutionInstance) {
 		return InputClassStructure.class;
 	}
 
 	@Override
-	public Class<?> getOutputClass() {
+	public Class<?> getOutputClass(Solution solutionInstance) {
 		return OutputClassStructure.class;
 	}
 
@@ -56,14 +55,15 @@ public class ReadCommandLine extends Activator {
 	}
 
 	@Override
-	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler, Solution solutionIOnstance)
+			throws Exception {
 		this.activationHandler = activationHandler;
 		standardInput = new BufferedReader(new InputStreamReader(JESB.getStandardInputSource().newInputStream()));
 		thread = new Thread(ReadCommandLine.class.getSimpleName() + "Worker-" + hashCode()) {
 
 			@Override
 			public void run() {
-				String prompt = promptVariant.getValue();
+				String prompt = promptVariant.getValue(solutionIOnstance);
 				while (true) {
 					try {
 						if (isInterrupted()) {
@@ -97,7 +97,7 @@ public class ReadCommandLine extends Activator {
 	}
 
 	@Override
-	public void finalizeAutomaticTrigger() throws Exception {
+	public void finalizeAutomaticTrigger(Solution solutionIOnstance) throws Exception {
 		MiscUtils.willRethrowCommonly((compositeException) -> {
 			compositeException.tryCactch(() -> {
 				while (thread.isAlive()) {
@@ -152,11 +152,11 @@ public class ReadCommandLine extends Activator {
 	}
 
 	@Override
-	public void validate(boolean recursively, Plan plan) throws ValidationError {
-		super.validate(recursively, plan);
+	public void validate(boolean recursively, Solution solutionInstance, Plan plan) throws ValidationError {
+		super.validate(recursively, solutionInstance, plan);
 		if (recursively) {
 			try {
-				promptVariant.validate();
+				promptVariant.validate(solutionInstance);
 			} catch (ValidationError e) {
 				throw new ValidationError("Failed to validate 'Prompt'", e);
 			}

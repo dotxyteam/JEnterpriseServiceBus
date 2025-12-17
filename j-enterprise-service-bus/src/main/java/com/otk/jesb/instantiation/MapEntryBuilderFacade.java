@@ -4,11 +4,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.solution.Solution;
 
 public class MapEntryBuilderFacade extends InstanceBuilderFacade {
 
-	public MapEntryBuilderFacade(Facade parent, MapEntryBuilder mapEntryBuilder) {
-		super(parent, mapEntryBuilder);
+	public MapEntryBuilderFacade(Facade parent, MapEntryBuilder mapEntryBuilder, Solution solutionInstance) {
+		super(parent, mapEntryBuilder, solutionInstance);
 	}
 
 	@Override

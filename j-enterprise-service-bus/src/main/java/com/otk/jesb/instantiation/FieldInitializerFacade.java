@@ -6,6 +6,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
 
 import xy.reflect.ui.info.field.IFieldInfo;
@@ -18,8 +19,8 @@ public class FieldInitializerFacade extends InitializerFacade {
 	private String fieldName;
 	private IFieldInfo fieldInfo;
 
-	public FieldInitializerFacade(Facade parent, String fieldName) {
-		super(parent);
+	public FieldInitializerFacade(Facade parent, String fieldName, Solution solutionInstance) {
+		super(parent, solutionInstance);
 		this.fieldName = fieldName;
 	}
 
@@ -60,10 +61,10 @@ public class FieldInitializerFacade extends InitializerFacade {
 		}
 		if (getCondition() != null) {
 			InstantiationUtils.validateValue(getCondition(), TypeInfoProvider.getTypeInfo(boolean.class), getParent(),
-					"condition", true, variableDeclarations);
+					"condition", true, variableDeclarations, solutionInstance);
 		}
 		InstantiationUtils.validateValue(getUnderlying().getFieldValue(), getFieldInfo().getType(), this, "field value",
-				recursively, variableDeclarations);
+				recursively, variableDeclarations, solutionInstance);
 	}
 
 	@Override
@@ -85,7 +86,7 @@ public class FieldInitializerFacade extends InitializerFacade {
 
 	public IFieldInfo getFieldInfo() {
 		if (fieldInfo == null) {
-			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
+			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo(solutionInstance);
 			fieldInfo = ReflectionUIUtils.findInfoByName(parentTypeInfo.getFields(), fieldName);
 		}
 		return fieldInfo;

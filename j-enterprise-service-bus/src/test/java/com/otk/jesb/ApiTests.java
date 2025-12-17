@@ -5,7 +5,6 @@ import java.net.ConnectException;
 import java.util.Locale;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -42,13 +41,6 @@ public class ApiTests {
 		setupTestEnvironment();
 	}
 
-	@Before
-	public void beforeEachTest() {
-		Solution.INSTANCE.getContents().clear();
-		Solution.INSTANCE.getRequiredJARs().clear();
-		Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().clear();
-	}
-
 	@Test
 	public void testRestService() throws Exception {
 		File archiveFile = MiscUtils.createTemporaryFile("zip");
@@ -56,12 +48,13 @@ public class ApiTests {
 			MiscUtils.writeBinary(archiveFile,
 					MiscUtils.readBinary(ApiTests.class.getResourceAsStream("/testWebServices/test-rest-solution.zip")),
 					false);
-			Solution.INSTANCE.loadFromArchiveFile(archiveFile);
-			Solution.INSTANCE.validate();
-			try (Session session = Session.openDummySession()) {
-				Plan servicePlan = SolutionUtils.findAsset(Solution.INSTANCE, Plan.class, "greetingByName");
+			Solution solutionInstance = new Solution();
+			solutionInstance.loadFromArchiveFile(archiveFile);
+			solutionInstance.validate();
+			try (Session session = Session.openDummySession(solutionInstance)) {
+				Plan servicePlan = SolutionUtils.findAsset(solutionInstance, Plan.class, "greetingByName");
 				SolutionUtils.activatePlan(servicePlan, session);
-				Plan clientPlan = SolutionUtils.findAsset(Solution.INSTANCE, Plan.class, "testGreetingsService");
+				Plan clientPlan = SolutionUtils.findAsset(solutionInstance, Plan.class, "testGreetingsService");
 				Object result;
 				String message;
 				{
@@ -73,7 +66,7 @@ public class ApiTests {
 				}
 				{
 					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
-						InstantiationUtils.setChildInitializerValue(inputBuilder, "name", "Liza");
+						InstantiationUtils.setChildInitializerValue(inputBuilder, "name", "Liza", solutionInstance);
 					});
 					message = Expression.evaluateObjectMemberSelection(result, "message", String.class);
 					if (!message.equals("Hello Liza!")) {
@@ -82,14 +75,14 @@ public class ApiTests {
 				}
 				{
 					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
-						InstantiationUtils.setChildInitializerValue(inputBuilder, "name", "");
+						InstantiationUtils.setChildInitializerValue(inputBuilder, "name", "", solutionInstance);
 					});
 					message = Expression.evaluateObjectMemberSelection(result, "message", String.class);
 					if (!message.contains("Name not provided!")) {
 						Assert.fail();
 					}
 				}
-				SolutionUtils.deactivatePlan(servicePlan);
+				SolutionUtils.deactivatePlan(servicePlan, session);
 				try {
 					SolutionUtils.executePlan(clientPlan, session, null);
 					Assert.fail();
@@ -111,17 +104,18 @@ public class ApiTests {
 			MiscUtils.writeBinary(archiveFile,
 					MiscUtils.readBinary(ApiTests.class.getResourceAsStream("/testWebServices/test-soap-solution.zip")),
 					false);
-			Solution.INSTANCE.loadFromArchiveFile(archiveFile);
-			Solution.INSTANCE.validate();
-			try (Session session = Session.openDummySession()) {
-				Plan servicePlan = SolutionUtils.findAsset(Solution.INSTANCE, Plan.class, "service");
+			Solution solutionInstance = new Solution();
+			solutionInstance.loadFromArchiveFile(archiveFile);
+			solutionInstance.validate();
+			try (Session session = Session.openDummySession(solutionInstance)) {
+				Plan servicePlan = SolutionUtils.findAsset(solutionInstance, Plan.class, "service");
 				SolutionUtils.activatePlan(servicePlan, session);
-				Plan clientPlan = SolutionUtils.findAsset(Solution.INSTANCE, Plan.class, "test");
+				Plan clientPlan = SolutionUtils.findAsset(solutionInstance, Plan.class, "test");
 				Object result;
 				String message;
 				{
 					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
-						InstantiationUtils.setChildInitializerValue(inputBuilder, "(name)", "Liza");
+						InstantiationUtils.setChildInitializerValue(inputBuilder, "(name)", "Liza", solutionInstance);
 					});
 					message = Expression.evaluateObjectMemberSelection(result, "message", String.class);
 					if (!message.equals("Hello Liza!")) {
@@ -130,14 +124,14 @@ public class ApiTests {
 				}
 				{
 					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
-						InstantiationUtils.setChildInitializerValue(inputBuilder, "(name)", "");
+						InstantiationUtils.setChildInitializerValue(inputBuilder, "(name)", "", solutionInstance);
 					});
 					message = Expression.evaluateObjectMemberSelection(result, "message", String.class);
 					if (!message.contains("Name not provided!")) {
 						Assert.fail();
 					}
 				}
-				SolutionUtils.deactivatePlan(servicePlan);
+				SolutionUtils.deactivatePlan(servicePlan, session);
 				try {
 					SolutionUtils.executePlan(clientPlan, session, null);
 					Assert.fail();
@@ -158,9 +152,10 @@ public class ApiTests {
 		try {
 			MiscUtils.writeBinary(archiveFile,
 					MiscUtils.readBinary(ApiTests.class.getResourceAsStream("/testMisc/test-switch-case.zip")), false);
-			Solution.INSTANCE.loadFromArchiveFile(archiveFile);
-			Solution.INSTANCE.validate();
-			try (Debugger session = new Debugger(Solution.INSTANCE, true)) {
+			Solution solutionInstance = new Solution();
+			solutionInstance.loadFromArchiveFile(archiveFile);
+			solutionInstance.validate();
+			try (Debugger session = new Debugger(solutionInstance, true)) {
 				session.activatePlans();
 				Thread.sleep(3000);
 				if (session.getActivePlanExecutors().size() != 0) {

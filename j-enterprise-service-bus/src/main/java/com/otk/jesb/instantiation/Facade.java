@@ -6,6 +6,7 @@ import java.util.List;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.TreeVisitor;
 
@@ -21,6 +22,12 @@ import com.otk.jesb.util.TreeVisitor;
  *
  */
 public abstract class Facade {
+
+	protected Solution solutionInstance;
+
+	public Facade(Solution solutionInstance) {
+		this.solutionInstance = solutionInstance;
+	}
 
 	/**
 	 * @return A text summarizing the specific behavior of the underlying
@@ -98,6 +105,13 @@ public abstract class Facade {
 			throws ValidationError;
 
 	/**
+	 * @return The current solution.
+	 */
+	public Solution getSolutionInstance() {
+		return solutionInstance;
+	}
+
+	/**
 	 * @return Whether the current {@link Facade} may be validated or not.
 	 */
 	public boolean isValidable() {
@@ -144,29 +158,31 @@ public abstract class Facade {
 	 * @return The appropriate facade for the provided underlying instantiation
 	 *         structure.
 	 */
-	public static Facade get(Object node, Facade parentFacade) {
+	public static Facade get(Object node, Facade parentFacade, Solution solutionInstance) {
 		if (node instanceof RootInstanceBuilder) {
 			if (parentFacade != null) {
 				throw new UnexpectedError();
 			}
-			return new RootInstanceBuilderFacade((RootInstanceBuilder) node);
+			return new RootInstanceBuilderFacade((RootInstanceBuilder) node, solutionInstance);
 		} else if (node instanceof MapEntryBuilder) {
-			return new MapEntryBuilderFacade(parentFacade, (MapEntryBuilder) node);
+			return new MapEntryBuilderFacade(parentFacade, (MapEntryBuilder) node, solutionInstance);
 		} else if (node instanceof InstanceBuilder) {
-			return new InstanceBuilderFacade(parentFacade, (InstanceBuilder) node);
+			return new InstanceBuilderFacade(parentFacade, (InstanceBuilder) node, solutionInstance);
 		} else if (node instanceof FieldInitializer) {
-			return new FieldInitializerFacade(parentFacade, ((FieldInitializer) node).getFieldName());
+			return new FieldInitializerFacade(parentFacade, ((FieldInitializer) node).getFieldName(), solutionInstance);
 		} else if (node instanceof ParameterInitializer) {
-			return new ParameterInitializerFacade(parentFacade, ((ParameterInitializer) node).getParameterPosition());
+			return new ParameterInitializerFacade(parentFacade, ((ParameterInitializer) node).getParameterPosition(),
+					solutionInstance);
 		} else if (node instanceof ListItemInitializer) {
-			return new ListItemInitializerFacade(parentFacade, ((ListItemInitializer) node).getIndex());
+			return new ListItemInitializerFacade(parentFacade, ((ListItemInitializer) node).getIndex(),
+					solutionInstance);
 		} else if (node instanceof InitializationSwitch) {
-			return new InitializationSwitchFacade(parentFacade, (InitializationSwitch) node);
+			return new InitializationSwitchFacade(parentFacade, (InitializationSwitch) node, solutionInstance);
 		} else if (node instanceof InitializationCase) {
-			return new InitializationCaseFacade((InitializationSwitchFacade) parentFacade,
-					((InitializationSwitchFacade) parentFacade).getUnderlying()
-							.findCondition((InitializationCase) node),
-					(InitializationCase) node);
+			return new InitializationCaseFacade(
+					(InitializationSwitchFacade) parentFacade, ((InitializationSwitchFacade) parentFacade)
+							.getUnderlying().findCondition((InitializationCase) node),
+					(InitializationCase) node, solutionInstance);
 		} else {
 			throw new UnexpectedError();
 		}

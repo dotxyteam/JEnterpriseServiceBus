@@ -49,6 +49,7 @@ import com.otk.jesb.instantiation.InstanceBuilder;
 import com.otk.jesb.instantiation.InstantiationContext;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.CodeBuilder;
 import com.otk.jesb.util.InstantiationUtils;
@@ -72,6 +73,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 	private static WeakHashMap<Class<?>, Class<?>> serviceImplementationClassByInterface = new WeakHashMap<Class<?>, Class<?>>();
 
 	public OpenAPIDescription() {
+		super();
 	}
 
 	public OpenAPIDescription(String name) {
@@ -166,10 +168,10 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 				swaggerInitializerResourceSourceCode.toString().getBytes());
 	}
 
-	public Class<?> getAPIServiceInterface() {
+	public Class<?> getAPIServiceInterface(Solution solutionInstance) {
 		try {
 			return upToDateGeneratedClasses
-					.get().stream().filter(c -> c.getPackage().getName().equals(getServicePackageName())
+					.get(solutionInstance).stream().filter(c -> c.getPackage().getName().equals(getServicePackageName())
 							&& c.isInterface() && c.getAnnotation(io.swagger.annotations.Api.class) != null)
 					.findFirst().orElse(null);
 		} catch (VersionAccessException e) {
@@ -177,9 +179,9 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		}
 	}
 
-	public Class<?> getSwaggerInitializerResourceClass() {
+	public Class<?> getSwaggerInitializerResourceClass(Solution solutionInstance) {
 		try {
-			return upToDateGeneratedClasses.get().stream()
+			return upToDateGeneratedClasses.get(solutionInstance).stream()
 					.filter(c -> c.getPackage().getName().equals(getServicePackageName())
 							&& "SwaggerInitializerResource".equals(c.getSimpleName()))
 					.findFirst().orElse(null);
@@ -188,8 +190,8 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		}
 	}
 
-	public Class<?> getAPIServiceImplementationClass() {
-		Class<?> currentServiceInterface = getAPIServiceInterface();
+	public Class<?> getAPIServiceImplementationClass(Solution solutionInstance) {
+		Class<?> currentServiceInterface = getAPIServiceInterface(solutionInstance);
 		if (currentServiceInterface == null) {
 			return null;
 		}
@@ -266,7 +268,8 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 				javaSource.append("\n");
 				javaSource.append("}" + "\n");
 				try {
-					return (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className, javaSource.toString());
+					return (Class<?>) solutionInstance.getRuntime().getInMemoryCompiler().compile(className,
+							javaSource.toString());
 				} catch (CompilationError e) {
 					throw new PotentialError(e);
 				}
@@ -275,20 +278,21 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		}
 	}
 
-	public Class<?> getAPIClientClass() {
+	public Class<?> getAPIClientClass(Solution solutionInstance) {
 		try {
-			return upToDateGeneratedClasses.get().stream().filter(
-					c -> c.getPackage().getName().equals(getClientPackageName()) && Arrays.stream(c.getDeclaredFields())
-							.anyMatch(field -> field.getType().equals(getAPIClientConfigurationClass())))
+			return upToDateGeneratedClasses.get(solutionInstance).stream()
+					.filter(c -> c.getPackage().getName().equals(getClientPackageName())
+							&& Arrays.stream(c.getDeclaredFields()).anyMatch(
+									field -> field.getType().equals(getAPIClientConfigurationClass(solutionInstance))))
 					.findFirst().orElse(null);
 		} catch (VersionAccessException e) {
 			throw new PotentialError(e);
 		}
 	}
 
-	public Class<?> getAPIClientConfigurationClass() {
+	public Class<?> getAPIClientConfigurationClass(Solution solutionInstance) {
 		try {
-			return upToDateGeneratedClasses.get().stream().filter(
+			return upToDateGeneratedClasses.get(solutionInstance).stream().filter(
 					c -> c.getPackage().getName().equals(getBasePackageName()) && c.getSimpleName().equals("ApiClient"))
 					.findFirst().orElse(null);
 		} catch (VersionAccessException e) {
@@ -296,35 +300,35 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		}
 	}
 
-	public List<APIOperationDescriptor> getServiceOperationDescriptors() {
-		Class<?> serviceInterface = getAPIServiceInterface();
+	public List<APIOperationDescriptor> getServiceOperationDescriptors(Solution solutionInstance) {
+		Class<?> serviceInterface = getAPIServiceInterface(solutionInstance);
 		if (serviceInterface == null) {
 			return Collections.emptyList();
 		}
-		return Arrays.asList(serviceInterface.getDeclaredMethods()).stream().map(m -> new APIOperationDescriptor(m))
-				.collect(Collectors.toList());
+		return Arrays.asList(serviceInterface.getDeclaredMethods()).stream()
+				.map(m -> new APIOperationDescriptor(m, solutionInstance)).collect(Collectors.toList());
 	}
 
-	public List<APIOperationDescriptor> getClientOperationDescriptors() {
-		Class<?> clientClass = getAPIClientClass();
+	public List<APIOperationDescriptor> getClientOperationDescriptors(Solution solutionInstance) {
+		Class<?> clientClass = getAPIClientClass(solutionInstance);
 		if (clientClass == null) {
 			return Collections.emptyList();
 		}
 		return Arrays.asList(clientClass.getDeclaredMethods()).stream()
 				.filter(m -> (m.getReturnType() != ResponseEntity.class)
-						&& (m.getReturnType() != getAPIClientConfigurationClass())
+						&& (m.getReturnType() != getAPIClientConfigurationClass(solutionInstance))
 						&& !((m.getParameterCount() == 1)
-								&& (m.getParameterTypes()[0] == getAPIClientConfigurationClass())))
-				.map(m -> new APIOperationDescriptor(m)).collect(Collectors.toList());
+								&& (m.getParameterTypes()[0] == getAPIClientConfigurationClass(solutionInstance))))
+				.map(m -> new APIOperationDescriptor(m, solutionInstance)).collect(Collectors.toList());
 	}
 
-	public APIOperationDescriptor getServiceOperationDescriptor(String operationSignature) {
-		return getServiceOperationDescriptors().stream()
+	public APIOperationDescriptor getServiceOperationDescriptor(String operationSignature, Solution solutionInstance) {
+		return getServiceOperationDescriptors(solutionInstance).stream()
 				.filter(o -> o.getOperationSignature().equals(operationSignature)).findFirst().orElse(null);
 	}
 
-	public APIOperationDescriptor getClientOperationDescriptor(String operationSignature) {
-		return getClientOperationDescriptors().stream()
+	public APIOperationDescriptor getClientOperationDescriptor(String operationSignature, Solution solutionInstance) {
+		return getClientOperationDescriptors(solutionInstance).stream()
 				.filter(o -> o.getOperationSignature().equals(operationSignature)).findFirst().orElse(null);
 	}
 
@@ -342,27 +346,28 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 	}
 
 	@Override
-	public void validate(boolean recursively) throws ValidationError {
-		super.validate(recursively);
+	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
+		super.validate(recursively, solutionInstance);
 		if ((text == null) || text.trim().isEmpty()) {
 			throw new ValidationError("Text not provided");
 		}
 		try {
-			upToDateGeneratedClasses.get();
+			upToDateGeneratedClasses.get(solutionInstance);
 		} catch (Throwable t) {
 			throw new ValidationError("Failed to validate the " + getClass().getSimpleName(), t);
 		}
 	}
 
-	protected class UpToDateGeneratedClasses extends UpToDate<List<Class<?>>> {
+	protected class UpToDateGeneratedClasses extends UpToDate<Solution, List<Class<?>>> {
 
 		@Override
-		protected Object retrieveLastVersionIdentifier() {
+		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
 			return text;
 		}
 
 		@Override
-		protected List<Class<?>> obtainLatest(Object versionIdentifier) throws VersionAccessException {
+		protected List<Class<?>> obtainLatest(Solution solutionInstance, Object versionIdentifier)
+				throws VersionAccessException {
 			if (text == null) {
 				return Collections.emptyList();
 			}
@@ -377,9 +382,9 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 						generateSwaggerInitializeResourceClass(new File(sourceDirectory, "/src/gen/java"));
 						CodeGenerationPostProcessor.process(sourceDirectory);
 						List<Class<?>> result = new ArrayList<Class<?>>();
-						result.addAll(MiscUtils.IN_MEMORY_COMPILER
+						result.addAll(solutionInstance.getRuntime().getInMemoryCompiler()
 								.compile(new File(sourceDirectory.getPath() + "/src/gen/java")));
-						result.addAll(MiscUtils.IN_MEMORY_COMPILER
+						result.addAll(solutionInstance.getRuntime().getInMemoryCompiler()
 								.compile(new File(sourceDirectory.getPath() + "/src/main/java")));
 						return result;
 					} finally {
@@ -439,15 +444,19 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		private static WeakHashMap<Class<?>, Map<Method, Class<?>>> outputClassByMethodByDeclaringClass = new WeakHashMap<Class<?>, Map<Method, Class<?>>>();
 
 		private Method operationMethod;
+		private Solution solutionInstance;
 
-		public APIOperationDescriptor(Method m) {
+		public APIOperationDescriptor(Method m, Solution solutionInstance) {
 			this.operationMethod = m;
+			this.solutionInstance = solutionInstance;
 		}
 
 		public String getOperationSignature() {
 			String result = ReflectionUIUtils.buildMethodSignature(operationMethod);
-			result = InstantiationUtils.makeTypeNamesRelative(result, Arrays
-					.asList(new InstanceBuilder(Accessor.returning(operationMethod.getDeclaringClass().getName()))));
+			result = InstantiationUtils.makeTypeNamesRelative(result,
+					Arrays.asList(
+							new InstanceBuilder(Accessor.returning(operationMethod.getDeclaringClass().getName()))),
+					solutionInstance);
 			return result;
 		}
 
@@ -468,9 +477,10 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 						try {
 							InstanceBuilder entityBuilder = new InstanceBuilder(
 									Accessor.returning(responseAnnotation.response().getName()));
-							InstantiationUtils.makeConcreteRecursively(Facade.get(entityBuilder, null), 3);
-							sampleEntity = entityBuilder
-									.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
+							InstantiationUtils
+									.makeConcreteRecursively(Facade.get(entityBuilder, null, solutionInstance), 3);
+							sampleEntity = entityBuilder.build(new InstantiationContext(Collections.emptyList(),
+									Collections.emptyList(), solutionInstance));
 						} catch (Exception e) {
 							throw new UnexpectedError(e);
 						}
@@ -533,10 +543,11 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 											+ "};" + "\n");
 							additionalMethodDeclarations.append("}" + "\n");
 							try {
-								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
-										stucture.generateJavaTypeSourceCode(className, additionalyImplemented, null,
-												null, null, additionalMethodDeclarations.toString(),
-												Collections.emptyMap()));
+								return (Class<? extends OperationInput>) solutionInstance.getRuntime()
+										.getInMemoryCompiler().compile(className,
+												stucture.generateJavaTypeSourceCode(className, additionalyImplemented,
+														null, null, null, additionalMethodDeclarations.toString(),
+														Collections.emptyMap(), solutionInstance));
 							} catch (CompilationError e) {
 								throw new PotentialError(e);
 							}
@@ -575,8 +586,9 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 								stucture.getElements().add(resultElement);
 							}
 							try {
-								return (Class<? extends OperationInput>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
-										stucture.generateJavaTypeSourceCode(className));
+								return (Class<? extends OperationInput>) solutionInstance.getRuntime()
+										.getInMemoryCompiler().compile(className,
+												stucture.generateJavaTypeSourceCode(className, solutionInstance));
 							} catch (CompilationError e) {
 								throw new PotentialError(e);
 							}
@@ -654,7 +666,7 @@ public class OpenAPIDescription extends WebDocumentBasedResource {
 		public ResponseException(Status status) {
 			this(status.getStatusCode());
 		}
-			
+
 		public ResponseException(int statusCode) {
 			this.statusCode = statusCode;
 			Status status = Status.fromStatusCode(statusCode);

@@ -16,6 +16,7 @@ import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Step;
@@ -35,7 +36,7 @@ public class InspectResource implements Operation {
 	}
 
 	@Override
-	public Object execute() throws Throwable {
+	public Object execute(Solution solutionInstance) throws Throwable {
 		Path nioPath = Paths.get(path);
 		String absolutePath = nioPath.toAbsolutePath().toString();
 		String name = nioPath.getFileName().toString();
@@ -171,22 +172,26 @@ public class InspectResource implements Operation {
 
 		@Override
 		public InspectResource build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return (InspectResource) instanceBuilder.build(new InstantiationContext(context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			return (InspectResource) instanceBuilder.build(new InstantiationContext(
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance));
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 			return PathInpectionResult.class;
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
 			if (recursively) {
 				if (instanceBuilder != null) {
 					try {
-						instanceBuilder.getFacade().validate(recursively,
-								plan.getValidationContext(step).getVariableDeclarations());
+						instanceBuilder.getFacade(solutionInstance).validate(recursively,
+								plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the input builder", e);
 					}

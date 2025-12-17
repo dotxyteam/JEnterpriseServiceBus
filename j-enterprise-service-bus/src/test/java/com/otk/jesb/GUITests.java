@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.otk.jesb.solution.Solution;
 import com.otk.jesb.ui.GUI;
 
 import xy.reflect.ui.control.swing.plugin.FileBrowserPlugin;
@@ -44,9 +43,9 @@ public class GUITests {
 
 	@Before
 	public void beforeEachTest() {
-		Solution.INSTANCE.getContents().clear();
-		Solution.INSTANCE.getRequiredJARs().clear();
-		Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().clear();
+		GUI.SOLUTION_INSTANCE.getContents().clear();
+		GUI.SOLUTION_INSTANCE.getRequiredJARs().clear();
+		GUI.SOLUTION_INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().clear();
 		GUI.INSTANCE.getLastInvocationDataByMethodContext().clear();
 		GUI.INSTANCE.getSubCustomizerByIdentifier().values()
 				.forEach(swingCustomizer -> swingCustomizer.getLastInvocationDataByMethodContext().clear());

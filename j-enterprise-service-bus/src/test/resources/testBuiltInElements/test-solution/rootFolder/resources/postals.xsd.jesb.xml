@@ -1,0 +1,37 @@
+<com.otk.jesb.resource.builtin.XSD>
+  <dependencyTextByFileName class="java.util.Collections$UnmodifiableMap">
+    <m class="java.util.Collections$UnmodifiableMap">
+      <m class="java.util.Collections$UnmodifiableMap">
+        <m class="java.util.Collections$UnmodifiableMap">
+          <m/>
+        </m>
+      </m>
+    </m>
+  </dependencyTextByFileName>
+  <name>postals</name>
+  <note class="null"/>
+  <text>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#xd;
+&lt;xs:schema xmlns:xs=&quot;http://www.w3.org/2001/XMLSchema&quot; &#xd;
+           elementFormDefault=&quot;qualified&quot; &#xd;
+           targetNamespace=&quot;http://www.example.com/postals&quot; &#xd;
+           xmlns:postals=&quot;http://www.example.com/postals&quot;&gt;&#xd;
+&#xd;
+  &lt;xs:element name=&quot;postals&quot;&gt;&#xd;
+    &lt;xs:complexType&gt;&#xd;
+      &lt;xs:sequence&gt;&#xd;
+        &lt;xs:element maxOccurs=&quot;unbounded&quot; ref=&quot;postals:row&quot;/&gt;&#xd;
+      &lt;/xs:sequence&gt;&#xd;
+    &lt;/xs:complexType&gt;&#xd;
+  &lt;/xs:element&gt;&#xd;
+  &lt;xs:element name=&quot;row&quot;&gt;&#xd;
+    &lt;xs:complexType&gt;&#xd;
+      &lt;xs:sequence&gt;&#xd;
+        &lt;xs:element ref=&quot;postals:city&quot;/&gt;&#xd;
+        &lt;xs:element ref=&quot;postals:prefix&quot;/&gt;&#xd;
+      &lt;/xs:sequence&gt;&#xd;
+    &lt;/xs:complexType&gt;&#xd;
+  &lt;/xs:element&gt;&#xd;
+  &lt;xs:element name=&quot;city&quot; type=&quot;xs:string&quot;/&gt;&#xd;
+  &lt;xs:element name=&quot;prefix&quot; type=&quot;xs:string&quot;/&gt;&#xd;
+&lt;/xs:schema&gt;</text>
+</com.otk.jesb.resource.builtin.XSD>

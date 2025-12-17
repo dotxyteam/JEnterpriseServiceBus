@@ -66,20 +66,22 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 		return result;
 	}
 
-	public List<VariableDeclaration> getLoopEndConditionVariableDeclarations(Plan plan) {
+	public List<VariableDeclaration> getLoopEndConditionVariableDeclarations(Solution solutionInstance, Plan plan) {
 		List<VariableDeclaration> loopEndConditionVariableDeclarations = new ArrayList<VariableDeclaration>(
-				plan.getValidationContext(this).getVariableDeclarations());
+				plan.getValidationContext(this, solutionInstance).getVariableDeclarations());
 		loopEndConditionVariableDeclarations.addAll(((LoopCompositeStep) this).getContextualVariableDeclarations());
-		for (Step descendantStep : ((LoopCompositeStep) this).getDescendantResultProducingSteps(plan)) {
-			loopEndConditionVariableDeclarations.add(new StepEventuality(descendantStep, plan));
+		for (Step descendantStep : ((LoopCompositeStep) this).getDescendantResultProducingSteps(solutionInstance,
+				plan)) {
+			loopEndConditionVariableDeclarations.add(new StepEventuality(descendantStep, plan, solutionInstance));
 		}
 		return loopEndConditionVariableDeclarations;
 	}
 
-	private List<Step> getDescendantResultProducingSteps(Plan currentPlan) {
+	private List<Step> getDescendantResultProducingSteps(Solution solutionInstance, Plan currentPlan) {
 		List<Step> result = new ArrayList<Step>();
 		for (Step descendantStep : MiscUtils.getDescendants(this, currentPlan)) {
-			if (descendantStep.getOperationBuilder().getOperationResultClass(currentPlan, descendantStep) != null) {
+			if (descendantStep.getOperationBuilder().getOperationResultClass(solutionInstance, currentPlan,
+					descendantStep) != null) {
 				result.add(descendantStep);
 			}
 		}
@@ -108,12 +110,12 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Object execute() throws Exception {
+		public Object execute(Solution solutionInstance) throws Exception {
 			LoopCompositeStep loopCompositeStep = (LoopCompositeStep) context.getCurrentStep();
 			List<Step> insideLoopSteps = loopCompositeStep.getChildren(context.getPlan());
 			currentIndex = 0;
-			Class<?> resultClass = loopCompositeStep.getOperationBuilder().getOperationResultClass(context.getPlan(),
-					loopCompositeStep);
+			Class<?> resultClass = loopCompositeStep.getOperationBuilder().getOperationResultClass(
+					context.getSession().getSolutionInstance(), context.getPlan(), loopCompositeStep);
 			List<Object>[] resultLists = (resultClass != null) ? IntStream
 					.range(0, resultClass.getDeclaredFields().length).mapToObj(ArrayList::new).toArray(List[]::new)
 					: null;
@@ -133,11 +135,13 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 			try {
 				context.getVariables().add(iterationIndexVariable);
 				for (Step descendantStep : ((LoopCompositeStep) context.getCurrentStep())
-						.getDescendantResultProducingSteps(context.getPlan())) {
-					context.getVariables().add(new StepSkipping(descendantStep, context.getPlan()));
+						.getDescendantResultProducingSteps(context.getSession().getSolutionInstance(),
+								context.getPlan())) {
+					context.getVariables().add(new StepSkipping(descendantStep, context.getPlan(), solutionInstance));
 				}
 				List<VariableDeclaration> loopEndConditionVariableDeclarations = ((LoopCompositeStep) context
-						.getCurrentStep()).getLoopEndConditionVariableDeclarations(context.getPlan());
+						.getCurrentStep()).getLoopEndConditionVariableDeclarations(
+								context.getSession().getSolutionInstance(), context.getPlan());
 				while (true) {
 					if (executionInspector.isExecutionInterrupted()) {
 						break;
@@ -200,7 +204,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 			private String iterationIndexVariableName = "iterationIndex";
 			private Function loopEndCondition = new Function("return " + iterationIndexVariableName + "==3;");
 			private Set<String> resultsCollectionTargetedStepNames = new HashSet<String>();
-			private UpToDate<Class<?>> upToDateResultClass = new UpToDateResultClass();
+			private UpToDate<Pair<Solution, Pair<Plan, Step>>, Class<?>> upToDateResultClass = new UpToDateResultClass();
 
 			public String getIterationIndexVariableName() {
 				return iterationIndexVariableName;
@@ -227,13 +231,13 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 			}
 
 			public List<ResultsCollectionConfigurationEntry> retrieveResultsCollectionConfigurationEntries(
-					Plan currentPlan, Step currentStep) {
+					Solution solutionInstance, Plan currentPlan, Step currentStep) {
 				if (resultsCollectionTargetedStepNames == null) {
 					return null;
 				} else {
 					List<ResultsCollectionConfigurationEntry> result = new ArrayList<LoopCompositeStep.LoopOperation.Builder.ResultsCollectionConfigurationEntry>();
 					for (Step descendantStep : ((LoopCompositeStep) currentStep)
-							.getDescendantResultProducingSteps(currentPlan)) {
+							.getDescendantResultProducingSteps(solutionInstance, currentPlan)) {
 						result.add(new ResultsCollectionConfigurationEntry(descendantStep, true));
 					}
 					resultsCollectionTargetedStepNames.stream()
@@ -263,9 +267,9 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 				}
 			}
 
-			private Class<?> obtainResultClass(Plan currentPlan, Step currentStep) {
+			private Class<?> obtainResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 				List<ResultsCollectionConfigurationEntry> resultsCollectionEntries = retrieveResultsCollectionConfigurationEntries(
-						currentPlan, currentStep);
+						solutionInstance, currentPlan, currentStep);
 				if (resultsCollectionEntries == null) {
 					return null;
 				}
@@ -284,27 +288,28 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 						SimpleElement element = new SimpleElement();
 						structure.getElements().add(element);
 						element.setName(resultsCollectionEntry.getStepName());
-						element.setTypeNameOrAlias(
-								resultsCollectionEntry.getOperationResultClass(currentPlan).getName());
+						element.setTypeNameOrAlias(resultsCollectionEntry
+								.getOperationResultClass(solutionInstance, currentPlan).getName());
 						element.setMultiple(true);
 					}
 				}
 				try {
-					return MiscUtils.IN_MEMORY_COMPILER.compile(resultClassName,
-							structure.generateJavaTypeSourceCode(resultClassName));
+					return solutionInstance.getRuntime().getInMemoryCompiler().compile(resultClassName,
+							structure.generateJavaTypeSourceCode(resultClassName, solutionInstance));
 				} catch (CompilationError e) {
 					throw new PotentialError(e);
 				}
 			}
 
 			@Override
-			public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+			public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+					throws ValidationError {
 				if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(iterationIndexVariableName).matches()) {
 					throw new ValidationError("Invalid iteration index variable name: '" + iterationIndexVariableName
 							+ "' (should match the following regular expression: "
 							+ MiscUtils.VARIABLE_NAME_PATTERN.pattern() + ")");
 				}
-				for (VariableDeclaration variableDeclaration : plan.getValidationContext(step)
+				for (VariableDeclaration variableDeclaration : plan.getValidationContext(step, solutionInstance)
 						.getVariableDeclarations()) {
 					if (variableDeclaration.getVariableName().equals(iterationIndexVariableName)) {
 						throw new ValidationError(
@@ -312,7 +317,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					}
 				}
 				List<ResultsCollectionConfigurationEntry> resultsCollectionEntries = retrieveResultsCollectionConfigurationEntries(
-						plan, step);
+						solutionInstance, plan, step);
 				if (resultsCollectionEntries != null) {
 					List<ResultsCollectionConfigurationEntry> invalidEntries = resultsCollectionEntries.stream()
 							.filter(entry -> !entry.isValid()).collect(Collectors.toList());
@@ -324,7 +329,8 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 				}
 				try {
 					loopEndCondition.getCompiledVersion(null,
-							((LoopCompositeStep) step).getLoopEndConditionVariableDeclarations(plan), boolean.class);
+							((LoopCompositeStep) step).getLoopEndConditionVariableDeclarations(solutionInstance, plan),
+							boolean.class);
 				} catch (CompilationError e) {
 					throw new ValidationError("Failed to validate the loop end condition", e);
 				}
@@ -338,10 +344,10 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 			}
 
 			@Override
-			public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
-				upToDateResultClass.setCustomValue(new Pair<Plan, Step>(currentPlan, currentStep));
+			public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 				try {
-					return upToDateResultClass.get();
+					return upToDateResultClass.get(new Pair<Solution, Pair<Plan, Step>>(solutionInstance,
+							new Pair<Plan, Step>(currentPlan, currentStep)));
 				} catch (VersionAccessException e) {
 					throw new PotentialError(e);
 				}
@@ -367,11 +373,12 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 					return targetedStep.getName();
 				}
 
-				public Class<?> getOperationResultClass(Plan currentPlan) {
+				public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan) {
 					if (targetedStep == null) {
 						return null;
 					}
-					return targetedStep.getOperationBuilder().getOperationResultClass(currentPlan, targetedStep);
+					return targetedStep.getOperationBuilder().getOperationResultClass(solutionInstance, currentPlan,
+							targetedStep);
 				}
 
 				public boolean isValid() {
@@ -544,29 +551,27 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 
 			}
 
-			private class UpToDateResultClass extends UpToDate<Class<?>> {
+			private class UpToDateResultClass extends UpToDate<Pair<Solution, Pair<Plan, Step>>, Class<?>> {
 
 				@Override
-				protected Object retrieveLastVersionIdentifier() {
-					@SuppressWarnings("unchecked")
-					Pair<Plan, Step> pair = (Pair<Plan, Step>) getCustomValue();
-					Plan currentPlan = pair.getFirst();
-					Step currentStep = pair.getSecond();
+				protected Object retrieveLastVersionIdentifier(Pair<Solution, Pair<Plan, Step>> context) {
+					Solution solutionInstance = context.getFirst();
+					Plan currentPlan = context.getSecond().getFirst();
+					Step currentStep = context.getSecond().getSecond();
 					List<ResultsCollectionConfigurationEntry> resultsCollectionConfigurationEntries = retrieveResultsCollectionConfigurationEntries(
-							currentPlan, currentStep);
+							solutionInstance, currentPlan, currentStep);
 					return resultsCollectionConfigurationEntries.stream()
 							.filter(entry -> entry.isValid() && entry.isResultsCollectionEnabled())
-							.map(targetedStep -> targetedStep.getOperationResultClass(currentPlan))
+							.map(targetedStep -> targetedStep.getOperationResultClass(solutionInstance, currentPlan))
 							.collect(Collectors.toList());
 				}
 
 				@Override
-				protected Class<?> obtainLatest(Object versionIdentifier) {
-					@SuppressWarnings("unchecked")
-					Pair<Plan, Step> pair = (Pair<Plan, Step>) getCustomValue();
-					Plan currentPlan = pair.getFirst();
-					Step currentStep = pair.getSecond();
-					return obtainResultClass(currentPlan, currentStep);
+				protected Class<?> obtainLatest(Pair<Solution, Pair<Plan, Step>> context, Object versionIdentifier) {
+					Solution solutionInstance = context.getFirst();
+					Plan currentPlan = context.getSecond().getFirst();
+					Step currentStep = context.getSecond().getSecond();
+					return obtainResultClass(solutionInstance, currentPlan, currentStep);
 				}
 
 			}

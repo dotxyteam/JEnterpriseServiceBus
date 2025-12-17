@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
-import com.otk.jesb.compiler.InMemoryCompiler;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.solution.Solution;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
@@ -18,7 +18,6 @@ import xy.reflect.ui.info.type.iterable.IListTypeInfo;
 
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
-import com.otk.jesb.util.MiscUtils;
 
 /**
  * Allows you to specify and execute the creation (instantiation) and simple
@@ -41,7 +40,7 @@ import com.otk.jesb.util.MiscUtils;
 public class InstanceBuilder extends InitializationCase {
 
 	private String typeName;
-	private Accessor<String> dynamicTypeNameAccessor;
+	private Accessor<Solution, String> dynamicTypeNameAccessor;
 	private String selectedConstructorSignature;
 
 	/**
@@ -64,7 +63,7 @@ public class InstanceBuilder extends InitializationCase {
 	 * 
 	 * @param dynamicTypeNameAccessor The accessor of created objects class name.
 	 */
-	public InstanceBuilder(Accessor<String> dynamicTypeNameAccessor) {
+	public InstanceBuilder(Accessor<Solution, String> dynamicTypeNameAccessor) {
 		setDynamicTypeNameAccessor(dynamicTypeNameAccessor);
 	}
 
@@ -91,31 +90,12 @@ public class InstanceBuilder extends InitializationCase {
 			throw new UnexpectedError();
 		}
 		this.typeName = typeName;
-		if (typeName != null) {
-			if (!"<Dynamic>".equals(typeName)) {
-				if (!typeName.contains(InstantiationUtils.RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE)) {
-					Class<?> clazz;
-					try {
-						clazz = MiscUtils.getJESBClass(typeName);
-					} catch (Throwable t) {
-						return;
-					}
-					if (clazz.getClassLoader() != null) {
-						if (clazz.getClassLoader().getClass().getName().startsWith(InMemoryCompiler.class.getName())) {
-							throw new UnexpectedError(
-									"An instance builder static and absolute type name should not reference a dynamically generated class ("
-											+ clazz.getName() + ")");
-						}
-					}
-				}
-			}
-		}
 	}
 
 	/**
 	 * @return The accessor of created objects class name.
 	 */
-	public Accessor<String> getDynamicTypeNameAccessor() {
+	public Accessor<Solution, String> getDynamicTypeNameAccessor() {
 		return dynamicTypeNameAccessor;
 	}
 
@@ -125,7 +105,7 @@ public class InstanceBuilder extends InitializationCase {
 	 * @param dynamicTypeNameAccessor The new accessor of created objects class
 	 *                                name.
 	 */
-	public void setDynamicTypeNameAccessor(Accessor<String> dynamicTypeNameAccessor) {
+	public void setDynamicTypeNameAccessor(Accessor<Solution, String> dynamicTypeNameAccessor) {
 		this.dynamicTypeNameAccessor = dynamicTypeNameAccessor;
 		if (dynamicTypeNameAccessor != null) {
 			this.typeName = null;
@@ -134,21 +114,22 @@ public class InstanceBuilder extends InitializationCase {
 
 	/**
 	 * @param ancestorStructureInstanceBuilders The ancestor {@link InstanceBuilder}
-	 *                                          instances.
+	 * @param solutionInstance                  The current solution. instances.
 	 * @return The created objects class name with any variable resolved using the
 	 *         given ancestor {@link InstanceBuilder} instances.
 	 */
-	public String computeActualTypeName(List<InstanceBuilder> ancestorStructureInstanceBuilders) {
+	public String computeActualTypeName(List<InstanceBuilder> ancestorStructureInstanceBuilders,
+			Solution solutionInstance) {
 		String result;
 		if (dynamicTypeNameAccessor != null) {
-			result = dynamicTypeNameAccessor.get();
+			result = dynamicTypeNameAccessor.get(solutionInstance);
 		} else {
 			result = typeName;
 		}
 		if (result == null) {
 			result = NullInstance.class.getName();
 		}
-		result = InstantiationUtils.makeTypeNamesAbsolute(result, ancestorStructureInstanceBuilders);
+		result = InstantiationUtils.makeTypeNamesAbsolute(result, ancestorStructureInstanceBuilders, solutionInstance);
 		return result;
 	}
 
@@ -178,13 +159,14 @@ public class InstanceBuilder extends InitializationCase {
 	 *                   fails.
 	 */
 	public Object build(InstantiationContext context) throws Exception {
+		Solution solutionInstance = context.getSolutionInstance();
 		InstanceBuilderFacade instanceBuilderFacade = (InstanceBuilderFacade) Facade.get(this,
-				context.getParentFacade());
-		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo();
+				context.getParentFacade(), solutionInstance);
+		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo(solutionInstance);
 		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			String actualTypeName = computeActualTypeName(
-					InstantiationUtils.getAncestorInstanceBuilders(context.getParentFacade()));
+					InstantiationUtils.getAncestorInstanceBuilders(context.getParentFacade()), solutionInstance);
 			if (selectedConstructorSignature == null) {
 				throw new PotentialError("Cannot create '" + actualTypeName + "' instance: No constructor available");
 			} else {
@@ -231,13 +213,13 @@ public class InstanceBuilder extends InitializationCase {
 				if (itemReplicationFacade != null) {
 					Object iterationListValue = InstantiationUtils.interpretValue(
 							itemReplicationFacade.getIterationListValue(),
-							TypeInfoProvider.getTypeInfo(Object.class.getName()),
+							TypeInfoProvider.getTypeInfo(Object.class.getName(), solutionInstance),
 							new InstantiationContext(context, listItemInitializerFacade));
 					if (iterationListValue == null) {
 						throw new UnexpectedError("Cannot replicate item: Iteration list value is null");
 					}
 					ITypeInfo actualIterationListType = TypeInfoProvider
-							.getTypeInfo(iterationListValue.getClass().getName());
+							.getTypeInfo(iterationListValue.getClass().getName(), solutionInstance);
 					if (!(actualIterationListType instanceof IListTypeInfo)) {
 						throw new UnexpectedError("Cannot replicate item: Iteration list value is not iterable: '"
 								+ iterationListValue + "'");
@@ -258,7 +240,7 @@ public class InstanceBuilder extends InitializationCase {
 						Object itemValue = InstantiationUtils.interpretValue(
 								listItemInitializerFacade.getUnderlying().getItemValue(),
 								(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
-										: TypeInfoProvider.getTypeInfo(Object.class.getName()),
+										: TypeInfoProvider.getTypeInfo(Object.class.getName(), solutionInstance),
 								new InstantiationContext(new InstantiationContext(context, listItemInitializerFacade),
 										iterationVariable));
 						itemList.add(itemValue);
@@ -267,7 +249,7 @@ public class InstanceBuilder extends InitializationCase {
 					Object itemValue = InstantiationUtils.interpretValue(
 							listItemInitializerFacade.getUnderlying().getItemValue(),
 							(listTypeInfo.getItemType() != null) ? listTypeInfo.getItemType()
-									: TypeInfoProvider.getTypeInfo(Object.class.getName()),
+									: TypeInfoProvider.getTypeInfo(Object.class.getName(), solutionInstance),
 							new InstantiationContext(context, listItemInitializerFacade));
 					itemList.add(itemValue);
 				}

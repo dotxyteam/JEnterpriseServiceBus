@@ -28,6 +28,7 @@ import com.otk.jesb.resource.builtin.WSDL.OperationDescriptor.OperationInput;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.MiscUtils;
 import xy.reflect.ui.info.ResourcePath;
@@ -82,7 +83,7 @@ public class CallSOAPWebService implements Operation {
 	}
 
 	@Override
-	public Object execute() throws Exception {
+	public Object execute(Solution solutionInstance) throws Exception {
 		File wsdlFile = MiscUtils.createTemporaryFile("wsdl");
 		try {
 			MiscUtils.write(wsdlFile, wsdl.getText(), false);
@@ -102,8 +103,8 @@ public class CallSOAPWebService implements Operation {
 		} catch (InvocationTargetException e) {
 			if (e.getTargetException() instanceof Exception) {
 				if (e.getTargetException().getClass().getAnnotation(WebFault.class) != null) {
-					throw new WSDL.ResponseException(
-							wsdl.faultExceptionToDescription((Exception) e.getTargetException(), operationMethod));
+					throw new WSDL.ResponseException(wsdl.faultExceptionToDescription(
+							(Exception) e.getTargetException(), operationMethod, solutionInstance));
 				} else {
 					throw (Exception) e.getTargetException();
 				}
@@ -149,44 +150,44 @@ public class CallSOAPWebService implements Operation {
 		private String operationSignature;
 		private Variant<String> customServiceEndpointURLVariant = new Variant<String>(String.class);
 
-		private WSDL getWSDL() {
-			return wsdlReference.resolve();
+		private WSDL getWSDL(Solution solutionInstance) {
+			return wsdlReference.resolve(solutionInstance);
 		}
 
 		public Reference<WSDL> getWsdlReference() {
 			return wsdlReference;
 		}
 
-		public void setWsdlReference(Reference<WSDL> wsdlReference) {
+		public void setWsdlReference(Reference<WSDL> wsdlReference, Solution solutionInstance) {
 			this.wsdlReference = wsdlReference;
-			tryToSelectValuesAutomatically();
+			tryToSelectValuesAutomatically(solutionInstance);
 		}
 
 		public String getServiceName() {
 			return serviceName;
 		}
 
-		public void setServiceName(String serviceName) {
+		public void setServiceName(String serviceName, Solution solutionInstance) {
 			this.serviceName = serviceName;
-			tryToSelectValuesAutomatically();
+			tryToSelectValuesAutomatically(solutionInstance);
 		}
 
 		public String getPortName() {
 			return portName;
 		}
 
-		public void setPortName(String portName) {
+		public void setPortName(String portName, Solution solutionInstance) {
 			this.portName = portName;
-			tryToSelectValuesAutomatically();
+			tryToSelectValuesAutomatically(solutionInstance);
 		}
 
 		public String getOperationSignature() {
 			return operationSignature;
 		}
 
-		public void setOperationSignature(String operationSignature) {
+		public void setOperationSignature(String operationSignature, Solution solutionInstance) {
 			this.operationSignature = operationSignature;
-			tryToSelectValuesAutomatically();
+			tryToSelectValuesAutomatically(solutionInstance);
 		}
 
 		public RootInstanceBuilder getOperationInputBuilder() {
@@ -205,19 +206,20 @@ public class CallSOAPWebService implements Operation {
 			this.customServiceEndpointURLVariant = customServiceEndpointURLVariant;
 		}
 
-		private void tryToSelectValuesAutomatically() {
+		private void tryToSelectValuesAutomatically(Solution solutionInstance) {
 			try {
 				if (serviceName == null) {
-					WSDL wsdl = getWSDL();
+					WSDL wsdl = getWSDL(solutionInstance);
 					if (wsdl != null) {
-						List<WSDL.ServiceClientDescriptor> services = wsdl.getServiceClientDescriptors();
+						List<WSDL.ServiceClientDescriptor> services = wsdl
+								.getServiceClientDescriptors(solutionInstance);
 						if (services.size() > 0) {
 							serviceName = services.get(0).getServiceName();
 						}
 					}
 				}
 				if (portName == null) {
-					WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor();
+					WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor(solutionInstance);
 					if (service != null) {
 						List<WSDL.PortDescriptor> ports = service.getPortDescriptors();
 						if (ports.size() > 0) {
@@ -226,7 +228,7 @@ public class CallSOAPWebService implements Operation {
 					}
 				}
 				if (operationSignature == null) {
-					WSDL.PortDescriptor port = retrievePortDescriptor();
+					WSDL.PortDescriptor port = retrievePortDescriptor(solutionInstance);
 					if (port != null) {
 						List<WSDL.OperationDescriptor> operations = port.getOperationDescriptors();
 						if (operations.size() > 0) {
@@ -238,25 +240,25 @@ public class CallSOAPWebService implements Operation {
 			}
 		}
 
-		public List<String> getServiceNameOptions() {
-			WSDL wsdl = getWSDL();
+		public List<String> getServiceNameOptions(Solution solutionInstance) {
+			WSDL wsdl = getWSDL(solutionInstance);
 			if (wsdl == null) {
 				return Collections.emptyList();
 			}
-			return wsdl.getServiceClientDescriptors().stream().map(s -> s.getServiceName())
+			return wsdl.getServiceClientDescriptors(solutionInstance).stream().map(s -> s.getServiceName())
 					.collect(Collectors.toList());
 		}
 
-		public List<String> getPortNameOptions() {
-			WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor();
+		public List<String> getPortNameOptions(Solution solutionInstance) {
+			WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor(solutionInstance);
 			if (service == null) {
 				return Collections.emptyList();
 			}
 			return service.getPortDescriptors().stream().map(p -> p.getPortName()).collect(Collectors.toList());
 		}
 
-		public List<String> getOperationSignatureOptions() {
-			WSDL.PortDescriptor port = retrievePortDescriptor();
+		public List<String> getOperationSignatureOptions(Solution solutionInstance) {
+			WSDL.PortDescriptor port = retrievePortDescriptor(solutionInstance);
 			if (port == null) {
 				return Collections.emptyList();
 			}
@@ -267,45 +269,48 @@ public class CallSOAPWebService implements Operation {
 		@Override
 		public CallSOAPWebService build(ExecutionContext context, ExecutionInspector executionInspector)
 				throws Exception {
-			WSDL wsdl = getWSDL();
-			Class<?> serviceClass = retrieveServiceClientDescriptor().retrieveClass();
-			Class<?> portInterface = retrievePortDescriptor().retrieveInterface();
-			Method operationMethod = retrieveOperationDescriptor().retrieveMethod();
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			WSDL wsdl = getWSDL(solutionInstance);
+			Class<?> serviceClass = retrieveServiceClientDescriptor(solutionInstance).retrieveClass();
+			Class<?> portInterface = retrievePortDescriptor(solutionInstance).retrieveInterface();
+			Method operationMethod = retrieveOperationDescriptor(solutionInstance).retrieveMethod();
 			OperationInput operationInput = (OperationInput) operationInputBuilder.build(new InstantiationContext(
-					context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-			Class<?> operationOutputClass = retrieveOperationDescriptor().getOperationOutputClass();
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance));
+			Class<?> operationOutputClass = retrieveOperationDescriptor(solutionInstance)
+					.getOperationOutputClass();
 			return new CallSOAPWebService(wsdl, serviceClass, portInterface, operationMethod, operationInput,
-					customServiceEndpointURLVariant.getValue(), operationOutputClass);
+					customServiceEndpointURLVariant.getValue(solutionInstance), operationOutputClass);
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
-			WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
+			WSDL.OperationDescriptor operation = retrieveOperationDescriptor(solutionInstance);
 			if (operation == null) {
 				return null;
 			}
 			return operation.getOperationOutputClass();
 		}
 
-		private WSDL.ServiceClientDescriptor retrieveServiceClientDescriptor() {
-			WSDL wsdl = getWSDL();
+		private WSDL.ServiceClientDescriptor retrieveServiceClientDescriptor(Solution solutionInstance) {
+			WSDL wsdl = getWSDL(solutionInstance);
 			if (wsdl == null) {
 				return null;
 			}
-			return wsdl.getServiceClientDescriptor(serviceName);
+			return wsdl.getServiceClientDescriptor(serviceName, solutionInstance);
 		}
 
-		private WSDL.PortDescriptor retrievePortDescriptor() {
-			WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor();
+		private WSDL.PortDescriptor retrievePortDescriptor(Solution solutionInstance) {
+			WSDL.ServiceClientDescriptor service = retrieveServiceClientDescriptor(solutionInstance);
 			if (service == null) {
 				return null;
 			}
 			return service.getPortDescriptor(portName);
 		}
 
-		private WSDL.OperationDescriptor retrieveOperationDescriptor() {
-			WSDL.PortDescriptor port = retrievePortDescriptor();
+		private WSDL.OperationDescriptor retrieveOperationDescriptor(Solution solutionInstance) {
+			WSDL.PortDescriptor port = retrievePortDescriptor(solutionInstance);
 			if (port == null) {
 				return null;
 			}
@@ -313,20 +318,21 @@ public class CallSOAPWebService implements Operation {
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
-			if (getWSDL() == null) {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
+			if (getWSDL(solutionInstance) == null) {
 				throw new ValidationError("Failed to resolve the WSDL reference");
 			}
-			if (retrieveServiceClientDescriptor() == null) {
+			if (retrieveServiceClientDescriptor(solutionInstance) == null) {
 				throw new ValidationError("Invalid service name '" + serviceName + "'");
 			}
-			if (retrievePortDescriptor() == null) {
+			if (retrievePortDescriptor(solutionInstance) == null) {
 				throw new ValidationError("Invalid port name '" + portName + "'");
 			}
-			if (retrieveOperationDescriptor() == null) {
+			if (retrieveOperationDescriptor(solutionInstance) == null) {
 				throw new ValidationError("Invalid operation signature '" + operationSignature + "'");
 			}
-			String customServiceEndpointURL = customServiceEndpointURLVariant.getValue();
+			String customServiceEndpointURL = customServiceEndpointURLVariant.getValue(solutionInstance);
 			if (customServiceEndpointURL != null) {
 				try {
 					new URL(customServiceEndpointURL);
@@ -335,15 +341,15 @@ public class CallSOAPWebService implements Operation {
 				}
 			}
 			if (recursively) {
-				operationInputBuilder.getFacade().validate(recursively,
-						plan.getValidationContext(step).getVariableDeclarations());
+				operationInputBuilder.getFacade(solutionInstance).validate(recursively,
+						plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 			}
 		}
 
-		private class OperationInputClassNameAccessor extends Accessor<String> {
+		private class OperationInputClassNameAccessor extends Accessor<Solution, String> {
 			@Override
-			public String get() {
-				WSDL.OperationDescriptor operation = retrieveOperationDescriptor();
+			public String get(Solution solutionInstance) {
+				WSDL.OperationDescriptor operation = retrieveOperationDescriptor(solutionInstance);
 				if (operation == null) {
 					return null;
 				}

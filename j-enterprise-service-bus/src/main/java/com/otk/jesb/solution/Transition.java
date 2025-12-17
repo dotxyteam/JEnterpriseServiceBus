@@ -12,7 +12,6 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
-import com.otk.jesb.util.MiscUtils;
 
 /**
  * This class represents the arcs that connect {@link Step} instances in a
@@ -61,7 +60,7 @@ public class Transition extends PlanElement {
 	}
 
 	@Override
-	public void validate(boolean recursively, Plan plan) throws ValidationError {
+	public void validate(boolean recursively, Solution solutionInstance, Plan plan) throws ValidationError {
 		for (Transition otherTransition : plan.getTransitions()) {
 			if (otherTransition == this) {
 				continue;
@@ -75,7 +74,8 @@ public class Transition extends PlanElement {
 		if (recursively) {
 			if (condition != null) {
 				try {
-					condition.validate(plan.getTransitionContextVariableDeclarations(this));
+					condition.validate(plan.getTransitionContextVariableDeclarations(this, solutionInstance),
+							solutionInstance);
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to valide condition", e);
 				}
@@ -88,11 +88,12 @@ public class Transition extends PlanElement {
 		return getStartStep().getName() + " => " + getEndStep().getName();
 	}
 
-	public List<VariableDeclaration> getVariableDeclarations() {
+	public List<VariableDeclaration> getVariableDeclarations(Solution solutionInstance) {
 		List<VariableDeclaration> result = new ArrayList<VariableDeclaration>();
 		if (condition instanceof ExceptionCondition) {
 			ExceptionCondition exceptionCondition = (ExceptionCondition) condition;
-			VariableDeclaration exceptionVariableDeclaration = exceptionCondition.getExceptionVariableDeclaration();
+			VariableDeclaration exceptionVariableDeclaration = exceptionCondition
+					.getExceptionVariableDeclaration(solutionInstance);
 			if (exceptionVariableDeclaration != null) {
 				result.add(exceptionVariableDeclaration);
 			}
@@ -102,14 +103,15 @@ public class Transition extends PlanElement {
 
 	public static List<Transition> computeValidTranstions(List<Transition> transitions,
 			Plan.ExecutionError executionError, Plan.ExecutionContext context) throws FunctionCallError {
+		Solution solutionInstance = context.getSession().getSolutionInstance();
 		List<Transition> result = new ArrayList<Transition>();
 		List<Transition> elseTransitions = new ArrayList<Transition>();
 		for (Transition transition : transitions) {
 			if (transition.getCondition() != null) {
 				if (transition.getCondition() instanceof IfCondition) {
 					if (executionError == null) {
-						if (((IfCondition) transition.getCondition()).isFulfilled(
-								context.getPlan().getTransitionContextVariableDeclarations(transition),
+						if (((IfCondition) transition.getCondition()).isFulfilled(context.getPlan()
+								.getTransitionContextVariableDeclarations(transition, solutionInstance),
 								context.getVariables())) {
 							result.add(transition);
 						}
@@ -121,7 +123,7 @@ public class Transition extends PlanElement {
 				} else if (transition.getCondition() instanceof ExceptionCondition) {
 					ExceptionCondition exceptionCondition = (ExceptionCondition) transition.getCondition();
 					if (executionError != null) {
-						if (exceptionCondition.isFullfilled(executionError.getCause())) {
+						if (exceptionCondition.isFullfilled(executionError.getCause(), solutionInstance)) {
 							result.add(transition);
 						}
 					}
@@ -161,7 +163,7 @@ public class Transition extends PlanElement {
 
 	public static interface Condition {
 
-		void validate(List<VariableDeclaration> variableDeclarations) throws ValidationError;
+		void validate(List<VariableDeclaration> variableDeclarations, Solution solutionInstance) throws ValidationError;
 
 	}
 
@@ -187,7 +189,8 @@ public class Transition extends PlanElement {
 		}
 
 		@Override
-		public void validate(List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		public void validate(List<VariableDeclaration> variableDeclarations, Solution solutionInstance)
+				throws ValidationError {
 			try {
 				getCompiledVersion(null, variableDeclarations, boolean.class);
 			} catch (CompilationError e) {
@@ -204,7 +207,8 @@ public class Transition extends PlanElement {
 		}
 
 		@Override
-		public void validate(List<VariableDeclaration> variableDeclarations) throws ValidationError {
+		public void validate(List<VariableDeclaration> variableDeclarations, Solution solutionInstance)
+				throws ValidationError {
 		}
 	}
 
@@ -228,14 +232,14 @@ public class Transition extends PlanElement {
 			this.exceptionVariableName = exceptionVariableName;
 		}
 
-		public VariableDeclaration getExceptionVariableDeclaration() {
+		public VariableDeclaration getExceptionVariableDeclaration(Solution solutionInstance) {
 			if (exceptionVariableName == null) {
 				return null;
 			}
 			return new VariableDeclaration() {
 				@Override
 				public Class<?> getVariableType() {
-					return MiscUtils.getJESBClass(exceptionTypeName);
+					return solutionInstance.getRuntime().getJESBClass(exceptionTypeName);
 				}
 
 				@Override
@@ -263,10 +267,10 @@ public class Transition extends PlanElement {
 			};
 		}
 
-		public boolean isFullfilled(Throwable thrown) {
+		public boolean isFullfilled(Throwable thrown, Solution solutionInstance) {
 			Class<?> exceptionClass;
 			try {
-				exceptionClass = MiscUtils.getJESBClass(exceptionTypeName);
+				exceptionClass = solutionInstance.getRuntime().getJESBClass(exceptionTypeName);
 			} catch (Throwable t) {
 				throw new PotentialError(t);
 			}
@@ -274,8 +278,9 @@ public class Transition extends PlanElement {
 		}
 
 		@Override
-		public void validate(List<VariableDeclaration> variableDeclarations) throws ValidationError {
-			MiscUtils.getJESBClass(exceptionTypeName);
+		public void validate(List<VariableDeclaration> variableDeclarations, Solution solutionInstance)
+				throws ValidationError {
+			solutionInstance.getRuntime().getJESBClass(exceptionTypeName);
 		}
 
 		@Override

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.meta.Date;
 import com.otk.jesb.meta.DateTime;
+import com.otk.jesb.solution.Solution;
 
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
@@ -75,12 +76,14 @@ public class Variant<T> {
 		this.variable = variable;
 	}
 
-	public T getValue() {
+	public T getValue(Solution solutionInstance) {
 		if (variable) {
 			requireExpression();
 			String valueString = expression.evaluate(
-					Collections.singletonList(EnvironmentSettings.ROOT_VALUE_DECLARATION),
-					Collections.singletonList(EnvironmentSettings.ROOT_VARIABLE_ROOT));
+					Collections.singletonList(
+							solutionInstance.getEnvironmentSettings().getRootVariableDeclaration(solutionInstance)),
+					Collections.singletonList(
+							solutionInstance.getEnvironmentSettings().getRootVariable(solutionInstance)));
 			if (valueString == null) {
 				if (valueClass.isPrimitive()) {
 					throw new PotentialError("Unexpected <null> environment variable value. <" + valueClass.getName()
@@ -115,10 +118,12 @@ public class Variant<T> {
 		}
 	}
 
-	public List<Expression<String>> getVariableReferenceExpressionOptions() {
+	public List<Expression<String>> getVariableReferenceExpressionOptions(Solution solutionInstance) {
 		List<Expression<String>> result = new ArrayList<Expression<String>>();
 		PathOptionsProvider pathOptionsProvider = new PathOptionsProvider(
-				Collections.singletonList(EnvironmentSettings.ROOT_VALUE_DECLARATION));
+				Collections.singletonList(
+						solutionInstance.getEnvironmentSettings().getRootVariableDeclaration(solutionInstance)),
+				solutionInstance);
 		result.addAll(getVariableReferenceExpressionOptions(pathOptionsProvider.getRootPathNodes()));
 		return result;
 	}
@@ -142,10 +147,10 @@ public class Variant<T> {
 		}
 	}
 
-	public void validate() throws ValidationError {
+	public void validate(Solution solutionInstance) throws ValidationError {
 		if (variable) {
 			try {
-				getValue();
+				getValue(solutionInstance);
 			} catch (Exception e) {
 				throw new ValidationError(e.toString());
 			}

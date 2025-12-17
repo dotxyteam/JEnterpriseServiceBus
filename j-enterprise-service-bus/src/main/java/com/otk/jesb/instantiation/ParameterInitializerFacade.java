@@ -5,6 +5,7 @@ import java.util.List;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
 
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -17,8 +18,8 @@ public class ParameterInitializerFacade extends InitializerFacade {
 	private int parameterPosition;
 	private IParameterInfo parameterInfo;
 
-	public ParameterInitializerFacade(Facade parent, int parameterPosition) {
-		super(parent);
+	public ParameterInitializerFacade(Facade parent, int parameterPosition, Solution solutionInstance) {
+		super(parent, solutionInstance);
 		this.parameterPosition = parameterPosition;
 	}
 
@@ -55,7 +56,7 @@ public class ParameterInitializerFacade extends InitializerFacade {
 			throw new ValidationError("Parameter value specification required");
 		}
 		InstantiationUtils.validateValue(getUnderlying().getParameterValue(), getParameterInfo().getType(), this,
-				"parameter value", recursively, variableDeclarations);
+				"parameter value", recursively, variableDeclarations, solutionInstance);
 	}
 
 	@Override
@@ -75,7 +76,7 @@ public class ParameterInitializerFacade extends InitializerFacade {
 
 	public IParameterInfo getParameterInfo() {
 		if (parameterInfo == null) {
-			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
+			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo(solutionInstance);
 			IMethodInfo constructor = InstantiationUtils.getConstructorInfo(parentTypeInfo,
 					getCurrentInstanceBuilderFacade().getSelectedConstructorSignature());
 			if (constructor == null) {

@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-import com.otk.jesb.EnvironmentSettings;
 import com.otk.jesb.Reference;
 import com.otk.jesb.Session;
 import com.otk.jesb.StandardError;
@@ -40,13 +39,6 @@ public class Plan extends Asset {
 
 	public static final String INPUT_VARIABLE_NAME = "PLAN_INPUT";
 
-	public Plan() {
-	}
-
-	public Plan(String name) {
-		super(name);
-	}
-
 	private Activator activator = new LaunchAtStartup();
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
@@ -54,6 +46,14 @@ public class Plan extends Asset {
 	private transient PlanElement focusedElementSelectedSurrounding;
 	private RootInstanceBuilder outputBuilder = new RootInstanceBuilder(Plan.class.getSimpleName() + "Output",
 			new OutputClassNameAccessor());
+
+	public Plan() {
+		super();
+	}
+
+	public Plan(String name) {
+		super(name);
+	}
 
 	public Activator getActivator() {
 		return activator;
@@ -71,12 +71,12 @@ public class Plan extends Asset {
 		this.outputBuilder = outputBuilder;
 	}
 
-	public boolean isInputEnabled() {
-		return activator.getInputClass() != null;
+	public boolean isInputEnabled(Solution solutionInstance) {
+		return activator.getInputClass(solutionInstance) != null;
 	}
 
-	public boolean isOutputEnabled() {
-		return activator.getOutputClass() != null;
+	public boolean isOutputEnabled(Solution solutionInstance) {
+		return activator.getOutputClass(solutionInstance) != null;
 	}
 
 	public List<Step> getSteps() {
@@ -206,11 +206,12 @@ public class Plan extends Asset {
 
 	public Object execute(final Object input, ExecutionInspector executionInspector, ExecutionContext context)
 			throws ExecutionError {
+		Solution solutionInstance = context.getSession().getSolutionInstance();
 		try {
-			if (!Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {
-				context.getVariables().add(EnvironmentSettings.ROOT_VARIABLE_ROOT);
+			if (!solutionInstance.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {
+				context.getVariables().add(solutionInstance.getEnvironmentSettings().getRootVariable(solutionInstance));
 			}
-			Class<?> inputClass = activator.getInputClass();
+			Class<?> inputClass = activator.getInputClass(solutionInstance);
 			if (inputClass != null) {
 				if (input != null) {
 					if (!inputClass.isInstance(input)) {
@@ -236,9 +237,10 @@ public class Plan extends Asset {
 				return null;
 			}
 			return outputBuilder.build(new InstantiationContext(context.getVariables(),
-					getValidationContext(null).getVariableDeclarations()));
+					getValidationContext(null, solutionInstance).getVariableDeclarations(), solutionInstance));
 		} catch (Throwable t) {
-			throw new ExecutionError("Failed to execute plan (" + Reference.get(this).getPath() + ")", t);
+			throw new ExecutionError("Failed to execute plan (" + Reference.get(this, solutionInstance).getPath() + ")",
+					t);
 		}
 	}
 
@@ -394,8 +396,9 @@ public class Plan extends Asset {
 
 	private StepOccurrence execute(Step step, List<Transition> outgoingTransitions, boolean executionBranchValid,
 			ExecutionContext context, ExecutionInspector executionInspector) throws ExecutionError {
+		Solution solutionInstance = context.getSession().getSolutionInstance();
 		if (executionBranchValid) {
-			StepCrossing stepCrossing = new StepCrossing(step, this);
+			StepCrossing stepCrossing = new StepCrossing(step, this, solutionInstance);
 			ExecutionError executionError;
 			try {
 				try {
@@ -439,16 +442,19 @@ public class Plan extends Asset {
 			}
 			return stepCrossing;
 		} else {
-			StepSkipping stepSkipping = new StepSkipping(step, this);
+			StepSkipping stepSkipping = new StepSkipping(step, this, solutionInstance);
 			context.getVariables().add(stepSkipping);
 			stepSkipping.capturePostVariables(context.getVariables());
 			return stepSkipping;
 		}
 	}
 
-	public List<VariableDeclaration> getTransitionContextVariableDeclarations(Transition transition) {
-		List<VariableDeclaration> result = getValidationContext(transition.getStartStep()).getVariableDeclarations();
-		VariableDeclaration startStepVariableDeclaration = getResultVariableDeclaration(transition.getStartStep());
+	public List<VariableDeclaration> getTransitionContextVariableDeclarations(Transition transition,
+			Solution solutionInstance) {
+		List<VariableDeclaration> result = getValidationContext(transition.getStartStep(), solutionInstance)
+				.getVariableDeclarations();
+		VariableDeclaration startStepVariableDeclaration = getResultVariableDeclaration(transition.getStartStep(),
+				solutionInstance);
 		if (startStepVariableDeclaration != null) {
 			result = new ArrayList<VariableDeclaration>(result);
 			result.add(startStepVariableDeclaration);
@@ -458,6 +464,7 @@ public class Plan extends Asset {
 
 	private void execute(StepCrossing stepCrossing, ExecutionContext context, ExecutionInspector executionInspector)
 			throws ExecutionError {
+		Solution solutionInstance = context.getSession().getSolutionInstance();
 		Step step = stepCrossing.getStep();
 		context.setCutrrentStep(step);
 		executionInspector.beforeOperation(stepCrossing);
@@ -465,7 +472,7 @@ public class Plan extends Asset {
 			OperationBuilder<?> operationBuilder = step.getOperationBuilder();
 			Operation operation = operationBuilder.build(context, executionInspector);
 			stepCrossing.setOperation(operation);
-			stepCrossing.setOperationResult(operation.execute());
+			stepCrossing.setOperationResult(operation.execute(solutionInstance));
 		} catch (Throwable t) {
 			stepCrossing.setOperationError(t);
 			throw new ExecutionError("An error occured at step '" + step.getName() + "'", t);
@@ -475,19 +482,20 @@ public class Plan extends Asset {
 		context.setCutrrentStep(null);
 	}
 
-	public ValidationContext getValidationContext(Step currentStep) {
+	public ValidationContext getValidationContext(Step currentStep, Solution solutionInstance) {
 		ValidationContext result;
 		if ((currentStep != null) && (currentStep.getParent() != null)) {
-			result = getValidationContext(currentStep.getParent());
+			result = getValidationContext(currentStep.getParent(), solutionInstance);
 			for (VariableDeclaration declaration : currentStep.getParent().getContextualVariableDeclarations()) {
 				result = new ValidationContext(result, declaration);
 			}
 		} else {
 			result = new ValidationContext(this, currentStep);
-			if (!Solution.INSTANCE.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {
-				result.getVariableDeclarations().add(EnvironmentSettings.ROOT_VALUE_DECLARATION);
+			if (!solutionInstance.getEnvironmentSettings().getEnvironmentVariableTreeElements().isEmpty()) {
+				result.getVariableDeclarations()
+						.add(solutionInstance.getEnvironmentSettings().getRootVariableDeclaration(solutionInstance));
 			}
-			Class<?> inputClass = activator.getInputClass();
+			Class<?> inputClass = activator.getInputClass(solutionInstance);
 			if (inputClass != null) {
 				result.getVariableDeclarations().add(new VariableDeclaration() {
 
@@ -506,35 +514,36 @@ public class Plan extends Asset {
 		List<Step> precedingSteps = (currentStep != null) ? getPrecedingSteps(currentStep)
 				: steps.stream().filter(step -> step.getParent() == null).collect(Collectors.toList());
 		for (Step step : precedingSteps) {
-			VariableDeclaration stepVariableDeclaration = getResultVariableDeclaration(step);
-			result.getVariableDeclarations().addAll(getIncomingTransitionVariableDeclarations(step));
+			VariableDeclaration stepVariableDeclaration = getResultVariableDeclaration(step, solutionInstance);
+			result.getVariableDeclarations().addAll(getIncomingTransitionVariableDeclarations(step, solutionInstance));
 			if (stepVariableDeclaration != null) {
 				result.getVariableDeclarations().add(stepVariableDeclaration);
 			}
 		}
-		result.getVariableDeclarations().addAll(getIncomingTransitionVariableDeclarations(currentStep));
+		result.getVariableDeclarations()
+				.addAll(getIncomingTransitionVariableDeclarations(currentStep, solutionInstance));
 		return result;
 	}
 
-	private List<VariableDeclaration> getIncomingTransitionVariableDeclarations(Step step) {
+	private List<VariableDeclaration> getIncomingTransitionVariableDeclarations(Step step, Solution solutionInstance) {
 		List<VariableDeclaration> result = new ArrayList<VariableDeclaration>();
 		List<Transition> incomingTransitions = transitions.stream()
 				.filter(transition -> transition.getEndStep() == step).collect(Collectors.toList());
-		incomingTransitions.forEach(transition -> result.addAll(transition.getVariableDeclarations()));
+		incomingTransitions.forEach(transition -> result.addAll(transition.getVariableDeclarations(solutionInstance)));
 		return result;
 	}
 
-	public VariableDeclaration getResultVariableDeclaration(Step step) {
-		if (step.getOperationBuilder().getOperationResultClass(this, step) != null) {
-			return new StepEventuality(step, this);
+	public VariableDeclaration getResultVariableDeclaration(Step step, Solution solutionInstance) {
+		if (step.getOperationBuilder().getOperationResultClass(solutionInstance, this, step) != null) {
+			return new StepEventuality(step, this, solutionInstance);
 		} else {
 			return null;
 		}
 	}
 
 	@Override
-	public void validate(boolean recursively) throws ValidationError {
-		super.validate(recursively);
+	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
+		super.validate(recursively, solutionInstance);
 		List<String> stepNames = new ArrayList<String>();
 		for (Step step : steps) {
 			if (stepNames.contains(step.getName())) {
@@ -546,21 +555,22 @@ public class Plan extends Asset {
 		if (recursively) {
 			for (Step step : steps) {
 				try {
-					step.validate(recursively, this);
+					step.validate(recursively, solutionInstance, this);
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to validate step '" + step.getName() + "'", e);
 				}
 			}
 			for (Transition transition : transitions) {
 				try {
-					transition.validate(recursively, this);
+					transition.validate(recursively, solutionInstance, this);
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to validate transition '" + transition.getSummary() + "'", e);
 				}
 			}
-			activator.validate(recursively, this);
-			if (isOutputEnabled()) {
-				outputBuilder.getFacade().validate(recursively, getValidationContext(null).getVariableDeclarations());
+			activator.validate(recursively, solutionInstance, this);
+			if (isOutputEnabled(solutionInstance)) {
+				outputBuilder.getFacade(solutionInstance).validate(recursively,
+						getValidationContext(null, solutionInstance).getVariableDeclarations());
 			}
 		}
 	}
@@ -702,10 +712,10 @@ public class Plan extends Asset {
 
 	}
 
-	private class OutputClassNameAccessor extends Accessor<String> {
+	private class OutputClassNameAccessor extends Accessor<Solution, String> {
 		@Override
-		public String get() {
-			Class<?> outputClass = activator.getOutputClass();
+		public String get(Solution solutionInstance) {
+			Class<?> outputClass = activator.getOutputClass(solutionInstance);
 			if (outputClass == null) {
 				return null;
 			}

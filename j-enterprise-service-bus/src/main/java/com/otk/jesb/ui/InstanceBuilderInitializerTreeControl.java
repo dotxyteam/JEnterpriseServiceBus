@@ -28,7 +28,7 @@ public class InstanceBuilderInitializerTreeControl extends MappingsControl.SideC
 		super.initializeTreeTableModelAndControl();
 		treeTableComponent.putClientProperty(InstanceBuilderInitializerTreeControl.class, this);
 		treeTableComponent.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		treeTableComponent.setTransferHandler(new MappingsControl.PathImportTransferHandler());
+		treeTableComponent.setTransferHandler(new MappingsControl.PathImportTransferHandler(swingRenderer));
 		treeTableComponent.setDropMode(DropMode.ON);
 	}
 

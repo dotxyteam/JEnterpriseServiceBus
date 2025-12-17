@@ -4,22 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.PathExplorer.PathNode;
+import com.otk.jesb.solution.Solution;
 
 import xy.reflect.ui.info.type.ITypeInfo;
 
 public class PathOptionsProvider {
 
 	protected List<VariableDeclaration> variableDeclarations;
+	protected Solution solutionInstance;
 
-	public PathOptionsProvider(List<VariableDeclaration> variableDeclarations) {
+	public PathOptionsProvider(List<VariableDeclaration> variableDeclarations, Solution solutionInstance) {
 		this.variableDeclarations = variableDeclarations;
+		this.solutionInstance = solutionInstance;
 	}
 
 	public List<PathNode> getRootPathNodes() {
 		List<PathNode> result = new ArrayList<PathExplorer.PathNode>();
 		for (VariableDeclaration declaration : getVariableDeclarations()) {
-			result.add(new RootPathNode(
-					new PathExplorer(declaration.getVariableType().getName(), declaration.getVariableName())));
+			result.add(new RootPathNode(new PathExplorer(declaration.getVariableType().getName(),
+					declaration.getVariableName(), solutionInstance)));
 		}
 		return result;
 	}

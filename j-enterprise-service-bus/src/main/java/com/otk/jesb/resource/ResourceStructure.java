@@ -1,6 +1,7 @@
 package com.otk.jesb.resource;
 
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.solution.Solution;
 
 /**
  * This type was extracted from {@link Resource} to allow the convenient
@@ -15,9 +16,10 @@ public interface ResourceStructure {
 	/**
 	 * Validates the current object data.
 	 * 
-	 * @param recursively Whether the validation is recursively executed on
-	 *                    sub-objects or not.
+	 * @param recursively      Whether the validation is recursively executed on
+	 *                         sub-objects or not.
+	 * @param solutionInstance The current solution.
 	 * @throws ValidationError If the current object is considered as invalid.
 	 */
-	public void validate(boolean recursively) throws ValidationError;
+	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError;
 }

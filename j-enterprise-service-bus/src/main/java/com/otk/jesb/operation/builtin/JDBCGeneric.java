@@ -23,6 +23,8 @@ import com.otk.jesb.Session;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
+
 import xy.reflect.ui.info.ResourcePath;
 
 public class JDBCGeneric implements Operation {
@@ -60,7 +62,7 @@ public class JDBCGeneric implements Operation {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Object execute() throws Throwable {
+	public Object execute(Solution solutionInstance) throws Throwable {
 		Statement statementExecutor = prepare();
 		if (statementExecutor.execute(statement)) {
 			ResultSet resultSet = statementExecutor.getResultSet();
@@ -131,35 +133,38 @@ public class JDBCGeneric implements Operation {
 			this.statementBuilder = statementBuilder;
 		}
 
-		protected JDBCConnection getConnection() {
-			return connectionReference.resolve();
+		protected JDBCConnection getConnection(Solution solutionInstance) {
+			return connectionReference.resolve(solutionInstance);
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 			return GenericResult.class;
 		}
 
 		@Override
-		public JDBCGeneric build(ExecutionContext context, ExecutionInspector executionInspector)
-				throws Exception {
-			JDBCGeneric result = new JDBCGeneric(context.getSession(), getConnection());
-			result.setStatement((String) getStatementBuilder().build(new InstantiationContext(context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));
+		public JDBCGeneric build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			JDBCGeneric result = new JDBCGeneric(context.getSession(), getConnection(solutionInstance));
+			result.setStatement((String) getStatementBuilder().build(new InstantiationContext(
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance)));
 			return result;
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
-			JDBCConnection connection = getConnection();
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
+			JDBCConnection connection = getConnection(solutionInstance);
 			if (connection == null) {
 				throw new ValidationError("Failed to resolve the connection reference");
 			}
 			if (recursively) {
 				if (statementBuilder != null) {
 					try {
-						statementBuilder.getFacade().validate(recursively,
-								plan.getValidationContext(step).getVariableDeclarations());
+						statementBuilder.getFacade(solutionInstance).validate(recursively,
+								plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the statement builder", e);
 					}

@@ -37,7 +37,8 @@ public class Preferences {
 	static {
 		if (FILE.exists()) {
 			try (FileInputStream fileInputStream = new FileInputStream(FILE)) {
-				INSTANCE = (Preferences) MiscUtils.deserialize(fileInputStream);
+				INSTANCE = (Preferences) MiscUtils.deserialize(fileInputStream,
+						GUI.SOLUTION_INSTANCE.getRuntime().getXstream());
 			} catch (IOException e) {
 				Log.get().error(e);
 				System.exit(-1);
@@ -57,7 +58,7 @@ public class Preferences {
 
 	public void persist() {
 		try (FileOutputStream fileOutputStream = new FileOutputStream(FILE)) {
-			MiscUtils.serialize(this, fileOutputStream);
+			MiscUtils.serialize(this, fileOutputStream, GUI.SOLUTION_INSTANCE.getRuntime().getXstream());
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}

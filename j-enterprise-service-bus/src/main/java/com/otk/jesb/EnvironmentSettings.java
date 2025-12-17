@@ -38,38 +38,41 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
  */
 public class EnvironmentSettings {
 
-	public static final VariableDeclaration ROOT_VALUE_DECLARATION = new VariableDeclaration() {
-		@Override
-		public String getVariableName() {
-			return "ENVIRONMENT";
-		}
-
-		@Override
-		public Class<?> getVariableType() {
-			return Solution.INSTANCE.getEnvironmentSettings().getRootValueClass();
-		}
-
-	};
-
-	public static final Variable ROOT_VARIABLE_ROOT = new Variable() {
-
-		@Override
-		public String getName() {
-			return ROOT_VALUE_DECLARATION.getVariableName();
-		}
-
-		@Override
-		public Object getValue() {
-			return Solution.INSTANCE.getEnvironmentSettings().getRootValue();
-		}
-
-	};
-
 	private List<EnvironmentVariableTreeElement> environmentVariableTreeElements = new ArrayList<EnvironmentSettings.EnvironmentVariableTreeElement>();
 
-	private UpToDate<Class<?>> upToDateRootValueClass = new UpToDateRootValueClass();
+	private UpToDate<Solution, Class<?>> upToDateRootValueClass = new UpToDateRootValueClass();
 
-	private UpToDate<Object> upToDateRootValue = new UpToDateRootValue();
+	private UpToDate<Solution, Object> upToDateRootValue = new UpToDateRootValue();
+
+	public VariableDeclaration getRootVariableDeclaration(Solution solutionInstance) {
+		return new VariableDeclaration() {
+			@Override
+			public String getVariableName() {
+				return "ENVIRONMENT";
+			}
+
+			@Override
+			public Class<?> getVariableType() {
+				return getRootValueClass(solutionInstance);
+			}
+
+		};
+	}
+
+	public Variable getRootVariable(Solution solutionInstance) {
+		return new Variable() {
+			@Override
+			public String getName() {
+				return getRootVariableDeclaration(solutionInstance).getVariableName();
+			}
+
+			@Override
+			public Object getValue() {
+				return getRootValue(solutionInstance);
+			}
+
+		};
+	}
 
 	public List<EnvironmentVariableTreeElement> getEnvironmentVariableTreeElements() {
 		return environmentVariableTreeElements;
@@ -80,17 +83,17 @@ public class EnvironmentSettings {
 		this.environmentVariableTreeElements = environmentVariableTreeElements;
 	}
 
-	public Object getRootValue() {
+	public Object getRootValue(Solution solutionInstance) {
 		try {
-			return upToDateRootValue.get();
+			return upToDateRootValue.get(solutionInstance);
 		} catch (VersionAccessException e) {
 			throw new PotentialError(e);
 		}
 	}
 
-	public Class<?> getRootValueClass() {
+	public Class<?> getRootValueClass(Solution solutionInstance) {
 		try {
-			return upToDateRootValueClass.get();
+			return upToDateRootValueClass.get(solutionInstance);
 		} catch (VersionAccessException e) {
 			throw new PotentialError(e);
 		}
@@ -104,10 +107,10 @@ public class EnvironmentSettings {
 		return result;
 	}
 
-	private RootInstanceBuilder getRootValueBuilder() {
+	private RootInstanceBuilder getRootValueBuilder(Solution solutionInstance) {
 		RootInstanceBuilder result = new RootInstanceBuilder("Root", new VariableRootClassNameAccessor());
-		ParameterInitializerFacade rootInitializerFacade = (ParameterInitializerFacade) result.getFacade().getChildren()
-				.get(0);
+		ParameterInitializerFacade rootInitializerFacade = (ParameterInitializerFacade) result
+				.getFacade(solutionInstance).getChildren().get(0);
 		rootInitializerFacade.setConcrete(true);
 		List<Facade> elementInitializerFacades = rootInitializerFacade.getChildren();
 		for (EnvironmentVariableTreeElement element : environmentVariableTreeElements) {
@@ -227,20 +230,20 @@ public class EnvironmentSettings {
 		}
 	}
 
-	public void validate() throws ValidationError {
+	public void validate(Solution solutionInstance) throws ValidationError {
 		try {
-			upToDateRootValue.get();
+			upToDateRootValue.get(solutionInstance);
 		} catch (VersionAccessException e) {
 			throw new ValidationError("Failed to validate environment variables", e);
 		}
 	}
 
-	private class VariableRootClassNameAccessor extends Accessor<String> {
+	private class VariableRootClassNameAccessor extends Accessor<Solution, String> {
 
 		@Override
-		public String get() {
+		public String get(Solution solutionInstance) {
 			try {
-				return upToDateRootValueClass.get().getName();
+				return upToDateRootValueClass.get(solutionInstance).getName();
 			} catch (VersionAccessException e) {
 				throw new PotentialError(e);
 			}
@@ -248,20 +251,21 @@ public class EnvironmentSettings {
 
 	}
 
-	private class UpToDateRootValueClass extends UpToDate<Class<?>> {
+	private class UpToDateRootValueClass extends UpToDate<Solution, Class<?>> {
 
 		@Override
-		protected Object retrieveLastVersionIdentifier() {
-			return MiscUtils.serialize(getRootValueStructure());
+		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
+			return MiscUtils.serialize(getRootValueStructure(), solutionInstance.getRuntime().getXstream());
 		}
 
 		@Override
-		protected Class<?> obtainLatest(Object versionIdentifier) throws VersionAccessException {
+		protected Class<?> obtainLatest(Solution solutionInstance, Object versionIdentifier)
+				throws VersionAccessException {
 			String className = EnvironmentSettings.class.getName() + InstantiationUtils
 					.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(EnvironmentSettings.this));
 			try {
-				return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-						getRootValueStructure().generateJavaTypeSourceCode(className));
+				return solutionInstance.getRuntime().getInMemoryCompiler().compile(className,
+						getRootValueStructure().generateJavaTypeSourceCode(className, solutionInstance));
 			} catch (CompilationError e) {
 				throw new VersionAccessException(e);
 			}
@@ -269,23 +273,24 @@ public class EnvironmentSettings {
 
 	};
 
-	private class UpToDateRootValue extends UpToDate<Object> {
+	private class UpToDateRootValue extends UpToDate<Solution, Object> {
 
 		@Override
-		protected Object retrieveLastVersionIdentifier() {
+		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
 			try {
-				return new Pair<Class<?>, String>(upToDateRootValueClass.get(),
-						MiscUtils.serialize(environmentVariableTreeElements));
+				return new Pair<Class<?>, String>(upToDateRootValueClass.get(solutionInstance), MiscUtils
+						.serialize(environmentVariableTreeElements, solutionInstance.getRuntime().getXstream()));
 			} catch (VersionAccessException e) {
 				throw new PotentialError(e);
 			}
 		}
 
 		@Override
-		protected Object obtainLatest(Object versionIdentifier) throws VersionAccessException {
+		protected Object obtainLatest(Solution solutionInstance, Object versionIdentifier)
+				throws VersionAccessException {
 			try {
-				return getRootValueBuilder()
-						.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
+				return getRootValueBuilder(solutionInstance).build(
+						new InstantiationContext(Collections.emptyList(), Collections.emptyList(), solutionInstance));
 			} catch (Exception e) {
 				throw new PotentialError(e);
 			}

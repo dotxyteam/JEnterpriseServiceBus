@@ -1,6 +1,7 @@
 package com.otk.jesb.operation;
 
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
@@ -28,12 +29,13 @@ public interface OperationStructureBuilder<T> {
 	T build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception;
 
 	/**
-	 * @param recursively Whether the validation is recursively executed on
-	 *                    sub-objects or not.
-	 * @param plan        The current {@link Plan}.
-	 * @param step        The current {@link Step}.
+	 * @param recursively      Whether the validation is recursively executed on
+	 *                         sub-objects or not.
+	 * @param solutionInstance The current solution.
+	 * @param plan             The current {@link Plan}.
+	 * @param step             The current {@link Step}.
 	 * @throws ValidationError If the current object is considered as invalid.
 	 */
-	void validate(boolean recursively, Plan plan, Step step) throws ValidationError;
+	void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step) throws ValidationError;
 
 }

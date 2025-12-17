@@ -5,6 +5,7 @@ import java.util.List;
 import com.otk.jesb.Function.Precompiler;
 import com.otk.jesb.PathExplorer.PathNode;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.solution.Solution;
 
 public class FunctionEditor extends PathOptionsProvider {
 
@@ -15,8 +16,8 @@ public class FunctionEditor extends PathOptionsProvider {
 	private PathNode selectedPathNode;
 
 	public FunctionEditor(Function function, Precompiler precompiler, List<VariableDeclaration> variableDeclarations,
-			Class<?> returnType) {
-		super(variableDeclarations);
+			Class<?> returnType, Solution solutionInstance) {
+		super(variableDeclarations, solutionInstance);
 		this.function = function;
 		this.precompiler = precompiler;
 		this.returnType = returnType;

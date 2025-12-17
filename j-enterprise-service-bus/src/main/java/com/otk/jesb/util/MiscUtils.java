@@ -3,8 +3,6 @@ package com.otk.jesb.util;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.beans.PropertyDescriptor;
-import java.beans.Transient;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,9 +20,6 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
-import java.net.JarURLConnection;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -49,15 +44,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.output.WriterOutputStream;
 
-import com.otk.jesb.JESB;
-import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
@@ -69,7 +60,6 @@ import com.otk.jesb.activation.builtin.ReceiveRESTRequest;
 import com.otk.jesb.activation.builtin.ReceiveSOAPRequest;
 import com.otk.jesb.activation.builtin.Schedule;
 import com.otk.jesb.activation.builtin.WatchFileSystem;
-import com.otk.jesb.compiler.InMemoryCompiler;
 import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
@@ -105,7 +95,6 @@ import com.otk.jesb.resource.builtin.XSD;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.CompositeStep;
 import com.otk.jesb.solution.Folder;
-import com.otk.jesb.solution.JAR;
 import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
@@ -115,13 +104,6 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.converters.javabean.BeanProvider;
-import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
-import com.thoughtworks.xstream.converters.reflection.ReflectionConverter;
-import com.thoughtworks.xstream.mapper.MapperWrapper;
-import com.thoughtworks.xstream.security.AnyTypePermission;
-
-import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.util.ClassUtils;
 
@@ -150,86 +132,6 @@ public class MiscUtils {
 	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
 	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
 
-	public static InMemoryCompiler IN_MEMORY_COMPILER = new InMemoryCompiler();
-	static {
-		configureSolutionDependencies(Collections.emptyList());
-	}
-	public static final XStream XSTREAM = new XStream() {
-		@Override
-		protected MapperWrapper wrapMapper(MapperWrapper next) {
-			return new MapperWrapper(next) {
-				@Override
-				public String serializedClass(@SuppressWarnings("rawtypes") Class type) {
-					if ((type != null) && type.isAnonymousClass()) {
-						throw new UnexpectedError("Cannot serialize instance of class " + type
-								+ ": Anonymous class instance serialization is forbidden");
-					}
-					return super.serializedClass(type);
-				}
-
-				@Override
-				public boolean shouldSerializeMember(@SuppressWarnings("rawtypes") Class definedIn, String fieldName) {
-					if (Throwable.class.isAssignableFrom(definedIn)) {
-						if (fieldName.equals("stackTrace")) {
-							return false;
-						}
-						if (fieldName.equals("suppressedExceptions")) {
-							return false;
-						}
-					}
-					return super.shouldSerializeMember(definedIn, fieldName);
-				}
-
-			};
-		}
-	};
-	static {
-		XSTREAM.setClassLoader(MiscUtils.IN_MEMORY_COMPILER.getCompiledClassesLoader());
-		XSTREAM.registerConverter(new JavaBeanConverter(XSTREAM.getMapper(), new BeanProvider() {
-			@Override
-			protected boolean canStreamProperty(PropertyDescriptor descriptor) {
-
-				final boolean canStream = super.canStreamProperty(descriptor);
-				if (!canStream) {
-					return false;
-				}
-
-				final boolean readMethodIsTransient = descriptor.getReadMethod() == null
-						|| descriptor.getReadMethod().getAnnotation(Transient.class) != null;
-				final boolean writeMethodIsTransient = descriptor.getWriteMethod() == null
-						|| descriptor.getWriteMethod().getAnnotation(Transient.class) != null;
-				final boolean isTransient = readMethodIsTransient || writeMethodIsTransient;
-				if (isTransient) {
-					return false;
-				}
-
-				return true;
-			}
-
-			@Override
-			public void writeProperty(Object object, String propertyName, Object value) {
-				if (!propertyWriteable(propertyName, object.getClass())) {
-					return;
-				}
-				super.writeProperty(object, propertyName, value);
-			}
-		}), XStream.PRIORITY_VERY_LOW);
-		XSTREAM.registerConverter(new ReflectionConverter(XSTREAM.getMapper(), XSTREAM.getReflectionProvider()) {
-			@Override
-			public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
-				if ((type != null) && AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration.class
-						.isAssignableFrom(type)) {
-					return true;
-				}
-				if ((type != null) && Throwable.class.isAssignableFrom(type)) {
-					return true;
-				}
-				return false;
-			}
-		}, XStream.PRIORITY_VERY_HIGH);
-		XSTREAM.addPermission(AnyTypePermission.ANY);
-		XSTREAM.ignoreUnknownElements();
-	}
 	private static final String SERIALIZATION_CHARSET_NAME = "UTF-8";
 	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
 	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
@@ -367,7 +269,7 @@ public class MiscUtils {
 		return !b;
 	}
 
-	public static ResourcePath getIconImagePath(Step step) {
+	public static ResourcePath getStepIconImagePath(Step step, Solution solutionInstance) {
 		for (CompositeStepMetadata metadata : MiscUtils.BUILTIN_COMPOSITE_STEP_METADATAS) {
 			if (metadata.getCompositeStepClass().equals(step.getClass())) {
 				return metadata.getCompositeStepIconImagePath();
@@ -377,7 +279,7 @@ public class MiscUtils {
 		if (operationBuilder == null) {
 			return null;
 		}
-		for (OperationMetadata<?> metadata : MiscUtils.getAllOperationMetadatas()) {
+		for (OperationMetadata<?> metadata : MiscUtils.getAllOperationMetadatas(solutionInstance)) {
 			if (metadata.getOperationBuilderClass().equals(operationBuilder.getClass())) {
 				return metadata.getOperationIconImagePath();
 			}
@@ -755,37 +657,37 @@ public class MiscUtils {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T copy(T object) {
+	public static <T> T copy(T object, XStream xstream) {
 		try {
 			ByteArrayOutputStream output = new ByteArrayOutputStream();
-			serialize(object, output);
+			serialize(object, output, xstream);
 			ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
-			return (T) deserialize(input);
+			return (T) deserialize(input, xstream);
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
 	}
 
-	public static void serialize(Object object, OutputStream output) throws IOException {
+	public static void serialize(Object object, OutputStream output, XStream xstream) throws IOException {
 		try {
-			XSTREAM.toXML(object, new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));
+			xstream.toXML(object, new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));
 		} catch (XStreamException e) {
 			throw new IOException(e);
 		}
 	}
 
-	public static Object deserialize(InputStream input) throws IOException {
+	public static Object deserialize(InputStream input, XStream xstream) throws IOException {
 		try {
-			return XSTREAM.fromXML(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));
+			return xstream.fromXML(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));
 		} catch (XStreamException e) {
 			throw new IOException(e);
 		}
 	}
 
-	public static String serialize(Object object) {
+	public static String serialize(Object object, XStream xstream) {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			serialize(object, output);
+			serialize(object, output, xstream);
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
@@ -796,7 +698,7 @@ public class MiscUtils {
 		}
 	}
 
-	public static Object deserialize(String inputString) {
+	public static Object deserialize(String inputString, XStream xstream) {
 		ByteArrayInputStream input;
 		try {
 			input = new ByteArrayInputStream(inputString.getBytes(SERIALIZATION_CHARSET_NAME));
@@ -804,7 +706,7 @@ public class MiscUtils {
 			throw new UnexpectedError(e);
 		}
 		try {
-			return deserialize(input);
+			return deserialize(input, xstream);
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
@@ -1009,42 +911,6 @@ public class MiscUtils {
 		return s;
 	}
 
-	public static ClassLoader getJESBResourceLoader() {
-		return IN_MEMORY_COMPILER.getFirstClassLoader();
-	}
-
-	public static Class<?> getJESBClass(String typeName) throws PotentialError {
-		String arrayComponentTypeName = getArrayComponentTypeName(typeName);
-		if (arrayComponentTypeName != null) {
-			return getArrayType(getJESBClass(arrayComponentTypeName));
-		}
-		if (ClassUtils.PRIMITIVE_CLASS_BY_NAME.containsKey(typeName)) {
-			return ClassUtils.PRIMITIVE_CLASS_BY_NAME.get(typeName);
-		}
-		try {
-			return IN_MEMORY_COMPILER.loadClassThroughCache(typeName);
-		} catch (ClassNotFoundException e1) {
-			throw new PotentialError(e1);
-		}
-	}
-
-	public static Class<?> getJESBClassFromCanonicalName(String canonicalName) {
-		try {
-			return getJESBClass(canonicalName);
-		} catch (PotentialError e1) {
-			try {
-				int lastDotIndex = canonicalName.lastIndexOf('.');
-				if (lastDotIndex == -1) {
-					throw new PotentialError(new UnexpectedError());
-				}
-				return getJESBClassFromCanonicalName(
-						canonicalName.substring(0, lastDotIndex) + "$" + canonicalName.substring(lastDotIndex + 1));
-			} catch (PotentialError e2) {
-				throw new PotentialError(new ClassNotFoundException("Canonical name: " + canonicalName));
-			}
-		}
-	}
-
 	public static void relieveCPU() {
 		sleepSafely(100);
 	}
@@ -1122,8 +988,8 @@ public class MiscUtils {
 	}
 
 	public static Class<? extends OperationBuilder<?>> findOperationBuilderClass(
-			Class<? extends Operation> operationCass) {
-		for (OperationMetadata<?> metadata : MiscUtils.getAllOperationMetadatas()) {
+			Class<? extends Operation> operationCass, Solution solutionInstance) {
+		for (OperationMetadata<?> metadata : MiscUtils.getAllOperationMetadatas(solutionInstance)) {
 			if (inferOperationClass(metadata.getOperationBuilderClass()) == operationCass) {
 				return metadata.getOperationBuilderClass();
 			}
@@ -1131,91 +997,25 @@ public class MiscUtils {
 		return null;
 	}
 
-	public static List<OperationMetadata<?>> getAllOperationMetadatas() {
+	public static List<OperationMetadata<?>> getAllOperationMetadatas(Solution solutionInstance) {
 		List<OperationMetadata<?>> result = new ArrayList<OperationMetadata<?>>();
 		result.addAll(MiscUtils.BUILTIN_OPERATION_METADATAS);
-		result.addAll(JAR.PLUGIN_OPERATION_METADATAS);
+		result.addAll(solutionInstance.getRuntime().getPluginOperationMetadatas());
 		return result;
 	}
 
-	public static List<ActivatorMetadata> getAllActivatorMetadatas() {
+	public static List<ActivatorMetadata> getAllActivatorMetadatas(Solution solutionInstance) {
 		List<ActivatorMetadata> result = new ArrayList<ActivatorMetadata>();
 		result.addAll(MiscUtils.BUILTIN_ACTIVATOR__METADATAS);
-		result.addAll(JAR.PLUGIN_ACTIVATOR_METADATAS);
+		result.addAll(solutionInstance.getRuntime().getPluginActivatorMetadatas());
 		return result;
 	}
 
-	public static List<ResourceMetadata> getAllResourceMetadatas() {
+	public static List<ResourceMetadata> getAllResourceMetadatas(Solution solutionInstance) {
 		List<ResourceMetadata> result = new ArrayList<ResourceMetadata>();
 		result.addAll(MiscUtils.BUILTIN_RESOURCE_METADATAS);
-		result.addAll(JAR.PLUGIN_RESOURCE_METADATAS);
+		result.addAll(solutionInstance.getRuntime().getPluginResourceMetadatas());
 		return result;
-	}
-
-	public static void configureSolutionDependencies(List<JAR> jars) {
-		URLClassLoader jarsClassLoader = new URLClassLoader(
-				jars.stream().map(JAR::getURL).toArray(length -> new URL[length]), JESB.class.getClassLoader());
-		IN_MEMORY_COMPILER.setFirstClassLoader(jarsClassLoader);
-		JAR.PLUGIN_OPERATION_METADATAS.clear();
-		JAR.PLUGIN_ACTIVATOR_METADATAS.clear();
-		JAR.PLUGIN_RESOURCE_METADATAS.clear();
-		for (JAR jar : jars) {
-			JarURLConnection connection;
-			try {
-				connection = (JarURLConnection) new URL("jar:" + jar.getURL().toString() + "!/").openConnection();
-			} catch (IOException e) {
-				throw new UnexpectedError(e);
-			}
-			Manifest manifest;
-			try {
-				manifest = connection.getManifest();
-			} catch (IOException e) {
-				continue;
-			}
-			Attributes attributes = manifest.getMainAttributes();
-			String operationMetadataClassNames = attributes
-					.getValue(JAR.PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY);
-			String activatorMetadataClassNames = attributes
-					.getValue(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY);
-			String resourceMetadataClassNames = attributes.getValue(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY);
-			if (operationMetadataClassNames != null) {
-				for (String className : operationMetadataClassNames.split(",")) {
-					if (className.isEmpty()) {
-						continue;
-					}
-					try {
-						JAR.PLUGIN_OPERATION_METADATAS
-								.add((OperationMetadata<?>) getJESBClass(className).newInstance());
-					} catch (InstantiationException | IllegalAccessException e) {
-						throw new UnexpectedError(e);
-					}
-				}
-			}
-			if (activatorMetadataClassNames != null) {
-				for (String className : activatorMetadataClassNames.split(",")) {
-					if (className.isEmpty()) {
-						continue;
-					}
-					try {
-						JAR.PLUGIN_ACTIVATOR_METADATAS.add((ActivatorMetadata) getJESBClass(className).newInstance());
-					} catch (InstantiationException | IllegalAccessException e) {
-						throw new UnexpectedError(e);
-					}
-				}
-			}
-			if (resourceMetadataClassNames != null) {
-				for (String className : resourceMetadataClassNames.split(",")) {
-					if (className.isEmpty()) {
-						continue;
-					}
-					try {
-						JAR.PLUGIN_RESOURCE_METADATAS.add((ResourceMetadata) getJESBClass(className).newInstance());
-					} catch (InstantiationException | IllegalAccessException e) {
-						throw new UnexpectedError(e);
-					}
-				}
-			}
-		}
 	}
 
 	public static PrintStream createBufferedPrintStream(BiConsumer<String, Boolean> lineConsumer,
@@ -1351,8 +1151,7 @@ public class MiscUtils {
 		}
 	}
 
-	public static void checkVariables(List<VariableDeclaration> variableDeclarations,
-			List<Variable> variables) {
+	public static void checkVariables(List<VariableDeclaration> variableDeclarations, List<Variable> variables) {
 		Set<String> actualVariableNames = variables.stream()
 				.filter(variable -> variable.getValue() != Variable.UNDEFINED_VALUE).map(variable -> variable.getName())
 				.collect(Collectors.toSet());

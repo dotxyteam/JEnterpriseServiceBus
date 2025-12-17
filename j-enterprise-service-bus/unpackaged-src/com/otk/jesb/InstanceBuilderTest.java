@@ -21,6 +21,7 @@ import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 
 import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
@@ -49,8 +50,8 @@ public class InstanceBuilderTest {
 			planOutputStructure.getElements().add(element);
 			activator.setOutputStructure(planOutputStructure);
 		}
-		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder().getRootInstantiationNode())
-				.getParameterValue()).getParameterInitializers()
+		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder()
+				.getRootInstantiationNode(GUI.SOLUTION_INSTANCE)).getParameterValue()).getParameterInitializers()
 						.add(new ParameterInitializer(0, new InstantiationFunction("return " + step.getName() + ";")));
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
 				.onFormVisibilityChange(plan, true);
@@ -64,8 +65,8 @@ public class InstanceBuilderTest {
 				Tree.Builder builder = (Builder) step.getOperationBuilder();
 				GUI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
 				Object output;
-				try (Session session = Session.openDummySession()) {
-					Object input = plan.getActivator().getInputClass().getConstructor(Tree.class)
+				try (Session session = Session.openDummySession(GUI.SOLUTION_INSTANCE)) {
+					Object input = plan.getActivator().getInputClass(GUI.SOLUTION_INSTANCE).getConstructor(Tree.class)
 							.newInstance(inputTree);
 					output = plan.execute(input, Plan.ExecutionInspector.DEFAULT, new ExecutionContext(session, plan));
 				} catch (Throwable t) {
@@ -198,7 +199,7 @@ public class InstanceBuilderTest {
 		}
 
 		@Override
-		public Object execute() throws Exception {
+		public Object execute(Solution solutionInstance) throws Exception {
 			return this;
 		}
 
@@ -207,17 +208,20 @@ public class InstanceBuilderTest {
 
 			@Override
 			public Tree build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-				return (Tree) instanceBuilder.build(new InstantiationContext(context.getVariables(),
-						context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+				Solution solutionInstance = context.getSession().getSolutionInstance();
+				return (Tree) instanceBuilder.build(new InstantiationContext(context.getVariables(), context.getPlan()
+						.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+						solutionInstance));
 			}
 
 			@Override
-			public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+			public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 				return Tree.class;
 			}
 
 			@Override
-			public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+			public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+					throws ValidationError {
 			}
 
 		}

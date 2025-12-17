@@ -397,7 +397,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 
 	public InstanceBuilderInitializerTreeControl findTargetControl() {
 		return findControl(swingRenderer, this, InstanceBuilderInitializerTreeControl.class,
-				new Accessor<InstanceBuilderInitializerTreeControl>() {
+				new Accessor.GlobalAccessor<InstanceBuilderInitializerTreeControl>() {
 
 					@Override
 					public InstanceBuilderInitializerTreeControl get() {
@@ -414,7 +414,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 
 	public InstanceBuilderVariableTreeControl findSourceControl() {
 		return findControl(swingRenderer, this, InstanceBuilderVariableTreeControl.class,
-				new Accessor<InstanceBuilderVariableTreeControl>() {
+				new Accessor.GlobalAccessor<InstanceBuilderVariableTreeControl>() {
 
 					@Override
 					public InstanceBuilderVariableTreeControl get() {
@@ -441,7 +441,8 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 
 	@SuppressWarnings("unchecked")
 	private static <T extends Component> T findControl(SwingRenderer swingRenderer, Component fromComponent,
-			Class<T> controlClass, Accessor<T> alreadyFoundControlAccessor, Listener<T> controlConfigurator) {
+			Class<T> controlClass, Accessor.GlobalAccessor<T> alreadyFoundControlAccessor,
+			Listener<T> controlConfigurator) {
 		if (alreadyFoundControlAccessor.get() != null) {
 			return alreadyFoundControlAccessor.get();
 		}
@@ -452,7 +453,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 		}
 		List<Form> forms = new ArrayList<Form>();
 		forms.add(facadeOutlineForm);
-		forms.addAll(SwingRendererUtils.findDescendantForms(facadeOutlineForm, GUI.INSTANCE));
+		forms.addAll(SwingRendererUtils.findDescendantForms(facadeOutlineForm, swingRenderer));
 		for (Form form : forms) {
 			for (List<FieldControlPlaceHolder> fieldControlPlaceHolders : form.getFieldControlPlaceHoldersByCategory()
 					.values()) {
@@ -658,18 +659,19 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 		}
 
 		public MappingsControl findMappingsControl() {
-			return findControl(swingRenderer, this, MappingsControl.class, new Accessor<MappingsControl>() {
+			return findControl(swingRenderer, this, MappingsControl.class,
+					new Accessor.GlobalAccessor<MappingsControl>() {
 
-				@Override
-				public MappingsControl get() {
-					return foundMappingsControl;
-				}
+						@Override
+						public MappingsControl get() {
+							return foundMappingsControl;
+						}
 
-				@Override
-				public void set(MappingsControl t) {
-					foundMappingsControl = t;
-				}
-			}, null);
+						@Override
+						public void set(MappingsControl t) {
+							foundMappingsControl = t;
+						}
+					}, null);
 		}
 
 		@Override
@@ -760,8 +762,10 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 	public static class PathImportTransferHandler extends TransferHandler {
 
 		private static final long serialVersionUID = 1L;
+		private SwingRenderer swingRenderer;
 
-		public PathImportTransferHandler() {
+		public PathImportTransferHandler(SwingRenderer swingRenderer) {
+			this.swingRenderer = swingRenderer;
 		}
 
 		@Override
@@ -804,7 +808,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 										if (accept) {
 											ModificationStack modifStack = SwingRendererUtils
 													.findParentFormModificationStack(initializerTreeControl,
-															GUI.INSTANCE);
+															swingRenderer);
 											modifStack.apply(new ListModificationFactory(initializerPosition)
 													.set(initializerPosition.getIndex(), initializerFacade));
 										}
@@ -836,7 +840,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 					public ITypeInfo get() {
 						return ((ParameterInitializerFacade) initializerFacade).getParameterInfo().getType();
 					}
-				}, new Accessor<Object>() {
+				}, new Accessor.GlobalAccessor<Object>() {
 					@Override
 					public Object get() {
 						return ((ParameterInitializerFacade) initializerFacade).getParameterValue();
@@ -854,7 +858,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 					public ITypeInfo get() {
 						return ((FieldInitializerFacade) initializerFacade).getFieldInfo().getType();
 					}
-				}, new Accessor<Object>() {
+				}, new Accessor.GlobalAccessor<Object>() {
 					@Override
 					public Object get() {
 						return ((FieldInitializerFacade) initializerFacade).getFieldValue();
@@ -879,7 +883,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 							public ITypeInfo get() {
 								return ((ListItemInitializerFacade) initializerFacade).getItemTypeInfo();
 							}
-						}, new Accessor<Object>() {
+						}, new Accessor.GlobalAccessor<Object>() {
 							@Override
 							public Object get() {
 								return ((ListItemInitializerFacade) initializerFacade).getItemValue();
@@ -895,7 +899,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 		}
 
 		private boolean map(PathNode pathNode, BufferedItemPosition initializerPosition,
-				Supplier<ITypeInfo> targetTypeSupplier, Accessor<Object> targetValueAccessor,
+				Supplier<ITypeInfo> targetTypeSupplier, Accessor.GlobalAccessor<Object> targetValueAccessor,
 				InstanceBuilderInitializerTreeControl initializerTreeControl) throws CancellationException {
 			boolean accept = false;
 			Facade initializerFacade = (Facade) initializerPosition.getItem();
@@ -982,8 +986,8 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 					}
 					Source mappingsSource = initializerTreeControl.findMappingsControl().getSource();
 					List<VariableDeclaration> variableDeclarations = new ArrayList<VariableDeclaration>(
-							mappingsSource.getCurrentPlan().getValidationContext(mappingsSource.getCurrentStep())
-									.getVariableDeclarations());
+							mappingsSource.getCurrentPlan().getValidationContext(mappingsSource.getCurrentStep(),
+									listItemInitializerFacade.getSolutionInstance()).getVariableDeclarations());
 					variableDeclarations.addAll(listItemInitializerFacade.getAdditionalVariableDeclarations(function,
 							variableDeclarations));
 					while (true) {
@@ -1018,7 +1022,7 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 			} catch (InterruptedException e) {
 				throw new UnexpectedError(e);
 			}
-			String choice = GUI.INSTANCE.openSelectionDialog(initializerTreeControl, options, null,
+			String choice = swingRenderer.openSelectionDialog(initializerTreeControl, options, null,
 					"Choose a mapping option for: " + pathNode.toString() + " => " + initializerFacade.toString(),
 					"Mapping");
 			return options.indexOf(choice);

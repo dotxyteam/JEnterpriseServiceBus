@@ -1,0 +1,28 @@
+<com.otk.jesb.resource.builtin.JDBCConnection>
+  <driverClassNameVariant>
+    <constantValue class="string">org.hsqldb.jdbcDriver</constantValue>
+    <valueClass>java.lang.String</valueClass>
+    <variable>false</variable>
+    <variableReferenceExpression class="null"/>
+  </driverClassNameVariant>
+  <name>db</name>
+  <note class="null"/>
+  <passwordVariant>
+    <constantValue class="null"/>
+    <valueClass>java.lang.String</valueClass>
+    <variable>false</variable>
+    <variableReferenceExpression class="null"/>
+  </passwordVariant>
+  <urlVariant>
+    <constantValue class="string">jdbc:hsqldb:file:/tmp/db;shutdown=true;hsqldb.write_delay=false;</constantValue>
+    <valueClass>java.lang.String</valueClass>
+    <variable>false</variable>
+    <variableReferenceExpression class="null"/>
+  </urlVariant>
+  <userNameVariant>
+    <constantValue class="null"/>
+    <valueClass>java.lang.String</valueClass>
+    <variable>false</variable>
+    <variableReferenceExpression class="null"/>
+  </userNameVariant>
+</com.otk.jesb.resource.builtin.JDBCConnection>

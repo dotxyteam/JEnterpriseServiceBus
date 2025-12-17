@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.ArrayStream;
 import com.otk.jesb.util.InstantiationUtils;
 import xy.reflect.ui.info.field.GetterFieldInfo;
@@ -28,10 +29,12 @@ public class PathExplorer {
 
 	private String typeName;
 	private String rootVariableName;
+	private Solution solutionInstance;
 
-	public PathExplorer(String typeName, String rootVariableName) {
+	public PathExplorer(String typeName, String rootVariableName, Solution solutionInstance) {
 		this.typeName = typeName;
 		this.rootVariableName = rootVariableName;
+		this.solutionInstance = solutionInstance;
 	}
 
 	public String getRootVariableName() {
@@ -51,7 +54,7 @@ public class PathExplorer {
 	}
 
 	public ITypeInfo getRootExpressionType() {
-		return TypeInfoProvider.getTypeInfo(typeName);
+		return TypeInfoProvider.getTypeInfo(typeName, solutionInstance);
 	}
 
 	public static interface PathNode {
@@ -275,7 +278,7 @@ public class PathExplorer {
 			IFieldInfo fieldInfo = getFieldInfo();
 			ITypeInfo result = fieldInfo.getType();
 			if (result instanceof IListTypeInfo) {
-				result = TypeInfoProvider.getTypeInfo(result.getName(), fieldInfo);
+				result = TypeInfoProvider.getTypeInfo(result.getName(), fieldInfo, solutionInstance);
 			}
 			return result;
 		}
@@ -485,8 +488,8 @@ public class PathExplorer {
 			} else {
 				itemClass = null;
 			}
-			return TypeInfoProvider.getTypeInfo(Stream.class,
-					(itemClass != null) ? new Class<?>[] { itemClass } : null);
+			return TypeInfoProvider.getTypeInfo(Stream.class, (itemClass != null) ? new Class<?>[] { itemClass } : null,
+					solutionInstance);
 		}
 
 		@Override
@@ -542,7 +545,8 @@ public class PathExplorer {
 			List<Class<?>> parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
 					.guessGenericTypeParameters(Stream.class);
 			return TypeInfoProvider.getTypeInfo(Stream.class,
-					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null);
+					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null,
+					solutionInstance);
 		}
 
 		@Override
@@ -598,7 +602,8 @@ public class PathExplorer {
 			List<Class<?>> parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
 					.guessGenericTypeParameters(Stream.class);
 			return TypeInfoProvider.getTypeInfo(Stream.class,
-					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null);
+					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null,
+					solutionInstance);
 		}
 
 		@Override
@@ -712,7 +717,8 @@ public class PathExplorer {
 			List<Class<?>> parentStreamTypeParameters = ((JavaTypeInfoSource) parentTypeInfo.getSource())
 					.guessGenericTypeParameters(Stream.class);
 			return TypeInfoProvider.getTypeInfo(List.class,
-					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null);
+					(parentStreamTypeParameters != null) ? new Class<?>[] { parentStreamTypeParameters.get(0) } : null,
+					solutionInstance);
 		}
 
 		@Override

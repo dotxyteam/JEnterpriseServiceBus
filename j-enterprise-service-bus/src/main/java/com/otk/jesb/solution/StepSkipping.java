@@ -4,13 +4,14 @@ import com.otk.jesb.Variable;
 
 public class StepSkipping extends StepOccurrence {
 
-	public StepSkipping(Step step, Plan plan) {
-		super(step, plan);
+	public StepSkipping(Step step, Plan plan, Solution solutionInstance) {
+		super(step, plan, solutionInstance);
 	}
 
 	@Override
 	public Object getValue() {
-		return (getPlan().getResultVariableDeclaration(getStep()) != null) ? null : Variable.UNDEFINED_VALUE;
+		return (getPlan().getResultVariableDeclaration(getStep(), getSolutionInstance()) != null) ? null
+				: Variable.UNDEFINED_VALUE;
 	}
 
 	@Override

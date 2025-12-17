@@ -5,6 +5,7 @@ import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.solution.Plan.ExecutionError;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -15,17 +16,18 @@ public class LaunchAtStartup extends Activator {
 	private Thread thread;
 
 	@Override
-	public Class<?> getInputClass() {
+	public Class<?> getInputClass(Solution solutionInstance) {
 		return null;
 	}
 
 	@Override
-	public Class<?> getOutputClass() {
+	public Class<?> getOutputClass(Solution solutionInstance) {
 		return null;
 	}
 
 	@Override
-	public void initializeAutomaticTrigger(ActivationHandler activationHandler) throws Exception {
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler, Solution solutionInstance)
+			throws Exception {
 		thread = new Thread("Worker[of=" + LaunchAtStartup.this + "]") {
 
 			@Override
@@ -43,7 +45,7 @@ public class LaunchAtStartup extends Activator {
 	}
 
 	@Override
-	public void finalizeAutomaticTrigger() throws Exception {
+	public void finalizeAutomaticTrigger(Solution solutionInstance) throws Exception {
 		while (thread.isAlive()) {
 			thread.interrupt();
 			MiscUtils.relieveCPU();

@@ -8,8 +8,7 @@ import java.util.List;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.otk.jesb.UnexpectedError;
-import com.otk.jesb.util.MiscUtils;
-
+import com.otk.jesb.solution.Solution;
 import xy.reflect.ui.ReflectionUI;
 import xy.reflect.ui.info.IInfo;
 import xy.reflect.ui.info.field.GetterFieldInfo;
@@ -26,12 +25,12 @@ public class TypeInfoProvider {
 
 	public static final ReflectionUI INTROSPECTOR = ReflectionUI.getDefault();
 
-	public static ITypeInfo getTypeInfo(String typeName) {
-		return getTypeInfo(MiscUtils.getJESBClass(typeName));
+	public static ITypeInfo getTypeInfo(String typeName, Solution solutionInstance) {
+		return getTypeInfo(solutionInstance.getRuntime().getJESBClass(typeName));
 	}
 
-	public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner) {
-		return getTypeInfo(MiscUtils.getJESBClass(typeName), typeOwner);
+	public static ITypeInfo getTypeInfo(String typeName, IInfo typeOwner, Solution solutionInstance) {
+		return getTypeInfo(solutionInstance.getRuntime().getJESBClass(typeName), typeOwner);
 	}
 
 	public static ITypeInfo getTypeInfo(Class<?> objectClass, IInfo typeOwner) {
@@ -61,8 +60,9 @@ public class TypeInfoProvider {
 		return INTROSPECTOR.getTypeInfo(javaTypeInfoSource);
 	}
 
-	public static ITypeInfo getTypeInfo(String parameterTypeName, IMethodInfo method, int parameterPosition) {
-		Class<?> objectClass = MiscUtils.getJESBClass(parameterTypeName);
+	public static ITypeInfo getTypeInfo(String parameterTypeName, IMethodInfo method, int parameterPosition,
+			Solution solutionInstance) {
+		Class<?> objectClass = solutionInstance.getRuntime().getJESBClass(parameterTypeName);
 		JavaTypeInfoSource javaTypeInfoSource;
 		if (method instanceof DefaultConstructorInfo) {
 			javaTypeInfoSource = new JavaTypeInfoSource(objectClass,
@@ -76,40 +76,41 @@ public class TypeInfoProvider {
 		return INTROSPECTOR.getTypeInfo(javaTypeInfoSource);
 	}
 
-	public static ITypeInfo getTypeInfo(Class<?> objectClass, Class<?>[] genericTypeParameters) {
+	public static ITypeInfo getTypeInfo(Class<?> objectClass, Class<?>[] genericTypeParameters,
+			Solution solutionInstance) {
 		JavaTypeInfoSource javaTypeInfoSource = new JavaTypeInfoSource(objectClass, genericTypeParameters, null);
 		return INTROSPECTOR.getTypeInfo(javaTypeInfoSource);
 	}
 
-	public static ITypeInfo getInfoFromResolvedType(ResolvedType resolvedType) {
+	public static ITypeInfo getInfoFromResolvedType(ResolvedType resolvedType, Solution solutionInstance) {
 		if (resolvedType.isPrimitive()) {
-			return getTypeInfo(ClassUtils
-					.wrapperToPrimitiveClass(MiscUtils.getJESBClass(resolvedType.asPrimitive().getBoxTypeQName())));
+			return getTypeInfo(ClassUtils.wrapperToPrimitiveClass(
+					solutionInstance.getRuntime().getJESBClass(resolvedType.asPrimitive().getBoxTypeQName())));
 		} else if (resolvedType.isReferenceType()) {
 			ResolvedReferenceType referenceType = resolvedType.asReferenceType();
 			String qualifiedName = referenceType.getQualifiedName();
-			Class<?> javaType = MiscUtils.getJESBClassFromCanonicalName(qualifiedName);
+			Class<?> javaType = solutionInstance.getRuntime().getJESBClassFromCanonicalName(qualifiedName);
 			List<ResolvedType> typeParameters = referenceType.typeParametersValues();
 			if (typeParameters.size() > 0) {
 				List<Class<?>> typeParameterClasses = new ArrayList<Class<?>>();
 				for (ResolvedType resolvedTypeParameter : typeParameters) {
-					ITypeInfo typeParameterInfo = getInfoFromResolvedType(resolvedTypeParameter);
+					ITypeInfo typeParameterInfo = getInfoFromResolvedType(resolvedTypeParameter, solutionInstance);
 					if (typeParameterInfo == null) {
 						return getTypeInfo(javaType);
 					}
 					typeParameterClasses.add(((DefaultTypeInfo) typeParameterInfo).getJavaType());
 				}
-				return getTypeInfo(javaType,
-						typeParameterClasses.toArray(new Class<?>[typeParameterClasses.size()]));
+				return getTypeInfo(javaType, typeParameterClasses.toArray(new Class<?>[typeParameterClasses.size()]),
+						solutionInstance);
 			} else {
 				return getTypeInfo(javaType);
 			}
 		} else if (resolvedType.isArray()) {
 			Class<?> componentClass = ((DefaultTypeInfo) getInfoFromResolvedType(
-					resolvedType.asArrayType().getComponentType())).getJavaType();
+					resolvedType.asArrayType().getComponentType(), solutionInstance)).getJavaType();
 			return getTypeInfo(Array.newInstance(componentClass, 0).getClass());
 		} else if (resolvedType.isWildcard() && resolvedType.asWildcard().isBounded()) {
-			return getInfoFromResolvedType(resolvedType.asWildcard().getBoundedType());
+			return getInfoFromResolvedType(resolvedType.asWildcard().getBoundedType(), solutionInstance);
 		} else {
 			return null;
 		}

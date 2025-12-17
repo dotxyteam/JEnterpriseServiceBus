@@ -8,6 +8,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
@@ -20,8 +21,8 @@ public class ListItemInitializerFacade extends InitializerFacade {
 	private int index;
 	private ITypeInfo itemTypeInfo;
 
-	public ListItemInitializerFacade(Facade parent, int index) {
-		super(parent);
+	public ListItemInitializerFacade(Facade parent, int index, Solution solutionInstance) {
+		super(parent, solutionInstance);
 		this.index = index;
 	}
 
@@ -100,13 +101,13 @@ public class ListItemInitializerFacade extends InitializerFacade {
 		}
 		if (getCondition() != null) {
 			InstantiationUtils.validateValue(getCondition(), TypeInfoProvider.getTypeInfo(boolean.class), this,
-					"condition", true, variableDeclarations);
+					"condition", true, variableDeclarations, solutionInstance);
 		}
 		if (getItemReplicationFacade() != null) {
 			getItemReplicationFacade().validate(variableDeclarations);
 		}
 		InstantiationUtils.validateValue(getUnderlying().getItemValue(), getItemTypeInfo(), this, "item value",
-				recursively, variableDeclarations);
+				recursively, variableDeclarations, solutionInstance);
 	}
 
 	@Override
@@ -135,7 +136,7 @@ public class ListItemInitializerFacade extends InitializerFacade {
 			return null;
 		}
 		return (listItemInitializer.getItemReplication() == null) ? null
-				: new ListItemReplicationFacade(this, listItemInitializer.getItemReplication());
+				: new ListItemReplicationFacade(this, listItemInitializer.getItemReplication(), solutionInstance);
 	}
 
 	public void setItemReplicationFacade(ListItemReplicationFacade itemReplicationFacade) {
@@ -184,10 +185,10 @@ public class ListItemInitializerFacade extends InitializerFacade {
 
 	public ITypeInfo getItemTypeInfo() {
 		if (itemTypeInfo == null) {
-			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
+			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo(solutionInstance);
 			ITypeInfo result = ((IListTypeInfo) parentTypeInfo).getItemType();
 			if (result == null) {
-				result = TypeInfoProvider.getTypeInfo(Object.class.getName());
+				result = TypeInfoProvider.getTypeInfo(Object.class.getName(), solutionInstance);
 			}
 			itemTypeInfo = result;
 		}
@@ -299,7 +300,8 @@ public class ListItemInitializerFacade extends InitializerFacade {
 
 	public void duplicate() {
 		setConcrete(true);
-		ListItemInitializer underlyingCopy = MiscUtils.copy(getUnderlying());
+		ListItemInitializer underlyingCopy = MiscUtils.copy(getUnderlying(),
+				solutionInstance.getRuntime().getXstream());
 		int underlyingCopyIndex = getUnderlying().getIndex() + 1;
 		makeIndexAvailable(underlyingCopyIndex);
 		underlyingCopy.setIndex(underlyingCopyIndex);

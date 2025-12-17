@@ -14,8 +14,8 @@ import com.otk.jesb.util.MiscUtils;
  */
 public abstract class Session implements AutoCloseable {
 
-	public static Session openDummySession() {
-		return new Session() {
+	public static Session openDummySession(Solution solutionInstance) {
+		return new Session(solutionInstance) {
 			{
 				open();
 			}
@@ -39,8 +39,17 @@ public abstract class Session implements AutoCloseable {
 
 	protected abstract void terminate();
 
+	private Solution solutionInstance;
 	private List<AutoCloseable> closables;
 	private boolean active = false;
+
+	public Session(Solution solutionInstance) {
+		this.solutionInstance = solutionInstance;
+	}
+
+	public Solution getSolutionInstance() {
+		return solutionInstance;
+	}
 
 	public List<AutoCloseable> getClosables() {
 		return closables;

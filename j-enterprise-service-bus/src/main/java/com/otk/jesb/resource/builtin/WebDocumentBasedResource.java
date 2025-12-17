@@ -15,6 +15,7 @@ import com.otk.jesb.resource.Resource;
 public abstract class WebDocumentBasedResource extends Resource {
 
 	public WebDocumentBasedResource() {
+		super();
 	}
 
 	public WebDocumentBasedResource(String name) {

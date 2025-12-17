@@ -14,6 +14,7 @@ import com.otk.jesb.operation.Operation;
 import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Step;
@@ -69,7 +70,7 @@ public class ExecuteCommand implements Operation {
 	}
 
 	@Override
-	public Object execute() throws Throwable {
+	public Object execute(Solution solutionInstance) throws Throwable {
 		ByteArrayOutputStream outReceiver = runAsynchronously ? null : new ByteArrayOutputStream();
 		ByteArrayOutputStream errReceiver = runAsynchronously ? null : new ByteArrayOutputStream();
 		String commandLine = CommandExecutor.quoteArgument(executable) + " "
@@ -77,9 +78,7 @@ public class ExecuteCommand implements Operation {
 		Process process;
 		try {
 			process = CommandExecutor.run(commandLine, !runAsynchronously, outReceiver, errReceiver,
-					new File(workingDirectoryPath),
-					timeoutMilliseconds,
-					TimeUnit.MILLISECONDS);
+					new File(workingDirectoryPath), timeoutMilliseconds, TimeUnit.MILLISECONDS);
 		} catch (TimeoutException e) {
 			process = null;
 		}
@@ -144,25 +143,28 @@ public class ExecuteCommand implements Operation {
 
 		@Override
 		public ExecuteCommand build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
+			Solution solutionInstance = context.getSession().getSolutionInstance();
 			ExecuteCommand result = (ExecuteCommand) instanceBuilder.build(new InstantiationContext(
-					context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance));
 			result.setRunAsynchronously(runAsynchronously);
 			return result;
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 			return runAsynchronously ? null : CommandResult.class;
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
 			if (recursively) {
 				if (instanceBuilder != null) {
 					try {
-						instanceBuilder.getFacade().validate(recursively,
-								plan.getValidationContext(step).getVariableDeclarations());
+						instanceBuilder.getFacade(solutionInstance).validate(recursively,
+								plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the input builder", e);
 					}

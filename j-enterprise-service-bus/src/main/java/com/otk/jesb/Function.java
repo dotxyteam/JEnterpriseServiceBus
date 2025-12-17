@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
@@ -19,6 +20,7 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
  *
  */
 public class Function {
+	private static final String SOLUTION_INSTANCE_KEY = Function.class.getName() + ".SOLUTION_INSTANCE_KEY";
 	private static final String PRECOMPILED_FUNCTION_BODY_KEY = Function.class.getName()
 			+ ".PRECOMPILED_FUNCTION_BODY_KEY";
 	private static final String VARIABLE_DECLARATIONS_KEY = Function.class.getName() + ".VARIABLE_DECLARATIONS_KEY";
@@ -26,17 +28,18 @@ public class Function {
 
 	private String functionBody;
 	@SuppressWarnings("rawtypes")
-	private UpToDate<CompiledFunction> upToDateCompiledVersion = new UpToDate<CompiledFunction>() {
+	private UpToDate<Map<String, Object>, CompiledFunction> upToDateCompiledVersion = new UpToDate<Map<String, Object>, CompiledFunction>() {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		protected Object retrieveLastVersionIdentifier() {
+		protected Object retrieveLastVersionIdentifier(Map<String, Object> compilationData) {
 			List<Object> result = new ArrayList<Object>();
-			Map<String, Object> compilationData = (Map<String, Object>) getCustomValue();
+			Solution solutionInstance = (Solution) compilationData.get(SOLUTION_INSTANCE_KEY);
 			String precompiledFunctionBody = (String) compilationData.get(PRECOMPILED_FUNCTION_BODY_KEY);
 			List<VariableDeclaration> variableDeclarations = (List<VariableDeclaration>) compilationData
 					.get(VARIABLE_DECLARATIONS_KEY);
 			Class<?> returnType = (Class<?>) compilationData.get(RETURN_TYPE_KEY);
+			result.add(solutionInstance);
 			result.add(precompiledFunctionBody);
 			result.addAll(variableDeclarations.stream()
 					.map(varDecl -> new Pair<String, Class<?>>(varDecl.getVariableName(), varDecl.getVariableType()))
@@ -47,14 +50,16 @@ public class Function {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		protected CompiledFunction<?> obtainLatest(Object versionIdentifier) throws VersionAccessException {
-			Map<String, Object> compilationData = (Map<String, Object>) getCustomValue();
+		protected CompiledFunction<?> obtainLatest(Map<String, Object> compilationData, Object versionIdentifier)
+				throws VersionAccessException {
+			Solution solutionInstance = (Solution) compilationData.get(SOLUTION_INSTANCE_KEY);
 			String precompiledFunctionBody = (String) compilationData.get(PRECOMPILED_FUNCTION_BODY_KEY);
 			List<VariableDeclaration> variableDeclarations = (List<VariableDeclaration>) compilationData
 					.get(VARIABLE_DECLARATIONS_KEY);
 			Class<?> returnType = (Class<?>) compilationData.get(RETURN_TYPE_KEY);
 			try {
-				return CompiledFunction.get(precompiledFunctionBody, variableDeclarations, returnType);
+				return CompiledFunction.get(precompiledFunctionBody, variableDeclarations, returnType,
+						solutionInstance);
 			} catch (CompilationError e) {
 				throw new VersionAccessException(e);
 			}
@@ -84,9 +89,8 @@ public class Function {
 				(precompiler != null) ? precompiler.apply(functionBody) : functionBody);
 		compilationData.put(VARIABLE_DECLARATIONS_KEY, variableDeclarations);
 		compilationData.put(RETURN_TYPE_KEY, functionReturnType);
-		upToDateCompiledVersion.setCustomValue(compilationData);
 		try {
-			return upToDateCompiledVersion.get();
+			return upToDateCompiledVersion.get(compilationData);
 		} catch (VersionAccessException e) {
 			if (e.getCause() instanceof CompilationError) {
 				String sourceCode = functionBody;

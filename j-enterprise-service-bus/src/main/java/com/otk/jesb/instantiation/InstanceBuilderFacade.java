@@ -11,6 +11,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 
@@ -32,10 +33,11 @@ public class InstanceBuilderFacade extends Facade {
 
 	private InitializationCaseFacade util;
 
-	public InstanceBuilderFacade(Facade parent, InstanceBuilder underlying) {
+	public InstanceBuilderFacade(Facade parent, InstanceBuilder underlying, Solution solutionInstance) {
+		super(solutionInstance);
 		this.parent = parent;
 		this.underlying = underlying;
-		util = new InitializationCaseFacade(null, null, underlying) {
+		util = new InitializationCaseFacade(null, null, underlying, solutionInstance) {
 
 			@Override
 			public boolean isConcrete() {
@@ -65,23 +67,24 @@ public class InstanceBuilderFacade extends Facade {
 
 			@Override
 			protected FieldInitializerFacade createFieldInitializerFacade(String fieldName) {
-				return new FieldInitializerFacade(InstanceBuilderFacade.this, fieldName);
+				return new FieldInitializerFacade(InstanceBuilderFacade.this, fieldName, solutionInstance);
 			}
 
 			@Override
 			protected ListItemInitializerFacade createListItemInitializerFacade(int index) {
-				return new ListItemInitializerFacade(InstanceBuilderFacade.this, index);
+				return new ListItemInitializerFacade(InstanceBuilderFacade.this, index, solutionInstance);
 			}
 
 			@Override
 			protected ParameterInitializerFacade createParameterInitializerFacade(int parameterPosition) {
-				return new ParameterInitializerFacade(InstanceBuilderFacade.this, parameterPosition);
+				return new ParameterInitializerFacade(InstanceBuilderFacade.this, parameterPosition, solutionInstance);
 			}
 
 			@Override
 			protected InitializationSwitchFacade createInitializationSwitchFacade(
 					InitializationSwitch initializationSwitch) {
-				return new InitializationSwitchFacade(InstanceBuilderFacade.this, initializationSwitch);
+				return new InitializationSwitchFacade(InstanceBuilderFacade.this, initializationSwitch,
+						solutionInstance);
 			}
 
 			@Override
@@ -178,9 +181,9 @@ public class InstanceBuilderFacade extends Facade {
 		setConcrete(true);
 	}
 
-	public List<String> getConstructorSignatureOptions() {
+	public List<String> getConstructorSignatureOptions(Solution solutionInstance) {
 		List<String> result = new ArrayList<String>();
-		ITypeInfo typeInfo = getTypeInfo();
+		ITypeInfo typeInfo = getTypeInfo(solutionInstance);
 		for (IMethodInfo constructor : InstantiationUtils.listSortedConstructors(typeInfo)) {
 			result.add(constructor.getSignature());
 		}
@@ -192,25 +195,25 @@ public class InstanceBuilderFacade extends Facade {
 		return underlying;
 	}
 
-	public ITypeInfo getTypeInfo() {
-		String actualTypeName = underlying
-				.computeActualTypeName(InstantiationUtils.getAncestorInstanceBuilders(parent));
-		ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName);
+	public ITypeInfo getTypeInfo(Solution solutionInstance) {
+		String actualTypeName = underlying.computeActualTypeName(InstantiationUtils.getAncestorInstanceBuilders(parent),
+				solutionInstance);
+		ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName, solutionInstance);
 		if (result instanceof IListTypeInfo) {
 			if (parent instanceof FieldInitializerFacade) {
 				FieldInitializerFacade listFieldInitializerFacade = (FieldInitializerFacade) parent;
 				IFieldInfo listFieldInfo = listFieldInitializerFacade.getFieldInfo();
-				result = TypeInfoProvider.getTypeInfo(actualTypeName, listFieldInfo);
+				result = TypeInfoProvider.getTypeInfo(actualTypeName, listFieldInfo, solutionInstance);
 			}
 			if (parent instanceof ParameterInitializerFacade) {
 				ParameterInitializerFacade listParameterInitializerFacade = (ParameterInitializerFacade) parent;
 				InstanceBuilderFacade parentInstanceBuilderFacade = listParameterInitializerFacade
 						.getCurrentInstanceBuilderFacade();
 				AbstractConstructorInfo parentInstanceConstructor = InstantiationUtils.getConstructorInfo(
-						parentInstanceBuilderFacade.getTypeInfo(),
+						parentInstanceBuilderFacade.getTypeInfo(solutionInstance),
 						parentInstanceBuilderFacade.getSelectedConstructorSignature());
 				result = TypeInfoProvider.getTypeInfo(actualTypeName, parentInstanceConstructor,
-						listParameterInitializerFacade.getParameterPosition());
+						listParameterInitializerFacade.getParameterPosition(), solutionInstance);
 			}
 		}
 		if (result instanceof IMapEntryTypeInfo) {
@@ -231,11 +234,12 @@ public class InstanceBuilderFacade extends Facade {
 		return util.collectLiveInitializerFacades(context);
 	}
 
-	public void copyUnderlying() {
+	public void copyUnderlying(Solution solutionInstance) {
 		if (!canCopyUnderlying()) {
 			throw new UnexpectedError();
 		}
-		InstanceBuilderFacade.underlyingClipboard = MiscUtils.copy(underlying);
+		InstanceBuilderFacade.underlyingClipboard = MiscUtils.copy(underlying,
+				solutionInstance.getRuntime().getXstream());
 	}
 
 	public void pasteUnderlying() {
@@ -274,27 +278,27 @@ public class InstanceBuilderFacade extends Facade {
 		return false;
 	}
 
-	public String getSource() {
+	public String getSource(Solution solutionInstance) {
 		if (!canAccessSource()) {
 			throw new UnexpectedError();
 		}
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			MiscUtils.serialize(underlying, output);
+			MiscUtils.serialize(underlying, output, solutionInstance.getRuntime().getXstream());
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
 		return output.toString();
 	}
 
-	public void setSource(String source) {
+	public void setSource(String source, Solution solutionInstance) {
 		if (!canAccessSource()) {
 			throw new UnexpectedError();
 		}
 		ByteArrayInputStream input = new ByteArrayInputStream(source.getBytes());
 		InstanceBuilder deserialized;
 		try {
-			deserialized = (InstanceBuilder) MiscUtils.deserialize(input);
+			deserialized = (InstanceBuilder) MiscUtils.deserialize(input, solutionInstance.getRuntime().getXstream());
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
@@ -318,7 +322,7 @@ public class InstanceBuilderFacade extends Facade {
 		}
 		ITypeInfo typeInfo;
 		try {
-			typeInfo = getTypeInfo();
+			typeInfo = getTypeInfo(solutionInstance);
 		} catch (Throwable t) {
 			throw new ValidationError("Failed to load '" + getTypeName() + "' type", t);
 		}

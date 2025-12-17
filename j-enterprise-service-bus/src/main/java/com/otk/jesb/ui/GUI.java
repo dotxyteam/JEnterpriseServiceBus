@@ -144,7 +144,6 @@ import xy.reflect.ui.info.field.MembersCapsuleFieldInfo;
 import xy.reflect.ui.info.field.FieldInfoProxy;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
-import xy.reflect.ui.info.method.AbstractConstructorInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
@@ -195,6 +194,8 @@ public class GUI extends MultiSwingCustomizer {
 	private static final String CURRENT_INSTANTIATION_FACADE_KEY = GUI.class.getName()
 			+ ".CURRENT_INSTANTIATION_FACADE_KEY";
 	private static final String CURRENT_ACTIVATOR_KEY = GUI.class.getName() + ".CURRENT_VALIDATION_ACTIVATOR_KEY";
+
+	public static Solution SOLUTION_INSTANCE = new Solution();
 
 	private static WeakHashMap<RootInstanceBuilder, Object> rootInitializerBackupByBuilder = new WeakHashMap<RootInstanceBuilder, Object>();
 	private static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
@@ -270,10 +271,10 @@ public class GUI extends MultiSwingCustomizer {
 	}
 
 	public static void backupRootInstanceBuilderState(RootInstanceBuilder rootInstanceBuilder) {
-		Object rootInitializer = rootInstanceBuilder.getRootInstantiationNode();
+		Object rootInitializer = rootInstanceBuilder.getRootInstantiationNode(SOLUTION_INSTANCE);
 		Object rootInitializerBackup;
 		if (rootInitializer != null) {
-			rootInitializerBackup = InstantiationUtils.cloneInitializer(rootInitializer);
+			rootInitializerBackup = InstantiationUtils.cloneInitializer(rootInitializer, SOLUTION_INSTANCE);
 		} else {
 			rootInitializerBackup = null;
 		}
@@ -289,7 +290,7 @@ public class GUI extends MultiSwingCustomizer {
 			@Override
 			public void run() {
 				rootInstanceBuilder.setRootInstantiationNode((rootInitializerBackup == null) ? null
-						: InstantiationUtils.cloneInitializer(rootInitializerBackup));
+						: InstantiationUtils.cloneInitializer(rootInitializerBackup, SOLUTION_INSTANCE));
 			}
 		};
 	}
@@ -326,9 +327,9 @@ public class GUI extends MultiSwingCustomizer {
 	}
 
 	protected Class<?> getMainCustomizedClass(String customizationsIdentifier) {
-		Class<?> result = MiscUtils.getJESBClass(customizationsIdentifier);
+		Class<?> result = SOLUTION_INSTANCE.getRuntime().getJESBClass(customizationsIdentifier);
 		if (Operation.class.isAssignableFrom(result)) {
-			result = MiscUtils.findOperationBuilderClass(result.asSubclass(Operation.class));
+			result = MiscUtils.findOperationBuilderClass(result.asSubclass(Operation.class), SOLUTION_INSTANCE);
 		}
 		return result;
 	}
@@ -449,7 +450,7 @@ public class GUI extends MultiSwingCustomizer {
 	}
 
 	private static boolean isConstantInstanceBuilder(RootInstanceBuilderFacade rootInstanceBuilderFacade) {
-		Accessor<String> rootInstanceDynamicTypeNameAccessor = rootInstanceBuilderFacade.getUnderlying()
+		Accessor<Solution, String> rootInstanceDynamicTypeNameAccessor = rootInstanceBuilderFacade.getUnderlying()
 				.getRootInstanceDynamicTypeNameAccessor();
 		if (rootInstanceDynamicTypeNameAccessor != null) {
 			if (rootInstanceDynamicTypeNameAccessor.getClass().getName()
@@ -663,8 +664,8 @@ public class GUI extends MultiSwingCustomizer {
 							}
 							if (object instanceof InstanceBuilderFacade) {
 								if (field.getName().equals("constructorGroup")) {
-									setVisible(((InstanceBuilderFacade) object).getConstructorSignatureOptions()
-											.size() > 1);
+									setVisible(((InstanceBuilderFacade) object)
+											.getConstructorSignatureOptions(SOLUTION_INSTANCE).size() > 1);
 								}
 								if (field.getName().equals("typeGroup")) {
 									setVisible(((InstanceBuilderFacade) object).getUnderlying()
@@ -1028,7 +1029,7 @@ public class GUI extends MultiSwingCustomizer {
 
 		@Override
 		public ClassLoader getClassPathResourceLoader() {
-			return MiscUtils.getJESBResourceLoader();
+			return SOLUTION_INSTANCE.getRuntime().getJESBResourceLoader();
 		}
 
 	}
@@ -1101,7 +1102,7 @@ public class GUI extends MultiSwingCustomizer {
 
 	private class JESBSubCustomizedUI extends SubCustomizedUI {
 
-		private UpToDate<InfoCustomizations> upToDateSubInfoCustomizations = new UpToDate<InfoCustomizations>() {
+		private UpToDate.GloballyUpToDate<InfoCustomizations> upToDateSubInfoCustomizations = new UpToDate.GloballyUpToDate<InfoCustomizations>() {
 
 			@Override
 			protected Object retrieveLastVersionIdentifier() {
@@ -1144,7 +1145,7 @@ public class GUI extends MultiSwingCustomizer {
 		@Override
 		public Class<?> getReflectedClass(String name) throws ClassNotFoundException {
 			try {
-				return MiscUtils.getJESBClass(name);
+				return SOLUTION_INSTANCE.getRuntime().getJESBClass(name);
 			} catch (PotentialError e) {
 				throw new ClassNotFoundException(name, e);
 			}
@@ -1185,7 +1186,7 @@ public class GUI extends MultiSwingCustomizer {
 				boolean isResourceNoteField(IFieldInfo field, ITypeInfo objectType) {
 					Class<?> objectClass;
 					try {
-						objectClass = MiscUtils.getJESBClass(objectType.getName());
+						objectClass = SOLUTION_INSTANCE.getRuntime().getJESBClass(objectType.getName());
 					} catch (Exception e) {
 						objectClass = null;
 					}
@@ -1254,7 +1255,7 @@ public class GUI extends MultiSwingCustomizer {
 				protected boolean isFormControlEmbedded(IFieldInfo field, ITypeInfo objectType) {
 					Class<?> fieldClass;
 					try {
-						fieldClass = MiscUtils.getJESBClass(field.getType().getName());
+						fieldClass = SOLUTION_INSTANCE.getRuntime().getJESBClass(field.getType().getName());
 					} catch (Exception e) {
 						fieldClass = null;
 					}
@@ -1268,7 +1269,7 @@ public class GUI extends MultiSwingCustomizer {
 				protected boolean canCopy(ITypeInfo type, Object object) {
 					Class<?> objectClass;
 					try {
-						objectClass = MiscUtils.getJESBClass(type.getName());
+						objectClass = SOLUTION_INSTANCE.getRuntime().getJESBClass(type.getName());
 					} catch (Exception e) {
 						objectClass = null;
 					}
@@ -1282,12 +1283,12 @@ public class GUI extends MultiSwingCustomizer {
 				protected Object copy(ITypeInfo type, Object object) {
 					Class<?> objectClass;
 					try {
-						objectClass = MiscUtils.getJESBClass(type.getName());
+						objectClass = SOLUTION_INSTANCE.getRuntime().getJESBClass(type.getName());
 					} catch (Exception e) {
 						objectClass = null;
 					}
 					if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
-						return MiscUtils.copy(object);
+						return MiscUtils.copy(object, GUI.SOLUTION_INSTANCE.getRuntime().getXstream());
 					} else {
 						return super.copy(type, object);
 					}
@@ -1346,7 +1347,8 @@ public class GUI extends MultiSwingCustomizer {
 
 								@Override
 								public Object invoke(Object object, InvocationData invocationData) {
-									return new ListItemReplicationFacade((ListItemInitializerFacade) object);
+									return new ListItemReplicationFacade((ListItemInitializerFacade) object,
+											SOLUTION_INSTANCE);
 								}
 
 							});
@@ -1377,7 +1379,8 @@ public class GUI extends MultiSwingCustomizer {
 									InitializationSwitchFacade switchFacade = (InitializationSwitchFacade) object;
 									InstantiationFunction condition = InitializationCase.createDefaultCondition();
 									InitializationCase initializationCase = new InitializationCase();
-									return new InitializationCaseFacade(switchFacade, condition, initializationCase);
+									return new InitializationCaseFacade(switchFacade, condition, initializationCase,
+											SOLUTION_INSTANCE);
 								}
 
 							});
@@ -1464,10 +1467,16 @@ public class GUI extends MultiSwingCustomizer {
 											.map(itemPosition -> (Facade) itemPosition.getItem())
 											.collect(Collectors.toList());
 									int caseCount = (int) invocationData.getParameterValue(0);
-									InitializationSwitchFacade.install(parentFacade, caseCount, initializerFacades);
+									InitializationSwitchFacade.install(parentFacade, caseCount, initializerFacades,
+											SOLUTION_INSTANCE);
 									return null;
 								}
 
+								@Override
+								public List<ItemPosition> getPostSelection() {
+									return Collections.singletonList(
+											firstItemPosition.getSubItemPosition(0).getSubItemPosition(0));
+								}
 							});
 							List<? extends Facade> siblingSwitchFacades = parentFacade.getChildren().stream().filter(
 									facade -> (facade instanceof InitializationSwitchFacade) && !selection.stream()
@@ -1548,7 +1557,8 @@ public class GUI extends MultiSwingCustomizer {
 												.collect(Collectors.toList());
 										InitializationSwitchFacade selectedSwitchFacade = (InitializationSwitchFacade) invocationData
 												.getParameterValue(0);
-										selectedSwitchFacade.importInitializerFacades(initializerFacades);
+										selectedSwitchFacade.importInitializerFacades(initializerFacades,
+												SOLUTION_INSTANCE);
 										return null;
 									}
 								});
@@ -1866,23 +1876,9 @@ public class GUI extends MultiSwingCustomizer {
 				protected List<IMethodInfo> getConstructors(ITypeInfo type) {
 					Class<?> objectClass;
 					try {
-						objectClass = MiscUtils.getJESBClass(type.getName());
+						objectClass = SOLUTION_INSTANCE.getRuntime().getJESBClass(type.getName());
 					} catch (Exception e) {
 						objectClass = null;
-					}
-					if (type.getName().equals(Solution.Singleton.class.getName())) {
-						return Collections.singletonList(new AbstractConstructorInfo() {
-
-							@Override
-							public Object invoke(Object object, InvocationData invocationData) {
-								return new Solution();
-							}
-
-							@Override
-							public ITypeInfo getReturnValueType() {
-								return type;
-							}
-						});
 					}
 					if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
 						return super.getConstructors(type).stream()
@@ -1896,7 +1892,7 @@ public class GUI extends MultiSwingCustomizer {
 				protected List<IFieldInfo> getFields(ITypeInfo type) {
 					Class<?> objectClass;
 					try {
-						objectClass = MiscUtils.getJESBClass(type.getName());
+						objectClass = SOLUTION_INSTANCE.getRuntime().getJESBClass(type.getName());
 					} catch (Exception e) {
 						objectClass = null;
 					}
@@ -1934,7 +1930,7 @@ public class GUI extends MultiSwingCustomizer {
 							@Override
 							public ITypeInfo getType() {
 								return getTypeInfo(new JavaTypeInfoSource(Preferences.class,
-										new SpecificitiesIdentifier(Solution.Singleton.class.getName(), getName())));
+										new SpecificitiesIdentifier(Solution.class.getName(), getName())));
 							}
 
 							@Override
@@ -1973,7 +1969,7 @@ public class GUI extends MultiSwingCustomizer {
 							@Override
 							public ITypeInfo getType() {
 								return getTypeInfo(new JavaTypeInfoSource(SidePaneValueName.class,
-										new SpecificitiesIdentifier(Solution.Singleton.class.getName(), getName())));
+										new SpecificitiesIdentifier(Solution.class.getName(), getName())));
 							}
 
 							@Override
@@ -2160,9 +2156,9 @@ public class GUI extends MultiSwingCustomizer {
 								} else {
 									currentStep = getCurrentStep(null);
 								}
-								return new PathOptionsProvider(
-										displayedPlan.getValidationContext(currentStep).getVariableDeclarations())
-												.getRootPathNodes();
+								return new PathOptionsProvider(displayedPlan
+										.getValidationContext(currentStep, SOLUTION_INSTANCE).getVariableDeclarations(),
+										SOLUTION_INSTANCE).getRootPathNodes();
 							}
 
 							@Override
@@ -2232,8 +2228,9 @@ public class GUI extends MultiSwingCustomizer {
 									currentStep = getCurrentStep(null);
 								}
 								ITypeInfo variableType = ((ListItemReplicationFacade) object)
-										.guessIterationVariableTypeInfo(displayedPlan.getValidationContext(currentStep)
-												.getVariableDeclarations());
+										.guessIterationVariableTypeInfo(
+												displayedPlan.getValidationContext(currentStep, SOLUTION_INSTANCE)
+														.getVariableDeclarations());
 								if (variableType != null) {
 									return variableType.getName();
 								} else {
@@ -2258,7 +2255,7 @@ public class GUI extends MultiSwingCustomizer {
 				protected List<IMethodInfo> getMethods(ITypeInfo type) {
 					Class<?> objectClass;
 					try {
-						objectClass = MiscUtils.getJESBClass(type.getName());
+						objectClass = SOLUTION_INSTANCE.getRuntime().getJESBClass(type.getName());
 					} catch (Exception e) {
 						objectClass = null;
 					}
@@ -2370,23 +2367,25 @@ public class GUI extends MultiSwingCustomizer {
 										currentStep = displayedStep;
 									}
 									List<VariableDeclaration> baseVariableDeclarations = displayedPlan
-											.getValidationContext(currentStep).getVariableDeclarations();
+											.getValidationContext(currentStep, SOLUTION_INSTANCE)
+											.getVariableDeclarations();
 									InstantiationFunctionCompilationContext compilationContext = new InstantiationFunctionCompilationContext(
 											baseVariableDeclarations, parentFacade);
 									return new FunctionEditor(function, compilationContext.getPrecompiler(),
 											compilationContext.getVariableDeclarations(function),
-											compilationContext.getFunctionReturnType(function));
+											compilationContext.getFunctionReturnType(function), SOLUTION_INSTANCE);
 								} else if (object instanceof Transition.IfCondition) {
 									return new FunctionEditor((Transition.IfCondition) object, null,
-											displayedPlan.getTransitionContextVariableDeclarations(displayedTransition),
-											boolean.class);
+											displayedPlan.getTransitionContextVariableDeclarations(displayedTransition,
+													SOLUTION_INSTANCE),
+											boolean.class, SOLUTION_INSTANCE);
 								} else if ((displayedStep instanceof LoopCompositeStep)
 										&& (((LoopCompositeStep) displayedStep).getOperationBuilder()
 												.getLoopEndCondition() == object)) {
-									return new FunctionEditor(
-											(com.otk.jesb.Function) object, null, ((LoopCompositeStep) displayedStep)
-													.getLoopEndConditionVariableDeclarations(displayedPlan),
-											boolean.class);
+									return new FunctionEditor((com.otk.jesb.Function) object, null,
+											((LoopCompositeStep) displayedStep).getLoopEndConditionVariableDeclarations(
+													SOLUTION_INSTANCE, displayedPlan),
+											boolean.class, SOLUTION_INSTANCE);
 								} else {
 									throw new UnexpectedError();
 								}
@@ -2426,7 +2425,7 @@ public class GUI extends MultiSwingCustomizer {
 							@Override
 							public Object invoke(Object object, InvocationData invocationData) {
 								return ((LoopOperation.Builder) object).retrieveResultsCollectionConfigurationEntries(
-										getCurrentPlan(null), getCurrentStep(null));
+										SOLUTION_INSTANCE, getCurrentPlan(null), getCurrentStep(null));
 							}
 						});
 						result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
@@ -2489,20 +2488,22 @@ public class GUI extends MultiSwingCustomizer {
 				protected List<ITypeInfo> getPolymorphicInstanceSubTypes(ITypeInfo type) {
 					if (type.getName().equals(OperationBuilder.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-						for (OperationMetadata<?> operationMetadata : MiscUtils.getAllOperationMetadatas()) {
+						for (OperationMetadata<?> operationMetadata : MiscUtils
+								.getAllOperationMetadatas(SOLUTION_INSTANCE)) {
 							result.add(getTypeInfo(
 									new JavaTypeInfoSource(operationMetadata.getOperationBuilderClass(), null)));
 						}
 						return result;
 					} else if (type.getName().equals(Resource.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-						for (ResourceMetadata resourceMetadata : MiscUtils.getAllResourceMetadatas()) {
+						for (ResourceMetadata resourceMetadata : MiscUtils.getAllResourceMetadatas(SOLUTION_INSTANCE)) {
 							result.add(getTypeInfo(new JavaTypeInfoSource(resourceMetadata.getResourceClass(), null)));
 						}
 						return result;
 					} else if (type.getName().equals(Activator.class.getName())) {
 						List<ITypeInfo> result = new ArrayList<ITypeInfo>();
-						for (ActivatorMetadata activatorMetadata : MiscUtils.getAllActivatorMetadatas()) {
+						for (ActivatorMetadata activatorMetadata : MiscUtils
+								.getAllActivatorMetadatas(SOLUTION_INSTANCE)) {
 							result.add(
 									getTypeInfo(new JavaTypeInfoSource(activatorMetadata.getActivatorClass(), null)));
 						}
@@ -2517,17 +2518,18 @@ public class GUI extends MultiSwingCustomizer {
 					if (type.getName().equals(ReflectionUIError.class.getName())) {
 						return "Error";
 					}
-					for (OperationMetadata<?> operationMetadata : MiscUtils.getAllOperationMetadatas()) {
+					for (OperationMetadata<?> operationMetadata : MiscUtils
+							.getAllOperationMetadatas(SOLUTION_INSTANCE)) {
 						if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
 							return operationMetadata.getOperationTypeName();
 						}
 					}
-					for (ResourceMetadata resourceMetadata : MiscUtils.getAllResourceMetadatas()) {
+					for (ResourceMetadata resourceMetadata : MiscUtils.getAllResourceMetadatas(SOLUTION_INSTANCE)) {
 						if (resourceMetadata.getResourceClass().getName().equals(type.getName())) {
 							return resourceMetadata.getResourceTypeName();
 						}
 					}
-					for (ActivatorMetadata activatorMetadata : MiscUtils.getAllActivatorMetadatas()) {
+					for (ActivatorMetadata activatorMetadata : MiscUtils.getAllActivatorMetadatas(SOLUTION_INSTANCE)) {
 						if (activatorMetadata.getActivatorClass().getName().equals(type.getName())) {
 							return activatorMetadata.getActivatorName();
 						}
@@ -2537,26 +2539,27 @@ public class GUI extends MultiSwingCustomizer {
 
 				@Override
 				protected ResourcePath getIconImagePath(ITypeInfo type, Object object) {
-					for (OperationMetadata<?> operationMetadata : MiscUtils.getAllOperationMetadatas()) {
+					for (OperationMetadata<?> operationMetadata : MiscUtils
+							.getAllOperationMetadatas(SOLUTION_INSTANCE)) {
 						if (operationMetadata.getOperationBuilderClass().getName().equals(type.getName())) {
 							return operationMetadata.getOperationIconImagePath();
 						}
 					}
-					for (ResourceMetadata resourceMetadata : MiscUtils.getAllResourceMetadatas()) {
+					for (ResourceMetadata resourceMetadata : MiscUtils.getAllResourceMetadatas(SOLUTION_INSTANCE)) {
 						if (resourceMetadata.getResourceClass().getName().equals(type.getName())) {
 							return resourceMetadata.getResourceIconImagePath();
 						}
 					}
-					for (ActivatorMetadata activatorMetadata : MiscUtils.getAllActivatorMetadatas()) {
+					for (ActivatorMetadata activatorMetadata : MiscUtils.getAllActivatorMetadatas(SOLUTION_INSTANCE)) {
 						if (activatorMetadata.getActivatorClass().getName().equals(type.getName())) {
 							return activatorMetadata.getActivatorIconImagePath();
 						}
 					}
 					if (object instanceof Step) {
-						return MiscUtils.getIconImagePath((Step) object);
+						return MiscUtils.getStepIconImagePath((Step) object, SOLUTION_INSTANCE);
 					}
 					if (object instanceof StepCrossing) {
-						return MiscUtils.getIconImagePath(((StepCrossing) object).getStep());
+						return MiscUtils.getStepIconImagePath(((StepCrossing) object).getStep(), SOLUTION_INSTANCE);
 					}
 					if (object instanceof PlanActivation) {
 						return ReflectionUIUtils.getIconImagePath(JESBSubCustomizedUI.this,
@@ -2593,7 +2596,7 @@ public class GUI extends MultiSwingCustomizer {
 				protected boolean isHidden(IFieldInfo field, ITypeInfo objectType) {
 					Class<?> objectClass;
 					try {
-						objectClass = MiscUtils.getJESBClass(objectType.getName());
+						objectClass = SOLUTION_INSTANCE.getRuntime().getJESBClass(objectType.getName());
 					} catch (Exception e) {
 						objectClass = null;
 					}
@@ -2636,7 +2639,7 @@ public class GUI extends MultiSwingCustomizer {
 				protected boolean isHidden(IMethodInfo method, ITypeInfo objectType) {
 					Class<?> objectClass;
 					try {
-						objectClass = MiscUtils.getJESBClass(objectType.getName());
+						objectClass = SOLUTION_INSTANCE.getRuntime().getJESBClass(objectType.getName());
 					} catch (Exception e) {
 						objectClass = null;
 					}
@@ -2677,10 +2680,9 @@ public class GUI extends MultiSwingCustomizer {
 										.replace("<TYPE>", ".*"))) {
 							return true;
 						}
-						if (method.getSignature()
-								.equals(ReflectionUIUtils.buildMethodSignature(Class.class.getName(),
-										"getOperationResultClass",
-										Arrays.asList(Plan.class.getName(), Step.class.getName())))) {
+						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature(Class.class.getName(),
+								"getOperationResultClass",
+								Arrays.asList(Solution.class.getName(), Plan.class.getName(), Step.class.getName())))) {
 							return true;
 						}
 						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
@@ -2749,7 +2751,7 @@ public class GUI extends MultiSwingCustomizer {
 				protected boolean isRelevant(IFieldInfo field, Object object, ITypeInfo objectType) {
 					Class<?> objectClass;
 					try {
-						objectClass = MiscUtils.getJESBClass(objectType.getName());
+						objectClass = SOLUTION_INSTANCE.getRuntime().getJESBClass(objectType.getName());
 					} catch (Exception e) {
 						objectClass = null;
 					}
@@ -2765,7 +2767,7 @@ public class GUI extends MultiSwingCustomizer {
 				protected void validate(ITypeInfo type, Object object, ValidationSession session) throws Exception {
 					Class<?> objectClass;
 					try {
-						objectClass = MiscUtils.getJESBClass(type.getName());
+						objectClass = SOLUTION_INSTANCE.getRuntime().getJESBClass(type.getName());
 					} catch (Exception e) {
 						objectClass = null;
 					}
@@ -2778,7 +2780,7 @@ public class GUI extends MultiSwingCustomizer {
 								Log.get().information("Validating '" + ((Asset) object).getFullName() + "'...");
 							}
 						}
-						((Asset) object).validate(false);
+						((Asset) object).validate(false, SOLUTION_INSTANCE);
 					} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
@@ -2786,7 +2788,7 @@ public class GUI extends MultiSwingCustomizer {
 						if (Log.isVerbose()) {
 							Log.get().information("Validating plan step '" + ((Step) object).getName() + "'...");
 						}
-						((Step) object).validate(false, getCurrentPlan(session));
+						((Step) object).validate(false, SOLUTION_INSTANCE, getCurrentPlan(session));
 					} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
@@ -2795,19 +2797,20 @@ public class GUI extends MultiSwingCustomizer {
 							Log.get().information(
 									"Validating plan transition '" + ((Transition) object).getSummary() + "'...");
 						}
-						((Transition) object).validate(false, getCurrentPlan(session));
+						((Transition) object).validate(false, SOLUTION_INSTANCE, getCurrentPlan(session));
 					} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
-						((Transition.Condition) object).validate(getCurrentPlan(session)
-								.getTransitionContextVariableDeclarations(getCurrentTransition(session)));
+						((Transition.Condition) object)
+								.validate(getCurrentPlan(session).getTransitionContextVariableDeclarations(
+										getCurrentTransition(session), SOLUTION_INSTANCE), SOLUTION_INSTANCE);
 					} else if ((objectClass != null) && OperationStructureBuilder.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
-						((OperationStructureBuilder<?>) object).validate(false, getCurrentPlan(session),
-								getCurrentStep(session));
+						((OperationStructureBuilder<?>) object).validate(false, SOLUTION_INSTANCE,
+								getCurrentPlan(session), getCurrentStep(session));
 					} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
@@ -2821,7 +2824,8 @@ public class GUI extends MultiSwingCustomizer {
 						Step step = getCurrentStep(session);
 						Plan plan = getCurrentPlan(session);
 						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-						((Facade) object).validate(false, plan.getValidationContext(step).getVariableDeclarations());
+						((Facade) object).validate(false,
+								plan.getValidationContext(step, SOLUTION_INSTANCE).getVariableDeclarations());
 					} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
@@ -2836,23 +2840,23 @@ public class GUI extends MultiSwingCustomizer {
 						Plan plan = getCurrentPlan(session);
 						step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 						((ListItemReplicationFacade) object)
-								.validate(plan.getValidationContext(step).getVariableDeclarations());
+								.validate(plan.getValidationContext(step, SOLUTION_INSTANCE).getVariableDeclarations());
 					} else if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
 						}
-						((Structure) object).validate(false);
+						((Structure) object).validate(false, SOLUTION_INSTANCE);
 					} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
 						}
-						((Structure.Element) object).validate(false);
+						((Structure.Element) object).validate(false, SOLUTION_INSTANCE);
 					} else if ((objectClass != null) && ActivatorStructure.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
 						}
 						Plan plan = getCurrentPlan(session);
-						((ActivatorStructure) object).validate(false, plan);
+						((ActivatorStructure) object).validate(false, SOLUTION_INSTANCE, plan);
 					} else if ((objectClass != null) && HTTPServer.RequestHandler.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
@@ -2865,16 +2869,17 @@ public class GUI extends MultiSwingCustomizer {
 							} else {
 								Activator activator = getCurrentActivator(session);
 								if (activator instanceof HTTPRequestReceiver) {
-									server = ((HTTPRequestReceiver) activator).getServerReference().resolve();
+									server = ((HTTPRequestReceiver) activator).getServerReference()
+											.resolve(SOLUTION_INSTANCE);
 								}
 							}
 						}
-						((HTTPServer.RequestHandler) object).validate(server);
+						((HTTPServer.RequestHandler) object).validate(server, SOLUTION_INSTANCE);
 					} else if ((objectClass != null) && ResourceStructure.class.isAssignableFrom(objectClass)) {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
 						}
-						((ResourceStructure) object).validate(false);
+						((ResourceStructure) object).validate(false, SOLUTION_INSTANCE);
 					} else {
 						if (JESB.isDebugModeActive()) {
 							checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
@@ -2899,10 +2904,10 @@ public class GUI extends MultiSwingCustomizer {
 							Step step = getCurrentStep(session);
 							Plan plan = getCurrentPlan(session);
 							RootInstanceBuilderFacade rootInstanceBuilderFacade = ((RootInstanceBuilder) value)
-									.getFacade();
+									.getFacade(SOLUTION_INSTANCE);
 							step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 							rootInstanceBuilderFacade.validate(true,
-									plan.getValidationContext(step).getVariableDeclarations());
+									plan.getValidationContext(step, SOLUTION_INSTANCE).getVariableDeclarations());
 						};
 					}
 					return super.getValueAbstractFormValidationJob(field, object, objectType);
@@ -2914,7 +2919,7 @@ public class GUI extends MultiSwingCustomizer {
 					if (returnValue instanceof Activator) {
 						return (session) -> {
 							Plan plan = getCurrentPlan(session);
-							((Activator) returnValue).validate(true, plan);
+							((Activator) returnValue).validate(true, SOLUTION_INSTANCE, plan);
 						};
 					}
 					return super.getReturnValueAbstractFormValidationJob(method, object, returnValue, objectType);
@@ -2927,12 +2932,12 @@ public class GUI extends MultiSwingCustomizer {
 					if (item instanceof Asset) {
 						return (session) -> {
 							if (item instanceof Folder) {
-								((Folder) item).validate(false);
+								((Folder) item).validate(false, SOLUTION_INSTANCE);
 							} else {
 								if (Log.isVerbose()) {
 									Log.get().information("Validating '" + ((Asset) item).getFullName() + "'...");
 								}
-								((Asset) item).validate(true);
+								((Asset) item).validate(true, SOLUTION_INSTANCE);
 							}
 						};
 					} else if (item instanceof Facade) {
@@ -2946,7 +2951,8 @@ public class GUI extends MultiSwingCustomizer {
 							Step step = getCurrentStep(session);
 							Plan plan = getCurrentPlan(session);
 							step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
-							((Facade) item).validate(false, plan.getValidationContext(step).getVariableDeclarations());
+							((Facade) item).validate(false,
+									plan.getValidationContext(step, SOLUTION_INSTANCE).getVariableDeclarations());
 						};
 					} else if (item instanceof FacadeOutline) {
 						return (session) -> {
@@ -2960,7 +2966,7 @@ public class GUI extends MultiSwingCustomizer {
 							Plan plan = getCurrentPlan(session);
 							step = (plan.getOutputBuilder() == rootInstanceBuilderFacade.getUnderlying()) ? null : step;
 							(((FacadeOutline) item).getFacade()).validate(false,
-									plan.getValidationContext(step).getVariableDeclarations());
+									plan.getValidationContext(step, SOLUTION_INSTANCE).getVariableDeclarations());
 						};
 					}
 					return super.getListItemAbstractFormValidationJob(listType, itemPosition);
@@ -3056,7 +3062,8 @@ public class GUI extends MultiSwingCustomizer {
 						} else {
 							Activator activator = getCurrentActivator(session);
 							if (activator instanceof HTTPRequestReceiver) {
-								server = ((HTTPRequestReceiver) activator).getServerReference().resolve();
+								server = ((HTTPRequestReceiver) activator).getServerReference()
+										.resolve(SOLUTION_INSTANCE);
 							}
 						}
 						if (server == null) {
@@ -3393,7 +3400,7 @@ public class GUI extends MultiSwingCustomizer {
 								@SuppressWarnings({ "rawtypes" })
 								@Override
 								public Object getValue(Object object) {
-									return ((Variant) object).getValue();
+									return ((Variant) object).getValue(SOLUTION_INSTANCE);
 								}
 
 								@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -3666,7 +3673,7 @@ public class GUI extends MultiSwingCustomizer {
 						@Override
 						protected void validate(ITypeInfo type, Object object, ValidationSession session)
 								throws Exception {
-							((Variant<?>) object).validate();
+							((Variant<?>) object).validate(SOLUTION_INSTANCE);
 						}
 
 						@Override
@@ -3686,7 +3693,8 @@ public class GUI extends MultiSwingCustomizer {
 
 		@Override
 		public Iterator<Expression<String>> iterator() {
-			return new Variant<Object>(Object.class).getVariableReferenceExpressionOptions().iterator();
+			return new Variant<Object>(Object.class).getVariableReferenceExpressionOptions(SOLUTION_INSTANCE)
+					.iterator();
 		}
 
 		@Override

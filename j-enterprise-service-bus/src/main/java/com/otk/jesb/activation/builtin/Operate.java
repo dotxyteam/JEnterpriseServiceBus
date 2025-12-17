@@ -9,6 +9,7 @@ import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
@@ -21,8 +22,8 @@ public class Operate extends Activator {
 	private ClassicStructure inputStructure;
 	private ClassicStructure outputStructure;
 
-	private UpToDate<Class<?>> upToDateInputClass = new UpToDateInputClass();
-	private UpToDate<Class<?>> upToDateOutputClass = new UpToDateOutputClass();
+	private UpToDate<Solution, Class<?>> upToDateInputClass = new UpToDateInputClass();
+	private UpToDate<Solution, Class<?>> upToDateOutputClass = new UpToDateOutputClass();
 
 	public ClassicStructure getInputStructure() {
 		return inputStructure;
@@ -41,18 +42,18 @@ public class Operate extends Activator {
 	}
 
 	@Override
-	public Class<?> getInputClass() {
+	public Class<?> getInputClass(Solution solutionInstance) {
 		try {
-			return upToDateInputClass.get();
+			return upToDateInputClass.get(solutionInstance);
 		} catch (VersionAccessException e) {
 			throw new PotentialError(e);
 		}
 	}
 
 	@Override
-	public Class<?> getOutputClass() {
+	public Class<?> getOutputClass(Solution solutionInstance) {
 		try {
-			return upToDateOutputClass.get();
+			return upToDateOutputClass.get(solutionInstance);
 		} catch (VersionAccessException e) {
 			throw new PotentialError(e);
 		}
@@ -64,12 +65,12 @@ public class Operate extends Activator {
 	}
 
 	@Override
-	public void initializeAutomaticTrigger(ActivationHandler activationHandler) {
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler, Solution solutionInstance) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void finalizeAutomaticTrigger() throws Exception {
+	public void finalizeAutomaticTrigger(Solution solutionInstance) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -79,32 +80,34 @@ public class Operate extends Activator {
 	}
 
 	@Override
-	public void validate(boolean recursively, Plan plan) throws ValidationError {
-		super.validate(recursively, plan);
+	public void validate(boolean recursively, Solution solutionInstance, Plan plan) throws ValidationError {
+		super.validate(recursively, solutionInstance, plan);
 		if (inputStructure != null) {
 			try {
-				inputStructure.validate(recursively);
+				inputStructure.validate(recursively, solutionInstance);
 			} catch (ValidationError e) {
 				throw new ValidationError("Failed to validate the input structure", e);
 			}
 		}
 		if (outputStructure != null) {
 			try {
-				outputStructure.validate(recursively);
+				outputStructure.validate(recursively, solutionInstance);
 			} catch (ValidationError e) {
 				throw new ValidationError("Failed to validate the output structure", e);
 			}
 		}
 	}
 
-	private class UpToDateInputClass extends UpToDate<Class<?>> {
+	private class UpToDateInputClass extends UpToDate<Solution, Class<?>> {
 		@Override
-		protected Object retrieveLastVersionIdentifier() {
-			return (inputStructure != null) ? MiscUtils.serialize(inputStructure) : null;
+		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
+			return (inputStructure != null)
+					? MiscUtils.serialize(inputStructure, solutionInstance.getRuntime().getXstream())
+					: null;
 		}
 
 		@Override
-		protected Class<?> obtainLatest(Object versionIdentifier) {
+		protected Class<?> obtainLatest(Solution solutionInstance, Object versionIdentifier) {
 			if (inputStructure == null) {
 				return null;
 			} else {
@@ -112,8 +115,8 @@ public class Operate extends Activator {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Input"
 							+ InstantiationUtils
 									.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(Operate.this));
-					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-							inputStructure.generateJavaTypeSourceCode(className));
+					return solutionInstance.getRuntime().getInMemoryCompiler().compile(className,
+							inputStructure.generateJavaTypeSourceCode(className, solutionInstance));
 				} catch (CompilationError e) {
 					throw new PotentialError(e);
 				}
@@ -121,14 +124,16 @@ public class Operate extends Activator {
 		}
 	}
 
-	private class UpToDateOutputClass extends UpToDate<Class<?>> {
+	private class UpToDateOutputClass extends UpToDate<Solution, Class<?>> {
 		@Override
-		protected Object retrieveLastVersionIdentifier() {
-			return (outputStructure != null) ? MiscUtils.serialize(outputStructure) : null;
+		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
+			return (outputStructure != null)
+					? MiscUtils.serialize(outputStructure, solutionInstance.getRuntime().getXstream())
+					: null;
 		}
 
 		@Override
-		protected Class<?> obtainLatest(Object versionIdentifier) {
+		protected Class<?> obtainLatest(Solution solutionInstance, Object versionIdentifier) {
 			if (outputStructure == null) {
 				return null;
 			} else {
@@ -136,8 +141,8 @@ public class Operate extends Activator {
 					String className = Plan.class.getPackage().getName() + "." + Plan.class.getSimpleName() + "Output"
 							+ InstantiationUtils
 									.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(Operate.this));
-					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-							outputStructure.generateJavaTypeSourceCode(className));
+					return solutionInstance.getRuntime().getInMemoryCompiler().compile(className,
+							outputStructure.generateJavaTypeSourceCode(className, solutionInstance));
 				} catch (CompilationError e) {
 					throw new PotentialError(e);
 				}

@@ -10,16 +10,19 @@ import com.otk.jesb.StandardError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.Variable;
 import com.otk.jesb.VariableDeclaration;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
 
 public class CompiledFunction<T> {
 
 	private Class<?> functionClass;
 	private String functionClassSource;
+	private Solution solutionInstance;
 
-	private CompiledFunction(Class<?> functionClass, String functionClassSource) {
+	private CompiledFunction(Class<?> functionClass, String functionClassSource, Solution solutionInstance) {
 		this.functionClass = functionClass;
 		this.functionClassSource = functionClassSource;
+		this.solutionInstance = solutionInstance;
 	}
 
 	public Class<?> getFunctionClass() {
@@ -30,8 +33,12 @@ public class CompiledFunction<T> {
 		return functionClassSource;
 	}
 
+	public Solution getSolutionInstance() {
+		return solutionInstance;
+	}
+
 	public static <T> CompiledFunction<T> get(String functionBody, List<VariableDeclaration> variableDeclarations,
-			Class<T> returnType) throws CompilationError {
+			Class<T> returnType, Solution solutionInstance) throws CompilationError {
 		String functionClassName = CompiledFunction.class.getPackage().getName() + "."
 				+ CompiledFunction.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier();
 		String preBody = "";
@@ -53,7 +60,8 @@ public class CompiledFunction<T> {
 		String functionClassSource = preBody + functionBody + postBody;
 		Class<?> functionClass;
 		try {
-			functionClass = MiscUtils.IN_MEMORY_COMPILER.compile(functionClassName, functionClassSource);
+			functionClass = solutionInstance.getRuntime().getInMemoryCompiler().compile(functionClassName,
+					functionClassSource);
 		} catch (CompilationError e) {
 			int startPosition = e.getStartPosition() - preBody.length();
 			if (startPosition < 0) {
@@ -71,12 +79,12 @@ public class CompiledFunction<T> {
 			}
 			throw new CompilationError(startPosition, endPosition, e.getMessage(), null, functionBody, e);
 		}
-		return new CompiledFunction<T>(functionClass, functionClassSource);
+		return new CompiledFunction<T>(functionClass, functionClassSource, solutionInstance);
 	}
 
 	@SuppressWarnings("unchecked")
 	public T call(Variable... variables) throws FunctionCallError {
-		return (T)call(Arrays.asList(variables));
+		return (T) call(Arrays.asList(variables));
 	}
 
 	public Object call(List<Variable> variables) throws FunctionCallError {

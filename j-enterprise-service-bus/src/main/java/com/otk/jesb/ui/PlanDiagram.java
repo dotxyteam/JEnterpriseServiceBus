@@ -360,7 +360,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			@Override
 			public List<JDiagramActionCategory> getActionCategories() {
 				List<String> operationCategoryNames = new ArrayList<String>();
-				for (OperationMetadata<?> metadata : MiscUtils.getAllOperationMetadatas()) {
+				for (OperationMetadata<?> metadata : MiscUtils.getAllOperationMetadatas(GUI.SOLUTION_INSTANCE)) {
 					if (!operationCategoryNames.contains(metadata.getCategoryName())) {
 						operationCategoryNames.add(metadata.getCategoryName());
 					}
@@ -377,7 +377,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 						@Override
 						public List<JDiagramAction> getActions() {
 							List<JDiagramAction> result = new ArrayList<JDiagramAction>();
-							for (OperationMetadata<?> metadata : MiscUtils.getAllOperationMetadatas()) {
+							for (OperationMetadata<?> metadata : MiscUtils
+									.getAllOperationMetadatas(GUI.SOLUTION_INSTANCE)) {
 								if (name.equals(metadata.getCategoryName())) {
 									result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
 										@Override
@@ -716,8 +717,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				Step currentStep = (Step) getSelection().iterator().next().getValue();
-				OperationBuilder<?> operationBuilder = MiscUtils.copy(currentStep.getOperationBuilder());
-				try (Experiment experiment = new Experiment(operationBuilder)) {
+				OperationBuilder<?> operationBuilder = MiscUtils.copy(currentStep.getOperationBuilder(),
+						GUI.SOLUTION_INSTANCE.getRuntime().getXstream());
+				try (Experiment experiment = new Experiment(operationBuilder, GUI.SOLUTION_INSTANCE)) {
 					GUI.INSTANCE.openObjectDialog(PlanDiagram.this, experiment, null, null, false);
 				} catch (Exception e) {
 					throw new UnexpectedError(e);
@@ -782,7 +784,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			});
 			for (Step step : sortedSteps) {
 				JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
-				ResourcePath iconImagePath = MiscUtils.getIconImagePath(step);
+				ResourcePath iconImagePath = MiscUtils.getStepIconImagePath(step, GUI.SOLUTION_INSTANCE);
 				if (iconImagePath != null) {
 					Image iconImage = adaptedIconImageByPath.get(iconImagePath);
 					if (iconImage == null) {
@@ -929,7 +931,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	public void validateControlData(ValidationSession session) throws Exception {
 		Plan plan = getPlan();
-		plan.validate(false);
+		plan.validate(false, GUI.SOLUTION_INSTANCE);
 		List<Pair<String, PlanElement>> titleAndElementPairs = new ArrayList<Pair<String, PlanElement>>();
 		titleAndElementPairs.addAll(plan.getSteps().stream()
 				.map(step -> new Pair<String, PlanElement>("step '" + step.getName() + "'", step))
@@ -945,7 +947,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			try {
 				swingRenderer.getReflectionUI().getValidationErrorRegistry()
 						.attributing(toValidate.getSecond(),
-								(sessionArg) -> toValidate.getSecond().validate(true, plan),
+								(sessionArg) -> toValidate.getSecond().validate(true, GUI.SOLUTION_INSTANCE, plan),
 								validationError -> swingRenderer.getReflectionUI().logDebug(validationError))
 						.validate(session);
 			} catch (Exception e) {
@@ -1115,7 +1117,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			Set<Object> selectedStepAndTransitions = planDiagram.getSelection().stream()
 					.map(selectedObject -> selectedObject.getValue()).collect(Collectors.toSet());
 			try {
-				MiscUtils.serialize(plan, current.planStore);
+				MiscUtils.serialize(plan, current.planStore, GUI.SOLUTION_INSTANCE.getRuntime().getXstream());
 			} catch (IOException e) {
 				throw new UnexpectedError(e);
 			}
@@ -1133,7 +1135,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		public static void paste(PlanDiagram planDiagram, int x, int y) {
 			Plan planCopy;
 			try {
-				planCopy = (Plan) MiscUtils.deserialize(new ByteArrayInputStream(current.planStore.toByteArray()));
+				planCopy = (Plan) MiscUtils.deserialize(new ByteArrayInputStream(current.planStore.toByteArray()),
+						GUI.SOLUTION_INSTANCE.getRuntime().getXstream());
 			} catch (IOException e) {
 				throw new UnexpectedError(e);
 			}

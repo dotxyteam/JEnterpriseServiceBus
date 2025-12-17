@@ -18,6 +18,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.ui.GUI;
 import com.otk.jesb.util.MiscUtils;
 
@@ -39,9 +40,6 @@ public class HTTPServer extends Resource {
 	private List<RequestHandler> requestHandlers = new ArrayList<HTTPServer.RequestHandler>();
 
 	private Server jettyServer;
-
-	public HTTPServer() {
-	}
 
 	public HTTPServer(String name) {
 		super(name);
@@ -71,9 +69,9 @@ public class HTTPServer extends Resource {
 		this.requestHandlers = requestHandlers;
 	}
 
-	public RequestHandler expectRequestHandler(String servicePath) {
-		RequestHandler result = requestHandlers.stream()
-				.filter(requestHandler -> servicePath.equals(requestHandler.getServicePathVariant().getValue()))
+	public RequestHandler expectRequestHandler(String servicePath, Solution solutionInstance) {
+		RequestHandler result = requestHandlers.stream().filter(
+				requestHandler -> servicePath.equals(requestHandler.getServicePathVariant().getValue(solutionInstance)))
 				.findFirst().orElse(null);
 		if (result == null) {
 			throw new IllegalArgumentException("No request handler found for service path '" + servicePath + "'");
@@ -81,27 +79,27 @@ public class HTTPServer extends Resource {
 		return result;
 	}
 
-	public String getLocaBaseURL() {
-		String hostName = getHostNameVariant().getValue();
-		Integer port = getPortVariant().getValue();
+	public String getLocaBaseURL(Solution solutionInstance) {
+		String hostName = getHostNameVariant().getValue(solutionInstance);
+		Integer port = getPortVariant().getValue(solutionInstance);
 		return "http://" + hostName + ":" + port;
 	}
 
-	public String test() throws Exception {
-		String hostName = getHostNameVariant().getValue();
-		Integer port = getPortVariant().getValue();
+	public String test(Solution solutionInstance) throws Exception {
+		String hostName = getHostNameVariant().getValue(solutionInstance);
+		Integer port = getPortVariant().getValue(solutionInstance);
 		Server server = new Server(new InetSocketAddress(hostName, port));
 		server.start();
 		server.stop();
 		return "Connection successful!";
 	}
 
-	private synchronized void start() throws Exception {
+	private synchronized void start(Solution solutionInstance) throws Exception {
 		if (isActive()) {
 			throw new UnexpectedError();
 		}
-		String hostName = getHostNameVariant().getValue();
-		Integer port = getPortVariant().getValue();
+		String hostName = getHostNameVariant().getValue(solutionInstance);
+		Integer port = getPortVariant().getValue(solutionInstance);
 		jettyServer = new Server(new InetSocketAddress(hostName, port));
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 		context.setContextPath("/");
@@ -129,10 +127,10 @@ public class HTTPServer extends Resource {
 	}
 
 	@Override
-	public void validate(boolean recursively) throws ValidationError {
-		super.validate(recursively);
-		String hostName = getHostNameVariant().getValue();
-		Integer port = getPortVariant().getValue();
+	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
+		super.validate(recursively, solutionInstance);
+		String hostName = getHostNameVariant().getValue(solutionInstance);
+		Integer port = getPortVariant().getValue(solutionInstance);
 		if ((hostName == null) || (hostName.trim().length() == 0)) {
 			throw new ValidationError("Host name not provided");
 		}
@@ -144,16 +142,16 @@ public class HTTPServer extends Resource {
 		}
 		if (recursively) {
 			for (RequestHandler requestHandler : requestHandlers) {
-				requestHandler.validate(this);
+				requestHandler.validate(this, solutionInstance);
 			}
 		}
 	}
 
 	public static abstract class RequestHandler {
 
-		protected abstract void install(HTTPServer server) throws Exception;
+		protected abstract void install(HTTPServer server, Solution solutionInstance) throws Exception;
 
-		protected abstract void uninstall(HTTPServer server) throws Exception;
+		protected abstract void uninstall(HTTPServer server, Solution solutionInstance) throws Exception;
 
 		private Variant<String> servicePathVariant = new Variant<String>(String.class);
 		protected boolean active = false;
@@ -174,7 +172,7 @@ public class HTTPServer extends Resource {
 			return active;
 		}
 
-		public void activate(HTTPServer server) throws Exception {
+		public void activate(HTTPServer server, Solution solutionInstance) throws Exception {
 			if (active) {
 				throw new UnexpectedError();
 			}
@@ -185,14 +183,14 @@ public class HTTPServer extends Resource {
 					active = true;
 					if (server.requestHandlers.stream()
 							.noneMatch(requestHandler -> (requestHandler != this) && requestHandler.isActive())) {
-						server.start();
+						server.start(solutionInstance);
 					}
-					install(server);
+					install(server, solutionInstance);
 				}
 			}
 		}
 
-		public void deactivate(HTTPServer server) throws Exception {
+		public void deactivate(HTTPServer server, Solution solutionInstance) throws Exception {
 			if (!active) {
 				throw new UnexpectedError();
 			}
@@ -202,7 +200,7 @@ public class HTTPServer extends Resource {
 				} else {
 					MiscUtils.willRethrowCommonly((compositeException) -> {
 						compositeException.tryCactch(() -> {
-							uninstall(server);
+							uninstall(server, solutionInstance);
 						});
 						if (server.requestHandlers.stream()
 								.noneMatch(requestHandler -> (requestHandler != this) && requestHandler.isActive())) {
@@ -216,8 +214,8 @@ public class HTTPServer extends Resource {
 			}
 		}
 
-		public void validate(HTTPServer server) throws ValidationError {
-			String servicePath = servicePathVariant.getValue();
+		public void validate(HTTPServer server, Solution solutionInstance) throws ValidationError {
+			String servicePath = servicePathVariant.getValue(solutionInstance);
 			if ((servicePath == null) || servicePath.isEmpty()) {
 				throw new ValidationError("Service path not provided");
 			}
@@ -225,8 +223,8 @@ public class HTTPServer extends Resource {
 				throw new ValidationError("Service path must start and end with '/'");
 			}
 			if (server.requestHandlers.stream().filter(Predicate.isEqual(this).negate())
-					.map(requestHandler -> requestHandler.getServicePathVariant().getValue()).filter(Objects::nonNull)
-					.anyMatch(Predicate.isEqual(servicePath))) {
+					.map(requestHandler -> requestHandler.getServicePathVariant().getValue(solutionInstance))
+					.filter(Objects::nonNull).anyMatch(Predicate.isEqual(servicePath))) {
 				throw new ValidationError("Duplicate service path: '" + servicePath + "'");
 			}
 		}

@@ -7,6 +7,7 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.Reference;
 import com.otk.jesb.util.Accessor;
@@ -39,22 +40,23 @@ public class SharedStructureModel extends Resource {
 	}
 
 	private Structure structure = new ClassicStructure();
-	private UpToDate<Class<?>> upToDateStructuredClass = new UpToDate<Class<?>>() {
+	private UpToDate<Solution, Class<?>> upToDateStructuredClass = new UpToDate<Solution, Class<?>>() {
 		@Override
-		protected Object retrieveLastVersionIdentifier() {
-			return (structure != null) ? MiscUtils.serialize(structure) : null;
+		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
+			return (structure != null) ? MiscUtils.serialize(structure, solutionInstance.getRuntime().getXstream())
+					: null;
 		}
 
 		@Override
-		protected Class<?> obtainLatest(Object versionIdentifier) {
+		protected Class<?> obtainLatest(Solution solutionInstance, Object versionIdentifier) {
 			if (structure == null) {
 				return null;
 			} else {
 				try {
 					String className = STRUCTURED_CLASS_NAME_PREFIX + InstantiationUtils.toRelativeTypeNameVariablePart(
 							MiscUtils.toDigitalUniqueIdentifier(SharedStructureModel.this));
-					return (Class<?>) MiscUtils.IN_MEMORY_COMPILER.compile(className,
-							structure.generateJavaTypeSourceCode(className));
+					return (Class<?>) solutionInstance.getRuntime().getInMemoryCompiler().compile(className,
+							structure.generateJavaTypeSourceCode(className, solutionInstance));
 				} catch (CompilationError e) {
 					throw new PotentialError(e);
 				}
@@ -62,11 +64,12 @@ public class SharedStructureModel extends Resource {
 		}
 	};
 
-	public SharedStructureModel() {
-	}
-
 	public SharedStructureModel(String name) {
 		super(name);
+	}
+
+	public SharedStructureModel() {
+		super();
 	}
 
 	public Structure getStructure() {
@@ -77,25 +80,25 @@ public class SharedStructureModel extends Resource {
 		this.structure = structure;
 	}
 
-	public Class<?> getStructuredClass() {
+	public Class<?> getStructuredClass(Solution solutionInstance) {
 		try {
-			return upToDateStructuredClass.get();
+			return upToDateStructuredClass.get(solutionInstance);
 		} catch (VersionAccessException e) {
 			throw new PotentialError(e);
 		}
 	}
 
-	public Accessor<String> getStructuredClassNameAccessor() {
-		return new StructuredClassNameAccessor(Reference.get(this));
+	public Accessor<Solution, String> getStructuredClassNameAccessor(Solution solutionInstance) {
+		return new StructuredClassNameAccessor(Reference.get(this, solutionInstance));
 	}
 
 	@Override
-	public void validate(boolean recursively) throws ValidationError {
-		super.validate(recursively);
+	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
+		super.validate(recursively, solutionInstance);
 		if (recursively) {
 			if (structure != null) {
 				try {
-					structure.validate(recursively);
+					structure.validate(recursively, solutionInstance);
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to validate the structure", e);
 				}
@@ -123,7 +126,7 @@ public class SharedStructureModel extends Resource {
 
 	}
 
-	private static class StructuredClassNameAccessor extends Accessor<String> {
+	private static class StructuredClassNameAccessor extends Accessor<Solution, String> {
 
 		private Reference<SharedStructureModel> modelReference;
 
@@ -132,12 +135,12 @@ public class SharedStructureModel extends Resource {
 		}
 
 		@Override
-		public String get() {
-			SharedStructureModel model = modelReference.resolve();
+		public String get(Solution solutionInstance) {
+			SharedStructureModel model = modelReference.resolve(solutionInstance);
 			if (model == null) {
 				return null;
 			}
-			return model.getStructuredClass().getName();
+			return model.getStructuredClass(solutionInstance).getName();
 		}
 	}
 

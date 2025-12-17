@@ -42,11 +42,6 @@
 - allow to create template operations (ex: for dynamic jdbc suery statement) ???
 (maybe allow to do it via the JESB API)
 - simplify the reuse of the JESB API:
-	- allow the use of Solution instances other than the default
-		- The Solution is the Context 
-		- => add a parent solution field to Reference/Variant and Asset/Operation/Activator classes
-		- => use ITypeInfo#getParent() to ease these classes instantiation through the GUI
-		- => check and make most "public static final" instances non-static
 	- add method InitializerFacade.getChild(String displayString).
 	- add method RootInstanceBuilder.getRootInstantiationFacade()
 - factorize activators error handling to prevent unexpected deactivation

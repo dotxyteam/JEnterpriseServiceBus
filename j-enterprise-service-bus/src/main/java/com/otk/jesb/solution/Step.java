@@ -83,7 +83,7 @@ public class Step extends PlanElement {
 	}
 
 	@Override
-	public void validate(boolean recursively, Plan plan) throws ValidationError {
+	public void validate(boolean recursively, Solution solutionInstance, Plan plan) throws ValidationError {
 		if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(name).matches()) {
 			throw new ValidationError("The step name must match the following regular expression: "
 					+ MiscUtils.VARIABLE_NAME_PATTERN.pattern());
@@ -93,7 +93,7 @@ public class Step extends PlanElement {
 		}
 		if (recursively) {
 			if (operationBuilder != null) {
-				operationBuilder.validate(recursively, plan, this);
+				operationBuilder.validate(recursively, solutionInstance, plan, this);
 			}
 		}
 	}

@@ -11,9 +11,11 @@ public class StepCrossing extends StepOccurrence {
 	private Object operationResult;
 	private Throwable operationError;
 	private List<Transition> validTransitions;
+	private Solution solutionInstance;
 
-	public StepCrossing(Step step, Plan plan) {
-		super(step, plan);
+	public StepCrossing(Step step, Plan plan, Solution solutionInstance) {
+		super(step, plan, solutionInstance);
+		this.solutionInstance = solutionInstance;
 	}
 
 	public Object getOperationResult() {
@@ -50,7 +52,8 @@ public class StepCrossing extends StepOccurrence {
 
 	@Override
 	public Object getValue() {
-		return (getPlan().getResultVariableDeclaration(getStep()) != null) ? operationResult : Variable.UNDEFINED_VALUE;
+		return (getPlan().getResultVariableDeclaration(getStep(), solutionInstance) != null) ? operationResult
+				: Variable.UNDEFINED_VALUE;
 	}
 
 	@Override

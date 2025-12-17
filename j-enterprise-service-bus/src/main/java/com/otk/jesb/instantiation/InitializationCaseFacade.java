@@ -13,6 +13,7 @@ import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import xy.reflect.ui.info.field.IFieldInfo;
@@ -26,9 +27,11 @@ public class InitializationCaseFacade extends Facade {
 	private InitializationSwitchFacade parent;
 	private InstantiationFunction condition;
 	private InitializationCase underlying;
+	private Solution solutionInstance;
 
 	public InitializationCaseFacade(InitializationSwitchFacade parent, InstantiationFunction condition,
-			InitializationCase underlying) {
+			InitializationCase underlying, Solution solutionInstance) {
+		super(solutionInstance);
 		this.parent = parent;
 		this.condition = condition;
 		this.underlying = underlying;
@@ -166,14 +169,14 @@ public class InitializationCaseFacade extends Facade {
 				.indexOf(underlying);
 	}
 
-	public void duplicate() {
+	public void duplicate(Solution solutionInstance) {
 		InstantiationFunction conditionCopy;
 		if (isDefault()) {
 			conditionCopy = InitializationCase.createDefaultCondition();
 		} else {
-			conditionCopy = MiscUtils.copy(condition);
+			conditionCopy = MiscUtils.copy(condition, solutionInstance.getRuntime().getXstream());
 		}
-		InitializationCase underlyingCopy = MiscUtils.copy(getUnderlying());
+		InitializationCase underlyingCopy = MiscUtils.copy(getUnderlying(), solutionInstance.getRuntime().getXstream());
 		parent.getUnderlying().insertCase(getIndex(), conditionCopy, underlyingCopy);
 	}
 
@@ -228,7 +231,7 @@ public class InitializationCaseFacade extends Facade {
 		InstanceBuilderFacade instanceBuilderFacade = getCurrentInstanceBuilderFacade();
 		ITypeInfo typeInfo;
 		try {
-			typeInfo = instanceBuilderFacade.getTypeInfo();
+			typeInfo = instanceBuilderFacade.getTypeInfo(solutionInstance);
 		} catch (Throwable t) {
 			if (Log.isVerbose()) {
 				Log.get().error(t);
@@ -272,7 +275,7 @@ public class InitializationCaseFacade extends Facade {
 				if (!mustHaveFieldFacadeLocally(fieldInfo)) {
 					continue;
 				}
-				if (!shouldFieldBeUsedForInstantiation(typeInfo, fieldInfo)) {
+				if (!shouldFieldBeUsedForInstantiation(typeInfo, fieldInfo, solutionInstance)) {
 					continue;
 				}
 				result.add(createFieldInitializerFacade(fieldInfo.getName()));
@@ -328,8 +331,9 @@ public class InitializationCaseFacade extends Facade {
 		return true;
 	}
 
-	private boolean shouldFieldBeUsedForInstantiation(ITypeInfo typeInfo, IFieldInfo fieldInfo) {
-		if (Throwable.class.isAssignableFrom(MiscUtils.getJESBClass(typeInfo.getName()))) {
+	private boolean shouldFieldBeUsedForInstantiation(ITypeInfo typeInfo, IFieldInfo fieldInfo,
+			Solution solutionInstance) {
+		if (Throwable.class.isAssignableFrom(solutionInstance.getRuntime().getJESBClass(typeInfo.getName()))) {
 			if (TypeInfoProvider.getTypeInfo(Throwable.class).getFields().stream()
 					.anyMatch(throwableFieldInfo -> throwableFieldInfo.getName().equals(fieldInfo.getName()))) {
 				return false;
@@ -348,7 +352,8 @@ public class InitializationCaseFacade extends Facade {
 			result = Math.max(result, listItemInitializer.getIndex());
 		}
 		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {
-			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch);
+			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch,
+					solutionInstance);
 			for (InitializationCaseFacade caseFacade : switchFacade.getChildren()) {
 				result = Math.max(result, caseFacade.getGreatestListItemInitializerIndex());
 			}
@@ -357,26 +362,27 @@ public class InitializationCaseFacade extends Facade {
 	}
 
 	protected InitializationSwitchFacade createInitializationSwitchFacade(InitializationSwitch initializationSwitch) {
-		return new InitializationSwitchFacade(this, initializationSwitch);
+		return new InitializationSwitchFacade(this, initializationSwitch, solutionInstance);
 	}
 
 	protected FieldInitializerFacade createFieldInitializerFacade(String fieldName) {
-		return new FieldInitializerFacade(this, fieldName);
+		return new FieldInitializerFacade(this, fieldName, solutionInstance);
 	}
 
 	protected ListItemInitializerFacade createListItemInitializerFacade(int index) {
-		return new ListItemInitializerFacade(this, index);
+		return new ListItemInitializerFacade(this, index, solutionInstance);
 	}
 
 	protected ParameterInitializerFacade createParameterInitializerFacade(int parameterPosition) {
-		return new ParameterInitializerFacade(this, parameterPosition);
+		return new ParameterInitializerFacade(this, parameterPosition, solutionInstance);
 	}
 
 	protected boolean isFieldInitializedInChildSwitch(IFieldInfo fieldInfo) {
 		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {
-			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch);
+			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch,
+					solutionInstance);
 			InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(switchFacade, null,
-					switchFacade.getUnderlying().getDefaultInitializationCase());
+					switchFacade.getUnderlying().getDefaultInitializationCase(), solutionInstance);
 			if (defaultCaseFacade.getUnderlying().getFieldInitializer(fieldInfo.getName()) != null) {
 				return true;
 			}
@@ -389,9 +395,10 @@ public class InitializationCaseFacade extends Facade {
 
 	protected boolean isParameterInitializedInChildSwitch(IParameterInfo parameterInfo) {
 		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {
-			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch);
+			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch,
+					solutionInstance);
 			InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(switchFacade, null,
-					switchFacade.getUnderlying().getDefaultInitializationCase());
+					switchFacade.getUnderlying().getDefaultInitializationCase(), solutionInstance);
 			if (defaultCaseFacade.getUnderlying().getParameterInitializer(parameterInfo.getPosition()) != null) {
 				return true;
 			}
@@ -404,9 +411,10 @@ public class InitializationCaseFacade extends Facade {
 
 	protected boolean areListItemsInitializedInChildSwitch() {
 		for (InitializationSwitch initializationSwitch : underlying.getInitializationSwitches()) {
-			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch);
+			InitializationSwitchFacade switchFacade = new InitializationSwitchFacade(this, initializationSwitch,
+					solutionInstance);
 			InitializationCaseFacade defaultCaseFacade = new InitializationCaseFacade(switchFacade, null,
-					switchFacade.getUnderlying().getDefaultInitializationCase());
+					switchFacade.getUnderlying().getDefaultInitializationCase(), solutionInstance);
 			if (defaultCaseFacade.getUnderlying().getListItemInitializers().size() > 0) {
 				return true;
 			}
@@ -522,14 +530,14 @@ public class InitializationCaseFacade extends Facade {
 				if (parent.getUnderlying().getDefaultInitializationCase() == underlying) {
 					for (Object childUnderlying : getChildren().stream().map(facade -> facade.getUnderlying())
 							.filter(Objects::nonNull).toArray()) {
-						Facade.get(childUnderlying, this).setConcrete(false);
+						Facade.get(childUnderlying, this, solutionInstance).setConcrete(false);
 					}
 				}
 			} else {
 				if (parent.getUnderlying().findCase(condition) != null) {
 					for (Object childUnderlying : getChildren().stream().map(facade -> facade.getUnderlying())
 							.filter(Objects::nonNull).toArray()) {
-						Facade.get(childUnderlying, this).setConcrete(false);
+						Facade.get(childUnderlying, this, solutionInstance).setConcrete(false);
 					}
 					parent.getUnderlying().removeCase(condition);
 				}

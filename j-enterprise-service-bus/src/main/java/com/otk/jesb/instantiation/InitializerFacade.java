@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.PotentialError;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
 
 import xy.reflect.ui.info.type.ITypeInfo;
@@ -30,7 +31,8 @@ public abstract class InitializerFacade extends Facade {
 
 	protected abstract void deleteUnderlying();
 
-	public InitializerFacade(Facade parent) {
+	public InitializerFacade(Facade parent, Solution solutionInstance) {
+		super(solutionInstance);
 		this.parent = parent;
 	}
 
@@ -45,7 +47,7 @@ public abstract class InitializerFacade extends Facade {
 
 	protected String getValueTypeName() {
 		return InstantiationUtils.makeTypeNamesRelative(getValueType().getName(),
-				InstantiationUtils.getAncestorInstanceBuilders(this));
+				InstantiationUtils.getAncestorInstanceBuilders(this), solutionInstance);
 	}
 
 	public InstanceBuilderFacade getCurrentInstanceBuilderFacade() {
@@ -54,7 +56,7 @@ public abstract class InitializerFacade extends Facade {
 	}
 
 	protected Object createDefaultValue() {
-		return InstantiationUtils.getDefaultInterpretableValue(getValueType(), this);
+		return InstantiationUtils.getDefaultInterpretableValue(getValueType(), this, solutionInstance);
 	}
 
 	@Override
@@ -98,7 +100,8 @@ public abstract class InitializerFacade extends Facade {
 			setConcrete(false);
 		} else {
 			setConcrete(true);
-			Object newValue = InstantiationUtils.getDefaultInterpretableValue(getValueType(), valueMode, this);
+			Object newValue = InstantiationUtils.getDefaultInterpretableValue(getValueType(), valueMode, this,
+					solutionInstance);
 			Object initializer = getUnderlying();
 			updateInitializerValue(initializer, newValue);
 		}
@@ -112,7 +115,7 @@ public abstract class InitializerFacade extends Facade {
 		Object result = InstantiationUtils.maintainInterpretableValue(retrieveInitializerValue(initializer),
 				getValueType());
 		if (result instanceof InstanceBuilder) {
-			result = new InstanceBuilderFacade(this, (InstanceBuilder) result);
+			result = new InstanceBuilderFacade(this, (InstanceBuilder) result, solutionInstance);
 		}
 		return result;
 	}
@@ -141,7 +144,8 @@ public abstract class InitializerFacade extends Facade {
 			}
 		}
 		if (cachedValue instanceof InstanceBuilder) {
-			result.addAll(new InstanceBuilderFacade(this, (InstanceBuilder) cachedValue).getChildren());
+			result.addAll(
+					new InstanceBuilderFacade(this, (InstanceBuilder) cachedValue, solutionInstance).getChildren());
 		}
 		return result;
 	}

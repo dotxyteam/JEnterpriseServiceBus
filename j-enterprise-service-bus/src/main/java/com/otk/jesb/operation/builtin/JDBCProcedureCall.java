@@ -27,6 +27,7 @@ import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.solution.Step;
 
@@ -47,11 +48,11 @@ public class JDBCProcedureCall extends JDBCQuery {
 	}
 
 	@Override
-	public Object execute() throws Exception {
+	public Object execute(Solution solutionInstance) throws Exception {
 		JDBCConnection connection = getConnection();
 		Connection connectionInstance = connection.during(getSession());
 		try (CallableStatement preparedStatement = connectionInstance
-				.prepareCall(procedure.getCallQueryStringVariant().getValue())) {
+				.prepareCall(procedure.getCallQueryStringVariant().getValue(solutionInstance))) {
 			ParameterValues parametervalues = getParameterValues();
 			int parameterIndex = 1;
 			if (procedure.getReturnParameter() != null) {
@@ -114,9 +115,9 @@ public class JDBCProcedureCall extends JDBCQuery {
 			return util.getConnectionReference();
 		}
 
-		public void setConnectionReference(Reference<JDBCConnection> connectionReference) {
+		public void setConnectionReference(Reference<JDBCConnection> connectionReference, Solution solutionInstance) {
 			util.setConnectionReference(connectionReference);
-			JDBCConnection connection = util.getConnection();
+			JDBCConnection connection = util.getConnection(solutionInstance);
 			if (connection != null) {
 				try {
 					connection.during(connectionInstance -> {
@@ -126,7 +127,7 @@ public class JDBCProcedureCall extends JDBCQuery {
 						} catch (Exception ignore) {
 						}
 						return null;
-					});
+					}, solutionInstance);
 				} catch (Exception ignore) {
 				}
 			}
@@ -166,24 +167,23 @@ public class JDBCProcedureCall extends JDBCQuery {
 			this.procedure = procedure;
 		}
 
-		public List<ProcedureDescriptor> getProcedureOptions() {
+		public List<ProcedureDescriptor> getProcedureOptions(Solution solutionInstance) {
 			List<ProcedureDescriptor> result = new ArrayList<JDBCProcedureCall.ProcedureDescriptor>();
-			JDBCConnection connection = util.getConnection();
+			JDBCConnection connection = util.getConnection(solutionInstance);
 			if (connection != null) {
 				try {
 					connection.during(connectionInstance -> {
 						try {
-							result.addAll(ProcedureDescriptor
-									.list(connectionInstance, searchCatalogName, searchSchemaName, null).stream()
-									.filter(procedure -> {
-										procedure.fix(connection);
+							result.addAll(ProcedureDescriptor.list(connectionInstance, searchCatalogName,
+									searchSchemaName, null, solutionInstance).stream().filter(procedure -> {
+										procedure.fix(connection, solutionInstance);
 										return true;
 									}).collect(Collectors.toList()));
 							return null;
 						} catch (Exception e) {
 							throw new PotentialError(e);
 						}
-					});
+					}, solutionInstance);
 				} catch (Exception ignore) {
 				}
 			}
@@ -193,45 +193,47 @@ public class JDBCProcedureCall extends JDBCQuery {
 		@Override
 		public JDBCProcedureCall build(ExecutionContext context, ExecutionInspector executionInspector)
 				throws Exception {
-			JDBCProcedureCall result = new JDBCProcedureCall(context.getSession(), util.getConnection(), procedure,
-					util.upToDateResultClass.get());
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			JDBCProcedureCall result = new JDBCProcedureCall(context.getSession(), util.getConnection(solutionInstance),
+					procedure, util.upToDateResultClass.get(solutionInstance));
 			result.setParameterValues(util.buildParameterValues(context));
 			return result;
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
-			return util.getOperationResultClass(currentPlan, currentStep);
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
+			return util.getOperationResultClass(solutionInstance, currentPlan, currentStep);
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
-			if (util.getConnection() == null) {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
+			if (util.getConnection(solutionInstance) == null) {
 				throw new ValidationError("Failed to resolve the connection reference");
 			}
 			if (procedure == null) {
 				throw new ValidationError("Procedure not selected");
 			}
 			try {
-				util.upToDateParameterValuesClass.get();
+				util.upToDateParameterValuesClass.get(solutionInstance);
 			} catch (Throwable t) {
 				throw new ValidationError("Failed to get compiled parameter definitions", t);
 			}
 
 			try {
-				util.upToDateResultClass.get();
+				util.upToDateResultClass.get(solutionInstance);
 			} catch (Throwable t) {
 				throw new ValidationError("Failed to get compiled result column definitions", t);
 			}
 			try {
-				util.getConnection().during(connectionInstance -> {
+				util.getConnection(solutionInstance).during(connectionInstance -> {
 					try {
-						procedure.validate(connectionInstance);
+						procedure.validate(connectionInstance, solutionInstance);
 					} catch (ValidationError e) {
 						throw new PotentialError(e);
 					}
 					return null;
-				});
+				}, solutionInstance);
 			} catch (Exception e) {
 				throw new ValidationError("Failed to validate the procedure descriptor", e);
 			}
@@ -239,8 +241,8 @@ public class JDBCProcedureCall extends JDBCQuery {
 				RootInstanceBuilder parameterValuesBuilder = util.getParameterValuesBuilder();
 				if (parameterValuesBuilder != null) {
 					try {
-						parameterValuesBuilder.getFacade().validate(recursively,
-								plan.getValidationContext(step).getVariableDeclarations());
+						parameterValuesBuilder.getFacade(solutionInstance).validate(recursively,
+								plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 					} catch (ValidationError e) {
 						throw new ValidationError("Failed to validate the parameter values builder", e);
 					}
@@ -251,8 +253,8 @@ public class JDBCProcedureCall extends JDBCQuery {
 		private class Util extends JDBCQuery.Builder {
 
 			@Override
-			protected Class<?> createResultClass() {
-				Class<?> superResult = super.createResultClass();
+			protected Class<?> createResultClass(Solution solutionInstance) {
+				Class<?> superResult = super.createResultClass(solutionInstance);
 				if (superResult == null) {
 					return null;
 				}
@@ -260,7 +262,7 @@ public class JDBCProcedureCall extends JDBCQuery {
 			}
 
 			@Override
-			protected List<ColumnDefinition> computeResultColumnDefinitions() {
+			protected List<ColumnDefinition> computeResultColumnDefinitions(Solution solutionInstance) {
 				if (procedure == null) {
 					return null;
 				}
@@ -291,7 +293,7 @@ public class JDBCProcedureCall extends JDBCQuery {
 			}
 
 			@Override
-			protected List<ParameterDefinition> computeParameterDefinitions() {
+			protected List<ParameterDefinition> computeParameterDefinitions(Solution solutionInstance) {
 				if (procedure == null) {
 					return null;
 				}
@@ -328,7 +330,7 @@ public class JDBCProcedureCall extends JDBCQuery {
 		private Variant<String> callQueryStringVariant = new Variant<String>(String.class);
 
 		public static List<ProcedureDescriptor> list(Connection connectionInstance, String catalogName,
-				String schemaPattern, String procedureNamePattern) throws Exception {
+				String schemaPattern, String procedureNamePattern, Solution solutionInstance) throws Exception {
 			List<ProcedureDescriptor> result = new ArrayList<>();
 			DatabaseMetaData meta = connectionInstance.getMetaData();
 			try (ResultSet procedureResultSet = meta.getProcedures(catalogName, schemaPattern, procedureNamePattern)) {
@@ -360,7 +362,7 @@ public class JDBCProcedureCall extends JDBCQuery {
 							Objects.equal(foundSchemaName, connectionInstance.getSchema()) ? null : foundSchemaName,
 							foundProcedureName, parameters, procedure.isOfFunctionKind(), connectionInstance));
 					try {
-						procedure.updateParameterTypeNames(connectionInstance);
+						procedure.updateParameterTypeNames(connectionInstance, solutionInstance);
 					} catch (SQLException ignore) {
 					}
 					result.add(procedure);
@@ -369,17 +371,17 @@ public class JDBCProcedureCall extends JDBCQuery {
 			return result;
 		}
 
-		public void fix(JDBCConnection connection) {
+		public void fix(JDBCConnection connection, Solution solutionInstance) {
 			if (connection != null) {
-				String driverClassName = connection.getDriverClassNameVariant().getValue();
+				String driverClassName = connection.getDriverClassNameVariant().getValue(solutionInstance);
 				if (driverClassName != null) {
 					if (driverClassName.contains("microsoft.sqlserver")) {
 						if (!callQueryStringVariant.isVariable()) {
-							if (callQueryStringVariant.getValue() != null) {
+							if (callQueryStringVariant.getValue(solutionInstance) != null) {
 								String newProcedureName = procedureName.replaceAll(";\\d+$", "");
 								if (!newProcedureName.equals(procedureName)) {
-									callQueryStringVariant.setConstantValue(
-											callQueryStringVariant.getValue().replace(procedureName, newProcedureName));
+									callQueryStringVariant.setConstantValue(callQueryStringVariant
+											.getValue(solutionInstance).replace(procedureName, newProcedureName));
 								}
 							}
 						}
@@ -457,11 +459,12 @@ public class JDBCProcedureCall extends JDBCQuery {
 			return result;
 		}
 
-		public void updateParameterTypeNames(Connection connectionInstance) throws SQLException {
+		public void updateParameterTypeNames(Connection connectionInstance, Solution solutionInstance)
+				throws SQLException {
 			ParameterMetaData parameterMetaData = null;
 			try {
 				CallableStatement preparedStatement = connectionInstance
-						.prepareCall(getCallQueryStringVariant().getValue());
+						.prepareCall(getCallQueryStringVariant().getValue(solutionInstance));
 				parameterMetaData = preparedStatement.getParameterMetaData();
 			} finally {
 				if (isOfFunctionKind()) {
@@ -478,9 +481,9 @@ public class JDBCProcedureCall extends JDBCQuery {
 			}
 		}
 
-		public void validate(Connection connectionInstance) throws ValidationError {
+		public void validate(Connection connectionInstance, Solution solutionInstance) throws ValidationError {
 			try {
-				connectionInstance.prepareCall(getCallQueryStringVariant().getValue());
+				connectionInstance.prepareCall(getCallQueryStringVariant().getValue(solutionInstance));
 			} catch (SQLException e) {
 				throw new ValidationError("Failed to validate the procedure call query string", e);
 			}
@@ -615,9 +618,9 @@ public class JDBCProcedureCall extends JDBCQuery {
 			return Arrays.asList("IN", "OUT", "INOUT", "RETURN", "OTHER");
 		}
 
-		public void validate() throws ValidationError {
+		public void validate(Solution solutionInstance) throws ValidationError {
 			try {
-				MiscUtils.getJESBClass(typeName);
+				solutionInstance.getRuntime().getJESBClass(typeName);
 			} catch (PotentialError e) {
 				throw new ValidationError("Failed to validate the parameter type name", e);
 			}

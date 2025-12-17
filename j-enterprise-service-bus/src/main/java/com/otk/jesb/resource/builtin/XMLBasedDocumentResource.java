@@ -24,6 +24,7 @@ import com.otk.jesb.JESB;
 import com.otk.jesb.Log;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.ValidationError;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.Listener;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.Pair;
@@ -43,6 +44,7 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 	protected UpToDateGeneratedClasses upToDateGeneratedClasses = new UpToDateGeneratedClasses();
 
 	public XMLBasedDocumentResource() {
+		super();
 	}
 
 	public XMLBasedDocumentResource(String name) {
@@ -137,13 +139,13 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 	}
 
 	@Override
-	public void validate(boolean recursively) throws ValidationError {
-		super.validate(recursively);
+	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
+		super.validate(recursively, solutionInstance);
 		if ((text == null) || text.trim().isEmpty()) {
 			throw new ValidationError("Text not provided");
 		}
 		try {
-			upToDateGeneratedClasses.get();
+			upToDateGeneratedClasses.get(solutionInstance);
 		} catch (Throwable t) {
 			throw new ValidationError("Failed to validate the " + getClass().getSimpleName(), t);
 		}
@@ -232,15 +234,16 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 		}
 	}
 
-	protected class UpToDateGeneratedClasses extends UpToDate<List<Class<?>>> {
+	protected class UpToDateGeneratedClasses extends UpToDate<Solution, List<Class<?>>> {
 
 		@Override
-		protected Object retrieveLastVersionIdentifier() {
+		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
 			return new Pair<String, Map<String, String>>(text, dependencyTextByFileName);
 		}
 
 		@Override
-		protected List<Class<?>> obtainLatest(Object versionIdentifier) throws VersionAccessException {
+		protected List<Class<?>> obtainLatest(Solution solutionInstance, Object versionIdentifier)
+				throws VersionAccessException {
 			if (text == null) {
 				return Collections.emptyList();
 			}
@@ -275,7 +278,7 @@ public abstract class XMLBasedDocumentResource extends WebDocumentBasedResource 
 					try {
 						runClassesGenerationTool(mainFile, metaSchemaFile, sourceDirectory);
 						JAXBPostProcessor.process(sourceDirectory);
-						return MiscUtils.IN_MEMORY_COMPILER.compile(sourceDirectory);
+						return solutionInstance.getRuntime().getInMemoryCompiler().compile(sourceDirectory);
 					} finally {
 						MiscUtils.delete(sourceDirectory);
 					}

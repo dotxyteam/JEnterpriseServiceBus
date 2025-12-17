@@ -10,12 +10,14 @@ import com.otk.jesb.Variable;
 public abstract class StepOccurrence implements Variable {
 	private Step step;
 	private Plan plan;
+	private Solution solutionInstance;
 	private List<Variable> variablesSnapshot;
 	private long timestamp;
 
-	public StepOccurrence(Step step, Plan plan) {
+	public StepOccurrence(Step step, Plan plan, Solution solutionInstance) {
 		this.step = step;
 		this.plan = plan;
+		this.solutionInstance = solutionInstance;
 		this.timestamp = System.currentTimeMillis();
 	}
 
@@ -25,6 +27,10 @@ public abstract class StepOccurrence implements Variable {
 
 	public Plan getPlan() {
 		return plan;
+	}
+
+	public Solution getSolutionInstance() {
+		return solutionInstance;
 	}
 
 	@Override

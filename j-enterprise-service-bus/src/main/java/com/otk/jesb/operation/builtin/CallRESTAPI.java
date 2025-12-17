@@ -27,6 +27,7 @@ import com.otk.jesb.resource.builtin.OpenAPIDescription.ResponseException;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.Accessor;
 import xy.reflect.ui.info.ResourcePath;
 
@@ -74,11 +75,11 @@ public class CallRESTAPI implements Operation {
 	}
 
 	@Override
-	public Object execute() throws Exception {
+	public Object execute(Solution solutionInstance) throws Exception {
 		try {
 			Object apiClient = apiClientClass.newInstance();
 			if (customBaseURL != null) {
-				Class<?> configurationClass = openAPIDescription.getAPIClientConfigurationClass();
+				Class<?> configurationClass = openAPIDescription.getAPIClientConfigurationClass(solutionInstance);
 				Object apiClientConfiguration = configurationClass.newInstance();
 				Method basePathSetter = configurationClass.getMethod("setBasePath", String.class);
 				basePathSetter.invoke(apiClientConfiguration, customBaseURL);
@@ -143,17 +144,18 @@ public class CallRESTAPI implements Operation {
 		private String operationSignature;
 		private Variant<String> customBaseURLVariant = new Variant<String>(String.class);
 
-		private OpenAPIDescription getOpenAPIDescription() {
-			return openAPIDescriptionReference.resolve();
+		private OpenAPIDescription getOpenAPIDescription(Solution solutionInstance) {
+			return openAPIDescriptionReference.resolve(solutionInstance);
 		}
 
 		public Reference<OpenAPIDescription> getOpenAPIDescriptionReference() {
 			return openAPIDescriptionReference;
 		}
 
-		public void setOpenAPIDescriptionReference(Reference<OpenAPIDescription> openAPIDescriptionReference) {
+		public void setOpenAPIDescriptionReference(Reference<OpenAPIDescription> openAPIDescriptionReference,
+				Solution solutionInstance) {
 			this.openAPIDescriptionReference = openAPIDescriptionReference;
-			tryToSelectValuesAutomatically();
+			tryToSelectValuesAutomatically(solutionInstance);
 		}
 
 		public RootInstanceBuilder getOperationInputBuilder() {
@@ -180,15 +182,15 @@ public class CallRESTAPI implements Operation {
 			this.customBaseURLVariant = customBaseURLVariant;
 		}
 
-		private void tryToSelectValuesAutomatically() {
-			OpenAPIDescription openAPIDescription = getOpenAPIDescription();
+		private void tryToSelectValuesAutomatically(Solution solutionInstance) {
+			OpenAPIDescription openAPIDescription = getOpenAPIDescription(solutionInstance);
 			if (openAPIDescription == null) {
 				return;
 			}
 			try {
 				if (operationSignature == null) {
 					List<OpenAPIDescription.APIOperationDescriptor> operations = openAPIDescription
-							.getClientOperationDescriptors();
+							.getClientOperationDescriptors(solutionInstance);
 					if (operations.size() > 0) {
 						operationSignature = operations.get(0).getOperationSignature();
 					}
@@ -197,54 +199,58 @@ public class CallRESTAPI implements Operation {
 			}
 		}
 
-		public List<String> getOperationSignatureOptions() {
-			OpenAPIDescription openAPIDescription = getOpenAPIDescription();
+		public List<String> getOperationSignatureOptions(Solution solutionInstance) {
+			OpenAPIDescription openAPIDescription = getOpenAPIDescription(solutionInstance);
 			if (openAPIDescription == null) {
 				return Collections.emptyList();
 			}
-			return openAPIDescription.getClientOperationDescriptors().stream().map(o -> o.getOperationSignature())
-					.collect(Collectors.toList());
+			return openAPIDescription.getClientOperationDescriptors(solutionInstance).stream()
+					.map(o -> o.getOperationSignature()).collect(Collectors.toList());
 		}
 
 		@Override
 		public CallRESTAPI build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			OpenAPIDescription openAPIDescription = getOpenAPIDescription();
-			Class<?> apiClientClass = openAPIDescription.getAPIClientClass();
-			Method operationMethod = retrieveOperationDescriptor().retrieveMethod();
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			OpenAPIDescription openAPIDescription = getOpenAPIDescription(solutionInstance);
+			Class<?> apiClientClass = openAPIDescription.getAPIClientClass(solutionInstance);
+			Method operationMethod = retrieveOperationDescriptor(solutionInstance).retrieveMethod();
 			OperationInput operationInput = (OperationInput) operationInputBuilder.build(new InstantiationContext(
-					context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-			Class<?> operationOutputClass = retrieveOperationDescriptor().getOperationOutputClass();
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance));
+			Class<?> operationOutputClass = retrieveOperationDescriptor(solutionInstance)
+					.getOperationOutputClass();
 			return new CallRESTAPI(openAPIDescription, apiClientClass, operationMethod, operationInput,
-					customBaseURLVariant.getValue(), operationOutputClass);
+					customBaseURLVariant.getValue(solutionInstance), operationOutputClass);
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
-			OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
+			OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor(solutionInstance);
 			if (operation == null) {
 				return null;
 			}
 			return operation.getOperationOutputClass();
 		}
 
-		private OpenAPIDescription.APIOperationDescriptor retrieveOperationDescriptor() {
-			OpenAPIDescription openAPIDescription = getOpenAPIDescription();
+		private OpenAPIDescription.APIOperationDescriptor retrieveOperationDescriptor(Solution solutionInstance) {
+			OpenAPIDescription openAPIDescription = getOpenAPIDescription(solutionInstance);
 			if (openAPIDescription == null) {
 				return null;
 			}
-			return openAPIDescription.getClientOperationDescriptor(operationSignature);
+			return openAPIDescription.getClientOperationDescriptor(operationSignature, solutionInstance);
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
-			if (getOpenAPIDescription() == null) {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
+			if (getOpenAPIDescription(solutionInstance) == null) {
 				throw new ValidationError("Failed to resolve the OpenAPI Description reference");
 			}
-			if (retrieveOperationDescriptor() == null) {
+			if (retrieveOperationDescriptor(solutionInstance) == null) {
 				throw new ValidationError("Invalid operation signature '" + operationSignature + "'");
 			}
-			String customBaseURL = customBaseURLVariant.getValue();
+			String customBaseURL = customBaseURLVariant.getValue(solutionInstance);
 			if (customBaseURL != null) {
 				try {
 					new URL(customBaseURL);
@@ -253,15 +259,15 @@ public class CallRESTAPI implements Operation {
 				}
 			}
 			if (recursively) {
-				operationInputBuilder.getFacade().validate(recursively,
-						plan.getValidationContext(step).getVariableDeclarations());
+				operationInputBuilder.getFacade(solutionInstance).validate(recursively,
+						plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 			}
 		}
 
-		private class OperationInputClassNameAccessor extends Accessor<String> {
+		private class OperationInputClassNameAccessor extends Accessor<Solution, String> {
 			@Override
-			public String get() {
-				OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor();
+			public String get(Solution solutionInstance) {
+				OpenAPIDescription.APIOperationDescriptor operation = retrieveOperationDescriptor(solutionInstance);
 				if (operation == null) {
 					return null;
 				}

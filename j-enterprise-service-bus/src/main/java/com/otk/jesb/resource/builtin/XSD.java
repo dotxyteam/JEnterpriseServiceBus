@@ -15,6 +15,7 @@ import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
@@ -27,6 +28,7 @@ import xy.reflect.ui.info.ResourcePath;
 public class XSD extends XMLBasedDocumentResource {
 
 	public XSD() {
+		super();
 	}
 
 	public XSD(String name) {
@@ -84,9 +86,9 @@ public class XSD extends XMLBasedDocumentResource {
 		}
 	}
 
-	public List<RootElementDescriptor> getRootElements() {
+	public List<RootElementDescriptor> getRootElements(Solution solutionInstance) {
 		try {
-			return upToDateGeneratedClasses.get().stream()
+			return upToDateGeneratedClasses.get(solutionInstance).stream()
 					.filter(c -> c.getAnnotation(javax.xml.bind.annotation.XmlRootElement.class) != null)
 					.map(c -> new RootElementDescriptor(c)).collect(Collectors.toList());
 		} catch (VersionAccessException e) {
@@ -113,7 +115,7 @@ public class XSD extends XMLBasedDocumentResource {
 			return elementClass;
 		}
 
-		public Class<?> getDocumentClass() {
+		public Class<?> getDocumentClass(Solution solutionInstance) {
 			synchronized (documentClassByRootElementClass) {
 				documentClassByRootElementClass.computeIfAbsent(elementClass, elementClass -> {
 					ClassicStructure resultStructure = new ClassicStructure();
@@ -125,8 +127,8 @@ public class XSD extends XMLBasedDocumentResource {
 					}
 					String className = elementClass.getName() + "DocumentObject";
 					try {
-						return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-								resultStructure.generateJavaTypeSourceCode(className));
+						return solutionInstance.getRuntime().getInMemoryCompiler().compile(className,
+								resultStructure.generateJavaTypeSourceCode(className, solutionInstance));
 					} catch (CompilationError e) {
 						throw new PotentialError(e);
 					}

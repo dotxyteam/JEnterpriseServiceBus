@@ -11,6 +11,7 @@ import com.otk.jesb.operation.OperationBuilder;
 import com.otk.jesb.operation.OperationMetadata;
 import com.otk.jesb.resource.builtin.XSD.RootElementDescriptor;
 import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Step;
@@ -32,7 +33,7 @@ public class ParseXML extends XMLOperation {
 	}
 
 	@Override
-	public Object execute() throws Exception {
+	public Object execute(Solution solutionInstance) throws Exception {
 		JAXBContext context = JAXBContext.newInstance(getRootElementClass());
 		Unmarshaller unmarshaller = context.createUnmarshaller();
 		Object rootElementObject = unmarshaller.unmarshal(new StringReader(xmlText));
@@ -80,28 +81,32 @@ public class ParseXML extends XMLOperation {
 
 		@Override
 		public ParseXML build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			RootElementDescriptor rootElement = retrieveRootElement();
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			RootElementDescriptor rootElement = retrieveRootElement(solutionInstance);
 			SourceDocument sourceDocument = (SourceDocument) sourceDocumentBuilder.build(new InstantiationContext(
-					context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()));
-			return new ParseXML(sourceDocument.text, rootElement.retrieveClass(), rootElement.getDocumentClass());
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance));
+			return new ParseXML(sourceDocument.text, rootElement.retrieveClass(),
+					rootElement.getDocumentClass(solutionInstance));
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
 			if (recursively) {
-				sourceDocumentBuilder.getFacade().validate(recursively,
-						plan.getValidationContext(step).getVariableDeclarations());
+				sourceDocumentBuilder.getFacade(solutionInstance).validate(recursively,
+						plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 			}
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
-			RootElementDescriptor rootElement = retrieveRootElement();
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
+			RootElementDescriptor rootElement = retrieveRootElement(solutionInstance);
 			if (rootElement == null) {
 				return null;
 			}
-			return rootElement.getDocumentClass();
+			return rootElement.getDocumentClass(solutionInstance);
 		}
 
 	}

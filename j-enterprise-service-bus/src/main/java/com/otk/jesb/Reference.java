@@ -2,9 +2,8 @@ package com.otk.jesb;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.Folder;
 import com.otk.jesb.solution.Solution;
@@ -24,10 +23,11 @@ public class Reference<T extends Asset> {
 	private String path;
 
 	private Class<T> assetClass;
-	private Predicate<T> assetFilter;
-	private Consumer<String> newPathValidator;
+	private BiPredicate<T, Solution> assetFilter;
+	private BiConsumer<String, Solution> newPathValidator;
 
-	public Reference(Class<T> assetClass, Predicate<T> assetFilter, Consumer<String> newPathValidator) {
+	public Reference(Class<T> assetClass, BiPredicate<T, Solution> assetFilter,
+			BiConsumer<String, Solution> newPathValidator) {
 		this.assetClass = assetClass;
 		this.assetFilter = assetFilter;
 		this.newPathValidator = newPathValidator;
@@ -49,19 +49,19 @@ public class Reference<T extends Asset> {
 		this.assetClass = assetClass;
 	}
 
-	public Predicate<T> getAssetFilter() {
+	public BiPredicate<T, Solution> getAssetFilter() {
 		return assetFilter;
 	}
 
-	public void setAssetFilter(Predicate<T> assetFilter) {
+	public void setAssetFilter(BiPredicate<T, Solution> assetFilter) {
 		this.assetFilter = assetFilter;
 	}
 
-	public Consumer<String> getNewPathValidator() {
+	public BiConsumer<String, Solution> getNewPathValidator() {
 		return newPathValidator;
 	}
 
-	public void setNewPathValidator(Consumer<String> newPathValidator) {
+	public void setNewPathValidator(BiConsumer<String, Solution> newPathValidator) {
 		this.newPathValidator = newPathValidator;
 	}
 
@@ -69,49 +69,47 @@ public class Reference<T extends Asset> {
 		return path;
 	}
 
-	public void setPath(String path) {
+	public void setPath(String path, Solution solutionInstance) {
 		if (newPathValidator != null) {
-			newPathValidator.accept(path);
+			newPathValidator.accept(path, solutionInstance);
 		}
 		this.path = path;
 	}
 
-	public List<String> getPathOptions() {
+	public List<String> getPathOptions(Solution solutionInstance) {
 		List<String> result = new ArrayList<String>();
-		for (Asset asset : getSolutionInstance().getContents()) {
-			result.addAll(findOptionsFrom(asset, asset.getName()));
+		for (Asset asset : solutionInstance.getContents()) {
+			result.addAll(findOptionsFrom(asset, asset.getName(), solutionInstance));
 		}
 		return result;
 	}
 
-	private List<String> findOptionsFrom(Asset asset, String assetPath) {
+	private List<String> findOptionsFrom(Asset asset, String assetPath, Solution solutionInstance) {
 		List<String> result = new ArrayList<String>();
-		if (assetClass.isInstance(asset) && ((assetFilter == null) || assetFilter.test(assetClass.cast(asset)))) {
+		if (assetClass.isInstance(asset)
+				&& ((assetFilter == null) || assetFilter.test(assetClass.cast(asset), solutionInstance))) {
 			result.add(assetPath);
 		}
 		if (asset instanceof Folder) {
 			for (Asset childAsset : ((Folder) asset).getContents()) {
-				result.addAll(findOptionsFrom(childAsset, assetPath + PATH_SEPARATOR + childAsset.getName()));
+				result.addAll(findOptionsFrom(childAsset, assetPath + PATH_SEPARATOR + childAsset.getName(),
+						solutionInstance));
 			}
 		}
 		return result;
 	}
 
-	public T resolve() {
+	public T resolve(Solution solutionInstance) {
 		if (path == null) {
 			return null;
 		}
-		for (Asset asset : getSolutionInstance().getContents()) {
+		for (Asset asset : solutionInstance.getContents()) {
 			T result = resolveFrom(asset, asset.getName());
 			if (result != null) {
 				return result;
 			}
 		}
 		return null;
-	}
-
-	protected Solution getSolutionInstance() {
-		return Solution.INSTANCE;
 	}
 
 	private T resolveFrom(Asset asset, String assetPath) {
@@ -132,11 +130,11 @@ public class Reference<T extends Asset> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Asset> Reference<T> get(T asset) {
-		for (String pathOption : new Reference<T>((Class<T>) asset.getClass()).getPathOptions()) {
+	public static <T extends Asset> Reference<T> get(T asset, Solution solutionInstance) {
+		for (String pathOption : new Reference<T>((Class<T>) asset.getClass()).getPathOptions(solutionInstance)) {
 			Reference<T> candidate = new Reference<T>((Class<T>) asset.getClass());
-			candidate.setPath(pathOption);
-			if (candidate.resolve() == asset) {
+			candidate.setPath(pathOption, solutionInstance);
+			if (candidate.resolve(solutionInstance) == asset) {
 				return candidate;
 			}
 		}

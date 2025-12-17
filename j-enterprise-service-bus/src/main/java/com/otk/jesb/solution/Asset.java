@@ -60,7 +60,7 @@ public abstract class Asset {
 		}
 	}
 
-	public void validate(boolean recursively) throws ValidationError {
+	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
 		if ((name == null) || (name.length() == 0)) {
 			throw new ValidationError("Name not specified");
 		}

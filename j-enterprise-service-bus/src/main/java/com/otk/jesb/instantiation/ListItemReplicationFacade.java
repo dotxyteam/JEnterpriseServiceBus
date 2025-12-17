@@ -7,6 +7,7 @@ import com.otk.jesb.ValidationError;
 import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
 import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
@@ -17,16 +18,19 @@ public class ListItemReplicationFacade {
 
 	private ListItemInitializerFacade listItemInitializerFacade;
 	private ListItemReplication listItemReplication;
+	private Solution solutionInstance;
 
-	public ListItemReplicationFacade(ListItemInitializerFacade listItemInitializerFacade) {
+	public ListItemReplicationFacade(ListItemInitializerFacade listItemInitializerFacade, Solution solutionInstance) {
 		this.listItemInitializerFacade = listItemInitializerFacade;
 		this.listItemReplication = new ListItemReplication();
+		this.solutionInstance = solutionInstance;
 	}
 
 	public ListItemReplicationFacade(ListItemInitializerFacade listItemInitializerFacade,
-			ListItemReplication listItemReplication) {
+			ListItemReplication listItemReplication, Solution solutionInstance) {
 		this.listItemInitializerFacade = listItemInitializerFacade;
 		this.listItemReplication = listItemReplication;
+		this.solutionInstance = solutionInstance;
 	}
 
 	public ListItemReplication getUnderlying() {
@@ -47,7 +51,7 @@ public class ListItemReplicationFacade {
 
 	public Object getIterationListValue() {
 		return InstantiationUtils.maintainInterpretableValue(listItemReplication.getIterationListValue(),
-				TypeInfoProvider.getTypeInfo(Object.class.getName()));
+				TypeInfoProvider.getTypeInfo(Object.class.getName(), solutionInstance));
 	}
 
 	public void setIterationListValue(Object iterationListValue) {
@@ -80,7 +84,7 @@ public class ListItemReplicationFacade {
 	public ITypeInfo getDeclaredIterationVariableTypeInfo() {
 		String iterationVariableTypeName = getIterationVariableTypeName();
 		if (iterationVariableTypeName != null) {
-			return TypeInfoProvider.getTypeInfo(getIterationVariableTypeName());
+			return TypeInfoProvider.getTypeInfo(getIterationVariableTypeName(), solutionInstance);
 		}
 		return null;
 	}
@@ -129,7 +133,8 @@ public class ListItemReplicationFacade {
 				if (baseItemClass == null) {
 					return null;
 				} else {
-					return TypeInfoProvider.getTypeInfo(baseItemClass, new Class<?>[] { baseItemClass });
+					return TypeInfoProvider.getTypeInfo(baseItemClass, new Class<?>[] { baseItemClass },
+							solutionInstance);
 				}
 			} else {
 				return null;
@@ -162,7 +167,7 @@ public class ListItemReplicationFacade {
 			throw new ValidationError("Iteration variable type evaluation error", e);
 		}
 		InstantiationUtils.validateValue(getIterationListValue(), TypeInfoProvider.getTypeInfo(Object.class),
-				listItemInitializerFacade, "iteration list value", true, variableDeclarations);
+				listItemInitializerFacade, "iteration list value", true, variableDeclarations, solutionInstance);
 	}
 
 	@Override

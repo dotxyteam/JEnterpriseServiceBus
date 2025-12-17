@@ -18,6 +18,7 @@ import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
@@ -36,7 +37,7 @@ public class Evaluate implements Operation {
 	}
 
 	@Override
-	public Object execute() throws IOException {
+	public Object execute(Solution solutionInstance) throws IOException {
 		return value;
 	}
 
@@ -69,7 +70,7 @@ public class Evaluate implements Operation {
 		private ValueKind valueKind = new SimpleValueKind();
 		private boolean multiple = false;
 
-		private final UpToDate<Class<?>> upToDateValueClass = new UpToDateValueClass();
+		private final UpToDateValueClass upToDateValueClass = new UpToDateValueClass();
 		private RootInstanceBuilder valueBuilder = new RootInstanceBuilder("Value", new ValueClassNameAccessor());
 
 		public RootInstanceBuilder getValueBuilder() {
@@ -98,51 +99,58 @@ public class Evaluate implements Operation {
 
 		@Override
 		public Evaluate build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
-			return new Evaluate(valueBuilder.build(new InstantiationContext(context.getVariables(),
-					context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations())));
+			Solution solutionInstance = context.getSession().getSolutionInstance();
+			return new Evaluate(valueBuilder.build(new InstantiationContext(
+					context.getVariables(), context.getPlan()
+							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
+					solutionInstance)));
 		}
 
 		@Override
-		public Class<?> getOperationResultClass(Plan currentPlan, Step currentStep) {
+		public Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep) {
 			try {
-				return upToDateValueClass.get();
+				return upToDateValueClass.get(solutionInstance);
 			} catch (VersionAccessException e) {
 				return null;
 			}
 		}
 
 		@Override
-		public void validate(boolean recursively, Plan plan, Step step) throws ValidationError {
+		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
+				throws ValidationError {
 			if (valueKind == null) {
 				throw new ValidationError("Value kind not provided");
 			}
 			try {
-				valueKind.validate(true);
+				valueKind.validate(true, solutionInstance);
 			} catch (ValidationError e) {
 				throw new ValidationError("Failed to validate the value kind", e);
 			}
 			if (recursively) {
 				try {
-					valueBuilder.getFacade().validate(recursively,
-							plan.getValidationContext(step).getVariableDeclarations());
+					valueBuilder.getFacade(solutionInstance).validate(recursively,
+							plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 				} catch (ValidationError e) {
 					throw new ValidationError("Failed to validate the value builder", e);
 				}
 			}
 		}
 
-		private class UpToDateValueClass extends UpToDate<Class<?>> {
+		private class UpToDateValueClass extends UpToDate<Solution, Class<?>> {
 			@Override
-			protected Object retrieveLastVersionIdentifier() {
-				return new Pair<String, Boolean>((valueKind != null) ? MiscUtils.serialize(valueKind) : null, multiple);
+			protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
+				return new Pair<String, Boolean>(
+						(valueKind != null) ? MiscUtils.serialize(valueKind, solutionInstance.getRuntime().getXstream())
+								: null,
+						multiple);
 			}
 
 			@Override
-			protected Class<?> obtainLatest(Object versionIdentifier) {
+			protected Class<?> obtainLatest(Solution solutionInstance, Object versionIdentifier) {
 				if (valueKind == null) {
 					return null;
 				} else {
-					Class<?> result = valueKind.obtainClass();
+					Class<?> result = valueKind.obtainClass(solutionInstance);
 					if (multiple) {
 						result = MiscUtils.getArrayType(result);
 					}
@@ -151,12 +159,12 @@ public class Evaluate implements Operation {
 			}
 		}
 
-		private class ValueClassNameAccessor extends Accessor<String> {
+		private class ValueClassNameAccessor extends Accessor<Solution, String> {
 			@Override
-			public String get() {
+			public String get(Solution solutionInstance) {
 				Class<?> valueClass;
 				try {
-					valueClass = upToDateValueClass.get();
+					valueClass = upToDateValueClass.get(solutionInstance);
 				} catch (VersionAccessException e) {
 					throw new PotentialError(e);
 				}
@@ -169,9 +177,9 @@ public class Evaluate implements Operation {
 
 		public static abstract class ValueKind {
 
-			public abstract Class<?> obtainClass();
+			public abstract Class<?> obtainClass(Solution solutionInstance);
 
-			public abstract void validate(boolean recursively) throws ValidationError;
+			public abstract void validate(boolean recursively, Solution solutionInstance) throws ValidationError;
 
 		}
 
@@ -192,12 +200,12 @@ public class Evaluate implements Operation {
 			}
 
 			@Override
-			public Class<?> obtainClass() {
-				return MiscUtils.getJESBClass(internalElement.getTypeName(null));
+			public Class<?> obtainClass(Solution solutionInstance) {
+				return solutionInstance.getRuntime().getJESBClass(internalElement.getTypeName(null, solutionInstance));
 			}
 
-			public void validate(boolean recursively) throws ValidationError {
-				internalElement.validate(recursively);
+			public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
+				internalElement.validate(recursively, solutionInstance);
 			}
 
 		}
@@ -213,17 +221,17 @@ public class Evaluate implements Operation {
 				internalElement.setStructure(structure);
 			}
 
-			public void validate(boolean recursively) throws ValidationError {
-				internalElement.validate(recursively);
+			public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
+				internalElement.validate(recursively, solutionInstance);
 			}
 
 			@Override
-			public Class<?> obtainClass() {
+			public Class<?> obtainClass(Solution solutionInstance) {
 				try {
 					String className = Evaluate.class.getName() + "Result" + InstantiationUtils
 							.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(this));
-					return MiscUtils.IN_MEMORY_COMPILER.compile(className,
-							getStructure().generateJavaTypeSourceCode(className));
+					return solutionInstance.getRuntime().getInMemoryCompiler().compile(className,
+							getStructure().generateJavaTypeSourceCode(className, solutionInstance));
 				} catch (CompilationError e) {
 					throw new PotentialError(e);
 				}

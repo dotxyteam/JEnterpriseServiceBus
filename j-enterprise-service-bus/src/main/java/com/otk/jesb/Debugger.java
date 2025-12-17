@@ -36,14 +36,13 @@ import com.otk.jesb.util.MiscUtils;
  */
 public class Debugger extends Session {
 
-	private Solution solution;
 	private List<PlanActivation> planActivations;
 	private List<PlanExecutor> activePlanExecutors = new ArrayList<Debugger.PlanExecutor>();
 	private PlanActivationFilter currentPlanActivationFilter = PlanActivationFilter.ACTIVABLE_PLANS;
 	private Console console = Console.DEFAULT;
 
 	public Debugger(Solution solution, boolean openSession) {
-		this.solution = solution;
+		super(solution);
 		planActivations = collectPlanActivations();
 		if (openSession) {
 			open();
@@ -60,12 +59,12 @@ public class Debugger extends Session {
 
 	private List<PlanActivation> collectPlanActivations() {
 		final List<PlanActivation> result = new ArrayList<Debugger.PlanActivation>();
-		solution.visitContents(new AssetVisitor() {
+		getSolutionInstance().visitContents(new AssetVisitor() {
 			@Override
 			public boolean visitAsset(Asset asset) {
 				if (asset instanceof Plan) {
 					Plan plan = (Plan) asset;
-					if (plan.getActivator().getEnabledVariant().getValue()) {
+					if (plan.getActivator().getEnabledVariant().getValue(Debugger.this.getSolutionInstance())) {
 						result.add(createPlanActivation(plan));
 					}
 				}
@@ -150,29 +149,30 @@ public class Debugger extends Session {
 
 		public PlanActivation(Plan plan) {
 			this.plan = plan;
-			planInputBuilder = new RootInstanceBuilder("Input", new Accessor<String>() {
+			planInputBuilder = new RootInstanceBuilder("Input", new Accessor<Solution, String>() {
 
 				@Override
-				public String get() {
-					Class<?> inputClass = plan.getActivator().getInputClass();
+				public String get(Solution solutionInstance) {
+					Class<?> inputClass = plan.getActivator().getInputClass(Debugger.this.getSolutionInstance());
 					if (inputClass == null) {
 						return null;
 					}
 					return inputClass.getName();
 				}
 			});
-			if (plan.getActivator().getInputClass() != null) {
-				InstantiationUtils.makeConcreteRecursively(Facade.get(planInputBuilder, null), eachFacade -> {
-					if (Facade.getAncestors(eachFacade).size() >= 4) {
-						return true;
-					}
-					try {
-						eachFacade.validate(true, Collections.emptyList());
-						return true;
-					} catch (ValidationError e) {
-						return false;
-					}
-				});
+			if (plan.getActivator().getInputClass(Debugger.this.getSolutionInstance()) != null) {
+				InstantiationUtils.makeConcreteRecursively(Facade.get(planInputBuilder, null, getSolutionInstance()),
+						eachFacade -> {
+							if (Facade.getAncestors(eachFacade).size() >= 4) {
+								return true;
+							}
+							try {
+								eachFacade.validate(true, Collections.emptyList());
+								return true;
+							} catch (ValidationError e) {
+								return false;
+							}
+						});
 			}
 		}
 
@@ -180,12 +180,12 @@ public class Debugger extends Session {
 			return plan;
 		}
 
-		public String getPlanReferencePath() {
-			return Reference.get(plan).getPath();
+		public String getPlanReferencePath(Solution solutionInstance) {
+			return Reference.get(plan, solutionInstance).getPath();
 		}
 
 		public RootInstanceBuilder getPlanInputBuilder() {
-			if (plan.getActivator().getInputClass() == null) {
+			if (plan.getActivator().getInputClass(Debugger.this.getSolutionInstance()) == null) {
 				return null;
 			}
 			return planInputBuilder;
@@ -222,17 +222,18 @@ public class Debugger extends Session {
 					}
 				};
 				try {
-					plan.getActivator().initializeAutomaticTrigger(activationHandler);
+					plan.getActivator().initializeAutomaticTrigger(activationHandler,
+							Debugger.this.getSolutionInstance());
 				} catch (Exception e) {
 					handleActivationError(e);
 					try {
-						plan.getActivator().finalizeAutomaticTrigger();
+						plan.getActivator().finalizeAutomaticTrigger(Debugger.this.getSolutionInstance());
 					} catch (Throwable ignore) {
 					}
 				}
 			} else {
 				try {
-					plan.getActivator().finalizeAutomaticTrigger();
+					plan.getActivator().finalizeAutomaticTrigger(Debugger.this.getSolutionInstance());
 				} catch (Exception e) {
 					handleDeactivationError(e);
 				}
@@ -263,8 +264,8 @@ public class Debugger extends Session {
 		}
 
 		public void executePlan() throws Exception {
-			Object planInput = planInputBuilder
-					.build(new InstantiationContext(Collections.emptyList(), Collections.emptyList()));
+			Object planInput = planInputBuilder.build(new InstantiationContext(Collections.emptyList(),
+					Collections.emptyList(), Debugger.this.getSolutionInstance()));
 			createPlanExecutor(planInput);
 		}
 
@@ -316,7 +317,7 @@ public class Debugger extends Session {
 					getTopPlanExecutor().stepCrossings.add(stepCrossing);
 					if (stepCrossing.getStep().getOperationBuilder() instanceof ExecutePlan.Builder) {
 						Plan subPlan = ((ExecutePlan.Builder) stepCrossing.getStep().getOperationBuilder())
-								.getPlanReference().resolve();
+								.getPlanReference().resolve(executionContext.getSession().getSolutionInstance());
 						SubPlanExecutor subPlanExecutor = createSubPlanExecutor(subPlan);
 						getTopPlanExecutor().children.add(subPlanExecutor);
 						subPlanExecutionStack.add(subPlanExecutor);
@@ -354,7 +355,7 @@ public class Debugger extends Session {
 		}
 
 		public String getPlanReferencePath() {
-			return Reference.get(plan).getPath();
+			return Reference.get(plan, executionContext.getSession().getSolutionInstance()).getPath();
 		}
 
 		public List<StepCrossing> getStepCrossings() {
@@ -374,7 +375,7 @@ public class Debugger extends Session {
 		}
 
 		public boolean isPlanInputRelevant() {
-			if (!plan.isInputEnabled()) {
+			if (!plan.isInputEnabled(getSolutionInstance())) {
 				return false;
 			}
 			if (isActive()) {
@@ -384,7 +385,7 @@ public class Debugger extends Session {
 		}
 
 		public boolean isPlanOutputRelevant() {
-			if (!plan.isOutputEnabled()) {
+			if (!plan.isOutputEnabled(getSolutionInstance())) {
 				return false;
 			}
 			if (isActive()) {

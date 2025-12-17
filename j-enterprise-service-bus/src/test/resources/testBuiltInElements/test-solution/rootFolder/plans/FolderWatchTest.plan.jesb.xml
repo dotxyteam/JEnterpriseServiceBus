@@ -1,0 +1,569 @@
+<com.otk.jesb.solution.Plan>
+  <activator class="com.otk.jesb.activation.builtin.WatchFileSystem">
+    <baseDircetoryPathVariant>
+      <constantValue class="string">tmp</constantValue>
+      <valueClass>java.lang.String</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </baseDircetoryPathVariant>
+    <creationWatchedVariant>
+      <constantValue class="boolean">true</constantValue>
+      <valueClass>java.lang.Boolean</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </creationWatchedVariant>
+    <deletionWatchedVariant>
+      <constantValue class="boolean">false</constantValue>
+      <valueClass>java.lang.Boolean</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </deletionWatchedVariant>
+    <enabledVariant>
+      <constantValue class="boolean">true</constantValue>
+      <valueClass>java.lang.Boolean</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </enabledVariant>
+    <modificationWatchedVariant>
+      <constantValue class="boolean">true</constantValue>
+      <valueClass>java.lang.Boolean</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </modificationWatchedVariant>
+    <patternVariant>
+      <constantValue class="string">*</constantValue>
+      <valueClass>java.lang.String</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </patternVariant>
+    <preExistingResourcesConsideredVariant>
+      <constantValue class="boolean">false</constantValue>
+      <valueClass>java.lang.Boolean</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </preExistingResourcesConsideredVariant>
+    <subDirectoriesWatchedRecursivelyVariant>
+      <constantValue class="boolean">false</constantValue>
+      <valueClass>java.lang.Boolean</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </subDirectoriesWatchedRecursivelyVariant>
+    <watchedResourceKindVariant>
+      <constantValue class="com.otk.jesb.activation.builtin.WatchFileSystem$ResourceKind">ANY</constantValue>
+      <valueClass>com.otk.jesb.activation.builtin.WatchFileSystem$ResourceKind</valueClass>
+      <variable>false</variable>
+      <variableReferenceExpression class="null"/>
+    </watchedResourceKindVariant>
+  </activator>
+  <name>FolderWatchTest</name>
+  <note class="null"/>
+  <outputBuilder>
+    <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+      <outer-class reference="../.."/>
+    </dynamicTypeNameAccessor>
+    <fieldInitializers/>
+    <initializationSwitches/>
+    <listItemInitializers/>
+    <parameterInitializers>
+      <com.otk.jesb.instantiation.ParameterInitializer>
+        <parameterPosition>0</parameterPosition>
+        <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+          <dynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor">
+            <outer-class reference="../../../../../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </parameterValue>
+      </com.otk.jesb.instantiation.ParameterInitializer>
+    </parameterInitializers>
+    <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.solution.Plan$OutputClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+    <rootInstanceName>PlanOutput</rootInstanceName>
+    <rootInstanceTypeName class="null"/>
+    <selectedConstructorSignature class="null"/>
+    <typeName>&lt;Dynamic&gt;</typeName>
+  </outputBuilder>
+  <steps>
+    <com.otk.jesb.solution.Step>
+      <diagramX>739</diagramX>
+      <diagramY>343</diagramY>
+      <name>log</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.Log$Builder">
+        <instanceBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="null"/>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                      <functionBody>String eventWord;
+if(PLAN_INPUT.isCreationEvent()){
+    eventWord = &quot;created&quot;;
+}else if(PLAN_INPUT.isDeletionEvent()){
+    eventWord = &quot;deleted&quot;;
+}else if(PLAN_INPUT.isModificationEvent()){
+    eventWord = &quot;modified&quot;;
+}else {
+    throw new AssertionError();
+}
+return 
+PLAN_INPUT.getResourceKind() + &quot; &quot; +
+PLAN_INPUT.getPath() + &quot; &quot; + 
+eventWord;</functionBody>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>com.otk.jesb.operation.builtin.Log</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="null"/>
+          <rootInstanceName>LogInput</rootInstanceName>
+          <rootInstanceTypeName>com.otk.jesb.operation.builtin.Log</rootInstanceTypeName>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </instanceBuilder>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>378</diagramX>
+      <diagramY>339</diagramY>
+      <name>fail</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.Fail$Builder">
+        <exceptionBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.Fail$Builder$ExceptionClassNameAccessor">
+                  <outer-class reference="../../../../../.."/>
+                </dynamicTypeNameAccessor>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="string">bla bla bla</parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature>java.lang.Exception (java.lang.String)</selectedConstructorSignature>
+                <typeName>&lt;Dynamic&gt;</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.Fail$Builder$ExceptionClassNameAccessor" reference="../parameterInitializers/com.otk.jesb.instantiation.ParameterInitializer/parameterValue/dynamicTypeNameAccessor"/>
+          <rootInstanceName>ExceptionInput</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </exceptionBuilder>
+        <exceptionClassName>java.lang.Exception</exceptionClassName>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>731</diagramX>
+      <diagramY>148</diagramY>
+      <name>copyFileOrDirectory</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.CopyFileOrDirectory$Builder">
+        <instanceBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="null"/>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                      <functionBody>return PLAN_INPUT.getPath();</functionBody>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>1</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                      <functionBody>return inspectResourceCopy.getAbsolutePath();</functionBody>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>2</parameterPosition>
+                    <parameterValue class="boolean">false</parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>com.otk.jesb.operation.builtin.CopyFileOrDirectory</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="null"/>
+          <rootInstanceName>CopyFileOrDirectoryInput</rootInstanceName>
+          <rootInstanceTypeName>com.otk.jesb.operation.builtin.CopyFileOrDirectory</rootInstanceTypeName>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </instanceBuilder>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>378</diagramX>
+      <diagramY>149</diagramY>
+      <name>inspectResourceCopy</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.InspectResource$Builder">
+        <instanceBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="null"/>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                      <functionBody>return &quot;tmp/copies/&quot; + inspectResource.getName();</functionBody>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>com.otk.jesb.operation.builtin.InspectResource</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="null"/>
+          <rootInstanceName>InspectResourceInput</rootInstanceName>
+          <rootInstanceTypeName>com.otk.jesb.operation.builtin.InspectResource</rootInstanceTypeName>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </instanceBuilder>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>558</diagramX>
+      <diagramY>63</diagramY>
+      <name>deleteFileOrDirectory</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.DeleteFileOrDirectory$Builder">
+        <instanceBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="null"/>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                      <functionBody>return inspectResourceCopy.getAbsolutePath();</functionBody>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>com.otk.jesb.operation.builtin.DeleteFileOrDirectory</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="null"/>
+          <rootInstanceName>DeleteFileOrDirectoryInput</rootInstanceName>
+          <rootInstanceTypeName>com.otk.jesb.operation.builtin.DeleteFileOrDirectory</rootInstanceTypeName>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </instanceBuilder>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>537</diagramX>
+      <diagramY>238</diagramY>
+      <name>moveFileOrDirectory</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.MoveFileOrDirectory$Builder">
+        <instanceBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="null"/>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                      <functionBody>return inspectResourceCopy.getAbsolutePath();</functionBody>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>1</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                      <functionBody>return &quot;tmp/moved/&quot; + inspectResourceCopy.getName() ;</functionBody>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>2</parameterPosition>
+                    <parameterValue class="boolean">false</parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>com.otk.jesb.operation.builtin.MoveFileOrDirectory</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="null"/>
+          <rootInstanceName>MoveFileOrDirectoryInput</rootInstanceName>
+          <rootInstanceTypeName>com.otk.jesb.operation.builtin.MoveFileOrDirectory</rootInstanceTypeName>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </instanceBuilder>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>217</diagramX>
+      <diagramY>149</diagramY>
+      <name>inspectResource</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.InspectResource$Builder">
+        <instanceBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="null"/>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                      <functionBody>return PLAN_INPUT.getPath();</functionBody>
+                    </parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>com.otk.jesb.operation.builtin.InspectResource</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="null"/>
+          <rootInstanceName>InspectResourceInput</rootInstanceName>
+          <rootInstanceTypeName>com.otk.jesb.operation.builtin.InspectResource</rootInstanceTypeName>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </instanceBuilder>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>92</diagramX>
+      <diagramY>55</diagramY>
+      <name>createCopiesDirectory</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.CreateDirectory$Builder">
+        <instanceBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="null"/>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="string">tmp/copies</parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>com.otk.jesb.operation.builtin.CreateDirectory</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="null"/>
+          <rootInstanceName>CreateDirectoryInput</rootInstanceName>
+          <rootInstanceTypeName>com.otk.jesb.operation.builtin.CreateDirectory</rootInstanceTypeName>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </instanceBuilder>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>80</diagramX>
+      <diagramY>254</diagramY>
+      <name>createMovedsDirectory</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.CreateDirectory$Builder">
+        <instanceBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="null"/>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers/>
+                <parameterInitializers>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>0</parameterPosition>
+                    <parameterValue class="string">tmp/moved</parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                </parameterInitializers>
+                <selectedConstructorSignature class="null"/>
+                <typeName>com.otk.jesb.operation.builtin.CreateDirectory</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="null"/>
+          <rootInstanceName>CreateDirectoryInput</rootInstanceName>
+          <rootInstanceTypeName>com.otk.jesb.operation.builtin.CreateDirectory</rootInstanceTypeName>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </instanceBuilder>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+  </steps>
+  <transitions>
+    <com.otk.jesb.solution.Transition>
+      <condition class="null"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[7]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[9]"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="null"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[7]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[8]"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="null"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[4]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[7]"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="null"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[2]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[6]"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="com.otk.jesb.solution.Transition$ExceptionCondition">
+        <exceptionTypeName>java.lang.Exception</exceptionTypeName>
+        <exceptionVariableName class="null"/>
+      </condition>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[6]"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="null"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[6]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="null"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[5]"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="com.otk.jesb.solution.Transition$IfCondition">
+        <functionBody>return inspectResourceCopy.isExisting();</functionBody>
+      </condition>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[5]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[4]"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="com.otk.jesb.solution.Transition$ElseCondition"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[4]"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="com.otk.jesb.solution.Transition$ExceptionCondition">
+        <exceptionTypeName>java.lang.Exception</exceptionTypeName>
+        <exceptionVariableName class="null"/>
+      </condition>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[2]"/>
+    </com.otk.jesb.solution.Transition>
+  </transitions>
+</com.otk.jesb.solution.Plan>

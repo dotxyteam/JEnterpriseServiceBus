@@ -7,6 +7,7 @@ import java.util.List;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.CodeBuilder;
 import com.otk.jesb.util.MiscUtils;
@@ -34,18 +35,19 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
 public class RootInstanceBuilder extends InstanceBuilder {
 
 	private String rootInstanceName;
-	private Accessor<String> rootInstanceDynamicTypeNameAccessor;
+	private Accessor<Solution, String> rootInstanceDynamicTypeNameAccessor;
 	private String rootInstanceTypeName;
 
-	private Accessor<String> rootInstanceWrapperDynamicTypeNameAccessor = new RootInstanceWrapperDynamicTypeNameAccessor();
-	private UpToDate<Class<?>> upToDateRootInstanceClass = new UpToDateRootInstanceClass();
+	private Accessor<Solution, String> rootInstanceWrapperDynamicTypeNameAccessor = new RootInstanceWrapperDynamicTypeNameAccessor();
+	private UpToDate<Solution, Class<?>> upToDateRootInstanceClass = new UpToDateRootInstanceClass();
 	private RootInstanceBuilderFacade facade;
 
 	public RootInstanceBuilder() {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
 	}
 
-	public RootInstanceBuilder(String rootInstanceName, Accessor<String> rootInstanceDynamicTypeNameAccessor) {
+	public RootInstanceBuilder(String rootInstanceName,
+			Accessor<Solution, String> rootInstanceDynamicTypeNameAccessor) {
 		super.setDynamicTypeNameAccessor(rootInstanceWrapperDynamicTypeNameAccessor);
 		this.rootInstanceName = rootInstanceName;
 		this.rootInstanceDynamicTypeNameAccessor = rootInstanceDynamicTypeNameAccessor;
@@ -63,7 +65,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 	}
 
 	@Override
-	public void setDynamicTypeNameAccessor(Accessor<String> dynamicTypeNameAccessor) {
+	public void setDynamicTypeNameAccessor(Accessor<Solution, String> dynamicTypeNameAccessor) {
 	}
 
 	public String getRootInstanceName() {
@@ -74,11 +76,11 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		this.rootInstanceName = rootInstanceName;
 	}
 
-	public Accessor<String> getRootInstanceDynamicTypeNameAccessor() {
+	public Accessor<Solution, String> getRootInstanceDynamicTypeNameAccessor() {
 		return rootInstanceDynamicTypeNameAccessor;
 	}
 
-	public void setRootInstanceDynamicTypeNameAccessor(Accessor<String> rootInstanceDynamicTypeNameAccessor) {
+	public void setRootInstanceDynamicTypeNameAccessor(Accessor<Solution, String> rootInstanceDynamicTypeNameAccessor) {
 		this.rootInstanceDynamicTypeNameAccessor = rootInstanceDynamicTypeNameAccessor;
 	}
 
@@ -90,9 +92,9 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		this.rootInstanceTypeName = rootInstanceTypeName;
 	}
 
-	public synchronized RootInstanceBuilderFacade getFacade() {
+	public synchronized RootInstanceBuilderFacade getFacade(Solution solutionInstance) {
 		if (facade == null) {
-			RootInstanceBuilderFacade tmpFacade = (RootInstanceBuilderFacade) Facade.get(this, null);
+			RootInstanceBuilderFacade tmpFacade = (RootInstanceBuilderFacade) Facade.get(this, null, solutionInstance);
 			List<Facade> facadeChildren = tmpFacade.getChildren();
 			if (facadeChildren.size() == 0) {
 				return tmpFacade;
@@ -103,13 +105,13 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		return facade;
 	}
 
-	public List<FacadeOutline> getFacadeOutlineChildren() {
-		return new FacadeOutline(getFacade()).getChildren();
+	public List<FacadeOutline> getFacadeOutlineChildren(Solution solutionInstance) {
+		return new FacadeOutline(getFacade(solutionInstance)).getChildren();
 	}
 
 	@Transient
-	public Object getRootInstantiationNode() {
-		List<Facade> children = getFacade().getChildren();
+	public Object getRootInstantiationNode(Solution solutionInstance) {
+		List<Facade> children = getFacade(solutionInstance).getChildren();
 		if (children.size() == 0) {
 			return null;
 		}
@@ -130,9 +132,9 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		setInitializationSwitches(newInitializationSwitches);
 	}
 
-	public List<InstanceBuilderFacade> getWrappedInstanceBuilderFacades() {
+	public List<InstanceBuilderFacade> getWrappedInstanceBuilderFacades(Solution solutionInstance) {
 		List<InstanceBuilderFacade> result = new ArrayList<InstanceBuilderFacade>();
-		RootInstanceBuilderFacade rootInstanceBuilderFacade = getFacade();
+		RootInstanceBuilderFacade rootInstanceBuilderFacade = getFacade(solutionInstance);
 		rootInstanceBuilderFacade.visit(new TreeVisitor<Facade>() {
 			@Override
 			public VisitStatus visitNode(Facade facade) {
@@ -144,7 +146,8 @@ public class RootInstanceBuilder extends InstanceBuilder {
 					initializerFacade.getChildren();
 					Object initializerValue = initializerFacade.getCachedValue();
 					if (initializerValue instanceof InstanceBuilder) {
-						result.add(new InstanceBuilderFacade(facade, (InstanceBuilder) initializerValue));
+						result.add(new InstanceBuilderFacade(facade, (InstanceBuilder) initializerValue,
+								solutionInstance));
 					}
 					return VisitStatus.SUBTREE_VISIT_INTERRUPTED;
 				}
@@ -175,19 +178,20 @@ public class RootInstanceBuilder extends InstanceBuilder {
 
 	}
 
-	private class UpToDateRootInstanceClass extends UpToDate<Class<?>> {
+	private class UpToDateRootInstanceClass extends UpToDate<Solution, Class<?>> {
 		@Override
-		protected Object retrieveLastVersionIdentifier() {
+		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
 			String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
-					? rootInstanceDynamicTypeNameAccessor.get()
+					? rootInstanceDynamicTypeNameAccessor.get(solutionInstance)
 					: rootInstanceTypeName;
-			return (actualRootInstanceTypeName == null) ? null : MiscUtils.getJESBClass(actualRootInstanceTypeName);
+			return (actualRootInstanceTypeName == null) ? null
+					: solutionInstance.getRuntime().getJESBClass(actualRootInstanceTypeName);
 		}
 
 		@Override
-		protected Class<?> obtainLatest(Object versionIdentifier) {
+		protected Class<?> obtainLatest(Solution solutionInstance, Object versionIdentifier) {
 			String actualRootInstanceTypeName = (rootInstanceDynamicTypeNameAccessor != null)
-					? rootInstanceDynamicTypeNameAccessor.get()
+					? rootInstanceDynamicTypeNameAccessor.get(solutionInstance)
 					: rootInstanceTypeName;
 			if (actualRootInstanceTypeName == null) {
 				actualRootInstanceTypeName = NullInstance.class.getName();
@@ -240,7 +244,7 @@ public class RootInstanceBuilder extends InstanceBuilder {
 				rootInstanceWrapperClassSourceBuilder.append("}\n");
 			}
 			try {
-				return MiscUtils.IN_MEMORY_COMPILER.compile(rootInstanceWrapperClassName,
+				return solutionInstance.getRuntime().getInMemoryCompiler().compile(rootInstanceWrapperClassName,
 						rootInstanceWrapperClassSourceBuilder.toString());
 			} catch (CompilationError ce) {
 				throw new PotentialError(ce);
@@ -248,11 +252,11 @@ public class RootInstanceBuilder extends InstanceBuilder {
 		}
 	};
 
-	private class RootInstanceWrapperDynamicTypeNameAccessor extends Accessor<String> {
+	private class RootInstanceWrapperDynamicTypeNameAccessor extends Accessor<Solution, String> {
 		@Override
-		public String get() {
+		public String get(Solution solutionInstance) {
 			try {
-				return upToDateRootInstanceClass.get().getName();
+				return upToDateRootInstanceClass.get(solutionInstance).getName();
 			} catch (VersionAccessException e) {
 				throw new PotentialError(e);
 			}

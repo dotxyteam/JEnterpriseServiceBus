@@ -52,7 +52,7 @@ public class JesbAPIExample {
 	 * @return The example solution.
 	 */
 	private static Solution generateHelloCommandSolution() {
-		Solution solution = Solution.INSTANCE;
+		Solution solution = new Solution();
 		Plan plan = new Plan();
 		{
 			solution.getContents().add(plan);
@@ -61,7 +61,7 @@ public class JesbAPIExample {
 				plan.setActivator(activator);
 				activator.setPromptVariant(new Variant<String>(String.class, "Enter your name> "));
 			}
-			RootInstanceBuilderFacade intitializationRoot = plan.getOutputBuilder().getFacade();
+			RootInstanceBuilderFacade intitializationRoot = plan.getOutputBuilder().getFacade(solution);
 			FieldInitializerFacade commandOutputInitializer = (FieldInitializerFacade) intitializationRoot.getChildren()
 					.get(0).getChildren().get(0);
 			commandOutputInitializer.setFieldValue(new InstantiationFunction(
@@ -79,10 +79,10 @@ public class JesbAPIExample {
 	 * @throws Exception Thrown in case of a problem.
 	 */
 	private static String executeHelloPlan(Solution solution, String parameterValue) throws Exception {
-		try (Session session = Session.openDummySession()) {
+		try (Session session = Session.openDummySession(solution)) {
 			Plan plan = (Plan) SolutionUtils.findAsset(solution, Plan.class::isInstance);
 			Object output = SolutionUtils.executePlan(plan, session, inputBuilder -> {
-				InstantiationUtils.setChildInitializerValue(inputBuilder, "(inputLine)", "John");
+				InstantiationUtils.setChildInitializerValue(inputBuilder, "(inputLine)", "John", solution);
 			});
 			return Expression.evaluateObjectMemberSelection(output, "result", String.class);
 		}
@@ -98,7 +98,7 @@ public class JesbAPIExample {
 	 * @throws Exception Thrown in case of a problem.
 	 */
 	private static String triggerHelloPlan(Solution solution, String parameterValue) throws Exception {
-		try (Session session = Session.openDummySession()) {
+		try (Session session = Session.openDummySession(solution)) {
 			Plan plan = (Plan) SolutionUtils.findAsset(solution, Plan.class::isInstance);
 			SolutionUtils.activatePlan(plan, session);
 			try {
@@ -113,7 +113,7 @@ public class JesbAPIExample {
 					JESB.setStandardOutput(initialStandardOutput);
 				}
 			} finally {
-				SolutionUtils.deactivatePlan(plan);
+				SolutionUtils.deactivatePlan(plan, session);
 			}
 		}
 	}
