@@ -82,8 +82,9 @@ public class Variant<T> {
 			String valueString = expression.evaluate(
 					Collections.singletonList(
 							solutionInstance.getEnvironmentSettings().getRootVariableDeclaration(solutionInstance)),
-					Collections.singletonList(
-							solutionInstance.getEnvironmentSettings().getRootVariable(solutionInstance)));
+					Collections
+							.singletonList(solutionInstance.getEnvironmentSettings().getRootVariable(solutionInstance)),
+					solutionInstance);
 			if (valueString == null) {
 				if (valueClass.isPrimitive()) {
 					throw new PotentialError("Unexpected <null> environment variable value. <" + valueClass.getName()

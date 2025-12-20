@@ -8,18 +8,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -101,7 +98,6 @@ import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.FadingPanel;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
-import com.otk.jesb.util.Pair;
 import com.otk.jesb.util.SquigglePainter;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
@@ -201,14 +197,7 @@ public class GUI extends MultiSwingCustomizer {
 	private static WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
 	private static boolean planExecutorScrollLocked = false;
 
-	private static Deque<Asset> stackOfCurrentAssets = new ArrayDeque<Asset>();
-	private static Deque<PlanElement> stackOfCurrentPlanElements = new ArrayDeque<PlanElement>();
-	private static Deque<Facade> stackOfCurrentInstantiationFacades = new ArrayDeque<Facade>();
-	private static Deque<Activator> stackOfCurrentActivators = new ArrayDeque<Activator>();
 	private static SidePaneValueName sidePaneValueName;
-	private static boolean focusTrackingDisabled = false;
-	private static List<Pair<ITypeInfo, Object>> lostFocusWhileTrackingDisabled = new ArrayList<Pair<ITypeInfo, Object>>();
-	private static List<Pair<ITypeInfo, Object>> gainedFocusWhileTrackingDisabled = new ArrayList<Pair<ITypeInfo, Object>>();
 
 	static {
 		if (JESB.isDebugModeActive()) {
@@ -374,81 +363,6 @@ public class GUI extends MultiSwingCustomizer {
 		return new JESBSubCustomizedUI(switchIdentifier);
 	}
 
-	private void setFocusTrackingDisabled(boolean b) {
-		focusTrackingDisabled = b;
-		if (!b) {
-			while (gainedFocusWhileTrackingDisabled.size() > 0) {
-				Pair<ITypeInfo, Object> pair = gainedFocusWhileTrackingDisabled.remove(0);
-				handleFocusEvent(pair.getFirst(), pair.getSecond(), true);
-			}
-			while (lostFocusWhileTrackingDisabled.size() > 0) {
-				Pair<ITypeInfo, Object> pair = lostFocusWhileTrackingDisabled.remove(0);
-				handleFocusEvent(pair.getFirst(), pair.getSecond(), false);
-			}
-		}
-	}
-
-	private boolean handleFocusEvent(ITypeInfo type, Object object, boolean focusGainedOrLost) {
-		if (focusTrackingDisabled) {
-			Pair<ITypeInfo, Object> pair = new Pair<ITypeInfo, Object>(type, object);
-			if (focusGainedOrLost) {
-				if (!lostFocusWhileTrackingDisabled.remove(pair)) {
-					gainedFocusWhileTrackingDisabled.add(pair);
-				}
-			} else {
-				if (!gainedFocusWhileTrackingDisabled.remove(pair)) {
-					lostFocusWhileTrackingDisabled.add(pair);
-				}
-			}
-			return false;
-		}
-		if (focusGainedOrLost) {
-			if (object instanceof Asset) {
-				stackOfCurrentAssets.push((Asset) object);
-				return true;
-			} else if (object instanceof PlanElement) {
-				stackOfCurrentPlanElements.push((PlanElement) object);
-				return true;
-			} else if (object instanceof Activator) {
-				stackOfCurrentActivators.push((Activator) object);
-				return true;
-			} else if (object instanceof Facade) {
-				stackOfCurrentInstantiationFacades.push((Facade) object);
-				return true;
-			}
-		} else {
-			Consumer<Deque<?>> handler = new Consumer<Deque<?>>() {
-				@Override
-				public void accept(Deque<?> stack) {
-					Object peeked;
-					if ((peeked = stack.peek()) != object) {
-						if (JESB.isDebugModeActive()) {
-							Log.get().error(new UnexpectedError("The user interface may become unstable because "
-									+ object + " was abnormally hidden before " + peeked));
-						}
-					}
-					if (!stack.remove(object)) {
-						throw new UnexpectedError();
-					}
-				}
-			};
-			if (object instanceof Asset) {
-				handler.accept(stackOfCurrentAssets);
-				return true;
-			} else if (object instanceof PlanElement) {
-				handler.accept(stackOfCurrentPlanElements);
-				return true;
-			} else if (object instanceof Activator) {
-				handler.accept(stackOfCurrentActivators);
-				return true;
-			} else if (object instanceof Facade) {
-				handler.accept(stackOfCurrentInstantiationFacades);
-				return true;
-			}
-		}
-		return false;
-	}
-
 	private static boolean isConstantInstanceBuilder(RootInstanceBuilderFacade rootInstanceBuilderFacade) {
 		Accessor<Solution, String> rootInstanceDynamicTypeNameAccessor = rootInstanceBuilderFacade.getUnderlying()
 				.getRootInstanceDynamicTypeNameAccessor();
@@ -473,22 +387,6 @@ public class GUI extends MultiSwingCustomizer {
 			result.add(new JESDDatePickerPlugin());
 			result.add(new JESDDateTimePickerPlugin());
 			return result;
-		}
-
-		@Override
-		protected CustomizationController createCustomizationController() {
-			return new CustomizationController(this) {
-
-				@Override
-				protected void recustomizeAllForms() {
-					setFocusTrackingDisabled(true);
-					try {
-						super.recustomizeAllForms();
-					} finally {
-						setFocusTrackingDisabled(false);
-					}
-				}
-			};
 		}
 
 		@Override
@@ -559,16 +457,6 @@ public class GUI extends MultiSwingCustomizer {
 								return VisitStatus.VISIT_NOT_INTERRUPTED;
 							}
 						});
-					}
-				}
-
-				@Override
-				public void refresh(boolean refreshStructure) {
-					handleFocusEvent(filteredObjectType, object, true);
-					try {
-						super.refresh(refreshStructure);
-					} finally {
-						handleFocusEvent(filteredObjectType, object, false);
 					}
 				}
 
@@ -1845,9 +1733,6 @@ public class GUI extends MultiSwingCustomizer {
 
 				@Override
 				protected void onFormVisibilityChange(ITypeInfo type, Object object, boolean visible) {
-					if (!handleFocusEvent(type, object, visible)) {
-						super.onFormVisibilityChange(type, object, visible);
-					}
 					if (object instanceof Session) {
 						Session session = (Session) object;
 						if (session.isActive() != visible) {
@@ -2619,12 +2504,6 @@ public class GUI extends MultiSwingCustomizer {
 						}
 					}
 					if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
-						if (field.getName().equals("inputClass")) {
-							return true;
-						}
-						if (field.getName().equals("outputClass")) {
-							return true;
-						}
 						if (field.getName().equals("automaticTriggerReady")) {
 							return true;
 						}
@@ -2651,23 +2530,25 @@ public class GUI extends MultiSwingCustomizer {
 					}
 					if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
 						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-								Arrays.asList(boolean.class.getName())))) {
+								Arrays.asList(boolean.class.getName(), Solution.class.getName())))) {
 							return true;
 						}
 					}
 					if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
-						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-								Arrays.asList(boolean.class.getName(), Plan.class.getName())))) {
+						if (method.getSignature()
+								.equals(ReflectionUIUtils.buildMethodSignature("void", "validate", Arrays.asList(
+										boolean.class.getName(), Plan.class.getName(), Solution.class.getName())))) {
 							return true;
 						}
 					} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
-						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-								Arrays.asList(boolean.class.getName(), Plan.class.getName())))) {
+						if (method.getSignature()
+								.equals(ReflectionUIUtils.buildMethodSignature("void", "validate", Arrays.asList(
+										boolean.class.getName(), Plan.class.getName(), Solution.class.getName())))) {
 							return true;
 						}
 					} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
 						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-								Arrays.asList(List.class.getName())))) {
+								Arrays.asList(List.class.getName(), Solution.class.getName())))) {
 							return true;
 						}
 					}
@@ -2685,8 +2566,10 @@ public class GUI extends MultiSwingCustomizer {
 								Arrays.asList(Solution.class.getName(), Plan.class.getName(), Step.class.getName())))) {
 							return true;
 						}
-						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-								Arrays.asList(boolean.class.getName(), Plan.class.getName(), Step.class.getName())))) {
+						if (method.getSignature()
+								.equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
+										Arrays.asList(boolean.class.getName(), Solution.class.getName(),
+												Plan.class.getName(), Step.class.getName())))) {
 							return true;
 						}
 					}
@@ -2704,43 +2587,51 @@ public class GUI extends MultiSwingCustomizer {
 					}
 					if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
 						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-								Arrays.asList(boolean.class.getName())))) {
+								Arrays.asList(boolean.class.getName(), Solution.class.getName())))) {
 							return true;
 						}
 					}
 					if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
 						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-								Arrays.asList(boolean.class.getName())))) {
+								Arrays.asList(boolean.class.getName(), Solution.class.getName())))) {
 							return true;
 						}
 					}
 					if ((objectClass != null) && ActivatorStructure.class.isAssignableFrom(objectClass)) {
-						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-								Arrays.asList(boolean.class.getName(), Plan.class.getName())))) {
+						if (method.getSignature()
+								.equals(ReflectionUIUtils.buildMethodSignature("void", "validate", Arrays.asList(
+										boolean.class.getName(), Solution.class.getName(), Plan.class.getName())))) {
 							return true;
 						}
 					}
 					if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
-						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void",
-								"initializeAutomaticTrigger", Arrays.asList(ActivationHandler.class.getName())))) {
+						if (method.getSignature()
+								.equals(ReflectionUIUtils.buildMethodSignature("void", "initializeAutomaticTrigger",
+										Arrays.asList(ActivationHandler.class.getName(), Solution.class.getName())))) {
 							return true;
 						}
-					}
-					if ((objectClass != null) && Activator.class.isAssignableFrom(objectClass)) {
 						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void",
-								"finalizeAutomaticTrigger", Arrays.asList()))) {
+								"finalizeAutomaticTrigger", Arrays.asList(Solution.class.getName())))) {
+							return true;
+						}
+						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature(Class.class.getName(),
+								"getInputClass", Arrays.asList(Solution.class.getName())))) {
+							return true;
+						}
+						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature(Class.class.getName(),
+								"getOutputClass", Arrays.asList(Solution.class.getName())))) {
 							return true;
 						}
 					}
 					if ((objectClass != null) && HTTPServer.RequestHandler.class.isAssignableFrom(objectClass)) {
 						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-								Arrays.asList(HTTPServer.class.getName())))) {
+								Arrays.asList(HTTPServer.class.getName(), Solution.class.getName())))) {
 							return true;
 						}
 					}
 					if ((objectClass != null) && ResourceStructure.class.isAssignableFrom(objectClass)) {
 						if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-								Arrays.asList(boolean.class.getName())))) {
+								Arrays.asList(boolean.class.getName(), Solution.class.getName())))) {
 							return true;
 						}
 					}
@@ -3079,74 +2970,27 @@ public class GUI extends MultiSwingCustomizer {
 		}
 
 		private Asset getCurrentAsset(ValidationSession session) {
-			Asset result = (session == null) ? null : (Asset) session.get(CURRENT_ASSET_KEY);
-			if (result == null) {
-				result = stackOfCurrentAssets.peek();
-			}
-			return result;
-		}
-
-		private PlanElement getCurrentPlanElement(ValidationSession session) {
-			PlanElement result = (session == null) ? null : (PlanElement) session.get(CURRENT_PLAN_ELEMENT_KEY);
-			if (result == null) {
-				result = stackOfCurrentPlanElements.peek();
-			}
-			return result;
-		}
-
-		private Facade getCurrentInstantiationFacade(ValidationSession session) {
-			Facade result = (session == null) ? null : (Facade) session.get(CURRENT_INSTANTIATION_FACADE_KEY);
-			if (result == null) {
-				result = stackOfCurrentInstantiationFacades.peek();
-			}
-			return result;
+			return ReflectionUIUtils.findRenderingContextualValue(this, Asset.class);
 		}
 
 		private Activator getCurrentActivator(ValidationSession session) {
-			Activator result = (session == null) ? null : (Activator) session.get(CURRENT_ACTIVATOR_KEY);
-			if (result == null) {
-				result = stackOfCurrentActivators.peek();
-			}
-			return result;
+			return ReflectionUIUtils.findRenderingContextualValue(this, Activator.class);
 		}
 
 		private Plan getCurrentPlan(ValidationSession session) {
-			Asset current = getCurrentAsset(session);
-			if (current instanceof Plan) {
-				return (Plan) current;
-			}
-			Plan result = (Plan) stackOfCurrentAssets.stream().filter(Plan.class::isInstance).findFirst().orElse(null);
-			return result;
+			return ReflectionUIUtils.findRenderingContextualValue(this, Plan.class);
 		}
 
 		private Step getCurrentStep(ValidationSession session) {
-			PlanElement current = getCurrentPlanElement(session);
-			if (current instanceof Step) {
-				return (Step) current;
-			}
-			Step result = (Step) stackOfCurrentPlanElements.stream().filter(Step.class::isInstance).findFirst()
-					.orElse(null);
-			return result;
+			return ReflectionUIUtils.findRenderingContextualValue(this, Step.class);
 		}
 
 		private Transition getCurrentTransition(ValidationSession session) {
-			PlanElement current = getCurrentPlanElement(session);
-			if (current instanceof Transition) {
-				return (Transition) current;
-			}
-			Transition result = (Transition) stackOfCurrentPlanElements.stream().filter(Transition.class::isInstance)
-					.findFirst().orElse(null);
-			return result;
+			return ReflectionUIUtils.findRenderingContextualValue(this, Transition.class);
 		}
 
 		private RootInstanceBuilderFacade getCurrentRootInstanceBuilderFacade(ValidationSession session) {
-			Facade current = getCurrentInstantiationFacade(session);
-			if (current instanceof RootInstanceBuilderFacade) {
-				return (RootInstanceBuilderFacade) current;
-			}
-			RootInstanceBuilderFacade result = (RootInstanceBuilderFacade) stackOfCurrentInstantiationFacades.stream()
-					.filter(RootInstanceBuilderFacade.class::isInstance).findFirst().orElse(null);
-			return result;
+			return ReflectionUIUtils.findRenderingContextualValue(this, RootInstanceBuilderFacade.class);
 		}
 	}
 

@@ -27,7 +27,6 @@ public class InitializationCaseFacade extends Facade {
 	private InitializationSwitchFacade parent;
 	private InstantiationFunction condition;
 	private InitializationCase underlying;
-	private Solution solutionInstance;
 
 	public InitializationCaseFacade(InitializationSwitchFacade parent, InstantiationFunction condition,
 			InitializationCase underlying, Solution solutionInstance) {

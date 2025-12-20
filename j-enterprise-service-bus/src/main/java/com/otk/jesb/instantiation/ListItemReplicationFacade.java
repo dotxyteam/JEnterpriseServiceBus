@@ -97,7 +97,7 @@ public class ListItemReplicationFacade {
 					variableDeclarations, listItemInitializerFacade);
 			try {
 				ITypeInfo type = function.guessReturnTypeInfo(compilationContext.getPrecompiler(),
-						compilationContext.getVariableDeclarations(function));
+						compilationContext.getVariableDeclarations(function), solutionInstance);
 				if (!(type instanceof IListTypeInfo)) {
 					throw new IllegalStateException("Invalid iteration list function return type '" + type.getName()
 							+ "': Expected array or standard collection type");

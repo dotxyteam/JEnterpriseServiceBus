@@ -346,7 +346,7 @@ public abstract class Structure {
 					if (newPath != null) {
 						Reference<SharedStructureModel> newModelReference = new Reference<SharedStructureModel>(
 								SharedStructureModel.class);
-						newModelReference.setPath(newPath, solutionInstance);
+						newModelReference.setPathAndValidate(newPath, solutionInstance);
 						checkNoReferenceCycleAndResolve(newModelReference, true, solutionInstance);
 					}
 				});
@@ -576,7 +576,7 @@ public abstract class Structure {
 				if (optionality.getDefaultValueExpression() != null) {
 					try {
 						new Expression<Object>(optionality.getDefaultValueExpression(), Object.class)
-								.compile(Collections.emptyList());
+								.compile(Collections.emptyList(), solutionInstance);
 					} catch (CompilationError e) {
 						throw new ValidationError("Invalid default value expression detected", e);
 					}

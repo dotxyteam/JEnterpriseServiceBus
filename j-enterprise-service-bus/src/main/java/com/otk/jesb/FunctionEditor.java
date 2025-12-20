@@ -44,7 +44,7 @@ public class FunctionEditor extends PathOptionsProvider {
 	}
 
 	public void validate() throws CompilationError {
-		function.getCompiledVersion(precompiler, getVariableDeclarations(), returnType);
+		function.getCompiledVersion(precompiler, getVariableDeclarations(), returnType, solutionInstance);
 	}
 
 	public void insertSelectedPathNodeExpression(int insertStartPosition, int insertEndPosition) {

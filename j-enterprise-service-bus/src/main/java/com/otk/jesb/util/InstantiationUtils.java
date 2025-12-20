@@ -91,7 +91,8 @@ public class InstantiationUtils {
 		CompiledFunction<?> compiledFunction;
 		try {
 			compiledFunction = function.getCompiledVersion(compilationContext.getPrecompiler(),
-					expectedVariableDeclarations, compilationContext.getFunctionReturnType(function));
+					expectedVariableDeclarations, compilationContext.getFunctionReturnType(function),
+					instantiationContext.getSolutionInstance());
 		} catch (CompilationError e) {
 			throw new PotentialError(e);
 		}
@@ -190,7 +191,7 @@ public class InstantiationUtils {
 			}
 			try {
 				function.getCompiledVersion(compilationContext.getPrecompiler(),
-						compilationContext.getVariableDeclarations(function), functionReturnType);
+						compilationContext.getVariableDeclarations(function), functionReturnType, solutionInstance);
 			} catch (CompilationError e) {
 				throw new ValidationError("Failed to compile the " + valueName + " function", e);
 			}

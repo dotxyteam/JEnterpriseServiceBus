@@ -83,8 +83,10 @@ public class Function {
 
 	@SuppressWarnings("unchecked")
 	public <T> CompiledFunction<T> getCompiledVersion(Precompiler precompiler,
-			List<VariableDeclaration> variableDeclarations, Class<T> functionReturnType) throws CompilationError {
+			List<VariableDeclaration> variableDeclarations, Class<T> functionReturnType, Solution solutionInstance)
+			throws CompilationError {
 		Map<String, Object> compilationData = new HashMap<String, Object>();
+		compilationData.put(SOLUTION_INSTANCE_KEY, solutionInstance);
 		compilationData.put(PRECOMPILED_FUNCTION_BODY_KEY,
 				(precompiler != null) ? precompiler.apply(functionBody) : functionBody);
 		compilationData.put(VARIABLE_DECLARATIONS_KEY, variableDeclarations);

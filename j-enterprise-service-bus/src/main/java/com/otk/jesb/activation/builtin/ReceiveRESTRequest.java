@@ -78,9 +78,13 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 		return openAPIDescriptionReference;
 	}
 
-	public void setOpenAPIDescriptionReference(Reference<OpenAPIDescription> openAPIDescriptionReference,
-			Solution solutionInstance) {
+	public void setOpenAPIDescriptionReference(Reference<OpenAPIDescription> openAPIDescriptionReference) {
 		this.openAPIDescriptionReference = openAPIDescriptionReference;
+	}
+
+	public void setOpenAPIDescriptionReferenceAndAutoConfigure(
+			Reference<OpenAPIDescription> openAPIDescriptionReference, Solution solutionInstance) {
+		setOpenAPIDescriptionReference(openAPIDescriptionReference);
 		tryToSelectValuesAutomatically(solutionInstance);
 	}
 
@@ -88,8 +92,12 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 		return operationSignature;
 	}
 
-	public void setOperationSignature(String operationSignature, Solution solutionInstance) {
+	public void setOperationSignature(String operationSignature) {
 		this.operationSignature = operationSignature;
+	}
+
+	public void setOperationSignatureAndAutoConfigure(String operationSignature, Solution solutionInstance) {
+		setOperationSignature(operationSignature);
 		tryToSelectValuesAutomatically(solutionInstance);
 	}
 

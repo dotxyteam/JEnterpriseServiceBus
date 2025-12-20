@@ -152,9 +152,13 @@ public class CallRESTAPI implements Operation {
 			return openAPIDescriptionReference;
 		}
 
-		public void setOpenAPIDescriptionReference(Reference<OpenAPIDescription> openAPIDescriptionReference,
-				Solution solutionInstance) {
+		public void setOpenAPIDescriptionReference(Reference<OpenAPIDescription> openAPIDescriptionReference) {
 			this.openAPIDescriptionReference = openAPIDescriptionReference;
+		}
+
+		public void setOpenAPIDescriptionReferenceAndAutoConfigure(
+				Reference<OpenAPIDescription> openAPIDescriptionReference, Solution solutionInstance) {
+			setOpenAPIDescriptionReference(openAPIDescriptionReference);
 			tryToSelectValuesAutomatically(solutionInstance);
 		}
 
@@ -218,8 +222,7 @@ public class CallRESTAPI implements Operation {
 					context.getVariables(), context.getPlan()
 							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
 					solutionInstance));
-			Class<?> operationOutputClass = retrieveOperationDescriptor(solutionInstance)
-					.getOperationOutputClass();
+			Class<?> operationOutputClass = retrieveOperationDescriptor(solutionInstance).getOperationOutputClass();
 			return new CallRESTAPI(openAPIDescription, apiClientClass, operationMethod, operationInput,
 					customBaseURLVariant.getValue(solutionInstance), operationOutputClass);
 		}

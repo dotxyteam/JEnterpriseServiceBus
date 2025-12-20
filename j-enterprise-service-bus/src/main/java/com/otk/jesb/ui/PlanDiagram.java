@@ -848,7 +848,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 							}
 							selectionListeningEnabled = false;
 							try {
-								updateFocusedPlanElementsControl();
+								ReflectionUIUtils.withRenderingContext(swingRenderer.getReflectionUI(),
+										getPlanEditor().getRenderingContext(),
+										() -> updateFocusedPlanElementsControl());
 							} finally {
 								selectionListeningEnabled = true;
 							}
@@ -879,6 +881,14 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	@Override
+	protected void paintComponent(Graphics g) {
+		ReflectionUIUtils.withRenderingContext(swingRenderer.getReflectionUI(), getPlanEditor().getRenderingContext(),
+				() -> {
+					super.paintComponent(g);
+				});
+	}
+
+	@Override
 	protected void paintNode(Graphics g, JNode node) {
 		super.paintNode(g, node);
 		paintErrorMarker(g, node);
@@ -893,8 +903,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	protected void paintErrorMarker(Graphics g, JDiagramObject diagramObject) {
 		Throwable validationError;
 		try {
-			validationError = swingRenderer.getReflectionUI().getValidationErrorRegistry()
-					.getValidationError(diagramObject.getValue(), null);
+			validationError = getValidationError(diagramObject.getValue());
 		} catch (Throwable t) {
 			swingRenderer.getReflectionUI().logDebug("WARNING: Failed to retrieve validation error attributed to '"
 					+ diagramObject.getValue() + "': " + MiscUtils.getPrintedStackTrace(t));
@@ -981,14 +990,17 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	@Override
 	public void mouseMoved(MouseEvent mouseEvent) {
-		super.mouseMoved(mouseEvent);
-		manageErrorTooltipOnMouseMove(mouseEvent);
+		ReflectionUIUtils.withRenderingContext(swingRenderer.getReflectionUI(), getPlanEditor().getRenderingContext(),
+				() -> {
+					super.mouseMoved(mouseEvent);
+					manageErrorTooltipOnMouseMove(mouseEvent);
+				});
 	}
 
 	protected void manageErrorTooltipOnMouseMove(MouseEvent mouseEvent) {
 		JDiagramObject pointedDiagramObject = getPointedDiagramObject(mouseEvent.getX(), mouseEvent.getY());
-		Exception currentError = (pointedDiagramObject != null) ? swingRenderer.getReflectionUI()
-				.getValidationErrorRegistry().getValidationError(pointedDiagramObject.getValue(), null) : null;
+		Exception currentError = (pointedDiagramObject != null) ? getValidationError(pointedDiagramObject.getValue())
+				: null;
 		if (currentError != null) {
 			Pair<PlanElement, Exception> newTooltipId = new Pair<PlanElement, Exception>(
 					(PlanElement) pointedDiagramObject.getValue(), currentError);
@@ -1014,6 +1026,10 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				HyperlinkTooltip.get(this).getMouseMotionListener().mouseMoved(mouseEvent);
 			}
 		}
+	}
+
+	private Exception getValidationError(Object object) {
+		return swingRenderer.getReflectionUI().getValidationErrorRegistry().getValidationError(object, null);
 	}
 
 	@Override

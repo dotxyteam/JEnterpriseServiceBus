@@ -20,6 +20,7 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.meta.TypeInfoProvider;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.UpToDate;
 import com.otk.jesb.util.UpToDate.VersionAccessException;
 
@@ -80,10 +81,10 @@ public class InstantiationFunction extends Function {
 		returnTypeUtil.setFunctionBody(functionBody);
 	}
 
-	public ITypeInfo guessReturnTypeInfo(Precompiler precompiler, List<VariableDeclaration> variableDeclarations)
-			throws CompilationError {
+	public ITypeInfo guessReturnTypeInfo(Precompiler precompiler, List<VariableDeclaration> variableDeclarations,
+			Solution solutionInstance) throws CompilationError {
 		CompiledFunction<?> compiledFunction = returnTypeUtil.getCompiledVersion(precompiler, variableDeclarations,
-				Object.class);
+				Object.class, solutionInstance);
 		try {
 			return upToDateGuessedReturnTypeInfo.get(compiledFunction);
 		} catch (VersionAccessException e) {

@@ -59,7 +59,8 @@ public class ApiTests {
 				String message;
 				{
 					result = SolutionUtils.executePlan(clientPlan, session, null);
-					message = Expression.evaluateObjectMemberSelection(result, "message", String.class);
+					message = Expression.evaluateObjectMemberSelection(result, "message", String.class,
+							solutionInstance);
 					if (!message.equals("Hello John!")) {
 						Assert.fail();
 					}
@@ -68,7 +69,8 @@ public class ApiTests {
 					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
 						InstantiationUtils.setChildInitializerValue(inputBuilder, "name", "Liza", solutionInstance);
 					});
-					message = Expression.evaluateObjectMemberSelection(result, "message", String.class);
+					message = Expression.evaluateObjectMemberSelection(result, "message", String.class,
+							solutionInstance);
 					if (!message.equals("Hello Liza!")) {
 						Assert.fail();
 					}
@@ -77,7 +79,8 @@ public class ApiTests {
 					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
 						InstantiationUtils.setChildInitializerValue(inputBuilder, "name", "", solutionInstance);
 					});
-					message = Expression.evaluateObjectMemberSelection(result, "message", String.class);
+					message = Expression.evaluateObjectMemberSelection(result, "message", String.class,
+							solutionInstance);
 					if (!message.contains("Name not provided!")) {
 						Assert.fail();
 					}
@@ -117,7 +120,8 @@ public class ApiTests {
 					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
 						InstantiationUtils.setChildInitializerValue(inputBuilder, "(name)", "Liza", solutionInstance);
 					});
-					message = Expression.evaluateObjectMemberSelection(result, "message", String.class);
+					message = Expression.evaluateObjectMemberSelection(result, "message", String.class,
+							solutionInstance);
 					if (!message.equals("Hello Liza!")) {
 						Assert.fail();
 					}
@@ -126,7 +130,8 @@ public class ApiTests {
 					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
 						InstantiationUtils.setChildInitializerValue(inputBuilder, "(name)", "", solutionInstance);
 					});
-					message = Expression.evaluateObjectMemberSelection(result, "message", String.class);
+					message = Expression.evaluateObjectMemberSelection(result, "message", String.class,
+							solutionInstance);
 					if (!message.contains("Name not provided!")) {
 						Assert.fail();
 					}

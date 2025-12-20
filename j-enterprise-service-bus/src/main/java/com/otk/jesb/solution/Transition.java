@@ -112,7 +112,7 @@ public class Transition extends PlanElement {
 					if (executionError == null) {
 						if (((IfCondition) transition.getCondition()).isFulfilled(context.getPlan()
 								.getTransitionContextVariableDeclarations(transition, solutionInstance),
-								context.getVariables())) {
+								context.getVariables(), solutionInstance)) {
 							result.add(transition);
 						}
 					}
@@ -177,11 +177,11 @@ public class Transition extends PlanElement {
 			return "If: " + getFunctionBody();
 		}
 
-		public boolean isFulfilled(List<VariableDeclaration> variableDeclarations, List<Variable> variables)
-				throws FunctionCallError {
+		public boolean isFulfilled(List<VariableDeclaration> variableDeclarations, List<Variable> variables,
+				Solution solutionInstance) throws FunctionCallError {
 			CompiledFunction<?> compiledFunction;
 			try {
-				compiledFunction = getCompiledVersion(null, variableDeclarations, boolean.class);
+				compiledFunction = getCompiledVersion(null, variableDeclarations, boolean.class, solutionInstance);
 			} catch (CompilationError e) {
 				throw new PotentialError(e);
 			}
@@ -192,7 +192,7 @@ public class Transition extends PlanElement {
 		public void validate(List<VariableDeclaration> variableDeclarations, Solution solutionInstance)
 				throws ValidationError {
 			try {
-				getCompiledVersion(null, variableDeclarations, boolean.class);
+				getCompiledVersion(null, variableDeclarations, boolean.class, solutionInstance);
 			} catch (CompilationError e) {
 				throw new ValidationError("Failed to validate the predicate", e);
 			}

@@ -1281,6 +1281,35 @@
         <menuModel>
             <uniqueIdentifier>-7c457ca4:198b47b3229:-43b</uniqueIdentifier>
         </menuModel>
+        <methodsCustomization>
+            <uniqueIdentifier>-33357af3:19b3d938126:-c34</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>getInputClass</methodName>
+            <methodSignature>java.lang.Class getInputClass(com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-33357af3:19b3d938126:-c27</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-33357af3:19b3d938126:-c26</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.WatchFileSystem</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -1941,7 +1970,7 @@
             <uniqueIdentifier>1f5c443e:19acb77f4a3:-5a43</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>1f5c443e:19acba06200:3e6a</uniqueIdentifier>
+                <uniqueIdentifier>-33357af3:19b3d940657:-60a9</uniqueIdentifier>
                 <caption>Advanced</caption>
                 <name>advanced</name>
             </category>

@@ -147,9 +147,8 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 						break;
 					}
 					MiscUtils.checkVariables(loopEndConditionVariableDeclarations, context.getVariables());
-					if ((Boolean) loopEndCondition
-							.getCompiledVersion(null, loopEndConditionVariableDeclarations, boolean.class)
-							.call(context.getVariables())) {
+					if ((Boolean) loopEndCondition.getCompiledVersion(null, loopEndConditionVariableDeclarations,
+							boolean.class, solutionInstance).call(context.getVariables())) {
 						break;
 					}
 					context.getVariables().clear();
@@ -330,7 +329,7 @@ public class LoopCompositeStep extends CompositeStep<LoopCompositeStep.LoopOpera
 				try {
 					loopEndCondition.getCompiledVersion(null,
 							((LoopCompositeStep) step).getLoopEndConditionVariableDeclarations(solutionInstance, plan),
-							boolean.class);
+							boolean.class, solutionInstance);
 				} catch (CompilationError e) {
 					throw new ValidationError("Failed to validate the loop end condition", e);
 				}

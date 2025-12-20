@@ -63,8 +63,12 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		return wsdlReference;
 	}
 
-	public void setWsdlReference(Reference<WSDL> wsdlReference, Solution solutionInstance) {
+	public void setWsdlReference(Reference<WSDL> wsdlReference) {
 		this.wsdlReference = wsdlReference;
+	}
+
+	public void setWsdlReferenceAndAutoConfigure(Reference<WSDL> wsdlReference, Solution solutionInstance) {
+		setWsdlReference(wsdlReference);
 		tryToSelectValuesAutomatically(solutionInstance);
 	}
 
@@ -72,8 +76,12 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		return serviceName;
 	}
 
-	public void setServiceName(String serviceName, Solution solutionInstance) {
+	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
+	}
+
+	public void setServiceNameAndAutoConfigure(String serviceName, Solution solutionInstance) {
+		setServiceName(serviceName);
 		tryToSelectValuesAutomatically(solutionInstance);
 	}
 
@@ -81,8 +89,12 @@ public class ReceiveSOAPRequest extends HTTPRequestReceiver {
 		return operationSignature;
 	}
 
-	public void setOperationSignature(String operationSignature, Solution solutionInstance) {
+	public void setOperationSignature(String operationSignature) {
 		this.operationSignature = operationSignature;
+	}
+
+	public void setOperationSignatureAndAutoConfigure(String operationSignature, Solution solutionInstance) {
+		setOperationSignature(operationSignature);
 		tryToSelectValuesAutomatically(solutionInstance);
 	}
 

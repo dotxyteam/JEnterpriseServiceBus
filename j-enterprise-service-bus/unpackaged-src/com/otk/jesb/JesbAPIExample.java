@@ -84,7 +84,7 @@ public class JesbAPIExample {
 			Object output = SolutionUtils.executePlan(plan, session, inputBuilder -> {
 				InstantiationUtils.setChildInitializerValue(inputBuilder, "(inputLine)", "John", solution);
 			});
-			return Expression.evaluateObjectMemberSelection(output, "result", String.class);
+			return Expression.evaluateObjectMemberSelection(output, "result", String.class, solution);
 		}
 	}
 

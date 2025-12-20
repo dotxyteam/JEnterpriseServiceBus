@@ -38,8 +38,12 @@ public abstract class XMLOperation implements Operation {
 			return xsdReference;
 		}
 
-		public void setXsdReference(Reference<XSD> xsdReference, Solution solutionInstance) {
+		public void setXsdReference(Reference<XSD> xsdReference) {
 			this.xsdReference = xsdReference;
+		}
+
+		public void setXsdReferenceAndAutoConfigure(Reference<XSD> xsdReference, Solution solutionInstance) {
+			setXsdReference(xsdReference);
 			tryToSelectValuesAutomatically(solutionInstance);
 		}
 

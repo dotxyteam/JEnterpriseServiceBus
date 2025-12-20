@@ -69,11 +69,15 @@ public class Reference<T extends Asset> {
 		return path;
 	}
 
-	public void setPath(String path, Solution solutionInstance) {
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public void setPathAndValidate(String path, Solution solutionInstance) {
 		if (newPathValidator != null) {
 			newPathValidator.accept(path, solutionInstance);
 		}
-		this.path = path;
+		setPath(path);
 	}
 
 	public List<String> getPathOptions(Solution solutionInstance) {
@@ -133,7 +137,7 @@ public class Reference<T extends Asset> {
 	public static <T extends Asset> Reference<T> get(T asset, Solution solutionInstance) {
 		for (String pathOption : new Reference<T>((Class<T>) asset.getClass()).getPathOptions(solutionInstance)) {
 			Reference<T> candidate = new Reference<T>((Class<T>) asset.getClass());
-			candidate.setPath(pathOption, solutionInstance);
+			candidate.setPathAndValidate(pathOption, solutionInstance);
 			if (candidate.resolve(solutionInstance) == asset) {
 				return candidate;
 			}

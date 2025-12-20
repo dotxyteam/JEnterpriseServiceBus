@@ -6,6 +6,7 @@ import com.otk.jesb.Function.Precompiler;
 import com.otk.jesb.compiler.CompilationError;
 import com.otk.jesb.compiler.CompiledFunction;
 import com.otk.jesb.compiler.CompiledFunction.FunctionCallError;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.util.ClassUtils;
@@ -62,19 +63,21 @@ public class Expression<T> {
 		return dynamic;
 	}
 
-	public void setDynamic(boolean dynamic, List<VariableDeclaration> variableDeclarations, List<Variable> variables) {
+	public void setDynamic(boolean dynamic, List<VariableDeclaration> variableDeclarations, List<Variable> variables,
+			Solution solutionInstance) {
 		if (!dynamic) {
-			represent(evaluate(variableDeclarations, variables));
+			represent(evaluate(variableDeclarations, variables, solutionInstance));
 		}
 		this.dynamic = dynamic;
 	}
 
-	public T evaluate(List<VariableDeclaration> variableDeclarations, List<Variable> variables) {
+	public T evaluate(List<VariableDeclaration> variableDeclarations, List<Variable> variables,
+			Solution solutionInstance) {
 		if (internalFunction == null) {
 			return null;
 		}
 		try {
-			CompiledFunction<T> compiledFunction = compile(variableDeclarations);
+			CompiledFunction<T> compiledFunction = compile(variableDeclarations, solutionInstance);
 			return resultClass.cast(compiledFunction.call(variables));
 		} catch (CompilationError | FunctionCallError e) {
 			throw new PotentialError(e);
@@ -98,20 +101,17 @@ public class Expression<T> {
 		dynamic = false;
 	}
 
-	public CompiledFunction<T> compile(VariableDeclaration... variableDeclarations) throws CompilationError {
-		return compile(Arrays.asList(variableDeclarations));
+	public CompiledFunction<T> compile(List<VariableDeclaration> variableDeclarations, Solution solutionInstance)
+			throws CompilationError {
+		return internalFunction.getCompiledVersion(PRECOMPILER, variableDeclarations, resultClass, solutionInstance);
 	}
 
-	public CompiledFunction<T> compile(List<VariableDeclaration> variableDeclarations) throws CompilationError {
-		return internalFunction.getCompiledVersion(PRECOMPILER, variableDeclarations, resultClass);
-	}
-
-	public static <T> T evaluateObjectMemberSelection(Object object, String selection, Class<T> resultClass)
-			throws CompilationError, FunctionCallError {
+	public static <T> T evaluateObjectMemberSelection(Object object, String selection, Class<T> resultClass,
+			Solution solutionInstance) throws CompilationError, FunctionCallError {
 		String variableName = "var" + MiscUtils.getDigitalUniqueIdentifier();
-		return new Expression<T>(variableName + "." + selection, resultClass)
-				.compile(new VariableDeclaration.BasicVariableDeclaration(variableName, object.getClass()))
-				.call(new Variable.BasicVariable(variableName, object));
+		return new Expression<T>(variableName + "." + selection, resultClass).compile(
+				Arrays.asList(new VariableDeclaration.BasicVariableDeclaration(variableName, object.getClass())),
+				solutionInstance).call(new Variable.BasicVariable(variableName, object));
 	}
 
 	@Override

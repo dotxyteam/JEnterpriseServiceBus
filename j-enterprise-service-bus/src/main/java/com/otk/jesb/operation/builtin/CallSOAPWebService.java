@@ -158,8 +158,12 @@ public class CallSOAPWebService implements Operation {
 			return wsdlReference;
 		}
 
-		public void setWsdlReference(Reference<WSDL> wsdlReference, Solution solutionInstance) {
+		public void setWsdlReference(Reference<WSDL> wsdlReference) {
 			this.wsdlReference = wsdlReference;
+		}
+
+		public void setWsdlReferenceAndAutoConfigure(Reference<WSDL> wsdlReference, Solution solutionInstance) {
+			setWsdlReference(wsdlReference);
 			tryToSelectValuesAutomatically(solutionInstance);
 		}
 
@@ -167,8 +171,12 @@ public class CallSOAPWebService implements Operation {
 			return serviceName;
 		}
 
-		public void setServiceName(String serviceName, Solution solutionInstance) {
+		public void setServiceName(String serviceName) {
 			this.serviceName = serviceName;
+		}
+
+		public void setServiceNameAndAutoConfigure(String serviceName, Solution solutionInstance) {
+			setServiceName(serviceName);
 			tryToSelectValuesAutomatically(solutionInstance);
 		}
 
@@ -176,8 +184,12 @@ public class CallSOAPWebService implements Operation {
 			return portName;
 		}
 
-		public void setPortName(String portName, Solution solutionInstance) {
+		public void setPortName(String portName) {
 			this.portName = portName;
+		}
+
+		public void setPortNameAndAutoConfigure(String portName, Solution solutionInstance) {
+			setPortName(portName);
 			tryToSelectValuesAutomatically(solutionInstance);
 		}
 
@@ -185,8 +197,12 @@ public class CallSOAPWebService implements Operation {
 			return operationSignature;
 		}
 
-		public void setOperationSignature(String operationSignature, Solution solutionInstance) {
+		public void setOperationSignature(String operationSignature) {
 			this.operationSignature = operationSignature;
+		}
+
+		public void setOperationSignatureAndAutoConfigure(String operationSignature, Solution solutionInstance) {
+			setOperationSignature(operationSignature);
 			tryToSelectValuesAutomatically(solutionInstance);
 		}
 
@@ -278,8 +294,7 @@ public class CallSOAPWebService implements Operation {
 					context.getVariables(), context.getPlan()
 							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
 					solutionInstance));
-			Class<?> operationOutputClass = retrieveOperationDescriptor(solutionInstance)
-					.getOperationOutputClass();
+			Class<?> operationOutputClass = retrieveOperationDescriptor(solutionInstance).getOperationOutputClass();
 			return new CallSOAPWebService(wsdl, serviceClass, portInterface, operationMethod, operationInput,
 					customServiceEndpointURLVariant.getValue(solutionInstance), operationOutputClass);
 		}

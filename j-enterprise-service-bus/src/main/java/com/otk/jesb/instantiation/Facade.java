@@ -26,6 +26,9 @@ public abstract class Facade {
 	protected Solution solutionInstance;
 
 	public Facade(Solution solutionInstance) {
+		if(solutionInstance == null) {
+			throw new UnexpectedError();
+		}
 		this.solutionInstance = solutionInstance;
 	}
 
