@@ -86,7 +86,7 @@ public class FieldInitializerFacade extends InitializerFacade {
 
 	public IFieldInfo getFieldInfo() {
 		if (fieldInfo == null) {
-			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo(solutionInstance);
+			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
 			fieldInfo = ReflectionUIUtils.findInfoByName(parentTypeInfo.getFields(), fieldName);
 		}
 		return fieldInfo;

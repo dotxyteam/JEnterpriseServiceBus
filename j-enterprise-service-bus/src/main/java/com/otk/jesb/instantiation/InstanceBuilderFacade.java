@@ -181,9 +181,9 @@ public class InstanceBuilderFacade extends Facade {
 		setConcrete(true);
 	}
 
-	public List<String> getConstructorSignatureOptions(Solution solutionInstance) {
+	public List<String> getConstructorSignatureOptions() {
 		List<String> result = new ArrayList<String>();
-		ITypeInfo typeInfo = getTypeInfo(solutionInstance);
+		ITypeInfo typeInfo = getTypeInfo();
 		for (IMethodInfo constructor : InstantiationUtils.listSortedConstructors(typeInfo)) {
 			result.add(constructor.getSignature());
 		}
@@ -195,7 +195,7 @@ public class InstanceBuilderFacade extends Facade {
 		return underlying;
 	}
 
-	public ITypeInfo getTypeInfo(Solution solutionInstance) {
+	public ITypeInfo getTypeInfo() {
 		String actualTypeName = underlying.computeActualTypeName(InstantiationUtils.getAncestorInstanceBuilders(parent),
 				solutionInstance);
 		ITypeInfo result = TypeInfoProvider.getTypeInfo(actualTypeName, solutionInstance);
@@ -210,7 +210,7 @@ public class InstanceBuilderFacade extends Facade {
 				InstanceBuilderFacade parentInstanceBuilderFacade = listParameterInitializerFacade
 						.getCurrentInstanceBuilderFacade();
 				AbstractConstructorInfo parentInstanceConstructor = InstantiationUtils.getConstructorInfo(
-						parentInstanceBuilderFacade.getTypeInfo(solutionInstance),
+						parentInstanceBuilderFacade.getTypeInfo(),
 						parentInstanceBuilderFacade.getSelectedConstructorSignature());
 				result = TypeInfoProvider.getTypeInfo(actualTypeName, parentInstanceConstructor,
 						listParameterInitializerFacade.getParameterPosition(), solutionInstance);
@@ -234,7 +234,7 @@ public class InstanceBuilderFacade extends Facade {
 		return util.collectLiveInitializerFacades(context);
 	}
 
-	public void copyUnderlying(Solution solutionInstance) {
+	public void copyUnderlying() {
 		if (!canCopyUnderlying()) {
 			throw new UnexpectedError();
 		}
@@ -278,7 +278,7 @@ public class InstanceBuilderFacade extends Facade {
 		return false;
 	}
 
-	public String getSource(Solution solutionInstance) {
+	public String getSource() {
 		if (!canAccessSource()) {
 			throw new UnexpectedError();
 		}
@@ -291,7 +291,7 @@ public class InstanceBuilderFacade extends Facade {
 		return output.toString();
 	}
 
-	public void setSource(String source, Solution solutionInstance) {
+	public void setSource(String source) {
 		if (!canAccessSource()) {
 			throw new UnexpectedError();
 		}
@@ -322,7 +322,7 @@ public class InstanceBuilderFacade extends Facade {
 		}
 		ITypeInfo typeInfo;
 		try {
-			typeInfo = getTypeInfo(solutionInstance);
+			typeInfo = getTypeInfo();
 		} catch (Throwable t) {
 			throw new ValidationError("Failed to load '" + getTypeName() + "' type", t);
 		}

@@ -115,8 +115,13 @@ public class JDBCProcedureCall extends JDBCQuery {
 			return util.getConnectionReference();
 		}
 
-		public void setConnectionReference(Reference<JDBCConnection> connectionReference, Solution solutionInstance) {
+		public void setConnectionReference(Reference<JDBCConnection> connectionReference) {
 			util.setConnectionReference(connectionReference);
+		}
+
+		public void setConnectionReferenceAndAutoConfigure(Reference<JDBCConnection> connectionReference,
+				Solution solutionInstance) {
+			setConnectionReference(connectionReference);
 			JDBCConnection connection = util.getConnection(solutionInstance);
 			if (connection != null) {
 				try {

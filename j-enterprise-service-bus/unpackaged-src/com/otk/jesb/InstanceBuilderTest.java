@@ -23,7 +23,9 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Solution;
 
+import xy.reflect.ui.control.RenderingContext;
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 
 public class InstanceBuilderTest {
@@ -57,6 +59,22 @@ public class InstanceBuilderTest {
 				.onFormVisibilityChange(plan, true);
 		GUI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Step.class, null))
 				.onFormVisibilityChange(step, true);
+		GUI.INSTANCE.getReflectionUI()
+				.setRenderingContextThreadLocal(ThreadLocal.withInitial(() -> new RenderingContext(null) {
+					@Override
+					protected Object findCurrentObjectLocally(ITypeInfo type) {
+						if (type.getName().equals(Solution.class.getName())) {
+							return GUI.SOLUTION_INSTANCE;
+						}
+						if (type.getName().equals(Plan.class.getName())) {
+							return plan;
+						}
+						if (type.getName().equals(Step.class.getName())) {
+							return step;
+						}
+						return null;
+					}
+				}));
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {

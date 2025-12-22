@@ -14,7 +14,7 @@ public abstract class UpToDate<C, T> {
 
 	};
 
-	private transient Map<C, Version> lastVersionByContext = new HashMap<C, Version>();
+	private transient Map<C, Version> lastVersionByContext;
 
 	protected abstract T obtainLatest(C context, Object versionIdentifier) throws VersionAccessException;
 
@@ -40,6 +40,9 @@ public abstract class UpToDate<C, T> {
 
 	private Version accessLastVersion(C context) {
 		synchronized (this) {
+			if (lastVersionByContext == null) {
+				lastVersionByContext = new HashMap<C, Version>();
+			}
 			Version result = lastVersionByContext.get(context);
 			if (result == null) {
 				result = new Version();

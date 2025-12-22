@@ -61,8 +61,8 @@ public class InitializationSwitchFacade extends Facade {
 		return null;
 	}
 
-	public static InitializationSwitchFacade install(Facade parent, int caseCount, List<Facade> initializerFacades,
-			Solution solutionInstance) {
+	public static InitializationSwitchFacade install(Facade parent, int caseCount, List<Facade> initializerFacades) {
+		Solution solutionInstance = parent.getSolutionInstance();
 		if (caseCount < 1) {
 			throw new IllegalArgumentException("Invalid number of cases: " + caseCount + "(must not be < 1)");
 		}
@@ -74,13 +74,13 @@ public class InitializationSwitchFacade extends Facade {
 			underlying.setDefaultInitializationCase(new InitializationCase());
 		}
 		InitializationSwitchFacade result = new InitializationSwitchFacade(parent, underlying, solutionInstance);
-		result.importInitializerFacades(initializerFacades, solutionInstance);
+		result.importInitializerFacades(initializerFacades);
 		parent.setConcrete(true);
 		((InitializationCase) parent.getUnderlying()).getInitializationSwitches().add(underlying);
 		return result;
 	}
 
-	public void importInitializerFacades(List<Facade> initializerFacades, Solution solutionInstance) {
+	public void importInitializerFacades(List<Facade> initializerFacades) {
 		for (Facade initializerFacade : initializerFacades) {
 			if (!initializerFacade.isConcrete()) {
 				initializerFacade.setConcrete(true);

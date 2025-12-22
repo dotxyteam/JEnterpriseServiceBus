@@ -726,6 +726,7 @@ public class PluginBuilder {
 			result.add(ResourcePath.class);
 			result.add(Step.class);
 			result.add(Plan.class);
+			result.add(Solution.class);
 			return result;
 		}
 
@@ -1009,8 +1010,9 @@ public class PluginBuilder {
 				Map<Object, Object> options, PluginBuilder pluginBuilder) {
 			CodeBuilder result = new CodeBuilder();
 			result.append("@Override\n");
-			result.append("public void validate(boolean recursively, " + Plan.class.getName() + " currentPlan, "
-					+ Step.class.getName() + " currentStep) throws " + ValidationError.class.getName() + "{\n");
+			result.append("public void validate(boolean recursively, " + Solution.class.getName()
+					+ " solutionInstance, " + Plan.class.getName() + " currentPlan, " + Step.class.getName()
+					+ " currentStep) throws " + ValidationError.class.getName() + "{\n");
 			result.indenting(() -> {
 				for (ParameterDescriptor parameter : parameters) {
 					parameter.getNature().generateOperationBuilderValidationStatements(result, operationClassName,
@@ -1028,8 +1030,8 @@ public class PluginBuilder {
 				Map<Object, Object> options, PluginBuilder pluginBuilder) {
 			CodeBuilder result = new CodeBuilder();
 			result.append("@Override\n");
-			result.append("public Class<?> getOperationResultClass(" + Plan.class.getName() + " currentPlan, "
-					+ Step.class.getName() + " currentStep) {\n");
+			result.append("public Class<?> getOperationResultClass(" + Solution.class.getName() + " solutionInstance, "
+					+ Plan.class.getName() + " currentPlan, " + Step.class.getName() + " currentStep) {\n");
 			result.appendIndented(generateResultClassMethodBody(operationClassName, options, pluginBuilder) + "\n");
 			result.append("}\n");
 			return result.toString();
@@ -1399,10 +1401,11 @@ public class PluginBuilder {
 				result.append("if (recursively) {\n");
 				result.indenting(() -> {
 					result.append("try {\n");
-					result.appendIndented(builderElementName + ".validate();\n");
+					result.appendIndented(builderElementName + ".validate(solutionInstance);\n");
 					result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
 					result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to validate '"
-							+ MiscUtils.escapeJavaString(parameterCaption) + "'\", e);\n");
+							+ MiscUtils.escapeJavaString((parameterCaption != null) ? parameterCaption : parameterName)
+							+ "'\", e);\n");
 					result.append("}\n");
 				});
 				result.append("}\n");
@@ -1437,9 +1440,12 @@ public class PluginBuilder {
 									pluginBuilder))
 							+ ".class.getName()")
 					: (builderElementTypeName + ".class.getName()");
-			result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(" + uiCustomizationsVariableName
-					+ ", " + customizedTypeNameExpression + ", " + customizedFieldNameExpression
-					+ ")\n.setCustomFieldCaption(\"" + MiscUtils.escapeJavaString(parameterCaption) + "\");\n");
+			if (parameterCaption != null) {
+				result.append(InfoCustomizations.class.getName() + ".getFieldCustomization("
+						+ uiCustomizationsVariableName + ", " + customizedTypeNameExpression + ", "
+						+ customizedFieldNameExpression + ")\n.setCustomFieldCaption(\""
+						+ MiscUtils.escapeJavaString(parameterCaption) + "\");\n");
+			}
 			if (nullable) {
 				result.append(InfoCustomizations.class.getName() + ".getFieldCustomization("
 						+ uiCustomizationsVariableName + ", " + customizedTypeNameExpression + ", "
@@ -1578,7 +1584,8 @@ public class PluginBuilder {
 					parameterCaption, pluginBuilder).getName();
 			result.append("if (" + builderElementName + ".resolve() == null) {\n");
 			result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to resolve the '"
-					+ MiscUtils.escapeJavaString(parameterCaption) + "' reference\");\n");
+					+ MiscUtils.escapeJavaString((parameterCaption != null) ? parameterCaption : parameterName)
+					+ "' reference\");\n");
 			result.append("}\n");
 		}
 
@@ -1590,9 +1597,11 @@ public class PluginBuilder {
 					+ ((operationBuilderClassSimpleName != null) ? ("." + operationBuilderClassSimpleName) : "");
 			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName,
 					parameterCaption, pluginBuilder).getName();
-			result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
-					+ builderClassName + ".class.getName(), \"" + builderElementName + "\")"
-					+ "\n.setCustomFieldCaption(\"" + MiscUtils.escapeJavaString(parameterCaption) + "\");\n");
+			if (parameterCaption != null) {
+				result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
+						+ builderClassName + ".class.getName(), \"" + builderElementName + "\")"
+						+ "\n.setCustomFieldCaption(\"" + MiscUtils.escapeJavaString(parameterCaption) + "\");\n");
+			}
 			result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
 					+ builderClassName + ".class.getName(), \"" + builderElementName + "\")"
 					+ "\n.setFormControlEmbeddingForced(true);\n");
@@ -1887,10 +1896,12 @@ public class PluginBuilder {
 			result.append("if (recursively) {\n");
 			result.indenting(() -> {
 				result.append("try {\n");
-				result.appendIndented(builderElementName + ".validate(recursively, currentPlan, currentStep);\n");
+				result.appendIndented(
+						builderElementName + ".validate(recursively, solutionInstance, currentPlan, currentStep);\n");
 				result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
 				result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to validate '"
-						+ parameterCaption + "'\", e);\n");
+						+ MiscUtils.escapeJavaString((parameterCaption != null) ? parameterCaption : parameterName)
+						+ "'\", e);\n");
 				result.append("}\n");
 			});
 			result.append("}\n");
@@ -1904,9 +1915,11 @@ public class PluginBuilder {
 					+ ((operationBuilderClassSimpleName != null) ? ("." + operationBuilderClassSimpleName) : "");
 			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName,
 					parameterCaption, pluginBuilder).getName();
-			result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
-					+ builderClassName + ".class.getName()" + ", \"" + builderElementName
-					+ ")\n.setCustomFieldCaption(\"" + MiscUtils.escapeJavaString(parameterCaption) + "\");\n");
+			if (parameterCaption != null) {
+				result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
+						+ builderClassName + ".class.getName()" + ", \"" + builderElementName
+						+ "\")\n.setCustomFieldCaption(\"" + MiscUtils.escapeJavaString(parameterCaption) + "\");\n");
+			}
 			result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
 					+ builderClassName + ".class.getName()" + ", \"" + builderElementName
 					+ "\")\n.setValueValidityDetectionForced(true);\n");
@@ -2053,10 +2066,11 @@ public class PluginBuilder {
 			result.indenting(() -> {
 				result.append("try {\n");
 				result.appendIndented(builderElementName
-						+ ".getFacade().validate(recursively, currentPlan.getValidationContext(currentStep).getVariableDeclarations());\n");
+						+ ".getFacade(solutionInstance).validate(recursively, currentPlan.getValidationContext(currentStep).getVariableDeclarations());\n");
 				result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
 				result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to validate '"
-						+ parameterCaption + "'\", e);\n");
+						+ MiscUtils.escapeJavaString((parameterCaption != null) ? parameterCaption : parameterName)
+						+ "'\", e);\n");
 				result.append("}\n");
 			});
 			result.append("}\n");
@@ -2070,9 +2084,11 @@ public class PluginBuilder {
 					+ ((operationBuilderClassSimpleName != null) ? ("." + operationBuilderClassSimpleName) : "");
 			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName,
 					parameterCaption, pluginBuilder).getName();
-			result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
-					+ builderClassName + ".class.getName(), \"" + builderElementName + "\")"
-					+ "\n.setCustomFieldCaption(\"\");\n");
+			if (parameterCaption != null) {
+				result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
+						+ builderClassName + ".class.getName(), \"" + builderElementName + "\")"
+						+ "\n.setCustomFieldCaption(\"\");\n");
+			}
 			result.append(InfoCustomizations.class.getName() + ".getFieldCustomization(infoCustomizations, "
 					+ builderClassName + ".class.getName(), \"" + builderElementName + "\")"
 					+ "\n.setFormControlEmbeddingForced(true);\n");
@@ -2131,8 +2147,9 @@ public class PluginBuilder {
 									pluginBuilder.solutionInstance) + ".class.getName()";
 						}
 						optionality.setDefaultValueExpression("new " + RootInstanceBuilder.class.getName() + "(\""
-								+ MiscUtils.escapeJavaString(parameterCaption) + "\", " + classNameArgumentExpression
-								+ ")");
+								+ MiscUtils
+										.escapeJavaString((parameterCaption != null) ? parameterCaption : parameterName)
+								+ "\", " + classNameArgumentExpression + ")");
 						setOptionality(optionality);
 					}
 				}
@@ -2154,7 +2171,7 @@ public class PluginBuilder {
 				Map<Object, Object> options, PluginBuilder pluginBuilder) {
 			CodeBuilder result = new CodeBuilder();
 			result.append("private class " + getConcreteTypeNameAccessorClassName(parameterName) + " extends "
-					+ Accessor.class.getName() + "<String> {\n");
+					+ MiscUtils.adaptClassNameToSourceCode(Accessor.GlobalAccessor.class.getName()) + "<String> {\n");
 			result.append("\n");
 			result.indenting(() -> {
 				result.append("@Override\n");
@@ -2412,8 +2429,8 @@ public class PluginBuilder {
 		protected void generateValidationMethodSourceCode(CodeBuilder result, String resourceClassName,
 				Map<Object, Object> codeGenerationOptions, PluginBuilder pluginBuilder) {
 			result.append("@Override\n");
-			result.append(
-					"public void validate(boolean recursively) throws " + ValidationError.class.getName() + " {\n");
+			result.append("public void validate(boolean recursively, " + Solution.class.getName()
+					+ " solutionInstance) throws " + ValidationError.class.getName() + " {\n");
 			result.indenting(() -> {
 				for (PropertyDescriptor property : properties) {
 					property.getNature().generateResourceValidationStatements(result, resourceClassName,
@@ -2811,6 +2828,10 @@ public class PluginBuilder {
 			}
 
 			@Override
+			protected void generateAdditionalConstructorsSourceCode(CodeBuilder result, PluginBuilder pluginBuilder) {
+			}
+
+			@Override
 			protected PlaceHolder getImportsPlaceHolder(String rootClassName, PluginBuilder pluginBuilder) {
 				return PlaceHolder.NULL_PLACEHOLDER;
 			}
@@ -2840,10 +2861,11 @@ public class PluginBuilder {
 			result.append("if (recursively) {\n");
 			result.indenting(() -> {
 				result.append("try {\n");
-				result.appendIndented(elementName + ".validate(recursively);\n");
+				result.appendIndented(elementName + ".validate(recursively, solutionInstance);\n");
 				result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
 				result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to validate '"
-						+ propertyCaption + "'\", e);\n");
+						+ MiscUtils.escapeJavaString((propertyCaption != null) ? propertyCaption : propertyName)
+						+ "'\", e);\n");
 				result.append("}\n");
 			});
 			result.append("}\n");
@@ -3085,10 +3107,11 @@ public class PluginBuilder {
 		protected void generateValidationMethodSourceCode(CodeBuilder result, String activatorClassName,
 				PluginBuilder pluginBuilder) {
 			result.append("@Override\n");
-			result.append("public void validate(boolean recursively, " + Plan.class.getName() + " plan) throws "
-					+ ValidationError.class.getName() + " {\n");
+			result.append(
+					"public void validate(boolean recursively, " + Solution.class.getName() + " solutionInstance, "
+							+ Plan.class.getName() + " plan) throws " + ValidationError.class.getName() + " {\n");
 			result.indenting(() -> {
-				result.append("super.validate(recursively, plan);\n");
+				result.append("super.validate(recursively, solutionInstance, plan);\n");
 				for (AttributeDescriptor attribute : attributes) {
 					attribute.getNature().generateActivatorValidationStatements(result, activatorClassName,
 							attribute.getName(), attribute.getCaption(), pluginBuilder);
@@ -3576,7 +3599,7 @@ public class PluginBuilder {
 					PluginBuilder pluginBuilder) {
 				CodeBuilder tmp = new CodeBuilder();
 				super.generateValidationMethodSourceCode(tmp, activatorClassName, pluginBuilder);
-				result.append(tmp.toString().replace("super.validate(recursively, plan);\n", ""));
+				result.append(tmp.toString().replace("super.validate(recursively, solutionInstance, plan);\n", ""));
 			}
 
 			@Override
@@ -3616,10 +3639,11 @@ public class PluginBuilder {
 			result.append("if (recursively) {\n");
 			result.indenting(() -> {
 				result.append("try {\n");
-				result.appendIndented(elementName + ".validate(recursively, plan);\n");
+				result.appendIndented(elementName + ".validate(recursively, solutionInstance, plan);\n");
 				result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
 				result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to validate '"
-						+ attributeCaption + "'\", e);\n");
+						+ MiscUtils.escapeJavaString((attributeCaption != null) ? attributeCaption : attributeName)
+						+ "'\", e);\n");
 				result.append("}\n");
 			});
 			result.append("}\n");

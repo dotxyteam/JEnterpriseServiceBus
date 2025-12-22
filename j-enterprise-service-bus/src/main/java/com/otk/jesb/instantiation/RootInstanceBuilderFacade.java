@@ -17,7 +17,7 @@ public class RootInstanceBuilderFacade extends InstanceBuilderFacade {
 
 	@Override
 	public String getSelectedConstructorSignature() {
-		List<String> options = getConstructorSignatureOptions(solutionInstance);
+		List<String> options = getConstructorSignatureOptions();
 		if (options.size() > 0) {
 			return options.get(0);
 		}

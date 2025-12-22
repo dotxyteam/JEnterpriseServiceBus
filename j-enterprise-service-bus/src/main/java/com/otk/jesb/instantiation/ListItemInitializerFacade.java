@@ -185,7 +185,7 @@ public class ListItemInitializerFacade extends InitializerFacade {
 
 	public ITypeInfo getItemTypeInfo() {
 		if (itemTypeInfo == null) {
-			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo(solutionInstance);
+			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
 			ITypeInfo result = ((IListTypeInfo) parentTypeInfo).getItemType();
 			if (result == null) {
 				result = TypeInfoProvider.getTypeInfo(Object.class.getName(), solutionInstance);

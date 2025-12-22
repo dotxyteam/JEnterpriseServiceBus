@@ -168,7 +168,7 @@ public class InitializationCaseFacade extends Facade {
 				.indexOf(underlying);
 	}
 
-	public void duplicate(Solution solutionInstance) {
+	public void duplicate() {
 		InstantiationFunction conditionCopy;
 		if (isDefault()) {
 			conditionCopy = InitializationCase.createDefaultCondition();
@@ -230,7 +230,7 @@ public class InitializationCaseFacade extends Facade {
 		InstanceBuilderFacade instanceBuilderFacade = getCurrentInstanceBuilderFacade();
 		ITypeInfo typeInfo;
 		try {
-			typeInfo = instanceBuilderFacade.getTypeInfo(solutionInstance);
+			typeInfo = instanceBuilderFacade.getTypeInfo();
 		} catch (Throwable t) {
 			if (Log.isVerbose()) {
 				Log.get().error(t);
@@ -274,7 +274,7 @@ public class InitializationCaseFacade extends Facade {
 				if (!mustHaveFieldFacadeLocally(fieldInfo)) {
 					continue;
 				}
-				if (!shouldFieldBeUsedForInstantiation(typeInfo, fieldInfo, solutionInstance)) {
+				if (!shouldFieldBeUsedForInstantiation(typeInfo, fieldInfo)) {
 					continue;
 				}
 				result.add(createFieldInitializerFacade(fieldInfo.getName()));
@@ -330,8 +330,7 @@ public class InitializationCaseFacade extends Facade {
 		return true;
 	}
 
-	private boolean shouldFieldBeUsedForInstantiation(ITypeInfo typeInfo, IFieldInfo fieldInfo,
-			Solution solutionInstance) {
+	private boolean shouldFieldBeUsedForInstantiation(ITypeInfo typeInfo, IFieldInfo fieldInfo) {
 		if (Throwable.class.isAssignableFrom(solutionInstance.getRuntime().getJESBClass(typeInfo.getName()))) {
 			if (TypeInfoProvider.getTypeInfo(Throwable.class).getFields().stream()
 					.anyMatch(throwableFieldInfo -> throwableFieldInfo.getName().equals(fieldInfo.getName()))) {

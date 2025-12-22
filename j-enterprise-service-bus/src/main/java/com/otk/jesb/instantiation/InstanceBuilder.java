@@ -162,7 +162,7 @@ public class InstanceBuilder extends InitializationCase {
 		Solution solutionInstance = context.getSolutionInstance();
 		InstanceBuilderFacade instanceBuilderFacade = (InstanceBuilderFacade) Facade.get(this,
 				context.getParentFacade(), solutionInstance);
-		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo(solutionInstance);
+		ITypeInfo typeInfo = instanceBuilderFacade.getTypeInfo();
 		IMethodInfo constructor = InstantiationUtils.getConstructorInfo(typeInfo, selectedConstructorSignature);
 		if (constructor == null) {
 			String actualTypeName = computeActualTypeName(

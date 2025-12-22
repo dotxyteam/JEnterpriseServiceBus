@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -109,6 +110,7 @@ import xy.reflect.ui.control.FieldControlInputProxy;
 import xy.reflect.ui.control.IFieldControlData;
 import xy.reflect.ui.control.IFieldControlInput;
 import xy.reflect.ui.control.IMethodControlInput;
+import xy.reflect.ui.control.RenderingContext;
 import xy.reflect.ui.control.plugin.IFieldControlPlugin;
 import xy.reflect.ui.control.swing.ListControl;
 import xy.reflect.ui.control.swing.MethodAction;
@@ -166,6 +168,7 @@ import xy.reflect.ui.info.type.source.PrecomputedTypeInfoSource;
 import xy.reflect.ui.info.type.source.SpecificitiesIdentifier;
 import xy.reflect.ui.undo.IModification;
 import xy.reflect.ui.undo.ListModificationFactory;
+import xy.reflect.ui.util.BetterFutureTask;
 import xy.reflect.ui.util.Mapper;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
 import xy.reflect.ui.util.ReflectionUIError;
@@ -382,6 +385,70 @@ public class GUI extends MultiSwingCustomizer {
 		}
 
 		@Override
+		public ValidationErrorRegistry getContextualValidationErrorRegistry(Component contextualComponent) {
+			return new ValidationErrorRegistry() {
+
+				ValidationErrorRegistry getBase() {
+					return JESBSubSwingCustomizer.super.getContextualValidationErrorRegistry(contextualComponent);
+				}
+
+				RenderingContext getRenderingContext() {
+					Form currentForm = (contextualComponent instanceof Form) ? (Form) contextualComponent
+							: SwingRendererUtils.findParentForm(contextualComponent, JESBSubSwingCustomizer.this);
+					return (currentForm != null) ? currentForm.getRenderingContext()
+							: reflectionUI.getRenderingContextThreadLocal().get();
+				}
+
+				@Override
+				public Object getValidationErrorMapKey(Object object, ValidationSession session) {
+					return ReflectionUIUtils.withRenderingContext(reflectionUI, getRenderingContext(),
+							() -> getBase().getValidationErrorMapKey(object, session));
+				}
+
+				@Override
+				public void attribute(Object object, Exception validationError, ValidationSession session) {
+					ReflectionUIUtils.withRenderingContext(reflectionUI, getRenderingContext(),
+							() -> getBase().attribute(object, validationError, session));
+				}
+
+				@Override
+				public void cancelAttribution(Object object, ValidationSession session) {
+					ReflectionUIUtils.withRenderingContext(reflectionUI, getRenderingContext(),
+							() -> getBase().cancelAttribution(object, session));
+				}
+
+				@Override
+				public Exception getValidationError(Object object, ValidationSession session) {
+					return ReflectionUIUtils.withRenderingContext(reflectionUI, getRenderingContext(),
+							() -> getBase().getValidationError(object, session));
+				}
+
+				@Override
+				public IValidationJob attributing(Object object, IValidationJob validationJob,
+						Consumer<Exception> onAttribution) {
+					return ReflectionUIUtils.withRenderingContext(reflectionUI, getRenderingContext(),
+							() -> getBase().attributing(object, validationJob, onAttribution));
+				}
+
+				@Override
+				public BetterFutureTask<Boolean> createValidationTask(Runnable runnable) {
+					return getBase().createValidationTask(runnable);
+				}
+
+				@Override
+				public boolean isValidationCancelled(Thread thread) {
+					return getBase().isValidationCancelled(thread);
+				}
+
+				@Override
+				public void setValidationCancelled(Thread thread, boolean cancelled) {
+					getBase().setValidationCancelled(thread, cancelled);
+				}
+
+			};
+		}
+
+		@Override
 		public List<IFieldControlPlugin> getFieldControlPlugins() {
 			List<IFieldControlPlugin> result = new ArrayList<IFieldControlPlugin>(super.getFieldControlPlugins());
 			result.add(new JESDDatePickerPlugin());
@@ -553,7 +620,7 @@ public class GUI extends MultiSwingCustomizer {
 							if (object instanceof InstanceBuilderFacade) {
 								if (field.getName().equals("constructorGroup")) {
 									setVisible(((InstanceBuilderFacade) object)
-											.getConstructorSignatureOptions(SOLUTION_INSTANCE).size() > 1);
+											.getConstructorSignatureOptions().size() > 1);
 								}
 								if (field.getName().equals("typeGroup")) {
 									setVisible(((InstanceBuilderFacade) object).getUnderlying()
@@ -563,7 +630,7 @@ public class GUI extends MultiSwingCustomizer {
 						}
 
 						@Override
-						public Component createFieldControl() {
+						protected Component createFieldControl() {
 							if (field.getType().getName().equals(PlanDiagram.Source.class.getName())) {
 								return new PlanDiagram(swingRenderer, this);
 							}
@@ -1355,8 +1422,8 @@ public class GUI extends MultiSwingCustomizer {
 											.map(itemPosition -> (Facade) itemPosition.getItem())
 											.collect(Collectors.toList());
 									int caseCount = (int) invocationData.getParameterValue(0);
-									InitializationSwitchFacade.install(parentFacade, caseCount, initializerFacades,
-											SOLUTION_INSTANCE);
+									InitializationSwitchFacade.install(parentFacade, caseCount, initializerFacades
+											);
 									return null;
 								}
 
@@ -1445,8 +1512,7 @@ public class GUI extends MultiSwingCustomizer {
 												.collect(Collectors.toList());
 										InitializationSwitchFacade selectedSwitchFacade = (InitializationSwitchFacade) invocationData
 												.getParameterValue(0);
-										selectedSwitchFacade.importInitializerFacades(initializerFacades,
-												SOLUTION_INSTANCE);
+										selectedSwitchFacade.importInitializerFacades(initializerFacades);
 										return null;
 									}
 								});

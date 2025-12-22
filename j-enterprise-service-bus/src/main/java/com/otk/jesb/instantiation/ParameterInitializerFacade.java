@@ -76,7 +76,7 @@ public class ParameterInitializerFacade extends InitializerFacade {
 
 	public IParameterInfo getParameterInfo() {
 		if (parameterInfo == null) {
-			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo(solutionInstance);
+			ITypeInfo parentTypeInfo = getCurrentInstanceBuilderFacade().getTypeInfo();
 			IMethodInfo constructor = InstantiationUtils.getConstructorInfo(parentTypeInfo,
 					getCurrentInstanceBuilderFacade().getSelectedConstructorSignature());
 			if (constructor == null) {

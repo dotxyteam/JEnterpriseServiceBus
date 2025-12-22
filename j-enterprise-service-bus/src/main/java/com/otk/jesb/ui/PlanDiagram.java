@@ -848,9 +848,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 							}
 							selectionListeningEnabled = false;
 							try {
-								ReflectionUIUtils.withRenderingContext(swingRenderer.getReflectionUI(),
-										getPlanEditor().getRenderingContext(),
-										() -> updateFocusedPlanElementsControl());
+								updateFocusedPlanElementsControl();
 							} finally {
 								selectionListeningEnabled = true;
 							}
@@ -878,14 +876,6 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	private int getCompositeStepHeaderHeight() {
 		return 16;
-	}
-
-	@Override
-	protected void paintComponent(Graphics g) {
-		ReflectionUIUtils.withRenderingContext(swingRenderer.getReflectionUI(), getPlanEditor().getRenderingContext(),
-				() -> {
-					super.paintComponent(g);
-				});
 	}
 
 	@Override
@@ -990,11 +980,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	@Override
 	public void mouseMoved(MouseEvent mouseEvent) {
-		ReflectionUIUtils.withRenderingContext(swingRenderer.getReflectionUI(), getPlanEditor().getRenderingContext(),
-				() -> {
-					super.mouseMoved(mouseEvent);
-					manageErrorTooltipOnMouseMove(mouseEvent);
-				});
+		super.mouseMoved(mouseEvent);
+		manageErrorTooltipOnMouseMove(mouseEvent);
 	}
 
 	protected void manageErrorTooltipOnMouseMove(MouseEvent mouseEvent) {
@@ -1029,7 +1016,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	}
 
 	private Exception getValidationError(Object object) {
-		return swingRenderer.getReflectionUI().getValidationErrorRegistry().getValidationError(object, null);
+		return swingRenderer.getContextualValidationErrorRegistry(this).getValidationError(object, null);
 	}
 
 	@Override

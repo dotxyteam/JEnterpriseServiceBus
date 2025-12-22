@@ -93,9 +93,9 @@ public class Fail implements Operation {
 			for (InstanceBuilderFacade facade : rootInstanceBuilderFacades) {
 				try {
 					if (result == null) {
-						result = facade.getConstructorSignatureOptions(solutionInstance);
+						result = facade.getConstructorSignatureOptions();
 					} else {
-						if (!result.equals(facade.getConstructorSignatureOptions(solutionInstance))) {
+						if (!result.equals(facade.getConstructorSignatureOptions())) {
 							throw new Throwable();
 						}
 					}

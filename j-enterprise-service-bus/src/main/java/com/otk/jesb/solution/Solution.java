@@ -28,6 +28,7 @@ import com.otk.jesb.solution.AssetVisitor;
 import com.otk.jesb.Debugger;
 import com.otk.jesb.EnvironmentSettings;
 import com.otk.jesb.JESB;
+import com.otk.jesb.PluginBuilder;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
@@ -129,6 +130,10 @@ public class Solution {
 
 	public Debugger createDebugger() {
 		return new Debugger(this, false);
+	}
+
+	public PluginBuilder accessPluginBuilder() {
+		return new PluginBuilder(this);
 	}
 
 	public void loadFromArchiveFile(File archiveFile) throws IOException {
