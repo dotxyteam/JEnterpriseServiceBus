@@ -19,7 +19,7 @@ public interface OperationBuilder<T extends Operation> extends OperationStructur
 	 * @param currentPlan The current plan.
 	 * @param currentStep The current step.
 	 * @return The class of objects returned by the related
-	 *         {@link Operation#execute()}.
+	 *         {@link Operation#execute(Solution)}.
 	 */
 	Class<?> getOperationResultClass(Solution solutionInstance, Plan currentPlan, Step currentStep);
 

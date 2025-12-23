@@ -26,7 +26,7 @@ public abstract class Facade {
 	protected Solution solutionInstance;
 
 	public Facade(Solution solutionInstance) {
-		if(solutionInstance == null) {
+		if (solutionInstance == null) {
 			throw new UnexpectedError();
 		}
 		this.solutionInstance = solutionInstance;
@@ -156,8 +156,9 @@ public abstract class Facade {
 	}
 
 	/**
-	 * @param node         The underlying instantiation structure/node.
-	 * @param parentFacade The parent facade.
+	 * @param node             The underlying instantiation structure/node.
+	 * @param parentFacade     The parent facade.
+	 * @param solutionInstance The current solution.
 	 * @return The appropriate facade for the provided underlying instantiation
 	 *         structure.
 	 */

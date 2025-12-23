@@ -28,6 +28,7 @@ public abstract class Accessor<C, T> {
 	}
 
 	/**
+	 * @param <C> The type of the context.
 	 * @param <T> The type that is accessed.
 	 * @param t   The value.
 	 * @return an instance returning the specified value.
@@ -99,25 +100,25 @@ public abstract class Accessor<C, T> {
 	 * 
 	 * @author olitank
 	 *
-	 * @param <TT>
+	 * @param <T> The type of the value that is accessed.
 	 */
-	protected static class BasicAccessor<TT> extends GlobalAccessor<TT> {
+	protected static class BasicAccessor<T> extends GlobalAccessor<T> {
 
-		TT value;
+		T value;
 		boolean canSet;
 
-		public BasicAccessor(TT value, boolean canSet) {
+		public BasicAccessor(T value, boolean canSet) {
 			this.value = value;
 			this.canSet = canSet;
 		}
 
 		@Override
-		public TT get() {
+		public T get() {
 			return value;
 		}
 
 		@Override
-		public void set(TT t) {
+		public void set(T t) {
 			if (canSet) {
 				value = t;
 			} else {

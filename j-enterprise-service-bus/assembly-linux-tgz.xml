@@ -24,7 +24,9 @@
 			<directory>${project.build.directory}</directory>
 			<includes>
 				<include>${project.artifactId}</include>
+				<include>${project.artifactId}-cmd</include>
 				<include>${project.artifactId}.l4j.ini</include>
+				<include>${project.artifactId}-cmd.l4j.ini</include>
 				<include>lib/*</include>
 				<include>linux-jdk/**</include>
 			</includes>

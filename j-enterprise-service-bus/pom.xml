@@ -378,7 +378,7 @@ $$JAVA_EXE \
 "-Dcom.otk.jesb.defaultExeFile=${project.artifactId}" \
 "-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}" \
 "-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}" \
--jar "$$0" $(cat ${project.artifactId}.l4j.ini 2> /dev/null) "$@"
+$(cat ${project.artifactId}.l4j.ini 2> /dev/null) -jar "$$0" "$@"
 
 exit $$?]]></echo>
 										<fixcrlf srcdir="${basedir}/target"
@@ -387,7 +387,10 @@ exit $$?]]></echo>
 											tofile="${basedir}/target/${project.artifactId}-cmd.tmp" />
 										<replace
 											file="${basedir}/target/${project.artifactId}-cmd.tmp"
-											token="&quot;-splash:splash.gif&quot;" value="#&quot;-splash:splash.gif&quot;" />
+											token="&quot;-splash:splash.gif&quot;" value="" />
+										<replace
+											file="${basedir}/target/${project.artifactId}-cmd.tmp"
+											token="${project.artifactId}.l4j.ini" value="${project.artifactId}-cmd.l4j.ini" />
 										<concat
 											destfile="${basedir}/target/${project.artifactId}"
 											binary="true">
@@ -446,7 +449,7 @@ exit $$?]]></echo>
 									<tasks>
 										<echo
 											file="${basedir}/target/${project.artifactId}.l4j.ini"
-											message="-Xms512M${line.separator}-Xmx2048M$${line.separator}-Dcom.otk.jesb.runnerLogVerbose=false${line.separator}" />
+											message="-Xms512M${line.separator}-Xmx2048M${line.separator}-Dcom.otk.jesb.runnerLogVerbose=false${line.separator}" />
 										<copy
 											file="${basedir}/target/${project.artifactId}.l4j.ini"
 											tofile="${basedir}/target/${project.artifactId}-cmd.l4j.ini" />

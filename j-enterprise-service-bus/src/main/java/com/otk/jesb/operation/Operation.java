@@ -14,7 +14,7 @@ public interface Operation {
 	/**
 	 * Performs this {@link Operation} actions.
 	 * 
-	 * @param runtime The current solution runtime.
+	 * @param solutionInstance The current solution.
 	 * @return The result of the {@link Operation} execution.
 	 * @throws Throwable If this execution fails.
 	 */
