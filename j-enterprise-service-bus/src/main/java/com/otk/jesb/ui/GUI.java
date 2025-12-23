@@ -119,7 +119,6 @@ import xy.reflect.ui.control.swing.TextControl;
 import xy.reflect.ui.control.swing.builder.AbstractEditorBuilder;
 import xy.reflect.ui.control.swing.builder.AbstractEditorFormBuilder;
 import xy.reflect.ui.control.swing.customizer.CustomizationController;
-import xy.reflect.ui.control.swing.customizer.CustomizationTools;
 import xy.reflect.ui.control.swing.customizer.CustomizationToolsUI;
 import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
@@ -457,8 +456,8 @@ public class GUI extends MultiSwingCustomizer {
 		}
 
 		@Override
-		protected CustomizationTools createCustomizationTools() {
-			return new CustomizationTools(this) {
+		protected SubCustomizationTools createCustomizationTools() {
+			return new SubCustomizationTools(this) {
 
 				@Override
 				protected CustomizationToolsUI createToolsUI() {
@@ -495,11 +494,11 @@ public class GUI extends MultiSwingCustomizer {
 		}
 
 		@Override
-		public CustomizingForm subCreateForm(final Object objectArgument, IInfoFilter infoFilter) {
-			if (objectArgument instanceof xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration) {
-				return new CustomizingForm(getCustomizationTools().getToolsRenderer(), objectArgument, infoFilter);
+		public CustomizingForm subCreateForm(final Object object, IInfoFilter infoFilter) {
+			if (object instanceof xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration) {
+				return new CustomizingForm(getCustomizationTools().getToolsRenderer(), object, infoFilter);
 			}
-			return new CustomizingForm(this, objectArgument, infoFilter) {
+			return new CustomizingForm(this, object, infoFilter) {
 
 				private static final long serialVersionUID = 1L;
 
@@ -530,8 +529,8 @@ public class GUI extends MultiSwingCustomizer {
 				@Override
 				protected RenderingContext createRenderingContext() {
 					RenderingContext result = super.createRenderingContext();
-					if (!(objectArgument instanceof PrecomputedTypeInstanceWrapper)) {
-						if (!(objectArgument instanceof Solution)) {
+					if (!(object instanceof PrecomputedTypeInstanceWrapper)) {
+						if (!(object instanceof Solution)) {
 							if (result.getCurrentObject(
 									reflectionUI.getTypeInfo(new JavaTypeInfoSource(Solution.class, null))) == null) {
 								throw new UnexpectedError();

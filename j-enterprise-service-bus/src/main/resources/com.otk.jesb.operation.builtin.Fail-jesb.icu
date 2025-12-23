@@ -21,7 +21,7 @@
             <uniqueIdentifier>-21f0b112:19a86e7de25:-485e</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>4392c485:19ab77c5aa9:521d</uniqueIdentifier>
+                <uniqueIdentifier>76d7f4f5:19b4a862a55:-6d8f</uniqueIdentifier>
                 <caption>Exception</caption>
                 <name>exception</name>
             </category>
@@ -56,7 +56,7 @@
             <uniqueIdentifier>-7afcaa81:198b1e859cd:4ecb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>4392c485:19ab77c5aa9:521e</uniqueIdentifier>
+                <uniqueIdentifier>76d7f4f5:19b4a862a55:-6d8e</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>input</name>
             </category>
@@ -91,7 +91,7 @@
             <uniqueIdentifier>-ecff956:198b2535732:4f64</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>4392c485:19ab77c5aa9:521f</uniqueIdentifier>
+                <uniqueIdentifier>76d7f4f5:19b4a862a55:-6d8d</uniqueIdentifier>
                 <caption>Exception</caption>
                 <name>exception</name>
             </category>
@@ -126,7 +126,7 @@
             <uniqueIdentifier>-ecff956:198b2535732:4f69</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>4392c485:19ab77c5aa9:5220</uniqueIdentifier>
+                <uniqueIdentifier>76d7f4f5:19b4a862a55:-6d8c</uniqueIdentifier>
                 <caption>Exception</caption>
                 <name>exception</name>
             </category>
@@ -168,7 +168,7 @@
             <uniqueIdentifier>-ecff956:198b2535732:4f6e</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>4392c485:19ab77c5aa9:5221</uniqueIdentifier>
+                <uniqueIdentifier>76d7f4f5:19b4a862a55:-6d8b</uniqueIdentifier>
                 <caption>Exception</caption>
                 <name>exception</name>
             </category>
@@ -203,7 +203,7 @@
             <uniqueIdentifier>72d24e4e:198af40f699:4d59</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>4392c485:19ab77c5aa9:5222</uniqueIdentifier>
+                <uniqueIdentifier>76d7f4f5:19b4a862a55:-6d8a</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>input</name>
             </category>
@@ -248,6 +248,106 @@
         <menuModel>
             <uniqueIdentifier>72d24e4e:198af40f699:4d00</uniqueIdentifier>
         </menuModel>
+        <methodsCustomization>
+            <uniqueIdentifier>76d7f4f5:19b4a861924:-1cc6</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>getExceptionContructorSignature</methodName>
+            <methodSignature>java.lang.String getExceptionContructorSignature(com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>76d7f4f5:19b4a861924:-1cad</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>76d7f4f5:19b4a861924:-1cac</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>true</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>76d7f4f5:19b4a861924:-1cc5</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>getExceptionContructorSignatureOptions</methodName>
+            <methodSignature>java.util.List getExceptionContructorSignatureOptions(com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>76d7f4f5:19b4a861924:-1cab</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>76d7f4f5:19b4a861924:-1caa</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>true</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>76d7f4f5:19b4a861924:-1cc4</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>constructorBox</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>setExceptionContructorSignature</methodName>
+            <methodSignature>void setExceptionContructorSignature(java.lang.String, com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>76d7f4f5:19b4a861924:-1ca9</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>76d7f4f5:19b4a861924:-1ca8</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>constructorSignature</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>76d7f4f5:19b4a861924:-1ca7</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>76d7f4f5:19b4a861924:-1ca6</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>true</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.operation.builtin.Fail$Builder</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -265,6 +365,7 @@
             <specificProperties/>
             <hidden>false</hidden>
             <customFieldCaption></customFieldCaption>
+            <customSetterSignature>void setExceptionContructorSignature(java.lang.String, com.otk.jesb.solution.Solution)</customSetterSignature>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>exceptionContructorSignature</fieldName>
@@ -337,6 +438,47 @@
         <menuModel>
             <uniqueIdentifier>-21f0b112:19a86e7de25:-4857</uniqueIdentifier>
         </menuModel>
+        <methodsCustomization>
+            <uniqueIdentifier>76d7f4f5:19b4a862a55:-7303</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>setExceptionContructorSignature</methodName>
+            <methodSignature>void setExceptionContructorSignature(java.lang.String, com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>76d7f4f5:19b4a861924:-1ca9</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>76d7f4f5:19b4a861924:-1ca8</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>constructorSignature</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>76d7f4f5:19b4a861924:-1ca7</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>76d7f4f5:19b4a861924:-1ca6</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>true</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.Fail$Builder], fieldName=constructorBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>

@@ -44,6 +44,7 @@
         <menuModel>
             <uniqueIdentifier>69a6204e:197e18b2500:-751c</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.XSD], fieldName=topMethods]]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -60,6 +61,7 @@
         <menuModel>
             <uniqueIdentifier>-d88499a:197e12932ee:71e4</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.XSD], fieldName=topMethods]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -75,7 +77,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:7219</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-4480</uniqueIdentifier>
+                <uniqueIdentifier>-6f196bec:19b4beffb54:-6b77</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>source</name>
             </category>
@@ -122,6 +124,7 @@
                     <menuModel>
                         <uniqueIdentifier>-d88499a:197e12932ee:7239</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.XSD], fieldName=content]], fieldName=sourceGroup]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -190,7 +193,7 @@
             <uniqueIdentifier>-d88499a:197e166c2ba:-3cf6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-447f</uniqueIdentifier>
+                <uniqueIdentifier>-6f196bec:19b4beffb54:-6b76</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -237,6 +240,7 @@
                     <menuModel>
                         <uniqueIdentifier>69a6204e:197e18926a8:454b</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.util.List</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -259,6 +263,7 @@
         <menuModel>
             <uniqueIdentifier>-d88499a:197e12932ee:71ea</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.XSD], fieldName=content]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -301,6 +306,7 @@
         <menuModel>
             <uniqueIdentifier>69a6204e:197e18b2500:-5337</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.XSD], fieldName=topMethods]]]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$URLSource]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -374,6 +380,7 @@
                     <menuModel>
                         <uniqueIdentifier>69a6204e:197e18b2500:-7505</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>SubTypesEnumeration [polymorphicType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source]</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -386,6 +393,7 @@
         <menuModel>
             <uniqueIdentifier>69a6204e:197e18b2500:-750c</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.XSD], fieldName=topMethods]]]], encapsulatedObjectType=SubTypesEnumeration [polymorphicType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source]]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -428,6 +436,7 @@
         <menuModel>
             <uniqueIdentifier>69a6204e:197e18b2500:-5392</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>Encapsulation [context=FieldContext [fieldName=, objectType=Encapsulation [context=FieldContext [fieldName=source, objectType=MethodSetupObject [context=MethodContext [methodSignature=void load(com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source), objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.XSD], fieldName=topMethods]]]], subContext=PolymorphicInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$Source]], subContext=MutableInstance, encapsulatedObjectType=com.otk.jesb.resource.builtin.WebDocumentBasedResource$FileSource]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -485,6 +494,7 @@
                     <menuModel>
                         <uniqueIdentifier>-d88499a:197e12932ee:4488</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.lang.String</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -526,6 +536,7 @@
         <menuModel>
             <uniqueIdentifier>-d88499a:197e12932ee:7235</uniqueIdentifier>
         </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.resource.builtin.XSD], fieldName=content]], fieldName=sourceGroup]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -548,7 +559,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:447f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>562d5c1a:19980f9d7a9:-447e</uniqueIdentifier>
+                <uniqueIdentifier>-6f196bec:19b4beffb54:-6b75</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -597,6 +608,7 @@
                     <menuModel>
                         <uniqueIdentifier>-d88499a:197e12932ee:4483</uniqueIdentifier>
                     </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
                     <typeName>java.lang.String</typeName>
                     <undoManagementHidden>false</undoManagementHidden>
                     <validationRequirementForced>false</validationRequirementForced>
@@ -775,6 +787,7 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>source</parameterName>
+                <valueContextual>false</valueContextual>
             </parametersCustomization>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -783,6 +796,36 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-6f196bec:19b4bef3ba7:-16b2</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>getRootElements</methodName>
+            <methodSignature>java.util.List getRootElements(com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-6f196bec:19b4bef3ba7:-16ad</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-6f196bec:19b4bef3ba7:-16ac</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>true</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.resource.builtin.XSD</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
@@ -870,6 +913,7 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.resource.builtin.XSD$RootElementDescriptor</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>

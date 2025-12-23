@@ -17,7 +17,7 @@
 			</includes>
 			<excludes>
 				<exclude>.*</exclude>
-			</excludes>	
+			</excludes>
 			<outputDirectory>.</outputDirectory>
 		</fileSet>
 		<fileSet>
@@ -25,12 +25,14 @@
 			<includes>
 				<include>${project.artifactId}.exe</include>
 				<include>${project.artifactId}-cmd.exe</include>
+				<include>${project.artifactId}.l4j.ini</include>
+				<include>${project.artifactId}-cmd.l4j.ini</include>
 				<include>lib/*</include>
 				<include>windows-jdk/**</include>
 			</includes>
 			<excludes>
 				<exclude>.*</exclude>
-			</excludes>	
+			</excludes>
 			<outputDirectory>.</outputDirectory>
 		</fileSet>
 	</fileSets>

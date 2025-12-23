@@ -378,11 +378,16 @@ $$JAVA_EXE \
 "-Dcom.otk.jesb.defaultExeFile=${project.artifactId}" \
 "-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}" \
 "-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}" \
--jar "$$0" "$@"
+-jar "$$0" $(cat ${project.artifactId}.l4j.ini 2> /dev/null) "$@"
 
 exit $$?]]></echo>
 										<fixcrlf srcdir="${basedir}/target"
 											includes="${project.artifactId}.tmp" eol="lf" eof="remove" />
+										<copy file="${basedir}/target/${project.artifactId}.tmp"
+											tofile="${basedir}/target/${project.artifactId}-cmd.tmp" />
+										<replace
+											file="${basedir}/target/${project.artifactId}-cmd.tmp"
+											token="&quot;-splash:splash.gif&quot;" value="#&quot;-splash:splash.gif&quot;" />
 										<concat
 											destfile="${basedir}/target/${project.artifactId}"
 											binary="true">
@@ -393,10 +398,24 @@ exit $$?]]></echo>
 													name="${basedir}/target/${project.artifactId}-${project.version}.jar" />
 											</filelist>
 										</concat>
+										<concat
+											destfile="${basedir}/target/${project.artifactId}-cmd"
+											binary="true">
+											<filelist>
+												<file
+													name="${basedir}/target/${project.artifactId}-cmd.tmp" />
+												<file
+													name="${basedir}/target/${project.artifactId}-${project.version}.jar" />
+											</filelist>
+										</concat>
 										<chmod file="${basedir}/target/${project.artifactId}"
 											perm="+x" />
+										<chmod
+											file="${basedir}/target/${project.artifactId}-cmd" perm="+x" />
 										<delete
 											file="${basedir}/target/${project.artifactId}.tmp" />
+										<delete
+											file="${basedir}/target/${project.artifactId}-cmd.tmp" />
 									</tasks>
 								</configuration>
 							</execution>
@@ -414,6 +433,23 @@ exit $$?]]></echo>
 											dest="${basedir}/target/linux-jdk/" />
 										<chmod file="${basedir}/target/linux-jdk/bin/*"
 											perm="+x" />
+									</tasks>
+								</configuration>
+							</execution>
+							<execution>
+								<id>create-default-ini-file</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+									<tasks>
+										<echo
+											file="${basedir}/target/${project.artifactId}.l4j.ini"
+											message="-Xms512M${line.separator}-Xmx2048M$${line.separator}-Dcom.otk.jesb.runnerLogVerbose=false${line.separator}" />
+										<copy
+											file="${basedir}/target/${project.artifactId}.l4j.ini"
+											tofile="${basedir}/target/${project.artifactId}-cmd.l4j.ini" />
 									</tasks>
 								</configuration>
 							</execution>
