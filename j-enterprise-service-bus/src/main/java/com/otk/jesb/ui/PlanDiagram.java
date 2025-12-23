@@ -1044,7 +1044,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 						editMenu.addItemCategory(category);
 						continue;
 					}
-					CustomActionMenuItemInfo menuItem = new CustomActionMenuItemInfo(swingRenderer.getReflectionUI(),
+					CustomActionMenuItemInfo menuItem = new CustomActionMenuItemInfo(
 							(String) actionAndShortcut.getFirst().getValue(AbstractAction.NAME), null,
 							new Supplier<Boolean>() {
 								@Override

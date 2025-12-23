@@ -718,6 +718,7 @@ public class PluginBuilder {
 			result.add(ResourceStructure.class);
 			result.add(ResourceMetadata.class);
 			result.add(RootInstanceBuilder.class);
+			result.add(InstantiationContext.class);
 			result.add(Reference.class);
 			result.add(Variant.class);
 			result.add(InfoCustomizations.class);
@@ -948,7 +949,8 @@ public class PluginBuilder {
 				PluginBuilder pluginBuilder) {
 			CodeBuilder result = new CodeBuilder();
 			result.append("@Override\n");
-			result.append("public Object execute() throws Throwable {\n");
+			result.append(
+					"public Object execute(" + Solution.class.getName() + " solutionInstance) throws Throwable {\n");
 			result.appendIndented(executionMethodBody + "\n");
 			result.append("}");
 			return result.toString();
@@ -1058,6 +1060,8 @@ public class PluginBuilder {
 		protected String generateBuildMethodBody(String operationClassName, Map<Object, Object> options,
 				PluginBuilder pluginBuilder) {
 			CodeBuilder result = new CodeBuilder();
+			result.append(
+					Solution.class.getName() + " solutionInstance = context.getSession().getSolutionInstance();\n");
 			for (ParameterDescriptor parameter : parameters) {
 				String buildStatementTarget = parameter.getOperationClassElement(operationClassName, pluginBuilder)
 						.getFinalTypeNameAdaptedToSourceCode(operationClassName, pluginBuilder.solutionInstance) + " "
@@ -1540,7 +1544,7 @@ public class PluginBuilder {
 			Element operationBuilderElement = getOperationBuilderClassElement(operationClassName, parameterName, "",
 					pluginBuilder);
 			if (variant) {
-				return "this." + operationBuilderElement.getName() + ".getValue()";
+				return "this." + operationBuilderElement.getName() + ".getValue(solutionInstance)";
 			} else {
 				return "this." + operationBuilderElement.getName();
 			}
@@ -1582,7 +1586,7 @@ public class PluginBuilder {
 				String parameterName, String parameterCaption, PluginBuilder pluginBuilder) {
 			String builderElementName = getOperationBuilderClassElement(operationClassName, parameterName,
 					parameterCaption, pluginBuilder).getName();
-			result.append("if (" + builderElementName + ".resolve() == null) {\n");
+			result.append("if (" + builderElementName + ".resolve(solutionInstance) == null) {\n");
 			result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to resolve the '"
 					+ MiscUtils.escapeJavaString((parameterCaption != null) ? parameterCaption : parameterName)
 					+ "' reference\");\n");
@@ -1649,7 +1653,7 @@ public class PluginBuilder {
 				Map<Object, Object> options, PluginBuilder pluginBuilder) {
 			Element operationBuilderElement = getOperationBuilderClassElement(operationClassName, parameterName, "",
 					pluginBuilder);
-			return "this." + operationBuilderElement.getName() + ".resolve()";
+			return "this." + operationBuilderElement.getName() + ".resolve(solutionInstance)";
 		}
 
 		@Override
@@ -2066,7 +2070,7 @@ public class PluginBuilder {
 			result.indenting(() -> {
 				result.append("try {\n");
 				result.appendIndented(builderElementName
-						+ ".getFacade(solutionInstance).validate(recursively, currentPlan.getValidationContext(currentStep).getVariableDeclarations());\n");
+						+ ".getFacade(solutionInstance).validate(recursively, currentPlan.getValidationContext(currentStep, solutionInstance).getVariableDeclarations());\n");
 				result.append("} catch (" + ValidationError.class.getName() + " e) {\n");
 				result.appendIndented("throw new " + ValidationError.class.getName() + "(\"Failed to validate '"
 						+ MiscUtils.escapeJavaString((parameterCaption != null) ? parameterCaption : parameterName)
@@ -2171,11 +2175,12 @@ public class PluginBuilder {
 				Map<Object, Object> options, PluginBuilder pluginBuilder) {
 			CodeBuilder result = new CodeBuilder();
 			result.append("private class " + getConcreteTypeNameAccessorClassName(parameterName) + " extends "
-					+ MiscUtils.adaptClassNameToSourceCode(Accessor.GlobalAccessor.class.getName()) + "<String> {\n");
+					+ MiscUtils.adaptClassNameToSourceCode(Accessor.class.getName()) + "<" + Solution.class.getName()
+					+ ", String> {\n");
 			result.append("\n");
 			result.indenting(() -> {
 				result.append("@Override\n");
-				result.append("public String get() {\n");
+				result.append("public String get(" + Solution.class.getName() + " solutionInstance) {\n");
 				result.appendIndented(
 						generateConcreteTypeNameGetterBody(operationClassName, parameterName, options, pluginBuilder)
 								+ "\n");
@@ -2211,7 +2216,7 @@ public class PluginBuilder {
 							pluginBuilder.solutionInstance)
 					+ ") this." + operationBuilderElement.getName() + ".build(new "
 					+ InstantiationContext.class.getName()
-					+ "(context.getVariables(), context.getPlan().getValidationContext(context.getCurrentStep()).getVariableDeclarations()))";
+					+ "(context.getVariables(), context.getPlan().getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(), solutionInstance))";
 		}
 
 		@Override
@@ -3134,7 +3139,8 @@ public class PluginBuilder {
 			{
 				result.append("@Override\n");
 				result.append("public void initializeAutomaticTrigger(" + ActivationHandler.class.getName()
-						+ " activationHandler) throws Exception {\n");
+						+ " activationHandler, " + Solution.class.getName() + " solutionInstance"
+						+ ") throws Exception {\n");
 				result.appendIndented("this.activationHandler = activationHandler;\n");
 				if (handlerInitializationStatements != null) {
 					result.appendIndented(handlerInitializationStatements + "\n");
@@ -3144,7 +3150,8 @@ public class PluginBuilder {
 			result.append("\n");
 			{
 				result.append("@Override\n");
-				result.append("public void finalizeAutomaticTrigger() throws Exception {\n");
+				result.append("public void finalizeAutomaticTrigger(" + Solution.class.getName() + " solutionInstance"
+						+ ") throws Exception {\n");
 				if (handlerFinalizationStatements != null) {
 					result.appendIndented(handlerFinalizationStatements + "\n");
 				}
@@ -3165,7 +3172,8 @@ public class PluginBuilder {
 				CodeBuilder additionalInnerClassesDeclarations, Map<Object, Object> codeGenerationOptions,
 				PluginBuilder pluginBuilder) {
 			additionalMethodDeclarations.append("@Override\n");
-			additionalMethodDeclarations.append("public Class<?> getOutputClass() {\n");
+			additionalMethodDeclarations.append(
+					"public Class<?> getOutputClass(" + Solution.class.getName() + " solutionInstance" + ") {\n");
 			if (outputClassOption == null) {
 				additionalMethodDeclarations.appendIndented("return null;\n");
 			} else {
@@ -3183,7 +3191,8 @@ public class PluginBuilder {
 				CodeBuilder additionalInnerClassesDeclarations, Map<Object, Object> codeGenerationOptions,
 				PluginBuilder pluginBuilder) {
 			additionalMethodDeclarations.append("@Override\n");
-			additionalMethodDeclarations.append("public Class<?> getInputClass() {\n");
+			additionalMethodDeclarations.append(
+					"public Class<?> getInputClass(" + Solution.class.getName() + " solutionInstance" + ") {\n");
 			if (inputClassOption == null) {
 				additionalMethodDeclarations.appendIndented("return null;\n");
 			} else {

@@ -495,11 +495,11 @@ public class GUI extends MultiSwingCustomizer {
 		}
 
 		@Override
-		public CustomizingForm subCreateForm(final Object object, IInfoFilter infoFilter) {
-			if (object instanceof xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration) {
-				return new CustomizingForm(getCustomizationTools().getToolsRenderer(), object, infoFilter);
+		public CustomizingForm subCreateForm(final Object objectArgument, IInfoFilter infoFilter) {
+			if (objectArgument instanceof xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration) {
+				return new CustomizingForm(getCustomizationTools().getToolsRenderer(), objectArgument, infoFilter);
 			}
-			return new CustomizingForm(this, object, infoFilter) {
+			return new CustomizingForm(this, objectArgument, infoFilter) {
 
 				private static final long serialVersionUID = 1L;
 
@@ -528,7 +528,21 @@ public class GUI extends MultiSwingCustomizer {
 				}
 
 				@Override
-				protected CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
+				protected RenderingContext createRenderingContext() {
+					RenderingContext result = super.createRenderingContext();
+					if (!(objectArgument instanceof PrecomputedTypeInstanceWrapper)) {
+						if (!(objectArgument instanceof Solution)) {
+							if (result.getCurrentObject(
+									reflectionUI.getTypeInfo(new JavaTypeInfoSource(Solution.class, null))) == null) {
+								throw new UnexpectedError();
+							}
+						}
+					}
+					return result;
+				}
+
+				@Override
+				public CustomizingFieldControlPlaceHolder createFieldControlPlaceHolder(IFieldInfo field) {
 					return new CustomizingFieldControlPlaceHolder(this, field) {
 
 						private static final long serialVersionUID = 1L;
@@ -619,8 +633,8 @@ public class GUI extends MultiSwingCustomizer {
 							}
 							if (object instanceof InstanceBuilderFacade) {
 								if (field.getName().equals("constructorGroup")) {
-									setVisible(((InstanceBuilderFacade) object)
-											.getConstructorSignatureOptions().size() > 1);
+									setVisible(((InstanceBuilderFacade) object).getConstructorSignatureOptions()
+											.size() > 1);
 								}
 								if (field.getName().equals("typeGroup")) {
 									setVisible(((InstanceBuilderFacade) object).getUnderlying()
@@ -828,7 +842,7 @@ public class GUI extends MultiSwingCustomizer {
 				}
 
 				@Override
-				protected CustomizingMethodControlPlaceHolder createMethodControlPlaceHolder(IMethodInfo method) {
+				public CustomizingMethodControlPlaceHolder createMethodControlPlaceHolder(IMethodInfo method) {
 					final CustomizingForm thisForm = this;
 					if (method.getName().equals("insertSelectedPathNodeExpression")) {
 						method = new MethodInfoProxy(method) {
@@ -1422,8 +1436,7 @@ public class GUI extends MultiSwingCustomizer {
 											.map(itemPosition -> (Facade) itemPosition.getItem())
 											.collect(Collectors.toList());
 									int caseCount = (int) invocationData.getParameterValue(0);
-									InitializationSwitchFacade.install(parentFacade, caseCount, initializerFacades
-											);
+									InitializationSwitchFacade.install(parentFacade, caseCount, initializerFacades);
 									return null;
 								}
 
