@@ -43,11 +43,11 @@ public class GUITests {
 
 	@Before
 	public void beforeEachTest() {
-		JESB.GUI_INSTANCE.getSolutionInstance().getContents().clear();
-		JESB.GUI_INSTANCE.getSolutionInstance().getRequiredJARs().clear();
-		JESB.GUI_INSTANCE.getSolutionInstance().getEnvironmentSettings().getEnvironmentVariableTreeElements().clear();
-		JESB.GUI_INSTANCE.getLastInvocationDataByMethodContext().clear();
-		JESB.GUI_INSTANCE.getSubCustomizerByIdentifier().values()
+		JESB.UI.INSTANCE.getSolutionInstance().getContents().clear();
+		JESB.UI.INSTANCE.getSolutionInstance().getRequiredJARs().clear();
+		JESB.UI.INSTANCE.getSolutionInstance().getEnvironmentSettings().getEnvironmentVariableTreeElements().clear();
+		JESB.UI.INSTANCE.getLastInvocationDataByMethodContext().clear();
+		JESB.UI.INSTANCE.getSubCustomizerByIdentifier().values()
 				.forEach(swingCustomizer -> swingCustomizer.getLastInvocationDataByMethodContext().clear());
 		FileBrowserPlugin.setLastDirectory(FileBrowserPlugin.DEFAULT_DIRECTORY);
 	}

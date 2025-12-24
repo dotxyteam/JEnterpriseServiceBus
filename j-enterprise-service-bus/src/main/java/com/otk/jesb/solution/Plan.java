@@ -37,8 +37,7 @@ import com.otk.jesb.util.Accessor;
  */
 public class Plan extends Asset {
 
-	public static final String INPUT_VARIABLE_NAME = "PLAN_INPUT";
-
+	private String inputVariableName = "PLAN_INPUT";
 	private Activator activator = new LaunchAtStartup();
 	private List<Step> steps = new ArrayList<Step>();
 	private List<Transition> transitions = new ArrayList<Transition>();
@@ -53,6 +52,14 @@ public class Plan extends Asset {
 
 	public Plan(String name) {
 		super(name);
+	}
+
+	public String getInputVariableName() {
+		return inputVariableName;
+	}
+
+	public void setInputVariableName(String inputVariableName) {
+		this.inputVariableName = inputVariableName;
 	}
 
 	public Activator getActivator() {
@@ -227,7 +234,7 @@ public class Plan extends Asset {
 
 					@Override
 					public String getName() {
-						return INPUT_VARIABLE_NAME;
+						return inputVariableName;
 					}
 				});
 			}
@@ -501,7 +508,7 @@ public class Plan extends Asset {
 
 					@Override
 					public String getVariableName() {
-						return INPUT_VARIABLE_NAME;
+						return inputVariableName;
 					}
 
 					@Override

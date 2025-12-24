@@ -65,7 +65,7 @@ public class JesbAPIExample {
 			FieldInitializerFacade commandOutputInitializer = (FieldInitializerFacade) intitializationRoot.getChildren()
 					.get(0).getChildren().get(0);
 			commandOutputInitializer.setFieldValue(new InstantiationFunction(
-					"return \"Hello \" + " + Plan.INPUT_VARIABLE_NAME + ".inputLine + \"!\";"));
+					"return \"Hello \" + " + plan.getInputVariableName() + ".inputLine + \"!\";"));
 		}
 		return solution;
 	}

@@ -172,7 +172,6 @@ import xy.reflect.ui.util.Mapper;
 import xy.reflect.ui.util.PrecomputedTypeInstanceWrapper;
 import xy.reflect.ui.util.ReflectionUIError;
 import xy.reflect.ui.util.ReflectionUIUtils;
-import xy.reflect.ui.util.SystemProperties;
 import xy.reflect.ui.util.ValidationErrorRegistry;
 
 /**
@@ -193,12 +192,6 @@ public class GUI extends MultiSwingCustomizer {
 			+ ".CURRENT_INSTANTIATION_FACADE_KEY";
 	private static final String CURRENT_ACTIVATOR_KEY = GUI.class.getName() + ".CURRENT_VALIDATION_ACTIVATOR_KEY";
 	public static final String GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME = "jesb.icu";
-	static {
-		if (JESB.isDebugModeActive()) {
-			System.setProperty(SystemProperties.DEBUG, Boolean.TRUE.toString());
-		}
-		Preferences.INSTANCE.getTheme().activate();
-	}
 
 	private WeakHashMap<RootInstanceBuilder, Object> rootInitializerBackupByBuilder = new WeakHashMap<RootInstanceBuilder, Object>();
 	private WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
@@ -379,8 +372,8 @@ public class GUI extends MultiSwingCustomizer {
 	protected void checkObjectRenderingContext(Object object, RenderingContext renderingContext) {
 		if (!(object instanceof PrecomputedTypeInstanceWrapper)) {
 			if (!(object instanceof Solution)) {
-				if (renderingContext.getCurrentObject(
-						reflectionUI.getTypeInfo(new JavaTypeInfoSource(Solution.class, null))) == null) {
+				if (renderingContext
+						.getObject(reflectionUI.getTypeInfo(new JavaTypeInfoSource(Solution.class, null))) == null) {
 					throw new UnexpectedError();
 				}
 			}

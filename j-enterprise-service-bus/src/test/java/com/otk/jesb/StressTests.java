@@ -65,7 +65,7 @@ public class StressTests {
 				ParameterInitializerFacade logMessageInitializer = (ParameterInitializerFacade) intitializationRoot
 						.getChildren().get(0).getChildren().get(0);
 				logMessageInitializer.setParameterValue(new InstantiationFunction("return \"Activated at \" + "
-						+ Plan.INPUT_VARIABLE_NAME + ".activationMoment.toString() + \"!\";"));
+						+ plan.getInputVariableName() + ".activationMoment.toString() + \"!\";"));
 			}
 			com.otk.jesb.operation.builtin.Sleep.Builder sleepOperationBuilder = new com.otk.jesb.operation.builtin.Sleep.Builder();
 			{

@@ -30,7 +30,7 @@ public class HTTPServer extends Resource {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				JESB.GUI_INSTANCE.openObjectFrame(new HTTPServer("test"));
+				JESB.UI.INSTANCE.openObjectFrame(new HTTPServer("test"));
 			}
 		});
 	}

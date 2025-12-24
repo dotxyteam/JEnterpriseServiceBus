@@ -103,7 +103,7 @@ public class PluginBuilder {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				JESB.GUI_INSTANCE.openObjectFrame(new PluginBuilder(new Solution()));
+				JESB.UI.INSTANCE.openObjectFrame(new PluginBuilder(new Solution()));
 			}
 		});
 	}
@@ -184,7 +184,8 @@ public class PluginBuilder {
 			};
 		}
 	};
-
+	private static final GUI UI_UTIL = new GUI();
+	
 	private Solution solutionInstance;
 
 	private String packageName = "com.example";
@@ -594,8 +595,8 @@ public class PluginBuilder {
 	private static Object getControlPluginConfigurationAfterIdentifierUpdate(String controlPluginIdentifier,
 			Object oldControlPluginConfiguration) {
 		if (controlPluginIdentifier != null) {
-			IFieldControlPlugin selectedControlPlugin = JESB.GUI_INSTANCE
-					.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS).getFieldControlPlugins().stream()
+			IFieldControlPlugin selectedControlPlugin = UI_UTIL.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS)
+					.getFieldControlPlugins().stream()
 					.filter(controlPlugin -> controlPlugin.getIdentifier().equals(controlPluginIdentifier)).findFirst()
 					.get();
 			if (selectedControlPlugin instanceof ICustomizableFieldControlPlugin) {
@@ -1372,10 +1373,10 @@ public class PluginBuilder {
 		public List<String> getControlPluginIdentifierOptions(PluginBuilder pluginBuilder) {
 			String typeName = Structure.SimpleElement.TYPE_NAME_BY_ALIAS.getOrDefault(getTypeNameOrAlias(),
 					getTypeNameOrAlias());
-			final ITypeInfo typeInfo = JESB.GUI_INSTANCE.getReflectionUI().getTypeInfo(
+			final ITypeInfo typeInfo = UI_UTIL.getReflectionUI().getTypeInfo(
 					new JavaTypeInfoSource(pluginBuilder.solutionInstance.getRuntime().getJESBClass(typeName), null));
 			IFieldControlInput sampleControlInput = new FieldControlInputProxy(
-					new DefaultFieldControlInput(JESB.GUI_INSTANCE.getReflectionUI()) {
+					new DefaultFieldControlInput(UI_UTIL.getReflectionUI()) {
 
 						@Override
 						public IFieldControlData getControlData() {
@@ -1389,8 +1390,7 @@ public class PluginBuilder {
 							};
 						}
 					});
-			SubSwingCustomizer globalSubCustomizer = JESB.GUI_INSTANCE
-					.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS);
+			SubSwingCustomizer globalSubCustomizer = UI_UTIL.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS);
 			return globalSubCustomizer.getFieldControlPlugins().stream().filter(
 					controlPlugin -> controlPlugin.handles(globalSubCustomizer.getReflectionUI(), sampleControlInput))
 					.map(IFieldControlPlugin::getIdentifier).collect(Collectors.toList());
@@ -1732,7 +1732,7 @@ public class PluginBuilder {
 
 		public List<String> getControlPluginIdentifierOptions() {
 			IFieldControlInput sampleControlInput = new FieldControlInputProxy(
-					new DefaultFieldControlInput(JESB.GUI_INSTANCE.getReflectionUI()) {
+					new DefaultFieldControlInput(UI_UTIL.getReflectionUI()) {
 
 						@Override
 						public IFieldControlData getControlData() {
@@ -1746,8 +1746,7 @@ public class PluginBuilder {
 							};
 						}
 					});
-			SubSwingCustomizer globalSubCustomizer = JESB.GUI_INSTANCE
-					.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS);
+			SubSwingCustomizer globalSubCustomizer = UI_UTIL.obtainSubCustomizer(GUI.GLOBAL_EXCLUSIVE_CUSTOMIZATIONS);
 			return globalSubCustomizer.getFieldControlPlugins().stream().filter(
 					controlPlugin -> controlPlugin.handles(globalSubCustomizer.getReflectionUI(), sampleControlInput))
 					.map(IFieldControlPlugin::getIdentifier).collect(Collectors.toList());

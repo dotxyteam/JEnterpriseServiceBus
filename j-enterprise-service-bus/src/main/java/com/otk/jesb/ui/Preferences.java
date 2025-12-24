@@ -39,7 +39,7 @@ public class Preferences {
 		if (FILE.exists()) {
 			try (FileInputStream fileInputStream = new FileInputStream(FILE)) {
 				INSTANCE = (Preferences) MiscUtils.deserialize(fileInputStream,
-						JESB.GUI_INSTANCE.getSolutionInstance().getRuntime().getXstream());
+						JESB.UI.INSTANCE.getSolutionInstance().getRuntime().getXstream());
 			} catch (IOException e) {
 				Log.get().error(e);
 				System.exit(-1);
@@ -60,7 +60,7 @@ public class Preferences {
 	public void persist() {
 		try (FileOutputStream fileOutputStream = new FileOutputStream(FILE)) {
 			MiscUtils.serialize(this, fileOutputStream,
-					JESB.GUI_INSTANCE.getSolutionInstance().getRuntime().getXstream());
+					JESB.UI.INSTANCE.getSolutionInstance().getRuntime().getXstream());
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
@@ -138,7 +138,7 @@ public class Preferences {
 							SwingUtilities.updateComponentTreeUI(window);
 						}
 						// force recreation of all controls to prevent some components painting issues
-						for (SwingCustomizer customizer : JESB.GUI_INSTANCE.getSubCustomizerByIdentifier().values()) {
+						for (SwingCustomizer customizer : JESB.UI.INSTANCE.getSubCustomizerByIdentifier().values()) {
 							customizer.getCustomizationOptions()
 									.setInEditMode(!customizer.getCustomizationOptions().isInEditMode());
 							SwingRendererUtils.refreshAllDisplayedForms(customizer, true);

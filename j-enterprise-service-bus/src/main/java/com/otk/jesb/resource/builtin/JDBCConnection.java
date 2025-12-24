@@ -26,7 +26,7 @@ public class JDBCConnection extends Resource {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				JESB.GUI_INSTANCE.openObjectFrame(new JDBCConnection("test"));
+				JESB.UI.INSTANCE.openObjectFrame(new JDBCConnection("test"));
 			}
 		});
 	}

@@ -6213,7 +6213,7 @@
             <uniqueIdentifier>32c27d6d:19749e66151:-6fcb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5824</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1cab</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>Note</name>
             </category>
@@ -9677,55 +9677,8 @@
         <abstractForced>false</abstractForced>
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <baseTypeName>com.otk.jesb.PathOptionsProvider$RootPathNode</baseTypeName>
         <copyForbidden>false</copyForbidden>
-        <fieldsCustomization>
-            <uniqueIdentifier>17b217bd:1940289e55f:-76c5</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <customFieldCaption>Path</customFieldCaption>
-            <displayedAsSingletonList>false</displayedAsSingletonList>
-            <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>expression</fieldName>
-            <formControlCreationForced>false</formControlCreationForced>
-            <formControlEmbeddingForced>false</formControlEmbeddingForced>
-            <getOnlyForced>false</getOnlyForced>
-            <getterGenerated>false</getterGenerated>
-            <nullReplacement>
-                <uniqueIdentifier>17b217bd:1940289e55f:-76c3</uniqueIdentifier>
-            </nullReplacement>
-            <nullStatusFieldExported>false</nullStatusFieldExported>
-            <nullValueDistinctForced>false</nullValueDistinctForced>
-            <setterGenerated>false</setterGenerated>
-            <specificTypeCustomizations>
-                <applicationCustomization>
-                    <uniqueIdentifier>17b217bd:1940289e55f:-76c4</uniqueIdentifier>
-                    <specificProperties/>
-                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
-                </applicationCustomization>
-                <typeCustomization>
-                    <uniqueIdentifier>17b217bd:1940289e55f:-76c2</uniqueIdentifier>
-                    <specificProperties>
-                        <entry>
-                            <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
-                        </entry>
-                    </specificProperties>
-                    <abstractForced>false</abstractForced>
-                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
-                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
-                    <copyForbidden>false</copyForbidden>
-                    <immutableForced>false</immutableForced>
-                    <menuModel>
-                        <uniqueIdentifier>17b217bd:1940289e55f:-76c1</uniqueIdentifier>
-                    </menuModel>
-                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
-                    <typeName>java.lang.String</typeName>
-                    <undoManagementHidden>false</undoManagementHidden>
-                    <validationRequirementForced>false</validationRequirementForced>
-                </typeCustomization>
-            </specificTypeCustomizations>
-            <transientForced>false</transientForced>
-            <valueValidityDetectionForced>false</valueValidityDetectionForced>
-        </fieldsCustomization>
         <fieldsCustomization>
             <uniqueIdentifier>3ca323e8:195bfc0ab3f:79d9</uniqueIdentifier>
             <specificProperties/>
@@ -9780,25 +9733,73 @@
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
         <fieldsCustomization>
-            <uniqueIdentifier>-4674df6f:195fc93ba49:a90</uniqueIdentifier>
+            <uniqueIdentifier>17b217bd:1940289e55f:-76c5</uniqueIdentifier>
             <specificProperties/>
-            <hidden>true</hidden>
+            <hidden>false</hidden>
+            <customFieldCaption>Path</customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>valueType</fieldName>
+            <fieldName>expression</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
             <getterGenerated>false</getterGenerated>
             <nullReplacement>
-                <uniqueIdentifier>-4674df6f:195fc93ba49:a92</uniqueIdentifier>
+                <uniqueIdentifier>17b217bd:1940289e55f:-76c3</uniqueIdentifier>
             </nullReplacement>
             <nullStatusFieldExported>false</nullStatusFieldExported>
             <nullValueDistinctForced>false</nullValueDistinctForced>
             <setterGenerated>false</setterGenerated>
             <specificTypeCustomizations>
                 <applicationCustomization>
-                    <uniqueIdentifier>-4674df6f:195fc93ba49:a91</uniqueIdentifier>
+                    <uniqueIdentifier>17b217bd:1940289e55f:-76c4</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <typeCustomization>
+                    <uniqueIdentifier>17b217bd:1940289e55f:-76c2</uniqueIdentifier>
+                    <specificProperties>
+                        <entry>
+                            <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
+                        </entry>
+                    </specificProperties>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>17b217bd:1940289e55f:-76c1</uniqueIdentifier>
+                    </menuModel>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+                    <typeName>java.lang.String</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-75de6e45:196165d53d1:-1472</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>expressionPattern</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-75de6e45:196165d53d1:-1470</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-75de6e45:196165d53d1:-1471</uniqueIdentifier>
                     <specificProperties/>
                     <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
                 </applicationCustomization>
@@ -9826,33 +9827,6 @@
             <specificTypeCustomizations>
                 <applicationCustomization>
                     <uniqueIdentifier>-4674df6f:195fc93ba49:a96</uniqueIdentifier>
-                    <specificProperties/>
-                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
-                </applicationCustomization>
-            </specificTypeCustomizations>
-            <transientForced>false</transientForced>
-            <valueValidityDetectionForced>false</valueValidityDetectionForced>
-        </fieldsCustomization>
-        <fieldsCustomization>
-            <uniqueIdentifier>79997282:19607cf99e9:d6b</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>true</hidden>
-            <displayedAsSingletonList>false</displayedAsSingletonList>
-            <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>expressionType</fieldName>
-            <formControlCreationForced>false</formControlCreationForced>
-            <formControlEmbeddingForced>false</formControlEmbeddingForced>
-            <getOnlyForced>false</getOnlyForced>
-            <getterGenerated>false</getterGenerated>
-            <nullReplacement>
-                <uniqueIdentifier>79997282:19607cf99e9:d6d</uniqueIdentifier>
-            </nullReplacement>
-            <nullStatusFieldExported>false</nullStatusFieldExported>
-            <nullValueDistinctForced>false</nullValueDistinctForced>
-            <setterGenerated>false</setterGenerated>
-            <specificTypeCustomizations>
-                <applicationCustomization>
-                    <uniqueIdentifier>79997282:19607cf99e9:d6c</uniqueIdentifier>
                     <specificProperties/>
                     <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
                 </applicationCustomization>
@@ -9889,25 +9863,25 @@
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
         <fieldsCustomization>
-            <uniqueIdentifier>-75de6e45:196165d53d1:-1472</uniqueIdentifier>
+            <uniqueIdentifier>-4674df6f:195fc93ba49:a90</uniqueIdentifier>
             <specificProperties/>
             <hidden>true</hidden>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>expressionPattern</fieldName>
+            <fieldName>valueType</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
             <formControlEmbeddingForced>false</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
             <getterGenerated>false</getterGenerated>
             <nullReplacement>
-                <uniqueIdentifier>-75de6e45:196165d53d1:-1470</uniqueIdentifier>
+                <uniqueIdentifier>-4674df6f:195fc93ba49:a92</uniqueIdentifier>
             </nullReplacement>
             <nullStatusFieldExported>false</nullStatusFieldExported>
             <nullValueDistinctForced>false</nullValueDistinctForced>
             <setterGenerated>false</setterGenerated>
             <specificTypeCustomizations>
                 <applicationCustomization>
-                    <uniqueIdentifier>-75de6e45:196165d53d1:-1471</uniqueIdentifier>
+                    <uniqueIdentifier>-4674df6f:195fc93ba49:a91</uniqueIdentifier>
                     <specificProperties/>
                     <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
                 </applicationCustomization>
@@ -10187,7 +10161,7 @@
             <uniqueIdentifier>-55559b63:1998b2b2795:7583</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5825</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1caa</uniqueIdentifier>
                 <caption>Additional Field Declarations Source Code</caption>
                 <name>additionalFieldDeclarationsSourceCode</name>
             </category>
@@ -10250,7 +10224,7 @@
             <uniqueIdentifier>-55559b63:1998b2b2795:77a7</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5826</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1ca9</uniqueIdentifier>
                 <caption>Additional Method Declarations Source Code</caption>
                 <name>additionalMethodDeclarationsSourceCode</name>
             </category>
@@ -10313,7 +10287,7 @@
             <uniqueIdentifier>60364107:1999163bebe:-3d1d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5827</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1ca8</uniqueIdentifier>
                 <caption>Additional Validation Statements</caption>
                 <name>additionalValidationStatements</name>
             </category>
@@ -10376,7 +10350,7 @@
             <uniqueIdentifier>-483a07cc:1998a954cca:5a91</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5828</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1ca7</uniqueIdentifier>
                 <caption>Handler Finalization Statements</caption>
                 <name>handlerFinalizationStatements</name>
             </category>
@@ -10447,7 +10421,7 @@
             <uniqueIdentifier>-483a07cc:1998a954cca:5822</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5829</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1ca6</uniqueIdentifier>
                 <caption>Handler Initialization Statements</caption>
                 <name>handlerInitializationStatements</name>
             </category>
@@ -10523,7 +10497,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-483a07cc:1998a954cca:5cb6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:582a</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1ca5</uniqueIdentifier>
                 <caption>Validation Method Body</caption>
                 <name>validationMethodBody</name>
             </category>
@@ -11989,14 +11963,9 @@ period) to trigger an activation event.
                         <itemMoveEnabled>true</itemMoveEnabled>
                     </editOptions>
                     <fieldColumnsAdded>false</fieldColumnsAdded>
-                    <fieldExcludedFromItemDetails>
-                        <uniqueIdentifier>17b217bd:1940289e55f:-7745</uniqueIdentifier>
-                        <regularExpression>true</regularExpression>
-                        <value>^(?!.*expression).*$</value>
-                    </fieldExcludedFromItemDetails>
                     <itemAutomaticPositioningManagementForced>false</itemAutomaticPositioningManagementForced>
                     <itemCreationMode>UNDEFINED</itemCreationMode>
-                    <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
+                    <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
                     <itemTypeName>com.otk.jesb.PathExplorer$PathNode</itemTypeName>
@@ -13107,7 +13076,7 @@ period) to trigger an activation event.
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-47d88df0:19b4bdab063:582b</uniqueIdentifier>
+                        <uniqueIdentifier>1115ef07:19b51331662:-1ca4</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:103b</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -14857,7 +14826,7 @@ period) to trigger an activation event.
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-47d88df0:19b4bdab063:582c</uniqueIdentifier>
+                        <uniqueIdentifier>1115ef07:19b51331662:-1ca3</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:49b7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -16472,7 +16441,7 @@ period) to trigger an activation event.
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-47d88df0:19b4bdab063:582d</uniqueIdentifier>
+                        <uniqueIdentifier>1115ef07:19b51331662:-1ca2</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>59a9f717:196bb283c87:fd7</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -19403,7 +19372,7 @@ period) to trigger an activation event.
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-47d88df0:19b4bdab063:582e</uniqueIdentifier>
+                        <uniqueIdentifier>1115ef07:19b51331662:-1ca1</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>208f7c38:196c58bf17f:2f27</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -20823,7 +20792,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>5053b6c7:19900d6d525:5106</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:582f</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1ca0</uniqueIdentifier>
                 <caption>Activators</caption>
                 <name>activators</name>
             </category>
@@ -20992,7 +20961,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>5053b6c7:19900d6d525:51a5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5830</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c9f</uniqueIdentifier>
                 <caption>Operations</caption>
                 <name>operations</name>
             </category>
@@ -21146,7 +21115,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>5053b6c7:19900d6d525:5204</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5831</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c9e</uniqueIdentifier>
                 <caption>Resources</caption>
                 <name>resources</name>
             </category>
@@ -23975,7 +23944,7 @@ period) to trigger an activation event.
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-47d88df0:19b4bdab063:5832</uniqueIdentifier>
+                        <uniqueIdentifier>1115ef07:19b51331662:-1c9d</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-523c46d0:196bf93286b:-56ed</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -28643,7 +28612,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-7ea92b19:197453a3f88:3537</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5833</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c9c</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -28706,7 +28675,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-7ea92b19:197453a3f88:35ae</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5834</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c9b</uniqueIdentifier>
                 <caption>Elements</caption>
                 <name>elements</name>
             </category>
@@ -28768,7 +28737,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>32c27d6d:19749e66151:-6fd0</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5835</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c9a</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -31116,6 +31085,33 @@ period) to trigger an activation event.
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-23712168:19b502d8103:-4c97</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>inputVariableName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-23712168:19b502d8103:-4c95</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-23712168:19b502d8103:-4c96</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
         <formSpacing>0</formSpacing>
         <iconImagePath>
             <specification>&lt;class-path-resource&gt; com/otk/jesb/Plan.png</specification>
@@ -31978,7 +31974,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>60364107:19991607df3:761f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5836</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c99</uniqueIdentifier>
                 <caption>Additional Builder Validation Statements</caption>
                 <name>additionalBuilderValidationStatements</name>
             </category>
@@ -32050,7 +32046,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-25d11e7e:1998b1b6193:770c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5837</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c98</uniqueIdentifier>
                 <caption>Additional Field Declarations Source Code</caption>
                 <name>additionalFieldDeclarationsSourceCode</name>
             </category>
@@ -32113,7 +32109,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-25d11e7e:1998b1b6193:796c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5838</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c97</uniqueIdentifier>
                 <caption>Additional Method Declarations Source Code</caption>
                 <name>additionalMethodDeclarationsSourceCode</name>
             </category>
@@ -32176,7 +32172,7 @@ period) to trigger an activation event.
             <uniqueIdentifier>-483a07cc:1998aac383e:-eca</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5839</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c96</uniqueIdentifier>
                 <caption>Execution Method Body</caption>
                 <name>executionMethodBody</name>
             </category>
@@ -32240,7 +32236,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-483a07cc:1998aac383e:-c9b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:583a</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c95</uniqueIdentifier>
                 <caption>Validation Method Body</caption>
                 <name>validationMethodBody</name>
             </category>
@@ -33793,7 +33789,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-483a07cc:1998aac383e:1b21</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:583b</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c94</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -33911,7 +33907,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>2e919049:1998f9824b5:4f0f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:583c</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c93</uniqueIdentifier>
                 <caption>Advanced</caption>
                 <name>advanced</name>
             </category>
@@ -33972,7 +33968,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-5d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:583d</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c92</uniqueIdentifier>
                 <caption>Properties</caption>
                 <name>properties</name>
             </category>
@@ -34131,7 +34127,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-66</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:583e</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c91</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -35635,7 +35631,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-7372f88b:1940edbbf05:7236</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:583f</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c90</uniqueIdentifier>
                 <caption>Operation</caption>
                 <name>Operation</name>
             </category>
@@ -35697,7 +35693,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-7372f88b:1940edbbf05:7240</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5840</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c8f</uniqueIdentifier>
                 <caption>Error</caption>
                 <name>Error</name>
             </category>
@@ -35747,7 +35743,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-7372f88b:1940edbbf05:7247</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5841</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c8e</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>Result</name>
             </category>
@@ -36159,7 +36155,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>1de56e9d:19906e52549:-54b</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5842</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c8d</uniqueIdentifier>
                 <caption>Settings</caption>
                 <name>settings</name>
             </category>
@@ -36196,7 +36192,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>1de56e9d:19906e52549:-495</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5843</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c8c</uniqueIdentifier>
                 <caption>Data</caption>
                 <name>data</name>
             </category>
@@ -36232,7 +36228,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>2e919049:199903bf2b3:189d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5844</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c8b</uniqueIdentifier>
                 <caption>Data</caption>
                 <name>data</name>
             </category>
@@ -36456,7 +36452,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-18464e28:1959c217a77:-5313</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5845</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c8a</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -36518,7 +36514,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-7e3c01d6:19680a0ac94:-4647</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5846</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c89</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -36569,7 +36565,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>35b74ac5:1986218f832:-27a5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5847</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c88</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -36603,7 +36599,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>352a0435:1990bae02c1:7e7</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5848</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c87</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -36690,7 +36686,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>352a0435:1990bae02c1:32c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5849</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c86</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -36725,7 +36721,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>352a0435:1990bae02c1:339</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:584a</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c85</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -36760,7 +36756,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-29ddb02e:198233ec638:63b8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:584b</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c84</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -36798,7 +36794,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>35b74ac5:1986218f832:-2e33</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:584c</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c83</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -36833,7 +36829,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-56dd94c9:1968bf985ca:-4038</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:584d</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c82</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -36986,7 +36982,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-29ddb02e:198233ec638:63bb</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:584e</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c81</uniqueIdentifier>
                 <caption>Variables</caption>
                 <name>variables</name>
             </category>
@@ -37120,7 +37116,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-332f65a0:1947f7efd62:-757a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:584f</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c80</uniqueIdentifier>
                 <caption>Flow</caption>
                 <name>flow</name>
             </category>
@@ -38878,7 +38874,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-55559b63:1998b374367:-5e87</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5850</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c7f</uniqueIdentifier>
                 <caption>Additional Field Declarations Source Code</caption>
                 <name>additionalFieldDeclarationsSourceCode</name>
             </category>
@@ -38941,7 +38937,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-55559b63:1998b374367:-5c62</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5851</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c7e</uniqueIdentifier>
                 <caption>Additional Method Declarations Source Code</caption>
                 <name>additionalMethodDeclarationsSourceCode</name>
             </category>
@@ -39004,7 +39000,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>60364107:1999163bebe:-14d9</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5852</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c7d</uniqueIdentifier>
                 <caption>Additional Validation Statements</caption>
                 <name>additionalValidationStatements</name>
             </category>
@@ -39075,7 +39071,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-483a07cc:1998aac383e:1b26</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5853</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c7c</uniqueIdentifier>
                 <caption>Validation Method Body</caption>
                 <name>validationMethodBody</name>
             </category>
@@ -40115,6 +40111,10 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
                         <hidden>false</hidden>
                         <minimalCharacterCount>40</minimalCharacterCount>
                     </columnCustomization>
+                    <embeddedDetailsAccessMode>
+                        <defaultDetailsAreaOccupationRatio>0.2</defaultDetailsAreaOccupationRatio>
+                        <detailsAreaPosition>BOTTOM</detailsAreaPosition>
+                    </embeddedDetailsAccessMode>
                     <editOptions>
                         <uniqueIdentifier>-54551627:195f7a0ad3d:773b</uniqueIdentifier>
                         <itemCreationEnabled>true</itemCreationEnabled>
@@ -40124,7 +40124,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
                     <fieldColumnsAdded>false</fieldColumnsAdded>
                     <itemAutomaticPositioningManagementForced>false</itemAutomaticPositioningManagementForced>
                     <itemCreationMode>UNDEFINED</itemCreationMode>
-                    <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
+                    <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
                     <itemTypeName>com.otk.jesb.PathExplorer$PathNode</itemTypeName>
@@ -40530,7 +40530,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-53aac6:1980480734d:-65e3</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5854</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c7b</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -45510,7 +45510,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
                     <itemCreationMode>UNDEFINED</itemCreationMode>
                     <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNodeValidityDetectionConfiguration>
-                        <uniqueIdentifier>-47d88df0:19b4bdab063:5855</uniqueIdentifier>
+                        <uniqueIdentifier>1115ef07:19b51331662:-1c7a</uniqueIdentifier>
                         <enablementStatusFieldNamePattern>
                             <uniqueIdentifier>-62498195:1971c2f6fd4:3447</uniqueIdentifier>
                             <regularExpression>false</regularExpression>
@@ -53208,7 +53208,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-483a07cc:1998aac383e:-ecf</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5856</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c79</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -53245,7 +53245,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>5053b6c7:19900d6d525:-20f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5857</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c78</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -53388,7 +53388,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>2e919049:1998f9824b5:4e35</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5858</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c77</uniqueIdentifier>
                 <caption>Advanced</caption>
                 <name>advanced</name>
             </category>
@@ -53532,7 +53532,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>5053b6c7:19900d6d525:-1fc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5859</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c76</uniqueIdentifier>
                 <caption>Parameters</caption>
                 <name>parameters</name>
             </category>
@@ -53608,7 +53608,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>5053b6c7:19900d6d525:-219</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:585a</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c75</uniqueIdentifier>
                 <caption>Result</caption>
                 <name>result</name>
             </category>
@@ -53645,7 +53645,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-545958f1:199878e0fe5:4cd1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:585b</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c74</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -56036,6 +56036,33 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <transientForced>false</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-23712168:19b502d8103:d5d</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>inputVariableName</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-23712168:19b502d8103:d5f</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-23712168:19b502d8103:d5e</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
         <immutableForced>false</immutableForced>
         <menuModel>
             <uniqueIdentifier>1de56e9d:19906e1d6be:-4fdd</uniqueIdentifier>
@@ -56941,7 +56968,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-b4</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:585c</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c73</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -57114,7 +57141,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-83</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:585d</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c72</uniqueIdentifier>
                 <caption>Attributes</caption>
                 <name>attributes</name>
             </category>
@@ -57190,7 +57217,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>-483a07cc:1998a954cca:581a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:585e</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c71</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -57227,7 +57254,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-96</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:585f</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c70</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -57289,7 +57316,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-91</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5860</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c6f</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -57407,7 +57434,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>2e919049:1998f9824b5:4ebe</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5861</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c6e</uniqueIdentifier>
                 <caption>Advanced</caption>
                 <name>advanced</name>
             </category>
@@ -57468,7 +57495,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-af</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5862</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c6d</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -57504,7 +57531,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:1990199b89a:33e5</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5863</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c6c</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -57566,7 +57593,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-aa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5864</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c6b</uniqueIdentifier>
                 <caption>Interface</caption>
                 <name>interface</name>
             </category>
@@ -57602,7 +57629,7 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
             <uniqueIdentifier>27ff0412:19901928c0d:-8c</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-47d88df0:19b4bdab063:5865</uniqueIdentifier>
+                <uniqueIdentifier>1115ef07:19b51331662:-1c6a</uniqueIdentifier>
                 <caption>Behavior</caption>
                 <name>behavior</name>
             </category>
@@ -58733,34 +58760,6 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
         <customFieldsOrderEntry>rootPathNodes</customFieldsOrderEntry>
         <customFieldsOrderEntry>selectedPathNode</customFieldsOrderEntry>
         <fieldsCustomization>
-            <uniqueIdentifier>-4674df6f:195fc93ba49:2a18</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <customFieldCaption></customFieldCaption>
-            <displayedAsSingletonList>false</displayedAsSingletonList>
-            <duplicateGenerated>false</duplicateGenerated>
-            <fieldName>selectedPathNode</fieldName>
-            <formControlCreationForced>false</formControlCreationForced>
-            <formControlEmbeddingForced>false</formControlEmbeddingForced>
-            <getOnlyForced>false</getOnlyForced>
-            <getterGenerated>false</getterGenerated>
-            <nullReplacement>
-                <uniqueIdentifier>17b217bd:1940269f569:6b43</uniqueIdentifier>
-            </nullReplacement>
-            <nullStatusFieldExported>false</nullStatusFieldExported>
-            <nullValueDistinctForced>false</nullValueDistinctForced>
-            <setterGenerated>false</setterGenerated>
-            <specificTypeCustomizations>
-                <applicationCustomization>
-                    <uniqueIdentifier>17b217bd:1940269f569:6b42</uniqueIdentifier>
-                    <specificProperties/>
-                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
-                </applicationCustomization>
-            </specificTypeCustomizations>
-            <transientForced>false</transientForced>
-            <valueValidityDetectionForced>false</valueValidityDetectionForced>
-        </fieldsCustomization>
-        <fieldsCustomization>
             <uniqueIdentifier>-4674df6f:195fc93ba49:2a32</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
@@ -58794,6 +58793,10 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
                         <hidden>false</hidden>
                         <minimalCharacterCount>0</minimalCharacterCount>
                     </columnCustomization>
+                    <embeddedDetailsAccessMode>
+                        <defaultDetailsAreaOccupationRatio>0.2</defaultDetailsAreaOccupationRatio>
+                        <detailsAreaPosition>BOTTOM</detailsAreaPosition>
+                    </embeddedDetailsAccessMode>
                     <editOptions>
                         <uniqueIdentifier>17b217bd:1940269f569:6c29</uniqueIdentifier>
                         <itemCreationEnabled>true</itemCreationEnabled>
@@ -58801,14 +58804,9 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
                         <itemMoveEnabled>true</itemMoveEnabled>
                     </editOptions>
                     <fieldColumnsAdded>false</fieldColumnsAdded>
-                    <fieldExcludedFromItemDetails>
-                        <uniqueIdentifier>17b217bd:1940289e55f:-7745</uniqueIdentifier>
-                        <regularExpression>true</regularExpression>
-                        <value>^(?!.*expression).*$</value>
-                    </fieldExcludedFromItemDetails>
                     <itemAutomaticPositioningManagementForced>false</itemAutomaticPositioningManagementForced>
                     <itemCreationMode>UNDEFINED</itemCreationMode>
-                    <itemDetailsViewDisabled>true</itemDetailsViewDisabled>
+                    <itemDetailsViewDisabled>false</itemDetailsViewDisabled>
                     <itemNullValueAllowed>false</itemNullValueAllowed>
                     <itemTypeColumnAdded>false</itemTypeColumnAdded>
                     <itemTypeName>com.otk.jesb.PathExplorer$PathNode</itemTypeName>
@@ -58830,6 +58828,34 @@ NOTE: the parameter ​​are accessed simply via their names.</onlineHelp>
                 </listCustomization>
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-4674df6f:195fc93ba49:2a18</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <customFieldCaption></customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>selectedPathNode</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>17b217bd:1940269f569:6b43</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>17b217bd:1940269f569:6b42</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>true</transientForced>
             <valueValidityDetectionForced>false</valueValidityDetectionForced>
         </fieldsCustomization>
         <fieldsCustomization>

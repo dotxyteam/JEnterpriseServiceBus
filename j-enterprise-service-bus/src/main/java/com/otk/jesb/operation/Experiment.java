@@ -18,7 +18,7 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 			@Override
 			public void run() {
 				try (Experiment experiment = new Experiment(new Evaluate.Builder(), new Solution())) {
-					JESB.GUI_INSTANCE.openObjectFrame(experiment);
+					JESB.UI.INSTANCE.openObjectFrame(experiment);
 				} catch (Exception e) {
 					throw new UnexpectedError(e);
 				}

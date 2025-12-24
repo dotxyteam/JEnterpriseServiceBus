@@ -52,19 +52,19 @@ public class InstanceBuilderTest {
 			activator.setOutputStructure(planOutputStructure);
 		}
 		((InstanceBuilder) ((ParameterInitializer) plan.getOutputBuilder()
-				.getRootInstantiationNode(JESB.GUI_INSTANCE.getSolutionInstance())).getParameterValue())
+				.getRootInstantiationNode(JESB.UI.INSTANCE.getSolutionInstance())).getParameterValue())
 						.getParameterInitializers()
 						.add(new ParameterInitializer(0, new InstantiationFunction("return " + step.getName() + ";")));
-		JESB.GUI_INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
+		JESB.UI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Plan.class, null))
 				.onFormVisibilityChange(plan, true);
-		JESB.GUI_INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Step.class, null))
+		JESB.UI.INSTANCE.getReflectionUI().getTypeInfo(new JavaTypeInfoSource(Step.class, null))
 				.onFormVisibilityChange(step, true);
-		JESB.GUI_INSTANCE.getReflectionUI()
+		JESB.UI.INSTANCE.getReflectionUI()
 				.setRenderingContextThreadLocal(ThreadLocal.withInitial(() -> new RenderingContext(null) {
 					@Override
-					protected Object findCurrentObjectLocally(ITypeInfo type) {
+					protected Object findObjectLocally(ITypeInfo type) {
 						if (type.getName().equals(Solution.class.getName())) {
-							return JESB.GUI_INSTANCE.getSolutionInstance();
+							return JESB.UI.INSTANCE.getSolutionInstance();
 						}
 						if (type.getName().equals(Plan.class.getName())) {
 							return plan;
@@ -79,19 +79,19 @@ public class InstanceBuilderTest {
 			@Override
 			public void run() {
 				Tree inputTree = new Tree();
-				JESB.GUI_INSTANCE.openObjectDialog(null, inputTree);
+				JESB.UI.INSTANCE.openObjectDialog(null, inputTree);
 				Tree.Builder builder = (Builder) step.getOperationBuilder();
-				JESB.GUI_INSTANCE.openObjectDialog(null, builder.instanceBuilder);
+				JESB.UI.INSTANCE.openObjectDialog(null, builder.instanceBuilder);
 				Object output;
-				try (Session session = Session.openDummySession(JESB.GUI_INSTANCE.getSolutionInstance())) {
-					Object input = plan.getActivator().getInputClass(JESB.GUI_INSTANCE.getSolutionInstance())
+				try (Session session = Session.openDummySession(JESB.UI.INSTANCE.getSolutionInstance())) {
+					Object input = plan.getActivator().getInputClass(JESB.UI.INSTANCE.getSolutionInstance())
 							.getConstructor(Tree.class).newInstance(inputTree);
 					output = plan.execute(input, Plan.ExecutionInspector.DEFAULT, new ExecutionContext(session, plan));
 				} catch (Throwable t) {
-					JESB.GUI_INSTANCE.handleException(null, t);
+					JESB.UI.INSTANCE.handleException(null, t);
 					return;
 				}
-				JESB.GUI_INSTANCE.openObjectDialog(null, output);
+				JESB.UI.INSTANCE.openObjectDialog(null, output);
 			}
 		});
 	}

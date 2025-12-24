@@ -424,7 +424,7 @@ public class Debugger extends Session {
 
 		public List<Variable> getVariables() {
 			return executionContext.getVariables().stream()
-					.filter(variable -> !variable.getName().equals(Plan.INPUT_VARIABLE_NAME)
+					.filter(variable -> !variable.getName().equals(plan.getInputVariableName())
 							&& (variable.getValue() != Variable.UNDEFINED_VALUE))
 					.map(variable -> new Variable.Proxy(variable)).collect(Collectors.toList());
 		}

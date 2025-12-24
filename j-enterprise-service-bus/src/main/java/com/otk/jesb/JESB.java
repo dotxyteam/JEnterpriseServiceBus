@@ -22,6 +22,8 @@ import com.otk.jesb.ui.GUI;
 import com.otk.jesb.ui.Preferences;
 import com.otk.jesb.util.DuplicatedInputStreamSource;
 
+import xy.reflect.ui.util.SystemProperties;
+
 /**
  * This is the main class of the application. The {@link #main(String[])} method
  * (run with the '--help' argument to get more details) allows to open the
@@ -44,7 +46,11 @@ public class JESB {
 	private static DuplicatedInputStreamSource standardInputSource = new DuplicatedInputStreamSource(System.in);
 	private static Runner runner;
 
-	public static GUI GUI_INSTANCE = new GUI();
+	static {
+		if (JESB.isDebugModeActive()) {
+			System.setProperty(SystemProperties.DEBUG, Boolean.TRUE.toString());
+		}
+	}
 
 	public static PrintStream getStandardOutput() {
 		return JESB.standardOutput;
@@ -186,7 +192,7 @@ public class JESB {
 			}
 		});
 		Solution solutionInstance = commandLine.hasOption(RUNNER_SWITCH_ARGUMENT) ? new Solution()
-				: JESB.GUI_INSTANCE.getSolutionInstance();
+				: JESB.UI.INSTANCE.getSolutionInstance();
 		if (fileOrFolder != null) {
 			if (fileOrFolder.isDirectory()) {
 				solutionInstance.loadFromDirectory(fileOrFolder);
@@ -211,10 +217,22 @@ public class JESB {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					GUI_INSTANCE.openObjectFrame(solutionInstance);
+					UI.INSTANCE.openObjectFrame(solutionInstance);
 				}
 			});
 		}
+	}
+
+	public static class UI extends GUI {
+		
+		public static UI INSTANCE = new UI();
+		static {
+			Preferences.INSTANCE.getTheme().activate();
+		}
+
+		private UI() {
+		}
+
 	}
 
 }
