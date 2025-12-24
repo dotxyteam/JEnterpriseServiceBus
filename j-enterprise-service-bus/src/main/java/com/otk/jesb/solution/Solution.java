@@ -70,7 +70,11 @@ public class Solution {
 			new WatchFileSystem(), this);
 	private List<JAR> requiredJARs = new ArrayList<JAR>();
 
-	private Runtime runtime = new Runtime();
+	private Runtime runtime = createRuntime();
+
+	protected Runtime createRuntime() {
+		return new Runtime();
+	}
 
 	public Runtime getRuntime() {
 		return runtime;

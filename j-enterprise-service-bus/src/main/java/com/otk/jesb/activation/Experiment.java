@@ -10,10 +10,10 @@ import com.otk.jesb.Session;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.activation.builtin.WatchFileSystem;
 import com.otk.jesb.AbstractExperiment;
+import com.otk.jesb.JESB;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Solution;
-import com.otk.jesb.ui.GUI;
 
 public class Experiment extends AbstractExperiment implements AutoCloseable {
 
@@ -22,7 +22,7 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 			@Override
 			public void run() {
 				try (Experiment experiment = new Experiment(new WatchFileSystem(), new Solution())) {
-					GUI.INSTANCE.openObjectFrame(experiment);
+					JESB.GUI_INSTANCE.openObjectFrame(experiment);
 				} catch (Exception e) {
 					throw new UnexpectedError(e);
 				}

@@ -73,8 +73,11 @@ public class FunctionEditorVariableTreeControl extends ListControl {
 	public static class PathImportTransferHandler extends TextTransferHandler {
 
 		private static final long serialVersionUID = 1L;
+		
+		private SwingRenderer swingRenderer;
 
-		public PathImportTransferHandler() {
+		public PathImportTransferHandler(SwingRenderer swingRenderer) {
+			this.swingRenderer = swingRenderer;
 		}
 
 		@Override
@@ -97,7 +100,7 @@ public class FunctionEditorVariableTreeControl extends ListControl {
 						if (component instanceof JTextComponent) {
 							JTextComponent textComponent = (JTextComponent) component;
 							Form functionEditorForm = SwingRendererUtils.findAncestorFormOfType(textComponent,
-									FunctionEditor.class.getName(), GUI.INSTANCE);
+									FunctionEditor.class.getName(), swingRenderer);
 							if (functionEditorForm != null) {
 								Point dropPoint = support.getDropLocation().getDropPoint();
 								int textInsertPosition = textComponent.viewToModel(dropPoint);

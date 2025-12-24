@@ -65,6 +65,7 @@ import com.otk.jesb.instantiation.RootInstanceBuilder;
 import com.otk.jesb.instantiation.RootInstanceBuilderFacade;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
+import com.otk.jesb.ui.GUI.JESBSubSwingCustomizer;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.Listener;
@@ -773,6 +774,10 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 			return support.isDataFlavorSupported(TransferablePath.DATA_FLAVOR);
 		}
 
+		private GUI getGUI() {
+			return ((JESBSubSwingCustomizer) swingRenderer).getGUI();
+		}
+
 		@Override
 		public boolean importData(TransferHandler.TransferSupport support) {
 			boolean accept = false;
@@ -796,13 +801,14 @@ public class MappingsControl extends JPanel implements IAdvancedFieldControl {
 										Facade initializerFacade = (Facade) initializerPosition.getItem();
 										RootInstanceBuilder rootInstanceBuilder = ((RootInstanceBuilderFacade) Facade
 												.getRoot(initializerFacade)).getUnderlying();
-										GUI.backupRootInstanceBuilderState(rootInstanceBuilder);
+										getGUI().backupRootInstanceBuilderState(rootInstanceBuilder);
 										PathNode pathNode = (PathNode) data;
 										pathNode = relativizePathNode(pathNode, initializerFacade);
 										try {
 											accept = map(pathNode, initializerPosition, initializerTreeControl);
 										} catch (CancellationException e) {
-											GUI.getRootInstanceBuilderStateRestorationJob(rootInstanceBuilder).run();
+											getGUI().getRootInstanceBuilderStateRestorationJob(rootInstanceBuilder)
+													.run();
 											initializerTreeControl.refreshUI(false);
 										}
 										if (accept) {

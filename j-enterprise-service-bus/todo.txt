@@ -28,6 +28,7 @@
 	maintaining at least the latest	stable version, in order to include bug fixes 
 	discovered during the feature addition process.
 - missing LoopCompositeStep documentation
+- move Runtime.getXstream() to a generic XStream agnostic Solution.getSerializer()
 - Runner plan executors and step crossings will remain and fill the memory
 - allow to use the JESB API to access the current execution context and perform some actions
 - add ExecutePlan.fork option ???

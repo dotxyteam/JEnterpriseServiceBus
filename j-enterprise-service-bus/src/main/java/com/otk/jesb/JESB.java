@@ -44,6 +44,8 @@ public class JESB {
 	private static DuplicatedInputStreamSource standardInputSource = new DuplicatedInputStreamSource(System.in);
 	private static Runner runner;
 
+	public static GUI GUI_INSTANCE = new GUI();
+
 	public static PrintStream getStandardOutput() {
 		return JESB.standardOutput;
 	}
@@ -184,7 +186,7 @@ public class JESB {
 			}
 		});
 		Solution solutionInstance = commandLine.hasOption(RUNNER_SWITCH_ARGUMENT) ? new Solution()
-				: GUI.SOLUTION_INSTANCE;
+				: JESB.GUI_INSTANCE.getSolutionInstance();
 		if (fileOrFolder != null) {
 			if (fileOrFolder.isDirectory()) {
 				solutionInstance.loadFromDirectory(fileOrFolder);
@@ -209,7 +211,7 @@ public class JESB {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					GUI.INSTANCE.openObjectFrame(solutionInstance);
+					GUI_INSTANCE.openObjectFrame(solutionInstance);
 				}
 			});
 		}

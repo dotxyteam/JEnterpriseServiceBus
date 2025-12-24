@@ -3,11 +3,11 @@ package com.otk.jesb.resource;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.AbstractExperiment;
+import com.otk.jesb.JESB;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.solution.Solution;
-import com.otk.jesb.ui.GUI;
 
 public class Experiment extends AbstractExperiment implements AutoCloseable {
 
@@ -16,7 +16,7 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 			@Override
 			public void run() {
 				try (Experiment experiment = new Experiment(new JDBCConnection(), new Solution())) {
-					GUI.INSTANCE.openObjectFrame(experiment);
+					JESB.GUI_INSTANCE.openObjectFrame(experiment);
 				} catch (Exception e) {
 					throw new UnexpectedError(e);
 				}

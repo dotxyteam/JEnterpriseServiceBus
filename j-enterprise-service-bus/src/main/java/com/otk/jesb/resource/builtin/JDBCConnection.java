@@ -8,13 +8,13 @@ import java.util.function.Function;
 import javax.swing.SwingUtilities;
 
 import com.otk.jesb.Variant;
+import com.otk.jesb.JESB;
 import com.otk.jesb.Session;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.solution.Solution;
-import com.otk.jesb.ui.GUI;
 import xy.reflect.ui.info.ResourcePath;
 
 public class JDBCConnection extends Resource {
@@ -26,7 +26,7 @@ public class JDBCConnection extends Resource {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				GUI.INSTANCE.openObjectFrame(new JDBCConnection("test"));
+				JESB.GUI_INSTANCE.openObjectFrame(new JDBCConnection("test"));
 			}
 		});
 	}

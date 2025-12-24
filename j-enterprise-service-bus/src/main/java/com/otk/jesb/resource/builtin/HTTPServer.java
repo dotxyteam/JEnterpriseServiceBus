@@ -14,12 +14,12 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import com.otk.jesb.Variant;
+import com.otk.jesb.JESB;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.solution.Solution;
-import com.otk.jesb.ui.GUI;
 import com.otk.jesb.util.MiscUtils;
 
 import xy.reflect.ui.info.ResourcePath;
@@ -30,7 +30,7 @@ public class HTTPServer extends Resource {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				GUI.INSTANCE.openObjectFrame(new HTTPServer("test"));
+				JESB.GUI_INSTANCE.openObjectFrame(new HTTPServer("test"));
 			}
 		});
 	}

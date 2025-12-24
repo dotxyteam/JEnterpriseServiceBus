@@ -23,6 +23,7 @@ import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.StepCrossing;
 import com.otk.jesb.solution.Transition;
+import com.otk.jesb.ui.GUI.JESBSubSwingCustomizer;
 import com.otk.jesb.ui.diagram.JConnection;
 import com.otk.jesb.ui.diagram.JDiagramListener;
 import com.otk.jesb.ui.diagram.JDiagramObject;
@@ -61,7 +62,7 @@ public class DebugPlanDiagram extends PlanDiagram {
 		if (result) {
 			if (isShowing()) {
 				PlanExecutor planExecutor = getPlanExecutor();
-				if (!GUI.isPlanExecutorScrollLocked()) {
+				if (!getGUI().isPlanExecutorScrollLocked()) {
 					StepCrossing currentStepCrossing = planExecutor.getCurrentStepCrossing();
 					if (currentStepCrossing != null) {
 						SwingUtilities.invokeLater(new Runnable() {
@@ -77,6 +78,10 @@ public class DebugPlanDiagram extends PlanDiagram {
 			}
 		}
 		return result;
+	}
+
+	private GUI getGUI() {
+		return ((JESBSubSwingCustomizer) swingRenderer).getGUI();
 	}
 
 	protected ListControl getStepCrossingsControl() {

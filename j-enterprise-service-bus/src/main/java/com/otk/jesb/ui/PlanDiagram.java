@@ -46,6 +46,7 @@ import com.otk.jesb.solution.LoopCompositeStep;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.solution.Transition;
+import com.otk.jesb.ui.GUI.JESBSubSwingCustomizer;
 import com.otk.jesb.ui.diagram.DragIntent;
 import com.otk.jesb.ui.diagram.JConnection;
 import com.otk.jesb.ui.diagram.JDiagram;
@@ -360,7 +361,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			@Override
 			public List<JDiagramActionCategory> getActionCategories() {
 				List<String> operationCategoryNames = new ArrayList<String>();
-				for (OperationMetadata<?> metadata : MiscUtils.getAllOperationMetadatas(GUI.SOLUTION_INSTANCE)) {
+				for (OperationMetadata<?> metadata : MiscUtils
+						.getAllOperationMetadatas(getGUI().getSolutionInstance())) {
 					if (!operationCategoryNames.contains(metadata.getCategoryName())) {
 						operationCategoryNames.add(metadata.getCategoryName());
 					}
@@ -378,7 +380,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 						public List<JDiagramAction> getActions() {
 							List<JDiagramAction> result = new ArrayList<JDiagramAction>();
 							for (OperationMetadata<?> metadata : MiscUtils
-									.getAllOperationMetadatas(GUI.SOLUTION_INSTANCE)) {
+									.getAllOperationMetadatas(getGUI().getSolutionInstance())) {
 								if (name.equals(metadata.getCategoryName())) {
 									result.add(createStepInsertionDiagramAction(new Supplier<Step>() {
 										@Override
@@ -718,9 +720,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			public void actionPerformed(ActionEvent event) {
 				Step currentStep = (Step) getSelection().iterator().next().getValue();
 				OperationBuilder<?> operationBuilder = MiscUtils.copy(currentStep.getOperationBuilder(),
-						GUI.SOLUTION_INSTANCE.getRuntime().getXstream());
-				try (Experiment experiment = new Experiment(operationBuilder, GUI.SOLUTION_INSTANCE)) {
-					GUI.INSTANCE.openObjectDialog(PlanDiagram.this, experiment, null, null, false);
+						getGUI().getSolutionInstance().getRuntime().getXstream());
+				try (Experiment experiment = new Experiment(operationBuilder, getGUI().getSolutionInstance())) {
+					getGUI().openObjectDialog(PlanDiagram.this, experiment, null, null, false);
 				} catch (Exception e) {
 					throw new UnexpectedError(e);
 				}
@@ -757,9 +759,13 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		return true;
 	}
 
+	private GUI getGUI() {
+		return ((JESBSubSwingCustomizer) swingRenderer).getGUI();
+	}
+
 	protected void refreshElementObjects() {
 		Plan plan = getPlan();
-		setDragIntent(GUI.getDiagramDragIntentByPlan().getOrDefault(plan, DragIntent.MOVE));
+		setDragIntent(getGUI().getDiagramDragIntentByPlan().getOrDefault(plan, DragIntent.MOVE));
 		Set<JDiagramObject> selection = getSelection();
 		List<Object> selectedStepAndTransitions = selection.stream().map(selectedObject -> selectedObject.getValue())
 				.collect(Collectors.toList());
@@ -784,7 +790,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			});
 			for (Step step : sortedSteps) {
 				JNode node = addNode(step, step.getDiagramX(), step.getDiagramY());
-				ResourcePath iconImagePath = MiscUtils.getStepIconImagePath(step, GUI.SOLUTION_INSTANCE);
+				ResourcePath iconImagePath = MiscUtils.getStepIconImagePath(step, getGUI().getSolutionInstance());
 				if (iconImagePath != null) {
 					Image iconImage = adaptedIconImageByPath.get(iconImagePath);
 					if (iconImage == null) {
@@ -930,7 +936,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 	@Override
 	public void validateControlData(ValidationSession session) throws Exception {
 		Plan plan = getPlan();
-		plan.validate(false, GUI.SOLUTION_INSTANCE);
+		plan.validate(false, getGUI().getSolutionInstance());
 		List<Pair<String, PlanElement>> titleAndElementPairs = new ArrayList<Pair<String, PlanElement>>();
 		titleAndElementPairs.addAll(plan.getSteps().stream()
 				.map(step -> new Pair<String, PlanElement>("step '" + step.getName() + "'", step))
@@ -944,11 +950,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 				return;
 			}
 			try {
-				swingRenderer.getReflectionUI().getValidationErrorRegistry()
-						.attributing(toValidate.getSecond(),
-								(sessionArg) -> toValidate.getSecond().validate(true, GUI.SOLUTION_INSTANCE, plan),
-								validationError -> swingRenderer.getReflectionUI().logDebug(validationError))
-						.validate(session);
+				swingRenderer.getReflectionUI().getValidationErrorRegistry().attributing(toValidate.getSecond(),
+						(sessionArg) -> toValidate.getSecond().validate(true, getGUI().getSolutionInstance(), plan),
+						validationError -> swingRenderer.getReflectionUI().logDebug(validationError)).validate(session);
 			} catch (Exception e) {
 				validitionErrorMap.put(toValidate, e);
 			}
@@ -1120,7 +1124,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			Set<Object> selectedStepAndTransitions = planDiagram.getSelection().stream()
 					.map(selectedObject -> selectedObject.getValue()).collect(Collectors.toSet());
 			try {
-				MiscUtils.serialize(plan, current.planStore, GUI.SOLUTION_INSTANCE.getRuntime().getXstream());
+				MiscUtils.serialize(plan, current.planStore,
+						planDiagram.getGUI().getSolutionInstance().getRuntime().getXstream());
 			} catch (IOException e) {
 				throw new UnexpectedError(e);
 			}
@@ -1139,7 +1144,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			Plan planCopy;
 			try {
 				planCopy = (Plan) MiscUtils.deserialize(new ByteArrayInputStream(current.planStore.toByteArray()),
-						GUI.SOLUTION_INSTANCE.getRuntime().getXstream());
+						planDiagram.getGUI().getSolutionInstance().getRuntime().getXstream());
 			} catch (IOException e) {
 				throw new UnexpectedError(e);
 			}
