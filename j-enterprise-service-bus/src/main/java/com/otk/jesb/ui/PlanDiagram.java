@@ -183,7 +183,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 										.collect(Collectors.toSet()));
 						getPlan().setFocusedElementSelectedSurrounding(null);
 						updateFocusedPlanElementsControl();
-						SwingRendererUtils.updateWindowMenu(PlanDiagram.this, swingRenderer);
+						SwingRendererUtils.updateAncestorWindowMenu(PlanDiagram.this, swingRenderer);
 					} finally {
 						selectionListeningEnabled = true;
 					}
@@ -622,7 +622,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Clipboard.copy(PlanDiagram.this);
-				SwingRendererUtils.updateWindowMenu(PlanDiagram.this, swingRenderer);
+				SwingRendererUtils.updateAncestorWindowMenu(PlanDiagram.this, swingRenderer);
 			}
 		};
 	}
