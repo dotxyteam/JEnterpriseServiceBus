@@ -124,7 +124,12 @@ public class InstanceBuilder extends InitializationCase {
 		if (dynamicTypeNameAccessor != null) {
 			result = dynamicTypeNameAccessor.get(solutionInstance);
 		} else {
-			result = typeName;
+			if (RootInstanceBuilder.ROOT_INSTANCE_TYPE_NAME_REFERENCE.equals(typeName)) {
+				result = RootInstanceBuilder.resolveRootInstanceTypeNameReference(ancestorStructureInstanceBuilders,
+						solutionInstance);
+			} else {
+				result = typeName;
+			}
 		}
 		if (result == null) {
 			result = NullInstance.class.getName();

@@ -310,11 +310,15 @@ public class InstantiationUtils {
 						.getFromRootInstanceInitializerFacade(currentFacade);
 				if (rootInstanceBuilder != null) {
 					InstanceBuilder result = new InstanceBuilder();
-					result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
-					result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
-					if (!type.getName().equals(result.computeActualTypeName(
-							InstantiationUtils.getAncestorInstanceBuilders(currentFacade), solutionInstance))) {
-						throw new UnexpectedError();
+					if (RootInstanceBuilder.ROOT_INSTANCE_TYPE_NAME_REFERENCE_MODE_ACTIVE) {
+						result.setTypeName(RootInstanceBuilder.ROOT_INSTANCE_TYPE_NAME_REFERENCE);
+					} else {
+						result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
+						result.setDynamicTypeNameAccessor(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor());
+						if (!type.getName().equals(result.computeActualTypeName(
+								InstantiationUtils.getAncestorInstanceBuilders(currentFacade), solutionInstance))) {
+							throw new UnexpectedError();
+						}
 					}
 					return result;
 				} else {

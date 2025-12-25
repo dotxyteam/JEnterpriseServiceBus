@@ -34,6 +34,12 @@ import com.otk.jesb.util.UpToDate.VersionAccessException;
  */
 public class RootInstanceBuilder extends InstanceBuilder {
 
+	public static final String ROOT_INSTANCE_TYPE_NAME_REFERENCE = RootInstanceBuilder.class.getName()
+			+ ".ROOT_INSTANCE_TYPE_NAME_REFERENCE";
+	public static final boolean ROOT_INSTANCE_TYPE_NAME_REFERENCE_MODE_ACTIVE = System
+			.getProperty(RootInstanceBuilder.class.getName() + ".ROOT_INSTANCE_TYPE_NAME_REFERENCE_MODE_ACTIVE", "true")
+			.equals("true");
+
 	private String rootInstanceName;
 	private Accessor<Solution, String> rootInstanceDynamicTypeNameAccessor;
 	private String rootInstanceTypeName;
@@ -261,6 +267,22 @@ public class RootInstanceBuilder extends InstanceBuilder {
 				throw new PotentialError(e);
 			}
 		}
+	}
+
+	public static String resolveRootInstanceTypeNameReference(List<InstanceBuilder> ancestorStructureInstanceBuilders,
+			Solution solutionInstance) {
+		if (ancestorStructureInstanceBuilders.size() == 0) {
+			throw new UnexpectedError();
+		}
+		if (!(ancestorStructureInstanceBuilders.get(0) instanceof RootInstanceBuilder)) {
+			throw new UnexpectedError();
+		}
+		RootInstanceBuilder rootInstanceBuilder = (RootInstanceBuilder) ancestorStructureInstanceBuilders.get(0);
+		return ((rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor() != null)
+				? new InstanceBuilder(rootInstanceBuilder.getRootInstanceDynamicTypeNameAccessor())
+				: new InstanceBuilder(rootInstanceBuilder.getRootInstanceTypeName())).computeActualTypeName(
+						ancestorStructureInstanceBuilders.subList(1, ancestorStructureInstanceBuilders.size()),
+						solutionInstance);
 	}
 
 }
