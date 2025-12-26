@@ -117,7 +117,6 @@ import xy.reflect.ui.control.swing.MethodAction;
 import xy.reflect.ui.control.swing.NullableControl;
 import xy.reflect.ui.control.swing.TextControl;
 import xy.reflect.ui.control.swing.builder.AbstractEditorBuilder;
-import xy.reflect.ui.control.swing.builder.AbstractEditorFormBuilder;
 import xy.reflect.ui.control.swing.customizer.CustomizationController;
 import xy.reflect.ui.control.swing.customizer.CustomizationToolsUI;
 import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder;
@@ -627,7 +626,7 @@ public class GUI extends MultiSwingCustomizer {
 									EncapsulatedObjectFactory factory = ((EncapsulatedObjectFactory.TypeInfo) precomputedType)
 											.getFactory();
 									if (factory instanceof AbstractEditorBuilder.EditorEncapsulation) {
-										AbstractEditorFormBuilder builder = ((AbstractEditorFormBuilder.EditorEncapsulation) factory)
+										AbstractEditorBuilder builder = ((AbstractEditorBuilder.EditorEncapsulation) factory)
 												.getBuilder();
 										if (builder.getClass().getEnclosingClass() == ListControl.class) {
 											return true;
