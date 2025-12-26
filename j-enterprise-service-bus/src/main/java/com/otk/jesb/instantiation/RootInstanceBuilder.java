@@ -36,8 +36,8 @@ public class RootInstanceBuilder extends InstanceBuilder {
 
 	public static final String ROOT_INSTANCE_TYPE_NAME_REFERENCE = RootInstanceBuilder.class.getName()
 			+ ".ROOT_INSTANCE_TYPE_NAME_REFERENCE";
-	public static final boolean ROOT_INSTANCE_TYPE_NAME_REFERENCE_MODE_ACTIVE = System
-			.getProperty(RootInstanceBuilder.class.getName() + ".ROOT_INSTANCE_TYPE_NAME_REFERENCE_MODE_ACTIVE", "true")
+	public static final boolean ROOT_INSTANCE_TYPE_NAME_REFERENCE_MODE_PREFFERED = System
+			.getProperty(RootInstanceBuilder.class.getName() + ".ROOT_INSTANCE_TYPE_NAME_REFERENCE_MODE_PREFFERED", "true")
 			.equals("true");
 
 	private String rootInstanceName;

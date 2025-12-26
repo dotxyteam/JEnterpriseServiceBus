@@ -310,7 +310,7 @@ public class InstantiationUtils {
 						.getFromRootInstanceInitializerFacade(currentFacade);
 				if (rootInstanceBuilder != null) {
 					InstanceBuilder result = new InstanceBuilder();
-					if (RootInstanceBuilder.ROOT_INSTANCE_TYPE_NAME_REFERENCE_MODE_ACTIVE) {
+					if (RootInstanceBuilder.ROOT_INSTANCE_TYPE_NAME_REFERENCE_MODE_PREFFERED) {
 						result.setTypeName(RootInstanceBuilder.ROOT_INSTANCE_TYPE_NAME_REFERENCE);
 					} else {
 						result.setTypeName(rootInstanceBuilder.getRootInstanceTypeName());
