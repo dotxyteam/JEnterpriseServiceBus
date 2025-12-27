@@ -567,7 +567,9 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		JPopupMenu result = super.createContextMenu(mouseEvent);
 		Component dragIntentControl;
 		{
-			Form tmpPlanEditor = swingRenderer.createForm(getPlan());
+			Form tmpPlanEditor = ReflectionUIUtils.withRenderingContext(swingRenderer.getReflectionUI(),
+					SwingRendererUtils.findParentForm(this, swingRenderer).getRenderingContext(),
+					() -> swingRenderer.createForm(getPlan()));
 			dragIntentControl = SwingRendererUtils
 					.findDescendantFieldControlPlaceHolder(tmpPlanEditor, "diagramDragIntent", swingRenderer)
 					.getFieldControl();

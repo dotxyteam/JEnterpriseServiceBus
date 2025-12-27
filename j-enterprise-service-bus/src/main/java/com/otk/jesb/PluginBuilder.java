@@ -185,7 +185,7 @@ public class PluginBuilder {
 		}
 	};
 	private static final GUI UI_UTIL = new GUI();
-	
+
 	private Solution solutionInstance;
 
 	private String packageName = "com.example";
@@ -251,9 +251,6 @@ public class PluginBuilder {
 		File resourceDirectroy = getResourceDirectory(outputDirectory);
 		MiscUtils.createDirectory(resourceDirectroy, true);
 		generateResources(resourceDirectroy);
-		File metaInformationDirectroy = getMetaInformationDirectory(outputDirectory);
-		MiscUtils.createDirectory(metaInformationDirectroy, true);
-		generateMetaInformation(metaInformationDirectroy);
 		generateProjectDescriptor(outputDirectory);
 	}
 
@@ -274,11 +271,7 @@ public class PluginBuilder {
 			throws CompilationError, FileNotFoundException, IOException {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		classes.addAll(compile(getSourceDirectory(projectDirectory)));
-		Manifest manifest = new Manifest();
-		try (FileInputStream in = new FileInputStream(
-				new File(getMetaInformationDirectory(projectDirectory), "MANIFEST.MF"))) {
-			manifest.read(in);
-		}
+		Manifest manifest = generateManifest();
 		try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(jarFile), manifest)) {
 			for (Class<?> clazz : classes) {
 				String entryName = clazz.getName().replace(".", "/") + ".class";
@@ -353,10 +346,6 @@ public class PluginBuilder {
 		return new File(projectDirectory, "src/main/java");
 	}
 
-	private File getMetaInformationDirectory(File projectDirectory) {
-		return new File(projectDirectory, "META-INF");
-	}
-
 	private void generateSources(File sourceDirectroy) {
 		for (OperationDescriptor operation : operations) {
 			operation.generateJavaSourceCode(sourceDirectroy, packageName, this);
@@ -381,7 +370,7 @@ public class PluginBuilder {
 		}
 	}
 
-	private void generateMetaInformation(File metaInformationDirectory) {
+	private Manifest generateManifest() {
 		Manifest manifest = new Manifest();
 		manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 		manifest.getMainAttributes().put(JAR.PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY,
@@ -393,11 +382,7 @@ public class PluginBuilder {
 		manifest.getMainAttributes().put(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY,
 				resources.stream().map(resource -> packageName + "." + resource.getResourceTypeName() + "$Metadata")
 						.collect(Collectors.joining(",")));
-		try (FileOutputStream out = new FileOutputStream(new File(metaInformationDirectory, "MANIFEST.MF"))) {
-			manifest.write(out);
-		} catch (IOException e) {
-			throw new UnexpectedError(e);
-		}
+		return manifest;
 	}
 
 	private void generateProjectDescriptor(File projectDirectory) {
@@ -460,7 +445,18 @@ public class PluginBuilder {
 			stringBuilder.append("				<version>2.4</version>\n");
 			stringBuilder.append("				<configuration>\n");
 			stringBuilder.append("					<archive>\n");
-			stringBuilder.append("						<manifestFile>META-INF/MANIFEST.MF</manifestFile>\n");
+			stringBuilder.append("						<manifestEntries>\n");
+			Manifest manifest = generateManifest();
+			stringBuilder.append("							<Operation-Metadata-Classes>"
+					+ manifest.getMainAttributes().get(JAR.PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY)
+					+ "</Operation-Metadata-Classes>\n");
+			stringBuilder.append("							<Activator-Metadata-Classes>"
+					+ manifest.getMainAttributes().get(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY)
+					+ "</Activator-Metadata-Classes>\n");
+			stringBuilder.append("							<Resource-Metadata-Classes>"
+					+ manifest.getMainAttributes().get(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY)
+					+ "</Resource-Metadata-Classes>\n");
+			stringBuilder.append("						</manifestEntries>\n");
 			stringBuilder.append("					</archive>\n");
 			stringBuilder.append("				</configuration>\n");
 			stringBuilder.append("			</plugin>\n");

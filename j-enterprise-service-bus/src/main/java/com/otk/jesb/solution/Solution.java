@@ -222,6 +222,8 @@ public class Solution {
 					Asset asset = (Asset) MiscUtils.deserialize(fileInputStream, getRuntime().getXstream());
 					return asset;
 				}
+			} catch (Exception e) {
+				throw new IOException("Failed to load '" + fileOrDirectoryPath + "'", e);
 			}
 		}
 	}
@@ -473,7 +475,7 @@ public class Solution {
 		}
 
 		public ClassLoader getJESBResourceLoader() {
-			return inMemoryCompiler.getFirstClassLoader();
+			return inMemoryCompiler.getCompiledClassesLoader();
 		}
 
 		public Class<?> getJESBClass(String typeName) throws PotentialError {

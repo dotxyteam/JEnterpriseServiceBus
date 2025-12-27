@@ -47,7 +47,6 @@ import com.otk.jesb.activation.ActivationHandler;
 import com.otk.jesb.activation.Activator;
 import com.otk.jesb.activation.ActivatorMetadata;
 import com.otk.jesb.activation.ActivatorStructure;
-import com.otk.jesb.activation.builtin.HTTPRequestReceiver;
 import com.otk.jesb.Debugger.PlanActivation;
 import com.otk.jesb.Debugger.PlanExecutor;
 import com.otk.jesb.EnvironmentSettings.EnvironmentVariable;
@@ -80,7 +79,6 @@ import com.otk.jesb.operation.OperationStructureBuilder;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.resource.ResourceStructure;
-import com.otk.jesb.resource.builtin.HTTPServer;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.CompositeStep;
 import com.otk.jesb.solution.Folder;
@@ -373,7 +371,10 @@ public class GUI extends MultiSwingCustomizer {
 			if (!(object instanceof Solution)) {
 				if (renderingContext
 						.getObject(reflectionUI.getTypeInfo(new JavaTypeInfoSource(Solution.class, null))) == null) {
-					throw new UnexpectedError();
+					if (renderingContext
+							.getObject(reflectionUI.getTypeInfo(new JavaTypeInfoSource(ExceptionTree.class, null))) == null) {
+						throw new UnexpectedError();
+					}
 				}
 			}
 		}
@@ -1132,14 +1133,6 @@ public class GUI extends MultiSwingCustomizer {
 		@Override
 		protected JESBValidationErrorRegistry createValidationErrorRegistry() {
 			return new JESBValidationErrorRegistry();
-		}
-
-		private Asset getCurrentAsset(ValidationSession session) {
-			return ReflectionUIUtils.findRenderingContextualValue(this, Asset.class);
-		}
-
-		private Activator getCurrentActivator(ValidationSession session) {
-			return ReflectionUIUtils.findRenderingContextualValue(this, Activator.class);
 		}
 
 		private Plan getCurrentPlan(ValidationSession session) {
@@ -2708,12 +2701,6 @@ public class GUI extends MultiSwingCustomizer {
 						return true;
 					}
 				}
-				if ((objectClass != null) && HTTPServer.RequestHandler.class.isAssignableFrom(objectClass)) {
-					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-							Arrays.asList(HTTPServer.class.getName(), Solution.class.getName())))) {
-						return true;
-					}
-				}
 				if ((objectClass != null) && ResourceStructure.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
 							Arrays.asList(boolean.class.getName(), Solution.class.getName())))) {
@@ -2834,24 +2821,6 @@ public class GUI extends MultiSwingCustomizer {
 					}
 					Plan plan = getCurrentPlan(session);
 					((ActivatorStructure) object).validate(false, GUI.this.getSolutionInstance(), plan);
-				} else if ((objectClass != null) && HTTPServer.RequestHandler.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
-					}
-					HTTPServer server = null;
-					{
-						Asset currentAsset = getCurrentAsset(session);
-						if (currentAsset instanceof HTTPServer) {
-							server = (HTTPServer) currentAsset;
-						} else {
-							Activator activator = getCurrentActivator(session);
-							if (activator instanceof HTTPRequestReceiver) {
-								server = ((HTTPRequestReceiver) activator).getServerReference()
-										.resolve(GUI.this.getSolutionInstance());
-							}
-						}
-					}
-					((HTTPServer.RequestHandler) object).validate(server, GUI.this.getSolutionInstance());
 				} else if ((objectClass != null) && ResourceStructure.class.isAssignableFrom(objectClass)) {
 					if (JESB.isDebugModeActive()) {
 						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
@@ -3028,22 +2997,6 @@ public class GUI extends MultiSwingCustomizer {
 						throw new UnexpectedError();
 					}
 					return Arrays.asList(object, plan);
-				} else if (object instanceof HTTPServer.RequestHandler) {
-					Asset asset = getCurrentAsset(session);
-					HTTPServer server = null;
-					if (asset instanceof HTTPServer) {
-						server = (HTTPServer) asset;
-					} else {
-						Activator activator = getCurrentActivator(session);
-						if (activator instanceof HTTPRequestReceiver) {
-							server = ((HTTPRequestReceiver) activator).getServerReference()
-									.resolve(GUI.this.getSolutionInstance());
-						}
-					}
-					if (server == null) {
-						throw new UnexpectedError();
-					}
-					return Arrays.asList(object, server);
 				} else {
 					return super.getValidationErrorMapKey(object, session);
 				}

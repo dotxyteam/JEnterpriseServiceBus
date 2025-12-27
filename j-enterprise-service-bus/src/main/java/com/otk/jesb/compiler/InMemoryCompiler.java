@@ -35,13 +35,12 @@ import javax.tools.JavaFileObject.Kind;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
 
-import org.apache.commons.io.input.ReaderInputStream;
-
 import com.otk.jesb.Log;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.meta.CompositeClassLoader;
 import com.otk.jesb.meta.DelegatingClassLoader;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.ReaderInputStream;
 
 public class InMemoryCompiler {
 
@@ -60,6 +59,9 @@ public class InMemoryCompiler {
 	private final DelegatingClassLoader firstClassLoaderDelegator = new DelegatingClassLoader(
 			new URLClassLoader(new URL[0]));
 	private final CompiledClassesLoader compiledClassesLoader = new CompiledClassesLoader();
+	{
+		compiledClassesLoader.setFirstClassLoader(firstClassLoaderDelegator);		
+	}
 	private final Map<String, Class<?>> classCache = new HashMap<String, Class<?>>();
 	private final Object compilationMutex = new Object();
 	private final Object classDataMutex = new Object();
@@ -462,9 +464,7 @@ public class InMemoryCompiler {
 	}
 
 	private class CompiledClassesLoader extends CompositeClassLoader {
-		public CompiledClassesLoader() {
-			setFirstClassLoader(firstClassLoaderDelegator);
-		}
+		
 
 		@SuppressWarnings("rawtypes")
 		@Override
