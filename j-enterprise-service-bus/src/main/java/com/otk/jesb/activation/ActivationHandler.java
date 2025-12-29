@@ -18,6 +18,7 @@ public interface ActivationHandler {
 	 * 
 	 * @param planInput The plan input data or null.
 	 * @return The plan output data or null.
+	 * @throws ExecutionError If an error occurs.
 	 */
 	Object trigger(Object planInput) throws ExecutionError;
 

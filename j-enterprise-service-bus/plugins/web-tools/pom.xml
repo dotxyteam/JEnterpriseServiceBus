@@ -162,9 +162,7 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<Resource-Metadata-Classes>com.otk.jesb.resource.builtin.HTTPServer$Metadata,com.otk.jesb.resource.builtin.OpenAPIDescription$Metadata,com.otk.jesb.resource.builtin.WSDL$Metadata,com.otk.jesb.resource.builtin.XSD$Metadata</Resource-Metadata-Classes>
-							<Activator-Metadata-Classes>com.otk.jesb.activation.builtin.ReceiveRESTRequest$Metadata,com.otk.jesb.activation.builtin.ReceiveSOAPRequest$Metadata</Activator-Metadata-Classes>
-							<Operation-Metadata-Classes>com.otk.jesb.operation.builtin.CallRESTAPI$Metadata,com.otk.jesb.operation.builtin.CallSOAPWebService$Metadata,com.otk.jesb.operation.builtin.GenerateXML$Metadata,com.otk.jesb.operation.builtin.ParseXML$Metadata</Operation-Metadata-Classes>
+							<Plugin-Info-Class>com.otk.jesb.WebToolsPluginInfo</Plugin-Info-Class>
 						</manifestEntries>
 					</archive>
 				</configuration>
@@ -174,9 +172,7 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<Resource-Metadata-Classes>com.otk.jesb.resource.builtin.HTTPServer$Metadata,com.otk.jesb.resource.builtin.OpenAPIDescription$Metadata,com.otk.jesb.resource.builtin.WSDL$Metadata,com.otk.jesb.resource.builtin.XSD$Metadata</Resource-Metadata-Classes>
-							<Activator-Metadata-Classes>com.otk.jesb.activation.builtin.ReceiveRESTRequest$Metadata,com.otk.jesb.activation.builtin.ReceiveSOAPRequest$Metadata</Activator-Metadata-Classes>
-							<Operation-Metadata-Classes>com.otk.jesb.operation.builtin.CallRESTAPI$Metadata,com.otk.jesb.operation.builtin.CallSOAPWebService$Metadata,com.otk.jesb.operation.builtin.GenerateXML$Metadata,com.otk.jesb.operation.builtin.ParseXML$Metadata</Operation-Metadata-Classes>
+							<Plugin-Info-Class>com.otk.jesb.WebToolsPluginInfo</Plugin-Info-Class>
 						</manifestEntries>
 					</archive>
 					<descriptorRefs>

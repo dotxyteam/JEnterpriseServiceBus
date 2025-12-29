@@ -32,7 +32,7 @@ public class GUITests {
 
 	public static void setupTestEnvironment() {
 		checkSystemProperty(JESB.DEBUG_PROPERTY_KEY, null);
-		checkSystemProperty(GUI.GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORY_PROPERTY_KEY, null);
+		checkSystemProperty(GUI.GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORIES_PROPERTY_KEY, null);
 		Locale.setDefault(Locale.US);
 	}
 

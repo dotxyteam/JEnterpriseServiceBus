@@ -4,21 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.jar.Attributes;
-
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.util.MiscUtils;
 
 public class JAR extends Asset {
 
-	public static final Attributes.Name PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY = new Attributes.Name(
-			"Operation-Metadata-Classes");
-	public static final Attributes.Name PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY = new Attributes.Name(
-			"Activator-Metadata-Classes");
-	public static final Attributes.Name PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY = new Attributes.Name(
-			"Resource-Metadata-Classes");
-
-	
 	private File temporaryFile;
 
 	public JAR(File file) throws IOException {

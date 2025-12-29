@@ -48,11 +48,17 @@ import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor;
 import com.otk.jesb.resource.builtin.OpenAPIDescription.APIOperationDescriptor.OperationInput;
 import com.otk.jesb.solution.Plan;
 import com.otk.jesb.solution.Plan.ExecutionError;
+import com.otk.jesb.ui.GUI.JESBSubCustomizedUI;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import xy.reflect.ui.info.ResourcePath;
+import xy.reflect.ui.info.ValidationSession;
+import xy.reflect.ui.info.type.ITypeInfo;
+import xy.reflect.ui.info.type.factory.IInfoProxyFactory;
+import xy.reflect.ui.info.type.factory.InfoProxyFactory;
+import xy.reflect.ui.util.ReflectionUIUtils;
 
 public class ReceiveRESTRequest extends HTTPRequestReceiver {
 
@@ -242,6 +248,43 @@ public class ReceiveRESTRequest extends HTTPRequestReceiver {
 		} catch (IllegalStateException e) {
 			throw new ValidationError(e.getMessage(), e);
 		}
+	}
+
+	public static IInfoProxyFactory getUICustomizationsFactory(JESBSubCustomizedUI customizedUI) {
+		return new InfoProxyFactory() {
+
+			@Override
+			public String getIdentifier() {
+				return "MethodBasedSubInfoCustomizationsFactory [of=" + ReceiveRESTRequest.class.getName() + "]";
+			}
+
+			@Override
+			protected void validate(ITypeInfo type, Object object, ValidationSession session) throws Exception {
+				if (type.getName().equals(RESTRequestHandler.class.getName())) {
+					Solution solutionInstance = ReflectionUIUtils.findRenderingContextualValue(customizedUI,
+							Solution.class);
+					if (solutionInstance == null) {
+						throw new UnexpectedError();
+					}
+					HTTPServer server = ReflectionUIUtils.findRenderingContextualValue(customizedUI, HTTPServer.class);
+					if (server == null) {
+						HTTPRequestReceiver httpRequestReceiver = ReflectionUIUtils
+								.findRenderingContextualValue(customizedUI, HTTPRequestReceiver.class);
+						if (httpRequestReceiver == null) {
+							throw new UnexpectedError();
+						}
+						server = httpRequestReceiver.getServerReference().resolve(solutionInstance);
+						if (server == null) {
+							throw new UnexpectedError();
+						}
+					}
+					((HTTPServer.RequestHandler) object).validate(server, solutionInstance);
+				} else {
+					super.validate(type, object, session);
+				}
+			}
+
+		};
 	}
 
 	public static class RESTRequestHandler extends RequestHandler {

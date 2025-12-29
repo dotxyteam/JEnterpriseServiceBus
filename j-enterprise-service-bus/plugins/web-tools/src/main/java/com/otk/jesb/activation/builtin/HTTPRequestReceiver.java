@@ -75,7 +75,11 @@ public abstract class HTTPRequestReceiver extends Activator {
 	public void addServicePathOption(String servicePath, Solution solutionInstance) throws Exception {
 		HTTPServer server = expectServer(solutionInstance);
 		RequestHandler newRequestHandler = createRequestHandler(servicePath, solutionInstance);
-		newRequestHandler.validate(server, solutionInstance);
+		try {
+			newRequestHandler.validate(server, solutionInstance);
+		} catch (ValidationError e) {
+			throw new IllegalStateException("Failed to validate the new request handler", e);
+		}
 		server.getRequestHandlers().add(newRequestHandler);
 		setServicePath(servicePath, solutionInstance);
 	}

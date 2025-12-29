@@ -973,21 +973,27 @@ public class MiscUtils {
 	public static List<OperationMetadata<?>> getAllOperationMetadatas(Solution solutionInstance) {
 		List<OperationMetadata<?>> result = new ArrayList<OperationMetadata<?>>();
 		result.addAll(MiscUtils.BUILTIN_OPERATION_METADATAS);
-		result.addAll(solutionInstance.getRuntime().getPluginOperationMetadatas());
+		result.addAll(solutionInstance.getRuntime().getPluginInfos().stream()
+				.map(pluginInfo -> pluginInfo.getOperationMetadatas()).flatMap(List::stream)
+				.collect(Collectors.toList()));
 		return result;
 	}
 
 	public static List<ActivatorMetadata> getAllActivatorMetadatas(Solution solutionInstance) {
 		List<ActivatorMetadata> result = new ArrayList<ActivatorMetadata>();
 		result.addAll(MiscUtils.BUILTIN_ACTIVATOR__METADATAS);
-		result.addAll(solutionInstance.getRuntime().getPluginActivatorMetadatas());
+		result.addAll(solutionInstance.getRuntime().getPluginInfos().stream()
+				.map(pluginInfo -> pluginInfo.getActivatorMetadatas()).flatMap(List::stream)
+				.collect(Collectors.toList()));
 		return result;
 	}
 
 	public static List<ResourceMetadata> getAllResourceMetadatas(Solution solutionInstance) {
 		List<ResourceMetadata> result = new ArrayList<ResourceMetadata>();
 		result.addAll(MiscUtils.BUILTIN_RESOURCE_METADATAS);
-		result.addAll(solutionInstance.getRuntime().getPluginResourceMetadatas());
+		result.addAll(solutionInstance.getRuntime().getPluginInfos().stream()
+				.map(pluginInfo -> pluginInfo.getResourceMetadatas()).flatMap(List::stream)
+				.collect(Collectors.toList()));
 		return result;
 	}
 

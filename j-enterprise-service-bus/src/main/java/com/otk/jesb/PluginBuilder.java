@@ -57,6 +57,7 @@ import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
 import com.otk.jesb.ui.GUI;
+import com.otk.jesb.ui.GUI.JESBSubCustomizedUI;
 import com.otk.jesb.ui.GUI.VariantCustomizations;
 import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.CodeBuilder;
@@ -85,6 +86,8 @@ import xy.reflect.ui.info.ResourcePath;
 import xy.reflect.ui.info.custom.InfoCustomizations;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.enumeration.IEnumerationTypeInfo;
+import xy.reflect.ui.info.type.factory.IInfoProxyFactory;
+import xy.reflect.ui.info.type.factory.InfoCustomizationsFactory;
 import xy.reflect.ui.info.type.source.JavaTypeInfoSource;
 import xy.reflect.ui.util.ClassUtils;
 import xy.reflect.ui.util.ReflectionUIUtils;
@@ -185,6 +188,7 @@ public class PluginBuilder {
 		}
 	};
 	private static final GUI UI_UTIL = new GUI();
+	private static final String INFO_CUSTOMIZATIONS_METHOD_NAME = "customizeUI";
 
 	private Solution solutionInstance;
 
@@ -356,6 +360,72 @@ public class PluginBuilder {
 		for (ResourceDescriptor resource : resources) {
 			resource.generateJavaSourceCode(sourceDirectroy, packageName, this);
 		}
+		generatePluginInfoClassSourceCode(sourceDirectroy);
+	}
+
+	private File generatePluginInfoClassSourceCode(File sourceDirectroy) {
+		String simpleClassName = "PluginInfo";
+		String className = packageName + "." + simpleClassName;
+		File javaFile = new File(sourceDirectroy, className.replace(".", "/") + ".java");
+		try {
+			if (!javaFile.getParentFile().exists()) {
+				MiscUtils.createDirectory(javaFile.getParentFile(), true);
+			}
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("package " + packageName + ";\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("import " + Arrays.class.getName() + ";\n");
+			stringBuilder.append("import " + List.class.getName() + ";\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("import " + com.otk.jesb.IPluginInfo.class.getName() + ";\n");
+			stringBuilder.append("import " + com.otk.jesb.activation.ActivatorMetadata.class.getName() + ";\n");
+			stringBuilder.append("import " + com.otk.jesb.operation.OperationMetadata.class.getName() + ";\n");
+			stringBuilder.append("import " + com.otk.jesb.resource.ResourceMetadata.class.getName() + ";\n");
+			stringBuilder.append("\n");
+			stringBuilder
+					.append("public class " + simpleClassName + " implements " + IPluginInfo.class.getName() + " {\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("	@Override\n");
+			stringBuilder
+					.append("	public List<" + OperationMetadata.class.getName() + "<?>> getOperationMetadatas() {\n");
+			stringBuilder.append("		return " + Arrays.class.getName() + ".asList(\n");
+			stringBuilder
+					.append(operations
+							.stream().map(operation -> "				new " + packageName + "."
+									+ operation.getOpertionTypeName() + ".Metadata()")
+							.collect(Collectors.joining(",\n")));
+			stringBuilder.append("		);\n");
+			stringBuilder.append("	}\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("	@Override\n");
+			stringBuilder
+					.append("	public List<" + ActivatorMetadata.class.getName() + "> getActivatorMetadatas() {\n");
+			stringBuilder.append("		return " + Arrays.class.getName() + ".asList(\n");
+			stringBuilder
+					.append(activators
+							.stream().map(activator -> "				new " + packageName + "."
+									+ activator.getActivatorTypeName() + ".Metadata()")
+							.collect(Collectors.joining(",\n")));
+			stringBuilder.append("		);\n");
+			stringBuilder.append("	}\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("	@Override\n");
+			stringBuilder.append("	public List<" + ResourceMetadata.class.getName() + "> getResourceMetadatas() {\n");
+			stringBuilder.append("		return " + Arrays.class.getName() + ".asList(\n");
+			stringBuilder
+					.append(activators
+							.stream().map(activator -> "				new " + packageName + "."
+									+ activator.getActivatorTypeName() + ".Metadata()")
+							.collect(Collectors.joining(",\n")));
+			stringBuilder.append("		);\n");
+			stringBuilder.append("	}\n");
+			stringBuilder.append("\n");
+			stringBuilder.append("}\n");
+			MiscUtils.write(javaFile, stringBuilder.toString(), false);
+		} catch (IOException e) {
+			throw new UnexpectedError(e);
+		}
+		return javaFile;
 	}
 
 	private void generateResources(File resourceDirectroy) {
@@ -373,15 +443,8 @@ public class PluginBuilder {
 	private Manifest generateManifest() {
 		Manifest manifest = new Manifest();
 		manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-		manifest.getMainAttributes().put(JAR.PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY,
-				operations.stream().map(operation -> packageName + "." + operation.getOpertionTypeName() + "$Metadata")
-						.collect(Collectors.joining(",")));
-		manifest.getMainAttributes().put(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY,
-				activators.stream().map(activator -> packageName + "." + activator.getActivatorTypeName() + "$Metadata")
-						.collect(Collectors.joining(",")));
-		manifest.getMainAttributes().put(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY,
-				resources.stream().map(resource -> packageName + "." + resource.getResourceTypeName() + "$Metadata")
-						.collect(Collectors.joining(",")));
+		manifest.getMainAttributes().put(com.otk.jesb.solution.Runtime.PLUGIN_INFO_CLASS_MANIFEST_KEY,
+				packageName + ".PluginInfo");
 		return manifest;
 	}
 
@@ -447,15 +510,10 @@ public class PluginBuilder {
 			stringBuilder.append("					<archive>\n");
 			stringBuilder.append("						<manifestEntries>\n");
 			Manifest manifest = generateManifest();
-			stringBuilder.append("							<Operation-Metadata-Classes>"
-					+ manifest.getMainAttributes().get(JAR.PLUGIN_OPERATION_METADATA_CLASSES_MANIFEST_KEY)
-					+ "</Operation-Metadata-Classes>\n");
-			stringBuilder.append("							<Activator-Metadata-Classes>"
-					+ manifest.getMainAttributes().get(JAR.PLUGIN_ACTIVATOR_METADATA_CLASSES_MANIFEST_KEY)
-					+ "</Activator-Metadata-Classes>\n");
-			stringBuilder.append("							<Resource-Metadata-Classes>"
-					+ manifest.getMainAttributes().get(JAR.PLUGIN_RESOURCE_METADATA_CLASSES_MANIFEST_KEY)
-					+ "</Resource-Metadata-Classes>\n");
+			stringBuilder.append("							<"
+					+ com.otk.jesb.solution.Runtime.PLUGIN_INFO_CLASS_MANIFEST_KEY.toString() + ">"
+					+ manifest.getMainAttributes().get(com.otk.jesb.solution.Runtime.PLUGIN_INFO_CLASS_MANIFEST_KEY)
+					+ "</" + com.otk.jesb.solution.Runtime.PLUGIN_INFO_CLASS_MANIFEST_KEY.toString() + ">\n");
 			stringBuilder.append("						</manifestEntries>\n");
 			stringBuilder.append("					</archive>\n");
 			stringBuilder.append("				</configuration>\n");
@@ -661,7 +719,7 @@ public class PluginBuilder {
 			CodeBuilder result = new CodeBuilder();
 			String displayedTypeName = getDisplayedTypeName(displayedTypeNamePrefix, pluginBuilder);
 			List<? extends UIElementBasedDescriptor> uiElements = getUIElements();
-			result.append("public static void " + GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "("
+			result.append("public static void " + INFO_CUSTOMIZATIONS_METHOD_NAME + "("
 					+ InfoCustomizations.class.getName() + " infoCustomizations) {\n");
 			result.indenting(() -> {
 				result.append("// " + displayedTypeName + " form customization\n");
@@ -690,13 +748,52 @@ public class PluginBuilder {
 					result.append("// hide UI customization method\n");
 					result.append(InfoCustomizations.class.getName() + ".getMethodCustomization(infoCustomizations, "
 							+ displayedTypeName + ".class.getName(), " + ReflectionUIUtils.class.getName()
-							+ ".buildMethodSignature(\"void\", \"" + GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "\", "
+							+ ".buildMethodSignature(\"void\", \"" + INFO_CUSTOMIZATIONS_METHOD_NAME + "\", "
 							+ Arrays.class.getName() + ".asList(" + InfoCustomizations.class.getName()
 							+ ".class.getName())))\n.setHidden(true);\n");
 				});
 				result.append("}\n");
 			});
 			result.append("}");
+			return result.toString();
+		}
+
+		protected String generateCustomUIFactoryMethodSourceCode(String displayedTypeNamePrefix,
+				PluginBuilder pluginBuilder) {
+			CodeBuilder result = new CodeBuilder();
+			result.append(generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix, pluginBuilder));
+			String displayedTypeName = getDisplayedTypeName(displayedTypeNamePrefix, pluginBuilder);
+			result.append("public static " + IInfoProxyFactory.class.getName() + " "
+					+ GUI.CUSTOM_UI_FACTORY_METHOD_NAME + "(" + JESBSubCustomizedUI.class.getName()
+					+ " customizedUI) {\n");
+			result.indenting(() -> {
+				result.append("return new " + InfoCustomizationsFactory.class.getName() + "(customizedUI) {\n");
+				result.indenting(() -> {
+					result.append(InfoCustomizations.class.getName() + " infoCustomizations = new "
+							+ InfoCustomizations.class.getName() + "();\n");
+					result.append("{\n");
+					result.indenting(() -> {
+						result.append(INFO_CUSTOMIZATIONS_METHOD_NAME + "(infoCustomizations);\n");
+					});
+					result.append("}\n");
+					result.append("@Override\n");
+					result.append("public String getIdentifier() {\n");
+					result.appendIndented("return \"MethodBasedSubInfoCustomizationsFactory [of=\" + "
+							+ displayedTypeName + ".class.getName() + \"]\";\n");
+					result.append("}\n");
+					result.append("@Override\n");
+					result.append("protected " + IInfoProxyFactory.class.getName()
+							+ " getInfoCustomizationsSetupFactory() {\n");
+					result.appendIndented(
+							"return " + IInfoProxyFactory.class.getName() + ".NULL_INFO_PROXY_FACTORY;\n");
+					result.append("}\n");
+					result.append("@Override\n");
+					result.append("public " + InfoCustomizations.class.getName() + " accessInfoCustomizations() {\n");
+					result.appendIndented("return infoCustomizations;\n");
+					result.append("}\n");
+				});
+				result.append("};\n");
+			});
 			return result.toString();
 		}
 
@@ -975,7 +1072,7 @@ public class PluginBuilder {
 					generateOperationBuilderValidationMethodSourceCode(operationClassName, options, pluginBuilder));
 			String packageName = MiscUtils.extractPackageNameFromClassName(operationClassName);
 			afterMethodDeclarations
-					.append(generateUICustomizationsMethodSourceCode((packageName != null) ? (packageName + ".") : "",
+					.append(generateCustomUIFactoryMethodSourceCode((packageName != null) ? (packageName + ".") : "",
 							pluginBuilder) + "\n");
 			return "static " + operationBuilderStructure.generateJavaTypeSourceCode(
 					getOperationBuilderClassSimpleName(), implemented, null, afterPackageDeclaration.toString(), null,
@@ -1840,6 +1937,12 @@ public class PluginBuilder {
 		private OperationDescriptor internalOperation = new OperationDescriptor() {
 
 			@Override
+			protected String generateCustomUIFactoryMethodSourceCode(String displayedTypeNamePrefix,
+					PluginBuilder pluginBuilder) {
+				return super.generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix, pluginBuilder);
+			}
+
+			@Override
 			protected String getOperationBuilderClassSimpleName() {
 				return "GroupBuilder";
 			}
@@ -1933,8 +2036,7 @@ public class PluginBuilder {
 			result.append(
 					getOperationBuilderClassElement(operationClassName, parameterName, parameterCaption, pluginBuilder)
 							.getFinalTypeNameAdaptedToSourceCode(operationClassName, pluginBuilder.solutionInstance)
-							+ "." + GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "(" + uiCustomizationsVariableName + ")"
-							+ ";\n");
+							+ "." + INFO_CUSTOMIZATIONS_METHOD_NAME + "(" + uiCustomizationsVariableName + ")" + ";\n");
 		}
 
 		@Override
@@ -2397,7 +2499,7 @@ public class PluginBuilder {
 			PlaceHolder importsPlaceHolder = getImportsPlaceHolder(resourceClassName, pluginBuilder);
 			afterPackageDeclaration.append(importsPlaceHolder.getReferenceString());
 			afterMethodDeclarations
-					.append(generateUICustomizationsMethodSourceCode((packageName != null) ? (packageName + ".") : "",
+					.append(generateCustomUIFactoryMethodSourceCode((packageName != null) ? (packageName + ".") : "",
 							pluginBuilder) + "\n");
 			afterMethodDeclarations.append("\n");
 			generateValidationMethodSourceCode(afterMethodDeclarations, resourceClassName, codeGenerationOptions,
@@ -2815,6 +2917,12 @@ public class PluginBuilder {
 		private ResourceDescriptor internalResource = new ResourceDescriptor() {
 
 			@Override
+			protected String generateCustomUIFactoryMethodSourceCode(String displayedTypeNamePrefix,
+					PluginBuilder pluginBuilder) {
+				return super.generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix, pluginBuilder);
+			}
+
+			@Override
 			protected String generateMetadataClassSourceCode(String resourceClassName, Map<Object, Object> options,
 					PluginBuilder pluginBuilder) {
 				return "";
@@ -2890,7 +2998,7 @@ public class PluginBuilder {
 					+ ".\nsetFormControlEmbeddingForced(true);\n");
 			result.append(getResourceClassElement(resourceClassName, propertyName, propertyCaption, pluginBuilder)
 					.getFinalTypeNameAdaptedToSourceCode(resourceClassName, pluginBuilder.solutionInstance) + "."
-					+ GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "(" + uiCustomizationsVariableName + ")" + ";\n");
+					+ INFO_CUSTOMIZATIONS_METHOD_NAME + "(" + uiCustomizationsVariableName + ")" + ";\n");
 		}
 
 		@Override
@@ -3080,7 +3188,7 @@ public class PluginBuilder {
 			generateTriggerMethodsSourceCode(afterMethodDeclarations, pluginBuilder);
 			afterMethodDeclarations.append("\n");
 			afterMethodDeclarations
-					.append(generateUICustomizationsMethodSourceCode((packageName != null) ? (packageName + ".") : "",
+					.append(generateCustomUIFactoryMethodSourceCode((packageName != null) ? (packageName + ".") : "",
 							pluginBuilder) + "\n");
 			afterMethodDeclarations.append("\n");
 			generateValidationMethodSourceCode(afterMethodDeclarations, activatorClassName, pluginBuilder);
@@ -3571,6 +3679,12 @@ public class PluginBuilder {
 		private ActivatorDescriptor internalActivator = new ActivatorDescriptor() {
 
 			@Override
+			protected String generateCustomUIFactoryMethodSourceCode(String displayedTypeNamePrefix,
+					PluginBuilder pluginBuilder) {
+				return super.generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix, pluginBuilder);
+			}
+
+			@Override
 			protected void generateTriggerMethodsSourceCode(CodeBuilder additionalMethodDeclarations,
 					PluginBuilder pluginBuilder) {
 			}
@@ -3672,7 +3786,7 @@ public class PluginBuilder {
 					+ ".setFormControlEmbeddingForced(true);\n");
 			result.append(getActivatorClassElement(activatorClassName, attributeName, attributeCaption, pluginBuilder)
 					.getFinalTypeNameAdaptedToSourceCode(activatorClassName, pluginBuilder.solutionInstance) + "."
-					+ GUI.UI_CUSTOMIZATIONS_METHOD_NAME + "(" + uiCustomizationsVariableName + ")" + ";\n");
+					+ PluginBuilder.INFO_CUSTOMIZATIONS_METHOD_NAME + "(" + uiCustomizationsVariableName + ")" + ";\n");
 		}
 
 		@Override

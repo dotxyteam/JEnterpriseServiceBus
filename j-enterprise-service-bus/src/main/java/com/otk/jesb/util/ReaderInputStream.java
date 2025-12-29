@@ -83,7 +83,7 @@ import java.util.Objects;
  * Instances of {@link ReaderInputStream} are not thread safe.
  * </p>
  *
- * @see org.apache.commons.io.output.WriterOutputStream
+ * See org.apache.commons.io.output.WriterOutputStream.
  *
  * @since 2.0
  */
