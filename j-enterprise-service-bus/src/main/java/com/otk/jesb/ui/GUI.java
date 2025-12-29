@@ -33,7 +33,6 @@ import com.otk.jesb.Debugger;
 import com.otk.jesb.Expression;
 import com.otk.jesb.FunctionEditor;
 import com.otk.jesb.IPluginInfo;
-import com.otk.jesb.JESB;
 import com.otk.jesb.Log;
 import com.otk.jesb.PathOptionsProvider;
 import com.otk.jesb.PluginBuilder;
@@ -1169,12 +1168,6 @@ public class GUI extends MultiSwingCustomizer {
 				return GUI.this.getSolutionInstance().getRuntime().getJESBClass(name);
 			} catch (PotentialError e) {
 				throw new ClassNotFoundException(name, e);
-			}
-		}
-
-		public void checkValidationErrorMapKeyIsCustomOrNot(Object object, ValidationSession session, boolean custom) {
-			if (custom != (object != getValidationErrorRegistry().getValidationErrorMapKey(object, session))) {
-				throw new UnexpectedError();
 			}
 		}
 
@@ -2799,9 +2792,6 @@ public class GUI extends MultiSwingCustomizer {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
-					}
 					if (!(object instanceof Folder)) {
 						if (Log.isVerbose()) {
 							Log.get().information("Validating '" + ((Asset) object).getFullName() + "'...");
@@ -2809,38 +2799,23 @@ public class GUI extends MultiSwingCustomizer {
 					}
 					((Asset) object).validate(false, GUI.this.getSolutionInstance());
 				} else if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
-					}
 					if (Log.isVerbose()) {
 						Log.get().information("Validating plan step '" + ((Step) object).getName() + "'...");
 					}
 					((Step) object).validate(false, GUI.this.getSolutionInstance(), getCurrentPlan());
 				} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
-					}
 					if (Log.isVerbose()) {
 						Log.get().information(
 								"Validating plan transition '" + ((Transition) object).getSummary() + "'...");
 					}
 					((Transition) object).validate(false, GUI.this.getSolutionInstance(), getCurrentPlan());
 				} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
-					}
 					((Transition.Condition) object).validate(getCurrentPlan().getTransitionContextVariableDeclarations(
 							getCurrentTransition(), GUI.this.getSolutionInstance()), GUI.this.getSolutionInstance());
 				} else if ((objectClass != null) && OperationStructureBuilder.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
-					}
 					((OperationStructureBuilder<?>) object).validate(false, GUI.this.getSolutionInstance(),
 							getCurrentPlan(), getCurrentStep());
 				} else if ((objectClass != null) && Facade.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
-					}
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 							.getRoot((Facade) object);
 					if (isConstantInstanceBuilder(rootInstanceBuilderFacade)) {
@@ -2853,9 +2828,6 @@ public class GUI extends MultiSwingCustomizer {
 					((Facade) object).validate(false,
 							plan.getValidationContext(step, GUI.this.getSolutionInstance()).getVariableDeclarations());
 				} else if ((objectClass != null) && ListItemReplicationFacade.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
-					}
 					RootInstanceBuilderFacade rootInstanceBuilderFacade = (RootInstanceBuilderFacade) Facade
 							.getRoot(((ListItemReplicationFacade) object).getListItemInitializerFacade());
 					if (isConstantInstanceBuilder(rootInstanceBuilderFacade)) {
@@ -2868,30 +2840,15 @@ public class GUI extends MultiSwingCustomizer {
 					((ListItemReplicationFacade) object).validate(
 							plan.getValidationContext(step, GUI.this.getSolutionInstance()).getVariableDeclarations());
 				} else if ((objectClass != null) && Structure.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
-					}
 					((Structure) object).validate(false, GUI.this.getSolutionInstance());
 				} else if ((objectClass != null) && Structure.Element.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
-					}
 					((Structure.Element) object).validate(false, GUI.this.getSolutionInstance());
 				} else if ((objectClass != null) && ActivatorStructure.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, true);
-					}
 					Plan plan = getCurrentPlan();
 					((ActivatorStructure) object).validate(false, GUI.this.getSolutionInstance(), plan);
 				} else if ((objectClass != null) && ResourceStructure.class.isAssignableFrom(objectClass)) {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
-					}
 					((ResourceStructure) object).validate(false, GUI.this.getSolutionInstance());
 				} else {
-					if (JESB.isDebugModeActive()) {
-						checkValidationErrorMapKeyIsCustomOrNot(object, session, false);
-					}
 					super.validate(type, object, session);
 				}
 			}
