@@ -1,0 +1,519 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201980166</startTimestamp>
+      <endTimestamp>1767201982677</endTimestamp>
+      <actionSummary>Run class &lt;com.otk.jesb.JESB&gt;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:20 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:20 PM - This action did not search for any component</string>
+        <string>Dec 31, 2025 6:26:22 PM - Action executed successfully</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>39</numberOfActions>
+        <instantiationDate>2025-12-31 17:26:19.915 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.12.31-18.26.19-xy.ui.testing.Tester@fb42c1c</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201982677</startTimestamp>
+      <endTimestamp>1767201985281</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.24.png</windowsImageFileName>
+      <actionSummary>Set Extended State &lt;= 2 for JFrame[0]</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:22 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:24 PM - Component found: xy.reflect.ui.control.swing.builder.AbstractEditorBuilder$EditorFrame[frame0,158,1189,1050x699,invalid,layout=java.awt.BorderLayout,title=J-Enterprise Service Bus,resizable,normal,defaultCloseOperation=DO_NOTHING_ON_CLOSE,rootPane=javax.swing.JRootPane[,5,25,1040x669,invalid,layout=javax.swing.JRootPane$RootLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=16777673,maximumSize=,minimumSize=,preferredSize=],rootPaneCheckingEnabled=true]</string>
+        <string>Dec 31, 2025 6:26:25 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201985281</startTimestamp>
+      <endTimestamp>1767201986684</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.26.png</windowsImageFileName>
+      <actionSummary>Click on menu &quot;File&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:25 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:26 PM - Component found: xy.reflect.ui.control.swing.menu.Menu[,0,0,38x28,alignmentX=0.0,alignmentY=0.0,border=com.formdev.flatlaf.ui.FlatMenuItemBorder@5dc45503,flags=16777608,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=3,left=6,bottom=3,right=6],paintBorder=true,paintFocus=false,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=File]</string>
+        <string>Dec 31, 2025 6:26:26 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201986684</startTimestamp>
+      <endTimestamp>1767201987986</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.27.png</windowsImageFileName>
+      <actionSummary>Click on menu &quot;Import Archive&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:26 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:27 PM - Component found: xy.reflect.ui.control.swing.menu.MethodActionMenuItem[,1,116,270x28,alignmentX=0.0,alignmentY=0.0,border=com.formdev.flatlaf.ui.FlatMenuItemBorder@4abea60,flags=16777480,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=3,left=6,bottom=3,right=6],paintBorder=true,paintFocus=false,pressedIcon=,rolloverEnabled=false,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=Import Archive]</string>
+        <string>Dec 31, 2025 6:26:27 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201987987</startTimestamp>
+      <endTimestamp>1767201989088</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.28.png</windowsImageFileName>
+      <actionSummary>Click on &quot;...&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:27 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:28 PM - Component found: xy.reflect.ui.control.swing.DialogAccessControl$4[,0,0,32x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@612fbc32,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=...,defaultCapable=true]</string>
+        <string>Dec 31, 2025 6:26:29 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201989088</startTimestamp>
+      <endTimestamp>1767201990191</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.29.png</windowsImageFileName>
+      <actionSummary>Send keys &quot;src/test/resources/testWebServices/setup-general-test-solution.zip&quot; to JTextField[0]</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:29 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:29 PM - Component found: javax.swing.plaf.metal.MetalFileChooserUI$3[,101,0,585x32,layout=javax.swing.plaf.basic.BasicTextUI$UpdateHandler,alignmentX=0.0,alignmentY=0.0,border=com.formdev.flatlaf.ui.FlatTextBorder@4555c1af,flags=288,maximumSize=,minimumSize=,preferredSize=,caretColor=javax.swing.plaf.ColorUIResource[r=51,g=51,b=51],disabledTextColor=javax.swing.plaf.ColorUIResource[r=128,g=128,b=128],editable=true,margin=javax.swing.plaf.InsetsUIResource[top=2,left=6,bottom=2,right=6],selectedTextColor=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],selectionColor=javax.swing.plaf.ColorUIResource[r=184,g=217,b=255],columns=35,columnWidth=15,command=,horizontalAlignment=LEADING]</string>
+        <string>Dec 31, 2025 6:26:30 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201990191</startTimestamp>
+      <endTimestamp>1767201991193</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.30.png</windowsImageFileName>
+      <actionSummary>Click on &quot;OK&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:30 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:30 PM - Component found: javax.swing.JButton[,513,17,84x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@612fbc32,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=OK,defaultCapable=true]</string>
+        <string>Dec 31, 2025 6:26:31 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201991193</startTimestamp>
+      <endTimestamp>1767201992195</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.31.png</windowsImageFileName>
+      <actionSummary>Click on &quot;OK&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:31 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:31 PM - Component found: xy.reflect.ui.control.swing.builder.DialogBuilder$1[,157,5,76x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@612fbc32,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=OK,defaultCapable=true]</string>
+        <string>Dec 31, 2025 6:26:32 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201992195</startTimestamp>
+      <endTimestamp>1767201993397</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.32.png</windowsImageFileName>
+      <actionSummary>Verify &quot;Solution&quot;, &quot;plans&quot;, &quot;resources&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:32 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:32 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,296x610,invalid,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:26:33 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201993398</startTimestamp>
+      <endTimestamp>1767201995003</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.34.png</windowsImageFileName>
+      <actionSummary>Click on menu &quot;Launch&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:33 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:34 PM - Component found: xy.reflect.ui.control.swing.menu.Menu[,79,0,67x28,alignmentX=0.0,alignmentY=0.0,border=com.formdev.flatlaf.ui.FlatMenuItemBorder@5dc45503,flags=16777480,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=3,left=6,bottom=3,right=6],paintBorder=true,paintFocus=false,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=Launch]</string>
+        <string>Dec 31, 2025 6:26:35 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201995003</startTimestamp>
+      <endTimestamp>1767201997006</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.35.png</windowsImageFileName>
+      <actionSummary>Click on menu &quot;Debug&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:35 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:35 PM - Component found: xy.reflect.ui.control.swing.menu.MethodActionMenuItem[,1,1,165x28,alignmentX=0.0,alignmentY=0.0,border=com.formdev.flatlaf.ui.FlatMenuItemBorder@4abea60,flags=16777480,maximumSize=,minimumSize=,preferredSize=,defaultIcon=javax.swing.ImageIcon@1629cd7a,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=3,left=6,bottom=3,right=6],paintBorder=true,paintFocus=false,pressedIcon=,rolloverEnabled=false,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=Debug]</string>
+        <string>Dec 31, 2025 6:26:37 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201997007</startTimestamp>
+      <endTimestamp>1767201998810</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.38.png</windowsImageFileName>
+      <actionSummary>Click on &quot;Test Execution&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:37 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:37 PM - Component found: xy.reflect.ui.control.swing.MethodControl[methodControl [method=executePlan, parent=form [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.Debugger$PlanActivation], fieldName=actionGroup]]],0,0,137x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@612fbc32,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=Test Execution,defaultCapable=true]</string>
+        <string>Dec 31, 2025 6:26:38 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201998810</startTimestamp>
+      <endTimestamp>1767202009316</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.49.png</windowsImageFileName>
+      <actionSummary>Wait 10 seconds</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:38 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:48 PM - This action did not search for any component</string>
+        <string>Dec 31, 2025 6:26:49 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202009316</startTimestamp>
+      <endTimestamp>1767202010218</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.49-0.png</windowsImageFileName>
+      <actionSummary>Verify &quot;Plans&quot;, &quot;(1) Prepare&quot;, &quot;DONE&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:49 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:49 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:26:50 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202010218</startTimestamp>
+      <endTimestamp>1767202011420</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.50.png</windowsImageFileName>
+      <actionSummary>Click on &quot;Close&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:50 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:50 PM - Component found: xy.reflect.ui.control.swing.builder.DialogBuilder$1[,483,5,76x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@612fbc32,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=Close,defaultCapable=true]</string>
+        <string>Dec 31, 2025 6:26:51 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202011420</startTimestamp>
+      <endTimestamp>1767202012422</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.51.png</windowsImageFileName>
+      <actionSummary>Click on menu &quot;File&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:51 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:51 PM - Component found: xy.reflect.ui.control.swing.menu.Menu[,0,0,38x28,alignmentX=0.0,alignmentY=0.0,border=com.formdev.flatlaf.ui.FlatMenuItemBorder@5dc45503,flags=16777608,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=3,left=6,bottom=3,right=6],paintBorder=true,paintFocus=false,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=File]</string>
+        <string>Dec 31, 2025 6:26:52 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202012422</startTimestamp>
+      <endTimestamp>1767202013224</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.52.png</windowsImageFileName>
+      <actionSummary>Click on menu &quot;Import Archive&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:52 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:52 PM - Component found: xy.reflect.ui.control.swing.menu.MethodActionMenuItem[,1,116,270x28,alignmentX=0.0,alignmentY=0.0,border=com.formdev.flatlaf.ui.FlatMenuItemBorder@4abea60,flags=16777480,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=3,left=6,bottom=3,right=6],paintBorder=true,paintFocus=false,pressedIcon=,rolloverEnabled=false,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=Import Archive]</string>
+        <string>Dec 31, 2025 6:26:53 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202013224</startTimestamp>
+      <endTimestamp>1767202013925</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.53.png</windowsImageFileName>
+      <actionSummary>Send keys Ctrl+A, &quot;src/test/resources/testWebServices/general-test-solution.zip&quot; to JTextArea[0]</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:53 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:53 PM - Component found: xy.reflect.ui.control.swing.TextControl$6[,0,0,1222x32,layout=javax.swing.plaf.basic.BasicTextUI$UpdateHandler,alignmentX=0.0,alignmentY=0.0,border=com.formdev.flatlaf.ui.FlatTextBorder@4555c1af,flags=16777512,maximumSize=,minimumSize=,preferredSize=,caretColor=java.awt.Color[r=0,g=0,b=0],disabledTextColor=javax.swing.plaf.ColorUIResource[r=128,g=128,b=128],editable=true,margin=javax.swing.plaf.InsetsUIResource[top=2,left=6,bottom=2,right=6],selectedTextColor=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],selectionColor=javax.swing.plaf.ColorUIResource[r=184,g=217,b=255],colums=0,columWidth=0,rows=0,rowHeight=0,word=false,wrap=false]</string>
+        <string>Dec 31, 2025 6:26:53 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202013925</startTimestamp>
+      <endTimestamp>1767202016326</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.56.png</windowsImageFileName>
+      <actionSummary>Wait 2 seconds</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:53 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:56 PM - This action did not search for any component</string>
+        <string>Dec 31, 2025 6:26:56 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202016326</startTimestamp>
+      <endTimestamp>1767202017328</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.56-0.png</windowsImageFileName>
+      <actionSummary>Click on &quot;OK&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:56 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:56 PM - Component found: xy.reflect.ui.control.swing.builder.DialogBuilder$1[,157,5,76x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@612fbc32,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=OK,defaultCapable=true]</string>
+        <string>Dec 31, 2025 6:26:57 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202017328</startTimestamp>
+      <endTimestamp>1767202018330</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.57.png</windowsImageFileName>
+      <actionSummary>Verify &quot;Solution&quot;, &quot;plans&quot;, &quot;resources&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:57 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:57 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,296x610,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=184,g=217,b=255],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:26:58 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202018330</startTimestamp>
+      <endTimestamp>1767202019446</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.58.png</windowsImageFileName>
+      <actionSummary>Click on menu &quot;Launch&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:58 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:58 PM - Component found: xy.reflect.ui.control.swing.menu.Menu[,79,0,67x28,alignmentX=0.0,alignmentY=0.0,border=com.formdev.flatlaf.ui.FlatMenuItemBorder@5dc45503,flags=16777480,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=3,left=6,bottom=3,right=6],paintBorder=true,paintFocus=false,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=Launch]</string>
+        <string>Dec 31, 2025 6:26:59 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202019446</startTimestamp>
+      <endTimestamp>1767202021448</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.26.59.png</windowsImageFileName>
+      <actionSummary>Click on menu &quot;Debug&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:26:59 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:26:59 PM - Component found: xy.reflect.ui.control.swing.menu.MethodActionMenuItem[,1,1,165x28,alignmentX=0.0,alignmentY=0.0,border=com.formdev.flatlaf.ui.FlatMenuItemBorder@4abea60,flags=16777480,maximumSize=,minimumSize=,preferredSize=,defaultIcon=javax.swing.ImageIcon@351d5dbc,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=3,left=6,bottom=3,right=6],paintBorder=true,paintFocus=false,pressedIcon=,rolloverEnabled=false,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=Debug]</string>
+        <string>Dec 31, 2025 6:27:01 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202021449</startTimestamp>
+      <endTimestamp>1767202028010</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.07.png</windowsImageFileName>
+      <actionSummary>Verify &quot;Plans&quot;, &quot;(0) NumberToWordsService&quot;, &quot;(0) PetCreationService&quot;, &quot;(0) PetListingService&quot;, &quot;(0) Test&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:01 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:02 PM - The action execution failed</string>
+        <string>Dec 31, 2025 6:27:03 PM - The action execution failed</string>
+        <string>Dec 31, 2025 6:27:05 PM - The action execution failed</string>
+        <string>Dec 31, 2025 6:27:07 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:27:08 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202028010</startTimestamp>
+      <endTimestamp>1767202030515</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.08.png</windowsImageFileName>
+      <actionSummary>Click on &quot;Activate Plan(s)&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:08 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:08 PM - Component found: xy.reflect.ui.control.swing.MethodControl[methodControl [method=activatePlans, parent=form [objectType=com.otk.jesb.Debugger]],0,0,166x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@612fbc32,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=Activate Plan(s),defaultCapable=true]</string>
+        <string>Dec 31, 2025 6:27:10 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202030515</startTimestamp>
+      <endTimestamp>1767202046033</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.25.png</windowsImageFileName>
+      <actionSummary>Wait 15 seconds</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:10 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:25 PM - This action did not search for any component</string>
+        <string>Dec 31, 2025 6:27:26 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202046033</startTimestamp>
+      <endTimestamp>1767202046935</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.26.png</windowsImageFileName>
+      <actionSummary>Expand To item[0] / item[0] from &quot;Plans&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:26 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:26 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:27:26 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202046935</startTimestamp>
+      <endTimestamp>1767202047936</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.27.png</windowsImageFileName>
+      <actionSummary>Verify &quot;DONE&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:26 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:27 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:27:27 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202047936</startTimestamp>
+      <endTimestamp>1767202048838</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.28.png</windowsImageFileName>
+      <actionSummary>Expand To item[1] / item[0] from &quot;Plans&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:27 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:28 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:27:28 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202048838</startTimestamp>
+      <endTimestamp>1767202049739</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.29.png</windowsImageFileName>
+      <actionSummary>Verify &quot;DONE&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:28 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:29 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,invalid,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:27:29 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202049739</startTimestamp>
+      <endTimestamp>1767202050641</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.30.png</windowsImageFileName>
+      <actionSummary>Expand To item[2] / item[0] from &quot;Plans&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:29 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:29 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:27:30 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202050641</startTimestamp>
+      <endTimestamp>1767202051542</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.30-0.png</windowsImageFileName>
+      <actionSummary>Verify &quot;DONE&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:30 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:30 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:27:31 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202051543</startTimestamp>
+      <endTimestamp>1767202052444</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.31.png</windowsImageFileName>
+      <actionSummary>Expand To item[3] / item[0] from &quot;Plans&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:31 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:31 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:27:32 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202052444</startTimestamp>
+      <endTimestamp>1767202053345</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.32.png</windowsImageFileName>
+      <actionSummary>Verify &quot;DONE&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:32 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:32 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:27:33 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202053345</startTimestamp>
+      <endTimestamp>1767202054547</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.33.png</windowsImageFileName>
+      <actionSummary>Click on &quot;Close&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:33 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:33 PM - Component found: xy.reflect.ui.control.swing.builder.DialogBuilder$1[,483,5,76x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@612fbc32,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=Close,defaultCapable=true]</string>
+        <string>Dec 31, 2025 6:27:34 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202054547</startTimestamp>
+      <endTimestamp>1767202055449</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.34.png</windowsImageFileName>
+      <actionSummary>Close &lt;window&gt;[0]</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:34 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:34 PM - Component found: xy.reflect.ui.control.swing.builder.AbstractEditorBuilder$EditorFrame[frame0,0,1189,1366x699,layout=java.awt.BorderLayout,title=J-Enterprise Service Bus,resizable,maximized_horiz,defaultCloseOperation=DO_NOTHING_ON_CLOSE,rootPane=javax.swing.JRootPane[,0,0,1366x699,layout=javax.swing.JRootPane$RootLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=16777673,maximumSize=,minimumSize=,preferredSize=],rootPaneCheckingEnabled=true]</string>
+        <string>Dec 31, 2025 6:27:35 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202055449</startTimestamp>
+      <endTimestamp>1767202056150</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.35.png</windowsImageFileName>
+      <actionSummary>Verify &quot;Changes were not saved and will be lost.\nContinue?&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:35 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:35 PM - Component found: xy.reflect.ui.control.swing.plugin.StyledTextPlugin$StyledTextControl$1[,0,0,442x106,layout=javax.swing.plaf.basic.BasicTextUI$UpdateHandler,alignmentX=0.0,alignmentY=0.0,border=javax.swing.border.EmptyBorder@4a8efdcf,flags=16777504,maximumSize=,minimumSize=,preferredSize=,caretColor=javax.swing.plaf.ColorUIResource[r=51,g=51,b=51],disabledTextColor=javax.swing.plaf.ColorUIResource[r=128,g=128,b=128],editable=false,margin=javax.swing.plaf.InsetsUIResource[top=2,left=6,bottom=2,right=6],selectedTextColor=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],selectionColor=javax.swing.plaf.ColorUIResource[r=184,g=217,b=255],kit=javax.swing.text.StyledEditorKit@39f4d9e3,typeHandlers={text/plain=javax.swing.text.StyledEditorKit@39f4d9e3}]</string>
+        <string>Dec 31, 2025 6:27:36 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202056150</startTimestamp>
+      <endTimestamp>1767202057051</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.27.36.png</windowsImageFileName>
+      <actionSummary>Click on &quot;OK&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:36 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:36 PM - Component found: xy.reflect.ui.control.swing.builder.DialogBuilder$1[,169,5,76x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@612fbc32,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=OK,defaultCapable=true]</string>
+        <string>Dec 31, 2025 6:27:37 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767202057051</startTimestamp>
+      <endTimestamp>1767202057253</endTimestamp>
+      <actionSummary>Check that 0 windows are open</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:27:37 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:27:37 PM - This action did not search for any component</string>
+        <string>Dec 31, 2025 6:27:37 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>39</numberOfActions>
+  <instantiationDate>2025-12-31 17:27:37.360 UTC</instantiationDate>
+</xy.ui.testing.TestReport>

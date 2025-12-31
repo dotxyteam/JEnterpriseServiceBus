@@ -1,0 +1,64 @@
+<xy.ui.testing.TestReport>
+  <steps>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201445739</startTimestamp>
+      <endTimestamp>1767201446541</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.17.25.png</windowsImageFileName>
+      <actionSummary>Verify &quot;Plans&quot;, &quot;(0) NumberToWordsService&quot;, &quot;(0) PetCreationService&quot;, &quot;(0) PetListingService&quot;, &quot;(0) Test&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:17:25 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:17:25 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:17:26 PM - Action executed successfully</string>
+      </logs>
+      <outer-class>
+        <steps reference="../../.."/>
+        <numberOfActions>39</numberOfActions>
+        <instantiationDate>2025-12-31 17:17:25.620 UTC</instantiationDate>
+        <directoryPath>test-reports/test-report-2025.12.31-18.17.25-xy.ui.testing.Tester@2911db81</directoryPath>
+      </outer-class>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201446541</startTimestamp>
+      <endTimestamp>1767201448547</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.17.26.png</windowsImageFileName>
+      <actionSummary>Click on &quot;Activate Plan(s)&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:17:26 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:17:26 PM - Component found: xy.reflect.ui.control.swing.MethodControl[methodControl [method=activatePlans, parent=form [objectType=com.otk.jesb.Debugger]],0,0,166x32,alignmentX=0.0,alignmentY=0.5,border=com.formdev.flatlaf.ui.FlatButtonBorder@26103091,flags=288,maximumSize=,minimumSize=,preferredSize=,defaultIcon=,disabledIcon=,disabledSelectedIcon=,margin=javax.swing.plaf.InsetsUIResource[top=2,left=14,bottom=2,right=14],paintBorder=true,paintFocus=true,pressedIcon=,rolloverEnabled=true,rolloverIcon=,rolloverSelectedIcon=,selectedIcon=,text=Activate Plan(s),defaultCapable=true]</string>
+        <string>Dec 31, 2025 6:17:28 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>SUCCESSFUL</status>
+      <startTimestamp>1767201448547</startTimestamp>
+      <endTimestamp>1767201464048</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.17.43.png</windowsImageFileName>
+      <actionSummary>Wait 15 seconds</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:17:28 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:17:43 PM - This action did not search for any component</string>
+        <string>Dec 31, 2025 6:17:44 PM - Action executed successfully</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+    <xy.ui.testing.TestReport_-TestReportStep>
+      <status>FAILED</status>
+      <startTimestamp>1767201464049</startTimestamp>
+      <endTimestamp>1767201465366</endTimestamp>
+      <windowsImageFileName>screenschot-2025.12.31-18.17.45.png</windowsImageFileName>
+      <actionSummary>Expand To item[0] / item[0] from &quot;Plans&quot;</actionSummary>
+      <logs>
+        <string>Dec 31, 2025 6:17:44 PM - Action delayed for 0.1 second(s)</string>
+        <string>Dec 31, 2025 6:17:44 PM - Component found: xy.reflect.ui.control.swing.ListControl$TreeTable[,0,0,192x358,alignmentX=0.0,alignmentY=0.0,border=,flags=251658568,maximumSize=,minimumSize=,preferredSize=,autoCreateColumnsFromModel=true,autoResizeMode=AUTO_RESIZE_OFF,cellSelectionEnabled=false,editingColumn=-1,editingRow=-1,gridColor=javax.swing.plaf.ColorUIResource[r=238,g=238,b=242],preferredViewportSize=,rowHeight=24,rowMargin=0,rowSelectionAllowed=true,selectionBackground=javax.swing.plaf.ColorUIResource[r=213,g=223,b=240],selectionForeground=javax.swing.plaf.ColorUIResource[r=0,g=0,b=0],showHorizontalLines=false,showVerticalLines=false]</string>
+        <string>Dec 31, 2025 6:17:45 PM - The action execution failed</string>
+        <string>Dec 31, 2025 6:17:45 PM - An error occurred: java.lang.ArrayIndexOutOfBoundsException: node has no children</string>
+      </logs>
+      <outer-class reference="../../xy.ui.testing.TestReport_-TestReportStep/outer-class"/>
+    </xy.ui.testing.TestReport_-TestReportStep>
+  </steps>
+  <numberOfActions>39</numberOfActions>
+  <instantiationDate>2025-12-31 17:17:45.469 UTC</instantiationDate>
+</xy.ui.testing.TestReport>

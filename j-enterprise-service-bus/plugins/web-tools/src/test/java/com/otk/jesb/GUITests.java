@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.otk.jesb.solution.Runtime;
 import com.otk.jesb.ui.GUI;
 
 import xy.reflect.ui.control.swing.plugin.FileBrowserPlugin;
@@ -33,6 +34,7 @@ public class GUITests {
 		checkSystemProperty(JESB.DEBUG_PROPERTY_KEY, null);
 		checkSystemProperty(GUI.GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORIES_PROPERTY_KEY, null);
 		Locale.setDefault(Locale.US);
+		System.setProperty(Runtime.PLUGIN_INFO_CLASS_NAMES_PROPERTY_KEY, WebToolsPluginInfo.class.getName());
 	}
 
 	@BeforeClass
@@ -52,8 +54,8 @@ public class GUITests {
 	}
 
 	@Test
-	public void firstTest() throws Exception {
-		TestingUtils.assertSuccessfulReplay(tester, new File("test-specifications/firstTest.stt"));
+	public void generalTest() throws Exception {
+		TestingUtils.assertSuccessfulReplay(tester, new File("test-specifications/generalTest.stt"));
 	}
 
 }

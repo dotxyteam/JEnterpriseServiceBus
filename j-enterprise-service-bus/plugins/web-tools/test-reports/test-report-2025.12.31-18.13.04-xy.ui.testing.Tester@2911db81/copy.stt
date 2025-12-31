@@ -1,0 +1,621 @@
+<xy.ui.testing.Tester>
+  <editingOptions>
+    <controlsTheme>classic</controlsTheme>
+    <testableModalWindowsForcedToDocumentModality>true</testableModalWindowsForcedToDocumentModality>
+    <testableWindowsAlwaysOnTopFeatureDisabled>true</testableWindowsAlwaysOnTopFeatureDisabled>
+  </editingOptions>
+  <maximumSecondsToWaitBetwneenActions>15.0</maximumSecondsToWaitBetwneenActions>
+  <minimumSecondsToWaitBetwneenActions>0.1</minimumSecondsToWaitBetwneenActions>
+  <testActions>
+    <xy.ui.testing.action.CallMainMethodAction>
+      <arguments/>
+      <checkThrownExceptionAfterSeconds>2</checkThrownExceptionAfterSeconds>
+      <className>com.otk.jesb.JESB</className>
+      <disabled>false</disabled>
+    </xy.ui.testing.action.CallMainMethodAction>
+    <xy.ui.testing.action.component.property.ChangeComponentPropertyAction>
+      <componentClassName>javax.swing.JFrame</componentClassName>
+      <componentFinder class="xy.ui.testing.finder.ClassBasedComponentFinder">
+        <componentClassName>javax.swing.JFrame</componentClassName>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <windowIndex>0</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <newPropertyValue>2</newPropertyValue>
+      <propertyName>Extended State</propertyName>
+    </xy.ui.testing.action.component.property.ChangeComponentPropertyAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.MenuItemComponentFinder">
+        <menuItemPath>
+          <xy.ui.testing.finder.PropertyBasedComponentFinder>
+            <componentClassName>xy.reflect.ui.control.swing.menu.Menu</componentClassName>
+            <occurrencesToSkip>0</occurrencesToSkip>
+            <propertyValueList>
+              <xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+                <propertyName>Text</propertyName>
+                <propertyValueExpected>File</propertyValueExpected>
+                <regularExpressionExpected>false</regularExpressionExpected>
+                <outer-class reference="../../.."/>
+              </xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+            </propertyValueList>
+            <windowIndex>0</windowIndex>
+          </xy.ui.testing.finder.PropertyBasedComponentFinder>
+        </menuItemPath>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.component.ClickOnMenuItemAction>
+      <componentFinder>
+        <menuItemPath>
+          <xy.ui.testing.finder.PropertyBasedComponentFinder>
+            <componentClassName>xy.reflect.ui.control.swing.menu.MethodActionMenuItem</componentClassName>
+            <occurrencesToSkip>0</occurrencesToSkip>
+            <propertyValueList>
+              <xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+                <propertyName>Text</propertyName>
+                <propertyValueExpected>Import Archive</propertyValueExpected>
+                <regularExpressionExpected>false</regularExpressionExpected>
+                <outer-class reference="../../.."/>
+              </xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+            </propertyValueList>
+            <windowIndex>1</windowIndex>
+          </xy.ui.testing.finder.PropertyBasedComponentFinder>
+        </menuItemPath>
+      </componentFinder>
+      <disabled>false</disabled>
+    </xy.ui.testing.action.component.ClickOnMenuItemAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>...</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.component.SendKeysAction>
+      <componentFinder class="xy.ui.testing.finder.ClassBasedComponentFinder">
+        <componentClassName>javax.swing.JTextField</componentClassName>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <windowIndex>2</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <keyboardInteractions>
+        <xy.ui.testing.action.component.SendKeysAction_-WriteText>
+          <text>src/test/resources/testBuiltInElements/setup-solution.zip</text>
+        </xy.ui.testing.action.component.SendKeysAction_-WriteText>
+      </keyboardInteractions>
+      <requestToFocusOnTheComponent>true</requestToFocusOnTheComponent>
+    </xy.ui.testing.action.component.SendKeysAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>OK</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>2</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>OK</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.component.CheckVisibleStringsAction>
+      <completenessChecked>true</completenessChecked>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Solution</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>0</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <negated>false</negated>
+      <orderChecked>true</orderChecked>
+      <visibleStrings>
+        <string>Solution</string>
+        <string>plans</string>
+        <string>resources</string>
+      </visibleStrings>
+    </xy.ui.testing.action.component.CheckVisibleStringsAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.MenuItemComponentFinder">
+        <menuItemPath>
+          <xy.ui.testing.finder.PropertyBasedComponentFinder>
+            <componentClassName>xy.reflect.ui.control.swing.menu.Menu</componentClassName>
+            <occurrencesToSkip>0</occurrencesToSkip>
+            <propertyValueList>
+              <xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+                <propertyName>Text</propertyName>
+                <propertyValueExpected>Launch</propertyValueExpected>
+                <regularExpressionExpected>false</regularExpressionExpected>
+                <outer-class reference="../../.."/>
+              </xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+            </propertyValueList>
+            <windowIndex>0</windowIndex>
+          </xy.ui.testing.finder.PropertyBasedComponentFinder>
+        </menuItemPath>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.component.ClickOnMenuItemAction>
+      <componentFinder>
+        <menuItemPath>
+          <xy.ui.testing.finder.PropertyBasedComponentFinder>
+            <componentClassName>xy.reflect.ui.control.swing.menu.MethodActionMenuItem</componentClassName>
+            <occurrencesToSkip>0</occurrencesToSkip>
+            <propertyValueList>
+              <xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+                <propertyName>Text</propertyName>
+                <propertyValueExpected>Debug</propertyValueExpected>
+                <regularExpressionExpected>false</regularExpressionExpected>
+                <outer-class reference="../../.."/>
+              </xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+            </propertyValueList>
+            <windowIndex>1</windowIndex>
+          </xy.ui.testing.finder.PropertyBasedComponentFinder>
+        </menuItemPath>
+      </componentFinder>
+      <disabled>false</disabled>
+    </xy.ui.testing.action.component.ClickOnMenuItemAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Test Execution</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.WaitAction>
+      <disabled>false</disabled>
+      <secondsToWait>10</secondsToWait>
+    </xy.ui.testing.action.WaitAction>
+    <xy.ui.testing.action.component.CheckVisibleStringsAction>
+      <completenessChecked>true</completenessChecked>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <negated>false</negated>
+      <orderChecked>true</orderChecked>
+      <visibleStrings>
+        <string>Plans</string>
+        <string>(1) Prepare</string>
+        <string>DONE</string>
+      </visibleStrings>
+    </xy.ui.testing.action.component.CheckVisibleStringsAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Close</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.MenuItemComponentFinder">
+        <menuItemPath>
+          <xy.ui.testing.finder.PropertyBasedComponentFinder>
+            <componentClassName>xy.reflect.ui.control.swing.menu.Menu</componentClassName>
+            <occurrencesToSkip>0</occurrencesToSkip>
+            <propertyValueList>
+              <xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+                <propertyName>Text</propertyName>
+                <propertyValueExpected>File</propertyValueExpected>
+                <regularExpressionExpected>false</regularExpressionExpected>
+                <outer-class reference="../../.."/>
+              </xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+            </propertyValueList>
+            <windowIndex>0</windowIndex>
+          </xy.ui.testing.finder.PropertyBasedComponentFinder>
+        </menuItemPath>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.component.ClickOnMenuItemAction>
+      <componentFinder>
+        <menuItemPath>
+          <xy.ui.testing.finder.PropertyBasedComponentFinder>
+            <componentClassName>xy.reflect.ui.control.swing.menu.MethodActionMenuItem</componentClassName>
+            <occurrencesToSkip>0</occurrencesToSkip>
+            <propertyValueList>
+              <xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+                <propertyName>Text</propertyName>
+                <propertyValueExpected>Import Archive</propertyValueExpected>
+                <regularExpressionExpected>false</regularExpressionExpected>
+                <outer-class reference="../../.."/>
+              </xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+            </propertyValueList>
+            <windowIndex>1</windowIndex>
+          </xy.ui.testing.finder.PropertyBasedComponentFinder>
+        </menuItemPath>
+      </componentFinder>
+      <disabled>false</disabled>
+    </xy.ui.testing.action.component.ClickOnMenuItemAction>
+    <xy.ui.testing.action.component.SendKeysAction>
+      <componentFinder class="xy.ui.testing.finder.ClassBasedComponentFinder">
+        <componentClassName>javax.swing.JTextArea</componentClassName>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <keyboardInteractions>
+        <xy.ui.testing.action.component.SendKeysAction_-SpecialKey_-CtrlA>
+          <altDown>false</altDown>
+          <altGrtDown>false</altGrtDown>
+          <ctrlDown>true</ctrlDown>
+          <keyName>KEY_A</keyName>
+          <metaDown>false</metaDown>
+          <shiftDown>false</shiftDown>
+        </xy.ui.testing.action.component.SendKeysAction_-SpecialKey_-CtrlA>
+        <xy.ui.testing.action.component.SendKeysAction_-WriteText>
+          <text>src/test/resources/testBuiltInElements/test-solution.zip</text>
+        </xy.ui.testing.action.component.SendKeysAction_-WriteText>
+      </keyboardInteractions>
+      <requestToFocusOnTheComponent>true</requestToFocusOnTheComponent>
+    </xy.ui.testing.action.component.SendKeysAction>
+    <xy.ui.testing.action.WaitAction>
+      <disabled>false</disabled>
+      <secondsToWait>2</secondsToWait>
+    </xy.ui.testing.action.WaitAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>OK</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.component.CheckVisibleStringsAction>
+      <completenessChecked>false</completenessChecked>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Solution</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>0</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <negated>false</negated>
+      <orderChecked>false</orderChecked>
+      <visibleStrings>
+        <string>Solution</string>
+        <string>plans</string>
+        <string>resources</string>
+      </visibleStrings>
+    </xy.ui.testing.action.component.CheckVisibleStringsAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.MenuItemComponentFinder">
+        <menuItemPath>
+          <xy.ui.testing.finder.PropertyBasedComponentFinder>
+            <componentClassName>xy.reflect.ui.control.swing.menu.Menu</componentClassName>
+            <occurrencesToSkip>0</occurrencesToSkip>
+            <propertyValueList>
+              <xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+                <propertyName>Text</propertyName>
+                <propertyValueExpected>Launch</propertyValueExpected>
+                <regularExpressionExpected>false</regularExpressionExpected>
+                <outer-class reference="../../.."/>
+              </xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+            </propertyValueList>
+            <windowIndex>0</windowIndex>
+          </xy.ui.testing.finder.PropertyBasedComponentFinder>
+        </menuItemPath>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.component.ClickOnMenuItemAction>
+      <componentFinder>
+        <menuItemPath>
+          <xy.ui.testing.finder.PropertyBasedComponentFinder>
+            <componentClassName>xy.reflect.ui.control.swing.menu.MethodActionMenuItem</componentClassName>
+            <occurrencesToSkip>0</occurrencesToSkip>
+            <propertyValueList>
+              <xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+                <propertyName>Text</propertyName>
+                <propertyValueExpected>Debug</propertyValueExpected>
+                <regularExpressionExpected>false</regularExpressionExpected>
+                <outer-class reference="../../.."/>
+              </xy.ui.testing.finder.PropertyBasedComponentFinder_-PropertyValue>
+            </propertyValueList>
+            <windowIndex>1</windowIndex>
+          </xy.ui.testing.finder.PropertyBasedComponentFinder>
+        </menuItemPath>
+      </componentFinder>
+      <disabled>false</disabled>
+    </xy.ui.testing.action.component.ClickOnMenuItemAction>
+    <xy.ui.testing.action.component.CheckVisibleStringsAction>
+      <completenessChecked>true</completenessChecked>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <negated>false</negated>
+      <orderChecked>true</orderChecked>
+      <visibleStrings>
+        <string>Plans</string>
+        <string>(0) HelloCommandServer</string>
+        <string>(0) Test</string>
+        <string>(0) FolderWatchTest</string>
+        <string>(0) TestCommandServer</string>
+      </visibleStrings>
+    </xy.ui.testing.action.component.CheckVisibleStringsAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Activate Plan(s)</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.WaitAction>
+      <disabled>false</disabled>
+      <secondsToWait>15</secondsToWait>
+    </xy.ui.testing.action.WaitAction>
+    <xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <itemPath>
+        <int>0</int>
+        <int>0</int>
+      </itemPath>
+    </xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+    <xy.ui.testing.action.component.CheckVisibleStringsAction>
+      <completenessChecked>false</completenessChecked>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <negated>false</negated>
+      <orderChecked>false</orderChecked>
+      <visibleStrings>
+        <string>DONE</string>
+      </visibleStrings>
+    </xy.ui.testing.action.component.CheckVisibleStringsAction>
+    <xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <itemPath>
+        <int>1</int>
+        <int>0</int>
+      </itemPath>
+    </xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+    <xy.ui.testing.action.component.CheckVisibleStringsAction>
+      <completenessChecked>false</completenessChecked>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <negated>false</negated>
+      <orderChecked>false</orderChecked>
+      <visibleStrings>
+        <string>DONE</string>
+      </visibleStrings>
+    </xy.ui.testing.action.component.CheckVisibleStringsAction>
+    <xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <itemPath>
+        <int>2</int>
+        <int>0</int>
+      </itemPath>
+    </xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+    <xy.ui.testing.action.component.CheckVisibleStringsAction>
+      <completenessChecked>false</completenessChecked>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <negated>false</negated>
+      <orderChecked>false</orderChecked>
+      <visibleStrings>
+        <string>DONE</string>
+      </visibleStrings>
+    </xy.ui.testing.action.component.CheckVisibleStringsAction>
+    <xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <itemPath>
+        <int>3</int>
+        <int>0</int>
+      </itemPath>
+    </xy.ui.testing.action.component.specific.ExpandTreetTableToItemAction>
+    <xy.ui.testing.action.component.CheckVisibleStringsAction>
+      <completenessChecked>false</completenessChecked>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Plans</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <negated>false</negated>
+      <orderChecked>false</orderChecked>
+      <visibleStrings>
+        <string>DONE</string>
+      </visibleStrings>
+    </xy.ui.testing.action.component.CheckVisibleStringsAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>Close</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.window.CloseWindowAction>
+      <disabled>false</disabled>
+      <windowIndex>0</windowIndex>
+    </xy.ui.testing.action.window.CloseWindowAction>
+    <xy.ui.testing.action.component.CheckVisibleStringsAction>
+      <completenessChecked>false</completenessChecked>
+      <componentFinder class="xy.ui.testing.finder.ClassBasedComponentFinder">
+        <componentClassName>javax.swing.JTextPane</componentClassName>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <negated>false</negated>
+      <orderChecked>false</orderChecked>
+      <visibleStrings>
+        <string>Changes were not saved and will be lost.
+Continue?</string>
+      </visibleStrings>
+    </xy.ui.testing.action.component.CheckVisibleStringsAction>
+    <xy.ui.testing.action.component.ClickAction>
+      <button>LEFT_BUTTON</button>
+      <componentFinder class="xy.ui.testing.finder.DisplayedStringComponentFinder">
+        <componentClassName class="null"/>
+        <occurrencesToSkip>0</occurrencesToSkip>
+        <visibleString>OK</visibleString>
+        <visibleStringInTree>false</visibleStringInTree>
+        <windowIndex>1</windowIndex>
+      </componentFinder>
+      <disabled>false</disabled>
+      <doubleClick>false</doubleClick>
+      <eventMode>PRESS_AND_RELEASE</eventMode>
+      <eventsIntervalMilliseconds>100</eventsIntervalMilliseconds>
+      <locationOnComponent class="null"/>
+      <poupTrigger>false</poupTrigger>
+    </xy.ui.testing.action.component.ClickAction>
+    <xy.ui.testing.action.CheckNumberOfOpenWindowsAction>
+      <count>0</count>
+      <disabled>false</disabled>
+    </xy.ui.testing.action.CheckNumberOfOpenWindowsAction>
+  </testActions>
+</xy.ui.testing.Tester>
