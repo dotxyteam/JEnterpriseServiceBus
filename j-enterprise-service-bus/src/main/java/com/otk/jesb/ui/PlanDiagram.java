@@ -564,52 +564,52 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 
 	@Override
 	protected JPopupMenu createContextMenu(MouseEvent mouseEvent) {
-		JPopupMenu result = super.createContextMenu(mouseEvent);
-		Component dragIntentControl;
-		{
-			Form tmpPlanEditor = ReflectionUIUtils.withRenderingContext(swingRenderer.getReflectionUI(),
-					SwingRendererUtils.findParentForm(this, swingRenderer).getRenderingContext(),
-					() -> swingRenderer.createForm(getPlan()));
-			dragIntentControl = SwingRendererUtils
-					.findDescendantFieldControlPlaceHolder(tmpPlanEditor, "diagramDragIntent", swingRenderer)
-					.getFieldControl();
-			tmpPlanEditor.getModificationStack().addListener(new AbstractSimpleModificationListener() {
-				@Override
-				protected void handleAnyEvent(IModification modification) {
-					((IAdvancedFieldControl) dragIntentControl).refreshUI(false);
-				}
-			});
-		}
-		result.insert(dragIntentControl, 0);
-		result.add(new JSeparator());
-		result.add(createCopyAction());
-		result.add(createCutAction());
-		result.add(createPasteAction(mouseEvent.getX(), mouseEvent.getY()));
-		result.add(createDeleteAction());
-		result.add(new JSeparator());
-		result.add(createSelectAllAction());
-		result.add(new JSeparator());
-		result.add(createExperimentAction());
+		return ReflectionUIUtils.withRenderingContext(swingRenderer.getReflectionUI(),
+				getPlanEditor().getRenderingContext(), () -> {
+					JPopupMenu result = super.createContextMenu(mouseEvent);
+					Component dragIntentControl;
+					{
+						Form tmpPlanEditor = swingRenderer.createForm(getPlan());
+						dragIntentControl = SwingRendererUtils.findDescendantFieldControlPlaceHolder(tmpPlanEditor,
+								"diagramDragIntent", swingRenderer).getFieldControl();
+						tmpPlanEditor.getModificationStack().addListener(new AbstractSimpleModificationListener() {
+							@Override
+							protected void handleAnyEvent(IModification modification) {
+								((IAdvancedFieldControl) dragIntentControl).refreshUI(false);
+							}
+						});
+					}
+					result.insert(dragIntentControl, 0);
+					result.add(new JSeparator());
+					result.add(createCopyAction());
+					result.add(createCutAction());
+					result.add(createPasteAction(mouseEvent.getX(), mouseEvent.getY()));
+					result.add(createDeleteAction());
+					result.add(new JSeparator());
+					result.add(createSelectAllAction());
+					result.add(new JSeparator());
+					result.add(createExperimentAction());
 
-		List<AbstractAction> dynamicActions = new ArrayList<AbstractAction>();
-		{
-			Set<JDiagramObject> selection = getSelection();
-			if (selection.size() == 1) {
-				ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();
-				BufferedItemPosition itemPosition = focusedPlanElementsControl
-						.findItemPositionByReference(selection.iterator().next().getValue());
-				dynamicActions.addAll(
-						focusedPlanElementsControl.getDynamicActionHooks(Collections.singletonList(itemPosition)));
-				dynamicActions.addAll(
-						focusedPlanElementsControl.getDynamicPropertyHooks(Collections.singletonList(itemPosition)));
-			}
-		}
-		if (dynamicActions.size() > 0) {
-			result.add(new JSeparator());
-			dynamicActions.forEach(result::add);
-		}
+					List<AbstractAction> dynamicActions = new ArrayList<AbstractAction>();
+					{
+						Set<JDiagramObject> selection = getSelection();
+						if (selection.size() == 1) {
+							ListControl focusedPlanElementsControl = getFocusedPlanElementsControl();
+							BufferedItemPosition itemPosition = focusedPlanElementsControl
+									.findItemPositionByReference(selection.iterator().next().getValue());
+							dynamicActions.addAll(focusedPlanElementsControl
+									.getDynamicActionHooks(Collections.singletonList(itemPosition)));
+							dynamicActions.addAll(focusedPlanElementsControl
+									.getDynamicPropertyHooks(Collections.singletonList(itemPosition)));
+						}
+					}
+					if (dynamicActions.size() > 0) {
+						result.add(new JSeparator());
+						dynamicActions.forEach(result::add);
+					}
 
-		return result;
+					return result;
+				});
 	}
 
 	private AbstractAction createCopyAction() {

@@ -148,6 +148,7 @@ import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo.CategoriesStyle;
 import xy.reflect.ui.info.type.ITypeInfo.FieldsLayout;
 import xy.reflect.ui.info.type.ITypeInfo.IValidationJob;
+import xy.reflect.ui.info.type.factory.DelegatingInfoProxyFactory;
 import xy.reflect.ui.info.type.factory.EncapsulatedObjectFactory;
 import xy.reflect.ui.info.type.factory.GenericEnumerationFactory;
 import xy.reflect.ui.info.type.factory.IInfoProxyFactory;
@@ -1140,14 +1141,14 @@ public class GUI extends MultiSwingCustomizer {
 				getCustomizedTypeInfoCache().clear();
 				Class<?> mainCustomizedClass = (Class<?>) versionIdentifier;
 				if (mainCustomizedClass == null) {
-					return null;
+					return IInfoProxyFactory.NULL_INFO_PROXY_FACTORY;
 				}
 				Method customUIFactoryMethod;
 				try {
 					customUIFactoryMethod = mainCustomizedClass.getMethod(GUI.CUSTOM_UI_FACTORY_METHOD_NAME,
 							JESBSubCustomizedUI.class);
 				} catch (NoSuchMethodException e) {
-					return null;
+					return IInfoProxyFactory.NULL_INFO_PROXY_FACTORY;
 				}
 				try {
 					return (IInfoProxyFactory) customUIFactoryMethod.invoke(null, JESBSubCustomizedUI.this);
@@ -1210,7 +1211,80 @@ public class GUI extends MultiSwingCustomizer {
 			return ReflectionUIUtils.findRenderingContextualValue(this, RootInstanceBuilderFacade.class);
 		}
 
+		public Solution getCurrentSolution() {
+			return ReflectionUIUtils.findRenderingContextualValue(this, Solution.class);
+		}
+
 		protected class JESBBeforeInfoCustomizationsFactory extends InfoProxyFactory {
+
+			@Override
+			protected Object getDefaultValue(IParameterInfo param, Object object, IMethodInfo method,
+					ITypeInfo objectType) {
+				Class<?> objectClass;
+				try {
+					objectClass = GUI.this.getSolutionInstance().getRuntime().getJESBClass(objectType.getName());
+				} catch (Exception e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Operation.class.isAssignableFrom(objectClass)) {
+					if (method.getName().equals("execute")) {
+						if (param.getType().getName().equals(Solution.class.getName())) {
+							return getCurrentSolution();
+						}
+					}
+				}
+				return super.getDefaultValue(param, object, method, objectType);
+			}
+
+			@Override
+			protected boolean isHidden(IParameterInfo param, IMethodInfo method, ITypeInfo objectType) {
+				Class<?> objectClass;
+				try {
+					objectClass = GUI.this.getSolutionInstance().getRuntime().getJESBClass(objectType.getName());
+				} catch (Exception e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Operation.class.isAssignableFrom(objectClass)) {
+					if (method.getName().equals("execute")) {
+						if (param.getType().getName().equals(Solution.class.getName())) {
+							return true;
+						}
+					}
+				}
+				return super.isHidden(param, method, objectType);
+			}
+
+			@Override
+			protected String getCaption(IMethodInfo method, ITypeInfo objectType) {
+				Class<?> objectClass;
+				try {
+					objectClass = GUI.this.getSolutionInstance().getRuntime().getJESBClass(objectType.getName());
+				} catch (Exception e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Operation.class.isAssignableFrom(objectClass)) {
+					if (method.getName().equals("execute")) {
+						return "Execute";
+					}
+				}
+				return super.getCaption(method, objectType);
+			}
+
+			@Override
+			protected String getOnlineHelp(IMethodInfo method, ITypeInfo objectType) {
+				Class<?> objectClass;
+				try {
+					objectClass = GUI.this.getSolutionInstance().getRuntime().getJESBClass(objectType.getName());
+				} catch (Exception e) {
+					objectClass = null;
+				}
+				if ((objectClass != null) && Operation.class.isAssignableFrom(objectClass)) {
+					if (method.getName().equals("execute")) {
+						return null;
+					}
+				}
+				return super.getOnlineHelp(method, objectType);
+			}
 
 			boolean isResourceNoteField(IFieldInfo field, ITypeInfo objectType) {
 				Class<?> objectClass;
@@ -2674,12 +2748,12 @@ public class GUI extends MultiSwingCustomizer {
 				}
 				if ((objectClass != null) && Step.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-							Arrays.asList(boolean.class.getName(), Plan.class.getName(), Solution.class.getName())))) {
+							Arrays.asList(boolean.class.getName(), Solution.class.getName(), Plan.class.getName())))) {
 						return true;
 					}
 				} else if ((objectClass != null) && Transition.class.isAssignableFrom(objectClass)) {
 					if (method.getSignature().equals(ReflectionUIUtils.buildMethodSignature("void", "validate",
-							Arrays.asList(boolean.class.getName(), Plan.class.getName(), Solution.class.getName())))) {
+							Arrays.asList(boolean.class.getName(), Solution.class.getName(), Plan.class.getName())))) {
 						return true;
 					}
 				} else if ((objectClass != null) && Transition.Condition.class.isAssignableFrom(objectClass)) {
@@ -2961,15 +3035,17 @@ public class GUI extends MultiSwingCustomizer {
 
 		protected class JESBSubInfoCustomizationsFactory extends InfoProxyFactoryChain {
 			public JESBSubInfoCustomizationsFactory() {
-				IInfoProxyFactory methodBasedSubInfoCustomizationsFactory;
-				try {
-					methodBasedSubInfoCustomizationsFactory = upToDateMethodBasedSubInfoCustomizationsFactory.get();
-				} catch (VersionAccessException e) {
-					throw new UnexpectedError(e);
-				}
-				if (methodBasedSubInfoCustomizationsFactory != null) {
-					accessFactories().add(methodBasedSubInfoCustomizationsFactory);
-				}
+				accessFactories().add(new DelegatingInfoProxyFactory() {
+
+					@Override
+					protected IInfoProxyFactory getDelegate() {
+						try {
+							return upToDateMethodBasedSubInfoCustomizationsFactory.get();
+						} catch (VersionAccessException e) {
+							throw new UnexpectedError(e);
+						}
+					}
+				});
 				accessFactories().add(JESBSubCustomizedUI.super.getSubInfoCustomizationsFactory());
 			}
 		}

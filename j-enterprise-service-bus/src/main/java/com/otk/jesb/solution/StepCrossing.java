@@ -1,5 +1,6 @@
 package com.otk.jesb.solution;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.Variable;
@@ -10,7 +11,7 @@ public class StepCrossing extends StepOccurrence {
 	private Operation operation;
 	private Object operationResult;
 	private Throwable operationError;
-	private List<Transition> validTransitions;
+	private List<Transition> validTransitions = new ArrayList<Transition>();
 	private Solution solutionInstance;
 
 	public StepCrossing(Step step, Plan plan, Solution solutionInstance) {

@@ -14,7 +14,8 @@ public class Console extends Log {
 	private int size = 100000;
 	private final Object bufferMutex = new Object();
 	private String pendingInputLine;
-	private Consumer<String> pendingInputLineConsumer = line -> log(line, true, null, null, null);
+	private final Consumer<String> defaultPendingInputLineConsumer = line -> log(line, true, null, null, null);
+	private Consumer<String> pendingInputLineConsumer = defaultPendingInputLineConsumer;
 
 	public int getSize() {
 		return size;
@@ -41,6 +42,10 @@ public class Console extends Log {
 
 	public void setPendingInputLineConsumer(Consumer<String> pendingInputLineConsumer) {
 		this.pendingInputLineConsumer = pendingInputLineConsumer;
+	}
+
+	public Consumer<String> getDefaultPendingInputLineConsumer() {
+		return defaultPendingInputLineConsumer;
 	}
 
 	@Override

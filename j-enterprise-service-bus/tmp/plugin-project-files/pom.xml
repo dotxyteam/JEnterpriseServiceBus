@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.otk.jesb.activation.builtin</groupId>
+	<groupId>com.example</groupId>
 	<artifactId>jesb-plugin</artifactId>
 	<version>0.0.1</version>
 	<packaging>jar</packaging>
 
-	<name>com.otk.jesb.activation.builtin JEnterpriseServiceBus Plugin</name>
+	<name>com.example JEnterpriseServiceBus Plugin</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,9 +18,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.otk</groupId>
+			<groupId>com.github.dotxyteam</groupId>
 			<artifactId>j-enterprise-service-bus</artifactId>
-			<version>0.9.1</version>
+			<version>0.9.8</version>
 		</dependency>
 	</dependencies>
 
@@ -52,7 +52,9 @@
 				<version>2.4</version>
 				<configuration>
 					<archive>
-						<manifestFile>META-INF/MANIFEST.MF</manifestFile>
+						<manifestEntries>
+							<Plugin-Info-Class>com.example.PluginInfo</Plugin-Info-Class>
+						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>

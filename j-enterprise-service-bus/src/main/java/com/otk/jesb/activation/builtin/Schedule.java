@@ -91,7 +91,8 @@ public class Schedule extends Activator {
 	}
 
 	@Override
-	public void initializeAutomaticTrigger(ActivationHandler activationHandler, Solution solutionInstance) throws Exception {
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler, Solution solutionInstance)
+			throws Exception {
 		this.activationHandler = activationHandler;
 		scheduler = MiscUtils.newScheduler(Schedule.class.getName() + "Worker-" + hashCode(), 1);
 		executor = MiscUtils.newExecutor(Schedule.class.getName() + "Executor-" + hashCode(), 1);

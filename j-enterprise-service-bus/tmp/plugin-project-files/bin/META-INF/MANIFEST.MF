@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Resource-Metadata-Classes: 
-Activator-Metadata-Classes: com.otk.jesb.activation.builtin.ReadComman
- dLine$Metadata
-Operation-Metadata-Classes: 
-

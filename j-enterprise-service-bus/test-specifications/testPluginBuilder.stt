@@ -1601,8 +1601,8 @@ return;
       <disabled>false</disabled>
       <keyboardInteractions>
         <xy.ui.testing.action.component.SendKeysAction_-WriteText>
-          <text>public String translateHello(String string) {
-LanguageStructure language = languageVariant.getValue();
+          <text>public String translateHello(String string, Solution solutionInstance) {
+LanguageStructure language = languageVariant.getValue(solutionInstance);
 if (language == LanguageStructure.English) {
 return string;
 } else if (language == LanguageStructure.French) {
@@ -1970,7 +1970,7 @@ throw new IllegalStateException();
           <shiftDown>false</shiftDown>
         </xy.ui.testing.action.component.SendKeysAction_-SpecialKey_-CtrlA>
         <xy.ui.testing.action.component.SendKeysAction_-WriteText>
-          <text>return translator.translateHello(&quot;Hello&quot; + ((name.value!=null) ? (&quot; &quot;+name.value) : &quot;&quot;));</text>
+          <text>return translator.translateHello(&quot;Hello&quot; + ((name.value!=null) ? (&quot; &quot;+name.value) : &quot;&quot;), solutionInstance);</text>
         </xy.ui.testing.action.component.SendKeysAction_-WriteText>
       </keyboardInteractions>
       <requestToFocusOnTheComponent>true</requestToFocusOnTheComponent>

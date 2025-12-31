@@ -412,11 +412,8 @@ public class Debugger extends Session {
 		public int getTransitionOccurrenceCount(Transition transition) {
 			int result = 0;
 			for (StepCrossing stepCrossing : stepCrossings) {
-				List<Transition> validaTransitions = stepCrossing.getValidTransitions();
-				if (validaTransitions != null) {
-					if (validaTransitions.contains(transition)) {
-						result++;
-					}
+				if (stepCrossing.getValidTransitions().contains(transition)) {
+					result++;
 				}
 			}
 			return result;

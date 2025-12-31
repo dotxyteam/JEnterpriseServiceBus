@@ -1,0 +1,154 @@
+package com.otk.jesb;
+
+import java.io.File;
+import java.net.ConnectException;
+import java.util.Locale;
+
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.otk.jesb.solution.Plan;
+import com.otk.jesb.solution.Solution;
+import com.otk.jesb.util.InstantiationUtils;
+import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.SolutionUtils;
+
+import xy.ui.testing.Tester;
+
+public class ApiTests {
+
+	Tester tester = new Tester();
+
+	protected static void checkSystemProperty(String key, String expectedValue) {
+		String value = System.getProperty(key);
+		if (!MiscUtils.equalsOrBothNull(expectedValue, value)) {
+			String errorMsg = "System property invalid value:\n" + "-D" + key + "=" + value + "\nExpected:\n" + "-D"
+					+ key + "=" + expectedValue;
+			System.err.println(errorMsg);
+			throw new AssertionError(errorMsg);
+
+		}
+	}
+
+	public static void setupTestEnvironment() {
+		checkSystemProperty(JESB.DEBUG_PROPERTY_KEY, null);
+		Locale.setDefault(Locale.US);
+	}
+
+	@BeforeClass
+	public static void beforeAllTests() {
+		setupTestEnvironment();
+	}
+
+	@Test
+	public void testRestService() throws Exception {
+		File archiveFile = MiscUtils.createTemporaryFile("zip");
+		try {
+			MiscUtils.writeBinary(archiveFile,
+					MiscUtils.readBinary(ApiTests.class.getResourceAsStream("/testWebServices/test-rest-solution.zip")),
+					false);
+			Solution solutionInstance = new Solution();
+			solutionInstance.loadFromArchiveFile(archiveFile);
+			solutionInstance.validate();
+			try (Session session = Session.openDummySession(solutionInstance)) {
+				Plan servicePlan = SolutionUtils.findAsset(solutionInstance, Plan.class, "greetingByName");
+				SolutionUtils.activatePlan(servicePlan, session);
+				Plan clientPlan = SolutionUtils.findAsset(solutionInstance, Plan.class, "testGreetingsService");
+				Object result;
+				String message;
+				{
+					result = SolutionUtils.executePlan(clientPlan, session, null);
+					message = Expression.evaluateObjectMemberSelection(result, "message", String.class,
+							solutionInstance);
+					if (!message.equals("Hello John!")) {
+						Assert.fail();
+					}
+				}
+				{
+					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
+						InstantiationUtils.setChildInitializerValue(inputBuilder, "name", "Liza", solutionInstance);
+					});
+					message = Expression.evaluateObjectMemberSelection(result, "message", String.class,
+							solutionInstance);
+					if (!message.equals("Hello Liza!")) {
+						Assert.fail();
+					}
+				}
+				{
+					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
+						InstantiationUtils.setChildInitializerValue(inputBuilder, "name", "", solutionInstance);
+					});
+					message = Expression.evaluateObjectMemberSelection(result, "message", String.class,
+							solutionInstance);
+					if (!message.contains("Name not provided!")) {
+						Assert.fail();
+					}
+				}
+				SolutionUtils.deactivatePlan(servicePlan, session);
+				try {
+					SolutionUtils.executePlan(clientPlan, session, null);
+					Assert.fail();
+				} catch (Exception e) {
+					if (!MiscUtils.getPrintedStackTrace(e).contains(ConnectException.class.getSimpleName())) {
+						Assert.fail();
+					}
+				}
+			}
+		} finally {
+			MiscUtils.delete(archiveFile);
+		}
+	}
+
+	@Test
+	public void testSoapService() throws Exception {
+		File archiveFile = MiscUtils.createTemporaryFile("zip");
+		try {
+			MiscUtils.writeBinary(archiveFile,
+					MiscUtils.readBinary(ApiTests.class.getResourceAsStream("/testWebServices/test-soap-solution.zip")),
+					false);
+			Solution solutionInstance = new Solution();
+			solutionInstance.loadFromArchiveFile(archiveFile);
+			solutionInstance.validate();
+			try (Session session = Session.openDummySession(solutionInstance)) {
+				Plan servicePlan = SolutionUtils.findAsset(solutionInstance, Plan.class, "service");
+				SolutionUtils.activatePlan(servicePlan, session);
+				Plan clientPlan = SolutionUtils.findAsset(solutionInstance, Plan.class, "test");
+				Object result;
+				String message;
+				{
+					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
+						InstantiationUtils.setChildInitializerValue(inputBuilder, "(name)", "Liza", solutionInstance);
+					});
+					message = Expression.evaluateObjectMemberSelection(result, "message", String.class,
+							solutionInstance);
+					if (!message.equals("Hello Liza!")) {
+						Assert.fail();
+					}
+				}
+				{
+					result = SolutionUtils.executePlan(clientPlan, session, inputBuilder -> {
+						InstantiationUtils.setChildInitializerValue(inputBuilder, "(name)", "", solutionInstance);
+					});
+					message = Expression.evaluateObjectMemberSelection(result, "message", String.class,
+							solutionInstance);
+					if (!message.contains("Name not provided!")) {
+						Assert.fail();
+					}
+				}
+				SolutionUtils.deactivatePlan(servicePlan, session);
+				try {
+					SolutionUtils.executePlan(clientPlan, session, null);
+					Assert.fail();
+				} catch (Exception e) {
+					if (!MiscUtils.getPrintedStackTrace(e).contains(ConnectException.class.getSimpleName())) {
+						Assert.fail();
+					}
+				}
+			}
+		} finally {
+			MiscUtils.delete(archiveFile);
+		}
+	}
+
+}

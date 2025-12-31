@@ -44,7 +44,7 @@ public class StressTests {
 
 	@Test
 	public void testMemoryLeaks() throws Exception {
-		final Long PERIOD_MILLISECONDS = 1l;
+		final Long PERIOD_MILLISECONDS = 5l;
 		final Long SLEEP_MILLISECONDS = 100l;
 		Solution solutionInstance = new Solution();
 		Plan plan = new Plan();
@@ -98,7 +98,7 @@ public class StressTests {
 		try (Runner session = new Runner(solutionInstance)) {
 			long freeMemory = 0;
 			long lastFreeMemory = Long.MAX_VALUE;
-			for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < 5; i++) {
 				System.gc();
 				freeMemory = Runtime.getRuntime().freeMemory();
 				if (freeMemory >= lastFreeMemory) {

@@ -413,9 +413,9 @@ public class PluginBuilder {
 			stringBuilder.append("	public List<" + ResourceMetadata.class.getName() + "> getResourceMetadatas() {\n");
 			stringBuilder.append("		return " + Arrays.class.getName() + ".asList(\n");
 			stringBuilder
-					.append(activators
-							.stream().map(activator -> "				new " + packageName + "."
-									+ activator.getActivatorTypeName() + ".Metadata()")
+					.append(resources
+							.stream().map(resource -> "				new " + packageName + "."
+									+ resource.getResourceTypeName() + ".Metadata()")
 							.collect(Collectors.joining(",\n")));
 			stringBuilder.append("		);\n");
 			stringBuilder.append("	}\n");
@@ -715,7 +715,7 @@ public class PluginBuilder {
 		}
 
 		protected String generateUICustomizationsMethodSourceCode(String displayedTypeNamePrefix,
-				PluginBuilder pluginBuilder) {
+				String additionalStatements, PluginBuilder pluginBuilder) {
 			CodeBuilder result = new CodeBuilder();
 			String displayedTypeName = getDisplayedTypeName(displayedTypeNamePrefix, pluginBuilder);
 			List<? extends UIElementBasedDescriptor> uiElements = getUIElements();
@@ -751,6 +751,9 @@ public class PluginBuilder {
 							+ ".buildMethodSignature(\"void\", \"" + INFO_CUSTOMIZATIONS_METHOD_NAME + "\", "
 							+ Arrays.class.getName() + ".asList(" + InfoCustomizations.class.getName()
 							+ ".class.getName())))\n.setHidden(true);\n");
+					if (additionalStatements != null) {
+						result.append(additionalStatements);
+					}
 				});
 				result.append("}\n");
 			});
@@ -761,10 +764,9 @@ public class PluginBuilder {
 		protected String generateCustomUIFactoryMethodSourceCode(String displayedTypeNamePrefix,
 				PluginBuilder pluginBuilder) {
 			CodeBuilder result = new CodeBuilder();
-			result.append(generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix, pluginBuilder));
 			String displayedTypeName = getDisplayedTypeName(displayedTypeNamePrefix, pluginBuilder);
-			result.append("public static " + IInfoProxyFactory.class.getName() + " "
-					+ GUI.CUSTOM_UI_FACTORY_METHOD_NAME + "(" + JESBSubCustomizedUI.class.getName()
+			result.append("public static " + IInfoProxyFactory.class.getName() + " " + GUI.CUSTOM_UI_FACTORY_METHOD_NAME
+					+ "(" + MiscUtils.adaptClassNameToSourceCode(JESBSubCustomizedUI.class.getName())
 					+ " customizedUI) {\n");
 			result.indenting(() -> {
 				result.append("return new " + InfoCustomizationsFactory.class.getName() + "(customizedUI) {\n");
@@ -794,6 +796,18 @@ public class PluginBuilder {
 				});
 				result.append("};\n");
 			});
+			result.append("}");
+			{
+				String uiCustomizationsAdditionalStatements = InfoCustomizations.class.getName()
+						+ ".getMethodCustomization(infoCustomizations, " + displayedTypeName + ".class.getName(), "
+						+ ReflectionUIUtils.class.getName() + ".buildMethodSignature("
+						+ IInfoProxyFactory.class.getName() + ".class.getName(), \"" + GUI.CUSTOM_UI_FACTORY_METHOD_NAME
+						+ "\", " + Arrays.class.getName() + ".asList("
+						+ MiscUtils.adaptClassNameToSourceCode(JESBSubCustomizedUI.class.getName())
+						+ ".class.getName())))\n.setHidden(true);\n";
+				result.append("\n" + generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix,
+						uiCustomizationsAdditionalStatements, pluginBuilder));
+			}
 			return result.toString();
 		}
 
@@ -1939,7 +1953,7 @@ public class PluginBuilder {
 			@Override
 			protected String generateCustomUIFactoryMethodSourceCode(String displayedTypeNamePrefix,
 					PluginBuilder pluginBuilder) {
-				return super.generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix, pluginBuilder);
+				return super.generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix, null, pluginBuilder);
 			}
 
 			@Override
@@ -2919,7 +2933,7 @@ public class PluginBuilder {
 			@Override
 			protected String generateCustomUIFactoryMethodSourceCode(String displayedTypeNamePrefix,
 					PluginBuilder pluginBuilder) {
-				return super.generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix, pluginBuilder);
+				return super.generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix, null, pluginBuilder);
 			}
 
 			@Override
@@ -3681,7 +3695,7 @@ public class PluginBuilder {
 			@Override
 			protected String generateCustomUIFactoryMethodSourceCode(String displayedTypeNamePrefix,
 					PluginBuilder pluginBuilder) {
-				return super.generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix, pluginBuilder);
+				return super.generateUICustomizationsMethodSourceCode(displayedTypeNamePrefix, null, pluginBuilder);
 			}
 
 			@Override
