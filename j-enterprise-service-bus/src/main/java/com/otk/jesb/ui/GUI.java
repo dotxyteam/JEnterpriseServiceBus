@@ -435,6 +435,11 @@ public class GUI extends MultiSwingCustomizer {
 		}
 	}
 
+	@Override
+	public void openErrorDetailsDialog(Component activatorComponent, Throwable error) {
+		openObjectDialog(activatorComponent, new ExceptionTree(error), null, null, false);
+	}
+
 	public static class ExceptionTree {
 		private Throwable exception;
 
@@ -1114,7 +1119,7 @@ public class GUI extends MultiSwingCustomizer {
 
 		@Override
 		public void openErrorDetailsDialog(Component activatorComponent, Throwable error) {
-			openObjectDialog(activatorComponent, new ExceptionTree(error), null, null, false);
+			GUI.this.openErrorDetailsDialog(activatorComponent, error);
 		}
 
 		@Override

@@ -246,8 +246,9 @@ public class Plan extends Asset {
 			return outputBuilder.build(new InstantiationContext(context.getVariables(),
 					getValidationContext(null, solutionInstance).getVariableDeclarations(), solutionInstance));
 		} catch (Throwable t) {
-			throw new ExecutionError("Failed to execute plan (" + Reference.get(this, solutionInstance).getPath() + ")",
-					t);
+			Reference<Plan> reference = Reference.get(this, solutionInstance);
+			throw new ExecutionError(
+					"Failed to execute plan (" + ((reference != null) ? reference.getPath() : this) + ")", t);
 		}
 	}
 

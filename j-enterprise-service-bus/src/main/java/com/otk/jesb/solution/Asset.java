@@ -28,22 +28,41 @@ public abstract class Asset {
 		this.name = name;
 	}
 
+	/**
+	 * @return The asset name.
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Updates the asset name.
+	 * 
+	 * @param name The new asset name.
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * @return The comment associated with the current asset (may be null).
+	 */
 	public String getNote() {
 		return note;
 	}
 
+	/**
+	 * Updates the comment associated with the current asset.
+	 * 
+	 * @param note The new note (may be null).
+	 */
 	public void setNote(String note) {
 		this.note = note;
 	}
 
+	/**
+	 * @return The name with (if applicable) the extension.
+	 */
 	public String getFullName() {
 		if (this instanceof Folder) {
 			return (name != null) ? name : "";
@@ -52,6 +71,9 @@ public abstract class Asset {
 		}
 	}
 
+	/**
+	 * @return The name of the associated resource on the file system.
+	 */
 	public String getFileSystemResourceName() {
 		if (this instanceof Folder) {
 			return getFullName();
@@ -60,6 +82,14 @@ public abstract class Asset {
 		}
 	}
 
+	/**
+	 * Checks the consistency of the current asset data.
+	 * 
+	 * @param recursively      Whether checks should also be performed on any
+	 *                         sub-elements.
+	 * @param solutionInstance The current solution.
+	 * @throws ValidationError If an inconsistency is detected.
+	 */
 	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
 		if ((name == null) || (name.length() == 0)) {
 			throw new ValidationError("Name not specified");
