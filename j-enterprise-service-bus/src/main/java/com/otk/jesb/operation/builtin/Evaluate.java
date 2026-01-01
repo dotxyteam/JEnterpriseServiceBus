@@ -140,9 +140,7 @@ public class Evaluate implements Operation {
 			@Override
 			protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
 				return new Pair<String, Boolean>(
-						(valueKind != null) ? MiscUtils.serialize(valueKind, solutionInstance.getRuntime().getXstream())
-								: null,
-						multiple);
+						(valueKind != null) ? solutionInstance.getSerializer().write(valueKind) : null, multiple);
 			}
 
 			@Override

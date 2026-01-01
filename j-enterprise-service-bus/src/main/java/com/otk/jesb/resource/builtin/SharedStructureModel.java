@@ -43,8 +43,7 @@ public class SharedStructureModel extends Resource {
 	private UpToDate<Solution, Class<?>> upToDateStructuredClass = new UpToDate<Solution, Class<?>>() {
 		@Override
 		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
-			return (structure != null) ? MiscUtils.serialize(structure, solutionInstance.getRuntime().getXstream())
-					: null;
+			return (structure != null) ? solutionInstance.getSerializer().write(structure) : null;
 		}
 
 		@Override

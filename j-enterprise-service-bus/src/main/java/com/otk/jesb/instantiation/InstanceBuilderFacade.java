@@ -13,8 +13,6 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
-import com.otk.jesb.util.MiscUtils;
-
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.method.AbstractConstructorInfo;
 import xy.reflect.ui.info.method.IMethodInfo;
@@ -238,8 +236,7 @@ public class InstanceBuilderFacade extends Facade {
 		if (!canCopyUnderlying()) {
 			throw new UnexpectedError();
 		}
-		InstanceBuilderFacade.underlyingClipboard = MiscUtils.copy(underlying,
-				solutionInstance.getRuntime().getXstream());
+		InstanceBuilderFacade.underlyingClipboard = solutionInstance.getSerializer().copy(underlying);
 	}
 
 	public void pasteUnderlying() {
@@ -284,7 +281,7 @@ public class InstanceBuilderFacade extends Facade {
 		}
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
-			MiscUtils.serialize(underlying, output, solutionInstance.getRuntime().getXstream());
+			solutionInstance.getSerializer().write(underlying, output);
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
@@ -298,7 +295,7 @@ public class InstanceBuilderFacade extends Facade {
 		ByteArrayInputStream input = new ByteArrayInputStream(source.getBytes());
 		InstanceBuilder deserialized;
 		try {
-			deserialized = (InstanceBuilder) MiscUtils.deserialize(input, solutionInstance.getRuntime().getXstream());
+			deserialized = (InstanceBuilder) solutionInstance.getSerializer().read(input);
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}

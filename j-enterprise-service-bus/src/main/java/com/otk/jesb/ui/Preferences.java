@@ -26,8 +26,6 @@ import com.otk.jesb.JESB;
 import com.otk.jesb.Log;
 import com.otk.jesb.Profile;
 import com.otk.jesb.UnexpectedError;
-import com.otk.jesb.util.MiscUtils;
-
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 
@@ -38,8 +36,7 @@ public class Preferences {
 	static {
 		if (FILE.exists()) {
 			try (FileInputStream fileInputStream = new FileInputStream(FILE)) {
-				INSTANCE = (Preferences) MiscUtils.deserialize(fileInputStream,
-						JESB.UI.INSTANCE.getSolutionInstance().getRuntime().getXstream());
+				INSTANCE = (Preferences) JESB.UI.INSTANCE.getSolutionInstance().getSerializer().read(fileInputStream);
 			} catch (IOException e) {
 				Log.get().error(e);
 				System.exit(-1);
@@ -59,8 +56,7 @@ public class Preferences {
 
 	public void persist() {
 		try (FileOutputStream fileOutputStream = new FileOutputStream(FILE)) {
-			MiscUtils.serialize(this, fileOutputStream,
-					JESB.UI.INSTANCE.getSolutionInstance().getRuntime().getXstream());
+			JESB.UI.INSTANCE.getSolutionInstance().getSerializer().write(this, fileOutputStream);
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}

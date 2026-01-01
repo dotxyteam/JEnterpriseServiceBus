@@ -108,12 +108,12 @@ public class WSDL extends XMLBasedDocumentResource {
 		String dynamicTypeNamePart = InstantiationUtils
 				.extractDynamicTypeNameVariablePart(operationMethod.getDeclaringClass().getName());
 		faultDescription = InstantiationUtils.makeTypeNamesAbsolute(faultDescription, dynamicTypeNamePart);
-		return (Exception) MiscUtils.deserialize(faultDescription, solutionInstance.getRuntime().getXstream());
+		return (Exception) solutionInstance.getSerializer().read(faultDescription);
 	}
 
 	public String faultExceptionToDescription(Exception faultException, Method operationMethod,
 			Solution solutionInstance) {
-		String result = MiscUtils.serialize(faultException, solutionInstance.getRuntime().getXstream()).replace(
+		String result = solutionInstance.getSerializer().write(faultException).replace(
 				"\n" + "  <cause class=\"" + faultException.getClass().getName() + "\" reference=\"..\"/>", "");
 		String dynamicTypeNamePart = InstantiationUtils
 				.extractDynamicTypeNameVariablePart(operationMethod.getDeclaringClass().getName());

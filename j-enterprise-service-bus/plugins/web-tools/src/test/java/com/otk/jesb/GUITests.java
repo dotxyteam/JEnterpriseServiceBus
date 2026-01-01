@@ -34,7 +34,7 @@ public class GUITests {
 		checkSystemProperty(JESB.DEBUG_PROPERTY_KEY, null);
 		checkSystemProperty(GUI.GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORIES_PROPERTY_KEY, null);
 		Locale.setDefault(Locale.US);
-		System.setProperty(Runtime.PLUGIN_INFO_CLASS_NAMES_PROPERTY_KEY, WebToolsPluginInfo.class.getName());
+		System.setProperty(Runtime.STATIC_PLUGIN_INFO_CLASS_NAMES_PROPERTY_KEY, WebToolsPluginInfo.class.getName());
 	}
 
 	@BeforeClass

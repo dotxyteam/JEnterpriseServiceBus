@@ -101,9 +101,7 @@ public class Operate extends Activator {
 	private class UpToDateInputClass extends UpToDate<Solution, Class<?>> {
 		@Override
 		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
-			return (inputStructure != null)
-					? MiscUtils.serialize(inputStructure, solutionInstance.getRuntime().getXstream())
-					: null;
+			return (inputStructure != null) ? solutionInstance.getSerializer().write(inputStructure) : null;
 		}
 
 		@Override
@@ -127,9 +125,7 @@ public class Operate extends Activator {
 	private class UpToDateOutputClass extends UpToDate<Solution, Class<?>> {
 		@Override
 		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
-			return (outputStructure != null)
-					? MiscUtils.serialize(outputStructure, solutionInstance.getRuntime().getXstream())
-					: null;
+			return (outputStructure != null) ? solutionInstance.getSerializer().write(outputStructure) : null;
 		}
 
 		@Override

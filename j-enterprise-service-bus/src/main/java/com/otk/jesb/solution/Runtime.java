@@ -1,7 +1,5 @@
 package com.otk.jesb.solution;
 
-import java.beans.PropertyDescriptor;
-import java.beans.Transient;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.URL;
@@ -18,14 +16,6 @@ import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.InMemoryCompiler;
 import com.otk.jesb.util.MiscUtils;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.javabean.BeanProvider;
-import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
-import com.thoughtworks.xstream.converters.reflection.ReflectionConverter;
-import com.thoughtworks.xstream.mapper.MapperWrapper;
-import com.thoughtworks.xstream.security.AnyTypePermission;
-
-import xy.reflect.ui.control.plugin.AbstractSimpleCustomizableFieldControlPlugin;
 import xy.reflect.ui.util.ClassUtils;
 
 /**
@@ -38,44 +28,14 @@ import xy.reflect.ui.util.ClassUtils;
 public class Runtime {
 
 	public static final Attributes.Name PLUGIN_INFO_CLASS_MANIFEST_KEY = new Attributes.Name("Plugin-Info-Class");
-	public static final String PLUGIN_INFO_CLASS_NAMES_PROPERTY_KEY = Runtime.class.getName() + ".pluginInfoClassNames";
+	public static final String STATIC_PLUGIN_INFO_CLASS_NAMES_PROPERTY_KEY = Runtime.class.getName()
+			+ ".pluginInfoClassNames";
 
 	private final InMemoryCompiler inMemoryCompiler = new InMemoryCompiler();
 
 	private final List<IPluginInfo> pluginInfos = new ArrayList<IPluginInfo>();
 
-	private final XStream xstream = new XStream() {
-		@Override
-		protected MapperWrapper wrapMapper(MapperWrapper next) {
-			return new MapperWrapper(next) {
-				@Override
-				public String serializedClass(@SuppressWarnings("rawtypes") Class type) {
-					if ((type != null) && type.isAnonymousClass()) {
-						throw new UnexpectedError("Cannot serialize instance of class " + type
-								+ ": Anonymous class instance serialization is forbidden");
-					}
-					return super.serializedClass(type);
-				}
-
-				@Override
-				public boolean shouldSerializeMember(@SuppressWarnings("rawtypes") Class definedIn, String fieldName) {
-					if (Throwable.class.isAssignableFrom(definedIn)) {
-						if (fieldName.equals("stackTrace")) {
-							return false;
-						}
-						if (fieldName.equals("suppressedExceptions")) {
-							return false;
-						}
-					}
-					return super.shouldSerializeMember(definedIn, fieldName);
-				}
-
-			};
-		}
-	};
-
 	public Runtime() {
-		configureXstream();
 		configureSolutionDependencies(Collections.emptyList());
 	}
 
@@ -87,61 +47,10 @@ public class Runtime {
 		return pluginInfos;
 	}
 
-	public XStream getXstream() {
-		return xstream;
-	}
-
-	private void configureXstream() {
-		xstream.setClassLoader(inMemoryCompiler.getCompiledClassesLoader());
-		xstream.registerConverter(new JavaBeanConverter(xstream.getMapper(), new BeanProvider() {
-			@Override
-			protected boolean canStreamProperty(PropertyDescriptor descriptor) {
-
-				final boolean canStream = super.canStreamProperty(descriptor);
-				if (!canStream) {
-					return false;
-				}
-
-				final boolean readMethodIsTransient = descriptor.getReadMethod() == null
-						|| descriptor.getReadMethod().getAnnotation(Transient.class) != null;
-				final boolean writeMethodIsTransient = descriptor.getWriteMethod() == null
-						|| descriptor.getWriteMethod().getAnnotation(Transient.class) != null;
-				final boolean isTransient = readMethodIsTransient || writeMethodIsTransient;
-				if (isTransient) {
-					return false;
-				}
-
-				return true;
-			}
-
-			@Override
-			public void writeProperty(Object object, String propertyName, Object value) {
-				if (!propertyWriteable(propertyName, object.getClass())) {
-					return;
-				}
-				super.writeProperty(object, propertyName, value);
-			}
-		}), XStream.PRIORITY_VERY_LOW);
-		xstream.registerConverter(new ReflectionConverter(xstream.getMapper(), xstream.getReflectionProvider()) {
-			@Override
-			public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
-				if ((type != null) && AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration.class
-						.isAssignableFrom(type)) {
-					return true;
-				}
-				if ((type != null) && Throwable.class.isAssignableFrom(type)) {
-					return true;
-				}
-				return false;
-			}
-		}, XStream.PRIORITY_VERY_HIGH);
-		xstream.addPermission(AnyTypePermission.ANY);
-		xstream.ignoreUnknownElements();
-	}
-
 	public void configureSolutionDependencies(List<JAR> jars) {
 		pluginInfos.clear();
-		for (String pluginInfoClassName : System.getProperty(PLUGIN_INFO_CLASS_NAMES_PROPERTY_KEY, "").split(",")) {
+		for (String pluginInfoClassName : System.getProperty(STATIC_PLUGIN_INFO_CLASS_NAMES_PROPERTY_KEY, "")
+				.split(",")) {
 			pluginInfoClassName = pluginInfoClassName.trim();
 			if (pluginInfoClassName.isEmpty()) {
 				continue;

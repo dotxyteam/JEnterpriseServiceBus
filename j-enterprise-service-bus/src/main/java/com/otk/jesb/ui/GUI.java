@@ -1391,7 +1391,7 @@ public class GUI extends MultiSwingCustomizer {
 					objectClass = null;
 				}
 				if ((objectClass != null) && Asset.class.isAssignableFrom(objectClass)) {
-					return MiscUtils.copy(object, GUI.this.getSolutionInstance().getRuntime().getXstream());
+					return GUI.this.getSolutionInstance().getSerializer().copy(object);
 				} else {
 					return super.copy(type, object);
 				}

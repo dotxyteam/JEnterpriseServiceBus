@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -63,8 +64,10 @@ import com.otk.jesb.util.Accessor;
 import com.otk.jesb.util.CodeBuilder;
 import com.otk.jesb.util.CodeBuilder.PlaceHolder;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Serializer;
 import com.otk.jesb.util.TreeVisitor;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.converters.javabean.BeanProvider;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
 import com.thoughtworks.xstream.converters.reflection.ReflectionConverter;
@@ -111,80 +114,98 @@ public class PluginBuilder {
 		});
 	}
 
-	private static final XStream CONTROL_PLUGIN_CONFIGURATION_XSTREAM = new XStream() {
-		{
-			registerConverter(new JavaBeanConverter(getMapper(), new BeanProvider() {
-				@Override
-				protected boolean canStreamProperty(java.beans.PropertyDescriptor descriptor) {
-
-					final boolean canStream = super.canStreamProperty(descriptor);
-					if (!canStream) {
-						return false;
-					}
-
-					final boolean readMethodIsTransient = descriptor.getReadMethod() == null
-							|| descriptor.getReadMethod().getAnnotation(Transient.class) != null;
-					final boolean writeMethodIsTransient = descriptor.getWriteMethod() == null
-							|| descriptor.getWriteMethod().getAnnotation(Transient.class) != null;
-					final boolean isTransient = readMethodIsTransient || writeMethodIsTransient;
-					if (isTransient) {
-						return false;
-					}
-
-					return true;
-				}
-
-				@Override
-				public void writeProperty(Object object, String propertyName, Object value) {
-					if (!propertyWriteable(propertyName, object.getClass())) {
-						return;
-					}
-					super.writeProperty(object, propertyName, value);
-				}
-			}), XStream.PRIORITY_VERY_LOW);
-			registerConverter(new ReflectionConverter(getMapper(), getReflectionProvider()) {
-				@Override
-				public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
-					if ((type != null) && AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration.class
-							.isAssignableFrom(type)) {
-						return true;
-					}
-					if ((type != null) && Throwable.class.isAssignableFrom(type)) {
-						return true;
-					}
-					return false;
-				}
-			}, XStream.PRIORITY_VERY_HIGH);
-			addPermission(AnyTypePermission.ANY);
-			ignoreUnknownElements();
-		}
+	private static final Serializer CONTROL_PLUGIN_CONFIGURATION_SERIALIZER = new Serializer() {
 
 		@Override
-		protected MapperWrapper wrapMapper(MapperWrapper next) {
-			return new MapperWrapper(next) {
-				@Override
-				public String serializedClass(@SuppressWarnings("rawtypes") Class type) {
-					if ((type != null) && type.isAnonymousClass()) {
-						throw new UnexpectedError("Cannot serialize instance of class " + type
-								+ ": Anonymous class instance serialization is forbidden");
-					}
-					return super.serializedClass(type);
+		protected XStream createXstream() {
+			return new XStream() {
+				{
+					registerConverter(new JavaBeanConverter(getMapper(), new BeanProvider() {
+						@Override
+						protected boolean canStreamProperty(java.beans.PropertyDescriptor descriptor) {
+
+							final boolean canStream = super.canStreamProperty(descriptor);
+							if (!canStream) {
+								return false;
+							}
+
+							final boolean readMethodIsTransient = descriptor.getReadMethod() == null
+									|| descriptor.getReadMethod().getAnnotation(Transient.class) != null;
+							final boolean writeMethodIsTransient = descriptor.getWriteMethod() == null
+									|| descriptor.getWriteMethod().getAnnotation(Transient.class) != null;
+							final boolean isTransient = readMethodIsTransient || writeMethodIsTransient;
+							if (isTransient) {
+								return false;
+							}
+
+							return true;
+						}
+
+						@Override
+						public void writeProperty(Object object, String propertyName, Object value) {
+							if (!propertyWriteable(propertyName, object.getClass())) {
+								return;
+							}
+							super.writeProperty(object, propertyName, value);
+						}
+					}), XStream.PRIORITY_VERY_LOW);
+					registerConverter(new ReflectionConverter(getMapper(), getReflectionProvider()) {
+						@Override
+						public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
+							if ((type != null)
+									&& AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration.class
+											.isAssignableFrom(type)) {
+								return true;
+							}
+							if ((type != null) && Throwable.class.isAssignableFrom(type)) {
+								return true;
+							}
+							return false;
+						}
+					}, XStream.PRIORITY_VERY_HIGH);
+					addPermission(AnyTypePermission.ANY);
+					ignoreUnknownElements();
 				}
 
 				@Override
-				public boolean shouldSerializeMember(@SuppressWarnings("rawtypes") Class definedIn, String fieldName) {
-					if (Throwable.class.isAssignableFrom(definedIn)) {
-						if (fieldName.equals("stackTrace")) {
-							return false;
+				protected MapperWrapper wrapMapper(MapperWrapper next) {
+					return new MapperWrapper(next) {
+						@Override
+						public String serializedClass(@SuppressWarnings("rawtypes") Class type) {
+							if ((type != null) && type.isAnonymousClass()) {
+								throw new UnexpectedError("Cannot serialize instance of class " + type
+										+ ": Anonymous class instance serialization is forbidden");
+							}
+							return super.serializedClass(type);
 						}
-						if (fieldName.equals("suppressedExceptions")) {
-							return false;
+
+						@Override
+						public boolean shouldSerializeMember(@SuppressWarnings("rawtypes") Class definedIn,
+								String fieldName) {
+							if (Throwable.class.isAssignableFrom(definedIn)) {
+								if (fieldName.equals("stackTrace")) {
+									return false;
+								}
+								if (fieldName.equals("suppressedExceptions")) {
+									return false;
+								}
+							}
+							return super.shouldSerializeMember(definedIn, fieldName);
 						}
-					}
-					return super.shouldSerializeMember(definedIn, fieldName);
+
+					};
 				}
 
 			};
+		}
+
+		@Override
+		public void write(Object object, Writer writer) throws IOException {
+			try {
+				xstream.marshal(object, new CompactWriter(writer));
+			} catch (XStreamException e) {
+				throw new IOException(e);
+			}
 		}
 	};
 	private static final GUI UI_UTIL = new GUI();
@@ -374,20 +395,12 @@ public class PluginBuilder {
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.append("package " + packageName + ";\n");
 			stringBuilder.append("\n");
-			stringBuilder.append("import " + Arrays.class.getName() + ";\n");
-			stringBuilder.append("import " + List.class.getName() + ";\n");
-			stringBuilder.append("\n");
-			stringBuilder.append("import " + com.otk.jesb.IPluginInfo.class.getName() + ";\n");
-			stringBuilder.append("import " + com.otk.jesb.activation.ActivatorMetadata.class.getName() + ";\n");
-			stringBuilder.append("import " + com.otk.jesb.operation.OperationMetadata.class.getName() + ";\n");
-			stringBuilder.append("import " + com.otk.jesb.resource.ResourceMetadata.class.getName() + ";\n");
-			stringBuilder.append("\n");
 			stringBuilder
 					.append("public class " + simpleClassName + " implements " + IPluginInfo.class.getName() + " {\n");
 			stringBuilder.append("\n");
 			stringBuilder.append("	@Override\n");
-			stringBuilder
-					.append("	public List<" + OperationMetadata.class.getName() + "<?>> getOperationMetadatas() {\n");
+			stringBuilder.append("	public " + List.class.getName() + "<" + OperationMetadata.class.getName()
+					+ "<?>> getOperationMetadatas() {\n");
 			stringBuilder.append("		return " + Arrays.class.getName() + ".asList(\n");
 			stringBuilder
 					.append(operations
@@ -398,8 +411,8 @@ public class PluginBuilder {
 			stringBuilder.append("	}\n");
 			stringBuilder.append("\n");
 			stringBuilder.append("	@Override\n");
-			stringBuilder
-					.append("	public List<" + ActivatorMetadata.class.getName() + "> getActivatorMetadatas() {\n");
+			stringBuilder.append("	public " + List.class.getName() + "<" + ActivatorMetadata.class.getName()
+					+ "> getActivatorMetadatas() {\n");
 			stringBuilder.append("		return " + Arrays.class.getName() + ".asList(\n");
 			stringBuilder
 					.append(activators
@@ -410,7 +423,8 @@ public class PluginBuilder {
 			stringBuilder.append("	}\n");
 			stringBuilder.append("\n");
 			stringBuilder.append("	@Override\n");
-			stringBuilder.append("	public List<" + ResourceMetadata.class.getName() + "> getResourceMetadatas() {\n");
+			stringBuilder.append("	public " + List.class.getName() + "<" + ResourceMetadata.class.getName()
+					+ "> getResourceMetadatas() {\n");
 			stringBuilder.append("		return " + Arrays.class.getName() + ".asList(\n");
 			stringBuilder
 					.append(resources
@@ -516,7 +530,29 @@ public class PluginBuilder {
 					+ "</" + com.otk.jesb.solution.Runtime.PLUGIN_INFO_CLASS_MANIFEST_KEY.toString() + ">\n");
 			stringBuilder.append("						</manifestEntries>\n");
 			stringBuilder.append("					</archive>\n");
+			stringBuilder
+					.append("					<outputDirectory>${project.build.directory}/lib</outputDirectory>\n");
 			stringBuilder.append("				</configuration>\n");
+			stringBuilder.append("			</plugin>\n");
+			stringBuilder.append("			<plugin>\n");
+			stringBuilder.append("				<groupId>org.apache.maven.plugins</groupId>\n");
+			stringBuilder.append("				<artifactId>maven-dependency-plugin</artifactId>\n");
+			stringBuilder.append("				<executions>\n");
+			stringBuilder.append("					<execution>\n");
+			stringBuilder.append("						<id>copy-dependencies</id>\n");
+			stringBuilder.append("						<phase>prepare-package</phase>\n");
+			stringBuilder.append("						<goals>\n");
+			stringBuilder.append("							<goal>copy-dependencies</goal>\n");
+			stringBuilder.append("						</goals>\n");
+			stringBuilder.append("						<configuration>\n");
+			stringBuilder.append(
+					"							<outputDirectory>${project.build.directory}/lib</outputDirectory>\n");
+			stringBuilder.append("							<excludeArtifactIds>" + BuildInformation.getArtifactId()
+					+ "</excludeArtifactIds>\n");
+			stringBuilder.append("							<excludeTransitive>true</excludeTransitive>\n");
+			stringBuilder.append("						</configuration>\n");
+			stringBuilder.append("					</execution>\n");
+			stringBuilder.append("				</executions>\n");
 			stringBuilder.append("			</plugin>\n");
 			stringBuilder.append("		</plugins>\n");
 			stringBuilder.append("	</build>\n");
@@ -526,6 +562,65 @@ public class PluginBuilder {
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("	<build>\n");
+		stringBuilder.append("		<plugins>\n");
+		stringBuilder.append("			<plugin>\n");
+		stringBuilder.append("				<groupId>org.apache.maven.plugins</groupId>\n");
+		stringBuilder.append("				<artifactId>maven-compiler-plugin</artifactId>\n");
+		stringBuilder.append("				<version>3.8.0</version>\n");
+		stringBuilder.append("				<configuration>\n");
+		stringBuilder.append("					<source>${compiler.sourceVersion}</source>\n");
+		stringBuilder.append("					<target>${compiler.targetVersion}</target>\n");
+		stringBuilder.append("					<compilerArgs>\n");
+		stringBuilder.append("						<arg>-parameters</arg>\n");
+		stringBuilder.append("					</compilerArgs>\n");
+		stringBuilder.append("				</configuration>\n");
+		stringBuilder.append("			</plugin>\n");
+		stringBuilder.append("			<plugin>\n");
+		stringBuilder.append("				<groupId>org.apache.maven.plugins</groupId>\n");
+		stringBuilder.append("				<artifactId>maven-jar-plugin</artifactId>\n");
+		stringBuilder.append("				<version>2.4</version>\n");
+		stringBuilder.append("				<executions>\n");
+		stringBuilder.append("					<execution>\n");
+		stringBuilder.append("						<phase>prepare-package</phase>\n");
+		stringBuilder.append("						<goals>\n");
+		stringBuilder.append("							<goal>jar</goal>\n");
+		stringBuilder.append("						</goals>\n");
+		stringBuilder.append("					</execution>\n");
+		stringBuilder.append("				</executions>\n");
+		stringBuilder.append("				<configuration>\n");
+		stringBuilder.append("					<archive>\n");
+		stringBuilder.append("						<manifestEntries>\n");
+		stringBuilder.append(
+				"							<Plugin-Info-Class>com.otk.jesb.WebToolsPluginInfo</Plugin-Info-Class>\n");
+		stringBuilder.append("						</manifestEntries>\n");
+		stringBuilder.append("					</archive>\n");
+		stringBuilder.append("					<outputDirectory>${project.build.directory}/lib</outputDirectory>\n");
+		stringBuilder.append("				</configuration>\n");
+		stringBuilder.append("			</plugin>\n");
+		stringBuilder.append("			<plugin>\n");
+		stringBuilder.append("				<groupId>org.apache.maven.plugins</groupId>\n");
+		stringBuilder.append("				<artifactId>maven-dependency-plugin</artifactId>\n");
+		stringBuilder.append("				<executions>\n");
+		stringBuilder.append("					<execution>\n");
+		stringBuilder.append("						<id>copy-dependencies</id>\n");
+		stringBuilder.append("						<phase>prepare-package</phase>\n");
+		stringBuilder.append("						<goals>\n");
+		stringBuilder.append("							<goal>copy-dependencies</goal>\n");
+		stringBuilder.append("						</goals>\n");
+		stringBuilder.append("						<configuration>\n");
+		stringBuilder.append(
+				"							<outputDirectory>${project.build.directory}/lib</outputDirectory>\n");
+		stringBuilder.append(
+				"							<excludeArtifactIds>j-enterprise-service-bus</excludeArtifactIds>\n");
+		stringBuilder.append("							<excludeTransitive>true</excludeTransitive>\n");
+		stringBuilder.append("						</configuration>\n");
+		stringBuilder.append("					</execution>\n");
+		stringBuilder.append("				</executions>\n");
+		stringBuilder.append("			</plugin>\n");
+		stringBuilder.append("		</plugins>\n");
+		stringBuilder.append("	</build>");
 	}
 
 	private void produceIcon(File resourceDirectroy, String typeName, BufferedImage iconImage) {
@@ -547,14 +642,13 @@ public class PluginBuilder {
 
 	public void save(File file) throws IOException {
 		try (FileOutputStream output = new FileOutputStream(file)) {
-			MiscUtils.serialize(this, output, solutionInstance.getRuntime().getXstream());
+			solutionInstance.getSerializer().write(this, output);
 		}
 	}
 
 	public void load(File file) throws IOException {
 		try (FileInputStream input = new FileInputStream(file)) {
-			PluginBuilder loaded = (PluginBuilder) MiscUtils.deserialize(input,
-					solutionInstance.getRuntime().getXstream());
+			PluginBuilder loaded = (PluginBuilder) solutionInstance.getSerializer().read(input);
 			this.packageName = loaded.packageName;
 			this.operations = loaded.operations;
 			this.activators = loaded.activators;
@@ -596,12 +690,12 @@ public class PluginBuilder {
 
 	public static String writeControlPluginConfiguration(Object controlPluginConfiguration) {
 		StringWriter writer = new StringWriter();
-		CONTROL_PLUGIN_CONFIGURATION_XSTREAM.marshal(controlPluginConfiguration, new CompactWriter(writer));
+		CONTROL_PLUGIN_CONFIGURATION_SERIALIZER.write(controlPluginConfiguration);
 		return writer.toString();
 	}
 
 	public static Object readControlPluginConfiguration(String string) {
-		return CONTROL_PLUGIN_CONFIGURATION_XSTREAM.fromXML(string);
+		return CONTROL_PLUGIN_CONFIGURATION_SERIALIZER.read(string);
 	}
 
 	private static void validateStructure(Structure structure, Solution solutionInstance) throws ValidationError {

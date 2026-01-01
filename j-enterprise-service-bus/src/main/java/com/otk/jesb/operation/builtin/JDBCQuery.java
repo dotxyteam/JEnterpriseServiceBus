@@ -297,9 +297,9 @@ public class JDBCQuery extends JDBCOperation {
 			@Override
 			protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
 				JDBCConnection connection = getConnection(solutionInstance);
-				return new Pair<String, String>((connection != null)
-						? MiscUtils.serialize(connection, solutionInstance.getRuntime().getXstream())
-						: null, getStatementVariant().getValue(solutionInstance));
+				return new Pair<String, String>(
+						(connection != null) ? solutionInstance.getSerializer().write(connection) : null,
+						getStatementVariant().getValue(solutionInstance));
 			}
 
 			@Override

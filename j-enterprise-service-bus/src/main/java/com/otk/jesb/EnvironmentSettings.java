@@ -255,7 +255,7 @@ public class EnvironmentSettings {
 
 		@Override
 		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
-			return MiscUtils.serialize(getRootValueStructure(), solutionInstance.getRuntime().getXstream());
+			return solutionInstance.getSerializer().write(getRootValueStructure());
 		}
 
 		@Override
@@ -278,8 +278,8 @@ public class EnvironmentSettings {
 		@Override
 		protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
 			try {
-				return new Pair<Class<?>, String>(upToDateRootValueClass.get(solutionInstance), MiscUtils
-						.serialize(environmentVariableTreeElements, solutionInstance.getRuntime().getXstream()));
+				return new Pair<Class<?>, String>(upToDateRootValueClass.get(solutionInstance),
+						solutionInstance.getSerializer().write(environmentVariableTreeElements));
 			} catch (VersionAccessException e) {
 				throw new PotentialError(e);
 			}

@@ -721,8 +721,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				Step currentStep = (Step) getSelection().iterator().next().getValue();
-				OperationBuilder<?> operationBuilder = MiscUtils.copy(currentStep.getOperationBuilder(),
-						getGUI().getSolutionInstance().getRuntime().getXstream());
+				OperationBuilder<?> operationBuilder = getGUI().getSolutionInstance().getSerializer()
+						.copy(currentStep.getOperationBuilder());
 				try (Experiment experiment = new Experiment(operationBuilder, getGUI().getSolutionInstance())) {
 					getGUI().openObjectDialog(PlanDiagram.this, experiment, null, null, false);
 				} catch (Exception e) {
@@ -1126,8 +1126,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 			Set<Object> selectedStepAndTransitions = planDiagram.getSelection().stream()
 					.map(selectedObject -> selectedObject.getValue()).collect(Collectors.toSet());
 			try {
-				MiscUtils.serialize(plan, current.planStore,
-						planDiagram.getGUI().getSolutionInstance().getRuntime().getXstream());
+				planDiagram.getGUI().getSolutionInstance().getSerializer().write(plan, current.planStore);
 			} catch (IOException e) {
 				throw new UnexpectedError(e);
 			}
@@ -1145,8 +1144,8 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 		public static void paste(PlanDiagram planDiagram, int x, int y) {
 			Plan planCopy;
 			try {
-				planCopy = (Plan) MiscUtils.deserialize(new ByteArrayInputStream(current.planStore.toByteArray()),
-						planDiagram.getGUI().getSolutionInstance().getRuntime().getXstream());
+				planCopy = (Plan) planDiagram.getGUI().getSolutionInstance().getSerializer()
+						.read(new ByteArrayInputStream(current.planStore.toByteArray()));
 			} catch (IOException e) {
 				throw new UnexpectedError(e);
 			}

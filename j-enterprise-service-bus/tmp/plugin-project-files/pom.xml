@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.example</groupId>
+	<groupId>com.otk3</groupId>
 	<artifactId>jesb-plugin</artifactId>
 	<version>0.0.1</version>
 	<packaging>jar</packaging>
 
-	<name>com.example JEnterpriseServiceBus Plugin</name>
+	<name>com.otk3 JEnterpriseServiceBus Plugin</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -53,10 +53,29 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<Plugin-Info-Class>com.example.PluginInfo</Plugin-Info-Class>
+							<Plugin-Info-Class>com.otk3.PluginInfo</Plugin-Info-Class>
 						</manifestEntries>
 					</archive>
+					<outputDirectory>${project.build.directory}/lib</outputDirectory>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<excludeArtifactIds>j-enterprise-service-bus</excludeArtifactIds>
+							<excludeTransitive>true</excludeTransitive>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

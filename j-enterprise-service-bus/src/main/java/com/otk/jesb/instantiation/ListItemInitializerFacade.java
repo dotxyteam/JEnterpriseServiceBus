@@ -10,8 +10,6 @@ import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.meta.TypeInfoProvider;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
-import com.otk.jesb.util.MiscUtils;
-
 import xy.reflect.ui.info.type.DefaultTypeInfo;
 import xy.reflect.ui.info.type.ITypeInfo;
 import xy.reflect.ui.info.type.iterable.IListTypeInfo;
@@ -300,8 +298,7 @@ public class ListItemInitializerFacade extends InitializerFacade {
 
 	public void duplicate() {
 		setConcrete(true);
-		ListItemInitializer underlyingCopy = MiscUtils.copy(getUnderlying(),
-				solutionInstance.getRuntime().getXstream());
+		ListItemInitializer underlyingCopy = solutionInstance.getSerializer().copy(getUnderlying());
 		int underlyingCopyIndex = getUnderlying().getIndex() + 1;
 		makeIndexAvailable(underlyingCopyIndex);
 		underlyingCopy.setIndex(underlyingCopyIndex);

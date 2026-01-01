@@ -309,9 +309,9 @@ public abstract class JDBCOperation implements Operation {
 			@Override
 			protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
 				JDBCConnection connection = getConnection(solutionInstance);
-				return new Pair<String, String>((connection != null)
-						? MiscUtils.serialize(connection, solutionInstance.getRuntime().getXstream())
-						: null, getStatementVariant().getValue(solutionInstance));
+				return new Pair<String, String>(
+						(connection != null) ? solutionInstance.getSerializer().write(connection) : null,
+						getStatementVariant().getValue(solutionInstance));
 			}
 
 			@Override
@@ -329,8 +329,7 @@ public abstract class JDBCOperation implements Operation {
 		private class UpToDateParameterValuesClass extends UpToDate<Solution, Class<? extends ParameterValues>> {
 			@Override
 			protected Object retrieveLastVersionIdentifier(Solution solutionInstance) {
-				return MiscUtils.serialize(computeParameterDefinitions(solutionInstance),
-						solutionInstance.getRuntime().getXstream());
+				return solutionInstance.getSerializer().write(computeParameterDefinitions(solutionInstance));
 			}
 
 			@SuppressWarnings("unchecked")

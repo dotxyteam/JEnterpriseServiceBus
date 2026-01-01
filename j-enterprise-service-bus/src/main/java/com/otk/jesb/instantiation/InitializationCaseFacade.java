@@ -173,9 +173,9 @@ public class InitializationCaseFacade extends Facade {
 		if (isDefault()) {
 			conditionCopy = InitializationCase.createDefaultCondition();
 		} else {
-			conditionCopy = MiscUtils.copy(condition, solutionInstance.getRuntime().getXstream());
+			conditionCopy = solutionInstance.getSerializer().copy(condition);
 		}
-		InitializationCase underlyingCopy = MiscUtils.copy(getUnderlying(), solutionInstance.getRuntime().getXstream());
+		InitializationCase underlyingCopy = solutionInstance.getSerializer().copy(getUnderlying());
 		parent.getUnderlying().insertCase(getIndex(), conditionCopy, underlyingCopy);
 	}
 

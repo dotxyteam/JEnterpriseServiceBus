@@ -28,6 +28,8 @@ import com.otk.jesb.activation.builtin.WatchFileSystem;
 import com.otk.jesb.operation.builtin.Evaluate;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Serializer;
+import com.thoughtworks.xstream.XStream;
 
 /**
  * This class allows to represent a coherent set of more or less interdependent
@@ -48,15 +50,32 @@ public class Solution {
 	private com.otk.jesb.activation.Experiment defualtActivationExperiment = new com.otk.jesb.activation.Experiment(
 			new WatchFileSystem(), this);
 	private List<JAR> requiredJARs = new ArrayList<JAR>();
-
 	private Runtime runtime = createRuntime();
+	private Serializer serializer = createSerializer();
 
 	protected Runtime createRuntime() {
 		return new Runtime();
 	}
 
+	protected Serializer createSerializer() {
+		return new Serializer() {
+
+			@Override
+			protected XStream createXstream() {
+				XStream result = super.createXstream();
+				result.setClassLoader(runtime.getInMemoryCompiler().getCompiledClassesLoader());
+				return result;
+			}
+
+		};
+	}
+
 	public Runtime getRuntime() {
 		return runtime;
+	}
+
+	public Serializer getSerializer() {
+		return serializer;
 	}
 
 	public List<JAR> getRequiredJARs() {
@@ -141,8 +160,7 @@ public class Solution {
 		try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(
 				Files.readAllBytes(rootPath.resolve("." + environmentSettings.getClass().getSimpleName().toLowerCase()
 						+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX)))) {
-			environmentSettings = (EnvironmentSettings) MiscUtils.deserialize(fileInputStream,
-					getRuntime().getXstream());
+			environmentSettings = (EnvironmentSettings) getSerializer().read(fileInputStream);
 		}
 		rootFolder = loadFolder(rootPath, rootFolder.getName());
 	}
@@ -175,8 +193,7 @@ public class Solution {
 		try (ByteArrayInputStream fileInputStream = new ByteArrayInputStream(
 				Files.readAllBytes(folderPath.resolve(SORTED_NAMES_FILE_NAME)))) {
 			@SuppressWarnings("unchecked")
-			final List<String> sortedNames = (List<String>) MiscUtils.deserialize(fileInputStream,
-					getRuntime().getXstream());
+			final List<String> sortedNames = (List<String>) getSerializer().read(fileInputStream);
 			Collections.sort(folder.getContents(), new Comparator<Asset>() {
 				@Override
 				public int compare(Asset asset1, Asset asset2) {
@@ -198,7 +215,7 @@ public class Solution {
 				if (name.endsWith(".jar")) {
 					return new JAR(name, MiscUtils.readBinary(fileInputStream));
 				} else {
-					Asset asset = (Asset) MiscUtils.deserialize(fileInputStream, getRuntime().getXstream());
+					Asset asset = (Asset) getSerializer().read(fileInputStream);
 					return asset;
 				}
 			} catch (Exception e) {
@@ -228,7 +245,7 @@ public class Solution {
 	private void save(Path rootPath) throws IOException {
 		saveRequiredJARs(rootPath);
 		try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
-			MiscUtils.serialize(environmentSettings, fileOutputStream, getRuntime().getXstream());
+			getSerializer().write(environmentSettings, fileOutputStream);
 			Files.write(rootPath.resolve("." + environmentSettings.getClass().getSimpleName().toLowerCase()
 					+ MiscUtils.SERIALIZED_FILE_NAME_SUFFIX), fileOutputStream.toByteArray());
 		}
@@ -250,7 +267,7 @@ public class Solution {
 		try (ByteArrayOutputStream fileOutputStream = new ByteArrayOutputStream()) {
 			List<String> sortedNames = folder.getContents().stream().map(asset -> asset.getName())
 					.collect(Collectors.toList());
-			MiscUtils.serialize(sortedNames, fileOutputStream, getRuntime().getXstream());
+			getSerializer().write(sortedNames, fileOutputStream);
 			Files.write(folderPath.resolve(SORTED_NAMES_FILE_NAME), fileOutputStream.toByteArray());
 		}
 	}
@@ -269,7 +286,7 @@ public class Solution {
 						fileOutputStream.write(MiscUtils.readBinary(inputStream));
 					}
 				} else {
-					MiscUtils.serialize(asset, fileOutputStream, getRuntime().getXstream());
+					getSerializer().write(asset, fileOutputStream);
 				}
 				Files.write(assetPath, fileOutputStream.toByteArray());
 			}

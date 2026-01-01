@@ -3,7 +3,6 @@ package com.otk.jesb.util;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,12 +10,9 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
@@ -90,9 +86,6 @@ import com.otk.jesb.solution.Plan.ExecutionContext;
 import com.otk.jesb.solution.Plan.ExecutionInspector;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.solution.Step;
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.XStreamException;
-
 import xy.reflect.ui.info.ResourcePath;
 
 public class MiscUtils {
@@ -117,7 +110,6 @@ public class MiscUtils {
 	public static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z_0-9]*$");
 	public static final String[] NEW_LINE_SEQUENCES = new String[] { "\r\n", "\n", "\r" };
 
-	private static final String SERIALIZATION_CHARSET_NAME = "UTF-8";
 	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
 	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
 
@@ -638,62 +630,6 @@ public class MiscUtils {
 			return o2 == null;
 		} else {
 			return o1.equals(o2);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> T copy(T object, XStream xstream) {
-		try {
-			ByteArrayOutputStream output = new ByteArrayOutputStream();
-			serialize(object, output, xstream);
-			ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
-			return (T) deserialize(input, xstream);
-		} catch (IOException e) {
-			throw new UnexpectedError(e);
-		}
-	}
-
-	public static void serialize(Object object, OutputStream output, XStream xstream) throws IOException {
-		try {
-			xstream.toXML(object, new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));
-		} catch (XStreamException e) {
-			throw new IOException(e);
-		}
-	}
-
-	public static Object deserialize(InputStream input, XStream xstream) throws IOException {
-		try {
-			return xstream.fromXML(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));
-		} catch (XStreamException e) {
-			throw new IOException(e);
-		}
-	}
-
-	public static String serialize(Object object, XStream xstream) {
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		try {
-			serialize(object, output, xstream);
-		} catch (IOException e) {
-			throw new UnexpectedError(e);
-		}
-		try {
-			return output.toString(SERIALIZATION_CHARSET_NAME);
-		} catch (UnsupportedEncodingException e) {
-			throw new UnexpectedError(e);
-		}
-	}
-
-	public static Object deserialize(String inputString, XStream xstream) {
-		ByteArrayInputStream input;
-		try {
-			input = new ByteArrayInputStream(inputString.getBytes(SERIALIZATION_CHARSET_NAME));
-		} catch (UnsupportedEncodingException e) {
-			throw new UnexpectedError(e);
-		}
-		try {
-			return deserialize(input, xstream);
-		} catch (IOException e) {
-			throw new UnexpectedError(e);
 		}
 	}
 
