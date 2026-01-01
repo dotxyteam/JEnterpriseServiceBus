@@ -107,14 +107,16 @@ public class Runtime {
 
 	private URLClassLoader buildAllJARsClassLoader(List<JAR> solutionJARs) {
 		List<URL> allJarFileURLs = new ArrayList<URL>();
-		Arrays.stream(APPLICATION_PLUGINS_DIRECTORY.listFiles(file -> file.getName().endsWith(".jar")))
-				.forEach(file -> {
-					try {
-						allJarFileURLs.add(file.toURI().toURL());
-					} catch (MalformedURLException e) {
-						throw new UnexpectedError(e);
-					}
-				});
+		if (APPLICATION_PLUGINS_DIRECTORY.isDirectory()) {
+			Arrays.stream(APPLICATION_PLUGINS_DIRECTORY.listFiles(file -> file.getName().endsWith(".jar")))
+					.forEach(file -> {
+						try {
+							allJarFileURLs.add(file.toURI().toURL());
+						} catch (MalformedURLException e) {
+							throw new UnexpectedError(e);
+						}
+					});
+		}
 		solutionJARs.stream().forEach(jar -> {
 			allJarFileURLs.add(jar.getURL());
 		});
