@@ -84,7 +84,7 @@ public class Solution {
 
 	public void setRequiredJARs(List<JAR> requiredJARs) {
 		this.requiredJARs = requiredJARs;
-		runtime.configureSolutionDependencies(requiredJARs);
+		runtime.configureDependencies(requiredJARs);
 	}
 
 	public EnvironmentSettings getEnvironmentSettings() {

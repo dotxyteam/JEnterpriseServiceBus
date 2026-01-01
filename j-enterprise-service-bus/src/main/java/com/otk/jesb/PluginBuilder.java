@@ -511,6 +511,7 @@ public class PluginBuilder {
 			stringBuilder.append("			<plugin>\n");
 			stringBuilder.append("				<groupId>org.apache.maven.plugins</groupId>\n");
 			stringBuilder.append("				<artifactId>maven-jar-plugin</artifactId>\n");
+			stringBuilder.append("				<version>2.4</version>\n");
 			stringBuilder.append("				<executions>\n");
 			stringBuilder.append("					<execution>\n");
 			stringBuilder.append("						<phase>prepare-package</phase>\n");
@@ -519,7 +520,6 @@ public class PluginBuilder {
 			stringBuilder.append("						</goals>\n");
 			stringBuilder.append("					</execution>\n");
 			stringBuilder.append("				</executions>\n");
-			stringBuilder.append("				<version>2.4</version>\n");
 			stringBuilder.append("				<configuration>\n");
 			stringBuilder.append("					<archive>\n");
 			stringBuilder.append("						<manifestEntries>\n");

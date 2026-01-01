@@ -109,11 +109,44 @@
 				</excludes>
 			</resource>
 		</resources>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>2.8</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.3</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>2.2.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.9.1</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
 				<configuration>
 					<source>${compiler.sourceVersion}</source>
 					<target>${compiler.targetVersion}</target>
@@ -124,8 +157,45 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>com.otk.jesb.JESB</mainClass>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<excludeTransitive>false</excludeTransitive>
+					<stripVersion>false</stripVersion>
+				</configuration>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -138,7 +208,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
@@ -152,277 +221,6 @@
 	</build>
 
 	<profiles>
-		<profile>
-			<id>dist</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-dependency-plugin</artifactId>
-						<configuration>
-							<outputDirectory>${project.build.directory}/lib</outputDirectory>
-							<excludeTransitive>false</excludeTransitive>
-							<stripVersion>false</stripVersion>
-						</configuration>
-						<executions>
-							<execution>
-								<id>copy-dependencies</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>copy-dependencies</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-jar-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-							</execution>
-						</executions>
-						<version>2.4</version>
-						<configuration>
-							<archive>
-								<manifest>
-									<mainClass>com.otk.jesb.JESB</mainClass>
-									<addClasspath>true</addClasspath>
-									<classpathPrefix>lib/</classpathPrefix>
-								</manifest>
-							</archive>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>com.akathist.maven.plugins.launch4j</groupId>
-						<artifactId>launch4j-maven-plugin</artifactId>
-						<version>2.5.3</version>
-						<executions>
-							<execution>
-								<id>l4j-gui</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>launch4j</goal>
-								</goals>
-								<configuration>
-									<headerType>gui</headerType>
-									<outfile>target/${project.artifactId}.exe</outfile>
-									<icon>${project.artifactId}.ico</icon>
-									<jar>target/${project.artifactId}-${project.version}.jar</jar>
-									<errTitle>${project.artifactId}</errTitle>
-									<classPath>
-										<mainClass>com.otk.jesb.JESB</mainClass>
-									</classPath>
-									<jre>
-										<path>./windows-jdk</path>
-										<minVersion>1.8.0</minVersion>
-										<maxVersion>1.17.9</maxVersion>
-										<opts>
-											<opt>-splash:splash.gif</opt>
-											<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
-											<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}</opt>
-										</opts>
-									</jre>
-								</configuration>
-							</execution>
-							<execution>
-								<id>l4j-cmd</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>launch4j</goal>
-								</goals>
-								<configuration>
-									<headerType>console</headerType>
-									<outfile>target/${project.artifactId}-cmd.exe</outfile>
-									<icon>${project.artifactId}.ico</icon>
-									<jar>target/${project.artifactId}-${project.version}.jar</jar>
-									<errTitle>${project.artifactId}</errTitle>
-									<classPath>
-										<mainClass>com.otk.jesb.JESB</mainClass>
-									</classPath>
-									<jre>
-										<path>./windows-jdk</path>
-										<minVersion>1.8.0</minVersion>
-										<maxVersion>1.17.9</maxVersion>
-										<opts>
-											<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
-											<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}</opt>
-										</opts>
-									</jre>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>create-linux-exe</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<echo file="${basedir}/target/${project.artifactId}.tmp"
-											append="yes"><![CDATA[#!/bin/bash
-#set -x
-
-
-cd `dirname $$0`
-
-
-export LD_LIBRARY_PATH="."
-
-
-if [ "$1" == "--javaExePath" ]; then
-	export JAVA_EXE=$2
-else
-	export JAVA_HOME="./linux-jdk"
-	export PATH="$$JAVA_HOME/bin:$$PATH"
-	export JAVA_EXE=$$JAVA_HOME/bin/java
-fi
-
-echo "Using $$JAVA_EXE..."
-
-
-cd `dirname $0`
-
-$$JAVA_EXE \
-"-splash:splash.gif" \
-"-Dcom.otk.jesb.exeFile=$$0" \
-"-Dcom.otk.jesb.defaultExeFile=${project.artifactId}" \
-"-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}" \
-"-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}" \
-$(cat ${project.artifactId}.l4j.ini 2> /dev/null) -jar "$$0" "$@"
-
-exit $$?]]></echo>
-										<fixcrlf srcdir="${basedir}/target"
-											includes="${project.artifactId}.tmp" eol="lf" eof="remove" />
-										<copy file="${basedir}/target/${project.artifactId}.tmp"
-											tofile="${basedir}/target/${project.artifactId}-cmd.tmp" />
-										<replace
-											file="${basedir}/target/${project.artifactId}-cmd.tmp"
-											token="&quot;-splash:splash.gif&quot;" value="" />
-										<replace
-											file="${basedir}/target/${project.artifactId}-cmd.tmp"
-											token="${project.artifactId}.l4j.ini"
-											value="${project.artifactId}-cmd.l4j.ini" />
-										<concat
-											destfile="${basedir}/target/${project.artifactId}"
-											binary="true">
-											<filelist>
-												<file
-													name="${basedir}/target/${project.artifactId}.tmp" />
-												<file
-													name="${basedir}/target/${project.artifactId}-${project.version}.jar" />
-											</filelist>
-										</concat>
-										<concat
-											destfile="${basedir}/target/${project.artifactId}-cmd"
-											binary="true">
-											<filelist>
-												<file
-													name="${basedir}/target/${project.artifactId}-cmd.tmp" />
-												<file
-													name="${basedir}/target/${project.artifactId}-${project.version}.jar" />
-											</filelist>
-										</concat>
-										<chmod file="${basedir}/target/${project.artifactId}"
-											perm="+x" />
-										<chmod
-											file="${basedir}/target/${project.artifactId}-cmd" perm="+x" />
-										<delete
-											file="${basedir}/target/${project.artifactId}.tmp" />
-										<delete
-											file="${basedir}/target/${project.artifactId}-cmd.tmp" />
-									</tasks>
-								</configuration>
-							</execution>
-							<execution>
-								<id>unzip-jvms</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<unzip src="${basedir}/misc/jvm/windows-jdk.zip"
-											dest="${basedir}/target/windows-jdk/" />
-										<unzip src="${basedir}/misc/jvm/linux-jdk.zip"
-											dest="${basedir}/target/linux-jdk/" />
-										<chmod file="${basedir}/target/linux-jdk/bin/*"
-											perm="+x" />
-									</tasks>
-								</configuration>
-							</execution>
-							<execution>
-								<id>create-default-ini-file</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<echo
-											file="${basedir}/target/${project.artifactId}.l4j.ini"
-											message="-Xms512M${line.separator}-Xmx2048M${line.separator}-Dcom.otk.jesb.runnerLogVerbose=false${line.separator}" />
-										<copy
-											file="${basedir}/target/${project.artifactId}.l4j.ini"
-											tofile="${basedir}/target/${project.artifactId}-cmd.l4j.ini" />
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>l4j-assembly</id>
-								<phase>package</phase>
-								<goals>
-									<goal>attached</goal>
-								</goals>
-								<configuration>
-									<descriptors>
-										<descriptor>assembly-windows-l4j.xml</descriptor>
-									</descriptors>
-								</configuration>
-							</execution>
-							<execution>
-								<id>tgz-assembly</id>
-								<phase>package</phase>
-								<goals>
-									<goal>attached</goal>
-								</goals>
-								<configuration>
-									<descriptors>
-										<descriptor>assembly-linux-tgz.xml</descriptor>
-									</descriptors>
-								</configuration>
-							</execution>
-							<execution>
-								<id>assembly-sources</id>
-								<phase>package</phase>
-								<goals>
-									<goal>attached</goal>
-								</goals>
-								<configuration>
-									<descriptors>
-										<descriptor>assembly-sources.xml</descriptor>
-									</descriptors>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 		<profile>
 			<id>sonatype</id>
 			<build>

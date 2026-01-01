@@ -1,0 +1,322 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.github.dotxyteam</groupId>
+	<artifactId>jesb-assembly</artifactId>
+	<version>0.9.8</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<jesb.mainClass>com.otk.jesb.JESB</jesb.mainClass>
+		<jesb.artifactId>j-enterprise-service-bus</jesb.artifactId>
+		<jesb.basedir>..</jesb.basedir>
+		<jesb-plugin-web-tools.artifactId>jesb-plugin-web-tools</jesb-plugin-web-tools.artifactId>
+		<jesb-plugin-web-tools.basedir>../plugins/web-tools</jesb-plugin-web-tools.basedir>
+		<jesb-plugin-web-tools.infoClassName>com.otk.jesb.WebToolsPluginInfo</jesb-plugin-web-tools.infoClassName>
+		<compiler.sourceVersion>1.8</compiler.sourceVersion>
+		<compiler.targetVersion>1.8</compiler.targetVersion>
+	</properties>
+
+	<modules>
+		<module>${jesb.basedir}</module>
+		<module>${jesb-plugin-web-tools.basedir}</module>
+	</modules>
+
+	<name>J-Enterprise Service Bus assembly project</name>
+	<description>Assembly (build-only) project fro JESB</description>
+	<url>https://github.com/dotxyteam/JEnterpriseServiceBus</url>
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://github.com/dotxyteam/JEnterpriseServiceBus/blob/main/j-enterprise-service-bus/LICENSE</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>DotXY team</name>
+			<email>dotxyteam@yahoo.fr</email>
+			<organization>DotXY</organization>
+			<organizationUrl>https://github.com/dotxyteam</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git@github.com:dotxyteam/JEnterpriseServiceBus.git</connection>
+		<developerConnection>scm:git:git@github.com:dotxyteam/JEnterpriseServiceBus.git</developerConnection>
+		<url>git@github.com:dotxyteam/JEnterpriseServiceBus</url>
+	</scm>
+
+
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>1.3</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.6</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>2.8</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.3</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+				<plugin>
+					<groupId>com.akathist.maven.plugins.launch4j</groupId>
+					<artifactId>launch4j-maven-plugin</artifactId>
+					<version>2.5.3</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>com.akathist.maven.plugins.launch4j</groupId>
+				<artifactId>launch4j-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>l4j-gui</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>launch4j</goal>
+						</goals>
+						<configuration>
+							<headerType>gui</headerType>
+							<outfile>target/${jesb.artifactId}.exe</outfile>
+							<icon>${jesb.basedir}/${jesb.artifactId}.ico</icon>
+							<jar>${jesb.basedir}/target/${jesb.artifactId}-${project.version}.jar</jar>
+							<errTitle>${jesb.artifactId}</errTitle>
+							<classPath>
+								<mainClass>${jesb.mainClass}</mainClass>
+							</classPath>
+							<jre>
+								<path>./windows-jdk</path>
+								<minVersion>1.8.0</minVersion>
+								<maxVersion>1.17.9</maxVersion>
+								<opts>
+									<opt>-splash:splash.gif</opt>
+									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
+									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}</opt>
+									<opt>-Dcom.otk.jesb.solution.Runtime.pluginInfoClassNames=${jesb-plugin-web-tools.infoClassName}</opt>
+								</opts>
+							</jre>
+						</configuration>
+					</execution>
+					<execution>
+						<id>l4j-cmd</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>launch4j</goal>
+						</goals>
+						<configuration>
+							<headerType>console</headerType>
+							<outfile>target/${jesb.artifactId}-cmd.exe</outfile>
+							<icon>${jesb.basedir}/${jesb.artifactId}.ico</icon>
+							<jar>${jesb.basedir}/target/${jesb.artifactId}-${project.version}.jar</jar>
+							<errTitle>${jesb.artifactId}</errTitle>
+							<classPath>
+								<mainClass>${jesb.mainClass}</mainClass>
+							</classPath>
+							<jre>
+								<path>./windows-jdk</path>
+								<minVersion>1.8.0</minVersion>
+								<maxVersion>1.17.9</maxVersion>
+								<opts>
+									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
+									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}</opt>
+								</opts>
+							</jre>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>create-linux-exe</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<echo file="${basedir}/target/${jesb.artifactId}.tmp"
+									append="yes"><![CDATA[#!/bin/bash
+#set -x
+
+
+cd `dirname $$0`
+
+
+export LD_LIBRARY_PATH="."
+
+
+if [ "$1" == "--javaExePath" ]; then
+	export JAVA_EXE=$2
+else
+	export JAVA_HOME="./linux-jdk"
+	export PATH="$$JAVA_HOME/bin:$$PATH"
+	export JAVA_EXE=$$JAVA_HOME/bin/java
+fi
+
+echo "Using $$JAVA_EXE..."
+
+
+cd `dirname $0`
+
+$$JAVA_EXE \
+"-splash:splash.gif" \
+"-Dcom.otk.jesb.exeFile=$$0" \
+"-Dcom.otk.jesb.defaultExeFile=${jesb.artifactId}" \
+"-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}" \
+"-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}" \
+"-Dcom.otk.jesb.solution.Runtime.pluginInfoClassNames=${jesb-plugin-web-tools.infoClassName}" \
+$(cat ${jesb.artifactId}.l4j.ini 2> /dev/null) -jar "$$0" "$@"
+
+exit $$?]]></echo>
+								<fixcrlf srcdir="${basedir}/target"
+									includes="${jesb.artifactId}.tmp" eol="lf" eof="remove" />
+								<copy file="${basedir}/target/${jesb.artifactId}.tmp"
+									tofile="${basedir}/target/${jesb.artifactId}-cmd.tmp" />
+								<replace
+									file="${basedir}/target/${jesb.artifactId}-cmd.tmp"
+									token="&quot;-splash:splash.gif&quot;" value="" />
+								<replace
+									file="${basedir}/target/${jesb.artifactId}-cmd.tmp"
+									token="${jesb.artifactId}.l4j.ini"
+									value="${jesb.artifactId}-cmd.l4j.ini" />
+								<concat destfile="${basedir}/target/${jesb.artifactId}"
+									binary="true">
+									<filelist>
+										<file name="${basedir}/target/${jesb.artifactId}.tmp" />
+										<file
+											name="${jesb.basedir}/target/${jesb.artifactId}-${project.version}.jar" />
+									</filelist>
+								</concat>
+								<concat
+									destfile="${basedir}/target/${jesb.artifactId}-cmd"
+									binary="true">
+									<filelist>
+										<file name="${basedir}/target/${jesb.artifactId}-cmd.tmp" />
+										<file
+											name="${jesb.basedir}/target/${jesb.artifactId}-${project.version}.jar" />
+									</filelist>
+								</concat>
+								<chmod file="${basedir}/target/${jesb.artifactId}"
+									perm="+x" />
+								<chmod file="${basedir}/target/${jesb.artifactId}-cmd"
+									perm="+x" />
+								<delete file="${basedir}/target/${jesb.artifactId}.tmp" />
+								<delete
+									file="${basedir}/target/${jesb.artifactId}-cmd.tmp" />
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>unzip-jvms</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<unzip src="${basedir}/misc/jvm/windows-jdk.zip"
+									dest="${basedir}/target/windows-jdk/" />
+								<unzip src="${basedir}/misc/jvm/linux-jdk.zip"
+									dest="${basedir}/target/linux-jdk/" />
+								<chmod file="${basedir}/target/linux-jdk/bin/*" perm="+x" />
+							</tasks>
+						</configuration>
+					</execution>
+					<execution>
+						<id>create-default-ini-file</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<tasks>
+								<echo file="${basedir}/target/${jesb.artifactId}.l4j.ini"
+									message="-Xms512M${line.separator}-Xmx2048M${line.separator}-Dcom.otk.jesb.runnerLogVerbose=false${line.separator}" />
+								<copy file="${basedir}/target/${jesb.artifactId}.l4j.ini"
+									tofile="${basedir}/target/${jesb.artifactId}-cmd.l4j.ini" />
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>l4j-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>assembly-windows-l4j.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					<execution>
+						<id>tgz-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>assembly-linux-tgz.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+					<execution>
+						<id>assembly-sources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>assembly-sources.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
+</project>

@@ -1,10 +1,13 @@
 package com.otk.jesb.solution;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -16,6 +19,7 @@ import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.compiler.InMemoryCompiler;
 import com.otk.jesb.util.MiscUtils;
+
 import xy.reflect.ui.util.ClassUtils;
 
 /**
@@ -30,13 +34,14 @@ public class Runtime {
 	public static final Attributes.Name PLUGIN_INFO_CLASS_MANIFEST_KEY = new Attributes.Name("Plugin-Info-Class");
 	public static final String STATIC_PLUGIN_INFO_CLASS_NAMES_PROPERTY_KEY = Runtime.class.getName()
 			+ ".pluginInfoClassNames";
+	private static final File APPLICATION_PLUGINS_DIRECTORY = new File("plugins");
 
 	private final InMemoryCompiler inMemoryCompiler = new InMemoryCompiler();
 
 	private final List<IPluginInfo> pluginInfos = new ArrayList<IPluginInfo>();
 
 	public Runtime() {
-		configureSolutionDependencies(Collections.emptyList());
+		configureDependencies(Collections.emptyList());
 	}
 
 	public InMemoryCompiler getInMemoryCompiler() {
@@ -47,8 +52,44 @@ public class Runtime {
 		return pluginInfos;
 	}
 
-	public void configureSolutionDependencies(List<JAR> jars) {
+	public void configureDependencies(List<JAR> solutionJARs) {
 		pluginInfos.clear();
+		URLClassLoader jarsClassLoader = buildAllJARsClassLoader(solutionJARs);
+		inMemoryCompiler.setFirstClassLoader(jarsClassLoader);
+		pluginInfos.addAll(getDeclaredPlugins());
+		pluginInfos.addAll(discoverJARPlugins(jarsClassLoader.getURLs()));
+	}
+
+	private List<IPluginInfo> discoverJARPlugins(URL[] jarFileURLs) {
+		List<IPluginInfo> result = new ArrayList<IPluginInfo>();
+		for (URL jarFileURL : jarFileURLs) {
+			JarURLConnection connection;
+			try {
+				connection = (JarURLConnection) new URL("jar:" + jarFileURL.toString() + "!/").openConnection();
+			} catch (IOException e) {
+				throw new UnexpectedError(e);
+			}
+			Manifest manifest;
+			try {
+				manifest = connection.getManifest();
+			} catch (IOException e) {
+				continue;
+			}
+			Attributes attributes = manifest.getMainAttributes();
+			String pluginInfoClassName = attributes.getValue(PLUGIN_INFO_CLASS_MANIFEST_KEY);
+			if (pluginInfoClassName != null) {
+				try {
+					result.add((IPluginInfo) getJESBClass(pluginInfoClassName).newInstance());
+				} catch (InstantiationException | IllegalAccessException e) {
+					throw new UnexpectedError(e);
+				}
+			}
+		}
+		return result;
+	}
+
+	private List<IPluginInfo> getDeclaredPlugins() {
+		List<IPluginInfo> result = new ArrayList<IPluginInfo>();
 		for (String pluginInfoClassName : System.getProperty(STATIC_PLUGIN_INFO_CLASS_NAMES_PROPERTY_KEY, "")
 				.split(",")) {
 			pluginInfoClassName = pluginInfoClassName.trim();
@@ -56,39 +97,28 @@ public class Runtime {
 				continue;
 			}
 			try {
-				pluginInfos.add((IPluginInfo) getJESBClass(pluginInfoClassName).newInstance());
+				result.add((IPluginInfo) getJESBClass(pluginInfoClassName).newInstance());
 			} catch (InstantiationException | IllegalAccessException e) {
 				throw new UnexpectedError(e);
 			}
 		}
-		URLClassLoader jarsClassLoader = new URLClassLoader(
-				jars.stream().map(JAR::getURL).toArray(length -> new URL[length]), JESB.class.getClassLoader());
-		{
-			inMemoryCompiler.setFirstClassLoader(jarsClassLoader);
-			for (JAR jar : jars) {
-				JarURLConnection connection;
-				try {
-					connection = (JarURLConnection) new URL("jar:" + jar.getURL().toString() + "!/").openConnection();
-				} catch (IOException e) {
-					throw new UnexpectedError(e);
-				}
-				Manifest manifest;
-				try {
-					manifest = connection.getManifest();
-				} catch (IOException e) {
-					continue;
-				}
-				Attributes attributes = manifest.getMainAttributes();
-				String pluginInfoClassName = attributes.getValue(PLUGIN_INFO_CLASS_MANIFEST_KEY);
-				if (pluginInfoClassName != null) {
+		return result;
+	}
+
+	private URLClassLoader buildAllJARsClassLoader(List<JAR> solutionJARs) {
+		List<URL> allJarFileURLs = new ArrayList<URL>();
+		Arrays.stream(APPLICATION_PLUGINS_DIRECTORY.listFiles(file -> file.getName().endsWith(".jar")))
+				.forEach(file -> {
 					try {
-						pluginInfos.add((IPluginInfo) getJESBClass(pluginInfoClassName).newInstance());
-					} catch (InstantiationException | IllegalAccessException e) {
+						allJarFileURLs.add(file.toURI().toURL());
+					} catch (MalformedURLException e) {
 						throw new UnexpectedError(e);
 					}
-				}
-			}
-		}
+				});
+		solutionJARs.stream().forEach(jar -> {
+			allJarFileURLs.add(jar.getURL());
+		});
+		return new URLClassLoader(allJarFileURLs.toArray(new URL[allJarFileURLs.size()]), JESB.class.getClassLoader());
 	}
 
 	public ClassLoader getJESBResourceLoader() {

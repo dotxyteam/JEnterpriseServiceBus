@@ -8,24 +8,27 @@
 	</formats>
 	<fileSets>
 		<fileSet>
-			<directory>${project.basedir}</directory>
+			<directory>${jesb.basedir}</directory>
 			<outputDirectory>/</outputDirectory>
 			<useDefaultExcludes>true</useDefaultExcludes>
 			<includes>
-				<include>src/**</include>
-				<include>unpackaged-src/**</include>
-				<include>misc/jvm/**</include>
-				<include>*.xml</include>
 				<include>LICENSE</include>
 				<include>*.ico</include>
 				<include>*.png</include>
 				<include>*.gif</include>
+				<include>*.xml</include>
+				<include>src/**</include>
+				<include>unpackaged-src/**</include>
+				<include>test-specifications/**</include>
+				<include>plugins/*/LICENSE</include>
+				<include>plugins/*/src/**</include>
+				<include>plugins/*/*.xml</include>
+				<include>plugins/*/test-specifications/**</include>
+				<include>assembly/*.xml</include>
+				<include>assembly/misc/jvm/**</include>
 			</includes>
-		</fileSet>
-		<fileSet>
-			<directory>${project.basedir}/test-specifications</directory>
 			<excludes>
-				<exclude>.*</exclude>
+				<exclude>**/.*</exclude>
 			</excludes>
 		</fileSet>
 	</fileSets>

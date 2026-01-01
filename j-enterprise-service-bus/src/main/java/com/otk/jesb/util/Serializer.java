@@ -118,18 +118,6 @@ public class Serializer {
 		return xstream;
 	}
 
-	public void write(Object object, OutputStream output) throws IOException {
-		write(new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));
-	}
-
-	public void write(Object object, Writer writer) throws IOException {
-		try {
-			xstream.toXML(object, writer);
-		} catch (XStreamException e) {
-			throw new IOException(e);
-		}
-	}
-
 	public String write(Object object) {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
 		try {
@@ -144,13 +132,13 @@ public class Serializer {
 		}
 	}
 
-	public Object read(InputStream input) throws IOException {
-		return read(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));
+	public void write(Object object, OutputStream output) throws IOException {
+		write(object, new OutputStreamWriter(output, SERIALIZATION_CHARSET_NAME));
 	}
 
-	public Object read(Reader reader) throws IOException {
+	public void write(Object object, Writer writer) throws IOException {
 		try {
-			return xstream.fromXML(reader);
+			xstream.toXML(object, writer);
 		} catch (XStreamException e) {
 			throw new IOException(e);
 		}
@@ -167,6 +155,18 @@ public class Serializer {
 			return read(input);
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
+		}
+	}
+
+	public Object read(InputStream input) throws IOException {
+		return read(new InputStreamReader(input, SERIALIZATION_CHARSET_NAME));
+	}
+
+	public Object read(Reader reader) throws IOException {
+		try {
+			return xstream.fromXML(reader);
+		} catch (XStreamException e) {
+			throw new IOException(e);
 		}
 	}
 
