@@ -215,6 +215,78 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>recursively</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-2a347a86:19b7fb7083c:ad</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>validate</methodName>
+            <methodSignature>void validate(boolean, com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-2a347a86:19b7fb7083c:af</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2a347a86:19b7fb7083c:b0</uniqueIdentifier>
+                    <data>rO0ABXNyABFqYXZhLmxhbmcuQm9vbGVhbs0gcoDVnPruAgABWgAFdmFsdWV4cAA=</data>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>true</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>recursively</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>-2a347a86:19b7fb7083c:b1</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2a347a86:19b7fb7083c:b2</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>true</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>true</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-2a347a86:19b7fb7083c:ae</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>obtainClass</methodName>
+            <methodSignature>java.lang.Class obtainClass(com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-2a347a86:19b7fb7083c:b3</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2a347a86:19b7fb7083c:b4</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>false</valueContextual>
             </parametersCustomization>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -536,6 +608,78 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>recursively</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-2a347a86:19b7fb897e6:-5304</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>validate</methodName>
+            <methodSignature>void validate(boolean, com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-2a347a86:19b7fb897e6:-5302</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2a347a86:19b7fb897e6:-5301</uniqueIdentifier>
+                    <data>rO0ABXNyABFqYXZhLmxhbmcuQm9vbGVhbs0gcoDVnPruAgABWgAFdmFsdWV4cAA=</data>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>true</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>recursively</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>-2a347a86:19b7fb897e6:-5300</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2a347a86:19b7fb897e6:-52ff</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>true</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>true</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-2a347a86:19b7fb897e6:-5303</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>obtainClass</methodName>
+            <methodSignature>java.lang.Class obtainClass(com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-2a347a86:19b7fb897e6:-52fe</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2a347a86:19b7fb897e6:-52fd</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>false</valueContextual>
             </parametersCustomization>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
@@ -607,7 +751,7 @@
             <uniqueIdentifier>-56551cd1:1984253b993:4a45</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-674cb1a2:19aa865c7ce:-30f3</uniqueIdentifier>
+                <uniqueIdentifier>-2a347a86:19b7fc0c15e:-6501</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -641,7 +785,7 @@
             <uniqueIdentifier>5cd45ed4:196f397b329:3958</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-674cb1a2:19aa865c7ce:-30f2</uniqueIdentifier>
+                <uniqueIdentifier>-2a347a86:19b7fc0c15e:-6500</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>input</name>
             </category>
@@ -676,7 +820,7 @@
             <uniqueIdentifier>-51c5c0a6:19842c5cd8e:4939</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-674cb1a2:19aa865c7ce:-30f1</uniqueIdentifier>
+                <uniqueIdentifier>-2a347a86:19b7fc0c15e:-64ff</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -704,7 +848,7 @@
                 </applicationCustomization>
             </specificTypeCustomizations>
             <transientForced>false</transientForced>
-            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+            <valueValidityDetectionForced>true</valueValidityDetectionForced>
         </fieldsCustomization>
         <immutableForced>false</immutableForced>
         <memberCategory>

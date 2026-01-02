@@ -42,6 +42,7 @@
 			<groupId>com.github.dotxyteam</groupId>
 			<artifactId>j-enterprise-service-bus</artifactId>
 			<version>0.9.8</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.xml.ws</groupId>
@@ -209,10 +210,6 @@
 						<goals>
 							<goal>copy-dependencies</goal>
 						</goals>
-						<configuration>
-							<excludeArtifactIds>j-enterprise-service-bus</excludeArtifactIds>
-							<excludeTransitive>true</excludeTransitive>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>

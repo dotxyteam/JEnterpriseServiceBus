@@ -77,7 +77,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:7219</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6f196bec:19b4beffb54:-6b77</uniqueIdentifier>
+                <uniqueIdentifier>2abe0cde:19b7fce494f:6937</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>source</name>
             </category>
@@ -193,7 +193,7 @@
             <uniqueIdentifier>-d88499a:197e166c2ba:-3cf6</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6f196bec:19b4beffb54:-6b76</uniqueIdentifier>
+                <uniqueIdentifier>2abe0cde:19b7fce494f:6938</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>structure</name>
             </category>
@@ -559,7 +559,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:447f</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-6f196bec:19b4beffb54:-6b75</uniqueIdentifier>
+                <uniqueIdentifier>2abe0cde:19b7fce494f:6939</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -906,6 +906,35 @@
             <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
             <methodName>retrieveClass</methodName>
             <methodSignature>java.lang.Class retrieveClass()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>2abe0cde:19b7fce494f:67c3</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>getDocumentClass</methodName>
+            <methodSignature>java.lang.Class getDocumentClass(com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>2abe0cde:19b7fce494f:67c4</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>2abe0cde:19b7fce494f:67c5</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>

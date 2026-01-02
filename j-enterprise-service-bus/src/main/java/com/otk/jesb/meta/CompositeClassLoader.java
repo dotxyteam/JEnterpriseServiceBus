@@ -100,7 +100,7 @@ public class CompositeClassLoader extends ClassLoader {
 	}
 
 	@Override
-	public Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
+	protected Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
 		Class result = applyCompositively(getClassLoadingFunction(name, resolve));
 		if (result == null) {
 			throw new ClassNotFoundException(name);

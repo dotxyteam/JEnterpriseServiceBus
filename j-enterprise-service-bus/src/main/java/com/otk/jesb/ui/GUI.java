@@ -329,7 +329,25 @@ public class GUI extends MultiSwingCustomizer {
 
 	@Override
 	public String getInfoCustomizationsOutputFilePath(String customizationsIdentifier) {
-		String coreCustomizationsDirectoryPath = null;
+		IPluginInfo currentPluginInfo = null;
+		for (IPluginInfo pluginInfo : getSolutionInstance().getRuntime().getPluginInfos()) {
+			if (pluginInfo.getOperationMetadatas().stream()
+					.anyMatch(metadata -> MiscUtils.inferOperationClass(metadata.getOperationBuilderClass()).getName()
+							.equals(customizationsIdentifier))) {
+				currentPluginInfo = pluginInfo;
+				break;
+			}
+			if (pluginInfo.getActivatorMetadatas().stream()
+					.anyMatch(metadata -> metadata.getActivatorClass().getName().equals(customizationsIdentifier))) {
+				currentPluginInfo = pluginInfo;
+				break;
+			}
+			if (pluginInfo.getResourceMetadatas().stream()
+					.anyMatch(metadata -> metadata.getResourceClass().getName().equals(customizationsIdentifier))) {
+				currentPluginInfo = pluginInfo;
+				break;
+			}
+		}
 		for (String customizationsDirectoryEntry : System
 				.getProperty(GUI_CUSTOMIZATIONS_RESOURCE_DIRECTORIES_PROPERTY_KEY, "").split(",")) {
 			customizationsDirectoryEntry = customizationsDirectoryEntry.trim();
@@ -345,36 +363,12 @@ public class GUI extends MultiSwingCustomizer {
 			}
 			String customizationsDirectoryPath = matcher.group(1);
 			String pluginInfoClassName = matcher.group(2);
-			if (pluginInfoClassName != null) {
-				IPluginInfo pluginInfo;
-				try {
-					pluginInfo = (IPluginInfo) getSolutionInstance().getRuntime().getJESBClass(pluginInfoClassName)
-							.newInstance();
-				} catch (Exception e) {
-					throw new UnexpectedError(e);
-				}
-				if (pluginInfo.getOperationMetadatas().stream()
-						.anyMatch(metadata -> MiscUtils.inferOperationClass(metadata.getOperationBuilderClass())
-								.getName().equals(customizationsIdentifier))) {
-					return customizationsDirectoryPath + "/"
-							+ getInfoCustomizationsResourceName(customizationsIdentifier);
-				}
-				if (pluginInfo.getActivatorMetadatas().stream().anyMatch(
-						metadata -> metadata.getActivatorClass().getName().equals(customizationsIdentifier))) {
-					return customizationsDirectoryPath + "/"
-							+ getInfoCustomizationsResourceName(customizationsIdentifier);
-				}
-				if (pluginInfo.getResourceMetadatas().stream()
-						.anyMatch(metadata -> metadata.getResourceClass().getName().equals(customizationsIdentifier))) {
-					return customizationsDirectoryPath + "/"
-							+ getInfoCustomizationsResourceName(customizationsIdentifier);
-				}
-			} else {
-				coreCustomizationsDirectoryPath = customizationsDirectoryPath;
+			if((pluginInfoClassName==null) && (currentPluginInfo == null)) {
+				return customizationsDirectoryPath + "/" + getInfoCustomizationsResourceName(customizationsIdentifier);
 			}
-		}
-		if (coreCustomizationsDirectoryPath != null) {
-			return coreCustomizationsDirectoryPath + "/" + getInfoCustomizationsResourceName(customizationsIdentifier);
+			if((pluginInfoClassName!=null) && (currentPluginInfo != null) && pluginInfoClassName.equals(currentPluginInfo.getClass().getName()) ) {
+				return customizationsDirectoryPath + "/" + getInfoCustomizationsResourceName(customizationsIdentifier);
+			}
 		}
 		return null;
 	}

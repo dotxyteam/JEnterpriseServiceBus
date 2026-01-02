@@ -25,6 +25,7 @@ import com.otk.jesb.PluginBuilder;
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.ValidationError;
 import com.otk.jesb.activation.builtin.WatchFileSystem;
+import com.otk.jesb.meta.DelegatingClassLoader;
 import com.otk.jesb.operation.builtin.Evaluate;
 import com.otk.jesb.resource.Resource;
 import com.otk.jesb.util.MiscUtils;
@@ -63,8 +64,16 @@ public class Solution {
 			@Override
 			protected XStream createXstream() {
 				XStream result = super.createXstream();
-				result.setClassLoader(runtime.getInMemoryCompiler().getCompiledClassesLoader());
+				result.setClassLoader(forceClassesRelaoding(runtime.getInMemoryCompiler().getCompiledClassesLoader()));
 				return result;
+			}
+
+			ClassLoader forceClassesRelaoding(ClassLoader compiledClassesLoader) {
+				/*
+				 * Necessary because Class.forName(String, boolean, ClassLoader) does not reload
+				 * classes for the same ClassLoader reference.
+				 */
+				return new DelegatingClassLoader(compiledClassesLoader);
 			}
 
 		};
@@ -85,6 +94,7 @@ public class Solution {
 	public void setRequiredJARs(List<JAR> requiredJARs) {
 		this.requiredJARs = requiredJARs;
 		runtime.configureDependencies(requiredJARs);
+		serializer.clearClassCache();
 	}
 
 	public EnvironmentSettings getEnvironmentSettings() {

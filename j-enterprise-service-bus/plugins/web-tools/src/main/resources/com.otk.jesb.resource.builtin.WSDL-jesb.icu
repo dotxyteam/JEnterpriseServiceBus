@@ -110,7 +110,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-7795</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-4b5facc4:19b4bfbfeee:b5e</uniqueIdentifier>
+                <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3a89</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -173,7 +173,7 @@
             <uniqueIdentifier>-26abd643:194b71ba484:-778a</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-4b5facc4:19b4bfbfeee:b5f</uniqueIdentifier>
+                <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3a88</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -265,7 +265,7 @@
             <uniqueIdentifier>-baace6e:1956d754d70:-64f8</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-4b5facc4:19b4bfbfeee:b60</uniqueIdentifier>
+                <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3a87</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -349,7 +349,7 @@
             <uniqueIdentifier>-d88499a:197e12932ee:4878</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-4b5facc4:19b4bfbfeee:b61</uniqueIdentifier>
+                <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3a86</uniqueIdentifier>
                 <caption>Source</caption>
                 <name>Source</name>
             </category>
@@ -409,7 +409,7 @@
             <uniqueIdentifier>-1ccf00b9:19838cf35da:57d1</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-4b5facc4:19b4bfbfeee:b62</uniqueIdentifier>
+                <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3a85</uniqueIdentifier>
                 <caption>Structure</caption>
                 <name>Structure</name>
             </category>
@@ -1097,7 +1097,7 @@
             <uniqueIdentifier>61347bf6:1974b9376d1:570d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-4b5facc4:19b4bfbfeee:b63</uniqueIdentifier>
+                <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3a84</uniqueIdentifier>
                 <caption>Note</caption>
                 <name>note</name>
             </category>
@@ -2636,6 +2636,59 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>wsdl</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3d0c</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>toFaultException</methodName>
+            <methodSignature>java.lang.Exception toFaultException(com.otk.jesb.resource.builtin.WSDL$OperationDescriptor, com.otk.jesb.resource.builtin.WSDL, com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3d07</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3d06</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>operation</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3d05</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3d04</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>wsdl</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3d03</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-2a347a86:19b7fb3fbfa:-3d02</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
                 <valueContextual>false</valueContextual>
             </parametersCustomization>
             <readOnlyForced>false</readOnlyForced>

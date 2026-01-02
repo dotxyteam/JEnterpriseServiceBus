@@ -34,7 +34,9 @@ public class Runtime {
 	public static final Attributes.Name PLUGIN_INFO_CLASS_MANIFEST_KEY = new Attributes.Name("Plugin-Info-Class");
 	public static final String STATIC_PLUGIN_INFO_CLASS_NAMES_PROPERTY_KEY = Runtime.class.getName()
 			+ ".pluginInfoClassNames";
-	private static final File APPLICATION_PLUGINS_DIRECTORY = new File("plugins");
+	private static final String DEFAULT_APPLICATION_PLUGINS_DIRECTORY_PATH = "plugins";
+	private static final String APPLICATION_PLUGINS_DIRECTORY_PATH_PROPERTY_KEY = Runtime.class.getName()
+			+ ".pluginsDirectory";
 
 	private final InMemoryCompiler inMemoryCompiler = new InMemoryCompiler();
 
@@ -107,8 +109,10 @@ public class Runtime {
 
 	private URLClassLoader buildAllJARsClassLoader(List<JAR> solutionJARs) {
 		List<URL> allJarFileURLs = new ArrayList<URL>();
-		if (APPLICATION_PLUGINS_DIRECTORY.isDirectory()) {
-			Arrays.stream(APPLICATION_PLUGINS_DIRECTORY.listFiles(file -> file.getName().endsWith(".jar")))
+		File applicationPluginsDirectory = new File(System.getProperty(APPLICATION_PLUGINS_DIRECTORY_PATH_PROPERTY_KEY,
+				DEFAULT_APPLICATION_PLUGINS_DIRECTORY_PATH));
+		if (applicationPluginsDirectory.isDirectory()) {
+			Arrays.stream(applicationPluginsDirectory.listFiles(file -> file.getName().endsWith(".jar")))
 					.forEach(file -> {
 						try {
 							allJarFileURLs.add(file.toURI().toURL());

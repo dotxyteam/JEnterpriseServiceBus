@@ -14,7 +14,6 @@
 		<jesb.basedir>..</jesb.basedir>
 		<jesb-plugin-web-tools.artifactId>jesb-plugin-web-tools</jesb-plugin-web-tools.artifactId>
 		<jesb-plugin-web-tools.basedir>../plugins/web-tools</jesb-plugin-web-tools.basedir>
-		<jesb-plugin-web-tools.infoClassName>com.otk.jesb.WebToolsPluginInfo</jesb-plugin-web-tools.infoClassName>
 		<compiler.sourceVersion>1.8</compiler.sourceVersion>
 		<compiler.targetVersion>1.8</compiler.targetVersion>
 	</properties>
@@ -112,7 +111,6 @@
 									<opt>-splash:splash.gif</opt>
 									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}</opt>
 									<opt>-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}</opt>
-									<opt>-Dcom.otk.jesb.solution.Runtime.pluginInfoClassNames=${jesb-plugin-web-tools.infoClassName}</opt>
 								</opts>
 							</jre>
 						</configuration>
@@ -187,7 +185,6 @@ $$JAVA_EXE \
 "-Dcom.otk.jesb.defaultExeFile=${jesb.artifactId}" \
 "-Dcom.otk.jesb.compiler.InMemoryCompiler.sourceVersion=${compiler.sourceVersion}" \
 "-Dcom.otk.jesb.compiler.InMemoryCompiler.targetVersion=${compiler.targetVersion}" \
-"-Dcom.otk.jesb.solution.Runtime.pluginInfoClassNames=${jesb-plugin-web-tools.infoClassName}" \
 $(cat ${jesb.artifactId}.l4j.ini 2> /dev/null) -jar "$$0" "$@"
 
 exit $$?]]></echo>

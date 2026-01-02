@@ -34,14 +34,10 @@ public class Serializer {
 
 	protected static final String SERIALIZATION_CHARSET_NAME = "UTF-8";
 
-	protected final XStream xstream;
-
-	public Serializer() {
-		this.xstream = createXstream();
-	}
+	protected XStream xstream = createXstream();
 
 	protected XStream createXstream() {
-		XStream xstream = new XStream() {
+		XStream result = new XStream() {
 			@Override
 			protected MapperWrapper wrapMapper(MapperWrapper next) {
 				return new MapperWrapper(next) {
@@ -71,7 +67,7 @@ public class Serializer {
 				};
 			}
 		};
-		xstream.registerConverter(new JavaBeanConverter(xstream.getMapper(), new BeanProvider() {
+		result.registerConverter(new JavaBeanConverter(result.getMapper(), new BeanProvider() {
 			@Override
 			protected boolean canStreamProperty(PropertyDescriptor descriptor) {
 
@@ -100,7 +96,7 @@ public class Serializer {
 				super.writeProperty(object, propertyName, value);
 			}
 		}), XStream.PRIORITY_VERY_LOW);
-		xstream.registerConverter(new ReflectionConverter(xstream.getMapper(), xstream.getReflectionProvider()) {
+		result.registerConverter(new ReflectionConverter(result.getMapper(), result.getReflectionProvider()) {
 			@Override
 			public boolean canConvert(@SuppressWarnings("rawtypes") Class type) {
 				if ((type != null) && AbstractSimpleCustomizableFieldControlPlugin.AbstractConfiguration.class
@@ -113,9 +109,9 @@ public class Serializer {
 				return false;
 			}
 		}, XStream.PRIORITY_VERY_HIGH);
-		xstream.addPermission(AnyTypePermission.ANY);
-		xstream.ignoreUnknownElements();
-		return xstream;
+		result.addPermission(AnyTypePermission.ANY);
+		result.ignoreUnknownElements();
+		return result;
 	}
 
 	public String write(Object object) {
@@ -180,6 +176,10 @@ public class Serializer {
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}
+	}
+
+	public void clearClassCache() {
+		xstream = createXstream();
 	}
 
 }
