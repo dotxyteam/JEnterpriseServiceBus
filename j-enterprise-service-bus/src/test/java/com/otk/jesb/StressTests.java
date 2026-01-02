@@ -44,7 +44,7 @@ public class StressTests {
 
 	@Test
 	public void testMemoryLeaks() throws Exception {
-		final Long PERIOD_MILLISECONDS = 5l;
+		final Long PERIOD_MILLISECONDS = 10l;
 		final Long SLEEP_MILLISECONDS = 100l;
 		Solution solutionInstance = new Solution();
 		Plan plan = new Plan();

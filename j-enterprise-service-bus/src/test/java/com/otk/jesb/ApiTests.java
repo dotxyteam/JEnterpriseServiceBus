@@ -45,6 +45,7 @@ public class ApiTests {
 			Solution solutionInstance = new Solution();
 			solutionInstance.loadFromArchiveFile(archiveFile);
 			solutionInstance.validate();
+			Console.DEFAULT.setPendingInputLineConsumer(Console.DEFAULT.getDefaultPendingInputLineConsumer());
 			try (Debugger session = new Debugger(solutionInstance, true)) {
 				session.activatePlans();
 				Thread.sleep(3000);

@@ -35,7 +35,7 @@ public class ReadFile implements Operation {
 	}
 
 	@Override
-	public Object execute(Solution solutionIOnstance) throws Throwable {
+	public Object execute(Solution solutionInstance) throws Throwable {
 		return specificOperation.execute();
 	}
 

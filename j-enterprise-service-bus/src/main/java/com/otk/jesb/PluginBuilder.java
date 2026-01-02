@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -689,9 +688,7 @@ public class PluginBuilder {
 	}
 
 	public static String writeControlPluginConfiguration(Object controlPluginConfiguration) {
-		StringWriter writer = new StringWriter();
-		CONTROL_PLUGIN_CONFIGURATION_SERIALIZER.write(controlPluginConfiguration);
-		return writer.toString();
+		return CONTROL_PLUGIN_CONFIGURATION_SERIALIZER.write(controlPluginConfiguration);
 	}
 
 	public static Object readControlPluginConfiguration(String string) {

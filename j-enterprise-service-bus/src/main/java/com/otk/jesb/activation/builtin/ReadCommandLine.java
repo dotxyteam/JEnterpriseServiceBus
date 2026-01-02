@@ -55,7 +55,7 @@ public class ReadCommandLine extends Activator {
 	}
 
 	@Override
-	public void initializeAutomaticTrigger(ActivationHandler activationHandler, Solution solutionIOnstance)
+	public void initializeAutomaticTrigger(ActivationHandler activationHandler, Solution solutionInstance)
 			throws Exception {
 		this.activationHandler = activationHandler;
 		standardInput = new BufferedReader(new InputStreamReader(JESB.getStandardInputSource().newInputStream()));
@@ -63,7 +63,7 @@ public class ReadCommandLine extends Activator {
 
 			@Override
 			public void run() {
-				String prompt = promptVariant.getValue(solutionIOnstance);
+				String prompt = promptVariant.getValue(solutionInstance);
 				while (true) {
 					try {
 						if (isInterrupted()) {
@@ -79,6 +79,9 @@ public class ReadCommandLine extends Activator {
 						}
 						InputClassStructure input = new InputClassStructure(line);
 						OutputClassStructure output = (OutputClassStructure) activationHandler.trigger(input);
+						if(isInterrupted()) {
+							break;
+						}
 						if (output.result != null) {
 							JESB.getStandardOutput().println(output.result);
 						}
@@ -97,7 +100,7 @@ public class ReadCommandLine extends Activator {
 	}
 
 	@Override
-	public void finalizeAutomaticTrigger(Solution solutionIOnstance) throws Exception {
+	public void finalizeAutomaticTrigger(Solution solutionInstance) throws Exception {
 		MiscUtils.willRethrowCommonly((compositeException) -> {
 			compositeException.tryCactch(() -> {
 				while (thread.isAlive()) {
