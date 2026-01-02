@@ -490,6 +490,7 @@ public class PluginBuilder {
 			stringBuilder.append("			<groupId>" + BuildInformation.getGroupId() + "</groupId>\n");
 			stringBuilder.append("			<artifactId>" + BuildInformation.getArtifactId() + "</artifactId>\n");
 			stringBuilder.append("			<version>" + BuildInformation.getVersion() + "</version>\n");
+			stringBuilder.append("			<scope>provided</scope>\n");
 			stringBuilder.append("		</dependency>\n");
 			stringBuilder.append("	</dependencies>\n");
 			stringBuilder.append("\n");
@@ -543,13 +544,6 @@ public class PluginBuilder {
 			stringBuilder.append("						<goals>\n");
 			stringBuilder.append("							<goal>copy-dependencies</goal>\n");
 			stringBuilder.append("						</goals>\n");
-			stringBuilder.append("						<configuration>\n");
-			stringBuilder.append(
-					"							<outputDirectory>${project.build.directory}/lib</outputDirectory>\n");
-			stringBuilder.append("							<excludeArtifactIds>" + BuildInformation.getArtifactId()
-					+ "</excludeArtifactIds>\n");
-			stringBuilder.append("							<excludeTransitive>true</excludeTransitive>\n");
-			stringBuilder.append("						</configuration>\n");
 			stringBuilder.append("					</execution>\n");
 			stringBuilder.append("				</executions>\n");
 			stringBuilder.append("			</plugin>\n");
@@ -560,66 +554,7 @@ public class PluginBuilder {
 			out.write((stringBuilder.toString()).getBytes());
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
-		}
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("	<build>\n");
-		stringBuilder.append("		<plugins>\n");
-		stringBuilder.append("			<plugin>\n");
-		stringBuilder.append("				<groupId>org.apache.maven.plugins</groupId>\n");
-		stringBuilder.append("				<artifactId>maven-compiler-plugin</artifactId>\n");
-		stringBuilder.append("				<version>3.8.0</version>\n");
-		stringBuilder.append("				<configuration>\n");
-		stringBuilder.append("					<source>${compiler.sourceVersion}</source>\n");
-		stringBuilder.append("					<target>${compiler.targetVersion}</target>\n");
-		stringBuilder.append("					<compilerArgs>\n");
-		stringBuilder.append("						<arg>-parameters</arg>\n");
-		stringBuilder.append("					</compilerArgs>\n");
-		stringBuilder.append("				</configuration>\n");
-		stringBuilder.append("			</plugin>\n");
-		stringBuilder.append("			<plugin>\n");
-		stringBuilder.append("				<groupId>org.apache.maven.plugins</groupId>\n");
-		stringBuilder.append("				<artifactId>maven-jar-plugin</artifactId>\n");
-		stringBuilder.append("				<version>2.4</version>\n");
-		stringBuilder.append("				<executions>\n");
-		stringBuilder.append("					<execution>\n");
-		stringBuilder.append("						<phase>prepare-package</phase>\n");
-		stringBuilder.append("						<goals>\n");
-		stringBuilder.append("							<goal>jar</goal>\n");
-		stringBuilder.append("						</goals>\n");
-		stringBuilder.append("					</execution>\n");
-		stringBuilder.append("				</executions>\n");
-		stringBuilder.append("				<configuration>\n");
-		stringBuilder.append("					<archive>\n");
-		stringBuilder.append("						<manifestEntries>\n");
-		stringBuilder.append(
-				"							<Plugin-Info-Class>com.otk.jesb.WebToolsPluginInfo</Plugin-Info-Class>\n");
-		stringBuilder.append("						</manifestEntries>\n");
-		stringBuilder.append("					</archive>\n");
-		stringBuilder.append("					<outputDirectory>${project.build.directory}/lib</outputDirectory>\n");
-		stringBuilder.append("				</configuration>\n");
-		stringBuilder.append("			</plugin>\n");
-		stringBuilder.append("			<plugin>\n");
-		stringBuilder.append("				<groupId>org.apache.maven.plugins</groupId>\n");
-		stringBuilder.append("				<artifactId>maven-dependency-plugin</artifactId>\n");
-		stringBuilder.append("				<executions>\n");
-		stringBuilder.append("					<execution>\n");
-		stringBuilder.append("						<id>copy-dependencies</id>\n");
-		stringBuilder.append("						<phase>prepare-package</phase>\n");
-		stringBuilder.append("						<goals>\n");
-		stringBuilder.append("							<goal>copy-dependencies</goal>\n");
-		stringBuilder.append("						</goals>\n");
-		stringBuilder.append("						<configuration>\n");
-		stringBuilder.append(
-				"							<outputDirectory>${project.build.directory}/lib</outputDirectory>\n");
-		stringBuilder.append(
-				"							<excludeArtifactIds>j-enterprise-service-bus</excludeArtifactIds>\n");
-		stringBuilder.append("							<excludeTransitive>true</excludeTransitive>\n");
-		stringBuilder.append("						</configuration>\n");
-		stringBuilder.append("					</execution>\n");
-		stringBuilder.append("				</executions>\n");
-		stringBuilder.append("			</plugin>\n");
-		stringBuilder.append("		</plugins>\n");
-		stringBuilder.append("	</build>");
+		}		
 	}
 
 	private void produceIcon(File resourceDirectroy, String typeName, BufferedImage iconImage) {
