@@ -81,7 +81,8 @@ need to be minimal or even nonexistent, and the integration of these tools into
 projects would need to be facilitated. NOTE: It is therefore a good thing that 
 JESB does not use a specific syntax (just Java) to express complex logics. 
 The tool could, for example, be provided as a simple library usable in commonly 
-mastered programming environments. This involves providing, through the simplest 
+mastered programming environments (without requiring any specific middleware). 
+                             This involves providing, through the simplest 
 possible API, a way to edit and then invoke the tool's components (mappers, 
 connectors, etc.). Note that bridge APIs could be provided for other languages. 
 The editing interface should also be streamlined to require no special skills. 
