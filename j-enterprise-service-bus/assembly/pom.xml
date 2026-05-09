@@ -24,7 +24,7 @@
 	</modules>
 
 	<name>J-Enterprise Service Bus assembly project</name>
-	<description>Assembly (build-only) project fro JESB</description>
+	<description>Assembly (build-only) project for JESB</description>
 	<url>https://github.com/dotxyteam/JEnterpriseServiceBus</url>
 	<licenses>
 		<license>
