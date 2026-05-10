@@ -206,12 +206,12 @@ public class JESB {
 		} else {
 			setupSampleSolution(solutionInstance);
 		}
+		if (commandLine.hasOption(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)) {
+			solutionInstance.getEnvironmentSettings()
+					.importProperties(new File(commandLine.getOptionValue(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)));
+		}
 		if (commandLine.hasOption(RUNNER_SWITCH_ARGUMENT)) {
 			runner = new Runner(solutionInstance, false);
-			if (commandLine.hasOption(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)) {
-				solutionInstance.getEnvironmentSettings()
-						.importProperties(new File(commandLine.getOptionValue(ENVIRONMENT_SETTINGS_OPTION_ARGUMENT)));
-			}
 			runner.open();
 		} else {
 			SwingUtilities.invokeLater(new Runnable() {
