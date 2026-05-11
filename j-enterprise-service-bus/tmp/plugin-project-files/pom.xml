@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>com.github.dotxyteam</groupId>
 			<artifactId>j-enterprise-service-bus</artifactId>
-			<version>0.9.8</version>
+			<version>0.9.11</version>
 		</dependency>
 	</dependencies>
 
