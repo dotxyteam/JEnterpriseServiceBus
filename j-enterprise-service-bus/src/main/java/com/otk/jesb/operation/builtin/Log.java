@@ -52,7 +52,7 @@ public class Log implements Operation {
 	}
 
 	public enum Level {
-		INFORMATION, WARNING, EERROR
+		INFORMATION, WARNING, ERROR
 	}
 
 	public static class Metadata implements OperationMetadata<Log> {

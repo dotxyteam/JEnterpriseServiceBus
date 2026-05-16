@@ -21,8 +21,8 @@ public class Runner extends Debugger {
 		this(solution, true);
 	}
 
-	public Runner(Solution solution, boolean sessionOpen) {
-		super(solution, sessionOpen);
+	public Runner(Solution solution, boolean openSession) {
+		super(solution, openSession);
 	}
 
 	@Override

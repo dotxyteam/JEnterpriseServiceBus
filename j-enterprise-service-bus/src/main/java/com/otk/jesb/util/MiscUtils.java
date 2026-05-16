@@ -16,7 +16,12 @@ import java.io.PrintStream;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -112,6 +118,34 @@ public class MiscUtils {
 
 	private static final WeakHashMap<Object, String> DIGITAL_UNIQUE_IDENTIFIER_CACHE = new WeakHashMap<Object, String>();
 	private static final Object DIGITAL_UNIQUE_IDENTIFIER_CACHE_MUTEX = new Object();
+
+	public static InputStream sendHttpPost(URL url, Map<String, String> arguments) throws IOException {
+		URLConnection con = url.openConnection();
+		HttpURLConnection http = (HttpURLConnection) con;
+		http.setRequestMethod("POST");
+		http.setDoOutput(true);
+		StringJoiner postBuilder = new StringJoiner("&");
+		for (Map.Entry<String, String> entry : arguments.entrySet())
+			postBuilder.add(
+					URLEncoder.encode(entry.getKey(), "UTF-8") + "=" + URLEncoder.encode(entry.getValue(), "UTF-8"));
+		byte[] post = postBuilder.toString().getBytes(StandardCharsets.UTF_8);
+		int length = post.length;
+		http.setFixedLengthStreamingMode(length);
+		http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+		http.connect();
+		OutputStream outputStream = http.getOutputStream();
+		outputStream.write(post);
+		return http.getInputStream();
+	}
+
+	public static InputStream sendHttpGet(URL url) throws IOException {
+		URLConnection con = url.openConnection();
+		HttpURLConnection http = (HttpURLConnection) con;
+		http.setRequestMethod("GET");
+		http.setDoOutput(true);
+		http.connect();
+		return http.getInputStream();
+	}
 
 	public static ThreadPoolExecutor newExecutor(final String threadName, int minimumThreadCount) {
 		ThreadPoolExecutor result = new ThreadPoolExecutor(minimumThreadCount, Integer.MAX_VALUE, 300, TimeUnit.SECONDS,
