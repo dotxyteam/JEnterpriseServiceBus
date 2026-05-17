@@ -52,20 +52,17 @@
   <xsd:attribute name="country" type="xsd:NMTOKEN" fixed="US"/>
  </xsd:complexType>
 </xsd:schema>
-- missing LoopCompositeStep documentation
 - move Runtime.getXstream() to a generic XStream agnostic Solution.getSerializer()
 - Runner plan executors and step crossings will remain and fill the memory
 - allow to use the JESB API to access the current execution context and perform some actions
 - add ExecutePlan.fork option ???
-- add an ExecutePlan option to dynamically select the target plan
-(maybe allow to do it via the JESB API)
 - fix date/time display issues due to java.util.Date picking the current local time zone
 (not the historical one)
 - allow to read big files
 - JDBC Query: allow to use subsets
 - JDBC Procedure Call: allow to get additional resultSet ???
 - allow to select *File.charsetName options
-- allow to create template operations (ex: for dynamic jdbc suery statement) ???
+- allow to create template operations (ex: for dynamic jdbc query statement) ???
 (maybe allow to do it via the JESB API)
 - simplify the reuse of the JESB API:
 	- add method InitializerFacade.getChild(String displayString).
@@ -94,7 +91,7 @@
 - allow to view APIs (SOAP/REST) documentation URL in the GUI ???
 (can already be seen in the logs)
 - add other built-in activities (jms, data format, ...)
-- cloud compatibility
+- cloud compatibility ???
 - add JDBC connection/operation timeout options
 - rename JDBC* operations to DB* or Database* or SQL* ???
 - allow to ignore errors ???

@@ -112,6 +112,36 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>11864e26:19e35569dab:775d</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customMethodCaption>(Re)Generate</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>retrieveResultColumnDefinitions</methodName>
+            <methodSignature>void retrieveResultColumnDefinitions(com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>3968f360:19b4654761a:5800</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>3968f360:19b4654761a:5801</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>true</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCQuery$Builder], fieldName=generalOutputGroup]], fieldName=resultColumnDefinitionRetrievalBox]</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -417,7 +447,7 @@
             <uniqueIdentifier>7c41932f:1984b0ea1ac:-73a9</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
-            <customFieldCaption>Automatic</customFieldCaption>
+            <customFieldCaption>Automatically</customFieldCaption>
             <displayAreaHorizontalWeight>0.0</displayAreaHorizontalWeight>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>true</duplicateGenerated>
@@ -615,6 +645,36 @@
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>true</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>11864e26:19e35569dab:6b1e</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>parameterDefinitionsRetrievalBox</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>retrieveParameterDefinitions</methodName>
+            <methodSignature>void retrieveParameterDefinitions(com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>3968f360:19b4654761a:57fe</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>3968f360:19b4654761a:57ff</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>true</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
         </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCQuery$Builder], fieldName=paramatersGroup]</typeName>
@@ -1049,7 +1109,7 @@
             <uniqueIdentifier>7ce6f2cb:194948de289:-43cc</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-5747233b:19e0e02bf11:1754</uniqueIdentifier>
+                <uniqueIdentifier>1a8ca2f9:19e36579f81:5b51</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -1086,7 +1146,7 @@
             <uniqueIdentifier>-3a7ac6e8:193938ceb84:4a71</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-5747233b:19e0e02bf11:1755</uniqueIdentifier>
+                <uniqueIdentifier>1a8ca2f9:19e36579f81:5b52</uniqueIdentifier>
                 <caption>Input</caption>
                 <name>Input</name>
             </category>
@@ -1176,7 +1236,7 @@
             <uniqueIdentifier>49e54d5c:193980bbf4e:50a2</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-5747233b:19e0e02bf11:1756</uniqueIdentifier>
+                <uniqueIdentifier>1a8ca2f9:19e36579f81:5b53</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -1239,7 +1299,7 @@
             <uniqueIdentifier>35d408fa:193d0a8a704:-73ad</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-5747233b:19e0e02bf11:1757</uniqueIdentifier>
+                <uniqueIdentifier>1a8ca2f9:19e36579f81:5b54</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -1274,7 +1334,7 @@
             <uniqueIdentifier>-503c4aaa:193a0b826ba:50fa</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-5747233b:19e0e02bf11:1758</uniqueIdentifier>
+                <uniqueIdentifier>1a8ca2f9:19e36579f81:5b55</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -1420,7 +1480,7 @@
             <uniqueIdentifier>68334a1e:19a37201924:665</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-5747233b:19e0e02bf11:1759</uniqueIdentifier>
+                <uniqueIdentifier>1a8ca2f9:19e36579f81:5b56</uniqueIdentifier>
                 <caption>Output</caption>
                 <name>Output</name>
             </category>
@@ -1522,23 +1582,51 @@
             <validating>false</validating>
         </methodsCustomization>
         <methodsCustomization>
-            <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
+            <uniqueIdentifier>-38ab5d3b:1963e0701fb:98</uniqueIdentifier>
             <specificProperties/>
-            <category>
-                <uniqueIdentifier>-5747233b:19e0e02bf11:175a</uniqueIdentifier>
-                <caption>Result</caption>
-                <name>Result</name>
-            </category>
-            <categoryCaption>Result</categoryCaption>
-            <categoryName>Result</categoryName>
-            <hidden>false</hidden>
+            <hidden>true</hidden>
             <detachedReturnValueForced>false</detachedReturnValueForced>
             <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>generalOutputGroup</encapsulationFieldName>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>retrieveResultColumnDefinitions</methodName>
-            <methodSignature>void retrieveResultColumnDefinitions()</methodSignature>
+            <methodName>build</methodName>
+            <methodSignature>com.otk.jesb.operation.Operation build(com.otk.jesb.solution.Plan$ExecutionContext, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-38ab5d3b:1963e0701fb:9b</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:9c</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>context</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>-38ab5d3b:1963e0701fb:9d</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:9e</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>executionInspector</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <parametersCustomization>
+                <uniqueIdentifier>4407c6bb:19846475a24:4e14</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>4407c6bb:19846475a24:4e15</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>executionContext</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
@@ -1547,20 +1635,19 @@
             <validating>false</validating>
         </methodsCustomization>
         <methodsCustomization>
-            <uniqueIdentifier>35d408fa:193d0a8a704:-5daf</uniqueIdentifier>
+            <uniqueIdentifier>53993efc:19407eee8b4:6ee6</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
-            <customMethodCaption>Define Parameters...</customMethodCaption>
             <detachedReturnValueForced>false</detachedReturnValueForced>
             <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>paramatersGroup</encapsulationFieldName>
+            <encapsulationFieldName>generalOutputGroup</encapsulationFieldName>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>parameterDefinitionsGroup.get</methodName>
-            <methodSignature>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCQuery$Builder], fieldName=parameterDefinitionsGroup] parameterDefinitionsGroup.get()</methodSignature>
+            <methodName>clearResultColumnDefinitions</methodName>
+            <methodSignature>void clearResultColumnDefinitions()</methodSignature>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <returnValueValidityDetectionForced>true</returnValueValidityDetectionForced>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
@@ -1607,24 +1694,6 @@
             <validating>false</validating>
         </methodsCustomization>
         <methodsCustomization>
-            <uniqueIdentifier>53993efc:19407eee8b4:6ee6</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>generalOutputGroup</encapsulationFieldName>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>clearResultColumnDefinitions</methodName>
-            <methodSignature>void clearResultColumnDefinitions()</methodSignature>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>false</validating>
-        </methodsCustomization>
-        <methodsCustomization>
             <uniqueIdentifier>7ce6f2cb:194948de289:-43c5</uniqueIdentifier>
             <specificProperties/>
             <hidden>true</hidden>
@@ -1656,47 +1725,6 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>currentFunction</parameterName>
-                <valueContextual>false</valueContextual>
-            </parametersCustomization>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>false</validating>
-        </methodsCustomization>
-        <methodsCustomization>
-            <uniqueIdentifier>-47924b99:19499672c0b:-73a5</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>true</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>findFunctionVerificationContext</methodName>
-            <methodSignature>com.otk.jesb.instantiation.VerificationContext findFunctionVerificationContext(com.otk.jesb.instantiation.InstantiationFunction, com.otk.jesb.ValidationContext)</methodSignature>
-            <parametersCustomization>
-                <uniqueIdentifier>-47924b99:19499672c0b:-73a4</uniqueIdentifier>
-                <specificProperties/>
-                <defaultValue>
-                    <uniqueIdentifier>-47924b99:19499672c0b:-73a3</uniqueIdentifier>
-                </defaultValue>
-                <displayedAsField>false</displayedAsField>
-                <hidden>false</hidden>
-                <nullValueDistinctForced>false</nullValueDistinctForced>
-                <parameterName>function</parameterName>
-                <valueContextual>false</valueContextual>
-            </parametersCustomization>
-            <parametersCustomization>
-                <uniqueIdentifier>-47924b99:19499672c0b:-73a2</uniqueIdentifier>
-                <specificProperties/>
-                <defaultValue>
-                    <uniqueIdentifier>-47924b99:19499672c0b:-73a1</uniqueIdentifier>
-                </defaultValue>
-                <displayedAsField>false</displayedAsField>
-                <hidden>false</hidden>
-                <nullValueDistinctForced>false</nullValueDistinctForced>
-                <parameterName>validationContext</parameterName>
                 <valueContextual>false</valueContextual>
             </parametersCustomization>
             <readOnlyForced>false</readOnlyForced>
@@ -1789,54 +1817,61 @@
             <validating>false</validating>
         </methodsCustomization>
         <methodsCustomization>
-            <uniqueIdentifier>-38ab5d3b:1963e0701fb:98</uniqueIdentifier>
+            <uniqueIdentifier>-47924b99:19499672c0b:-73a5</uniqueIdentifier>
             <specificProperties/>
             <hidden>true</hidden>
             <detachedReturnValueForced>false</detachedReturnValueForced>
             <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>build</methodName>
-            <methodSignature>com.otk.jesb.operation.Operation build(com.otk.jesb.solution.Plan$ExecutionContext, com.otk.jesb.solution.Plan$ExecutionInspector)</methodSignature>
+            <methodName>findFunctionVerificationContext</methodName>
+            <methodSignature>com.otk.jesb.instantiation.VerificationContext findFunctionVerificationContext(com.otk.jesb.instantiation.InstantiationFunction, com.otk.jesb.ValidationContext)</methodSignature>
             <parametersCustomization>
-                <uniqueIdentifier>-38ab5d3b:1963e0701fb:9b</uniqueIdentifier>
+                <uniqueIdentifier>-47924b99:19499672c0b:-73a4</uniqueIdentifier>
                 <specificProperties/>
                 <defaultValue>
-                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:9c</uniqueIdentifier>
+                    <uniqueIdentifier>-47924b99:19499672c0b:-73a3</uniqueIdentifier>
                 </defaultValue>
                 <displayedAsField>false</displayedAsField>
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
-                <parameterName>context</parameterName>
+                <parameterName>function</parameterName>
                 <valueContextual>false</valueContextual>
             </parametersCustomization>
             <parametersCustomization>
-                <uniqueIdentifier>-38ab5d3b:1963e0701fb:9d</uniqueIdentifier>
+                <uniqueIdentifier>-47924b99:19499672c0b:-73a2</uniqueIdentifier>
                 <specificProperties/>
                 <defaultValue>
-                    <uniqueIdentifier>-38ab5d3b:1963e0701fb:9e</uniqueIdentifier>
+                    <uniqueIdentifier>-47924b99:19499672c0b:-73a1</uniqueIdentifier>
                 </defaultValue>
                 <displayedAsField>false</displayedAsField>
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
-                <parameterName>executionInspector</parameterName>
-                <valueContextual>false</valueContextual>
-            </parametersCustomization>
-            <parametersCustomization>
-                <uniqueIdentifier>4407c6bb:19846475a24:4e14</uniqueIdentifier>
-                <specificProperties/>
-                <defaultValue>
-                    <uniqueIdentifier>4407c6bb:19846475a24:4e15</uniqueIdentifier>
-                </defaultValue>
-                <displayedAsField>false</displayedAsField>
-                <hidden>false</hidden>
-                <nullValueDistinctForced>false</nullValueDistinctForced>
-                <parameterName>executionContext</parameterName>
+                <parameterName>validationContext</parameterName>
                 <valueContextual>false</valueContextual>
             </parametersCustomization>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>35d408fa:193d0a8a704:-5daf</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customMethodCaption>Define Parameters...</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>paramatersGroup</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>parameterDefinitionsGroup.get</methodName>
+            <methodSignature>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCQuery$Builder], fieldName=parameterDefinitionsGroup] parameterDefinitionsGroup.get()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>true</returnValueValidityDetectionForced>
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
@@ -1860,47 +1895,12 @@
             <validating>false</validating>
         </methodsCustomization>
         <methodsCustomization>
-            <uniqueIdentifier>7d1ba6cf:198ce0e5235:51f1</uniqueIdentifier>
+            <uniqueIdentifier>3968f360:19b4654761a:57e4</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
             <detachedReturnValueForced>false</detachedReturnValueForced>
             <duplicateGenerated>false</duplicateGenerated>
             <encapsulationFieldName>paramatersGroup</encapsulationFieldName>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>validateParameterDefinitions</methodName>
-            <methodSignature>void validateParameterDefinitions()</methodSignature>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>false</validating>
-        </methodsCustomization>
-        <methodsCustomization>
-            <uniqueIdentifier>7d1ba6cf:198ce0e5235:51f2</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>false</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
-            <encapsulationFieldName>generalOutputGroup</encapsulationFieldName>
-            <ignoredReturnValueForced>false</ignoredReturnValueForced>
-            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
-            <methodName>validateResultColumnDefinitions</methodName>
-            <methodSignature>void validateResultColumnDefinitions()</methodSignature>
-            <readOnlyForced>false</readOnlyForced>
-            <returnValueFieldGenerated>false</returnValueFieldGenerated>
-            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
-            <runWhenObjectHidden>false</runWhenObjectHidden>
-            <runWhenObjectShown>false</runWhenObjectShown>
-            <validating>false</validating>
-        </methodsCustomization>
-        <methodsCustomization>
-            <uniqueIdentifier>3968f360:19b4654761a:57e4</uniqueIdentifier>
-            <specificProperties/>
-            <hidden>true</hidden>
-            <detachedReturnValueForced>false</detachedReturnValueForced>
-            <duplicateGenerated>false</duplicateGenerated>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
             <methodName>retrieveParameterDefinitions</methodName>
@@ -1915,8 +1915,33 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>solutionInstance</parameterName>
-                <valueContextual>false</valueContextual>
+                <valueContextual>true</valueContextual>
             </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>35d408fa:193d09d64d8:5824</uniqueIdentifier>
+            <specificProperties/>
+            <category>
+                <uniqueIdentifier>1a8ca2f9:19e36579f81:5b57</uniqueIdentifier>
+                <caption>Result</caption>
+                <name>Result</name>
+            </category>
+            <categoryCaption>Result</categoryCaption>
+            <categoryName>Result</categoryName>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>generalOutputGroup</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>retrieveResultColumnDefinitions</methodName>
+            <methodSignature>void retrieveResultColumnDefinitions()</methodSignature>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
@@ -1927,9 +1952,10 @@
         <methodsCustomization>
             <uniqueIdentifier>3968f360:19b4654761a:57e5</uniqueIdentifier>
             <specificProperties/>
-            <hidden>true</hidden>
+            <hidden>false</hidden>
             <detachedReturnValueForced>false</detachedReturnValueForced>
             <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>generalOutputGroup</encapsulationFieldName>
             <ignoredReturnValueForced>false</ignoredReturnValueForced>
             <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
             <methodName>retrieveResultColumnDefinitions</methodName>
@@ -1944,8 +1970,26 @@
                 <hidden>false</hidden>
                 <nullValueDistinctForced>false</nullValueDistinctForced>
                 <parameterName>solutionInstance</parameterName>
-                <valueContextual>false</valueContextual>
+                <valueContextual>true</valueContextual>
             </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>7d1ba6cf:198ce0e5235:51f1</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>paramatersGroup</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>validateParameterDefinitions</methodName>
+            <methodSignature>void validateParameterDefinitions()</methodSignature>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
@@ -1981,6 +2025,24 @@
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>true</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>7d1ba6cf:198ce0e5235:51f2</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>generalOutputGroup</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>validateResultColumnDefinitions</methodName>
+            <methodSignature>void validateResultColumnDefinitions()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
         </methodsCustomization>
         <methodsCustomization>
             <uniqueIdentifier>3968f360:19b4654761a:57e7</uniqueIdentifier>
@@ -2060,7 +2122,7 @@
             <uniqueIdentifier>-adf7b5f:1984b1b7428:4bc0</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
-            <customFieldCaption>Automatic</customFieldCaption>
+            <customFieldCaption>Automatically</customFieldCaption>
             <displayAreaHorizontalWeight>0.0</displayAreaHorizontalWeight>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>true</duplicateGenerated>
@@ -2286,6 +2348,36 @@
             <runWhenObjectHidden>false</runWhenObjectHidden>
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>true</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>11864e26:19e35569dab:7761</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <encapsulationFieldName>resultColumnDefinitionRetrievalBox</encapsulationFieldName>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>retrieveResultColumnDefinitions</methodName>
+            <methodSignature>void retrieveResultColumnDefinitions(com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>3968f360:19b4654761a:5800</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>3968f360:19b4654761a:5801</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>true</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
         </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.operation.builtin.JDBCQuery$Builder], fieldName=generalOutputGroup]</typeName>
@@ -2552,6 +2644,36 @@
             <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
             <methodName>retrieveParameterDefinitions</methodName>
             <methodSignature>void retrieveParameterDefinitions()</methodSignature>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>11864e26:19e35569dab:6b2b</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customMethodCaption>(Re)Generate</customMethodCaption>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>retrieveParameterDefinitions</methodName>
+            <methodSignature>void retrieveParameterDefinitions(com.otk.jesb.solution.Solution)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>3968f360:19b4654761a:57fe</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>3968f360:19b4654761a:57ff</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>solutionInstance</parameterName>
+                <valueContextual>true</valueContextual>
+            </parametersCustomization>
             <readOnlyForced>false</readOnlyForced>
             <returnValueFieldGenerated>false</returnValueFieldGenerated>
             <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
