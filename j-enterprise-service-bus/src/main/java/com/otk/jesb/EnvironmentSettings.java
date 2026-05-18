@@ -196,13 +196,13 @@ public class EnvironmentSettings {
 		Properties mergedProperties = new Properties();
 		mergedProperties.putAll(oldProperties);
 		for (Entry<Object, Object> entry : oldProperties.entrySet()) {
-			if (!newProperties.entrySet().contains(entry)) {
+			if (!newProperties.keySet().contains(entry.getKey())) {
 				mergedProperties.remove(entry.getKey());
 				removedProperties.put(entry.getKey(), entry.getValue());
 			}
 		}
 		for (Entry<Object, Object> entry : newProperties.entrySet()) {
-			if (!oldProperties.entrySet().contains(entry)) {
+			if (!oldProperties.keySet().contains(entry.getKey())) {
 				mergedProperties.put(entry.getKey(), entry.getValue());
 				addedProperties.put(entry.getKey(), entry.getValue());
 			}
