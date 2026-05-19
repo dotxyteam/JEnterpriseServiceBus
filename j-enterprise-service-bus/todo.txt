@@ -29,7 +29,6 @@
 	discovered during the feature addition process.
 - Missing raw HTTP receiver
 - move Runtime.getXstream() to a generic XStream agnostic Solution.getSerializer()
-- Runner plan executors and step crossings will remain and fill the memory
 - allow to use the JESB API to access the current execution context and perform some actions
 - add ExecutePlan.fork option ???
 - fix date/time display issues due to java.util.Date picking the current local time zone
@@ -44,7 +43,7 @@
 	- add method InitializerFacade.getChild(String displayString).
 	- add method RootInstanceBuilder.getRootInstantiationFacade()
 - factorize activators error handling to prevent unexpected deactivation
-(may be by adding service-oriented features to the ACtivator class)
+(may be by adding service-oriented features to the Activator class)
 - improve exception management:
 	. add OperationBuilder#getExceptionClassByIdentifier() 
 	. allow to choose one of these exception identifiers (+ default) from error transitions
