@@ -1,6 +1,7 @@
 package com.otk.jesb.resource.builtin;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.WeakHashMap;
 import java.util.stream.Collectors;
@@ -37,52 +38,77 @@ public class XSD extends XMLBasedDocumentResource {
 
 	@Override
 	protected void runClassesGenerationTool(File mainFile, File metaSchemaFile, File outputDirectory)
-			throws BadCommandLineException {
-		String[] xjcArgs = { "-d", outputDirectory.getPath(), "-p",
-				InstantiationUtils.toRelativeTypeNameVariablePart(
-						XSD.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(XSD.this)),
-				mainFile.getPath() };
-
-		final StringBuilder logsBuffer = new StringBuilder();
-		int driverStatus;
-		Throwable driverException;
+			throws BadCommandLineException, IOException {
+		File bindingsFile = new File(mainFile.getPath() + "-bindings.xjb");
 		try {
-			driverStatus = Driver.run(xjcArgs, new XJCListener() {
+			/*
+			 * Add a bindings file to force the generation of root XML element classes.
+			 */
+			{
+				StringBuilder stringBuilder = new StringBuilder();
+				stringBuilder.append("<?xml version=\"1.0\"?>\n");
+				stringBuilder.append("<jxb:bindings version=\"1.0\" xmlns:jxb=\"http://java.sun.com/xml/ns/jaxb\"\n");
+				stringBuilder.append("              xmlns:xjc= \"http://java.sun.com/xml/ns/jaxb/xjc\"\n");
+				stringBuilder.append(
+						"              jxb:extensionBindingPrefixes=\"xjc\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n");
+				stringBuilder.append(
+						"    <jxb:bindings schemaLocation=\"" + mainFile.getPath() + "\" node=\"/xs:schema\">\n");
+				stringBuilder.append("        <jxb:globalBindings>\n");
+				stringBuilder.append("            <xjc:simple/>\n");
+				stringBuilder.append("        </jxb:globalBindings>\n");
+				stringBuilder.append("    </jxb:bindings>\n");
+				stringBuilder.append("</jxb:bindings>");
+				String bindingsFileContent = stringBuilder.toString();
+				MiscUtils.write(bindingsFile, bindingsFileContent, false);
+			}
 
-				@Override
-				public void warning(SAXParseException exception) {
-					Log.get().error("XJC WARNING: " + exception);
-				}
+			String[] xjcArgs = { "-d", outputDirectory.getPath(), "-p",
+					InstantiationUtils.toRelativeTypeNameVariablePart(
+							XSD.class.getName().toLowerCase() + MiscUtils.toDigitalUniqueIdentifier(XSD.this)),
+					"-extension", "-b", bindingsFile.getPath(), mainFile.getPath() };
+			final StringBuilder logsBuffer = new StringBuilder();
+			int driverStatus;
+			Throwable driverException;
+			try {
+				driverStatus = Driver.run(xjcArgs, new XJCListener() {
 
-				@Override
-				public void info(SAXParseException exception) {
-					Log.get().information("XJC INFO: " + exception);
-				}
-
-				@Override
-				public void fatalError(SAXParseException exception) {
-					if (logsBuffer.length() > 0) {
-						logsBuffer.append("\n");
+					@Override
+					public void warning(SAXParseException exception) {
+						Log.get().error("XJC WARNING: " + exception);
 					}
-					logsBuffer.append("FATAL ERROR: " + exception.toString());
-				}
 
-				@Override
-				public void error(SAXParseException exception) {
-					if (logsBuffer.length() > 0) {
-						logsBuffer.append("\n");
+					@Override
+					public void info(SAXParseException exception) {
+						Log.get().information("XJC INFO: " + exception);
 					}
-					logsBuffer.append("ERROR: " + exception.toString());
-				}
-			});
-			driverException = null;
-		} catch (Throwable t) {
-			driverStatus = -1;
-			driverException = t;
-		}
-		if (driverStatus != 0) {
-			throw new RuntimeException("Failed to generate XSD classes"
-					+ ((logsBuffer.length() > 0) ? (":\n" + logsBuffer.toString()) : ""), driverException);
+
+					@Override
+					public void fatalError(SAXParseException exception) {
+						if (logsBuffer.length() > 0) {
+							logsBuffer.append("\n");
+						}
+						logsBuffer.append("FATAL ERROR: " + exception.toString());
+					}
+
+					@Override
+					public void error(SAXParseException exception) {
+						if (logsBuffer.length() > 0) {
+							logsBuffer.append("\n");
+						}
+						logsBuffer.append("ERROR: " + exception.toString());
+					}
+				});
+				driverException = null;
+			} catch (Throwable t) {
+				driverStatus = -1;
+				driverException = t;
+			}
+			if (driverStatus != 0) {
+				throw new RuntimeException("Failed to generate XSD classes"
+						+ ((logsBuffer.length() > 0) ? (":\n" + logsBuffer.toString()) : ""), driverException);
+			}
+		} finally {
+			MiscUtils.delete(bindingsFile);
 		}
 	}
 
