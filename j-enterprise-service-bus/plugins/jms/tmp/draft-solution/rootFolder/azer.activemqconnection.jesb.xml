@@ -1,0 +1,10 @@
+<com.otk.jesb.resource.builtin.ActiveMQConnection>
+  <brokerURLVariant>
+    <constantValue class="string">tcp://localhost:61616</constantValue>
+    <valueClass>java.lang.String</valueClass>
+    <variable>false</variable>
+    <variableReferenceExpression class="null"/>
+  </brokerURLVariant>
+  <name>azer</name>
+  <note class="null"/>
+</com.otk.jesb.resource.builtin.ActiveMQConnection>

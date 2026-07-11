@@ -143,7 +143,7 @@ public class ListItemReplicationFacade {
 	}
 
 	public String preprendExpression(String baseExpression) {
-		return "FOR " + getIterationVariableName() + " IN " + InstantiationUtils.express(getIterationListValue())
+		return "FOR " + getIterationVariableName() + " IN (" + InstantiationUtils.express(getIterationListValue()) + ")"
 				+ ((baseExpression != null) ? (" LOOP " + baseExpression) : "");
 	}
 

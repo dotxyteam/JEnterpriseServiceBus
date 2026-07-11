@@ -42,7 +42,11 @@ public class Experiment extends AbstractExperiment implements AutoCloseable {
 		try (Session session = Session.openDummySession(solutionInstance)) {
 			Operation operation = operationBuilder.build(new Plan.ExecutionContext(session, this),
 					ExecutionInspector.DEFAULT);
-			return operation.execute(solutionInstance);
+			Object result = operation.execute(solutionInstance);
+			if (operationBuilder.getOperationResultClass(solutionInstance, this, experimentalStep) == null) {
+				result = "Executed!";
+			}
+			return result;
 		}
 	}
 

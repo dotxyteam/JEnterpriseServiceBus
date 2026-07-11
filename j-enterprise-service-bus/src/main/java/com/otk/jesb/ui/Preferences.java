@@ -26,17 +26,22 @@ import com.otk.jesb.JESB;
 import com.otk.jesb.Log;
 import com.otk.jesb.Profile;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.solution.Solution;
+import com.otk.jesb.util.Serializer;
+
 import xy.reflect.ui.control.swing.customizer.SwingCustomizer;
 import xy.reflect.ui.control.swing.util.SwingRendererUtils;
 
 public class Preferences {
 
 	private static final File FILE = new File(Profile.INSTANCE.getProfileDirectory(), "preferenes.xml");
+	private static Serializer SERIALIZER = new Solution().getSerializer();
 	public static final Preferences INSTANCE;
+	
 	static {
 		if (FILE.exists()) {
 			try (FileInputStream fileInputStream = new FileInputStream(FILE)) {
-				INSTANCE = (Preferences) JESB.UI.INSTANCE.getSolutionInstance().getSerializer().read(fileInputStream);
+				INSTANCE = (Preferences) SERIALIZER.read(fileInputStream);
 			} catch (IOException e) {
 				Log.get().error(e);
 				System.exit(-1);
@@ -56,7 +61,7 @@ public class Preferences {
 
 	public void persist() {
 		try (FileOutputStream fileOutputStream = new FileOutputStream(FILE)) {
-			JESB.UI.INSTANCE.getSolutionInstance().getSerializer().write(this, fileOutputStream);
+			SERIALIZER.write(this, fileOutputStream);
 		} catch (IOException e) {
 			throw new UnexpectedError(e);
 		}

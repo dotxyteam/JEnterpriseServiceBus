@@ -76,12 +76,15 @@ import com.otk.jesb.operation.builtin.JDBCQuery;
 import com.otk.jesb.operation.builtin.JDBCUpdate;
 import com.otk.jesb.operation.builtin.Log;
 import com.otk.jesb.operation.builtin.MoveFileOrDirectory;
+import com.otk.jesb.operation.builtin.ParseText;
 import com.otk.jesb.operation.builtin.ReadFile;
+import com.otk.jesb.operation.builtin.RenderText;
 import com.otk.jesb.operation.builtin.Sleep;
 import com.otk.jesb.operation.builtin.WriteFile;
 import com.otk.jesb.resource.ResourceMetadata;
 import com.otk.jesb.resource.builtin.JDBCConnection;
 import com.otk.jesb.resource.builtin.SharedStructureModel;
+import com.otk.jesb.resource.builtin.TextFormat;
 import com.otk.jesb.solution.Asset;
 import com.otk.jesb.solution.CompositeStep;
 import com.otk.jesb.solution.CompositeStep.CompositeStepMetadata;
@@ -102,11 +105,11 @@ public class MiscUtils {
 			new WriteFile.Metadata(), new CreateDirectory.Metadata(), new CopyFileOrDirectory.Metadata(),
 			new MoveFileOrDirectory.Metadata(), new DeleteFileOrDirectory.Metadata(), new InspectResource.Metadata(),
 			new JDBCQuery.Metadata(), new JDBCUpdate.Metadata(), new JDBCGeneric.Metadata(),
-			new JDBCProcedureCall.Metadata());
+			new JDBCProcedureCall.Metadata(), new ParseText.Metadata(), new RenderText.Metadata());
 	public static final List<CompositeStepMetadata> BUILTIN_COMPOSITE_STEP_METADATAS = Arrays
 			.<CompositeStepMetadata>asList(new LoopCompositeStep.Metadata());
 	public static final List<ResourceMetadata> BUILTIN_RESOURCE_METADATAS = Arrays
-			.asList(new SharedStructureModel.Metadata(), new JDBCConnection.Metadata());
+			.asList(new SharedStructureModel.Metadata(), new JDBCConnection.Metadata(), new TextFormat.Metadata());
 	public static final List<ActivatorMetadata> BUILTIN_ACTIVATOR__METADATAS = Arrays.asList(
 			new LaunchAtStartup.Metadata(), new Operate.Metadata(), new Schedule.Metadata(),
 			new WatchFileSystem.Metadata(), new ReadCommandLine.Metadata());
