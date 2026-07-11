@@ -36,6 +36,7 @@
 - allow to read big files
 - JDBC Query: allow to use subsets
 - JDBC Procedure Call: allow to get additional resultSet ???
+- allow to process big files
 - allow to select *File.charsetName options
 - allow to create template operations (ex: for dynamic jdbc query statement) ???
 (maybe allow to do it via the JESB API)
