@@ -73,11 +73,11 @@ DEAD: http://www.dphotojournal.com
 DEAD: https://freshfoss.com/projects/phoyo-id
 
 WAITING: https://www.sooftware.com/submit
-TODO: https://www.softspecialist.com/i/submit-software-program.htm
-TODO: https://www.softwarelode.com/submitpadfile.php
-TODO: https://www.softarmy.com/submit.php
-TODO: https://www.fileprofile.com/submit.htm
-TODO: https://www.geardownload.com/submitsoftware.php
+WAITING: https://www.softspecialist.com/i/submit-software-program.htm
+PAD REQUIRED: https://www.softwarelode.com/submitpadfile.php
+PAD REQUIRED: https://www.softarmy.com/submit.php
+PAD REQUIRED: https://www.fileprofile.com/submit.htm
+WAITING: https://www.geardownload.com/submitsoftware.php
 
 
 FORUMS
