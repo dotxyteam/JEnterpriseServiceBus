@@ -13,6 +13,7 @@ import java.util.List;
 
 import com.otk.jesb.PotentialError;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
 
@@ -132,9 +133,7 @@ public class TextFormat extends Resource {
 	@Override
 	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
 		super.validate(recursively, solutionInstance);
-		if (recursively) {
-			kind.validate(recursively, solutionInstance);
-		}
+		kind.validate(recursively, solutionInstance);
 	}
 
 	@Override
@@ -172,7 +171,7 @@ public class TextFormat extends Resource {
 				throw new UnexpectedError();
 			}
 			String resultRowClassName = TextFormat.class.getName() + "Record"
-					+ MiscUtils.toDigitalUniqueIdentifier(this);
+					+ InstantiationUtils.toRelativeTypeNameVariablePart(MiscUtils.toDigitalUniqueIdentifier(this));
 			Class<?> resultRowClass;
 			try {
 				resultRowClass = solutionInstance.getRuntime().getInMemoryCompiler().compile(resultRowClassName,

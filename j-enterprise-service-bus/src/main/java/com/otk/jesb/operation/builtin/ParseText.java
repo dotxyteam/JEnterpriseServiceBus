@@ -140,7 +140,7 @@ public class ParseText implements Operation {
 
 		@Override
 		public String getCategoryName() {
-			return "Format";
+			return "Text Format";
 		}
 
 		@Override

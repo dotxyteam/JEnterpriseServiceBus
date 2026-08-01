@@ -114,7 +114,7 @@ public class InstanceBuilder extends InitializationCase {
 
 	/**
 	 * @param ancestorStructureInstanceBuilders The ancestor {@link InstanceBuilder}
-	 * @param solutionInstance                  The current solution. instances.
+	 * @param solutionInstance                  The current solution instance.
 	 * @return The created objects class name with any variable resolved using the
 	 *         given ancestor {@link InstanceBuilder} instances.
 	 */

@@ -66,6 +66,21 @@ values are part of the algorithms. Note that if an operation static parameter
 value need to be changed dynamically, then an alternate operation that use
 a lower level protocol should be used (eg: HTTP instead of SOAP).  
 
+CLASS NAME SERIALIZATION
+------------------------
+Some generated classes have names that must not be persisted,
+as they change whenever the model is reloaded. For instance, the
+"Evaluate" operation generates a class when the value to be evaluated is structured.
+This class requires a unique name that must not appear in the serialized
+version of the model. The solution is to assign the class a name
+containing a variable that will be resolved at instantiation time.
+To achieve this, the generated class will have a dynamic variable part
+in its name. It will cause classes of descendant elements that share the 
+same dynamic part to be named while editing with an unresolved reference 
+to the dynamic part. InstantiationUtils.toRelativeTypeNameVariablePart(...)
+allows to do that and must be used whenever an input class name is randomly 
+generated.
+
 STRATEGIC POSITIONING
 ---------------------
 Enterprise Service Buses (ESBs) are undeniably very useful because they 

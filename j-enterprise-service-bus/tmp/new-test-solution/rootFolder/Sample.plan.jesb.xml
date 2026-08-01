@@ -28,8 +28,8 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
-      <diagramX>138</diagramX>
-      <diagramY>150</diagramY>
+      <diagramX>208</diagramX>
+      <diagramY>97</diagramY>
       <name>parseText</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.ParseText$Builder">
         <textBuilder>
@@ -42,7 +42,9 @@
           <parameterInitializers>
             <com.otk.jesb.instantiation.ParameterInitializer>
               <parameterPosition>0</parameterPosition>
-              <parameterValue class="string">123       azerty              </parameterValue>
+              <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
+                <functionBody>return renderText1;</functionBody>
+              </parameterValue>
             </com.otk.jesb.instantiation.ParameterInitializer>
           </parameterInitializers>
           <rootInstanceDynamicTypeNameAccessor class="null"/>
@@ -55,21 +57,21 @@
           <assetClass>com.otk.jesb.resource.builtin.TextFormat</assetClass>
           <assetFilter class="null"/>
           <newPathValidator class="null"/>
-          <path>fixed</path>
+          <path>aze</path>
         </textFormatReference>
       </operationBuilder>
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>267</diagramX>
-      <diagramY>147</diagramY>
+      <diagramX>390</diagramX>
+      <diagramY>98</diagramY>
       <name>renderText</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.RenderText$Builder">
         <textFormatReference>
           <assetClass>com.otk.jesb.resource.builtin.TextFormat</assetClass>
           <assetFilter class="null"/>
           <newPathValidator class="null"/>
-          <path>fixed</path>
+          <path>aze</path>
         </textFormatReference>
         <textFormatSchemaObjectBuilder>
           <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
@@ -119,8 +121,98 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>377</diagramX>
-      <diagramY>148</diagramY>
+      <diagramX>61</diagramX>
+      <diagramY>157</diagramY>
+      <name>renderText1</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.RenderText$Builder">
+        <textFormatReference>
+          <assetClass>com.otk.jesb.resource.builtin.TextFormat</assetClass>
+          <assetFilter class="null"/>
+          <newPathValidator class="null"/>
+          <path>aze</path>
+        </textFormatReference>
+        <textFormatSchemaObjectBuilder>
+          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
+            <outer-class reference="../.."/>
+          </dynamicTypeNameAccessor>
+          <fieldInitializers/>
+          <initializationSwitches/>
+          <listItemInitializers/>
+          <parameterInitializers>
+            <com.otk.jesb.instantiation.ParameterInitializer>
+              <parameterPosition>0</parameterPosition>
+              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                <dynamicTypeNameAccessor class="null"/>
+                <fieldInitializers/>
+                <initializationSwitches/>
+                <listItemInitializers>
+                  <com.otk.jesb.instantiation.ListItemInitializer>
+                    <condition class="null"/>
+                    <index>0</index>
+                    <itemReplication class="null"/>
+                    <itemValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                      <dynamicTypeNameAccessor class="null"/>
+                      <fieldInitializers/>
+                      <initializationSwitches/>
+                      <listItemInitializers/>
+                      <parameterInitializers>
+                        <com.otk.jesb.instantiation.ParameterInitializer>
+                          <parameterPosition>0</parameterPosition>
+                          <parameterValue class="string">string</parameterValue>
+                        </com.otk.jesb.instantiation.ParameterInitializer>
+                        <com.otk.jesb.instantiation.ParameterInitializer>
+                          <parameterPosition>1</parameterPosition>
+                          <parameterValue class="int">0</parameterValue>
+                        </com.otk.jesb.instantiation.ParameterInitializer>
+                      </parameterInitializers>
+                      <selectedConstructorSignature class="null"/>
+                      <typeName>com.otk.jesb.resource.builtin.TextFormatRecord${_}</typeName>
+                    </itemValue>
+                  </com.otk.jesb.instantiation.ListItemInitializer>
+                  <com.otk.jesb.instantiation.ListItemInitializer>
+                    <condition class="null"/>
+                    <index>1</index>
+                    <itemReplication class="null"/>
+                    <itemValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                      <dynamicTypeNameAccessor class="null"/>
+                      <fieldInitializers/>
+                      <initializationSwitches/>
+                      <listItemInitializers/>
+                      <parameterInitializers>
+                        <com.otk.jesb.instantiation.ParameterInitializer>
+                          <parameterPosition>0</parameterPosition>
+                          <parameterValue class="string">string</parameterValue>
+                        </com.otk.jesb.instantiation.ParameterInitializer>
+                        <com.otk.jesb.instantiation.ParameterInitializer>
+                          <parameterPosition>1</parameterPosition>
+                          <parameterValue class="int">0</parameterValue>
+                        </com.otk.jesb.instantiation.ParameterInitializer>
+                      </parameterInitializers>
+                      <selectedConstructorSignature class="null"/>
+                      <typeName>com.otk.jesb.resource.builtin.TextFormatRecord${_}</typeName>
+                    </itemValue>
+                  </com.otk.jesb.instantiation.ListItemInitializer>
+                </listItemInitializers>
+                <parameterInitializers/>
+                <selectedConstructorSignature class="null"/>
+                <typeName>com.otk.jesb.instantiation.RootInstanceBuilder.ROOT_INSTANCE_TYPE_NAME_REFERENCE</typeName>
+              </parameterValue>
+            </com.otk.jesb.instantiation.ParameterInitializer>
+          </parameterInitializers>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.RenderText$Builder$TextFormatSchemaObjectClassNameAccessor">
+            <outer-class reference="../../.."/>
+          </rootInstanceDynamicTypeNameAccessor>
+          <rootInstanceName>Input</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
+          <selectedConstructorSignature class="null"/>
+          <typeName>&lt;Dynamic&gt;</typeName>
+        </textFormatSchemaObjectBuilder>
+      </operationBuilder>
+      <parent class="null"/>
+    </com.otk.jesb.solution.Step>
+    <com.otk.jesb.solution.Step>
+      <diagramX>422</diagramX>
+      <diagramY>217</diagramY>
       <name>log</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.Log$Builder">
         <instanceBuilder>
@@ -161,69 +253,12 @@
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
     <com.otk.jesb.solution.Step>
-      <diagramX>268</diagramX>
-      <diagramY>277</diagramY>
-      <name>renderText1</name>
-      <operationBuilder class="com.otk.jesb.operation.builtin.RenderText$Builder">
-        <textFormatReference>
-          <assetClass>com.otk.jesb.resource.builtin.TextFormat</assetClass>
-          <assetFilter class="null"/>
-          <newPathValidator class="null"/>
-          <path>delimited</path>
-        </textFormatReference>
-        <textFormatSchemaObjectBuilder>
-          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
-            <outer-class reference="../.."/>
-          </dynamicTypeNameAccessor>
-          <fieldInitializers/>
-          <initializationSwitches/>
-          <listItemInitializers/>
-          <parameterInitializers>
-            <com.otk.jesb.instantiation.ParameterInitializer>
-              <parameterPosition>0</parameterPosition>
-              <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
-                <dynamicTypeNameAccessor class="null"/>
-                <fieldInitializers/>
-                <initializationSwitches/>
-                <listItemInitializers>
-                  <com.otk.jesb.instantiation.ListItemInitializer>
-                    <condition class="null"/>
-                    <index>0</index>
-                    <itemReplication>
-                      <iterationListValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                        <functionBody>return parseText1;</functionBody>
-                      </iterationListValue>
-                      <iterationVariableName>currentParseText1Item</iterationVariableName>
-                      <iterationVariableTypeName class="null"/>
-                    </itemReplication>
-                    <itemValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                      <functionBody>return currentParseText1Item;</functionBody>
-                    </itemValue>
-                  </com.otk.jesb.instantiation.ListItemInitializer>
-                </listItemInitializers>
-                <parameterInitializers/>
-                <selectedConstructorSignature class="null"/>
-                <typeName>com.otk.jesb.instantiation.RootInstanceBuilder.ROOT_INSTANCE_TYPE_NAME_REFERENCE</typeName>
-              </parameterValue>
-            </com.otk.jesb.instantiation.ParameterInitializer>
-          </parameterInitializers>
-          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.RenderText$Builder$TextFormatSchemaObjectClassNameAccessor">
-            <outer-class reference="../../.."/>
-          </rootInstanceDynamicTypeNameAccessor>
-          <rootInstanceName>Input</rootInstanceName>
-          <rootInstanceTypeName class="null"/>
-          <selectedConstructorSignature class="null"/>
-          <typeName>&lt;Dynamic&gt;</typeName>
-        </textFormatSchemaObjectBuilder>
-      </operationBuilder>
-      <parent class="null"/>
-    </com.otk.jesb.solution.Step>
-    <com.otk.jesb.solution.Step>
-      <diagramX>377</diagramX>
-      <diagramY>279</diagramY>
-      <name>log1</name>
-      <operationBuilder class="com.otk.jesb.operation.builtin.Log$Builder">
-        <instanceBuilder>
+      <diagramX>45</diagramX>
+      <diagramY>350</diagramY>
+      <name>evaluate</name>
+      <operationBuilder class="com.otk.jesb.operation.builtin.Evaluate$Builder">
+        <multiple>false</multiple>
+        <valueBuilder>
           <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
             <outer-class reference="../.."/>
           </dynamicTypeNameAccessor>
@@ -241,8 +276,23 @@
                 <parameterInitializers>
                   <com.otk.jesb.instantiation.ParameterInitializer>
                     <parameterPosition>0</parameterPosition>
-                    <parameterValue class="com.otk.jesb.instantiation.InstantiationFunction">
-                      <functionBody>return renderText1;</functionBody>
+                    <parameterValue class="string">string</parameterValue>
+                  </com.otk.jesb.instantiation.ParameterInitializer>
+                  <com.otk.jesb.instantiation.ParameterInitializer>
+                    <parameterPosition>1</parameterPosition>
+                    <parameterValue class="com.otk.jesb.instantiation.InstanceBuilder">
+                      <dynamicTypeNameAccessor class="null"/>
+                      <fieldInitializers/>
+                      <initializationSwitches/>
+                      <listItemInitializers/>
+                      <parameterInitializers>
+                        <com.otk.jesb.instantiation.ParameterInitializer>
+                          <parameterPosition>0</parameterPosition>
+                          <parameterValue class="string">string</parameterValue>
+                        </com.otk.jesb.instantiation.ParameterInitializer>
+                      </parameterInitializers>
+                      <selectedConstructorSignature class="null"/>
+                      <typeName>com.otk.jesb.operation.builtin.EvaluateResult${_}$Element2Structure</typeName>
                     </parameterValue>
                   </com.otk.jesb.instantiation.ParameterInitializer>
                 </parameterInitializers>
@@ -251,45 +301,42 @@
               </parameterValue>
             </com.otk.jesb.instantiation.ParameterInitializer>
           </parameterInitializers>
-          <rootInstanceDynamicTypeNameAccessor class="null"/>
-          <rootInstanceName>LogInput</rootInstanceName>
-          <rootInstanceTypeName>com.otk.jesb.operation.builtin.Log</rootInstanceTypeName>
+          <rootInstanceDynamicTypeNameAccessor class="com.otk.jesb.operation.builtin.Evaluate$Builder$ValueClassNameAccessor">
+            <outer-class reference="../../.."/>
+          </rootInstanceDynamicTypeNameAccessor>
+          <rootInstanceName>Value</rootInstanceName>
+          <rootInstanceTypeName class="null"/>
           <selectedConstructorSignature class="null"/>
           <typeName>&lt;Dynamic&gt;</typeName>
-        </instanceBuilder>
-      </operationBuilder>
-      <parent class="null"/>
-    </com.otk.jesb.solution.Step>
-    <com.otk.jesb.solution.Step>
-      <diagramX>139</diagramX>
-      <diagramY>281</diagramY>
-      <name>parseText1</name>
-      <operationBuilder class="com.otk.jesb.operation.builtin.ParseText$Builder">
-        <textBuilder>
-          <dynamicTypeNameAccessor class="com.otk.jesb.instantiation.RootInstanceBuilder$RootInstanceWrapperDynamicTypeNameAccessor">
-            <outer-class reference="../.."/>
-          </dynamicTypeNameAccessor>
-          <fieldInitializers/>
-          <initializationSwitches/>
-          <listItemInitializers/>
-          <parameterInitializers>
-            <com.otk.jesb.instantiation.ParameterInitializer>
-              <parameterPosition>0</parameterPosition>
-              <parameterValue class="string">123,azerty</parameterValue>
-            </com.otk.jesb.instantiation.ParameterInitializer>
-          </parameterInitializers>
-          <rootInstanceDynamicTypeNameAccessor class="null"/>
-          <rootInstanceName>Text</rootInstanceName>
-          <rootInstanceTypeName>java.lang.String</rootInstanceTypeName>
-          <selectedConstructorSignature class="null"/>
-          <typeName>&lt;Dynamic&gt;</typeName>
-        </textBuilder>
-        <textFormatReference>
-          <assetClass>com.otk.jesb.resource.builtin.TextFormat</assetClass>
-          <assetFilter class="null"/>
-          <newPathValidator class="null"/>
-          <path>delimited</path>
-        </textFormatReference>
+        </valueBuilder>
+        <valueKind class="com.otk.jesb.operation.builtin.Evaluate$Builder$StructuredValueKind">
+          <structure class="com.otk.jesb.Structure$ClassicStructure">
+            <elements>
+              <com.otk.jesb.Structure_-SimpleElement>
+                <multiple>false</multiple>
+                <name>element</name>
+                <optionality class="null"/>
+                <typeNameOrAlias>java.lang.String</typeNameOrAlias>
+              </com.otk.jesb.Structure_-SimpleElement>
+              <com.otk.jesb.Structure_-StructuredElement>
+                <multiple>false</multiple>
+                <name>element2</name>
+                <optionality class="null"/>
+                <structure class="com.otk.jesb.Structure$ClassicStructure">
+                  <elements>
+                    <com.otk.jesb.Structure_-SimpleElement>
+                      <multiple>false</multiple>
+                      <name>element</name>
+                      <optionality class="null"/>
+                      <typeNameOrAlias>java.lang.String</typeNameOrAlias>
+                    </com.otk.jesb.Structure_-SimpleElement>
+                  </elements>
+                </structure>
+                <subElements reference="../structure/elements"/>
+              </com.otk.jesb.Structure_-StructuredElement>
+            </elements>
+          </structure>
+        </valueKind>
       </operationBuilder>
       <parent class="null"/>
     </com.otk.jesb.solution.Step>
@@ -299,19 +346,13 @@
       <condition class="null"/>
       <endStep reference="../../../steps/com.otk.jesb.solution.Step[4]"/>
       <label class="null"/>
-      <startStep reference="../../../steps/com.otk.jesb.solution.Step[6]"/>
-    </com.otk.jesb.solution.Transition>
-    <com.otk.jesb.solution.Transition>
-      <condition class="null"/>
-      <endStep reference="../../../steps/com.otk.jesb.solution.Step[5]"/>
-      <label class="null"/>
-      <startStep reference="../../../steps/com.otk.jesb.solution.Step[4]"/>
-    </com.otk.jesb.solution.Transition>
-    <com.otk.jesb.solution.Transition>
-      <condition class="null"/>
-      <endStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
-      <label class="null"/>
       <startStep reference="../../../steps/com.otk.jesb.solution.Step[2]"/>
+    </com.otk.jesb.solution.Transition>
+    <com.otk.jesb.solution.Transition>
+      <condition class="null"/>
+      <endStep reference="../../../steps/com.otk.jesb.solution.Step"/>
+      <label class="null"/>
+      <startStep reference="../../../steps/com.otk.jesb.solution.Step[3]"/>
     </com.otk.jesb.solution.Transition>
     <com.otk.jesb.solution.Transition>
       <condition class="null"/>

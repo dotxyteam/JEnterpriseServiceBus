@@ -211,7 +211,7 @@ public class JDBCQuery extends JDBCOperation {
 		public JDBCQuery build(ExecutionContext context, ExecutionInspector executionInspector) throws Exception {
 			Solution solutionInstance = context.getSession().getSolutionInstance();
 			JDBCQuery result = new JDBCQuery(context.getSession(), getConnection(solutionInstance),
-					upToDateResultClass.get(context.getSession().getSolutionInstance()));
+					upToDateResultClass.get(solutionInstance));
 			result.setStatement(getStatementVariant().getValue(solutionInstance));
 			result.setParameterValues(buildParameterValues(context));
 			return result;
