@@ -199,6 +199,7 @@ public class PlanDiagram extends JDiagram implements IAdvancedFieldControl {
 					newTransition.setStartStep((Step) connection.getStartNode().getValue());
 					newTransition.setEndStep((Step) connection.getEndNode().getValue());
 					onTransitionInsertionRequest(newTransition);
+					getGUI().getDiagramDragIntentByPlan().put(getPlan(), DragIntent.MOVE);
 				} else {
 					PlanDiagram.this.getConnections().remove(connection);
 				}
