@@ -3,11 +3,14 @@ package com.otk.jesb.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Image;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -201,8 +204,9 @@ public class GUI extends MultiSwingCustomizer {
 	private static final String CURRENT_INSTANTIATION_FACADE_KEY = GUI.class.getName()
 			+ ".CURRENT_INSTANTIATION_FACADE_KEY";
 	private static final String CURRENT_ACTIVATOR_KEY = GUI.class.getName() + ".CURRENT_VALIDATION_ACTIVATOR_KEY";
+	private static final String HELP_URL = "https://github.com/dotxyteam/JEnterpriseServiceBus/wiki";
 	public static final String GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME = "jesb.icu";
-
+	
 	private WeakHashMap<RootInstanceBuilder, Object> rootInitializerBackupByBuilder = new WeakHashMap<RootInstanceBuilder, Object>();
 	private WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
 	private boolean planExecutorScrollLocked = false;
@@ -1216,6 +1220,7 @@ public class GUI extends MultiSwingCustomizer {
 
 		protected class JESBBeforeInfoCustomizationsFactory extends InfoProxyFactory {
 
+			
 			@Override
 			protected Object getDefaultValue(IParameterInfo param, Object object, IMethodInfo method,
 					ITypeInfo objectType) {
@@ -2402,6 +2407,44 @@ public class GUI extends MultiSwingCustomizer {
 						@Override
 						public ITypeInfo getReturnValueType() {
 							return getTypeInfo(new JavaTypeInfoSource(boolean.class, null));
+						}
+
+						@Override
+						public boolean isReadOnly() {
+							return true;
+						}
+					});	
+					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
+
+						@Override
+						public String getSignature() {
+							return ReflectionUIUtils.buildMethodSignature(this);
+						}
+
+						@Override
+						public String getName() {
+							return "openHelp";
+						}
+
+						@Override
+						public String getCaption() {
+							return ReflectionUIUtils.formatMethodCaption(this, getName(), 0);
+						}						
+
+						@Override
+						public Object invoke(Object object, InvocationData invocationData) {
+							URI uri;
+							try {
+								uri = new URL(HELP_URL).toURI();
+							} catch (Exception e) {
+								throw new UnexpectedError(e);
+							}
+							try {
+								Desktop.getDesktop().browse(uri);
+							} catch (Exception e) {
+								throw new UnexpectedError(e);
+							}
+							return null;
 						}
 
 						@Override

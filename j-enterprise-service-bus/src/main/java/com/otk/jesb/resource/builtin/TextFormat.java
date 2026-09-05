@@ -133,7 +133,9 @@ public class TextFormat extends Resource {
 	@Override
 	public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
 		super.validate(recursively, solutionInstance);
-		kind.validate(recursively, solutionInstance);
+		if (recursively) {
+			kind.validate(recursively, solutionInstance);
+		}
 	}
 
 	@Override
@@ -222,7 +224,7 @@ public class TextFormat extends Resource {
 	public static abstract class Kind {
 		protected abstract String render(Table table);
 
-		protected abstract void validate(boolean recursively, Solution solutionInstance) throws ValidationError;
+		public abstract void validate(boolean recursively, Solution solutionInstance) throws ValidationError;
 
 		protected abstract Table parse(String s);
 	}
@@ -329,7 +331,7 @@ public class TextFormat extends Resource {
 		}
 
 		@Override
-		protected void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
+		public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
 			if (columns.size() == 0) {
 				throw new ValidationError("Schema not specified (no column defined)");
 			}
@@ -444,7 +446,7 @@ public class TextFormat extends Resource {
 		}
 
 		@Override
-		protected void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
+		public void validate(boolean recursively, Solution solutionInstance) throws ValidationError {
 			if (columns.size() == 0) {
 				throw new ValidationError("Schema not specified (no column defined)");
 			}
