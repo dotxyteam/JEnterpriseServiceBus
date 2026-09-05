@@ -72,7 +72,7 @@
             <uniqueIdentifier>-7b65bdc:19f4851f708:ed2</uniqueIdentifier>
             <specificProperties/>
             <hidden>false</hidden>
-            <customFieldCaption>Mappings</customFieldCaption>
+            <customFieldCaption></customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>textFormatSchemaObjectBuilder</fieldName>
