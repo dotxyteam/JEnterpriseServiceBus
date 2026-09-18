@@ -15,8 +15,6 @@ import com.otk.jesb.util.MiscUtils;
  */
 public abstract class Asset {
 
-	private static final char[] ILLEGAL_NAME_CHARACTERS = { '/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<',
-			'>', '|', '\"', ':' };
 	private String name;
 	private String note;
 
@@ -97,10 +95,10 @@ public abstract class Asset {
 		if ((name.matches("^\\s.*")) || (name.matches(".*\\s^"))) {
 			throw new ValidationError("The name cannot start or end with a whitespace character");
 		}
-		for (int i = 0; i < ILLEGAL_NAME_CHARACTERS.length; i++) {
-			if (name.contains(Character.toString(ILLEGAL_NAME_CHARACTERS[i]))) {
+		for (int i = 0; i < MiscUtils.ILLEGAL_NAME_CHARACTERS.length; i++) {
+			if (name.contains(Character.toString(MiscUtils.ILLEGAL_NAME_CHARACTERS[i]))) {
 				throw new ValidationError("Invalid name detected: Illegal charcater found at position " + i + ": '"
-						+ MiscUtils.escapeRegex(Character.toString(ILLEGAL_NAME_CHARACTERS[i])) + "'");
+						+ MiscUtils.escapeRegex(Character.toString(MiscUtils.ILLEGAL_NAME_CHARACTERS[i])) + "'");
 			}
 		}
 		try {

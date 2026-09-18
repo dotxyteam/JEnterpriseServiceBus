@@ -214,6 +214,35 @@
             <runWhenObjectShown>false</runWhenObjectShown>
             <validating>false</validating>
         </methodsCustomization>
+        <methodsCustomization>
+            <uniqueIdentifier>-7e77228b:1a0806fdd45:414e</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>customizeUI</methodName>
+            <methodSignature>void customizeUI(xy.reflect.ui.info.custom.InfoCustomizations)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-7e77228b:1a0806fdd45:415b</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-7e77228b:1a0806fdd45:415c</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>infoCustomizations</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.Schedule</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -318,6 +347,35 @@
         <menuModel>
             <uniqueIdentifier>-694bad3e:199a02147f9:4f88</uniqueIdentifier>
         </menuModel>
+        <methodsCustomization>
+            <uniqueIdentifier>-7e77228b:1a0806fdd45:75f6</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>true</hidden>
+            <detachedReturnValueForced>false</detachedReturnValueForced>
+            <duplicateGenerated>false</duplicateGenerated>
+            <ignoredReturnValueForced>false</ignoredReturnValueForced>
+            <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+            <methodName>customizeUI</methodName>
+            <methodSignature>void customizeUI(xy.reflect.ui.info.custom.InfoCustomizations)</methodSignature>
+            <parametersCustomization>
+                <uniqueIdentifier>-7e77228b:1a0806fdd45:75fd</uniqueIdentifier>
+                <specificProperties/>
+                <defaultValue>
+                    <uniqueIdentifier>-7e77228b:1a0806fdd45:75fe</uniqueIdentifier>
+                </defaultValue>
+                <displayedAsField>false</displayedAsField>
+                <hidden>false</hidden>
+                <nullValueDistinctForced>false</nullValueDistinctForced>
+                <parameterName>infoCustomizations</parameterName>
+                <valueContextual>false</valueContextual>
+            </parametersCustomization>
+            <readOnlyForced>false</readOnlyForced>
+            <returnValueFieldGenerated>false</returnValueFieldGenerated>
+            <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+            <runWhenObjectHidden>false</runWhenObjectHidden>
+            <runWhenObjectShown>false</runWhenObjectShown>
+            <validating>false</validating>
+        </methodsCustomization>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>com.otk.jesb.activation.builtin.Schedule$RepetitionSettingsStructure</typeName>
         <undoManagementHidden>false</undoManagementHidden>
@@ -414,14 +472,14 @@
             <uniqueIdentifier>-694bad3e:199a0268274:c3d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-33357af3:19b3d938126:-d3d</uniqueIdentifier>
+                <uniqueIdentifier>-7e77228b:1a0822d93cc:-6013</uniqueIdentifier>
                 <caption>Repetition</caption>
                 <name>repetition</name>
             </category>
             <categoryCaption>repetition</categoryCaption>
             <categoryName>repetition</categoryName>
             <hidden>false</hidden>
-            <customFieldCaption>Enable</customFieldCaption>
+            <customFieldCaption>Enabled</customFieldCaption>
             <displayedAsSingletonList>false</displayedAsSingletonList>
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>repeatingVariant</fieldName>
@@ -449,7 +507,7 @@
             <uniqueIdentifier>-694bad3e:199a0268274:c8d</uniqueIdentifier>
             <specificProperties/>
             <category>
-                <uniqueIdentifier>-33357af3:19b3d938126:-d3c</uniqueIdentifier>
+                <uniqueIdentifier>-7e77228b:1a0822d93cc:-6012</uniqueIdentifier>
                 <caption>Repetition</caption>
                 <name>repetition</name>
             </category>
@@ -461,7 +519,7 @@
             <duplicateGenerated>false</duplicateGenerated>
             <fieldName>repetitionSettings</fieldName>
             <formControlCreationForced>false</formControlCreationForced>
-            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <formControlEmbeddingForced>true</formControlEmbeddingForced>
             <getOnlyForced>false</getOnlyForced>
             <getterGenerated>false</getterGenerated>
             <nullReplacement>
@@ -567,6 +625,103 @@
         </menuModel>
         <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
         <typeName>CapsuleFieldType [context=EncapsulationContext [objectType=com.otk.jesb.activation.builtin.Schedule$RepetitionSettingsStructure], fieldName=periodGroup]</typeName>
+        <undoManagementHidden>false</undoManagementHidden>
+        <validationRequirementForced>false</validationRequirementForced>
+    </typeCustomization>
+    <typeCustomization>
+        <uniqueIdentifier>-7e77228b:1a0806fdd45:771c</uniqueIdentifier>
+        <specificProperties/>
+        <abstractForced>false</abstractForced>
+        <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+        <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+        <copyForbidden>false</copyForbidden>
+        <fieldsCustomization>
+            <uniqueIdentifier>-7e77228b:1a0806fdd45:7731</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>endDateTimeVariantValue</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-7e77228b:1a0806fdd45:7733</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>true</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-7e77228b:1a0806fdd45:7732</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+                <typeCustomization>
+                    <uniqueIdentifier>-7e77228b:1a0806fdd45:774c</uniqueIdentifier>
+                    <specificProperties>
+                        <entry>
+                            <key>com.otk.jesb.ui.GUI$JESDDateTimePickerPlugin</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">rO0ABXNyAFN4eS5yZWZsZWN0LnVpLmNvbnRyb2wuc3dpbmcucGx1Z2luLkRhdGVUaW1lUGlja2VyUGx1Z2luJERhdGVUaW1lUGlja2VyQ29uZmlndXJhdGlvbgAAAAAAAAABAgACTAAKZGF0ZUZvcm1hdHQAEkxqYXZhL2xhbmcvU3RyaW5nO0wACnRpbWVGb3JtYXRxAH4AAXhyAF94eS5yZWZsZWN0LnVpLmNvbnRyb2wucGx1Z2luLkFic3RyYWN0U2ltcGxlQ3VzdG9taXphYmxlRmllbGRDb250cm9sUGx1Z2luJEFic3RyYWN0Q29uZmlndXJhdGlvbgAAAAAAAAABAgAAeHB0AAp5eXl5LU1NLWRkdAAISEg6bW06c3M=</value>
+                        </entry>
+                        <entry>
+                            <key>xy.reflect.ui.control.plugin.IFieldControlPlugin.CHOSEN</key>
+                            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:string">com.otk.jesb.ui.GUI$JESDDateTimePickerPlugin</value>
+                        </entry>
+                    </specificProperties>
+                    <abstractForced>false</abstractForced>
+                    <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
+                    <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
+                    <copyForbidden>false</copyForbidden>
+                    <immutableForced>false</immutableForced>
+                    <menuModel>
+                        <uniqueIdentifier>-7e77228b:1a0806fdd45:774d</uniqueIdentifier>
+                    </menuModel>
+                    <methodsCustomization>
+                        <uniqueIdentifier>-7e77228b:1a0806fdd45:7b6b</uniqueIdentifier>
+                        <specificProperties/>
+                        <hidden>true</hidden>
+                        <detachedReturnValueForced>false</detachedReturnValueForced>
+                        <duplicateGenerated>false</duplicateGenerated>
+                        <ignoredReturnValueForced>false</ignoredReturnValueForced>
+                        <lastInvocationDataUsageDisabled>false</lastInvocationDataUsageDisabled>
+                        <methodName></methodName>
+                        <methodSignature>com.otk.jesb.meta.DateTime (java.lang.String)</methodSignature>
+                        <parametersCustomization>
+                            <uniqueIdentifier>-7e77228b:1a0806fdd45:7b6c</uniqueIdentifier>
+                            <specificProperties/>
+                            <defaultValue>
+<uniqueIdentifier>-7e77228b:1a0806fdd45:7b6d</uniqueIdentifier>
+                            </defaultValue>
+                            <displayedAsField>false</displayedAsField>
+                            <hidden>false</hidden>
+                            <nullValueDistinctForced>false</nullValueDistinctForced>
+                            <parameterName>stringRepresentation</parameterName>
+                            <valueContextual>false</valueContextual>
+                        </parametersCustomization>
+                        <readOnlyForced>false</readOnlyForced>
+                        <returnValueFieldGenerated>false</returnValueFieldGenerated>
+                        <returnValueValidityDetectionForced>false</returnValueValidityDetectionForced>
+                        <runWhenObjectHidden>false</runWhenObjectHidden>
+                        <runWhenObjectShown>false</runWhenObjectShown>
+                        <validating>false</validating>
+                    </methodsCustomization>
+                    <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+                    <typeName>com.otk.jesb.meta.DateTime</typeName>
+                    <undoManagementHidden>false</undoManagementHidden>
+                    <validationRequirementForced>false</validationRequirementForced>
+                </typeCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <immutableForced>false</immutableForced>
+        <menuModel>
+            <uniqueIdentifier>-7e77228b:1a0806fdd45:771d</uniqueIdentifier>
+        </menuModel>
+        <polymorphicInstanceAbstractTypeOptionAllowed>false</polymorphicInstanceAbstractTypeOptionAllowed>
+        <typeName>com.otk.jesb.activation.builtin.Schedule$RepetitionSettingsStructure.EndDateTimeVariantAdapterType</typeName>
         <undoManagementHidden>false</undoManagementHidden>
         <validationRequirementForced>false</validationRequirementForced>
     </typeCustomization>

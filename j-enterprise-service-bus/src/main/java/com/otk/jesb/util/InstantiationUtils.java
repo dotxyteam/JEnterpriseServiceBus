@@ -54,8 +54,8 @@ import xy.reflect.ui.util.ReflectionUIUtils;
 public class InstantiationUtils {
 
 	public static final String RELATIVE_TYPE_NAME_VARIABLE_PART_REFRENCE = "${_}";
-	private static final String DYNAMIC_TYPE_NAME_VARIABLE_PART_START = "a7374617274";
-	private static final String DYNAMIC_TYPE_NAME_VARIABLE_PART_END = "z656e64";
+	private static final String DYNAMIC_TYPE_NAME_VARIABLE_PART_START = "7374617274";
+	private static final String DYNAMIC_TYPE_NAME_VARIABLE_PART_END = "5852656e64";
 	private static final Pattern DYNAMIC_TYPE_NAME_PATTERN = Pattern.compile(
 			".*(" + DYNAMIC_TYPE_NAME_VARIABLE_PART_START + ".+" + DYNAMIC_TYPE_NAME_VARIABLE_PART_END + ").*");
 

@@ -28,6 +28,24 @@ public class ParseText implements Operation {
 	private Class<?> resultRowClass;
 	private TextFormat textFormat;
 	private String text;
+	private int skippedHeaderRecordCount;
+	private boolean blankRecordSkipped;
+
+	public boolean isBlankRecordSkipped() {
+		return blankRecordSkipped;
+	}
+
+	public void setBlankRecordSkipped(boolean blankRecordSkipped) {
+		this.blankRecordSkipped = blankRecordSkipped;
+	}
+
+	public int getSkippedHeaderRecordCount() {
+		return skippedHeaderRecordCount;
+	}
+
+	public void setSkippedHeaderRecordCount(int skippedHeaderRecordCount) {
+		this.skippedHeaderRecordCount = skippedHeaderRecordCount;
+	}
 
 	public Class<?> getResultRowClass() {
 		return resultRowClass;
@@ -56,7 +74,7 @@ public class ParseText implements Operation {
 	@Override
 	public Object execute(Solution solutionInstance) throws Exception {
 		List<Object> resultRecordObjects = new ArrayList<Object>();
-		Table table = textFormat.parse(text);
+		Table table = textFormat.parse(text, skippedHeaderRecordCount, blankRecordSkipped);
 		for (Record record : table.getRecords()) {
 			Object resultRecordObject = resultRowClass.getConstructors()[0]
 					.newInstance(record.getCells().stream().map(cell -> cell.getValue()).toArray());
@@ -73,15 +91,15 @@ public class ParseText implements Operation {
 
 	public static class Builder implements OperationBuilder<ParseText> {
 
-		private RootInstanceBuilder textBuilder = new RootInstanceBuilder("Text", String.class.getName());
+		private RootInstanceBuilder inputBuilder = new RootInstanceBuilder("Input", Input.class.getName());
 		private Reference<TextFormat> textFormatReference = new Reference<TextFormat>(TextFormat.class);
 
-		public RootInstanceBuilder getTextBuilder() {
-			return textBuilder;
+		public RootInstanceBuilder getInputBuilder() {
+			return inputBuilder;
 		}
 
-		public void setTextBuilder(RootInstanceBuilder textBuilder) {
-			this.textBuilder = textBuilder;
+		public void setInputBuilder(RootInstanceBuilder inputBuilder) {
+			this.inputBuilder = inputBuilder;
 		}
 
 		public Reference<TextFormat> getTextFormatReference() {
@@ -100,10 +118,13 @@ public class ParseText implements Operation {
 			result.setResultRowClass(
 					textFormat.getUpToDateRecordSchemaClass().get(solutionInstance).getComponentType());
 			result.setTextFormat(textFormatReference.resolve(solutionInstance));
-			result.setText((String) textBuilder.build(new InstantiationContext(
+			Input input = (Input) inputBuilder.build(new InstantiationContext(
 					context.getVariables(), context.getPlan()
 							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
-					solutionInstance)));
+					solutionInstance));
+			result.setText(input.getText());
+			result.setSkippedHeaderRecordCount(input.getSkippedHeaderRecordCount());
+			result.setBlankRecordSkipped(input.isBlankRecordSkipped());
 			return result;
 		}
 
@@ -124,9 +145,40 @@ public class ParseText implements Operation {
 		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
 				throws ValidationError {
 			if (recursively) {
-				textBuilder.getFacade(solutionInstance).validate(recursively,
+				inputBuilder.getFacade(solutionInstance).validate(recursively,
 						plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 			}
+		}
+
+		public static class Input {
+			private String text;
+			private int skippedHeaderRecordCount = 0;
+			private boolean blankRecordSkipped = true;
+
+			public Input(String text) {
+				this.text = text;
+			}
+
+			public boolean isBlankRecordSkipped() {
+				return blankRecordSkipped;
+			}
+
+			public void setBlankRecordSkipped(boolean blankRecordSkipped) {
+				this.blankRecordSkipped = blankRecordSkipped;
+			}
+
+			public int getSkippedHeaderRecordCount() {
+				return skippedHeaderRecordCount;
+			}
+
+			public void setSkippedHeaderRecordCount(int skippedHeaderRecordCount) {
+				this.skippedHeaderRecordCount = skippedHeaderRecordCount;
+			}
+
+			public String getText() {
+				return text;
+			}
+
 		}
 
 	}

@@ -1,18 +1,17 @@
 package com.otk.jesb.resource.builtin;
 
-import com.otk.jesb.ValidationError;
-import com.otk.jesb.Structure.ClassicStructure;
-import com.otk.jesb.Structure.SimpleElement;
-import com.otk.jesb.compiler.CompilationError;
-import com.otk.jesb.resource.Resource;
-import com.otk.jesb.resource.ResourceMetadata;
-import com.otk.jesb.solution.Solution;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import com.otk.jesb.PotentialError;
+import com.otk.jesb.Structure.ClassicStructure;
+import com.otk.jesb.Structure.SimpleElement;
 import com.otk.jesb.UnexpectedError;
+import com.otk.jesb.ValidationError;
+import com.otk.jesb.compiler.CompilationError;
+import com.otk.jesb.resource.Resource;
+import com.otk.jesb.resource.ResourceMetadata;
+import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.InstantiationUtils;
 import com.otk.jesb.util.MiscUtils;
 import com.otk.jesb.util.UpToDate;
@@ -67,7 +66,7 @@ public class TextFormat extends Resource {
 			String renderedTable = dKind.render(table);
 			System.out.println(renderedTable);
 
-			Table table2 = dKind.parse(renderedTable);
+			Table table2 = dKind.parse(renderedTable, 0, false);
 			String renderedTable2 = dKind.render(table2);
 			System.out.println(renderedTable2);
 		}
@@ -91,7 +90,7 @@ public class TextFormat extends Resource {
 			String renderedTable = fKind.render(table);
 			System.out.println(renderedTable);
 
-			Table table2 = fKind.parse(renderedTable);
+			Table table2 = fKind.parse(renderedTable, 0, false);
 			String renderedTable2 = fKind.render(table2);
 			System.out.println(renderedTable2);
 		}
@@ -122,8 +121,8 @@ public class TextFormat extends Resource {
 		return kind.render(table);
 	}
 
-	public Table parse(String s) {
-		return kind.parse(s);
+	public Table parse(String s, int skippedHeaderRecordCount, boolean skipBlankRecord) {
+		return kind.parse(s, skippedHeaderRecordCount, skipBlankRecord);
 	}
 
 	public UpToDateRecordSchemaClass getUpToDateRecordSchemaClass() {
@@ -226,7 +225,7 @@ public class TextFormat extends Resource {
 
 		public abstract void validate(boolean recursively, Solution solutionInstance) throws ValidationError;
 
-		protected abstract Table parse(String s);
+		protected abstract Table parse(String s, int skippedHeaderRecordCount, boolean skipBlankRecord);
 	}
 
 	public static class DelimitedKind extends Kind {
@@ -294,16 +293,26 @@ public class TextFormat extends Resource {
 		}
 
 		@Override
-		protected Table parse(String s) {
+		protected Table parse(String s, int skippedHeaderRecordCount, boolean skipBlankRecord) {
 			Table result = new Table();
 			String[] recordStrings = s.split(MiscUtils.escapeRegex(recordDelimiter.getStringValue()), -1);
-			for (String recordString : recordStrings) {
+			for (int iRecord = 0; iRecord < recordStrings.length; iRecord++) {
+				String recordString = recordStrings[iRecord];
+				if (iRecord < skippedHeaderRecordCount) {
+					continue;
+				}
+				if (skipBlankRecord) {
+					if (recordString.trim().isEmpty()) {
+						continue;
+					}
+				}
 				Record resultRecord = new Record();
 				result.records.add(resultRecord);
 				String[] cellStrings = recordString.split(MiscUtils.escapeRegex(columnSeparator), -1);
 				if (cellStrings.length != columns.size()) {
 					throw new PotentialError("Number of record cells (" + cellStrings.length
-							+ ") is different from number of text format defined columns (" + columns.size() + ")");
+							+ ") is different from number of text format defined columns (" + columns.size()
+							+ "). Record (" + (iRecord + 1) + "): " + recordString);
 				}
 				int iColumn = 0;
 				for (String cellString : cellStrings) {
@@ -325,6 +334,7 @@ public class TextFormat extends Resource {
 						}
 					}
 					iColumn++;
+
 				}
 			}
 			return result;
@@ -337,6 +347,11 @@ public class TextFormat extends Resource {
 			}
 			if (columnSeparator.length() == 0) {
 				throw new ValidationError("Column separator not specified");
+			}
+			if (recursively) {
+				for (DelimitedColumn column : columns) {
+					column.validate();
+				}
 			}
 		}
 
@@ -401,7 +416,7 @@ public class TextFormat extends Resource {
 		}
 
 		@Override
-		protected Table parse(String s) {
+		protected Table parse(String s, int skippedHeaderRecordCount, boolean skipBlankRecord) {
 			Table result = new Table();
 			int recordLength = calculateRecordLength();
 			if ((s.length() % recordLength) != 0) {
@@ -410,6 +425,15 @@ public class TextFormat extends Resource {
 			}
 			int recordCount = s.length() / recordLength;
 			for (int iRecord = 0; iRecord < recordCount; iRecord++) {
+				if (iRecord < skippedHeaderRecordCount) {
+					continue;
+				}
+				if (skipBlankRecord) {
+					String wholeRecordString = s.substring(iRecord * recordLength, (iRecord + 1) * recordLength);
+					if (wholeRecordString.replace(Character.toString(fillCharacter), "").length() == 0) {
+						continue;
+					}
+				}
 				Record resultRecord = new Record();
 				result.records.add(resultRecord);
 				for (int iColumn = 0; iColumn < columns.size(); iColumn++) {
@@ -450,6 +474,11 @@ public class TextFormat extends Resource {
 			if (columns.size() == 0) {
 				throw new ValidationError("Schema not specified (no column defined)");
 			}
+			if (recursively) {
+				for (FixedColumn column : columns) {
+					column.validate();
+				}
+			}
 		}
 
 		@Override
@@ -486,6 +515,13 @@ public class TextFormat extends Resource {
 				result.add(ClassUtils.primitiveToWrapperClass(clazz));
 			}
 			return result;
+		}
+
+		public void validate() throws ValidationError {
+			if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(name).matches()) {
+				throw new ValidationError("The column name (" + name + ") must match the following regular expression: "
+						+ MiscUtils.VARIABLE_NAME_PATTERN.pattern());
+			}
 		}
 
 		@Override
@@ -530,6 +566,13 @@ public class TextFormat extends Resource {
 
 		public void setSize(int size) {
 			this.size = size;
+		}
+
+		public void validate() throws ValidationError {
+			if (!MiscUtils.VARIABLE_NAME_PATTERN.matcher(name).matches()) {
+				throw new ValidationError("The column name (" + name + ") must match the following regular expression: "
+						+ MiscUtils.VARIABLE_NAME_PATTERN.pattern());
+			}
 		}
 
 		@Override

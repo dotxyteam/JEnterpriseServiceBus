@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Image;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.DropMode;
 import javax.swing.JEditorPane;
+import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
@@ -126,6 +128,9 @@ import xy.reflect.ui.control.swing.customizer.CustomizingFieldControlPlaceHolder
 import xy.reflect.ui.control.swing.customizer.CustomizingForm;
 import xy.reflect.ui.control.swing.customizer.CustomizingMethodControlPlaceHolder;
 import xy.reflect.ui.control.swing.customizer.MultiSwingCustomizer;
+import xy.reflect.ui.control.swing.menu.Menu;
+import xy.reflect.ui.control.swing.menu.SaveAsMenuItem;
+import xy.reflect.ui.control.swing.menu.SaveMenuItem;
 import xy.reflect.ui.control.swing.plugin.DatePickerPlugin;
 import xy.reflect.ui.control.swing.plugin.DateTimePickerPlugin;
 import xy.reflect.ui.control.swing.plugin.EditorPlugin;
@@ -142,6 +147,9 @@ import xy.reflect.ui.info.field.MembersCapsuleFieldInfo;
 import xy.reflect.ui.info.field.FieldInfoProxy;
 import xy.reflect.ui.info.field.IFieldInfo;
 import xy.reflect.ui.info.filter.IInfoFilter;
+import xy.reflect.ui.info.menu.MenuInfo;
+import xy.reflect.ui.info.menu.StandardActionMenuItemInfo;
+import xy.reflect.ui.info.menu.StandardActionMenuItemInfo.StandardActionType;
 import xy.reflect.ui.info.method.IMethodInfo;
 import xy.reflect.ui.info.method.InvocationData;
 import xy.reflect.ui.info.method.MethodInfoProxy;
@@ -206,7 +214,7 @@ public class GUI extends MultiSwingCustomizer {
 	private static final String CURRENT_ACTIVATOR_KEY = GUI.class.getName() + ".CURRENT_VALIDATION_ACTIVATOR_KEY";
 	private static final String HELP_URL = "https://github.com/dotxyteam/JEnterpriseServiceBus/wiki";
 	public static final String GUI_MAIN_CUSTOMIZATIONS_RESOURCE_NAME = "jesb.icu";
-	
+
 	private WeakHashMap<RootInstanceBuilder, Object> rootInitializerBackupByBuilder = new WeakHashMap<RootInstanceBuilder, Object>();
 	private WeakHashMap<Plan, DragIntent> diagramDragIntentByPlan = new WeakHashMap<Plan, DragIntent>();
 	private boolean planExecutorScrollLocked = false;
@@ -367,10 +375,11 @@ public class GUI extends MultiSwingCustomizer {
 			}
 			String customizationsDirectoryPath = matcher.group(1);
 			String pluginInfoClassName = matcher.group(2);
-			if((pluginInfoClassName==null) && (currentPluginInfo == null)) {
+			if ((pluginInfoClassName == null) && (currentPluginInfo == null)) {
 				return customizationsDirectoryPath + "/" + getInfoCustomizationsResourceName(customizationsIdentifier);
 			}
-			if((pluginInfoClassName!=null) && (currentPluginInfo != null) && pluginInfoClassName.equals(currentPluginInfo.getClass().getName()) ) {
+			if ((pluginInfoClassName != null) && (currentPluginInfo != null)
+					&& pluginInfoClassName.equals(currentPluginInfo.getClass().getName())) {
 				return customizationsDirectoryPath + "/" + getInfoCustomizationsResourceName(customizationsIdentifier);
 			}
 		}
@@ -655,6 +664,48 @@ public class GUI extends MultiSwingCustomizer {
 							}
 						});
 					}
+				}
+
+				@Override
+				protected Menu creatMenu(MenuInfo menuInfo) {
+					return new Menu(swingRenderer, this, menuInfo) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						protected JMenuItem createActionMenuItem(StandardActionMenuItemInfo menuItemInfo) {
+							if (menuItemInfo.getType() == StandardActionType.SAVE) {
+								return new SaveMenuItem(swingRenderer, menuBarOwner, menuItemInfo) {
+									private static final long serialVersionUID = 1L;
+
+									@Override
+									protected boolean openOverwritingQuestionDialog(File file) {
+										return swingRenderer.openQuestionDialog(menuBarOwner,
+												"The " + (file.isDirectory() ? "directory" : "file") + " '"
+														+ file.getPath()
+														+ "' already exists.\nDo you want to replace it?",
+												fileBrowserConfiguration.actionTitle, "OK", "Cancel");
+									}
+								};
+							} else if (menuItemInfo.getType() == StandardActionType.SAVE_AS) {
+								return new SaveAsMenuItem(swingRenderer, menuBarOwner, menuItemInfo) {
+									private static final long serialVersionUID = 1L;
+
+									@Override
+									protected boolean openOverwritingQuestionDialog(File file) {
+										return swingRenderer.openQuestionDialog(menuBarOwner,
+												"The " + (file.isDirectory() ? "directory" : "file") + " '"
+														+ file.getPath()
+														+ "' already exists.\nDo you want to replace it?",
+												fileBrowserConfiguration.actionTitle, "OK", "Cancel");
+									}
+								};
+							} else {
+								return super.createActionMenuItem(menuItemInfo);
+							}
+						}
+
+					};
 				}
 
 				@Override
@@ -1220,7 +1271,6 @@ public class GUI extends MultiSwingCustomizer {
 
 		protected class JESBBeforeInfoCustomizationsFactory extends InfoProxyFactory {
 
-			
 			@Override
 			protected Object getDefaultValue(IParameterInfo param, Object object, IMethodInfo method,
 					ITypeInfo objectType) {
@@ -2413,7 +2463,7 @@ public class GUI extends MultiSwingCustomizer {
 						public boolean isReadOnly() {
 							return true;
 						}
-					});	
+					});
 					result.add(new MethodInfoProxy(IMethodInfo.NULL_METHOD_INFO) {
 
 						@Override
@@ -2429,7 +2479,7 @@ public class GUI extends MultiSwingCustomizer {
 						@Override
 						public String getCaption() {
 							return ReflectionUIUtils.formatMethodCaption(this, getName(), 0);
-						}						
+						}
 
 						@Override
 						public Object invoke(Object object, InvocationData invocationData) {
