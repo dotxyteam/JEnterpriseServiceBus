@@ -124,7 +124,7 @@ public class ParseText implements Operation {
 					solutionInstance));
 			result.setText(input.getText());
 			result.setSkippedHeaderRecordCount(input.getSkippedHeaderRecordCount());
-			result.setBlankRecordSkipped(input.isBlankRecordSkipped());
+			result.setBlankRecordSkipped(input.isSkipBlankRecords());
 			return result;
 		}
 
@@ -153,18 +153,18 @@ public class ParseText implements Operation {
 		public static class Input {
 			private String text;
 			private int skippedHeaderRecordCount = 0;
-			private boolean blankRecordSkipped = true;
+			private boolean skipBlankRecords = false;
 
 			public Input(String text) {
 				this.text = text;
 			}
 
-			public boolean isBlankRecordSkipped() {
-				return blankRecordSkipped;
+			public boolean isSkipBlankRecords() {
+				return skipBlankRecords;
 			}
 
-			public void setBlankRecordSkipped(boolean blankRecordSkipped) {
-				this.blankRecordSkipped = blankRecordSkipped;
+			public void setSkipBlankRecords(boolean skipBlankRecords) {
+				this.skipBlankRecords = skipBlankRecords;
 			}
 
 			public int getSkippedHeaderRecordCount() {
