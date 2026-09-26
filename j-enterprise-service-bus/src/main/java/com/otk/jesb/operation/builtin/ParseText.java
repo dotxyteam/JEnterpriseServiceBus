@@ -29,14 +29,14 @@ public class ParseText implements Operation {
 	private TextFormat textFormat;
 	private String text;
 	private int skippedHeaderRecordCount;
-	private boolean blankRecordSkipped;
+	private boolean blankRecordsSkipped;
 
-	public boolean isBlankRecordSkipped() {
-		return blankRecordSkipped;
+	public boolean isBlankRecordsSkipped() {
+		return blankRecordsSkipped;
 	}
 
-	public void setBlankRecordSkipped(boolean blankRecordSkipped) {
-		this.blankRecordSkipped = blankRecordSkipped;
+	public void setBlankRecordsSkipped(boolean blankRecordsSkipped) {
+		this.blankRecordsSkipped = blankRecordsSkipped;
 	}
 
 	public int getSkippedHeaderRecordCount() {
@@ -74,7 +74,7 @@ public class ParseText implements Operation {
 	@Override
 	public Object execute(Solution solutionInstance) throws Exception {
 		List<Object> resultRecordObjects = new ArrayList<Object>();
-		Table table = textFormat.parse(text, skippedHeaderRecordCount, blankRecordSkipped);
+		Table table = textFormat.parse(text, skippedHeaderRecordCount, blankRecordsSkipped);
 		for (Record record : table.getRecords()) {
 			Object resultRecordObject = resultRowClass.getConstructors()[0]
 					.newInstance(record.getCells().stream().map(cell -> cell.getValue()).toArray());
@@ -91,15 +91,33 @@ public class ParseText implements Operation {
 
 	public static class Builder implements OperationBuilder<ParseText> {
 
-		private RootInstanceBuilder inputBuilder = new RootInstanceBuilder("Input", Input.class.getName());
+		private RootInstanceBuilder textBuilder = new RootInstanceBuilder("Text", String.class.getName());
 		private Reference<TextFormat> textFormatReference = new Reference<TextFormat>(TextFormat.class);
+		private int skippedHeaderRecordCount = 0;
+		private boolean blankRecordsSkipped = true;
 
-		public RootInstanceBuilder getInputBuilder() {
-			return inputBuilder;
+		public int getSkippedHeaderRecordCount() {
+			return skippedHeaderRecordCount;
 		}
 
-		public void setInputBuilder(RootInstanceBuilder inputBuilder) {
-			this.inputBuilder = inputBuilder;
+		public void setSkippedHeaderRecordCount(int skippedHeaderRecordCount) {
+			this.skippedHeaderRecordCount = skippedHeaderRecordCount;
+		}
+
+		public boolean isBlankRecordsSkipped() {
+			return blankRecordsSkipped;
+		}
+
+		public void setBlankRecordsSkipped(boolean blankRecordsSkipped) {
+			this.blankRecordsSkipped = blankRecordsSkipped;
+		}
+
+		public RootInstanceBuilder getTextBuilder() {
+			return textBuilder;
+		}
+
+		public void setTextBuilder(RootInstanceBuilder textBuilder) {
+			this.textBuilder = textBuilder;
 		}
 
 		public Reference<TextFormat> getTextFormatReference() {
@@ -118,13 +136,13 @@ public class ParseText implements Operation {
 			result.setResultRowClass(
 					textFormat.getUpToDateRecordSchemaClass().get(solutionInstance).getComponentType());
 			result.setTextFormat(textFormatReference.resolve(solutionInstance));
-			Input input = (Input) inputBuilder.build(new InstantiationContext(
+			String text = (String) textBuilder.build(new InstantiationContext(
 					context.getVariables(), context.getPlan()
 							.getValidationContext(context.getCurrentStep(), solutionInstance).getVariableDeclarations(),
 					solutionInstance));
-			result.setText(input.getText());
-			result.setSkippedHeaderRecordCount(input.getSkippedHeaderRecordCount());
-			result.setBlankRecordSkipped(input.isSkipBlankRecords());
+			result.setText(text);
+			result.setSkippedHeaderRecordCount(skippedHeaderRecordCount);
+			result.setBlankRecordsSkipped(blankRecordsSkipped);
 			return result;
 		}
 
@@ -145,40 +163,9 @@ public class ParseText implements Operation {
 		public void validate(boolean recursively, Solution solutionInstance, Plan plan, Step step)
 				throws ValidationError {
 			if (recursively) {
-				inputBuilder.getFacade(solutionInstance).validate(recursively,
+				textBuilder.getFacade(solutionInstance).validate(recursively,
 						plan.getValidationContext(step, solutionInstance).getVariableDeclarations());
 			}
-		}
-
-		public static class Input {
-			private String text;
-			private int skippedHeaderRecordCount = 0;
-			private boolean skipBlankRecords = false;
-
-			public Input(String text) {
-				this.text = text;
-			}
-
-			public boolean isSkipBlankRecords() {
-				return skipBlankRecords;
-			}
-
-			public void setSkipBlankRecords(boolean skipBlankRecords) {
-				this.skipBlankRecords = skipBlankRecords;
-			}
-
-			public int getSkippedHeaderRecordCount() {
-				return skippedHeaderRecordCount;
-			}
-
-			public void setSkippedHeaderRecordCount(int skippedHeaderRecordCount) {
-				this.skippedHeaderRecordCount = skippedHeaderRecordCount;
-			}
-
-			public String getText() {
-				return text;
-			}
-
 		}
 
 	}

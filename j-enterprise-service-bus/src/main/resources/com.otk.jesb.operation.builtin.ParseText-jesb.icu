@@ -12,6 +12,10 @@
         <anyDefaultObjectMemberIncluded>false</anyDefaultObjectMemberIncluded>
         <anyPersistenceMemberIncluded>false</anyPersistenceMemberIncluded>
         <copyForbidden>false</copyForbidden>
+        <customFieldsOrderEntry>textFormatReference</customFieldsOrderEntry>
+        <customFieldsOrderEntry>skippedHeaderRecordCount</customFieldsOrderEntry>
+        <customFieldsOrderEntry>blankRecordsSkipped</customFieldsOrderEntry>
+        <customFieldsOrderEntry>textBuilder</customFieldsOrderEntry>
         <fieldsCustomization>
             <uniqueIdentifier>6faa25d2:19f3dfc2729:-466a</uniqueIdentifier>
             <specificProperties/>
@@ -89,6 +93,34 @@
             <specificTypeCustomizations>
                 <applicationCustomization>
                     <uniqueIdentifier>4bd56d43:1a0b47d8d73:4233</uniqueIdentifier>
+                    <specificProperties/>
+                    <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
+                </applicationCustomization>
+            </specificTypeCustomizations>
+            <transientForced>false</transientForced>
+            <valueValidityDetectionForced>false</valueValidityDetectionForced>
+        </fieldsCustomization>
+        <fieldsCustomization>
+            <uniqueIdentifier>-309a25dd:1a0da15b95d:427b</uniqueIdentifier>
+            <specificProperties/>
+            <hidden>false</hidden>
+            <customFieldCaption>Skip Blank Records</customFieldCaption>
+            <displayedAsSingletonList>false</displayedAsSingletonList>
+            <duplicateGenerated>false</duplicateGenerated>
+            <fieldName>blankRecordsSkipped</fieldName>
+            <formControlCreationForced>false</formControlCreationForced>
+            <formControlEmbeddingForced>false</formControlEmbeddingForced>
+            <getOnlyForced>false</getOnlyForced>
+            <getterGenerated>false</getterGenerated>
+            <nullReplacement>
+                <uniqueIdentifier>-309a25dd:1a0da15b95d:427d</uniqueIdentifier>
+            </nullReplacement>
+            <nullStatusFieldExported>false</nullStatusFieldExported>
+            <nullValueDistinctForced>false</nullValueDistinctForced>
+            <setterGenerated>false</setterGenerated>
+            <specificTypeCustomizations>
+                <applicationCustomization>
+                    <uniqueIdentifier>-309a25dd:1a0da15b95d:427c</uniqueIdentifier>
                     <specificProperties/>
                     <systemIntegrationCrossPlatform>false</systemIntegrationCrossPlatform>
                 </applicationCustomization>
