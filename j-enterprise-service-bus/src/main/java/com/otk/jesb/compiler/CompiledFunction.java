@@ -9,9 +9,9 @@ import java.util.List;
 import com.otk.jesb.StandardError;
 import com.otk.jesb.UnexpectedError;
 import com.otk.jesb.Variable;
-import com.otk.jesb.VariableDeclaration;
 import com.otk.jesb.solution.Solution;
 import com.otk.jesb.util.MiscUtils;
+import com.otk.jesb.util.Pair;
 
 public class CompiledFunction<T> {
 
@@ -37,7 +37,7 @@ public class CompiledFunction<T> {
 		return solutionInstance;
 	}
 
-	public static <T> CompiledFunction<T> get(String functionBody, List<VariableDeclaration> variableDeclarations,
+	public static <T> CompiledFunction<T> get(String functionBody, List<Pair<String, Class<?>>> variableDeclarations,
 			Class<T> returnType, Solution solutionInstance) throws CompilationError {
 		String functionClassName = CompiledFunction.class.getPackage().getName() + "."
 				+ CompiledFunction.class.getSimpleName() + MiscUtils.getDigitalUniqueIdentifier();
@@ -46,9 +46,9 @@ public class CompiledFunction<T> {
 		preBody += "public class " + MiscUtils.extractSimpleNameFromClassName(functionClassName) + "{" + "\n";
 		preBody += "public static " + MiscUtils.adaptClassNameToSourceCode(returnType.getName()) + " execute(";
 		List<String> declrartionStrings = new ArrayList<String>();
-		for (VariableDeclaration declaration : variableDeclarations) {
-			declrartionStrings.add(MiscUtils.adaptClassNameToSourceCode(declaration.getVariableType().getName()) + " "
-					+ declaration.getVariableName());
+		for (Pair<String, Class<?>> declaration : variableDeclarations) {
+			declrartionStrings.add(MiscUtils.adaptClassNameToSourceCode(declaration.getSecond().getName()) + " "
+					+ declaration.getFirst());
 		}
 		if (declrartionStrings.size() > 0) {
 			preBody += "\n    " + MiscUtils.stringJoin(declrartionStrings, ",\n    ") + "\n";

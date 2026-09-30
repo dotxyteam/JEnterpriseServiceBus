@@ -36,14 +36,12 @@ public class Function {
 			List<Object> result = new ArrayList<Object>();
 			Solution solutionInstance = (Solution) compilationData.get(SOLUTION_INSTANCE_KEY);
 			String precompiledFunctionBody = (String) compilationData.get(PRECOMPILED_FUNCTION_BODY_KEY);
-			List<VariableDeclaration> variableDeclarations = (List<VariableDeclaration>) compilationData
+			List<Pair<String, Class<?>>> variableDeclarations = (List<Pair<String, Class<?>>>) compilationData
 					.get(VARIABLE_DECLARATIONS_KEY);
 			Class<?> returnType = (Class<?>) compilationData.get(RETURN_TYPE_KEY);
 			result.add(solutionInstance);
 			result.add(precompiledFunctionBody);
-			result.addAll(variableDeclarations.stream()
-					.map(varDecl -> new Pair<String, Class<?>>(varDecl.getVariableName(), varDecl.getVariableType()))
-					.collect(Collectors.toList()));
+			result.addAll(variableDeclarations);
 			result.add(returnType);
 			return result;
 		}
@@ -54,7 +52,7 @@ public class Function {
 				throws VersionAccessException {
 			Solution solutionInstance = (Solution) compilationData.get(SOLUTION_INSTANCE_KEY);
 			String precompiledFunctionBody = (String) compilationData.get(PRECOMPILED_FUNCTION_BODY_KEY);
-			List<VariableDeclaration> variableDeclarations = (List<VariableDeclaration>) compilationData
+			List<Pair<String, Class<?>>> variableDeclarations = (List<Pair<String, Class<?>>>) compilationData
 					.get(VARIABLE_DECLARATIONS_KEY);
 			Class<?> returnType = (Class<?>) compilationData.get(RETURN_TYPE_KEY);
 			try {
@@ -89,7 +87,10 @@ public class Function {
 		compilationData.put(SOLUTION_INSTANCE_KEY, solutionInstance);
 		compilationData.put(PRECOMPILED_FUNCTION_BODY_KEY,
 				(precompiler != null) ? precompiler.apply(functionBody) : functionBody);
-		compilationData.put(VARIABLE_DECLARATIONS_KEY, variableDeclarations);
+		compilationData.put(VARIABLE_DECLARATIONS_KEY,
+				variableDeclarations.stream().map(
+						varDecl -> new Pair<String, Class<?>>(varDecl.getVariableName(), varDecl.getVariableType()))
+						.collect(Collectors.toList()));
 		compilationData.put(RETURN_TYPE_KEY, functionReturnType);
 		try {
 			return upToDateCompiledVersion.get(compilationData);
