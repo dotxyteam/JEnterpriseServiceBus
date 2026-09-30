@@ -87,8 +87,14 @@ public class Function {
 		compilationData.put(SOLUTION_INSTANCE_KEY, solutionInstance);
 		compilationData.put(PRECOMPILED_FUNCTION_BODY_KEY,
 				(precompiler != null) ? precompiler.apply(functionBody) : functionBody);
+
 		compilationData.put(VARIABLE_DECLARATIONS_KEY,
-				variableDeclarations.stream().map(
+				/*
+				 * There are multiple types of VariableDeclaration that do not implement
+				 * equals(...). Here we use pairs of variable name and type to replace
+				 * VariableDeclaration instances because we need to have comparable variable
+				 * declarations in our compilation data.
+				 */variableDeclarations.stream().map(
 						varDecl -> new Pair<String, Class<?>>(varDecl.getVariableName(), varDecl.getVariableType()))
 						.collect(Collectors.toList()));
 		compilationData.put(RETURN_TYPE_KEY, functionReturnType);
