@@ -87,7 +87,6 @@ public class Function {
 		compilationData.put(SOLUTION_INSTANCE_KEY, solutionInstance);
 		compilationData.put(PRECOMPILED_FUNCTION_BODY_KEY,
 				(precompiler != null) ? precompiler.apply(functionBody) : functionBody);
-
 		compilationData.put(VARIABLE_DECLARATIONS_KEY,
 				/*
 				 * There are multiple types of VariableDeclaration that do not implement
