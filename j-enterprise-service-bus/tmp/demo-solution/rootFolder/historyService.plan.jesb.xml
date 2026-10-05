@@ -21,6 +21,7 @@
     </serverReference>
     <servicePathOptionIndex>0</servicePathOptionIndex>
   </activator>
+  <inputVariableName>PLAN_INPUT</inputVariableName>
   <name>historyService</name>
   <note class="null"/>
   <outputBuilder>

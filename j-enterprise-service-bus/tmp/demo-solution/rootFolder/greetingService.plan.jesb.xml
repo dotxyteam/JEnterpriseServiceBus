@@ -21,6 +21,7 @@
     </serverReference>
     <servicePathOptionIndex>0</servicePathOptionIndex>
   </activator>
+  <inputVariableName>PLAN_INPUT</inputVariableName>
   <name>greetingService</name>
   <note class="null"/>
   <outputBuilder>
@@ -75,8 +76,8 @@
   </outputBuilder>
   <steps>
     <com.otk.jesb.solution.Step>
-      <diagramX>456</diagramX>
-      <diagramY>70</diagramY>
+      <diagramX>460</diagramX>
+      <diagramY>81</diagramY>
       <name>insert</name>
       <operationBuilder class="com.otk.jesb.operation.builtin.JDBCUpdate$Builder">
         <connectionReference>
@@ -130,7 +131,7 @@
         </parameterValuesBuilder>
         <statementVariant>
           <constantValue class="string">INSERT INTO greeting_history(
-   insertion_date,
+   insertionDateTime,
    message
 ) 
 VALUES(
