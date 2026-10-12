@@ -1,6 +1,7 @@
 package com.otk.jesb.resource.builtin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.otk.jesb.PotentialError;
@@ -140,6 +141,25 @@ public class TextFormat extends Resource {
 	@Override
 	public String toString() {
 		return "TextFormat [kind=" + kind + "]";
+	}
+
+	private static Object parseCellValueString(String cellString, Class<?> columnType) {
+		columnType = Arrays.asList(ClassUtils.PRIMITIVE_CLASSES).contains(columnType)
+				? ClassUtils.primitiveToWrapperClass(columnType)
+				: columnType;
+		if (columnType == Character.class) {
+			cellString = cellString.trim();
+			if (cellString.length() != 1) {
+				throw new PotentialError("Invalid value: '" + cellString + "'. 1 character is expected");
+			}
+			return cellString.charAt(0);
+		} else {
+			try {
+				return columnType.getConstructor(new Class[] { String.class }).newInstance(cellString);
+			} catch (Exception e) {
+				throw new PotentialError(e);
+			}
+		}
 	}
 
 	public class UpToDateRecordSchemaClass extends UpToDate<Solution, Class<?>> {
@@ -319,22 +339,8 @@ public class TextFormat extends Resource {
 					Cell cell = new Cell();
 					resultRecord.cells.add(cell);
 					DelimitedColumn column = columns.get(iColumn);
-					if (column.type == Character.class) {
-						cellString = cellString.trim();
-						if (cellString.length() != 1) {
-							throw new PotentialError("Invalid value: '" + cellString + "'. 1 character is expected");
-						}
-						cell.value = cellString.charAt(0);
-					} else {
-						try {
-							cell.value = column.type.getConstructor(new Class[] { String.class })
-									.newInstance(cellString);
-						} catch (Exception e) {
-							throw new PotentialError(e);
-						}
-					}
+					cell.setValue(parseCellValueString(cellString, column.getType()));
 					iColumn++;
-
 				}
 			}
 			return result;
@@ -450,20 +456,7 @@ public class TextFormat extends Resource {
 					while (cellValueString.endsWith(Character.toString(fillCharacter))) {
 						cellValueString = cellValueString.substring(0, cellValueString.length() - 1);
 					}
-					if (column.type == Character.class) {
-						if (cellValueString.length() != 1) {
-							throw new PotentialError(
-									"Invalid value: '" + cellValueString + "'. 1 character is expected");
-						}
-						cell.value = cellValueString.charAt(0);
-					} else {
-						try {
-							cell.value = column.type.getConstructor(new Class[] { String.class })
-									.newInstance(cellValueString);
-						} catch (Exception e) {
-							throw new PotentialError(e);
-						}
-					}
+					cell.setValue(parseCellValueString(cellValueString, column.getType()));
 				}
 			}
 			return result;
@@ -512,7 +505,7 @@ public class TextFormat extends Resource {
 			List<Class<?>> result = new ArrayList<Class<?>>();
 			result.add(String.class);
 			for (Class<?> clazz : ClassUtils.PRIMITIVE_CLASSES) {
-				result.add(ClassUtils.primitiveToWrapperClass(clazz));
+				result.add(clazz);
 			}
 			return result;
 		}
@@ -555,7 +548,7 @@ public class TextFormat extends Resource {
 			List<Class<?>> result = new ArrayList<Class<?>>();
 			result.add(String.class);
 			for (Class<?> clazz : ClassUtils.PRIMITIVE_CLASSES) {
-				result.add(ClassUtils.primitiveToWrapperClass(clazz));
+				result.add(clazz);
 			}
 			return result;
 		}
