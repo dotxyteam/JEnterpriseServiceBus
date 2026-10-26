@@ -58,7 +58,7 @@ It is distributed under this
     *   Choose the one corresponding to your OS (*win.zip for Windows and *linux.tar.gz for Linux)
     *   Extract it
 *   Run the executable
-    *   j-enterprise-service-bus.exe on Windows or j-enterprise-service-bus on Linux
+    *   ***j-enterprise-service-bus.exe*** on Windows or ***j-enterprise-service-bus*** on Linux
 
 # Documentation
 
