@@ -55,11 +55,10 @@ It is distributed under this
 # Getting started
 
 *   Get the archives from the download area (see above)
-    *   Choose the one corresponding to your OS
+    *   Choose the one corresponding to your OS (*win.zip for Windows and *linux.tar.gz for Linux)
     *   Extract it
-*   Run the executable (with "--help" command-line argument to see available options).
-    *   NOTE: On Windows you must run the CMD executable (**j-enterprise-service-bus-cmd.exe**) if you intend to use the command-line options.
-
+*   Run the executable
+    *   j-enterprise-service-bus.exe on Windows or j-enterprise-service-bus on Linux
 
 # Documentation
 
